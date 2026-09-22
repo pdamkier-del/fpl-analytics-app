@@ -1,0 +1,37 @@
+{
+  "methodology_version": "live_simple_baseline_v0.1",
+  "engine_mode": "bridge_passthrough",
+  "team_model": {
+    "league_average_goals_per_team_game": 1.41,
+    "team_strength_prior_matches": 5,
+    "home_multiplier": 1.08,
+    "away_multiplier": 0.92
+  },
+  "decision_model": {
+    "transfer_hit_cost": 4.0,
+    "uncertainty_buffer_points": 2.0,
+    "recency_half_life": 3.0
+  },
+  "forecast_parameters": {
+    "player_rate_shrinkage_minutes": 450,
+    "bonus_rate_shrinkage_minutes": 450,
+    "recent_minutes_weight": 0.6,
+    "recent_gw_weights": [0.5, 0.3, 0.2],
+    "recent_gws_used": 3,
+    "doubtful_default_factor": 0.75,
+    "distribution_z80": 1.28155,
+    "distribution_min_variance": 0.25
+  },
+  "component_modes": {
+    "minutes": "bridge",
+    "start_probability": "bridge",
+    "goals": "bridge",
+    "assists": "bridge",
+    "clean_sheet": "bridge",
+    "defcon": "bridge",
+    "saves": "bridge",
+    "bonus": "bridge",
+    "distribution": "bridge"
+  },
+  "advanced_parameters": {}
+}
