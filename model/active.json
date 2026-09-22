@@ -1,0 +1,28 @@
+{
+  "version": "v0.1-baseline",
+  "parent": null,
+  "created_utc": "2026-09-22T00:00:00Z",
+  "notes": "Initial local-app configuration. Forecast values currently come from the existing live_simple_baseline_v0.1 bridge; these settings are versioned separately so the Python model can progressively replace the spreadsheet calculations without changing the frontend.",
+  "engine_mode": "bridge_passthrough",
+  "team_model": {
+    "league_average_goals_per_team_game": 1.41,
+    "home_multiplier": 1.08,
+    "away_multiplier": 0.92
+  },
+  "decision_model": {
+    "transfer_hit_cost": 4.0,
+    "uncertainty_buffer_points": 2.0
+  },
+  "component_modes": {
+    "minutes": "bridge",
+    "start_probability": "bridge",
+    "goals": "bridge",
+    "assists": "bridge",
+    "clean_sheet": "bridge",
+    "defcon": "bridge",
+    "saves": "bridge",
+    "bonus": "bridge",
+    "distribution": "bridge"
+  },
+  "advanced_parameters": {}
+}
