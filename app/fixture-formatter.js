@@ -1,35 +1,33 @@
-﻿// Fixture date helper - formats fixture strings with dates from kickoff_utc
-(function() {
-  if (!window.FPL_DATA || !window.FPL_DATA.fixtures) return;
-  
-  // Build lookup: gw-home-away -> date string
-  const dateMap = {};
-  for (const f of window.FPL_DATA.fixtures) {
-    if (!f.kickoff_utc) continue;
-    try {
-      const dt = new Date(f.kickoff_utc);
-      const day = String(dt.getUTCDate()).padStart(2, '0');
-      const month = dt.toLocaleString('en-US', {month: 'short', timeZone: 'UTC'});
-      const dateStr = (dt.getUTCDate() + ' ' + month).replace(/^\d/, m => String(Number(m))); // strip leading 0
-      const key = `${f.gw}|${f.home}|${f.away}`;
-      dateMap[key] = dateStr;
-    } catch(e) {}
+// Fixture formatting helpers. Dates come only from real kickoff_utc values in FPL_DATA.fixtures.
+(function(){
+  function dateText(iso){
+    if(!iso) return '';
+    const d=new Date(iso); if(Number.isNaN(d.getTime())) return '';
+    return `${d.getUTCDate()} ${d.toLocaleString('en-GB',{month:'short',timeZone:'UTC'})}`;
   }
-  
-  // Helper: format fixture label with date
-  window.formatFixture = function(gw, fixture) {
-    if (!fixture || !gw) return fixture || '';
-    // fixture format is like "LIV (A)" or "LIV (H)"
-    const away = fixture.includes('(A)');
-    let club = fixture.replace(/\s*\([AH]\)\s*$/, '').trim();
-    // Find matching fixture
-    for (const f of window.FPL_DATA.fixtures) {
-      if (f.gw !== gw) continue;
-      if ((away && f.away === club) || (!away && f.home === club)) {
-        const date = dateMap[`${f.gw}|${f.home}|${f.away}`];
-        return `GW${gw} · ${date || '?'} · ${fixture}`;
-      }
+  function parseFixture(s){
+    const raw=String(s||'').trim();
+    const m=raw.match(/^(.+?)\s*\(([HA])\)\s*$/i);
+    return m?{opp:m[1].trim(),venue:m[2].toUpperCase()}:{opp:raw,venue:''};
+  }
+  function findFixture(gw, fixture){
+    const data=window.FPL_DATA||{}; const p=parseFixture(fixture);
+    for(const f of (data.fixtures||[])){
+      if(Number(f.gw)!==Number(gw)) continue;
+      // Fixture label is from the player's perspective: OPP (A) means opponent is home.
+      if(p.venue==='A' && String(f.home)===p.opp) return f;
+      if(p.venue==='H' && String(f.away)===p.opp) return f;
     }
-    return `GW${gw} · ${fixture}`;
+    return null;
+  }
+  window.fixtureDate=function(gw, fixture){const f=findFixture(gw,fixture);return dateText(f?.kickoff_utc)};
+  window.formatFixture=function(gw, fixture){
+    if(!fixture) return `GW${gw||''}`.trim();
+    const date=window.fixtureDate(gw,fixture);
+    return `GW${gw}${date?' · '+date:''} · ${fixture}`;
+  };
+  window.formatFixtureCompact=function(gw, fixture){
+    const date=window.fixtureDate(gw,fixture);
+    return {top:`GW${gw}${date?' · '+date:''}`,bottom:String(fixture||'—')};
   };
 })();
