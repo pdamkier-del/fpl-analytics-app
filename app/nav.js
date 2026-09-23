@@ -115,3 +115,13 @@
  panel.innerHTML='<div class="panel-head">Editable mathematics</div><div class="panel-body"><div style="font-size:13px;color:var(--muted);line-height:1.55;margin-bottom:12px">Model parameters and versions now live outside the frontend. Changes can be saved as new versions and compared in replay rather than overwriting the baseline.</div><a class="ghost" href="model-lab.html">Open Model Lab →</a></div>';
  main.appendChild(panel);
 })();
+
+(()=>{
+ const sidebar=document.querySelector('.sidebar');if(!sidebar)return;
+ const wt=[...sidebar.querySelectorAll('.nav-title')].find(x=>x.textContent.trim().toLowerCase()==='workspace'),nav=wt?.nextElementSibling;if(!nav)return;
+ let opt=nav.querySelector('a[href="team-optimizer.html"]');
+ if(!opt){opt=document.createElement('a');opt.href='team-optimizer.html';const old=nav.querySelector('a[href="transfer-planner.html"]');if(old)nav.insertBefore(opt,old);else nav.appendChild(opt)}
+ opt.innerHTML='<span>Transfer & Team Optimizer</span>';
+ nav.querySelectorAll('a[href="transfer-planner.html"]').forEach(x=>x.remove());
+ const file=(location.pathname.split('/').pop()||'overview.html').toLowerCase();nav.querySelectorAll('a').forEach(a=>a.classList.toggle('active',(a.getAttribute('href')||'').toLowerCase()===file));
+})();
