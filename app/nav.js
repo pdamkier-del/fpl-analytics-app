@@ -89,6 +89,14 @@
   const file=(location.pathname.split('/').pop()||'overview.html').toLowerCase();
   const sidebar=document.querySelector('.sidebar'); if(!sidebar)return;
   const titles=[...sidebar.querySelectorAll('.nav-title')];
+  const workspaceTitle=[...sidebar.querySelectorAll('.nav-title')].find(x=>x.textContent.trim().toLowerCase()==='workspace');
+  if(workspaceTitle){
+    const nav=workspaceTitle.nextElementSibling;
+    if(nav?.classList.contains('nav') && !nav.querySelector('a[href="team-optimizer.html"]')){
+      const opt=document.createElement('a');opt.href='team-optimizer.html';opt.innerHTML='<span>Team Optimizer</span>';
+      const transfer=nav.querySelector('a[href="transfer-planner.html"]');if(transfer)nav.insertBefore(opt,transfer);else nav.appendChild(opt);
+    }
+  }
   const modelTitle=titles.find(x=>x.textContent.trim().toLowerCase()==='model');
   if(modelTitle){
     const nav=modelTitle.nextElementSibling;
