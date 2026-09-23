@@ -13,6 +13,29 @@ os.chdir(APP)
 import sys
 sys.path.insert(0,str(ROOT/'model'))
 import engine
+import decision_optimizer
+
+DEFAULT_SQUAD_IDS=[496,572,8,173,204,229,469,15,40,154,290,399,165,346,411]
+
+def load_squad():
+    f=USER/'squad.json'
+    if f.exists():
+        try:
+            data=json.loads(f.read_text(encoding='utf-8'))
+        except Exception:
+            data={}
+    else:
+        data={}
+    if not data.get('player_ids'):
+        data['player_ids']=DEFAULT_SQUAD_IDS[:]
+        try:
+            f.write_text(json.dumps(data,ensure_ascii=False,indent=2),encoding='utf-8')
+        except Exception:
+            pass
+    return data
+
+def load_base_data():
+    return json.loads((ROOT/'model/base_data.json').read_text(encoding='utf-8'))
 
 class Handler(SimpleHTTPRequestHandler):
     def _json(self,obj,status=200):
@@ -30,8 +53,7 @@ class Handler(SimpleHTTPRequestHandler):
             f=USER/'update_status.json'
             return self._json(json.loads(f.read_text(encoding='utf-8')) if f.exists() else {'ok':True,'app_version':(ROOT/'VERSION.txt').read_text(encoding='utf-8').strip() if (ROOT/'VERSION.txt').exists() else 'unknown','data_version':(ROOT/'DATA_VERSION.txt').read_text(encoding='utf-8').strip() if (ROOT/'DATA_VERSION.txt').exists() else 'unknown'})
         if p=='/api/user/squad':
-            f=USER/'squad.json'
-            return self._json(json.loads(f.read_text(encoding='utf-8')) if f.exists() else {'player_ids':[]})
+            return self._json(load_squad())
         if p=='/api/model/versions': return self._json(engine.list_versions())
         if p=='/api/model/status':
             d=engine.active_config(); base=json.loads((ROOT/'model/base_data.json').read_text(encoding='utf-8'))
@@ -45,11 +67,19 @@ class Handler(SimpleHTTPRequestHandler):
             if p=='/api/model/config': return self._json(engine.save_version(payload),201)
             if p=='/api/model/activate': return self._json(engine.activate(payload.get('version','')))
             if p=='/api/model/run': return self._json(engine.run_model())
+            if p=='/api/optimizer/plan':
+                squad=load_squad(); data=load_base_data()
+                return self._json(decision_optimizer.optimize_plan(data,squad,payload))
+            if p=='/api/optimizer/manual':
+                squad=load_squad(); data=load_base_data()
+                return self._json(decision_optimizer.manual_transfer(data,squad,payload))
             if p=='/api/user/squad':
-                ids=[int(x) for x in payload.get('player_ids',[])][:15]
-                payload['player_ids']=ids
-                (USER/'squad.json').write_text(json.dumps(payload,ensure_ascii=False,indent=2),encoding='utf-8')
-                return self._json(payload,201)
+                current=load_squad()
+                merged=dict(current); merged.update(payload)
+                ids=[int(x) for x in merged.get('player_ids',[])][:15]
+                merged['player_ids']=ids
+                (USER/'squad.json').write_text(json.dumps(merged,ensure_ascii=False,indent=2),encoding='utf-8')
+                return self._json(merged,201)
             return self._json({'error':'not found'},404)
         except Exception as e:
             return self._json({'error':str(e)},400)
