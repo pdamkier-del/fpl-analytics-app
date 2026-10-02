@@ -1,0 +1,40 @@
+{
+  "date": "2026-10-02",
+  "repository": "pdamkier-del/fpl-analytics-app",
+  "branch": "audit-role-minutes-20261001",
+  "previous_github_head": "6f4d066328a494c6996e7c1708bf786b97523f48",
+  "commits": [
+    {
+      "local": "b3d1da47385d7be67aed47d4032d66e253454b5b",
+      "github": "c1a74ff504da78709e576336c8e59130ce3c0758",
+      "tree": "5d4eabf9e83d25db32f7af0b77e2b140b81bcbeb",
+      "message": "Freeze cup and Europe source snapshots and authoritative FPL deadlines"
+    },
+    {
+      "local": "52ca25b17f0258880a7251f597897ae8aefd180f",
+      "github": "d981e098dcaf262c5ee72efa7d408e91909722c2",
+      "tree": "1645c5e49b8da98ed6f600bcb66d57ff5166ec23",
+      "message": "Validate cutoff-safe observed workload, minutes composition and reproducible checkpoint integrity"
+    },
+    {
+      "local": "1cc6a791d534ba9c8fe36db176c3e6751a53b605",
+      "github": "413180006226011d864676073548b396e66e921e",
+      "tree": "c71a9c1046e29a34af8fbf7b10b2cee452ebe676",
+      "message": "Add outcome-free frozen forecast adapter and preserve separate start probability and duration models"
+    }
+  ],
+  "verification": {
+    "head": "413180006226011d864676073548b396e66e921e",
+    "main_unchanged": true,
+    "exact_local_tree": "c71a9c1046e29a34af8fbf7b10b2cee452ebe676",
+    "representative_files_verified": 4,
+    "tests_passed": 45,
+    "manifest_references_verified": 369,
+    "raw_source_blobs_verified": 115
+  },
+  "notes": [
+    "All three new logical commits were preserved in order. Each GitHub tree equals its local tree.",
+    "Standalone inference exposed and fixed a model-export key collision; benchmark prediction files and metrics remain unchanged.",
+    "Workload/Europe data coverage is partial. These are experimental forecasts; full-season simulation is not ready."
+  ]
+}
