@@ -104,6 +104,11 @@ Standalone outcome-free inference is available through
 verified against the benchmark without actual-start/minutes inputs. App/replay
 integration remains a separate step.
 
+The cup-source quality audit supersedes certification of the earlier workload
+experiment: repeated CL fixture keys can attach later payloads to early dates.
+See `docs/checkpoints/2026-10-02-cup-fixture-quality.md` for the conservative
+quarantine, fixed-protocol re-run and complete reproduction commands.
+
 The application supports two types of updates:
 
 - **App Code Updates**: Core application improvements and features

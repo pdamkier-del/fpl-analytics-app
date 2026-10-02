@@ -19,7 +19,7 @@ from fpl_v1_1_model.workload import WorkloadHistory
 from build_reproducible_role_benchmark import write_json, write_prediction_csv, sha
 
 
-def build_ledger(con, raw, classified):
+def build_ledger(con, raw, classified, quarantine=None):
     def read(name):
         return pd.concat([pd.read_csv(p) for p in sorted(raw.glob('GW*/'+name+'.csv'))], ignore_index=True)
     matches, lines, stats = read('matches'), read('lineups'), read('playermatchstats')
@@ -58,6 +58,8 @@ def build_ledger(con, raw, classified):
     pl_history=deepcopy(history)
     stats_groups={mid:g for mid,g in stats.groupby('match_id')}
     for m in matches.loc[matches.tournament!='prem'].itertuples():
+        if quarantine and m.match_id in quarantine:
+            excluded.append({'match_id':m.match_id,'reason':'source fixture quarantined: '+quarantine[m.match_id]});continue
         if str(m.finished).lower()!='true':
             excluded.append({'match_id':m.match_id,'reason':'not finished'}); continue
         if pd.isna(pd.to_datetime(m.kickoff_time,utc=True,errors='coerce')):
@@ -98,11 +100,16 @@ def main():
     ap=argparse.ArgumentParser(description=__doc__)
     ap.add_argument('--db',required=True)
     ap.add_argument('--out',default=str(ROOT/'analysis/results/workload-v1'))
+    ap.add_argument('--quarantine-csv',help='Explicit audited source match_id,reason exclusions; does not modify the historical v1 artifacts')
     a=ap.parse_args();out=Path(a.out);out.mkdir(parents=True,exist_ok=True)
     raw=ROOT/'data_v1_1/raw/all-competitions-2025-26'
     con=sqlite3.connect(f'file:{Path(a.db).resolve()}?mode=ro',uri=True)
     classified=pd.read_csv(ROOT/'analysis/results/reproducible-role-v1/classified_starters.csv')
-    history,pl_history,ledger,coverage,excluded,matches,identity=build_ledger(con,raw,classified)
+    quarantine={}
+    if a.quarantine_csv:
+        q=pd.read_csv(a.quarantine_csv);assert not q.match_id.duplicated().any()
+        quarantine=dict(zip(q.match_id,q.reason))
+    history,pl_history,ledger,coverage,excluded,matches,identity=build_ledger(con,raw,classified,quarantine)
     features_path=ROOT/'analysis/results/reproducible-role-v1/all_feature_predictions.csv.gz'
     frame=pd.read_csv(features_path)
     deadlines=pd.read_csv(raw/'gameweek_summaries.csv')
@@ -133,6 +140,7 @@ def main():
       'incomplete_team_stat_records':int((~coverage.complete_player_stats).sum()),
       'exact_identity_resolutions':len(identity),
       'excluded_match_reasons':excluded.groupby('reason').size().astype(int).to_dict(),
+      'source_quarantine_keys':len(quarantine),
       'feature_rows':len(frame),'all_competitions_complete':False,
       'missing_competitions':['FA Cup'],
       'other_gaps':'No independent complete fixture inventory; source is limited to FPL-mapped PL club players. Internationals and pre-season excluded. Transfers only count workload at the current team.',
@@ -141,6 +149,7 @@ def main():
     write_json(out/'coverage_audit.json',audit)
     code=[Path(__file__),ROOT/'src/fpl_v1_1_model/workload.py']
     inputs=[Path(a.db).resolve(),features_path,*sorted(raw.rglob('*.csv')),raw/'SOURCE_MANIFEST.json']
+    if a.quarantine_csv:inputs.append(Path(a.quarantine_csv).resolve())
     write_json(out/'manifest.json',{'inputs':[{'path':str(p.relative_to(ROOT)),'sha256':sha(p)} for p in inputs],
       'code':[{'path':str(p.relative_to(ROOT)),'sha256':sha(p)} for p in code],
       'outputs':[{'path':p.name,'sha256':sha(p)} for p in sorted(out.iterdir()) if p.name!='manifest.json' and not p.name.endswith('.tmp')]})

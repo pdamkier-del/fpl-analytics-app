@@ -138,7 +138,7 @@ def main():
     pd.DataFrame(impact).to_csv(out/'metrics_by_cutoff_safe_groups.csv',index=False)
     write_json(out/'development_metrics.json',dev_metrics);write_json(out/'reused_holdout_metrics.json',metrics)
     write_json(out/'development_models.json',dev_models);write_json(out/'frozen_models.json',models);write_json(out/'protocol.json',protocol)
-    inputs=[Path(a.features).resolve(),ROOT/'analysis/results/workload-v1/coverage_audit.json']
+    inputs=[Path(a.features).resolve(),Path(a.features).resolve().parent/'coverage_audit.json']
     code=[Path(__file__),ROOT/'src/fpl_v1_1_model/workload.py',ROOT/'src/fpl_v1_1_model/minutes_decomposition.py',ROOT/'src/fpl_v1_1_model/frozen_forecast.py',ROOT/'scripts/predict_frozen_workload.py',ROOT/'scripts/build_reproducible_role_benchmark.py',ROOT/'scripts/benchmark_squad_minutes.py']
     write_json(out/'manifest.json',{'inputs':[{'path':str(p.relative_to(ROOT)),'sha256':sha(p)} for p in inputs],
       'code':[{'path':str(p.relative_to(ROOT)),'sha256':sha(p)} for p in code],

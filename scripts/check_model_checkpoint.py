@@ -8,11 +8,23 @@ import argparse
 import gzip
 import hashlib
 import json
+import subprocess
 from pathlib import Path
 
 ROOT=Path(__file__).resolve().parents[1]
 EXPERIMENTS=['reproducible-role-v1','minutes-decomposition-v1','squad-minutes-v1',
-             'minutes-composition-audit','workload-v1','workload-minutes-v1']
+             'minutes-composition-audit','workload-v1','workload-minutes-v1',
+             'independent-cl-audit','workload-quality-v2','workload-quality-minutes-v2']
+
+
+def historical_code_version(path, expected):
+    """Verify old experiment code against tracked Git bytes, never inputs/outputs."""
+    relative=str(path.relative_to(ROOT))
+    commits=subprocess.check_output(['git','log','--format=%H','--',relative],cwd=ROOT,text=True).splitlines()
+    for commit in commits:
+        content=subprocess.check_output(['git','show',f'{commit}:{relative}'],cwd=ROOT)
+        if hashlib.sha256(content).hexdigest()==expected:return commit
+    raise ValueError('SHA256 mismatch; no matching historical Git code')
 
 
 def inspect(path):
@@ -44,8 +56,11 @@ def main():
                 try:
                     if p not in cache:cache[p]=inspect(p)
                     digest,rows=cache[p]
-                    if digest!=item['sha256']:raise ValueError('SHA256 mismatch')
-                    checks.append({'experiment':name,'kind':kind,'path':str(p.relative_to(ROOT)) if p.is_relative_to(ROOT) else p.name,'sha256':digest,'csv_rows':rows})
+                    historical=None
+                    if digest!=item['sha256']:
+                        if kind!='code':raise ValueError('SHA256 mismatch')
+                        historical=historical_code_version(p,item['sha256']);digest=item['sha256']
+                    checks.append({'experiment':name,'kind':kind,'path':str(p.relative_to(ROOT)) if p.is_relative_to(ROOT) else p.name,'sha256':digest,'csv_rows':rows,'historical_code_commit':historical})
                 except (OSError,EOFError,ValueError) as e:
                     errors.append({'experiment':name,'kind':kind,'path':item['path'],'error':str(e)})
     raw=ROOT/'data_v1_1/raw/all-competitions-2025-26'
@@ -54,9 +69,18 @@ def main():
         p=raw/item['path'];b=p.read_bytes()
         digest=hashlib.sha1(b'blob '+str(len(b)).encode()+b'\0'+b).hexdigest()
         if digest!=item['git_blob_sha']:errors.append({'path':str(p.relative_to(ROOT)),'error':'Frozen source Git blob mismatch'})
+    independent=ROOT/'data_v1_1/raw/independent-cup-inventory'
+    independent_source=json.loads((independent/'SOURCE_MANIFEST.json').read_text())
+    b=(independent/independent_source['local_path']).read_bytes()
+    digest=hashlib.sha1(b'blob '+str(len(b)).encode()+b'\0'+b).hexdigest()
+    if digest!=independent_source['git_blob_sha']:
+        errors.append({'path':independent_source['local_path'],'error':'Independent inventory Git blob mismatch'})
     report={'integrity_passed':not errors,'manifest_checks':len(checks),'unique_files':len(cache),
       'source_files_verified':len(source['files']),'errors':errors,'checks':checks,
+      'independent_source_files_verified':1,
       'full_season_simulation_ready':False,
+      'cup_source_quality_certified':False,
+      'cup_quality_audit':'analysis/results/independent-cl-audit/summary.json',
       'remaining_requirements':[
         'Complete FA Cup/player-minute ingestion and missing cup/Europe kickoff/stat data, with an independent coverage inventory',
         'Historical schedule/competition-state as-of snapshots for cutoff-safe Match Importance; no final-season elimination leakage',
