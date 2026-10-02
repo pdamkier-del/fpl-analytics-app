@@ -99,6 +99,10 @@ PL-only ablation, the explicitly reused holdout, missing FA Cup/kickoff coverage
 and full-simulation requirements. This is an experiment, not an app switch.
 Verify saved inputs/code/predictions with `python scripts/check_model_checkpoint.py`;
 the numerical environment is pinned in `requirements-model-checkpoint.txt`.
+Standalone outcome-free inference is available through
+`scripts/predict_frozen_workload.py` with pre-cutoff features; saved models are
+verified against the benchmark without actual-start/minutes inputs. App/replay
+integration remains a separate step.
 
 The application supports two types of updates:
 

@@ -20,6 +20,7 @@ ROOT=Path(__file__).resolve().parents[1]
 sys.path.insert(0,str(ROOT/'src'))
 from fpl_v1_1_model.workload import WORKLOAD_FEATURES
 from fpl_v1_1_model.minutes_decomposition import component_inputs,compose_expected_minutes
+from fpl_v1_1_model.frozen_forecast import predict_frozen
 from build_reproducible_role_benchmark import BASE_FEATURES,ROLE_FEATURES,normalize_eleven,score,write_json,write_prediction_csv,sha
 from benchmark_squad_minutes import serialize
 
@@ -37,7 +38,7 @@ def evaluate(frame,train,test):
         model=make_pipeline(StandardScaler(),LogisticRegression(C=1.,max_iter=2000,random_state=0))
         model.fit(frame.loc[train,columns],frame.loc[train,'y'])
         starts[name]=normalize_eleven(frame,model.predict_proba(frame[columns])[:,1])
-        models[name+'_start']=serialize(model,columns)
+        models[name+'_start_probability']=serialize(model,columns)
     X=component_inputs(frame);duration_predictions={}
     for name,x in [('role',X),('workload',pd.concat([X,frame[WORKLOAD_FEATURES]],axis=1))]:
         predictions={}
@@ -50,7 +51,8 @@ def evaluate(frame,train,test):
             model.fit(x.loc[mask],y)
             predictions[component]=model.predict_proba(x)[:,1] if classifier else np.clip(model.predict(x),0,90)
             # serialize also supports one-dimensional Ridge coef_
-            models[name+'_'+component]={'features':list(x.columns),'coefficients':np.ravel(model[-1].coef_).tolist(),
+            model_key=name+('_start_duration' if component=='start' else '_'+component)
+            models[model_key]={'features':list(x.columns),'coefficients':np.ravel(model[-1].coef_).tolist(),
               'intercept':float(np.ravel(model[-1].intercept_)[0]),'scaler_mean':model[0].mean_.tolist(),'scaler_scale':model[0].scale_.tolist(),'training_rows':int(mask.sum())}
         duration_predictions[name]=predictions
     # The separate workload feature table plus immutable foundation preserves
@@ -101,6 +103,15 @@ def main():
     train=frame.gw.between(6,21)&(known<cutoff)
     diagnostic,metrics,models,fit=evaluate(frame,train,test)
     protocol['final_fit']=fit
+    clean=frame.loc[test].drop(columns=[c for c in frame if c.startswith('actual_') or c.endswith('_posthoc') or c in ('y','minutes','outcome_known_at')])
+    inference=[]
+    for variant in VARIANTS:
+        predicted=predict_frozen(clean,models,fit['training_cutoff'],variant)
+        dp=np.abs(predicted.p_start.to_numpy()-diagnostic[variant+'_p_start'].to_numpy())
+        dm=np.abs(predicted.expected_minutes.to_numpy()-diagnostic[variant+'_xmins'].to_numpy())
+        assert dp.max()<1e-10 and dm.max()<1e-9
+        inference.append({'variant':variant,'rows':len(predicted),'max_start_error':float(dp.max()),'max_minutes_error':float(dm.max()),'outcome_columns_removed':True})
+    write_json(out/'inference_verification.json',{'checks':inference,'status':'matches saved frozen predictions without outcome inputs'})
     write_prediction_csv(dev,out/'development_predictions.csv.gz');write_prediction_csv(diagnostic,out/'reused_holdout_diagnostic_predictions.csv.gz')
     for col in ['gw','team','expected_role','target_role_case_posthoc']:
         records=[]
@@ -128,7 +139,7 @@ def main():
     write_json(out/'development_metrics.json',dev_metrics);write_json(out/'reused_holdout_metrics.json',metrics)
     write_json(out/'development_models.json',dev_models);write_json(out/'frozen_models.json',models);write_json(out/'protocol.json',protocol)
     inputs=[Path(a.features).resolve(),ROOT/'analysis/results/workload-v1/coverage_audit.json']
-    code=[Path(__file__),ROOT/'src/fpl_v1_1_model/workload.py',ROOT/'src/fpl_v1_1_model/minutes_decomposition.py',ROOT/'scripts/build_reproducible_role_benchmark.py',ROOT/'scripts/benchmark_squad_minutes.py']
+    code=[Path(__file__),ROOT/'src/fpl_v1_1_model/workload.py',ROOT/'src/fpl_v1_1_model/minutes_decomposition.py',ROOT/'src/fpl_v1_1_model/frozen_forecast.py',ROOT/'scripts/predict_frozen_workload.py',ROOT/'scripts/build_reproducible_role_benchmark.py',ROOT/'scripts/benchmark_squad_minutes.py']
     write_json(out/'manifest.json',{'inputs':[{'path':str(p.relative_to(ROOT)),'sha256':sha(p)} for p in inputs],
       'code':[{'path':str(p.relative_to(ROOT)),'sha256':sha(p)} for p in code],
       'outputs':[{'path':p.name,'sha256':sha(p)} for p in sorted(out.iterdir()) if p.name!='manifest.json' and not p.name.endswith('.tmp')]})

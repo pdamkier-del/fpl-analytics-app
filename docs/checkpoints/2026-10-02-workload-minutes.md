@@ -141,10 +141,41 @@ feature file recorded in the manifest. Gzip writers are atomic and validated.
 The new integrity checker checks all six current experiment manifests and all
 frozen source blob hashes. It detects truncated gzip even when a file exists.
 It does not overwrite benchmarks or conflate integrity with deployment readiness.
-42 assertion tests pass. A separate rebuild reproduces all seven workload and
+The initial 42 assertion tests pass. A separate rebuild reproduces all seven workload and
 13 workload-benchmark outputs byte-for-byte (manifests excluded because the
 second run intentionally references a different input path). The integrity
-report verifies 366 manifest references, 312 unique files and all 115 raw blobs.
+report initially verifies 366 manifest references, 312 unique files and all 115 raw blobs.
+
+## Standalone forecast adapter
+
+`src/fpl_v1_1_model/frozen_forecast.py` performs inference from serialized
+coefficients/scalers without sklearn estimators or outcome columns. It accepts
+only declared model inputs, checks history-before-cutoff and fit cutoff, and
+requires a full unique roster per fixture/team/cutoff. It keeps repeated
+forecasts at different cutoffs separate. It emits all minutes components and
+the expected-minutes identity, explicitly marked experimental/partial coverage.
+
+Outcome-free inference validation exposed and fixed an export-key collision:
+start probability and start duration originally both used `*_start`. They now
+use `*_start_probability` and `*_start_duration`. The first export omitted the
+probability coefficients; the benchmark prediction calculations were unaffected.
+The corrected export keeps every model. Both prediction files remain byte-identical.
+
+The benchmark now verifies standalone predictions for all 13,987 diagnostic
+rows, all five variants, after removing all outcome/posthoc columns. Errors
+must be below 1e-10 for probability and 1e-9 minutes; a verification JSON and
+code checksums are saved. 45 assertion tests pass, including future-data,
+pre-training-cutoff and duplicate/partial-roster rejection.
+
+For an outcome-free feature CSV whose cutoffs follow the frozen fit:
+
+```bash
+python scripts/predict_frozen_workload.py --features work/forecast_features.csv.gz --out work/experimental_forecasts.csv.gz
+```
+
+This supplies a tested standalone model-to-forecast adapter. A live feature
+builder, certified availability/cohort inputs and app/replay integration still
+remain; the active desktop engine is not silently switched.
 
 Before the requested full season simulation, remaining work is complete cup
 coverage, as-of schedule/active-competition/stage history for Match Importance,
