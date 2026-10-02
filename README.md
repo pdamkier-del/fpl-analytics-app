@@ -79,6 +79,11 @@ input/code/output checksums are versioned under
 `analysis/results/reproducible-role-v1/`. The app engine is not switched to this
 experimental model.
 
+The subsequent isolated conditional-minutes experiment is reproducible with
+`python scripts/benchmark_minutes_decomposition.py`; see
+`docs/checkpoints/2026-10-02-minutes-decomposition.md`. It improves RMSE but
+worsens overall MAE, and remains experimental rather than replacing the app.
+
 The application supports two types of updates:
 
 - **App Code Updates**: Core application improvements and features

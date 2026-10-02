@@ -1,0 +1,62 @@
+{
+  "code": [
+    {
+      "path": "scripts/benchmark_minutes_decomposition.py",
+      "sha256": "f4e3093d49453d1b9b82d70be25cb440dc39ce598389662bc7be20df2d7566f0"
+    },
+    {
+      "path": "src/fpl_v1_1_model/minutes_decomposition.py",
+      "sha256": "e353e1793076e10f34744e17b639c5cb3a874d8793f31f62182cb5a368510638"
+    },
+    {
+      "path": "scripts/build_reproducible_role_benchmark.py",
+      "sha256": "46ff116cca4f2054ab51c76928b3b9ea94540df0824d330859e86dd6a98f7f42"
+    }
+  ],
+  "input": {
+    "path": "analysis/results/reproducible-role-v1/all_feature_predictions.csv.gz",
+    "sha256": "2a772cca3d5a119df2bab4373bc091af40fa815e2b10f29bd40b5783ebc03b0a"
+  },
+  "outputs": [
+    {
+      "path": "component_metrics.json",
+      "sha256": "a662897381c982bd45be253a276e6008312674f1f2ada89e6b2c013a5fe20df6"
+    },
+    {
+      "path": "conditional_minutes_holdout_predictions.csv.gz",
+      "sha256": "06d68401dc18d89d863924565fb718ed5b633ca43022253f5870cdd1d57d169d"
+    },
+    {
+      "path": "metrics.json",
+      "sha256": "d8694585810a863989ebdf2f1c69fd7ed9eb1f3d866c2e64d98b0f0fd44fae90"
+    },
+    {
+      "path": "metrics_by_actual_event_posthoc.csv",
+      "sha256": "89ba9c662131f93bf4d4ba7ea9f556c770dde473ed4898d261d53a65a55d7431"
+    },
+    {
+      "path": "metrics_by_expected_role.csv",
+      "sha256": "daefd114710bbe8bcc2f6e7e09b12257657fbe1c067bdc59543b8a81e70f12f7"
+    },
+    {
+      "path": "metrics_by_gw.csv",
+      "sha256": "b431ab7c8bfefba13ae76f01ba0383e1e43bd5f05b2e585dd82d671e3e06f713"
+    },
+    {
+      "path": "metrics_by_target_role_case_posthoc.csv",
+      "sha256": "5104620d58adc41a7ca61950416153f03f000ae944b0927de52486fb3b832a5d"
+    },
+    {
+      "path": "metrics_by_team.csv",
+      "sha256": "2151f6e87d95662544c811f5c86f8da17068af4d44015a029d8bd0180e62d41a"
+    },
+    {
+      "path": "models.json",
+      "sha256": "40a7fc9018632650f8e5fba6fbfd9a07d18a0d97e962f92722783992e39cf8b9"
+    },
+    {
+      "path": "protocol.json",
+      "sha256": "95537d4f49f747a2c1891bce1890954c6fd03e5f45a88e82936ef0b9b35d95fa"
+    }
+  ]
+}
