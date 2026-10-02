@@ -161,6 +161,15 @@ def nearest_sub_role(row, anchors):
     return best[1] if best else None
 
 
+def add_goalkeeper_roles(starters, outfield_roles):
+    """Keep the outfield classification and explicitly classify starting keepers."""
+    result = dict(outfield_roles)
+    for row in starters.itertuples(index=False):
+        if str(row.position).upper() == 'G':
+            result[str(row.player_id)] = 'GK'
+    return result
+
+
 def source_player_map(con, season):
     rows=con.execute("""SELECT external_id,player_uuid FROM player_id_mapping
                         WHERE id_namespace='fpl_element' AND season=?""",(season,)).fetchall()
@@ -279,6 +288,7 @@ def main():
             starter_roles=assign_starter_roles(starters,formation)
             if len(starter_roles)!=10:
                 audit['team_lineups_role_inference_failed']+=1
+            starter_roles=add_goalkeeper_roles(starters,starter_roles)
             # Role anchors from actual starter average positions.
             anchors_raw=defaultdict(list)
             for r in starters.itertuples(index=False):

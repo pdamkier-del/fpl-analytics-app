@@ -65,6 +65,14 @@ def test_taxonomy_preserves_cam_and_legacy_central_aliases():
         assert hierarchy.normalize_role(role) == role
 
 
+def test_starting_goalkeeper_is_preserved_alongside_ten_outfield_roles():
+    starters = lineup('4-2-3-1')
+    outfield = roles.assign_starter_roles(starters, '4-2-3-1')
+    full = roles.add_goalkeeper_roles(starters, outfield)
+    assert len(full) == 11 and full['gk'] == 'GK'
+    assert {k:v for k,v in full.items() if k != 'gk'} == outfield
+
+
 def test_rename_alone_preserves_constrained_probabilities():
     mf = MinutesFeatures(.8, .7, .8, .1)
     original = [PlayerRoleInput(pid, role, q, h, mf)
