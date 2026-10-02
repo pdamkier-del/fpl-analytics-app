@@ -78,8 +78,8 @@ def evaluate(frame,train,test):
 
 def main():
     ap=argparse.ArgumentParser(description=__doc__)
-    ap.add_argument('--features',default=str(ROOT/'analysis/results/workload-v1/all_features.csv.gz'))
-    ap.add_argument('--out',default=str(ROOT/'analysis/results/workload-minutes-v1'))
+    ap.add_argument('--features',default=str(ROOT/'analysis/results/workload-quality-v3/all_features.csv.gz'))
+    ap.add_argument('--out',default=str(ROOT/'analysis/results/workload-quality-minutes-v3'))
     a=ap.parse_args();out=Path(a.out);out.mkdir(parents=True,exist_ok=True)
     # Written before any fits/evaluation, with fixed candidates/hyperparameters.
     protocol={'development_train':'GW6-15','development_validation':'GW16-21','final_train':'GW6-21',

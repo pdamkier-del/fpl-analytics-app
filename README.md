@@ -108,6 +108,9 @@ The cup-source quality audit supersedes certification of the earlier workload
 experiment: repeated CL fixture keys can attach later payloads to early dates.
 See `docs/checkpoints/2026-10-02-cup-fixture-quality.md` for the conservative
 quarantine, fixed-protocol re-run and complete reproduction commands.
+The expanded audit in `docs/checkpoints/2026-10-02-europe-fixture-quality.md`
+adds EL/Conference organizer inventories and 40 combined quarantined source
+keys. Current workload builder/benchmark defaults use the guarded v3 experiment.
 
 The application supports two types of updates:
 

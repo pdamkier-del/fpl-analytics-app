@@ -14,7 +14,8 @@ from pathlib import Path
 ROOT=Path(__file__).resolve().parents[1]
 EXPERIMENTS=['reproducible-role-v1','minutes-decomposition-v1','squad-minutes-v1',
              'minutes-composition-audit','workload-v1','workload-minutes-v1',
-             'independent-cl-audit','workload-quality-v2','workload-quality-minutes-v2']
+             'independent-cl-audit','workload-quality-v2','workload-quality-minutes-v2',
+             'independent-europe-audit','workload-quality-v3','workload-quality-minutes-v3']
 
 
 def historical_code_version(path, expected):
@@ -80,7 +81,7 @@ def main():
       'independent_source_files_verified':1,
       'full_season_simulation_ready':False,
       'cup_source_quality_certified':False,
-      'cup_quality_audit':'analysis/results/independent-cl-audit/summary.json',
+      'cup_quality_audit':'analysis/results/independent-europe-audit/summary.json',
       'remaining_requirements':[
         'Complete FA Cup/player-minute ingestion and missing cup/Europe kickoff/stat data, with an independent coverage inventory',
         'Historical schedule/competition-state as-of snapshots for cutoff-safe Match Importance; no final-season elimination leakage',

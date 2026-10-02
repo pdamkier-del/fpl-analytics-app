@@ -99,9 +99,14 @@ def build_ledger(con, raw, classified, quarantine=None):
 def main():
     ap=argparse.ArgumentParser(description=__doc__)
     ap.add_argument('--db',required=True)
-    ap.add_argument('--out',default=str(ROOT/'analysis/results/workload-v1'))
-    ap.add_argument('--quarantine-csv',help='Explicit audited source match_id,reason exclusions; does not modify the historical v1 artifacts')
+    ap.add_argument('--out',default=str(ROOT/'analysis/results/workload-quality-v3'))
+    ap.add_argument('--quarantine-csv',default=str(ROOT/'analysis/results/independent-europe-audit/workload_quarantine.csv'),
+      help='Audited source exclusions; combined CL/EL/Conference quarantine is mandatory by default')
+    ap.add_argument('--allow-unverified-cup-source',action='store_true',
+      help='Explicit legacy reproduction only: allow omitting the quarantine CSV; outputs remain uncertified')
     a=ap.parse_args();out=Path(a.out);out.mkdir(parents=True,exist_ok=True)
+    if not a.quarantine_csv and not a.allow_unverified_cup_source:
+        ap.error('Cup source requires an audited quarantine CSV; run the independent fixture audits first')
     raw=ROOT/'data_v1_1/raw/all-competitions-2025-26'
     con=sqlite3.connect(f'file:{Path(a.db).resolve()}?mode=ro',uri=True)
     classified=pd.read_csv(ROOT/'analysis/results/reproducible-role-v1/classified_starters.csv')
@@ -141,6 +146,8 @@ def main():
       'exact_identity_resolutions':len(identity),
       'excluded_match_reasons':excluded.groupby('reason').size().astype(int).to_dict(),
       'source_quarantine_keys':len(quarantine),
+      'source_quality_certified':False,
+      'legacy_unverified_source_opt_in':bool(a.allow_unverified_cup_source and not a.quarantine_csv),
       'feature_rows':len(frame),'all_competitions_complete':False,
       'missing_competitions':['FA Cup'],
       'other_gaps':'No independent complete fixture inventory; source is limited to FPL-mapped PL club players. Internationals and pre-season excluded. Transfers only count workload at the current team.',

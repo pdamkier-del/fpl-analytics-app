@@ -1,0 +1,38 @@
+{
+  "availability": "Authoritative FPL deadlines; completed-match availability remains kickoff+3h proxy",
+  "deployment": "Experimental only; independent test and downstream xP validation required before app adoption",
+  "development_fit": {
+    "evaluation_rows": 4670,
+    "training_cutoff": "2025-12-13T13:30:00+00:00",
+    "training_rows": 7502
+  },
+  "development_selected_minutes": "workload_start",
+  "development_selected_start": "workload_start",
+  "development_train": "GW6-15",
+  "development_validation": "GW16-21",
+  "diagnostic_ablation": "pl_only_start added to isolate observed cup/Europe information; excluded from selection",
+  "expected_minutes_objective": "development RMSE; control wins ties; MAE and mean bias also reported",
+  "final_evaluation": "GW22-38 reused diagnostic, NOT fresh independent OOS",
+  "final_fit": {
+    "evaluation_rows": 13987,
+    "training_cutoff": "2026-01-17T11:00:00+00:00",
+    "training_rows": 12172
+  },
+  "final_train": "GW6-21",
+  "fixed_candidates": [
+    "role_control",
+    "workload_start",
+    "role_decomposition",
+    "workload_decomposition"
+  ],
+  "hyperparameters": {
+    "Ridge_alpha": 20.0,
+    "logistic_C": 1.0,
+    "workload_half_life_days": [
+      3,
+      7
+    ]
+  },
+  "start_objective": "development log-loss; control wins ties",
+  "workload_coverage": "Observed PL + cup/Europe subset, FA Cup absent and lineup/stat gaps explicit; not full all-official-match coverage"
+}
