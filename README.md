@@ -54,9 +54,11 @@ The original checkpoint is preserved byte-for-byte under
 existing desktop bridge remains the active app engine until model validation
 and integration are complete.
 
-Historical Core from the existing Phase 5E checkpoint is preserved as
-`model/checkpoints/phase5e_core/fpl_v1_1.sqlite3.gz`. Decompress it into a working
-directory before running database scripts; never overwrite the frozen copy.
+Historical Core from the existing Phase 5E checkpoint is preserved losslessly
+in `model/checkpoints/phase5e_core/parts/`, with per-part and complete-file
+checksums in `PARTS_MANIFEST.json`. Restore the working database with
+`python scripts/restore_core_checkpoint.py`; an existing different database is
+never overwritten. This split storage avoids the connector's large-body limit.
 Detailed lineup/formation/average-position source CSVs are under
 `data_v1_1/raw/fpl-core-2025-26/`.
 
@@ -83,6 +85,11 @@ The subsequent isolated conditional-minutes experiment is reproducible with
 `python scripts/benchmark_minutes_decomposition.py`; see
 `docs/checkpoints/2026-10-02-minutes-decomposition.md`. It improves RMSE but
 worsens overall MAE, and remains experimental rather than replacing the app.
+
+Squad/bench history and development-only model selection are documented in
+`docs/checkpoints/2026-10-02-squad-minutes.md`. The development test keeps the
+existing conditional-minutes components. Run
+`python scripts/benchmark_squad_minutes.py --db work/core.sqlite3` to reproduce.
 
 The application supports two types of updates:
 

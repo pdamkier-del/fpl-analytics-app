@@ -1,0 +1,39 @@
+{
+  "C_squad_and_bench": 0.3,
+  "availability": "historical cutoff/completion proxies inherited; no real ingestion timestamp certification",
+  "deployment": "experimental; no app/UI switch or Match Importance changes",
+  "development": {
+    "confirmed_bench_training_labels": 1798,
+    "duration_counts": {
+      "nonstarts": 5302,
+      "starts": 2200,
+      "subs": 869
+    },
+    "known_nonstart_training_labels": 5266,
+    "train_rows": 7502,
+    "training_cutoff": "2025-12-13T13:30:00+00:00",
+    "validation_rows": 4670
+  },
+  "duration_alpha": 20.0,
+  "fixed_candidates": [
+    "control",
+    "factorized_sub",
+    "factorized_full"
+  ],
+  "frozen_fit": {
+    "confirmed_bench_training_labels": 2876,
+    "duration_counts": {
+      "nonstarts": 8652,
+      "starts": 3520,
+      "subs": 1332
+    },
+    "known_nonstart_training_labels": 8582,
+    "train_rows": 12172,
+    "training_cutoff": "2026-01-17T11:00:00+00:00",
+    "validation_rows": 13987
+  },
+  "holdout_status": "reused, previously inspected; diagnostic only, NOT fresh independent OOS",
+  "labels": "not selected into observed matchday squad; never injury/medical unavailability",
+  "negative_squad_labels": "only 20-player source lists without detected discrepancies",
+  "selected_on_development_mae": "control"
+}

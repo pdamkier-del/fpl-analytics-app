@@ -1,0 +1,240 @@
+{
+  "code": [
+    {
+      "path": "scripts/benchmark_squad_minutes.py",
+      "sha256": "80f69704599cc01d43f8bbba9a4f2d67fde213f9dd090657790a751e2890d42b"
+    },
+    {
+      "path": "src/fpl_v1_1_model/squad_history.py",
+      "sha256": "5c2b2edea52b08ce48c21cb69523eae524034f57d2d9293a3abcffacac795764"
+    },
+    {
+      "path": "src/fpl_v1_1_model/minutes_decomposition.py",
+      "sha256": "e353e1793076e10f34744e17b639c5cb3a874d8793f31f62182cb5a368510638"
+    },
+    {
+      "path": "scripts/build_reproducible_role_benchmark.py",
+      "sha256": "46ff116cca4f2054ab51c76928b3b9ea94540df0824d330859e86dd6a98f7f42"
+    }
+  ],
+  "inputs": [
+    {
+      "path": "fpl_v1_1.sqlite3",
+      "sha256": "a4742428fb0c9943ff3ee565f765eb98d733a1690180c566d6df794786ef409f"
+    },
+    {
+      "path": "analysis/results/reproducible-role-v1/all_feature_predictions.csv.gz",
+      "sha256": "2a772cca3d5a119df2bab4373bc091af40fa815e2b10f29bd40b5783ebc03b0a"
+    },
+    {
+      "path": "analysis/results/reproducible-role-v1/classified_starters.csv",
+      "sha256": "7e4f5a4fa23a1355a64dcad494668c87cd5336b60a2edd22117e7582ded10f0d"
+    },
+    {
+      "path": "data_v1_1/raw/fpl-core-2025-26/GW1/lineups.csv",
+      "sha256": "0824d1985f302349356d2e13c9bf7088d0ec7a7cbff35205c344e9a17b77fcbe"
+    },
+    {
+      "path": "data_v1_1/raw/fpl-core-2025-26/GW10/lineups.csv",
+      "sha256": "6d3a6d85127578ef8b3ec5c61af3d3c8999752ace5074855c4281552b25f141c"
+    },
+    {
+      "path": "data_v1_1/raw/fpl-core-2025-26/GW11/lineups.csv",
+      "sha256": "fa86283d8b8379bfe1835140f27c0135a72a6f087a0b2c9c217648b9318e328b"
+    },
+    {
+      "path": "data_v1_1/raw/fpl-core-2025-26/GW12/lineups.csv",
+      "sha256": "c1d76f9d5457848d585de09775b9738929200c7567b9be9852ff7cf7cfbf7fd1"
+    },
+    {
+      "path": "data_v1_1/raw/fpl-core-2025-26/GW13/lineups.csv",
+      "sha256": "2237d25c743d8e74b94d75c081272c53ea1872a5b229cdc6eac8dc1db03d5579"
+    },
+    {
+      "path": "data_v1_1/raw/fpl-core-2025-26/GW14/lineups.csv",
+      "sha256": "ed1a2ba118ad13c664d7bb460cf623773e600383bfba2a687ed8ce1ee1d0f8cd"
+    },
+    {
+      "path": "data_v1_1/raw/fpl-core-2025-26/GW15/lineups.csv",
+      "sha256": "d53773b654623c548aa9911024a120ed326cb3d343ee3d1dacd72956b94feb5e"
+    },
+    {
+      "path": "data_v1_1/raw/fpl-core-2025-26/GW16/lineups.csv",
+      "sha256": "f7007af1dff106fe045fbb94dccc47b6a800965372f55388118b50e470e0ad4d"
+    },
+    {
+      "path": "data_v1_1/raw/fpl-core-2025-26/GW17/lineups.csv",
+      "sha256": "811a512dd51efddf5673b545abd00619fcbc765d839905b97b1135b57e96bd72"
+    },
+    {
+      "path": "data_v1_1/raw/fpl-core-2025-26/GW18/lineups.csv",
+      "sha256": "863bd13ad8f7be91e5a42063697942c0b4a48025183d5ba063f06817fdce7921"
+    },
+    {
+      "path": "data_v1_1/raw/fpl-core-2025-26/GW19/lineups.csv",
+      "sha256": "8ff9b22cb1c732383807604c06c64e494027e180ee2213a8ec979d15ff5864cf"
+    },
+    {
+      "path": "data_v1_1/raw/fpl-core-2025-26/GW2/lineups.csv",
+      "sha256": "5fcb94ec38ae87854571eb1cf35c7c2e5a93d6bd302e4b521c0d69b2c39fe605"
+    },
+    {
+      "path": "data_v1_1/raw/fpl-core-2025-26/GW20/lineups.csv",
+      "sha256": "ee43150843977b6c5234cdbb69336677c05fa2702408334f7ef6477bc87a6f3c"
+    },
+    {
+      "path": "data_v1_1/raw/fpl-core-2025-26/GW21/lineups.csv",
+      "sha256": "0aa0cf7e741a7598e7f6f82202986bc9401d84a8fe68232b3aee05e01bb9330e"
+    },
+    {
+      "path": "data_v1_1/raw/fpl-core-2025-26/GW22/lineups.csv",
+      "sha256": "e2336f5d78c8769c102a47f27ba5018602f3eee5233a9a1d349579c12cf319a4"
+    },
+    {
+      "path": "data_v1_1/raw/fpl-core-2025-26/GW23/lineups.csv",
+      "sha256": "b30b88823784cbd6eaa8ca61c0cf85f754e6e7074eecc08127979f47446d2f73"
+    },
+    {
+      "path": "data_v1_1/raw/fpl-core-2025-26/GW24/lineups.csv",
+      "sha256": "9cf8755feda8c587ba13637b8aa322fae14d59813ae1475d92022dc7c07e3702"
+    },
+    {
+      "path": "data_v1_1/raw/fpl-core-2025-26/GW25/lineups.csv",
+      "sha256": "3dbdce8af8f5e535329f646aa52585021a60d09edc3d8717061118c764ed6a23"
+    },
+    {
+      "path": "data_v1_1/raw/fpl-core-2025-26/GW26/lineups.csv",
+      "sha256": "acd2f760d82ae090a88c932758d2e4f1c38c318fcb595f12e06ad1fc2d725eb9"
+    },
+    {
+      "path": "data_v1_1/raw/fpl-core-2025-26/GW27/lineups.csv",
+      "sha256": "52b83de815ab8aa04d997501f5f13c7069261e58dc2531c8b303bba83bedc44b"
+    },
+    {
+      "path": "data_v1_1/raw/fpl-core-2025-26/GW28/lineups.csv",
+      "sha256": "c79a8954910a789c48dd9ed887e9b3ce54a0c721e1673325298aaf98e26a0f05"
+    },
+    {
+      "path": "data_v1_1/raw/fpl-core-2025-26/GW29/lineups.csv",
+      "sha256": "c62b67bc364d26d92ccddfe6d7593aa4b9ddb4109786f42f56d95582a13b6d5a"
+    },
+    {
+      "path": "data_v1_1/raw/fpl-core-2025-26/GW3/lineups.csv",
+      "sha256": "52ff828a1a930c6dd3e6b0c4aa330ed60925a731017be7b942c6b6fef3257d63"
+    },
+    {
+      "path": "data_v1_1/raw/fpl-core-2025-26/GW30/lineups.csv",
+      "sha256": "dc6a19b9d59c30f19dd03663b6609dade664a9a63c76023d03b7ed697666b43b"
+    },
+    {
+      "path": "data_v1_1/raw/fpl-core-2025-26/GW31/lineups.csv",
+      "sha256": "3f7d531c3cf7342daa28fe74482d9bfb8167c2e07e032bb9bcdbe3c72e94a1ae"
+    },
+    {
+      "path": "data_v1_1/raw/fpl-core-2025-26/GW32/lineups.csv",
+      "sha256": "63462ad27a3e8923e9b52592cf4cf1e9f199bfaab9be49210a2814e48af08c2d"
+    },
+    {
+      "path": "data_v1_1/raw/fpl-core-2025-26/GW33/lineups.csv",
+      "sha256": "b4335017b8d0c9935214ec282983b61a004e2e849c73dbeee4aa31308cd63500"
+    },
+    {
+      "path": "data_v1_1/raw/fpl-core-2025-26/GW34/lineups.csv",
+      "sha256": "d43aba83015a8f8fdd5990d6ae3703d7a1d2e2f16812cd693e59631be3a0d92c"
+    },
+    {
+      "path": "data_v1_1/raw/fpl-core-2025-26/GW35/lineups.csv",
+      "sha256": "fcb667c0ea1ecf3e1bc06fe44a5f013c5194e4bf3f2238b3bac8d730591adc16"
+    },
+    {
+      "path": "data_v1_1/raw/fpl-core-2025-26/GW36/lineups.csv",
+      "sha256": "ea860b952e1d2d3e985ee78b5aaa95230617f609bb64558c3eb2d2ed9319c040"
+    },
+    {
+      "path": "data_v1_1/raw/fpl-core-2025-26/GW37/lineups.csv",
+      "sha256": "44ab93410315ec198206109ecfbc8574c5873328e20ee0ecaca151b65859e8b9"
+    },
+    {
+      "path": "data_v1_1/raw/fpl-core-2025-26/GW38/lineups.csv",
+      "sha256": "1f7d6dc52852a6bc2aab08e3e39d87e4aaaf817d209fcbf14768a32e726fa145"
+    },
+    {
+      "path": "data_v1_1/raw/fpl-core-2025-26/GW4/lineups.csv",
+      "sha256": "2e9740c1da9a90f8a8da282f58177280f46a4b0070bfdfef72d9e85d0c92811f"
+    },
+    {
+      "path": "data_v1_1/raw/fpl-core-2025-26/GW5/lineups.csv",
+      "sha256": "b137da1b67206252df180c26b4543c362921d1beae7841e6f97ca79472e20700"
+    },
+    {
+      "path": "data_v1_1/raw/fpl-core-2025-26/GW6/lineups.csv",
+      "sha256": "16a0afe51b3f834a3b084ff2be2614d629706ce63976dd9eb5dc781da2667e8e"
+    },
+    {
+      "path": "data_v1_1/raw/fpl-core-2025-26/GW7/lineups.csv",
+      "sha256": "1c1d35202f755efb442007dbf465bbb42c2e42c13a486379fedbcf6b424c7254"
+    },
+    {
+      "path": "data_v1_1/raw/fpl-core-2025-26/GW8/lineups.csv",
+      "sha256": "d6e6bffa04492d7165b4b46cb4c72530003c9ac47a50f30a499df64cedf2d85b"
+    },
+    {
+      "path": "data_v1_1/raw/fpl-core-2025-26/GW9/lineups.csv",
+      "sha256": "41ab661379abaa85596b4f902106d83bc0612e0610b0e6b220137c67bb1143e4"
+    }
+  ],
+  "outputs": [
+    {
+      "path": "development_metrics.json",
+      "sha256": "cea2eb082c64ee71bfe35e339c4f003c89408e4da4222eadb4c522807b74f2e2"
+    },
+    {
+      "path": "development_models.json",
+      "sha256": "69a1cd981e1534b2139a0c0f068564bc2d473fcc89c70ff8bd6467e5ec31da3d"
+    },
+    {
+      "path": "development_validation_predictions.csv.gz",
+      "sha256": "1d324e8ca102152163d2bb5d87e27f7dea8f2bfee5a6f3e23acbbe88878bfc72"
+    },
+    {
+      "path": "frozen_models.json",
+      "sha256": "f02639174b9b4657ec925230b26b260bb4ccf320aa530ac6cf9ee6b3bc3fe29f"
+    },
+    {
+      "path": "metrics_by_expected_role.csv",
+      "sha256": "a0e2e12d1effa2d2ce8e4f08b8a69f49a172d6106214c978e71cbe37824ac28c"
+    },
+    {
+      "path": "metrics_by_gw.csv",
+      "sha256": "1862400187219b8fe76a2f24d71891f93acbb7bb8aba6789cf031ff298e4a483"
+    },
+    {
+      "path": "metrics_by_target_role_case_posthoc.csv",
+      "sha256": "c3111b3815a40454e7d5dea44494ed24f0969d7424f003fba3f4b7a16cb6ea4f"
+    },
+    {
+      "path": "metrics_by_team.csv",
+      "sha256": "776ba7ad61ddebe3d9bd8e888fd0bb841d0bc2a31c782f76317a952e38660a08"
+    },
+    {
+      "path": "protocol.json",
+      "sha256": "dd44ef7953d933dc5110e9f7eae2f0f442085bcb20cfddd2a95a9cc1097aa80a"
+    },
+    {
+      "path": "reused_holdout_diagnostic_predictions.csv.gz",
+      "sha256": "cc3555ac368b03dc5646e566dbdba9d6576566f129b1e4c53d1e7ee6c4c6c996"
+    },
+    {
+      "path": "reused_holdout_metrics.json",
+      "sha256": "c20dc93479aa07889144a36ae32f40e07f12e286f85b33da6946f6b624a751cc"
+    },
+    {
+      "path": "source_audit.json",
+      "sha256": "c8054f9a070b3eadc233179a7f7576c23be61c8761c116bf2ae8ba75d994be3c"
+    },
+    {
+      "path": "source_squad_coverage.csv",
+      "sha256": "5ef051062388e7332500fe206fe7a08aef8cac89800b617cee0216e58ce34934"
+    }
+  ]
+}
