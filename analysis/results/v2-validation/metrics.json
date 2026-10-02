@@ -1,0 +1,43 @@
+{
+  "gw6_38": {
+    "n": 26159,
+    "brier": 0.07742929620962372,
+    "log_loss": 0.25952831963451606,
+    "xmins_mae": 11.941160380692638,
+    "xmins_rmse": 21.75226256088716,
+    "xmins_bias": 0.10361781472767974,
+    "mean_p_start": 0.2775335448602775,
+    "start_rate": 0.27753354486027754
+  },
+  "gw12_38": {
+    "n": 21684,
+    "brier": 0.07860225752171743,
+    "log_loss": 0.26250604908388264,
+    "xmins_mae": 12.102379659424871,
+    "xmins_rmse": 22.073378090660892,
+    "xmins_bias": 0.10944199581419344,
+    "mean_p_start": 0.27393469839512996,
+    "start_rate": 0.27393469839513007
+  },
+  "gw22_38": {
+    "n": 13987,
+    "brier": 0.07714804480842193,
+    "log_loss": 0.25771600943061124,
+    "xmins_mae": 11.95864196820661,
+    "xmins_rmse": 21.922478586477283,
+    "xmins_bias": 0.07020674074458877,
+    "mean_p_start": 0.2673911489240008,
+    "start_rate": 0.26739114892400084
+  },
+  "method": {
+    "train": [
+      "2023-24",
+      "2024-25"
+    ],
+    "holdout": "2025-26",
+    "features": "historical rows with GW lower than target GW; inherited benchmark uses GW order",
+    "cutoff_audit": "strict deadline/observed_at validation is pending; no new leakage-safe certification",
+    "role_slices": "actual target starter role, diagnostic only; never used in forecast features",
+    "comparison": "reproduced baseline only; original role predictions/features unavailable"
+  }
+}

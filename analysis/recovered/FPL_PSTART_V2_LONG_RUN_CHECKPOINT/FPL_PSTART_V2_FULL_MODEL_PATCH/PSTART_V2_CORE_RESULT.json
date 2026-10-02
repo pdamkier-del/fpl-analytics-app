@@ -1,0 +1,32 @@
+{
+  "status": "prototype_only_not_integrated_into_production",
+  "data": {
+    "development_seasons": ["2023-24", "2024-25"],
+    "holdout_season": "2025-26",
+    "holdout_min_gw": 6,
+    "holdout_observations": 26159,
+    "fixtures_dataset_scope": "Premier League only",
+    "availability_feature": "excluded",
+    "actual_team_fixture_start_count_check": {"team_fixtures": 2280, "all_equal_11": true}
+  },
+  "old_v1_1_reference": {
+    "holdout_brier": 0.08770386216548995,
+    "holdout_log_loss": 0.3465281683197538,
+    "note": "existing regularized P(start) holdout from phase3a; sample differs slightly (26059 rows)"
+  },
+  "v2_core_candidate": {
+    "fast_start_half_life": 3.0,
+    "slow_hierarchy_half_life": 10.0,
+    "recent_minutes_half_life": 3.0,
+    "features": ["fast_start_history", "slow_start_history", "recent_minutes", "last_gw_start", "last_gw_minutes", "FPL_position"],
+    "before_exact11": {"brier": 0.07750008265398442, "log_loss": 0.25993820978602683, "mean_p_start": 0.27863408138039497},
+    "after_exact11": {"brier": 0.07742929620992768, "log_loss": 0.25952831963473844, "mean_p_start": 0.27753354486027754}
+  },
+  "missing_for_full_v2": [
+    "all official non-PL club fixtures (Europe, FA Cup, League Cup)",
+    "competition/round metadata required for Match Importance",
+    "role-level player minutes/starts (e.g. HW/VW/CM rather than FPL DEF/MID/FWD)",
+    "historical matchday-squad coverage robust enough for injury/absence-aware hierarchy updates"
+  ],
+  "interpretation": "Promising core result, but not a fair test of the full proposed P(start) v2 architecture and not yet production-ready."
+}

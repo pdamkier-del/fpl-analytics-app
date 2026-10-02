@@ -1,0 +1,34 @@
+{
+  "train_seasons": [
+    "2023-24",
+    "2024-25"
+  ],
+  "holdout": "2025-26",
+  "min_gw": 6,
+  "n": 26159,
+  "brier": 0.07742929620962372,
+  "log_loss": 0.25952831963451617,
+  "mean_p_start": 0.27753354486027754,
+  "actual_start_rate": 0.27753354486027754,
+  "coefficients": {
+    "intercept": -3.007469665032996,
+    "fast": -2.223721940335079,
+    "slow": 1.5813870988456418,
+    "recent_mins": 4.849516256455685,
+    "last_start": -1.6896450160008776,
+    "last_mins": 4.212643043108148,
+    "pos_DEF": -0.47636838809654425,
+    "pos_FWD": -0.598979964536301,
+    "pos_GK": -0.7352321597598499,
+    "pos_MID": -0.4605718141495054,
+    "pos_GKP": 0.0
+  },
+  "half_lives": {
+    "fast": 3.0,
+    "slow": 10.0,
+    "minutes": 3.0
+  },
+  "exact11_max_abs_error": 5.329070518200751e-15,
+  "mean_expected_minutes_v2": 24.960913582914536,
+  "mean_old_expected_minutes_reconstructed": 24.991970813728596
+}

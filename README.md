@@ -45,6 +45,26 @@ Start FPL App.bat
 
 ## Updates
 
+## Advanced standing model checkpoint
+
+The recovered standing model is in `src/fpl_v1_1_model/` and `scripts/`.
+The original checkpoint is preserved byte-for-byte under
+`model/checkpoints/role_aware_standing_v2/`; its manifest remains authoritative.
+`model/checkpoints/provenance.json` records the source archive hashes. The
+existing desktop bridge remains the active app engine until model validation
+and integration are complete.
+
+Historical Core from the existing Phase 5E checkpoint is preserved as
+`model/checkpoints/phase5e_core/fpl_v1_1.sqlite3.gz`. Decompress it into a working
+directory before running database scripts; never overwrite the frozen copy.
+Detailed lineup/formation/average-position source CSVs are under
+`data_v1_1/raw/fpl-core-2025-26/`.
+
+Run the recovered model checks with `python scripts/run_model_checks.py`.
+Dependencies are Python 3, NumPy, pandas, SciPy and scikit-learn; pytest is
+optional for these assertion tests. See `docs/checkpoints/2026-10-01-integration.md`
+for reproducible benchmark commands and remaining validation blockers.
+
 The application supports two types of updates:
 
 - **App Code Updates**: Core application improvements and features

@@ -1,0 +1,27 @@
+{
+  "method": "frozen Phase5Q forecasts + cutoff-safe P(start) v2 minutes-only correction",
+  "development_seasons": [
+    "2023-24",
+    "2024-25"
+  ],
+  "holdout": "2025-26",
+  "v2_applied_decision_gw_min": 6,
+  "half_lives": {
+    "fast": 3.0,
+    "slow": 10.0,
+    "recent_minutes": 3.0
+  },
+  "exact11_max_abs_error": 5.329070518200751e-15,
+  "rolling_rows": 163459,
+  "adjusted_rows": 140172,
+  "mean_abs_xpts_change_adjusted": 0.1350113666537555,
+  "mean_xpts_change_adjusted": -0.034745344268127226,
+  "mechanical_xpts_mapping": {
+    "lambda": 0.7,
+    "per90_rate_clip": [
+      0,
+      12.0
+    ],
+    "calibrated_against": "old vs exact new Phase5E simulator outputs only; no actual-points labels"
+  }
+}
