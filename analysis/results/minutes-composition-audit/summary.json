@@ -1,0 +1,19 @@
+{
+  "component_mae_contributions": {
+    "start_duration": 0.29494501151613167,
+    "sub_duration": 0.07007612868891477,
+    "sub_probability": 0.2818685525409338
+  },
+  "component_mse_contributions": {
+    "start_duration": -3.9830593500132156,
+    "sub_duration": -2.9381830556317508,
+    "sub_probability": 1.2864149515396315
+  },
+  "holdout_status": "Previously inspected GW22-38: posthoc diagnostic, not independent OOS",
+  "interpretation": "Exact attribution for saved predictions, not causal explanation. Conditional mean minimizes MSE; conditional median minimizes MAE. Do not distort E[min] toward zero just to improve MAE.",
+  "mae_delta": 0.6468896927459825,
+  "mse_delta": -5.634827454105319,
+  "n": 13987,
+  "next_decision": "Predeclare component proper losses plus final mean-calibration/RMSE and downstream xP validation; retain MAE as a reported diagnostic, not the only acceptance metric.",
+  "zero_minutes_share": 0.6341602916994352
+}

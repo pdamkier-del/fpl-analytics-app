@@ -1,0 +1,26 @@
+{
+  "code": [
+    {
+      "path": "scripts/audit_minutes_composition.py",
+      "sha256": "b06116e2a843346f1782e54d0759ca4eda62f0b8f4031b7bf86fe4c385ff4a1c"
+    }
+  ],
+  "input": {
+    "path": "analysis/results/minutes-decomposition-v1/conditional_minutes_holdout_predictions.csv.gz",
+    "sha256": "06d68401dc18d89d863924565fb718ed5b633ca43022253f5870cdd1d57d169d"
+  },
+  "outputs": [
+    {
+      "path": "minutes_reliability.csv",
+      "sha256": "ec28f03c9aa462da68ce32f834226eff24a1297452333abef88ebdd635c73917"
+    },
+    {
+      "path": "shapley_error_contributions.csv",
+      "sha256": "3a85e2cb015577721e6da8f593669e30b12ba3899cda99bef1399a66f68bdabd"
+    },
+    {
+      "path": "summary.json",
+      "sha256": "fa6131bd9ccebd982d2f0af2d85aa390f2e49997bafde1b392139f315b075c06"
+    }
+  ]
+}

@@ -91,6 +91,15 @@ Squad/bench history and development-only model selection are documented in
 existing conditional-minutes components. Run
 `python scripts/benchmark_squad_minutes.py --db work/core.sqlite3` to reproduce.
 
+The next observed workload experiment preserves cup/Europe raw snapshots and
+verified FPL deadlines. Run `python scripts/build_workload_features.py --db
+work/core.sqlite3` then `python scripts/benchmark_workload_minutes.py`. See
+`docs/checkpoints/2026-10-02-workload-minutes.md` for development validation,
+PL-only ablation, the explicitly reused holdout, missing FA Cup/kickoff coverage
+and full-simulation requirements. This is an experiment, not an app switch.
+Verify saved inputs/code/predictions with `python scripts/check_model_checkpoint.py`;
+the numerical environment is pinned in `requirements-model-checkpoint.txt`.
+
 The application supports two types of updates:
 
 - **App Code Updates**: Core application improvements and features
