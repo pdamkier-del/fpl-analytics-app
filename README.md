@@ -65,6 +65,20 @@ Dependencies are Python 3, NumPy, pandas, SciPy and scikit-learn; pytest is
 optional for these assertion tests. See `docs/checkpoints/2026-10-01-integration.md`
 for reproducible benchmark commands and remaining validation blockers.
 
+The reproducible formation-first role classifier, cutoff-gated q/H and frozen
+GW22–38 benchmark now run with:
+
+```bash
+python scripts/build_reproducible_role_benchmark.py --db work/core.sqlite3
+```
+
+See `docs/checkpoints/2026-10-02-reproducible-role-foundation.md` for the 1,052
+disagreement audit, exact rules, OOS results, historical cutoff limitations and
+the unresolved high-impact-role sanity check. All feature predictions and
+input/code/output checksums are versioned under
+`analysis/results/reproducible-role-v1/`. The app engine is not switched to this
+experimental model.
+
 The application supports two types of updates:
 
 - **App Code Updates**: Core application improvements and features
