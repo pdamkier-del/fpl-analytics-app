@@ -235,6 +235,11 @@ bootstrap og input/code/output SHA256-manifest. CSV.gz er almindelig gzip-CSV,
 ikke et proprietært format. All-feature-filen markerer udviklingsrækker som
 in-sample; holdout-filen indeholder kun frozen_oos.
 
+Verifikation: 31 assertion-tests passerer; en separat fuld genkørsel reproducerer
+alle 20 genererede output-artefakter byte-identisk. Alle output-SHA256 matcher.
+Prediction-writeren skriver atomisk og kontrollerer gzip-footer samt rækkeantal,
+så en afbrudt skrivning ikke accepteres som komplet benchmark.
+
 Rådata, frosset Historical Core og baseline-kode er allerede versioneret i
 samme repo. Appens UI/aktive forecasts og immutable checkpoint er bevaret.
 GitHub branch creation blev igen afvist med HTTP 403, Resource not accessible
