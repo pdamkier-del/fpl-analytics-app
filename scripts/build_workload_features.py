@@ -19,7 +19,7 @@ from fpl_v1_1_model.workload import WorkloadHistory
 from build_reproducible_role_benchmark import write_json, write_prediction_csv, sha
 
 
-def build_ledger(con, raw, classified, quarantine=None):
+def build_ledger(con, raw, classified, quarantine=None, restored_folder=None):
     def read(name):
         return pd.concat([pd.read_csv(p) for p in sorted(raw.glob('GW*/'+name+'.csv'))], ignore_index=True)
     matches, lines, stats = read('matches'), read('lineups'), read('playermatchstats')
@@ -93,17 +93,49 @@ def build_ledger(con, raw, classified, quarantine=None):
             history.add_game(team,m.match_id,ko,known,m.tournament,players,complete)
             coverage.append({'match_id':m.match_id,'team_id':team,'competition':m.tournament,'kickoff':ko.isoformat(),'available_at':known.isoformat(),'mapped_players':len(players),'complete_player_stats':complete,'unmapped_lineup_players':missing_ids,'missing_starter_stats':missing_positive,'source':'FPL-Core-Insights snapshot'})
             for pid,v in players.items():ledger.append({'match_id':m.match_id,'team_id':team,'player_uuid':pid,'kickoff':ko.isoformat(),'available_at':known.isoformat(),'competition':m.tournament,**v})
+    if restored_folder:
+        restored_folder=Path(restored_folder)
+        manifest=json.loads((restored_folder/'manifest.json').read_text())
+        recorded={r['path']:r['sha256'] for r in manifest['outputs']}
+        for name in ('restored_team_games.csv','restored_player_minutes.csv'):
+            assert sha(restored_folder/name)==recorded[name], 'Restored workload checksum mismatch'
+        games=pd.read_csv(restored_folder/'restored_team_games.csv')
+        people=pd.read_csv(restored_folder/'restored_player_minutes.csv')
+        assert not games.duplicated(['match_id','team_id']).any()
+        assert not people.duplicated(['match_id','team_id','player_uuid']).any()
+        for game in games.itertuples():
+            if not quarantine or game.source_match_id not in quarantine:
+                raise ValueError('Recovered original must replace a quarantined source ID, not double-count it')
+            group=people[(people.match_id==game.match_id)&(people.team_id==game.team_id)]
+            assert len(group)==game.mapped_players
+            ko=pd.to_datetime(game.kickoff,utc=True);known=pd.to_datetime(game.available_at,utc=True)
+            assert known>=ko+pd.Timedelta(hours=3) and known>=pd.to_datetime(game.source_version_at,utc=True)
+            players={}
+            for r in group.itertuples():
+                if pd.isna(r.started):start=None
+                elif str(r.started).lower() in ('true','false'):start=str(r.started).lower()=='true'
+                else:raise ValueError('Invalid recovered start label')
+                assert r.source_commit==game.source_commit and r.available_at==game.available_at
+                players[r.player_uuid]={'minutes':float(r.minutes),'started':start}
+            complete=str(game.complete_player_stats).lower()=='true'
+            history.add_game(game.team_id,game.match_id,ko,known,game.competition,players,complete)
+            coverage.append(game._asdict())
+            for pid,v in players.items():
+                ledger.append({'match_id':game.match_id,'team_id':game.team_id,'player_uuid':pid,
+                  'kickoff':ko.isoformat(),'available_at':known.isoformat(),'competition':game.competition,**v})
     return history,pl_history,pd.DataFrame(ledger),pd.DataFrame(coverage),pd.DataFrame(excluded),matches,pd.DataFrame(identity)
 
 
 def main():
     ap=argparse.ArgumentParser(description=__doc__)
     ap.add_argument('--db',required=True)
-    ap.add_argument('--out',default=str(ROOT/'analysis/results/workload-quality-v3'))
+    ap.add_argument('--out',default=str(ROOT/'analysis/results/workload-recovered-v4'))
     ap.add_argument('--quarantine-csv',default=str(ROOT/'analysis/results/independent-europe-audit/workload_quarantine.csv'),
       help='Audited source exclusions; combined CL/EL/Conference quarantine is mandatory by default')
     ap.add_argument('--allow-unverified-cup-source',action='store_true',
       help='Explicit legacy reproduction only: allow omitting the quarantine CSV; outputs remain uncertified')
+    ap.add_argument('--restored-workload',default=str(ROOT/'analysis/results/historical-cup-recovery-v1'),
+      help='Audited original-payload recovery folder; use an empty string for quarantine-only or legacy reproduction')
     a=ap.parse_args();out=Path(a.out);out.mkdir(parents=True,exist_ok=True)
     if not a.quarantine_csv and not a.allow_unverified_cup_source:
         ap.error('Cup source requires an audited quarantine CSV; run the independent fixture audits first')
@@ -114,7 +146,7 @@ def main():
     if a.quarantine_csv:
         q=pd.read_csv(a.quarantine_csv);assert not q.match_id.duplicated().any()
         quarantine=dict(zip(q.match_id,q.reason))
-    history,pl_history,ledger,coverage,excluded,matches,identity=build_ledger(con,raw,classified,quarantine)
+    history,pl_history,ledger,coverage,excluded,matches,identity=build_ledger(con,raw,classified,quarantine,a.restored_workload)
     features_path=ROOT/'analysis/results/reproducible-role-v1/all_feature_predictions.csv.gz'
     frame=pd.read_csv(features_path)
     deadlines=pd.read_csv(raw/'gameweek_summaries.csv')
@@ -148,15 +180,17 @@ def main():
       'source_quarantine_keys':len(quarantine),
       'source_quality_certified':False,
       'legacy_unverified_source_opt_in':bool(a.allow_unverified_cup_source and not a.quarantine_csv),
+      'restored_original_team_games':int(coverage.match_id.str.startswith('restored-').sum()),
       'feature_rows':len(frame),'all_competitions_complete':False,
       'missing_competitions':['FA Cup'],
       'other_gaps':'No independent complete fixture inventory; source is limited to FPL-mapped PL club players. Internationals and pre-season excluded. Transfers only count workload at the current team.',
-      'availability':'kickoff+3h reconstruction proxy, not ingestion-certified',
+      'availability':'Existing source kickoff+3h proxy; recovered originals max(kickoff+3h, historical Git version time). Ingestion not certified.',
       'deadlines':'All 38 source FPL deadlines available; GW6-38 exactly match the earlier proxies. This does not certify cohort/schedule ingestion.'}
     write_json(out/'coverage_audit.json',audit)
     code=[Path(__file__),ROOT/'src/fpl_v1_1_model/workload.py']
     inputs=[Path(a.db).resolve(),features_path,*sorted(raw.rglob('*.csv')),raw/'SOURCE_MANIFEST.json']
     if a.quarantine_csv:inputs.append(Path(a.quarantine_csv).resolve())
+    if a.restored_workload:inputs.extend(sorted(Path(a.restored_workload).resolve().glob('*')))
     write_json(out/'manifest.json',{'inputs':[{'path':str(p.relative_to(ROOT)),'sha256':sha(p)} for p in inputs],
       'code':[{'path':str(p.relative_to(ROOT)),'sha256':sha(p)} for p in code],
       'outputs':[{'path':p.name,'sha256':sha(p)} for p in sorted(out.iterdir()) if p.name!='manifest.json' and not p.name.endswith('.tmp')]})

@@ -111,6 +111,10 @@ quarantine, fixed-protocol re-run and complete reproduction commands.
 The expanded audit in `docs/checkpoints/2026-10-02-europe-fixture-quality.md`
 adds EL/Conference organizer inventories and 40 combined quarantined source
 keys. Current workload builder/benchmark defaults use the guarded v3 experiment.
+The subsequent recovery in `docs/checkpoints/2026-10-02-historical-cup-recovery.md`
+restores seven original fixtures from historical source versions. Defaults now
+use v4; its version diff finds unchanged minutes/goals despite changed match
+metadata. Historical v1-v3 artifacts are retained.
 
 The application supports two types of updates:
 

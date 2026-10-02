@@ -1,0 +1,268 @@
+{
+  "code": [
+    {
+      "path": "scripts/recover_historical_cup_workload.py",
+      "sha256": "54a7ed68232113cd46a68e1b6dc3acedc75fbf4ccf9fdc77438ef7d268639902"
+    },
+    {
+      "path": "scripts/audit_independent_europe_fixtures.py",
+      "sha256": "a9f630043d46a58c865899b4decdca420899b00e5983c926d5a3fc9a5f74b0ff"
+    },
+    {
+      "path": "scripts/audit_independent_cl_fixtures.py",
+      "sha256": "f9f1775c5f0bd9ee40e19bd2511f7256487d870160d2660a34578c3788c23faf"
+    }
+  ],
+  "inputs": [
+    {
+      "path": "work/core.sqlite3",
+      "sha256": "a4742428fb0c9943ff3ee565f765eb98d733a1690180c566d6df794786ef409f"
+    },
+    {
+      "path": "data_v1_1/raw/independent-cup-inventory/uefa-el-conference-2025-26.csv",
+      "sha256": "0844f2e9f587acbd0fd70ae151502bd38631b891aae40e07a151a57d4354b3cc"
+    },
+    {
+      "path": "analysis/results/independent-cl-audit/independent_inventory.csv",
+      "sha256": "1a3f1f965b956b05171970ec1451a9776d422db33d833eaff49c8d752785bdb4"
+    },
+    {
+      "path": "analysis/results/independent-europe-audit/workload_quarantine.csv",
+      "sha256": "facd902986850dca76169bdded1b1739657d103c95c9b17ce21b9bc90fd6bddf"
+    },
+    {
+      "path": "analysis/results/reproducible-role-v1/classified_starters.csv",
+      "sha256": "7e4f5a4fa23a1355a64dcad494668c87cd5336b60a2edd22117e7582ded10f0d"
+    },
+    {
+      "path": "data_v1_1/raw/deadline-cup-source-2025-26/SOURCE_MANIFEST.json",
+      "sha256": "e65d58b63b7ad1258752c8e96be88fdb3a90bce0948f3166c8d67d24dbaf7e51"
+    },
+    {
+      "path": "data_v1_1/raw/deadline-cup-source-2025-26/GW16/matches.csv",
+      "sha256": "ae3927f5284e6ff1295c0240e93ef4d5caa4b44c0a5bcc3d18a96f5aabeeef4d"
+    },
+    {
+      "path": "data_v1_1/raw/deadline-cup-source-2025-26/GW16/playermatchstats.csv",
+      "sha256": "ac33cfed7e7af3373812e45eea353d5ee6e0f4a23912970cd80f36146ff646b1"
+    },
+    {
+      "path": "data_v1_1/raw/deadline-cup-source-2025-26/GW5/matches.csv",
+      "sha256": "54a614d158e3d18995379eef3d21bdf152283be11d23ecdba73e3105f4129c88"
+    },
+    {
+      "path": "data_v1_1/raw/deadline-cup-source-2025-26/GW5/playermatchstats.csv",
+      "sha256": "b92199f389e04eb70022698af723dacea5f2bd9d2e8ef49613e6fe7f22539fcb"
+    },
+    {
+      "path": "data_v1_1/raw/deadline-cup-source-2025-26/GW6/matches.csv",
+      "sha256": "92d382b4d65827a3bbb95fe333c88728c752a92b6d4fb885e554deedb90fb29b"
+    },
+    {
+      "path": "data_v1_1/raw/deadline-cup-source-2025-26/GW6/playermatchstats.csv",
+      "sha256": "0750222e29018bdcf2fa2b2885167674fc86842e057a039be3ec5596f257d56c"
+    },
+    {
+      "path": "data_v1_1/raw/deadline-cup-source-2025-26/GW7/matches.csv",
+      "sha256": "e1673668fe7dafb39782ab24a940e3675e4ebc221dd85eec25ef3653b8560da8"
+    },
+    {
+      "path": "data_v1_1/raw/deadline-cup-source-2025-26/GW7/playermatchstats.csv",
+      "sha256": "472b8210bdc21dd22161d6cc5362593fd3f20e4940e5c8c7c772e90a0d5b3fcb"
+    },
+    {
+      "path": "data_v1_1/raw/deadline-cup-source-2025-26/GW9/matches.csv",
+      "sha256": "e71e70646ac9be261111590c48bd8a312bbba4d1bf620b83fadeedb4ed69e90f"
+    },
+    {
+      "path": "data_v1_1/raw/deadline-cup-source-2025-26/GW9/playermatchstats.csv",
+      "sha256": "08e93fd9add3f63ed1dddb8cf9fdbafdd42ef4c35f99cccc8a5dc72a76c08682"
+    },
+    {
+      "path": "data_v1_1/raw/deadline-cup-source-2025-26/strict/GW7/matches.csv",
+      "sha256": "5467139858092155ecf1707ef91f78b0029048ed7aa4c40aac02448a6c0211cd"
+    },
+    {
+      "path": "data_v1_1/raw/deadline-cup-source-2025-26/strict/GW7/playermatchstats.csv",
+      "sha256": "efccfb3eda36129eecbc48eea9b784801cc94d336fe174aac9975e8cd81f6b83"
+    },
+    {
+      "path": "data_v1_1/raw/deadline-cup-source-2025-26/strict/GW9/matches.csv",
+      "sha256": "6d885c8c59fbe3e9e27fe0e206c1a06d9d0307193b043f841fb23d827e59dfd8"
+    },
+    {
+      "path": "data_v1_1/raw/deadline-cup-source-2025-26/strict/GW9/playermatchstats.csv",
+      "sha256": "4e423f3c4c39e2688038f3452cc982ef5ac9695d637ccae66ebc740066add34b"
+    },
+    {
+      "path": "data_v1_1/raw/all-competitions-2025-26/GW1/lineups.csv",
+      "sha256": "0824d1985f302349356d2e13c9bf7088d0ec7a7cbff35205c344e9a17b77fcbe"
+    },
+    {
+      "path": "data_v1_1/raw/all-competitions-2025-26/GW10/lineups.csv",
+      "sha256": "f591646b46afd629dcbd6118b3e299563e524e45d7e39f7ec7b996596f12dd61"
+    },
+    {
+      "path": "data_v1_1/raw/all-competitions-2025-26/GW11/lineups.csv",
+      "sha256": "fa86283d8b8379bfe1835140f27c0135a72a6f087a0b2c9c217648b9318e328b"
+    },
+    {
+      "path": "data_v1_1/raw/all-competitions-2025-26/GW12/lineups.csv",
+      "sha256": "a0a992418e031c0ad5aa1b1eeaa03f89fe165e0e2807629f8ec546388ec4f3c8"
+    },
+    {
+      "path": "data_v1_1/raw/all-competitions-2025-26/GW13/lineups.csv",
+      "sha256": "2237d25c743d8e74b94d75c081272c53ea1872a5b229cdc6eac8dc1db03d5579"
+    },
+    {
+      "path": "data_v1_1/raw/all-competitions-2025-26/GW14/lineups.csv",
+      "sha256": "ed1a2ba118ad13c664d7bb460cf623773e600383bfba2a687ed8ce1ee1d0f8cd"
+    },
+    {
+      "path": "data_v1_1/raw/all-competitions-2025-26/GW15/lineups.csv",
+      "sha256": "47683e000feb3fba9b870e18b5ae0666d6d6e30667cbc5371274866dc1935d95"
+    },
+    {
+      "path": "data_v1_1/raw/all-competitions-2025-26/GW16/lineups.csv",
+      "sha256": "d5afd6f19271e5985a33d618f19fe46dcd754d039ebd807176b54a71c36a4333"
+    },
+    {
+      "path": "data_v1_1/raw/all-competitions-2025-26/GW17/lineups.csv",
+      "sha256": "092def06460de3d98d10a657c267c2c7fac5e8f6c59606a55c0bfe2d6eb01452"
+    },
+    {
+      "path": "data_v1_1/raw/all-competitions-2025-26/GW18/lineups.csv",
+      "sha256": "863bd13ad8f7be91e5a42063697942c0b4a48025183d5ba063f06817fdce7921"
+    },
+    {
+      "path": "data_v1_1/raw/all-competitions-2025-26/GW19/lineups.csv",
+      "sha256": "8ff9b22cb1c732383807604c06c64e494027e180ee2213a8ec979d15ff5864cf"
+    },
+    {
+      "path": "data_v1_1/raw/all-competitions-2025-26/GW2/lineups.csv",
+      "sha256": "c8ba8c91073a8dac74c2a4568b0182a43b4a51ed6322f4de6d92c25df0453abe"
+    },
+    {
+      "path": "data_v1_1/raw/all-competitions-2025-26/GW20/lineups.csv",
+      "sha256": "ee43150843977b6c5234cdbb69336677c05fa2702408334f7ef6477bc87a6f3c"
+    },
+    {
+      "path": "data_v1_1/raw/all-competitions-2025-26/GW21/lineups.csv",
+      "sha256": "0aa0cf7e741a7598e7f6f82202986bc9401d84a8fe68232b3aee05e01bb9330e"
+    },
+    {
+      "path": "data_v1_1/raw/all-competitions-2025-26/GW22/lineups.csv",
+      "sha256": "b33dc6e3852803bfc283b2cb8a91a629901fa4dad06b103b669ff2274378ca21"
+    },
+    {
+      "path": "data_v1_1/raw/all-competitions-2025-26/GW23/lineups.csv",
+      "sha256": "b6e8da392c5e954d9356525695da7f7c04d89b7f5f4338f7dd814905a2121946"
+    },
+    {
+      "path": "data_v1_1/raw/all-competitions-2025-26/GW24/lineups.csv",
+      "sha256": "8ba4627db70bb2119b31894a548b3b4861221991240598741123117d0d751829"
+    },
+    {
+      "path": "data_v1_1/raw/all-competitions-2025-26/GW25/lineups.csv",
+      "sha256": "34b37d5588b8c85bd5b8fba903ed93532ea20af05f7a6a4d14201a2a675cb681"
+    },
+    {
+      "path": "data_v1_1/raw/all-competitions-2025-26/GW26/lineups.csv",
+      "sha256": "acd2f760d82ae090a88c932758d2e4f1c38c318fcb595f12e06ad1fc2d725eb9"
+    },
+    {
+      "path": "data_v1_1/raw/all-competitions-2025-26/GW27/lineups.csv",
+      "sha256": "52b83de815ab8aa04d997501f5f13c7069261e58dc2531c8b303bba83bedc44b"
+    },
+    {
+      "path": "data_v1_1/raw/all-competitions-2025-26/GW28/lineups.csv",
+      "sha256": "c79a8954910a789c48dd9ed887e9b3ce54a0c721e1673325298aaf98e26a0f05"
+    },
+    {
+      "path": "data_v1_1/raw/all-competitions-2025-26/GW29/lineups.csv",
+      "sha256": "c62b67bc364d26d92ccddfe6d7593aa4b9ddb4109786f42f56d95582a13b6d5a"
+    },
+    {
+      "path": "data_v1_1/raw/all-competitions-2025-26/GW3/lineups.csv",
+      "sha256": "8c787353701bbf3c490caacfc94ef49867d5afc2a5f3f7c2b4775bbcb45aeecf"
+    },
+    {
+      "path": "data_v1_1/raw/all-competitions-2025-26/GW30/lineups.csv",
+      "sha256": "9842822f3dcbc07db1e6153ea120e24255a6b9f065d85aacb3b8b032870242f2"
+    },
+    {
+      "path": "data_v1_1/raw/all-competitions-2025-26/GW31/lineups.csv",
+      "sha256": "3f7d531c3cf7342daa28fe74482d9bfb8167c2e07e032bb9bcdbe3c72e94a1ae"
+    },
+    {
+      "path": "data_v1_1/raw/all-competitions-2025-26/GW32/lineups.csv",
+      "sha256": "63462ad27a3e8923e9b52592cf4cf1e9f199bfaab9be49210a2814e48af08c2d"
+    },
+    {
+      "path": "data_v1_1/raw/all-competitions-2025-26/GW33/lineups.csv",
+      "sha256": "b4335017b8d0c9935214ec282983b61a004e2e849c73dbeee4aa31308cd63500"
+    },
+    {
+      "path": "data_v1_1/raw/all-competitions-2025-26/GW34/lineups.csv",
+      "sha256": "d43aba83015a8f8fdd5990d6ae3703d7a1d2e2f16812cd693e59631be3a0d92c"
+    },
+    {
+      "path": "data_v1_1/raw/all-competitions-2025-26/GW35/lineups.csv",
+      "sha256": "fcb667c0ea1ecf3e1bc06fe44a5f013c5194e4bf3f2238b3bac8d730591adc16"
+    },
+    {
+      "path": "data_v1_1/raw/all-competitions-2025-26/GW36/lineups.csv",
+      "sha256": "f331de84d3b9690bae3db25d8527f6f33fe7d0b5efa562844f16858565541665"
+    },
+    {
+      "path": "data_v1_1/raw/all-competitions-2025-26/GW37/lineups.csv",
+      "sha256": "44ab93410315ec198206109ecfbc8574c5873328e20ee0ecaca151b65859e8b9"
+    },
+    {
+      "path": "data_v1_1/raw/all-competitions-2025-26/GW38/lineups.csv",
+      "sha256": "1f7d6dc52852a6bc2aab08e3e39d87e4aaaf817d209fcbf14768a32e726fa145"
+    },
+    {
+      "path": "data_v1_1/raw/all-competitions-2025-26/GW4/lineups.csv",
+      "sha256": "cc24be39977926c7c90393505a875266956bad39eae5575b430b9bed3f1400fd"
+    },
+    {
+      "path": "data_v1_1/raw/all-competitions-2025-26/GW5/lineups.csv",
+      "sha256": "4599e8364154f848f54325573b8ea19763e68d7bb1ff23b149213e687ec6e1a9"
+    },
+    {
+      "path": "data_v1_1/raw/all-competitions-2025-26/GW6/lineups.csv",
+      "sha256": "69514390c2cf7aa02481fd1da5e9a2995f8a613175e7a5b3521fade6bf7ff126"
+    },
+    {
+      "path": "data_v1_1/raw/all-competitions-2025-26/GW7/lineups.csv",
+      "sha256": "1c1d35202f755efb442007dbf465bbb42c2e42c13a486379fedbcf6b424c7254"
+    },
+    {
+      "path": "data_v1_1/raw/all-competitions-2025-26/GW8/lineups.csv",
+      "sha256": "ca2df0d6139b84bdbc12991eaae11028da9e9c697977642a1647a91ede5199b2"
+    },
+    {
+      "path": "data_v1_1/raw/all-competitions-2025-26/GW9/lineups.csv",
+      "sha256": "87a9bb8f4aa6ee2e972dcf4d5bb047c557a6b9be53b18e3899a21516aef24f75"
+    }
+  ],
+  "outputs": [
+    {
+      "path": "excluded_archive_rows.csv",
+      "sha256": "2cb03d983905bbf942b14c0a13a031aa276830a3f2a79f8e803d83e20e8cc34d"
+    },
+    {
+      "path": "restored_player_minutes.csv",
+      "sha256": "876a6ce219d0028b070a305faae8e698579fba370b2cbbc234e96eeb0b6f5700"
+    },
+    {
+      "path": "restored_team_games.csv",
+      "sha256": "1886725c048d307e811a0ec592940d6be3e46f6cfec273efd5f2bf098bcc157c"
+    },
+    {
+      "path": "summary.json",
+      "sha256": "e6917b44de665baa0299f4fc20a6f70eab2a1d8773141fd77325448b7279c9f9"
+    }
+  ]
+}

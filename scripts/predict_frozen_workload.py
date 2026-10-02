@@ -15,8 +15,8 @@ from build_reproducible_role_benchmark import write_prediction_csv
 def main():
     ap=argparse.ArgumentParser(description=__doc__)
     ap.add_argument('--features',required=True)
-    ap.add_argument('--models',default=str(ROOT/'analysis/results/workload-quality-minutes-v3/frozen_models.json'))
-    ap.add_argument('--protocol',default=str(ROOT/'analysis/results/workload-quality-minutes-v3/protocol.json'))
+    ap.add_argument('--models',default=str(ROOT/'analysis/results/workload-recovered-minutes-v4/frozen_models.json'))
+    ap.add_argument('--protocol',default=str(ROOT/'analysis/results/workload-recovered-minutes-v4/protocol.json'))
     ap.add_argument('--variant',choices=list(VARIANTS),default='workload_start')
     ap.add_argument('--out',required=True)
     a=ap.parse_args();protocol=json.loads(Path(a.protocol).read_text())

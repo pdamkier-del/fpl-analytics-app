@@ -15,7 +15,8 @@ ROOT=Path(__file__).resolve().parents[1]
 EXPERIMENTS=['reproducible-role-v1','minutes-decomposition-v1','squad-minutes-v1',
              'minutes-composition-audit','workload-v1','workload-minutes-v1',
              'independent-cl-audit','workload-quality-v2','workload-quality-minutes-v2',
-             'independent-europe-audit','workload-quality-v3','workload-quality-minutes-v3']
+             'independent-europe-audit','workload-quality-v3','workload-quality-minutes-v3',
+             'historical-cup-recovery-v1','cup-payload-version-audit','workload-recovered-v4','workload-recovered-minutes-v4']
 
 
 def historical_code_version(path, expected):
@@ -76,9 +77,19 @@ def main():
     digest=hashlib.sha1(b'blob '+str(len(b)).encode()+b'\0'+b).hexdigest()
     if digest!=independent_source['git_blob_sha']:
         errors.append({'path':independent_source['local_path'],'error':'Independent inventory Git blob mismatch'})
+    historical_source_count=0
+    for pack in ('pre-knockout-source-2025-26','asof-cup-source-2025-26','deadline-cup-source-2025-26'):
+        directory=ROOT/'data_v1_1/raw'/pack
+        recorded=json.loads((directory/'SOURCE_MANIFEST.json').read_text())
+        for entry in recorded['files']:
+            b=(directory/entry['path']).read_bytes()
+            digest=hashlib.sha1(b'blob '+str(len(b)).encode()+b'\0'+b).hexdigest()
+            historical_source_count+=1
+            if digest!=entry['git_blob_sha']:errors.append({'path':str(directory/entry['path']),'error':'Historical source Git blob mismatch'})
     report={'integrity_passed':not errors,'manifest_checks':len(checks),'unique_files':len(cache),
       'source_files_verified':len(source['files']),'errors':errors,'checks':checks,
       'independent_source_files_verified':1,
+      'historical_source_files_verified':historical_source_count,
       'full_season_simulation_ready':False,
       'cup_source_quality_certified':False,
       'cup_quality_audit':'analysis/results/independent-europe-audit/summary.json',

@@ -1,0 +1,100 @@
+{
+  "code": [
+    {
+      "path": "scripts/benchmark_workload_minutes.py",
+      "sha256": "4bd3b7635c1d6d86c980072b68dde879b1b2c90b4f0db97841cfc116ab23f62a"
+    },
+    {
+      "path": "src/fpl_v1_1_model/workload.py",
+      "sha256": "a8078722307c8be8c2c6e27fdb05fe529188172dbd0e559317147706dfa35885"
+    },
+    {
+      "path": "src/fpl_v1_1_model/minutes_decomposition.py",
+      "sha256": "e353e1793076e10f34744e17b639c5cb3a874d8793f31f62182cb5a368510638"
+    },
+    {
+      "path": "src/fpl_v1_1_model/frozen_forecast.py",
+      "sha256": "40d3446207a4b0b1905ac8cae67e9a72c7e80a2cfc974c951da1ea22d2897c20"
+    },
+    {
+      "path": "scripts/predict_frozen_workload.py",
+      "sha256": "ed9aefeac4e7f1a0a3a36903b11d98b446c98046f4c7125a96228d83e2a78a05"
+    },
+    {
+      "path": "scripts/build_reproducible_role_benchmark.py",
+      "sha256": "46ff116cca4f2054ab51c76928b3b9ea94540df0824d330859e86dd6a98f7f42"
+    },
+    {
+      "path": "scripts/benchmark_squad_minutes.py",
+      "sha256": "80f69704599cc01d43f8bbba9a4f2d67fde213f9dd090657790a751e2890d42b"
+    }
+  ],
+  "inputs": [
+    {
+      "path": "analysis/results/workload-recovered-v4/all_features.csv.gz",
+      "sha256": "2d9826e65a84440f590ffaf1c6abf5ca2ba1f4ace317f56b5f77393a8b774246"
+    },
+    {
+      "path": "analysis/results/workload-recovered-v4/coverage_audit.json",
+      "sha256": "6b52292e9232b73c57562ffb7c090ddb07a937b26ccc638ad3f4290bf4360cd7"
+    }
+  ],
+  "outputs": [
+    {
+      "path": "component_metrics.json",
+      "sha256": "57e7c14f74fe5b89b67d36c4c4ba45ebb141ec25f3367793b01b0ec76c9d047c"
+    },
+    {
+      "path": "development_metrics.json",
+      "sha256": "49bbb7326d81147a02e721cdd987cb0ecc332bdf62ade3e029021fce2ae6bb5f"
+    },
+    {
+      "path": "development_models.json",
+      "sha256": "b47d600d98d29799aade9527db7da481a89913853bd54997914462ef2f7dbc99"
+    },
+    {
+      "path": "development_predictions.csv.gz",
+      "sha256": "ea83a4af81608398405c372aded41f7bdf0a1472f28fbcb88db8264053db4a82"
+    },
+    {
+      "path": "frozen_models.json",
+      "sha256": "a4e3aa3b4d33517295f69d02ea3f786f553efe29ebc87a8ad927d65d952ddce3"
+    },
+    {
+      "path": "inference_verification.json",
+      "sha256": "329549cd0cb80a6d3be91bd93b9ec07c5fb7946249bb597b12b8fecf571a5afb"
+    },
+    {
+      "path": "metrics_by_cutoff_safe_groups.csv",
+      "sha256": "d5479531e81c8a594ad9df495eb76cf0c7ee21e5580acda79e5f0ada9c2dfed7"
+    },
+    {
+      "path": "metrics_by_expected_role.csv",
+      "sha256": "917008ae57a79d4635ac99f493bc4fd7532d1d6671b5b0046bf647e6f8a05d27"
+    },
+    {
+      "path": "metrics_by_gw.csv",
+      "sha256": "e3316771be399fc6240f5c16a839c550dacbaeceff09d1b43023dc5c5cb7079c"
+    },
+    {
+      "path": "metrics_by_target_role_case_posthoc.csv",
+      "sha256": "4a9e785e0775ee80f4cf911d461cee7128d1beb435773e0ecbb756b94132285b"
+    },
+    {
+      "path": "metrics_by_team.csv",
+      "sha256": "75a98ee40bc1b34bfca33bb4ef6b67d20dfb663a606e64e10f8073d277cebc8a"
+    },
+    {
+      "path": "protocol.json",
+      "sha256": "0ae1808301284f023199a97b7bc5ce647601f37f04ce91693fe6e586db229040"
+    },
+    {
+      "path": "reused_holdout_diagnostic_predictions.csv.gz",
+      "sha256": "a98c8c6936c02847a3fa6041c8f5cce7c3b1897a8b7d7c17d11e0834f7645741"
+    },
+    {
+      "path": "reused_holdout_metrics.json",
+      "sha256": "4b7ea593ec443f7650c5e44c228e6fde87d9b7bfb6e9ddfa5aef66656eede0c2"
+    }
+  ]
+}
