@@ -29,7 +29,7 @@ import pandas as pd
 ROLES = [
     'GK',
     'RB','RWB','RCB','CB','LCB','LWB','LB',
-    'RDM','DM','LDM','RCM','CM','LCM','RAM','AM','LAM',
+    'RDM','DM','LDM','RCM','CM','LCM','RAM','CAM','LAM',
     'RW','LW','SS','ST',
 ]
 
@@ -55,7 +55,7 @@ def normalize_role(raw: object) -> str | None:
         'LWB':'LWB','WBL':'LWB','LB':'LB','DL':'LB',
         'RDM':'RDM','DMR':'RDM','CDMR':'RDM','DM':'DM','CDM':'DM','DMC':'DM','LDM':'LDM','DML':'LDM','CDML':'LDM',
         'RCM':'RCM','MCR':'RCM','CM':'CM','MC':'CM','LCM':'LCM','MCL':'LCM',
-        'RAM':'RAM','AMR':'RAM','AM':'AM','CAM':'AM','AMC':'AM','LAM':'LAM','AML':'LAM',
+        'RAM':'RAM','AMR':'RAM','AM':'CAM','CAM':'CAM','AMC':'CAM','LAM':'LAM','AML':'LAM',
         'RW':'RW','RWF':'RW','MR':'RW','LW':'LW','LWF':'LW','ML':'LW',
         'SS':'SS','SECONDSTRIKER':'SS','CF':'SS',
         'ST':'ST','FW':'ST','F':'ST','STRIKER':'ST',
@@ -67,7 +67,7 @@ def role_family(role: str) -> str:
     if role == 'GK': return 'GK'
     if role in {'RB','RWB','RCB','CB','LCB','LWB','LB'}: return 'DEF'
     if role in {'RDM','DM','LDM','RCM','CM','LCM'}: return 'MID'
-    if role in {'RAM','AM','LAM','RW','LW'}: return 'AM'
+    if role in {'RAM','CAM','LAM','RW','LW'}: return 'AM'
     return 'FWD'
 
 

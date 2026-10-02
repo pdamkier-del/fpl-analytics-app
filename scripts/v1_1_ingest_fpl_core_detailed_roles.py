@@ -26,7 +26,7 @@ ROLE_FAMILY={
     'GK':'GK',
     'RB':'DEF','RWB':'DEF','RCB':'DEF','CB':'DEF','LCB':'DEF','LWB':'DEF','LB':'DEF',
     'RDM':'MID','DM':'MID','LDM':'MID','RCM':'MID','CM':'MID','LCM':'MID',
-    'RAM':'AM','AM':'AM','LAM':'AM','RW':'AM','LW':'AM',
+    'RAM':'AM','CAM':'AM','AM':'AM','LAM':'AM','RW':'AM','LW':'AM',
     'SS':'FWD','ST':'FWD',
 }
 
@@ -66,14 +66,14 @@ def middle_roles(layers, idx):
     n=layers[idx]; middle_count=len(layers)-2; depth=idx-1
     back=layers[0]
     if n==1:
-        return ['DM'] if depth==0 else ['AM']
+        return ['DM'] if depth==0 else ['CAM']
     if n==2:
         if middle_count>=2:
             return ['RDM','LDM'] if depth==0 else ['RAM','LAM']
         return ['RCM','LCM']
     if n==3:
         if middle_count>=2 and depth>0:
-            return ['RAM','AM','LAM']
+            return ['RAM','CAM','LAM']
         return ['RCM','CM','LCM']
     if n==4:
         if back==3 and depth==0:
