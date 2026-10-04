@@ -1,0 +1,61 @@
+{
+  "classification": "reused_diagnostic_input_audit",
+  "control_rows": 13987,
+  "full_roster_replay_ready": false,
+  "interpretation": [
+    "15 first-entry component rows have verified predeadline FPL listing/team/position evidence.",
+    "31 first-entry rows are not observed in the selected snapshots; absence does not prove that they were not added later before deadline.",
+    "There is one additional unverified roster row outside the missing-component inventory.",
+    "FPL listing is not a complete physical football roster, nor evidence that a player is fit or will appear.",
+    "Do not remove unverified players from event allocation or fill their missing components with zero."
+  ],
+  "max_snapshot_age_hours": 5.254166666666666,
+  "min_snapshot_age_hours": 0.36027777777777775,
+  "missing_component_rows": 46,
+  "missing_evidence_counts": {
+    "matching_team_position": 15,
+    "not_observed_in_selected_snapshot": 31
+  },
+  "next_required": [
+    "Resolve predeadline roster/position evidence for the 31 first entrants and the additional row, or explicitly limit a new controlled replay population.",
+    "Version and test a first-entry component path using frozen parameters and predeadline sufficient statistics.",
+    "Audit original component forecast timing before promoting archived fixture forecasts to deadline replay inputs."
+  ],
+  "outputs": [
+    {
+      "path": "missing_component_evidence.csv",
+      "rows": 46,
+      "sha256": "6c35fe7cfc5775fe7c215452dd0c9928007d30f20126a0ad79f779541ebbedc1"
+    },
+    {
+      "path": "unverified_roster_rows.csv",
+      "rows": 32,
+      "sha256": "f518bc8678c31ee91d2f286db04e1be8d98b8b0a6e33c9dff479ba2e3a7ca951"
+    }
+  ],
+  "parent_checkpoint": "7ac64e366d0790449ec12849f4a9e524b7351789",
+  "roster_evidence_counts": {
+    "matching_team_position": 13955,
+    "not_observed_in_selected_snapshot": 32
+  },
+  "season": "2025-26",
+  "sources": [
+    {
+      "path": "analysis/results/joint-deadline-snapshots-v1/manifest.json",
+      "sha256": "9a413788dd9ae6edded6dea5c7a307ccdaf8248d912425590df814e1af8f0aa1"
+    },
+    {
+      "path": "analysis/results/v2-reproduced/pstart_v2_fixture_holdout_2025_26.csv",
+      "sha256": "b0e7dfd015f1bba73afe66365b01b4ce559730e8cdf8121bfa504e0b1e511de6"
+    },
+    {
+      "path": "analysis/results/joint-paired-inputs-v1/manifest.json",
+      "sha256": "5cae3a813557f64f966bf3316d0f34904cf8c647de05c5ef874479800ca434c7"
+    },
+    {
+      "path": "scripts/audit_joint_deadline_roster.py",
+      "sha256": "02b86cba9e7e1767eb56471d317674c57e98b1f8c7fdb4adef1c030bda1b2340"
+    }
+  ],
+  "unchanged": "Original adapter/simulator, transfer/chip policy, Core database and old diagnostic/input files"
+}
