@@ -1,19 +1,26 @@
 # Latest continuation checkpoint
 
-Read [isolated season mechanics](2026-10-04-season-mechanics.md).
-Continues cd0e01a424b0fd2fae6c3e1cb5e2f02f28f5c163 without restarting.
+Read [full-season origin/horizon coverage gate](2026-10-04-season-replay-coverage.md).
+Continues aab3a841346f28ba97552b17e96b8529094816b0 without restarting.
 
-125 tests pass. Eight new tests verify an opt-in 2025/26 accounting/legality
-profile: AFCON GW16 FT top-up, rollover/hits, WC/FH bank preservation and chip
-windows. It is not activated in the archived replay; original strategy hashes,
-scoring, adapter, simulator and paired predictions are unchanged.
+125 tests pass. The opt-in 2025/26 FT/chip bookkeeping layer is tested but not
+activated in archived orchestration. Original strategy hashes, scoring,
+adapter, simulator and paired predictions remain unchanged.
 
-The 144-fixture controlled paired diagnostic is already complete. GW22–38 stays
-reused diagnostic. 32 rows/26 fixtures remain blocked; 119 adjacent cache
-snapshots did not recover predeadline evidence. Furo's independent club signing
-announcement confirms club/role but not FPL availability, so no row is promoted.
+The 144-fixture controlled paired diagnostic is complete. GW22–38 remains
+reused diagnostic, not a new holdout. The remaining 32 roster rows/26 fixtures
+still lack predeadline listing/team/position evidence; the 119-snapshot source
+bracket did not recover it.
 
-Next: quantify full-season origin/horizon coverage and remaining integration
-requirements. Do not repeat reconstruction or the completed paired run. Full
-season readiness remains false; mechanics integration, historical scoring,
-predeadline roster/prices/schedules and forecast horizons are separate gates.
+Full-season coverage is now quantified: control targets begin GW6; selected
+v4 origins begin GW22. V4 stores 17 own-GW origin/target cells and no future-GW
+horizon at earlier origins. 196 of the 213 six-GW visibility cells are absent.
+Verified price snapshots only cover GW22–38. Coverage output is reproducible.
+Future deadline revisions are recorded; the final audit calendar is not an
+as-of BGW/DGW schedule. Full-season readiness remains false.
+
+Next: recover independently timestamped roster evidence or original fixed-origin
+forecast archives, then address the separately recorded price/schedule, scoring
+and mechanics-integration gates. Do not borrow later forecasts as earlier
+horizons, tune on GW22–38, restart reconstruction or repeat the completed paired
+run. See season-replay-coverage-v1 for all 38 deadline rows and six explicit gates.

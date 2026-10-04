@@ -1,0 +1,143 @@
+{
+  "bounded_paired_diagnostic_complete": true,
+  "classification": "replay_readiness_audit_not_new_holdout",
+  "full_season_ready": false,
+  "gates": [
+    {
+      "detail": "32 original rows / 26 fixtures lack verified predeadline listing/team/position evidence; retain bounded 144-fixture cohort",
+      "id": "roster",
+      "kind": "data",
+      "ready": false
+    },
+    {
+      "detail": "V4 origin coverage only GW22-38, all 17 origin/target pairs diagonal; GW1-21 origins and 196 of 213 required six-GW origin/target cells absent",
+      "id": "forecasts",
+      "kind": "data/model_generation",
+      "ready": false
+    },
+    {
+      "detail": "Recovered verified predeadline price snapshots cover GW22-38; GW1-21 snapshots not yet recovered",
+      "id": "historical_prices",
+      "kind": "data",
+      "ready": false
+    },
+    {
+      "detail": "125 suite tests pass; opt-in 2025/26 FT/chip accounting is not yet applied by archived season orchestration",
+      "id": "mechanics",
+      "kind": "integration",
+      "ready": false,
+      "unit_tests_ready": true
+    },
+    {
+      "detail": "Original simulator uses inherited 2026/27 BPS on 2025/26; historical exact bonus event coverage is incomplete; preserved diagnostic is bonus-neutral",
+      "id": "scoring",
+      "kind": "data/model_integration",
+      "ready": false
+    },
+    {
+      "detail": "Past official event deadlines recovered, but future BGW/DGW schedules must be evidenced as known at each origin, not taken from final season fixtures",
+      "id": "schedule",
+      "kind": "data/integration",
+      "ready": false
+    }
+  ],
+  "interpretation": "Presence means a stored coverage cell only, not full roster readiness. Required horizon matches existing six-GW forecast/decision visibility. Later-cutoff forecasts cannot fill earlier-origin cells.",
+  "missing_control_targets": [
+    1,
+    2,
+    3,
+    4,
+    5
+  ],
+  "missing_origin_target_cells": 196,
+  "missing_v4_origins": [
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10,
+    11,
+    12,
+    13,
+    14,
+    15,
+    16,
+    17,
+    18,
+    19,
+    20,
+    21
+  ],
+  "missing_verified_price_snapshots": [
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10,
+    11,
+    12,
+    13,
+    14,
+    15,
+    16,
+    17,
+    18,
+    19,
+    20,
+    21
+  ],
+  "output_sha256": "ae83866b1dc52fd31470b341f086fc13ad7d8d20ffc9f6f437cd5d65d3e01b6b",
+  "parent_checkpoint": "aab3a841346f28ba97552b17e96b8529094816b0",
+  "present_origin_target_cells": 17,
+  "recovered_deadline_revision_events": [
+    27,
+    29,
+    30,
+    31,
+    32,
+    33,
+    34,
+    35,
+    36,
+    37
+  ],
+  "required_horizon_gameweeks": 6,
+  "required_origin_target_cells": 213,
+  "sources": [
+    {
+      "path": "analysis/results/v2-reproduced/pstart_v2_fixture_holdout_2025_26.csv",
+      "sha256": "b0e7dfd015f1bba73afe66365b01b4ce559730e8cdf8121bfa504e0b1e511de6"
+    },
+    {
+      "path": "analysis/results/workload-recovered-minutes-v4/reused_holdout_diagnostic_predictions.csv.gz",
+      "sha256": "a98c8c6936c02847a3fa6041c8f5cce7c3b1897a8b7d7c17d11e0834f7645741"
+    },
+    {
+      "path": "analysis/results/deadline-joint-inputs-v1/manifest.json",
+      "sha256": "591f19cb5439397418f3b8119e8de2e84099d2a66ac338d8e797d15661fdf162"
+    },
+    {
+      "path": "analysis/results/joint-deadline-snapshots-v1/manifest.json",
+      "sha256": "9a413788dd9ae6edded6dea5c7a307ccdaf8248d912425590df814e1af8f0aa1"
+    },
+    {
+      "path": "analysis/results/season-2025-26-mechanics-v1/verification.json",
+      "sha256": "ec9eb21431c2287520920d46eb5b61fb120066bb06510ba0b084fb0ec8bbb46b"
+    },
+    {
+      "path": "scripts/audit_season_replay_coverage.py",
+      "sha256": "5d99932aa18a85ef6f30b32ff6a657a5c3d3f3078e19e3fdbb581b4d04aebcf4"
+    }
+  ],
+  "unchanged": "Core, all forecasts/results, original adapter/simulator/scoring and transfer/chip strategy"
+}
