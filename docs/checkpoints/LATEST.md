@@ -1,17 +1,24 @@
 # Latest continuation checkpoint
 
-Read [original rolling source contract](2026-10-04-legacy-rolling-source.md).
-Continues 40f1ba0d4036fd32c805081ad796f42b853568fd; no restart or model change.
+Read [complete legacy rolling recovery](2026-10-04-legacy-rolling-recovery.md).
+Continues 223d5de261d5d86b862695f4f5a73f4178f47fe6; no restart or active model change.
 
-Original Phase 5T/5W/5Y archives contain a complete legacy rolling forecast
-reference. Source code and checksummed provenance are now preserved. The local
-191-check audit verifies 213 legacy origin/target cells, but zero new v4 cells.
-The builder uses same-GW merged_gw metadata and final fixture assignments; all
-32 unverified roster rows occur in its own-GW forecasts. Do not activate it as
-predeadline control/v4 input or new holdout evidence.
+Original Phase 5T/5W/5Y forecasts and builder are recovered with checksums:
+163,459 player/GW rows, 165,900 player/fixture rows, 38 origins and 213 legacy
+horizon cells. 191 integrity checks pass and recovery reproduces byte-for-byte.
+All original estimated deadlines match the recovered calendar.
 
-Next publication checkpoint: lossless legacy forecast tables and forensic
-reports. Then resume at independent roster/as-of schedule evidence or proper
-v4 fixed-origin generation. The completed 144-fixture paired run, original
-policy and 125-test model checkpoint are untouched. Full-season readiness
-remains false; see season-replay-coverage-v1 for the selected-v4 gaps.
+The old builder uses same-GW historical metadata and final-season schedules.
+All 32 unverified roster rows occur in its own-GW forecasts. These are legacy
+Phase5Q outputs, not v4; no forecast is promoted and no missing v4 horizon cell
+is resolved. The selected-v4 coverage audit still has 196 missing horizon cells.
+
+The completed 144-fixture control/v4 paired diagnostic, original adapter and
+simulator, Core and transfer/chip policy remain unchanged; saved model tests
+remain 125 passed. GW22–38 is reused diagnostic, never a new holdout.
+
+Next: recover timestamped early-season player/price/schedule snapshots and
+prepare v4 fixed-origin generation from verified as-of histories. Preserve the
+32-row/26-fixture roster gap; do not use quarantined legacy metadata or later
+forecasts to fill it. Separately controlled mechanics integration and the
+existing scoring audit remain gates before full-season decision replay.

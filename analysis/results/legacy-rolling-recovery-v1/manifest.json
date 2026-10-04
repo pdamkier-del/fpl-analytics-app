@@ -1,0 +1,941 @@
+{
+  "archives": [
+    {
+      "bytes": 5150251,
+      "library_file_id": "libfile_b0346c80c6d08191bb1065dd110599c4",
+      "name": "FPL_PHASE_5T_ROLLING_SEASON_REPLAY.zip",
+      "sha256": "668910cc7a4ec549a20711cd00af991e2ddde8b9321eb9f53ba6b1276b31761d"
+    },
+    {
+      "bytes": 5106525,
+      "library_file_id": "libfile_d87b1ff8c25c8191959ddd62f35b8809",
+      "name": "FPL_PHASE_5W_JOINT_CHIP_SEQUENCE.zip",
+      "sha256": "c05221ae53c6f051cbd1643951eb57363b819a224d5763ca29df84e5fb48d16d"
+    },
+    {
+      "bytes": 2624460,
+      "library_file_id": "libfile_7244ff358fa08191aab9edd5adc69c97",
+      "name": "FPL_PHASE_5Y_HIT_BUFFER.zip",
+      "sha256": "4d1b7fcc269f7581a21849fc20c3472204ad2ef5ed82ed8df36c991a74b8850b"
+    }
+  ],
+  "classification": "quarantined_legacy_reference_not_v4_not_new_holdout",
+  "code_sha256": "220a30aaa8c5f2780a237a7cc9863c287ffbe4b2c21cc5f67f2d96d7cf534b92",
+  "disqualifying_source_findings": [
+    "current_meta_by_origin reads same-target-GW merged_gw roster/team/position/value, not timestamped predeadline snapshots",
+    "future horizon uses final archived season fixture schedule, not as-of schedule",
+    "deadline_by_gw estimates first kickoff minus 90 minutes rather than verifies original deadline publication",
+    "legacy player/team/minute/scoring model differs from restored frozen control/v4 paired inputs",
+    "source original labels GW22-38 temporal validation; current recovery retains reused-diagnostic classification only"
+  ],
+  "forecast_inputs_promoted": false,
+  "full_season_ready": false,
+  "legacy_origin_target_cells": 213,
+  "members": [
+    {
+      "archive": "FPL_PHASE_5T_ROLLING_SEASON_REPLAY.zip",
+      "bytes": 8456806,
+      "installed": "player_gw_forecasts",
+      "member": "outputs/v1_1/phase5t_rolling_reference/rolling_phase5q_forecasts.csv",
+      "sha256": "c7f3ce18ac0c518fb3d0747def9d58789cfe83463fd201943dff3e7bb5b0582a"
+    },
+    {
+      "archive": "FPL_PHASE_5T_ROLLING_SEASON_REPLAY.zip",
+      "bytes": 14388039,
+      "installed": "fixture_forecasts",
+      "member": "outputs/v1_1/phase5t_rolling_reference/rolling_fixture_forecasts.csv",
+      "sha256": "a2f6f2038ae55e11f1e7952fcbc125a44798a46d62f3b08e9ca4563906a2300d"
+    },
+    {
+      "archive": "FPL_PHASE_5T_ROLLING_SEASON_REPLAY.zip",
+      "bytes": 1799,
+      "installed": "original_cutoff_audit",
+      "member": "outputs/v1_1/phase5t_rolling_reference/cutoff_audit.csv",
+      "sha256": "b8dd641397ca248e7bf91e8a01e6e887b21e236dadd7c5c0769dad71770394ab"
+    },
+    {
+      "archive": "FPL_PHASE_5T_ROLLING_SEASON_REPLAY.zip",
+      "bytes": 825,
+      "installed": "original_manifest.json",
+      "member": "outputs/v1_1/phase5t_rolling_reference/manifest.json",
+      "sha256": "2b59d0ff1cb3894a46a3796db4a4e025d0dd36aed78c5a4666756f6ed3e7a12a"
+    },
+    {
+      "archive": "FPL_PHASE_5T_ROLLING_SEASON_REPLAY.zip",
+      "bytes": 22473,
+      "installed": "original_rolling_builder.py",
+      "member": "run_phase5t_rolling_reference.py",
+      "sha256": "3616091eadd5db10077e7a740dfc9cbd6d882008c9d7ab2a0678a0b2a3ef72fc"
+    },
+    {
+      "archive": "FPL_PHASE_5T_ROLLING_SEASON_REPLAY.zip",
+      "bytes": 4832,
+      "installed": "original_phase5t_notes.md",
+      "member": "PHASE_5T_FULL_SEASON_REPLAY.md",
+      "sha256": "859ae46fdbe5aea02ef0132ae7b66cb8ec6eaf4e56a026ca2e877cdb7dc2a1dd"
+    },
+    {
+      "archive": "FPL_PHASE_5W_JOINT_CHIP_SEQUENCE.zip",
+      "bytes": 8456806,
+      "installed": "player_gw_forecasts",
+      "member": "outputs/v1_1/phase5t_rolling_reference/rolling_phase5q_forecasts.csv",
+      "sha256": "c7f3ce18ac0c518fb3d0747def9d58789cfe83463fd201943dff3e7bb5b0582a"
+    },
+    {
+      "archive": "FPL_PHASE_5W_JOINT_CHIP_SEQUENCE.zip",
+      "bytes": 14388039,
+      "installed": "fixture_forecasts",
+      "member": "outputs/v1_1/phase5t_rolling_reference/rolling_fixture_forecasts.csv",
+      "sha256": "a2f6f2038ae55e11f1e7952fcbc125a44798a46d62f3b08e9ca4563906a2300d"
+    },
+    {
+      "archive": "FPL_PHASE_5W_JOINT_CHIP_SEQUENCE.zip",
+      "bytes": 1799,
+      "installed": "original_cutoff_audit",
+      "member": "outputs/v1_1/phase5t_rolling_reference/cutoff_audit.csv",
+      "sha256": "b8dd641397ca248e7bf91e8a01e6e887b21e236dadd7c5c0769dad71770394ab"
+    },
+    {
+      "archive": "FPL_PHASE_5W_JOINT_CHIP_SEQUENCE.zip",
+      "bytes": 825,
+      "installed": "original_manifest.json",
+      "member": "outputs/v1_1/phase5t_rolling_reference/manifest.json",
+      "sha256": "2b59d0ff1cb3894a46a3796db4a4e025d0dd36aed78c5a4666756f6ed3e7a12a"
+    },
+    {
+      "archive": "FPL_PHASE_5W_JOINT_CHIP_SEQUENCE.zip",
+      "bytes": 22473,
+      "installed": "original_rolling_builder.py",
+      "member": "run_phase5t_rolling_reference.py",
+      "sha256": "3616091eadd5db10077e7a740dfc9cbd6d882008c9d7ab2a0678a0b2a3ef72fc"
+    },
+    {
+      "archive": "FPL_PHASE_5W_JOINT_CHIP_SEQUENCE.zip",
+      "bytes": 4832,
+      "installed": "original_phase5t_notes.md",
+      "member": "PHASE_5T_FULL_SEASON_REPLAY.md",
+      "sha256": "859ae46fdbe5aea02ef0132ae7b66cb8ec6eaf4e56a026ca2e877cdb7dc2a1dd"
+    },
+    {
+      "archive": "FPL_PHASE_5Y_HIT_BUFFER.zip",
+      "bytes": 8456806,
+      "installed": "player_gw_forecasts",
+      "member": "outputs/v1_1/phase5t_rolling_reference/rolling_phase5q_forecasts.csv",
+      "sha256": "c7f3ce18ac0c518fb3d0747def9d58789cfe83463fd201943dff3e7bb5b0582a"
+    },
+    {
+      "archive": "FPL_PHASE_5Y_HIT_BUFFER.zip",
+      "bytes": 825,
+      "installed": "original_manifest.json",
+      "member": "outputs/v1_1/phase5t_rolling_reference/manifest.json",
+      "sha256": "2b59d0ff1cb3894a46a3796db4a4e025d0dd36aed78c5a4666756f6ed3e7a12a"
+    },
+    {
+      "archive": "FPL_PHASE_5Y_HIT_BUFFER.zip",
+      "bytes": 4832,
+      "installed": "original_phase5t_notes.md",
+      "member": "PHASE_5T_FULL_SEASON_REPLAY.md",
+      "sha256": "859ae46fdbe5aea02ef0132ae7b66cb8ec6eaf4e56a026ca2e877cdb7dc2a1dd"
+    }
+  ],
+  "original_model": "Phase5Q legacy minutes + h12/ridge .25; differs from current frozen control/v4 common experiment",
+  "outputs": [
+    {
+      "compressed_sha256": "2f33a804360a66153c12b36ff29449cf423cafa95a33dfd61784dab6230714e7",
+      "name": "player_gw_forecasts",
+      "parts": [
+        {
+          "bytes": 32768,
+          "path": "player_gw_forecasts.csv.gz.part-0000",
+          "sha256": "3dcd24eaf2e489dd52a628e1b3429f7fc3656a96ccab31466bbc2d2a7096bf9b"
+        },
+        {
+          "bytes": 32768,
+          "path": "player_gw_forecasts.csv.gz.part-0001",
+          "sha256": "1dd448ce40c4bd1e861803ed4ed5c821c5ea77a1de034850bfc2fd74b024d4c7"
+        },
+        {
+          "bytes": 32768,
+          "path": "player_gw_forecasts.csv.gz.part-0002",
+          "sha256": "4ac599bc3961872f2e8406df338e3b1cfb59db848334566fb3c84b866f9c44ec"
+        },
+        {
+          "bytes": 32768,
+          "path": "player_gw_forecasts.csv.gz.part-0003",
+          "sha256": "d297692d3eb0b3af8c75dc62ef3f7753390695acf5a956d72ab8497b6ddfe13a"
+        },
+        {
+          "bytes": 32768,
+          "path": "player_gw_forecasts.csv.gz.part-0004",
+          "sha256": "51c048385692fb29e87ec8ff2a5d70b0e8a5bb2e09c2c76dd6fe32549852f335"
+        },
+        {
+          "bytes": 32768,
+          "path": "player_gw_forecasts.csv.gz.part-0005",
+          "sha256": "86a057218e2110783ebe765d60c3a9a1950ac0c3c88c0a0664de52059a09ea63"
+        },
+        {
+          "bytes": 32768,
+          "path": "player_gw_forecasts.csv.gz.part-0006",
+          "sha256": "32f0b21a8f6ea3e6034bd0285485e8e34b8ca52b95e282904f6d04a553207a89"
+        },
+        {
+          "bytes": 32768,
+          "path": "player_gw_forecasts.csv.gz.part-0007",
+          "sha256": "e7a10bba188b4cfa7fe2773f25bee1ce1188573d16c13c284d3e1bb3567ea789"
+        },
+        {
+          "bytes": 32768,
+          "path": "player_gw_forecasts.csv.gz.part-0008",
+          "sha256": "b4f24a66044fda1c500ea2e6151667b8223c56fa2892561eb11dfa546f30914c"
+        },
+        {
+          "bytes": 32768,
+          "path": "player_gw_forecasts.csv.gz.part-0009",
+          "sha256": "b47b575c0da87a1eeceb5b57bb4e9edca5918d0bf54e8fe4f0e583370389b3b5"
+        },
+        {
+          "bytes": 32768,
+          "path": "player_gw_forecasts.csv.gz.part-0010",
+          "sha256": "233c593d21e4cdd24fc54032ad930faaa84f34c91a5f7387504a962992ba0306"
+        },
+        {
+          "bytes": 32768,
+          "path": "player_gw_forecasts.csv.gz.part-0011",
+          "sha256": "d57c2f0c28c1358ef0c0b56614e1ae09bc445260bc86559e1149336f69299e99"
+        },
+        {
+          "bytes": 32768,
+          "path": "player_gw_forecasts.csv.gz.part-0012",
+          "sha256": "448ae81ad54d4e25df61c5c42f91d3e1be6a9bce06405c376ea7a3048bf673ae"
+        },
+        {
+          "bytes": 32768,
+          "path": "player_gw_forecasts.csv.gz.part-0013",
+          "sha256": "81353e1facc44ddc8bcdbdfb69bc22592cab3b0fda1190fc167dedf76498ab43"
+        },
+        {
+          "bytes": 32768,
+          "path": "player_gw_forecasts.csv.gz.part-0014",
+          "sha256": "0968a504e97e80f950b1b4fb955e3480f5f3a50c852e221ef92c01acb0f6edfd"
+        },
+        {
+          "bytes": 32768,
+          "path": "player_gw_forecasts.csv.gz.part-0015",
+          "sha256": "e85a7a1085865bffbaf127ed24cf90efeeeb0bce39a4e2e7e0ba795e2ccd169a"
+        },
+        {
+          "bytes": 32768,
+          "path": "player_gw_forecasts.csv.gz.part-0016",
+          "sha256": "5be364554df11df19d3db5e2900e2d43d8eefacf6f4148e6d706ca69e3b46d5b"
+        },
+        {
+          "bytes": 32768,
+          "path": "player_gw_forecasts.csv.gz.part-0017",
+          "sha256": "b342c05dce1294b3e96eb403ce84bd37dc13d2906efa5cb62129d1c8cdab41de"
+        },
+        {
+          "bytes": 32768,
+          "path": "player_gw_forecasts.csv.gz.part-0018",
+          "sha256": "09f4152723cf7db5a8081b51301de2044a3617bb2b83af47928b4b173f02d139"
+        },
+        {
+          "bytes": 32768,
+          "path": "player_gw_forecasts.csv.gz.part-0019",
+          "sha256": "4b8facf25558ec7a9b2f55a9bb58298f6fa9827028096fda338d72020de71edf"
+        },
+        {
+          "bytes": 32768,
+          "path": "player_gw_forecasts.csv.gz.part-0020",
+          "sha256": "c2ca93093e6f5c84c9687623efa2548aa855c1f324862d208e630319efe4bbd7"
+        },
+        {
+          "bytes": 32768,
+          "path": "player_gw_forecasts.csv.gz.part-0021",
+          "sha256": "b6589c651fe10c252f1c9595d04dd959c14f751e4ee4a64902f80eb2e49e8d4e"
+        },
+        {
+          "bytes": 32768,
+          "path": "player_gw_forecasts.csv.gz.part-0022",
+          "sha256": "86cd4e126882ae9e0d325bb34e95aa003d6a52d75f2d30d5b32bdb02b6f73e0f"
+        },
+        {
+          "bytes": 32768,
+          "path": "player_gw_forecasts.csv.gz.part-0023",
+          "sha256": "c875078db845d1eb4f72e7e249222e253acb9699acfc321b526ba8d722feea43"
+        },
+        {
+          "bytes": 32768,
+          "path": "player_gw_forecasts.csv.gz.part-0024",
+          "sha256": "016b2316bea1ce348be3692702b65b3695019fe0b4028a76b5597ea9702e24ba"
+        },
+        {
+          "bytes": 32768,
+          "path": "player_gw_forecasts.csv.gz.part-0025",
+          "sha256": "1091e87ba1fec37eef8ee94189a430d3e7100366ae3958be0ca90b58e50bfee3"
+        },
+        {
+          "bytes": 32768,
+          "path": "player_gw_forecasts.csv.gz.part-0026",
+          "sha256": "e9d555de9860fb6ab2c0e1983f8cf997d06ffb0a2608633c57bad999e2335952"
+        },
+        {
+          "bytes": 32768,
+          "path": "player_gw_forecasts.csv.gz.part-0027",
+          "sha256": "88abc16940ccae0bac724a8bff356b116e18f35e05f145d646f0c165470ce173"
+        },
+        {
+          "bytes": 32768,
+          "path": "player_gw_forecasts.csv.gz.part-0028",
+          "sha256": "869c2d502f49d41a0a6614e433dd4c58ef07128f4d938bd45fb165a8503a1bf6"
+        },
+        {
+          "bytes": 32768,
+          "path": "player_gw_forecasts.csv.gz.part-0029",
+          "sha256": "c2657766ee662b29181b7b3c84c6cc7dbd9052bfca055d852a051e97e99f169b"
+        },
+        {
+          "bytes": 32768,
+          "path": "player_gw_forecasts.csv.gz.part-0030",
+          "sha256": "9e065c4cb681b1d0f08aedddf6a322c29de523dec78997c1251b3d9532cf0f5b"
+        },
+        {
+          "bytes": 32768,
+          "path": "player_gw_forecasts.csv.gz.part-0031",
+          "sha256": "4b919a752fa260c111195263622f39f35f6e354996128e80e6961f726a9042ee"
+        },
+        {
+          "bytes": 32768,
+          "path": "player_gw_forecasts.csv.gz.part-0032",
+          "sha256": "36f6823f70d05630b7a3fa5d838ca96799a2e980068ff030cdb8f30eefc61df7"
+        },
+        {
+          "bytes": 32768,
+          "path": "player_gw_forecasts.csv.gz.part-0033",
+          "sha256": "b483babfafd2fe1f1b2ca9472a4e4b5e0e57531d337dfdca12c5592f49f1083b"
+        },
+        {
+          "bytes": 32768,
+          "path": "player_gw_forecasts.csv.gz.part-0034",
+          "sha256": "fceeb46ec15d1d63aa5f71f1906185e2a427d992cce5e08dd4da6c3e4281342e"
+        },
+        {
+          "bytes": 32768,
+          "path": "player_gw_forecasts.csv.gz.part-0035",
+          "sha256": "70f8201f11d3eebdfbbb86231770eb796f2a18bd3efc96e2794169e78434eb40"
+        },
+        {
+          "bytes": 32768,
+          "path": "player_gw_forecasts.csv.gz.part-0036",
+          "sha256": "72f577fa36054b846c622c6575bb70074ea6cd29b544b202aa9968bcfea75580"
+        },
+        {
+          "bytes": 32768,
+          "path": "player_gw_forecasts.csv.gz.part-0037",
+          "sha256": "a754ea1b29a0654703dbe0f904d46fd398bb2585a64b0551aa7964a6b47b2c27"
+        },
+        {
+          "bytes": 32768,
+          "path": "player_gw_forecasts.csv.gz.part-0038",
+          "sha256": "428ebe8e22df12c49d398392d822f5bb262d56f6eda960db16a8b126723dad28"
+        },
+        {
+          "bytes": 32768,
+          "path": "player_gw_forecasts.csv.gz.part-0039",
+          "sha256": "a9603c9341b93f022681caf284037773f39a1c49fa24e6a19af7c168fafad451"
+        },
+        {
+          "bytes": 32768,
+          "path": "player_gw_forecasts.csv.gz.part-0040",
+          "sha256": "7965a3afd352ba8308b39b639c39744b714721ab6162c08f34b7bad081a5e1c6"
+        },
+        {
+          "bytes": 32768,
+          "path": "player_gw_forecasts.csv.gz.part-0041",
+          "sha256": "7bd9bcec74518d9d7532470f51f55107bc026d54e2af57d0314b692a1c321823"
+        },
+        {
+          "bytes": 32768,
+          "path": "player_gw_forecasts.csv.gz.part-0042",
+          "sha256": "8e93113e7c7f6b4754fb07a6e1124ec7e25d614deb667b50326e540d35342562"
+        },
+        {
+          "bytes": 32768,
+          "path": "player_gw_forecasts.csv.gz.part-0043",
+          "sha256": "a5baa4de93d56ba2c85e8ab46765e77285d0a605af5d650c99f7eac2659870ac"
+        },
+        {
+          "bytes": 32768,
+          "path": "player_gw_forecasts.csv.gz.part-0044",
+          "sha256": "dab4c211b721a74149e048270d2cfb4343ad37f0382cfc6e9a61180685eaf741"
+        },
+        {
+          "bytes": 32768,
+          "path": "player_gw_forecasts.csv.gz.part-0045",
+          "sha256": "827ad0d66cd3caa66e4e1c4eb4304ef776f01b266e4238ec027e7f99f85766ec"
+        },
+        {
+          "bytes": 32768,
+          "path": "player_gw_forecasts.csv.gz.part-0046",
+          "sha256": "22352cbced822d1843149ab9b5b232c099cefa3ec7bcaf66c2deefd254710284"
+        },
+        {
+          "bytes": 32768,
+          "path": "player_gw_forecasts.csv.gz.part-0047",
+          "sha256": "60987d593a7f658a4e04c89f113694a7605da7861efdf353c78bfd8819dd71af"
+        },
+        {
+          "bytes": 32768,
+          "path": "player_gw_forecasts.csv.gz.part-0048",
+          "sha256": "83f4e005cfa502b8b766a5eca040dfae3923add5e6fca7b21e28cef608e7a498"
+        },
+        {
+          "bytes": 32768,
+          "path": "player_gw_forecasts.csv.gz.part-0049",
+          "sha256": "d612278fdc5c455c8eb4837d369dfe570fdcc7cfabbf5e6be5469380628032c4"
+        },
+        {
+          "bytes": 32768,
+          "path": "player_gw_forecasts.csv.gz.part-0050",
+          "sha256": "c9418657eb4dbf5be4a692192a92a4fa3e44aad3b700537c7f395c79a8afc498"
+        },
+        {
+          "bytes": 32768,
+          "path": "player_gw_forecasts.csv.gz.part-0051",
+          "sha256": "d70aec1690fb289ff1af2485fcb8c31a38e9dee3688128dbb8e097aa6ea29da7"
+        },
+        {
+          "bytes": 32768,
+          "path": "player_gw_forecasts.csv.gz.part-0052",
+          "sha256": "b1ccdc962cce3499ea07020d9161f21fedbb43ac2b545f4e3a524306649ce32b"
+        },
+        {
+          "bytes": 32768,
+          "path": "player_gw_forecasts.csv.gz.part-0053",
+          "sha256": "38c8dba7ebe8f48a1a345c0381b01c1b8cef2b26d30bcb6905b9bbefa0bfa737"
+        },
+        {
+          "bytes": 32768,
+          "path": "player_gw_forecasts.csv.gz.part-0054",
+          "sha256": "7914c5a5ea417f3e16502789031f4cfb42b6f16aa76ea404a318f22bfec97f23"
+        },
+        {
+          "bytes": 32768,
+          "path": "player_gw_forecasts.csv.gz.part-0055",
+          "sha256": "11e6b8c5e801f826e0f20239f1297298683cca5b1466f76192d14843ba2d4aa4"
+        },
+        {
+          "bytes": 32768,
+          "path": "player_gw_forecasts.csv.gz.part-0056",
+          "sha256": "50871701b203ea5e5efdd6e21c1b9ff7ddb2f93ca103e2fe188e2e33b43b6558"
+        },
+        {
+          "bytes": 32768,
+          "path": "player_gw_forecasts.csv.gz.part-0057",
+          "sha256": "a681ea61447ca119a0a82c32804da01d5272d7ba4c496d88a75d26345d3f89f2"
+        },
+        {
+          "bytes": 32768,
+          "path": "player_gw_forecasts.csv.gz.part-0058",
+          "sha256": "8c331abb104d658976ceb3d5711f0488b65f6dd319780c5d78444859512f04af"
+        },
+        {
+          "bytes": 32768,
+          "path": "player_gw_forecasts.csv.gz.part-0059",
+          "sha256": "ec372eb8a7fd5e298299ae0c7b45308160b55927c13e1c01674deb7ecb423fbe"
+        },
+        {
+          "bytes": 32768,
+          "path": "player_gw_forecasts.csv.gz.part-0060",
+          "sha256": "4b4b587dd89228a18a801c717b274e3259c2f25bfc970ba05c3e5222035fdb15"
+        },
+        {
+          "bytes": 32768,
+          "path": "player_gw_forecasts.csv.gz.part-0061",
+          "sha256": "9984d36e3d39d72c159c2aac7ac90c0d6267689c5680c949f11b46b994d64e73"
+        },
+        {
+          "bytes": 32768,
+          "path": "player_gw_forecasts.csv.gz.part-0062",
+          "sha256": "f5a3017244412be4bcb033b929e61b720d647d013b2d4af47686f3ea15be3091"
+        },
+        {
+          "bytes": 32768,
+          "path": "player_gw_forecasts.csv.gz.part-0063",
+          "sha256": "a98eec6a00b27ab547ff1a184117ad9938003d1d82b9ba225d0bbbf809206aa3"
+        },
+        {
+          "bytes": 32768,
+          "path": "player_gw_forecasts.csv.gz.part-0064",
+          "sha256": "a66f400e51d4c2326d2ef5888164cce521d61612c86b43eefc7d91bfad4d26bf"
+        },
+        {
+          "bytes": 32768,
+          "path": "player_gw_forecasts.csv.gz.part-0065",
+          "sha256": "1fd12b132e9e6ed5818388a7fa2660f5e1fab4d6660ec4ff0a633e4487e8d319"
+        },
+        {
+          "bytes": 32768,
+          "path": "player_gw_forecasts.csv.gz.part-0066",
+          "sha256": "64438e12e89feecac92799809fecc8efa11f8570b1f22ae16467b259408494e5"
+        },
+        {
+          "bytes": 32768,
+          "path": "player_gw_forecasts.csv.gz.part-0067",
+          "sha256": "b712fbf4bf763c59c548719cbf1958ce57fc4de98d2e4cdb8095f0c12346aec1"
+        },
+        {
+          "bytes": 32768,
+          "path": "player_gw_forecasts.csv.gz.part-0068",
+          "sha256": "a3a9584e2841c5291007d852924f4edddb277a853ef42ba939366c8265fa1e78"
+        },
+        {
+          "bytes": 32768,
+          "path": "player_gw_forecasts.csv.gz.part-0069",
+          "sha256": "42a4059dd8b26a9b2cbe410df4ba0dc58781f0b74c8e7d82a71dbdbf90e8d7a6"
+        },
+        {
+          "bytes": 32768,
+          "path": "player_gw_forecasts.csv.gz.part-0070",
+          "sha256": "5a120d3acade03831f169d3238c21ba1ba50de077a05a2570cc9cbd1a776a286"
+        },
+        {
+          "bytes": 32768,
+          "path": "player_gw_forecasts.csv.gz.part-0071",
+          "sha256": "e301ff6c5fa12f98db970b9943501923fc09223f665b784c9f8f2c7c9c4ec90d"
+        },
+        {
+          "bytes": 32768,
+          "path": "player_gw_forecasts.csv.gz.part-0072",
+          "sha256": "3141b00003913336019a2b255f16f378479e07e8912d9e03abaef95adcab8fa2"
+        },
+        {
+          "bytes": 32768,
+          "path": "player_gw_forecasts.csv.gz.part-0073",
+          "sha256": "7e443fcb6d85a681e0353b7edb4714ade93e87431f5182b20ed633cad2152fc7"
+        },
+        {
+          "bytes": 32768,
+          "path": "player_gw_forecasts.csv.gz.part-0074",
+          "sha256": "fa8a0b4044ad3633a91892b3e47fa4c0575fa1bdc96872ac97131b1cbc0a625c"
+        },
+        {
+          "bytes": 32768,
+          "path": "player_gw_forecasts.csv.gz.part-0075",
+          "sha256": "05cef179e6af9e8620b92597fac032cc2862e38bb52895edbf4fff134f5041fe"
+        },
+        {
+          "bytes": 32768,
+          "path": "player_gw_forecasts.csv.gz.part-0076",
+          "sha256": "0ca4b43de85876ad88a9fe5fdeb53b27d742588272b5d4c7d2e98b2c27f48580"
+        },
+        {
+          "bytes": 32200,
+          "path": "player_gw_forecasts.csv.gz.part-0077",
+          "sha256": "eb6df59497896304217cd3097ea2feef0b11b14b7e1500d8601093706ac66526"
+        }
+      ],
+      "rows": 163459,
+      "uncompressed_sha256": "c7f3ce18ac0c518fb3d0747def9d58789cfe83463fd201943dff3e7bb5b0582a"
+    },
+    {
+      "compressed_sha256": "240cee753b9fffbc8d43bcef869d855e79ed6e88c3484aaa0ad544b5c85e23ee",
+      "name": "fixture_forecasts",
+      "parts": [
+        {
+          "bytes": 32768,
+          "path": "fixture_forecasts.csv.gz.part-0000",
+          "sha256": "b780bc7182fedaeaca5613f69d23cc9224c0259e4ed756b39124f2282347127f"
+        },
+        {
+          "bytes": 32768,
+          "path": "fixture_forecasts.csv.gz.part-0001",
+          "sha256": "f192c75a2dd6a659472051fcdd69d0295b20d92cf33e25a06f3f892147c3522b"
+        },
+        {
+          "bytes": 32768,
+          "path": "fixture_forecasts.csv.gz.part-0002",
+          "sha256": "777357612930c5de4c3bc6e2377b282900856199d6bf677cc2f3533b9b18fae8"
+        },
+        {
+          "bytes": 32768,
+          "path": "fixture_forecasts.csv.gz.part-0003",
+          "sha256": "061f891d256d04aab635d0a268af5c78772eb3735b50252bc4f9608b4235ce6b"
+        },
+        {
+          "bytes": 32768,
+          "path": "fixture_forecasts.csv.gz.part-0004",
+          "sha256": "95486af6fd5f83726a7cd928ada42e567eadcca7c62ceff11deb18ca3266e2a1"
+        },
+        {
+          "bytes": 32768,
+          "path": "fixture_forecasts.csv.gz.part-0005",
+          "sha256": "4127a92982e2c3be994eed4968fd31d565506020921dd66063470ad1044af301"
+        },
+        {
+          "bytes": 32768,
+          "path": "fixture_forecasts.csv.gz.part-0006",
+          "sha256": "b8c093a15dfab7b82bd68c7f362062a93aee5ba57749c08329abaec3d33578bf"
+        },
+        {
+          "bytes": 32768,
+          "path": "fixture_forecasts.csv.gz.part-0007",
+          "sha256": "7cf352d9887fefdc3ab848e43dc89a34c8a1d8f4815c7994210da36a211e25a2"
+        },
+        {
+          "bytes": 32768,
+          "path": "fixture_forecasts.csv.gz.part-0008",
+          "sha256": "b51193ed49b294e082bf568439c03b1b70cd6ab95a06dad9198ee81e09e76ab8"
+        },
+        {
+          "bytes": 32768,
+          "path": "fixture_forecasts.csv.gz.part-0009",
+          "sha256": "cb23b118cccb6b2caa68e53c06bdbe6101fc162c3c4018602ab5d21bcc1571b2"
+        },
+        {
+          "bytes": 32768,
+          "path": "fixture_forecasts.csv.gz.part-0010",
+          "sha256": "5bc9fa9bd62baa43e29ea01231329e584212173c1d003559d8bf408e86e327fa"
+        },
+        {
+          "bytes": 32768,
+          "path": "fixture_forecasts.csv.gz.part-0011",
+          "sha256": "12360a941061e87d91bd15d4b30a2b2135d784481d4e38705a1279e5bc7a5883"
+        },
+        {
+          "bytes": 32768,
+          "path": "fixture_forecasts.csv.gz.part-0012",
+          "sha256": "815b45a710f933cbc5b216def3b9f6861038e032ea7b27f04e0ed1e8c87fbf29"
+        },
+        {
+          "bytes": 32768,
+          "path": "fixture_forecasts.csv.gz.part-0013",
+          "sha256": "609a1c8c31eb31743fdad73759ad9a4fdfb6bbd223a71782d1eea45a4609554e"
+        },
+        {
+          "bytes": 32768,
+          "path": "fixture_forecasts.csv.gz.part-0014",
+          "sha256": "8a8323df9929c01579eebe723997b45f41a68fbaece59dae2bc29c5e6fdd5977"
+        },
+        {
+          "bytes": 32768,
+          "path": "fixture_forecasts.csv.gz.part-0015",
+          "sha256": "0f020904cd515b14df272592557f681a1634df196b33c55de61767136ebaf5ba"
+        },
+        {
+          "bytes": 32768,
+          "path": "fixture_forecasts.csv.gz.part-0016",
+          "sha256": "cca62c56a1be47d212f7fdc67917a146fb5b06b74409fcd5d48f34b45174d02b"
+        },
+        {
+          "bytes": 32768,
+          "path": "fixture_forecasts.csv.gz.part-0017",
+          "sha256": "c86a7376435267883b5a6ba1afb8141e6bc458d84d7ebd7e410ff4cdf5816db8"
+        },
+        {
+          "bytes": 32768,
+          "path": "fixture_forecasts.csv.gz.part-0018",
+          "sha256": "b74bf3d4810d079066fdaf49904a921d53bcbdcfbe507b48adc528591b1627bd"
+        },
+        {
+          "bytes": 32768,
+          "path": "fixture_forecasts.csv.gz.part-0019",
+          "sha256": "a5bec9c5ff5a78a425ea0c8748d7325d46a9bed33daf18ecaf5aa38a24604c71"
+        },
+        {
+          "bytes": 32768,
+          "path": "fixture_forecasts.csv.gz.part-0020",
+          "sha256": "7b8dfacbc0706c8962534d360c79820d5f36e1b6a8196efbd06095083f0bec4b"
+        },
+        {
+          "bytes": 32768,
+          "path": "fixture_forecasts.csv.gz.part-0021",
+          "sha256": "2a2fa9a05312f4723512cc98e2f83190e09ca7c9fe268229ae42c62430eb0719"
+        },
+        {
+          "bytes": 32768,
+          "path": "fixture_forecasts.csv.gz.part-0022",
+          "sha256": "0ca937c8a4bc764d4737c605013b528f44c893f70827dcfcc6c28ef0723b790a"
+        },
+        {
+          "bytes": 32768,
+          "path": "fixture_forecasts.csv.gz.part-0023",
+          "sha256": "1a0a35d3065926c9b300d0070e3fc344ee1b062f4766a35492263cfcd3e3d219"
+        },
+        {
+          "bytes": 32768,
+          "path": "fixture_forecasts.csv.gz.part-0024",
+          "sha256": "75d4d538f75d6e103a916b43853cd2d944627eac97c75c38f35498933ef27c02"
+        },
+        {
+          "bytes": 32768,
+          "path": "fixture_forecasts.csv.gz.part-0025",
+          "sha256": "eb4279ffa7093c8b158147be0fce8a63936a043d481c169c3a321cb71827a291"
+        },
+        {
+          "bytes": 32768,
+          "path": "fixture_forecasts.csv.gz.part-0026",
+          "sha256": "16f7be9c55c8032b627725ee27f6895c040d3949c25ca24c36f3cc2c4fb047d8"
+        },
+        {
+          "bytes": 32768,
+          "path": "fixture_forecasts.csv.gz.part-0027",
+          "sha256": "e3067f38df427f9799034f14501e9f350d243c730e8d6112a4692b265f2fd49a"
+        },
+        {
+          "bytes": 32768,
+          "path": "fixture_forecasts.csv.gz.part-0028",
+          "sha256": "f52e845c8269b46ca735a29deb10bee02947e1afb9826263815ba65ff49a1dc6"
+        },
+        {
+          "bytes": 32768,
+          "path": "fixture_forecasts.csv.gz.part-0029",
+          "sha256": "1d1574dd85e9252b56aba336372279d7679fd4c1002a2d6290202d60f6b937d5"
+        },
+        {
+          "bytes": 32768,
+          "path": "fixture_forecasts.csv.gz.part-0030",
+          "sha256": "e4edcf9b66c587444fea31b93e163ad297caacb5c93d28be7b66c93947b9fc4d"
+        },
+        {
+          "bytes": 32768,
+          "path": "fixture_forecasts.csv.gz.part-0031",
+          "sha256": "b1bb007a42665e8993dea01bd2ffd59b6fd2561f62636bc9682fae7ad9e41912"
+        },
+        {
+          "bytes": 32768,
+          "path": "fixture_forecasts.csv.gz.part-0032",
+          "sha256": "07cec38ecfe03330c83791f67e93cef9f165100ec907112cbb45e3d102a46dbe"
+        },
+        {
+          "bytes": 32768,
+          "path": "fixture_forecasts.csv.gz.part-0033",
+          "sha256": "f99c9745d8c9750b9e928ea1451f9d89829d2596b437578e28dd5bf4140fd1eb"
+        },
+        {
+          "bytes": 32768,
+          "path": "fixture_forecasts.csv.gz.part-0034",
+          "sha256": "198b0d2fb31e48ce24ad15ead753cb801c17fc50238b16a7b94b8cd290c587d1"
+        },
+        {
+          "bytes": 32768,
+          "path": "fixture_forecasts.csv.gz.part-0035",
+          "sha256": "e98f0c2c0f5837aa458748f687686514b45eed9235bf5e1084b4aaf8cc0d30da"
+        },
+        {
+          "bytes": 32768,
+          "path": "fixture_forecasts.csv.gz.part-0036",
+          "sha256": "fc960d81bc1b436f4ec756d1e314d6722300248b32efcc69dea94035eb496941"
+        },
+        {
+          "bytes": 32768,
+          "path": "fixture_forecasts.csv.gz.part-0037",
+          "sha256": "1db891559ddfcff9b64331af212ee3d35fe7c15b8bc8fb8e1997b66d7874279f"
+        },
+        {
+          "bytes": 32768,
+          "path": "fixture_forecasts.csv.gz.part-0038",
+          "sha256": "5601ede3031a939772e1cb54f5cbb08e2eff2ebb4fbafd52b7695092ac770d6d"
+        },
+        {
+          "bytes": 32768,
+          "path": "fixture_forecasts.csv.gz.part-0039",
+          "sha256": "bab620c3da98f5040c80c947ce35152b025d9bf4ca20c1a1e94e89f9e7cb058e"
+        },
+        {
+          "bytes": 32768,
+          "path": "fixture_forecasts.csv.gz.part-0040",
+          "sha256": "b67d7103a69ddd6bd17f4b2e34393f01d4551b791b067a537a77de4e2907c609"
+        },
+        {
+          "bytes": 32768,
+          "path": "fixture_forecasts.csv.gz.part-0041",
+          "sha256": "e860fa3da648e53c8470f4d58ebbdf7eac5f78f9818afc29dd44c76e8a484d8f"
+        },
+        {
+          "bytes": 32768,
+          "path": "fixture_forecasts.csv.gz.part-0042",
+          "sha256": "32d8fe765481ed5e42be23f80d0714382e7704c11c3cfbfb274eee69b3684602"
+        },
+        {
+          "bytes": 32768,
+          "path": "fixture_forecasts.csv.gz.part-0043",
+          "sha256": "418c723faa79d340ec8cec97a421dbf0440e4d0860cbc17bd0c80253ea4f862f"
+        },
+        {
+          "bytes": 32768,
+          "path": "fixture_forecasts.csv.gz.part-0044",
+          "sha256": "73c8d3fb93ca65b3c137c93f167311403b7f140667809274531b8b1797e81fd9"
+        },
+        {
+          "bytes": 32768,
+          "path": "fixture_forecasts.csv.gz.part-0045",
+          "sha256": "51c5f9b241812a1f48eeff4f771d3b9a0596a522707a877401575f202213de6d"
+        },
+        {
+          "bytes": 32768,
+          "path": "fixture_forecasts.csv.gz.part-0046",
+          "sha256": "2447bb0c5f89a9c87ca3d0d2394992c1fe579b97d8776830d73e05a390698028"
+        },
+        {
+          "bytes": 32768,
+          "path": "fixture_forecasts.csv.gz.part-0047",
+          "sha256": "90f2bc1ecb12f2c2d14d0ac3522d33cfe8afad3c1c6e137363525a3b426de779"
+        },
+        {
+          "bytes": 32768,
+          "path": "fixture_forecasts.csv.gz.part-0048",
+          "sha256": "04fb486713bbcb0e6374d7af1f035e2c3886222c8f61c039f8bf97ec71df4426"
+        },
+        {
+          "bytes": 32768,
+          "path": "fixture_forecasts.csv.gz.part-0049",
+          "sha256": "f0ed2f664ad62b0eea1a6b9f54c3b20eb4e0a95ef643a6ce3c63366455523797"
+        },
+        {
+          "bytes": 32768,
+          "path": "fixture_forecasts.csv.gz.part-0050",
+          "sha256": "acb2206c36ab54be55d7dc9bd739a92039d31535a2e003fdfec6588586168b55"
+        },
+        {
+          "bytes": 32768,
+          "path": "fixture_forecasts.csv.gz.part-0051",
+          "sha256": "287e85d49f3ff8e392f15ec85d22582c8670337674fff783d51bb5f5afdabead"
+        },
+        {
+          "bytes": 32768,
+          "path": "fixture_forecasts.csv.gz.part-0052",
+          "sha256": "1ce07a070e97417f018045a00bd1037e66e9ee2e5dd23efc890ff8ac946ef0fa"
+        },
+        {
+          "bytes": 32768,
+          "path": "fixture_forecasts.csv.gz.part-0053",
+          "sha256": "cf00500f202595eb2b0ca058192d46b8f629d261d512448ee914a3b9e6369e75"
+        },
+        {
+          "bytes": 32768,
+          "path": "fixture_forecasts.csv.gz.part-0054",
+          "sha256": "ef5d0eb573af612504c8bc79400421568cdfb45f860ee1643be7addfd6e90839"
+        },
+        {
+          "bytes": 32768,
+          "path": "fixture_forecasts.csv.gz.part-0055",
+          "sha256": "23216db963ff1c01233663bf59aa34d04b0aa7b58b41c1f11ed8635bc8c0fde9"
+        },
+        {
+          "bytes": 32768,
+          "path": "fixture_forecasts.csv.gz.part-0056",
+          "sha256": "da6a7c74b8beac985744751dd4cb8f511b2c44ffb5d0d4ee2c51a17c5f6fbccc"
+        },
+        {
+          "bytes": 32768,
+          "path": "fixture_forecasts.csv.gz.part-0057",
+          "sha256": "402b529468b2254f7963eebd252f19252af75a36cd9b8dbc782b0c77fb45c2eb"
+        },
+        {
+          "bytes": 32768,
+          "path": "fixture_forecasts.csv.gz.part-0058",
+          "sha256": "f24600a85542f0a62abb603278ebf2e673dc64041761e9b3e0ee723b3c25740b"
+        },
+        {
+          "bytes": 32768,
+          "path": "fixture_forecasts.csv.gz.part-0059",
+          "sha256": "91572a678870339c53ba44c3875bb0438be81613e68457c882c0aacc5d1feba2"
+        },
+        {
+          "bytes": 32768,
+          "path": "fixture_forecasts.csv.gz.part-0060",
+          "sha256": "a67b4f9f30a5792559bd8fa0e3491bdfdb5da61f46653c68d76cf8580ad48720"
+        },
+        {
+          "bytes": 32768,
+          "path": "fixture_forecasts.csv.gz.part-0061",
+          "sha256": "8b2662a587b239bf96f7e228db24c73a538beddd870541675fb38fd1ab780119"
+        },
+        {
+          "bytes": 32768,
+          "path": "fixture_forecasts.csv.gz.part-0062",
+          "sha256": "4d0f32f6e902f7ca9d9bb64dce292369b741911a2d2519cd4598b38b02242c40"
+        },
+        {
+          "bytes": 32768,
+          "path": "fixture_forecasts.csv.gz.part-0063",
+          "sha256": "7422b6d867ad09342bfe419e644117195113db1ecb12d2737b63f5b207258486"
+        },
+        {
+          "bytes": 32768,
+          "path": "fixture_forecasts.csv.gz.part-0064",
+          "sha256": "0c6bf384f4101b988cc48abf3bb0755c8b8d10347bfbe1263f4f0c6cd26e7dce"
+        },
+        {
+          "bytes": 32768,
+          "path": "fixture_forecasts.csv.gz.part-0065",
+          "sha256": "992c5e5164575899404f03d469b5c7bf0a7de83fca27d73433a4a991b7e01461"
+        },
+        {
+          "bytes": 32768,
+          "path": "fixture_forecasts.csv.gz.part-0066",
+          "sha256": "4d2b2c220eec605a10d3aef2693240e7ab04644ecfc66fb7a599473793db8d62"
+        },
+        {
+          "bytes": 32768,
+          "path": "fixture_forecasts.csv.gz.part-0067",
+          "sha256": "88a569ab429a0311535c8eb946d71dcab7eddb523b6e53f049eb8a624f40eeac"
+        },
+        {
+          "bytes": 32768,
+          "path": "fixture_forecasts.csv.gz.part-0068",
+          "sha256": "d9f9a4ffb2b0612cbcd5c40539b8360163079a1bb81ef430cc9a9d499c6e576d"
+        },
+        {
+          "bytes": 32768,
+          "path": "fixture_forecasts.csv.gz.part-0069",
+          "sha256": "fd97d10ba69d9847b7197e89fc8694bfb83e44652cd65a5d5ec684b2dfd109a5"
+        },
+        {
+          "bytes": 32768,
+          "path": "fixture_forecasts.csv.gz.part-0070",
+          "sha256": "df434e87a64112a2892da96f1c7aecd884325814817b8710139c5e5e33cdfec3"
+        },
+        {
+          "bytes": 32768,
+          "path": "fixture_forecasts.csv.gz.part-0071",
+          "sha256": "90acfcd697c5f1807e75578b5283dae2a4db9681c00e35ef00f60eb8528c8b0f"
+        },
+        {
+          "bytes": 32768,
+          "path": "fixture_forecasts.csv.gz.part-0072",
+          "sha256": "0ec76a7d084df87f96b102846ce45ac6b061a323424b8084db66afb74966a65d"
+        },
+        {
+          "bytes": 32768,
+          "path": "fixture_forecasts.csv.gz.part-0073",
+          "sha256": "cf9b80ae2ea265b3efbdd638d3b3277716a485ec1504aa860e3f51a709e47898"
+        },
+        {
+          "bytes": 29812,
+          "path": "fixture_forecasts.csv.gz.part-0074",
+          "sha256": "67a2d6c78a7e7df1a09308dd6d7279798c709d82621bac8efd46ceb27a8dec66"
+        }
+      ],
+      "rows": 165900,
+      "uncompressed_sha256": "a2f6f2038ae55e11f1e7952fcbc125a44798a46d62f3b08e9ca4563906a2300d"
+    },
+    {
+      "compressed_sha256": "64ce728d68c965bb48022af0ccc7c48816c1ce8e260f2682bb2e0008c96c5153",
+      "name": "original_cutoff_audit",
+      "parts": [
+        {
+          "bytes": 536,
+          "path": "original_cutoff_audit.csv.gz.part-0000",
+          "sha256": "64ce728d68c965bb48022af0ccc7c48816c1ce8e260f2682bb2e0008c96c5153"
+        }
+      ],
+      "rows": 38,
+      "uncompressed_sha256": "b8dd641397ca248e7bf91e8a01e6e887b21e236dadd7c5c0769dad71770394ab"
+    }
+  ],
+  "parent_checkpoint": "40f1ba0d4036fd32c805081ad796f42b853568fd",
+  "unchanged": "Core, active forecasts/results, original adapter/simulator/scoring and transfer/chip strategy",
+  "v4_origin_target_cells_recovered": 0
+}
