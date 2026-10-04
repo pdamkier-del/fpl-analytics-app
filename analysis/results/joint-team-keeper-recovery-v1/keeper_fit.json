@@ -1,0 +1,332 @@
+{
+  "selection_protocol": {
+    "train_seasons": [
+      "2022-23",
+      "2023-24"
+    ],
+    "validation_season": "2024-25",
+    "evaluation_season": "2025-26",
+    "holdout_caveat": "2025/26 was inspected during Phase 3G exploratory development before the final scripted freeze, so it is evaluation-only but not a never-seen blind holdout.",
+    "half_lives_fixed_not_tuned": {
+      "attack": 13.0,
+      "defence": 19.999999999999996
+    },
+    "min_history_matches": 5
+  },
+  "source": {
+    "name": "football_data_co_uk",
+    "classification": "PARTIAL",
+    "rows": 3120,
+    "definition_policy": "Use source SOT as predictor; never force source SOT = FPL saves + goals."
+  },
+  "sot_structure_candidates": [
+    {
+      "model": "league",
+      "n_params": 2,
+      "params": [
+        -0.09261434416470504,
+        0.21709111197283168
+      ],
+      "validation": {
+        "n": 660,
+        "poisson_nll_no_constant": -2.289596096299632,
+        "mae": 1.9255687992780377,
+        "rmse": 2.4509951879704857,
+        "bias": 0.274205105075078,
+        "mean_prediction": 4.790871771741744,
+        "mean_actual": 4.516666666666667
+      }
+    },
+    {
+      "model": "attack",
+      "n_params": 2,
+      "params": [
+        -0.10044970903785408,
+        0.22382123300658724
+      ],
+      "validation": {
+        "n": 660,
+        "poisson_nll_no_constant": -2.3201425343496145,
+        "mae": 1.8740124179735833,
+        "rmse": 2.4085240419135405,
+        "bias": 0.22865604864205782,
+        "mean_prediction": 4.745322715308725,
+        "mean_actual": 4.516666666666667
+      }
+    },
+    {
+      "model": "defence",
+      "n_params": 2,
+      "params": [
+        -0.09724301628547163,
+        0.225727092034138
+      ],
+      "validation": {
+        "n": 660,
+        "poisson_nll_no_constant": -2.310188256803672,
+        "mae": 1.9241606118615233,
+        "rmse": 2.422984064915534,
+        "bias": 0.25623284323254364,
+        "mean_prediction": 4.77289950989921,
+        "mean_actual": 4.516666666666667
+      }
+    },
+    {
+      "model": "arithmetic",
+      "n_params": 3,
+      "params": [
+        -0.09886063060256972,
+        0.2247644561315763,
+        0.016201063401893076
+      ],
+      "validation": {
+        "n": 660,
+        "poisson_nll_no_constant": -2.366317607415276,
+        "mae": 1.8164305482052316,
+        "rmse": 2.303248593869278,
+        "bias": 0.242305242355522,
+        "mean_prediction": 4.758971909022188,
+        "mean_actual": 4.516666666666667
+      }
+    },
+    {
+      "model": "multiplicative",
+      "n_params": 2,
+      "params": [
+        -0.10301827395538357,
+        0.23069127463357808
+      ],
+      "validation": {
+        "n": 660,
+        "poisson_nll_no_constant": -2.3440871383671036,
+        "mae": 1.8846511555215184,
+        "rmse": 2.3723383322823253,
+        "bias": 0.21240325990692796,
+        "mean_prediction": 4.729069926573595,
+        "mean_actual": 4.516666666666667
+      }
+    },
+    {
+      "model": "loglinear",
+      "n_params": 4,
+      "params": [
+        -0.08735078719372218,
+        0.2262623870805724,
+        0.6618213233814467,
+        0.655642417161689
+      ],
+      "validation": {
+        "n": 660,
+        "poisson_nll_no_constant": -2.3702336641658235,
+        "mae": 1.8199403178336435,
+        "rmse": 2.3005556365752677,
+        "bias": 0.2439935014707617,
+        "mean_prediction": 4.760660168137429,
+        "mean_actual": 4.516666666666667
+      }
+    }
+  ],
+  "selected_sot": {
+    "model": "arithmetic",
+    "intercept": -0.10002352032825398,
+    "attacker_home_log_effect": 0.19535113383467356,
+    "opponent_sot_for_weight": 0.5110204859308015,
+    "team_sot_allowed_weight": 0.4889795140691985,
+    "development": {
+      "n": 1978,
+      "poisson_nll_no_constant": -2.577170619800718,
+      "mae": 1.8292051676496193,
+      "rmse": 2.316456411113574,
+      "bias": 2.2666469230926245e-08,
+      "mean_prediction": 4.625884754719047,
+      "mean_actual": 4.625884732052579
+    },
+    "evaluation": {
+      "n": 660,
+      "poisson_nll_no_constant": -1.9984022420755396,
+      "mae": 1.7115295681942413,
+      "rmse": 2.1480562745891723,
+      "bias": -0.1745570366036391,
+      "mean_prediction": 4.111806599759997,
+      "mean_actual": 4.286363636363636
+    }
+  },
+  "save_mapping_candidates": [
+    {
+      "model": "raw_sot_minus_goals",
+      "n_params": 0,
+      "params": [],
+      "validation": {
+        "n": 660,
+        "poisson_nll_no_constant": -0.33070147283626344,
+        "mae": 1.5692961095439424,
+        "rmse": 1.936806257431741,
+        "bias": 0.20055134308872638,
+        "mean_prediction": 3.2308543733917565,
+        "mean_actual": 3.0303030303030303
+      }
+    },
+    {
+      "model": "base_power",
+      "n_params": 2,
+      "params": [
+        0.36509613540439,
+        0.5970783009676419
+      ],
+      "validation": {
+        "n": 660,
+        "poisson_nll_no_constant": -0.34118114116123227,
+        "mae": 1.520917801778635,
+        "rmse": 1.9176328698727758,
+        "bias": -0.13860453252921565,
+        "mean_prediction": 2.8916984977738145,
+        "mean_actual": 3.0303030303030303
+      }
+    },
+    {
+      "model": "base_power_home",
+      "n_params": 3,
+      "params": [
+        0.43866372438942347,
+        0.5086305061636024,
+        0.07647852962990469
+      ],
+      "validation": {
+        "n": 660,
+        "poisson_nll_no_constant": -0.34239411970419864,
+        "mae": 1.525727391380114,
+        "rmse": 1.9155669651829619,
+        "bias": -0.10651874594002517,
+        "mean_prediction": 2.923784284363005,
+        "mean_actual": 3.0303030303030303
+      }
+    },
+    {
+      "model": "sot_only",
+      "n_params": 3,
+      "params": [
+        -0.7061864305419476,
+        1.2116759633014258,
+        -0.06551422328639611
+      ],
+      "validation": {
+        "n": 660,
+        "poisson_nll_no_constant": -0.3718310413827011,
+        "mae": 1.5071612122403395,
+        "rmse": 1.8701288607472908,
+        "bias": 0.1342267662723008,
+        "mean_prediction": 3.164529796575331,
+        "mean_actual": 3.0303030303030303
+      }
+    },
+    {
+      "model": "sot_plus_goal",
+      "n_params": 4,
+      "params": [
+        -0.6719743292973043,
+        1.1802305962069948,
+        0.01095479196382703,
+        -0.06057657099935129
+      ],
+      "validation": {
+        "n": 660,
+        "poisson_nll_no_constant": -0.37151026999010617,
+        "mae": 1.5096407641592673,
+        "rmse": 1.8710339898450072,
+        "bias": 0.15020528161299138,
+        "mean_prediction": 3.180508311916022,
+        "mean_actual": 3.0303030303030303
+      }
+    }
+  ],
+  "selected_save": {
+    "model": "sot_only",
+    "intercept": -0.6320693528824952,
+    "sot_exponent": 1.1551360695718156,
+    "attacker_home_log_effect": -0.02853638122077288,
+    "development": {
+      "n": 1978,
+      "poisson_nll_no_constant": -0.4531485727166897,
+      "mae": 1.5131765556643593,
+      "rmse": 1.899082314509785,
+      "bias": 4.307274720244577e-09,
+      "mean_prediction": 3.0793731084528764,
+      "mean_actual": 3.079373104145602
+    },
+    "evaluation": {
+      "n": 660,
+      "poisson_nll_no_constant": -0.1452074173897561,
+      "mae": 1.3631968578629277,
+      "rmse": 1.736272011186271,
+      "bias": -0.16445165772807596,
+      "mean_prediction": 2.685548342271924,
+      "mean_actual": 2.85
+    }
+  },
+  "save_ablations": {
+    "raw_source_sot_minus_team_goal_lambda": {
+      "n": 660,
+      "poisson_nll_no_constant": -0.1259964706499397,
+      "mae": 1.3846783461019914,
+      "rmse": 1.7596192364830647,
+      "bias": -0.16871102545124128,
+      "mean_prediction": 2.681288974548759,
+      "mean_actual": 2.85
+    },
+    "development_mean_saves_baseline": {
+      "n": 660,
+      "poisson_nll_no_constant": -0.12609610601780613,
+      "mae": 1.3935334129975183,
+      "rmse": 1.7687840086879567,
+      "bias": 0.22937310414560186,
+      "mean_prediction": 3.0793731041456023,
+      "mean_actual": 2.85
+    },
+    "mae_delta_selected_minus_development_mean_baseline_bootstrap": {
+      "mean_delta": -0.03052940419818831,
+      "ci95": [
+        -0.07445125371580259,
+        0.0133594325228052
+      ]
+    }
+  },
+  "save_distribution": {
+    "selected": "poisson",
+    "nb2_alpha_fit_on_development": 0.053978158364894946,
+    "development_poisson_nll": 2.0004132989337413,
+    "development_nb2_nll": 1.9941543042870216,
+    "holdout_poisson_nll": 1.926443560492209,
+    "holdout_nb2_nll": 1.9274520563269757
+  },
+  "save_points_evaluation": {
+    "n": 660,
+    "mae": 0.5383831353060733,
+    "rmse": 0.6196487678910925,
+    "bias": -0.05133391584522073,
+    "mean_prediction": 0.5623024477911429,
+    "mean_actual": 0.6136363636363636
+  },
+  "save_point_bucket_calibration": {
+    "1": {
+      "brier": 0.24470724232928376,
+      "mean_prediction": 0.4955523263979561,
+      "event_rate": 0.543939393939394
+    },
+    "2": {
+      "brier": 0.06000687230891288,
+      "mean_prediction": 0.06359941358399776,
+      "event_rate": 0.06363636363636363
+    },
+    "3": {
+      "brier": 0.005992505888741146,
+      "mean_prediction": 0.0030752437971186823,
+      "event_rate": 0.006060606060606061
+    }
+  },
+  "simulation_contract": {
+    "goals": "Phase 3B team-goal Poisson mean",
+    "saves": "Phase 3G Poisson save mean",
+    "modelled_sot": "goals + saves in every draw",
+    "penalty_saves": "shared penalty event from Phase 3F, not independent"
+  }
+}
