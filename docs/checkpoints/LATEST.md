@@ -1,24 +1,19 @@
 # Latest continuation checkpoint
 
-Read [near-deadline blocked-roster source bracket](2026-10-04-blocked-roster-bracket.md).
-Continues b05f6fc3a817e4e58ba8fbc04b871f0a1dd1d955; no restart or forecast/policy change.
+Read [isolated season mechanics](2026-10-04-season-mechanics.md).
+Continues cd0e01a424b0fd2fae6c3e1cb5e2f02f28f5c163 without restarting.
 
-The original controlled paired run is complete: 144 whole fixtures / 11,794 rows,
-117 saved passing tests and 12,896 common-input checks. GW22–38 is reused
-diagnostic, not a new holdout. Transfer/chip strategy remains unchanged.
+125 tests pass. Eight new tests verify an opt-in 2025/26 accounting/legality
+profile: AFCON GW16 FT top-up, rollover/hits, WC/FH bank preservation and chip
+windows. It is not activated in the archived replay; original strategy hashes,
+scoring, adapter, simulator and paired predictions are unchanged.
 
-The remaining 32 rows (31 named players, 26 fixtures) have now been checked
-against 119 adjacent pinned cache snapshots. None appears in the nearest
-postdeadline sample; 23 are observed within two days later. 31 source snapshots
-and their postdeadline Git publication metadata are preserved. 325 forensic
-checks pass. No new predeadline evidence was recovered, so the cohort cannot
-be expanded safely from this source. Do not repeat reconstruction or the
-completed paired run to address this gap.
+The 144-fixture controlled paired diagnostic is already complete. GW22–38 stays
+reused diagnostic. 32 rows/26 fixtures remain blocked; 119 adjacent cache
+snapshots did not recover predeadline evidence. Furo's independent club signing
+announcement confirms club/role but not FPL availability, so no row is promoted.
 
-Next: obtain independent timestamped predeadline listing/team/position evidence
-for the named rows in blocked-roster-bracket-v1/blocked_rows.csv, or maintain the
-explicit 144-fixture diagnostic cohort. Full-season decision replay also needs
-early-season/horizon coverage and resolution of the existing season scoring/chip
-audit. Full-period/full-season readiness remains false. History availability in
-the existing paired inputs is an explicit kickoff+3h guard, not verified source
-publication timestamps. No future roster state has entered forecast inputs.
+Next: quantify full-season origin/horizon coverage and remaining integration
+requirements. Do not repeat reconstruction or the completed paired run. Full
+season readiness remains false; mechanics integration, historical scoring,
+predeadline roster/prices/schedules and forecast horizons are separate gates.

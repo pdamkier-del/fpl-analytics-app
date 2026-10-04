@@ -1,0 +1,58 @@
+{
+  "code": [
+    {
+      "path": "src/fpl_xpts/season_2025_26_rules.py",
+      "sha256": "ba8c68397043ed9b7c5fd746fe1fe412e8366c485d083276eac18c13cc852e9b"
+    },
+    {
+      "path": "tests/test_season_2025_26_rules.py",
+      "sha256": "f9492a3b21b1793ff39d72e988e513e91543db8e7d3b9cce069344b455acb5ef"
+    }
+  ],
+  "command": "PYTHONPATH=src python -m pytest -q tests",
+  "full_season_ready": false,
+  "new_rule_tests": 8,
+  "parent_checkpoint": "cd0e01a424b0fd2fae6c3e1cb5e2f02f28f5c163",
+  "policy_checks": [
+    {
+      "path": "src/fpl_xpts/season_replay.py",
+      "sha256": "c17ec0c5fcdee583539962bf705c5f72bf4ea9776a0291e23a429cfe4dd603b1",
+      "unchanged_from": "8091c857ccc9909637e4884212f534834b9576ac"
+    },
+    {
+      "path": "src/fpl_xpts/optimize.py",
+      "sha256": "9d10d292d0cb5928e481dcc65bc31e0605843a6cf90b67b57ffb0e553dda2ac6",
+      "unchanged_from": "8091c857ccc9909637e4884212f534834b9576ac"
+    },
+    {
+      "path": "model/decision_optimizer.py",
+      "sha256": "1025d657cc5b020522d3ca762381c58d3d302cbd41596f0b9836c53445912742",
+      "unchanged_from": "8091c857ccc9909637e4884212f534834b9576ac"
+    }
+  ],
+  "pytest": "9.1.1",
+  "python": "3.12.14",
+  "retrieved_at": "2026-10-04",
+  "rules_profile_active_in_archived_replay": false,
+  "scope": "Preseason-entry manager bookkeeping only; no scoring, optimizer, squad mutation or late-entry activation",
+  "sources": [
+    {
+      "published": "2025-12-09",
+      "supports": "FT balance tops up to five immediately after the GW15 deadline; applies to GW16",
+      "url": "https://www.premierleague.com/en/news/4461660/fpl-managers-now-have-five-free-transfers-all-the-details"
+    },
+    {
+      "published": "2025-07-18",
+      "supports": "Two chip sets, GW1-19/GW20-38, no Assistant Manager, no consecutive FH19/FH20",
+      "url": "https://www.premierleague.com/en/news/4362027"
+    },
+    {
+      "limitation": "Live FAQ has a conflicting absolute GW19 clock time; code uses GW indices, not that timestamp",
+      "published": "2026-05-18",
+      "supports": "FT cap five, saved FT preservation with WC/FH, opening GW unlimited transfers and no WC/FH, one chip per GW",
+      "url": "https://www.premierleague.com/en/news/4661030"
+    }
+  ],
+  "tests_failed": 0,
+  "tests_passed": 125
+}
