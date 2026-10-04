@@ -1,23 +1,38 @@
-# Latest checkpoint: legacy season simulation completed
+# Latest checkpoint: direct v4 minute/start evaluation complete
 
-See `2026-10-04-legacy-season-completed.md` for execution and limitations.
+See `2026-10-04-direct-minutes-v4.md`.
 
-All 38 GWs executed: **2,096 net points**, 2,152 gross, 56 hit points,
-50 transfers, 1,367 no-transfer control, £1.5m final bank. All 570 lineup
-rows and 38 gameweek rows match the archive after autosub ID normalization.
-Scores and autosubs were recomputed for every GW. Existing suite: 125 passed.
+Exact shared point-diagnostic cohort: 144 fixtures / 11,794 player-fixture
+rows, GW22–38, 26 whole fixtures excluded in both arms. Saved forecasts only;
+no fitting, prediction regeneration, model or transfer/chip policy changes.
 
-Small checkpoints published at GW5, GW19, GW30; final run_status has
-completed=true and last_completed_gw=38. Protected policy hashes unchanged.
-Exact historical bytes are recoverable from committed gzip parts.
-Launcher resumes by default and reconstructs its scratch runtime.
+Original v2 → selected v4 workload_start:
+- Minute MAE: 11.969695 → 11.509261 (3.85% reduction).
+- Minute RMSE: 21.920483 → 21.573631.
+- Start Brier: 0.077751 → 0.075779.
+- Start log loss: 0.259617 → 0.246429.
+- Ten-bin calibration ECE: 0.024988 → 0.007284.
 
-This is a legacy technical reproduction, not v4 season performance and not
-new holdout evidence. GW22–38 remains reused diagnostic. The original
-runner's retrospective metadata/schedule and inherited rule limitations
-are retained and documented; transfer/chip policy was not changed.
+Internal role-control is a separate comparator (minute MAE 11.847375),
+not the unchanged v2 joint-simulator control. Direct minute metrics already
+existed on the broader saved dataset; this report verifies the exact matched
+cohort and corrects the prior overly strong conversational status claim.
 
-No further execution is needed for this legacy simulation. A separately
-controlled v4 full-season experiment still has early as-of snapshot gaps,
-196 missing selected-v4 horizon cells and a 32-row/26-fixture roster gap.
-The completed paired control/v4 diagnostic remains unchanged.
+Weaknesses: actual substitute minute MAE worsens 19.412683 → 20.640091;
+forward start Brier worsens; larger role-information-change bands show small
+MAE regressions. Much of the aggregate improvement comes from nonappearance.
+All slices based on actual outcomes are posthoc descriptive, never features.
+
+107 report integrity/metric/calibration/partition/policy checks pass;
+target starts and minutes additionally match Historical Core exactly.
+Existing full test suite: 125 passed. Full evaluated rows are checksum packed
+in `analysis/results/direct-minutes-v4-diagnostic-v1/`.
+
+GW22–38 remains reused diagnostic, not new holdout. No full v4 season-points
+claim. Independent evaluation and incomplete competition histories remain.
+The separately completed old-model season reproduction has 2,096 net points
+but is irrelevant to the new minute-model comparison; its results remain intact.
+
+The requested direct evaluation is complete. Do not change the model or policy
+silently: new tuning requires a separately defined development experiment and
+independent evaluation period.

@@ -1,0 +1,255 @@
+{
+  "bootstrap": {
+    "intervals_95_percent": {
+      "original_v2": {
+        "minutes_mae": {
+          "lower": -0.6207436108872431,
+          "upper": -0.2623602385300306
+        },
+        "start_brier": {
+          "lower": -0.0031063623186903962,
+          "upper": -0.0008877021360252237
+        }
+      },
+      "role_control": {
+        "minutes_mae": {
+          "lower": -0.4906909016730277,
+          "upper": -0.14894463317473153
+        },
+        "start_brier": {
+          "lower": -0.002150677783171248,
+          "upper": -0.000878976789844274
+        }
+      }
+    },
+    "method": "2000 paired GW-block resamples of 17 reused GWs; exploratory, not independent confirmation",
+    "seed": 20261004
+  },
+  "classification": "reused_diagnostic_not_new_holdout",
+  "comparisons": {
+    "original_v2": "Exact unchanged control used in the 144-fixture joint point diagnostic",
+    "role_control": "Internal role-only ablation; isolates additional workload features",
+    "v4": "Frozen development-selected workload_start; not workload_decomposition"
+  },
+  "evaluated_rows_compressed_sha256": "52545ac72ee416bda442f43c33fd4db6ea85b161edfcb5f396abf72c8d1e1a37",
+  "evaluated_rows_uncompressed_sha256": "e48c214dd6a2cdb397ab117170d01cdf8275ea2076bd623bd2f0ba031a8a9f26",
+  "excluded_whole_fixtures": 26,
+  "fixtures": 144,
+  "gw_range": [
+    22,
+    38
+  ],
+  "limitations": [
+    "GW22-38 reused after development; not new holdout",
+    "Incomplete all-competition history; FA Cup absent and other gaps documented",
+    "26 whole fixtures excluded identically for unverified roster evidence",
+    "Actual starter/substitute and target-role groups are posthoc descriptive only",
+    "Conditional starter/substitute errors assess expected total minutes, not conditional duration forecasts",
+    "V2 control inherits GW-order history availability; current cohort verification does not recertify it"
+  ],
+  "metrics": {
+    "original_v2": {
+      "actual_mean_minutes": 24.053247413939292,
+      "actual_start_rate": 0.26861115821604203,
+      "calibration_ece_10_fixed_bins": 0.024987941580230263,
+      "mean_p_start": 0.268611158216042,
+      "mean_predicted_minutes": 24.092445232656114,
+      "minutes_bias": 0.039197818716824824,
+      "minutes_mae": 11.969694622701525,
+      "minutes_rmse": 21.92048297620695,
+      "n": 11794,
+      "start_brier": 0.07775069746330063,
+      "start_log_loss": 0.25961699507225444
+    },
+    "role_control": {
+      "actual_mean_minutes": 24.053247413939292,
+      "actual_start_rate": 0.26861115821604203,
+      "calibration_ece_10_fixed_bins": 0.01591539783237924,
+      "mean_p_start": 0.26861115821604076,
+      "mean_predicted_minutes": 23.99998181593837,
+      "minutes_bias": -0.05326559800092762,
+      "minutes_mae": 11.847375117076417,
+      "minutes_rmse": 21.855002931461097,
+      "n": 11794,
+      "start_brier": 0.07726689767009802,
+      "start_log_loss": 0.2531797518082439
+    },
+    "v4": {
+      "actual_mean_minutes": 24.053247413939292,
+      "actual_start_rate": 0.26861115821604203,
+      "calibration_ece_10_fixed_bins": 0.007284294709490191,
+      "mean_p_start": 0.268611158216042,
+      "mean_predicted_minutes": 23.838725742202723,
+      "minutes_bias": -0.21452167173656522,
+      "minutes_mae": 11.509260510028732,
+      "minutes_rmse": 21.57363072116027,
+      "n": 11794,
+      "start_brier": 0.07577851494188811,
+      "start_log_loss": 0.24642929908014216
+    }
+  },
+  "no_fitting": true,
+  "no_model_policy_changes": true,
+  "outputs": [
+    {
+      "path": "evaluated_rows.csv.gz.part-0000",
+      "sha256": "c6bd1b07acbc39dc0c6cff8343f88382ac02fe8866fda4dfea9c9df10184ffb7"
+    },
+    {
+      "path": "evaluated_rows.csv.gz.part-0001",
+      "sha256": "2e90eeb422caf9e3985592cf21a539f16121acf67875801396eee9531a175157"
+    },
+    {
+      "path": "evaluated_rows.csv.gz.part-0002",
+      "sha256": "f362ad13c3e179ec9e024f68cbd11b2135af706868480cc8e226c17b5cd7f7b4"
+    },
+    {
+      "path": "evaluated_rows.csv.gz.part-0003",
+      "sha256": "de64597e8b932900d209192591dbd3cc8235444e825c4a3fd2224e178f03a153"
+    },
+    {
+      "path": "evaluated_rows.csv.gz.part-0004",
+      "sha256": "c766a94f94178a963962b65b7401395a3ecada1455643957a5c85f0faa460d6c"
+    },
+    {
+      "path": "evaluated_rows.csv.gz.part-0005",
+      "sha256": "958e6060c29d928877f32e568c6e5881c633ac47513eda507917c718b07dccd1"
+    },
+    {
+      "path": "evaluated_rows.csv.gz.part-0006",
+      "sha256": "c7d00e1853478446de9386d4d6899c606a3c69b689dba49fba512cdd62348d0a"
+    },
+    {
+      "path": "evaluated_rows.csv.gz.part-0007",
+      "sha256": "7cca4805d1bda94ff9df178e2c1ec65d17c7a7b3e256dc7ba06480f685329a7a"
+    },
+    {
+      "path": "evaluated_rows.csv.gz.part-0008",
+      "sha256": "6386b6f53ca6469a25c03810b586fe8081f4c72ae57f8d91859fb5f3a2a60d09"
+    },
+    {
+      "path": "evaluated_rows.csv.gz.part-0009",
+      "sha256": "af7c99a66a6983baa28de500e8d2db12fb47a36b4eefdb5a91ff3159a0488751"
+    },
+    {
+      "path": "evaluated_rows.csv.gz.part-0010",
+      "sha256": "9036465bed53bbe8891973176c420bdbdf8137d587860c3a8e25cb8537bfa212"
+    },
+    {
+      "path": "evaluated_rows.csv.gz.part-0011",
+      "sha256": "b236ded272d91c844ebbcde1058fe55c49e99cda6c98226d98ff723b892cadc9"
+    },
+    {
+      "path": "evaluated_rows.csv.gz.part-0012",
+      "sha256": "40f22040e2a7df1178d151dbeb36d951324b8455ece9526fb36ba5732ce606bc"
+    },
+    {
+      "path": "evaluated_rows.csv.gz.part-0013",
+      "sha256": "25f2b4aae6c946436b7eb519d9f0cb3e9af4405ea0dfb1fa97011c14c7c80828"
+    },
+    {
+      "path": "evaluated_rows.csv.gz.part-0014",
+      "sha256": "9506a6f1f252db1b948315132ea40a5cb6a7451e6327f6ff2a4ea49e98460b3f"
+    },
+    {
+      "path": "evaluated_rows.csv.gz.part-0015",
+      "sha256": "cef023fd528df0daaba432f500c5c3cecad9df11ecd2926b103f8da7032e3def"
+    },
+    {
+      "path": "evaluated_rows.csv.gz.part-0016",
+      "sha256": "c37f459b724c1d0c92d3059f8c9284970a7fec5ef8a7d6324736ba8f04940d03"
+    },
+    {
+      "path": "evaluated_rows.csv.gz.part-0017",
+      "sha256": "c4b7b49bb930689c0e342c86e5ae1badb7e192701d4699a6b1876c574fc40b9a"
+    },
+    {
+      "path": "evaluated_rows.csv.gz.part-0018",
+      "sha256": "6501f855ca611e2e5b1e3366ccad07f61961cfbca959c41845c3c9997475cd8c"
+    },
+    {
+      "path": "evaluated_rows.csv.gz.part-0019",
+      "sha256": "c38fcbb6e87f6002e4e32caf3fef55eed6d265bb9abf7b2f42719f32bd655f03"
+    },
+    {
+      "path": "evaluated_rows.csv.gz.part-0020",
+      "sha256": "19bad9396342e550fbb7b19d615307641b8dbc98c143a7a073e45d5237d20185"
+    },
+    {
+      "path": "evaluated_rows.csv.gz.part-0021",
+      "sha256": "e59b69b3b7e29f672f7c04bc5ec4b360e61e45ba8652ff4eab62ae73e426cd3c"
+    },
+    {
+      "path": "evaluated_rows.csv.gz.part-0022",
+      "sha256": "eebc3a91f5efdbf80a84832cbb02f91251eab4522dcd6888a00a018944e10354"
+    },
+    {
+      "path": "evaluated_rows.csv.gz.part-0023",
+      "sha256": "228528df1d786062a64553c70b713a4e56681c402033461075bb9569ec856792"
+    },
+    {
+      "path": "evaluated_rows.csv.gz.part-0024",
+      "sha256": "d472b3bce664841621b673e544cd54d6a9ee9e4d5d9df3ecc16b79d452f8967b"
+    },
+    {
+      "path": "evaluated_rows.csv.gz.part-0025",
+      "sha256": "22760497f07b12d1795c1deeb3a6eec0dd90cb5a97449d1cab68d2aecdf7b711"
+    },
+    {
+      "path": "group_metrics.csv",
+      "sha256": "a7811370e04119c0968a7596e88acd721ac1eb2d3ec16f44d4e45b99b0bf5086"
+    },
+    {
+      "path": "overall_metrics.csv",
+      "sha256": "77154574b648aad36c16dbdf5d69ebf4538d12103dad8065c6958d3dafefc504"
+    },
+    {
+      "path": "start_calibration.csv",
+      "sha256": "f6a55801f52f36d99a642d5ef14c84bce6b7f7e64b8265716546a621040d4501"
+    }
+  ],
+  "rows": 11794,
+  "season": "2025-26",
+  "sources": [
+    {
+      "path": "analysis/results/workload-recovered-minutes-v4/reused_holdout_diagnostic_predictions.csv.gz",
+      "sha256": "a98c8c6936c02847a3fa6041c8f5cce7c3b1897a8b7d7c17d11e0834f7645741"
+    },
+    {
+      "path": "analysis/results/v2-reproduced/pstart_v2_fixture_holdout_2025_26.csv",
+      "sha256": "b0e7dfd015f1bba73afe66365b01b4ce559730e8cdf8121bfa504e0b1e511de6"
+    },
+    {
+      "path": "analysis/results/deadline-joint-inputs-v1/manifest.json",
+      "sha256": "591f19cb5439397418f3b8119e8de2e84099d2a66ac338d8e797d15661fdf162"
+    },
+    {
+      "path": "scripts/evaluate_frozen_minutes_v4.py",
+      "sha256": "9180d06597356181d99003ea0150326d1353e876cece8266e93562563e634f61"
+    }
+  ],
+  "v4_minus": {
+    "original_v2": {
+      "calibration_ece_10_fixed_bins": -0.017703646870740074,
+      "minutes_bias": -0.25371949045339004,
+      "minutes_mae": -0.4604341126727931,
+      "minutes_rmse": -0.3468522550466808,
+      "start_brier": -0.0019721825214125133,
+      "start_log_loss": -0.01318769599211228
+    },
+    "role_control": {
+      "calibration_ece_10_fixed_bins": -0.008631103122889049,
+      "minutes_bias": -0.1612560737356376,
+      "minutes_mae": -0.3381146070476859,
+      "minutes_rmse": -0.2813722103008267,
+      "start_brier": -0.0014883827282099055,
+      "start_log_loss": -0.0067504527281017634
+    }
+  },
+  "verification": {
+    "both_arms_identical_cohort": true,
+    "forecast_values_match_frozen_sources": true,
+    "rows_unique": true,
+    "targets_match_both_forecast_files_and_core": true
+  }
+}
