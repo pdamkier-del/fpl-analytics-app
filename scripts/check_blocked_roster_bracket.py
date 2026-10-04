@@ -6,6 +6,8 @@ from fpl_v1_1_model.paired_joint import read_frozen_table
 ROOT=Path(__file__).resolve().parents[1]
 def main():
     out=ROOT/'analysis/results/blocked-roster-bracket-v1';m=json.loads((out/'manifest.json').read_text());checks=0
+    for path,key in [(ROOT/'analysis/results/blocked-roster-source-index-v1/manifest.json','source_inventory_manifest_sha256'),(out/'publication.json','publication_metadata_sha256')]:
+        assert hashlib.sha256(path.read_bytes()).hexdigest()==m[key];checks+=1
     for item in m['outputs']:
         assert hashlib.sha256((out/item['path']).read_bytes()).hexdigest()==item['sha256'];checks+=1
     assert hashlib.sha256((ROOT/'scripts/audit_blocked_roster_near_deadline.py').read_bytes()).hexdigest()==m['code_sha256'];checks+=1

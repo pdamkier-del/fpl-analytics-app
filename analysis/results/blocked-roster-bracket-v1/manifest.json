@@ -1,0 +1,1212 @@
+{
+  "blocked_fixtures": 26,
+  "blocked_rows": 32,
+  "classification": "source_gap_diagnostic_not_forecast_input",
+  "code_sha256": "9e120c4eb77aa531696bb78b91668a4769824118141ea8dc0abdd9fa43e44f26",
+  "full_period_ready": false,
+  "limitations": [
+    "Nominal times come from cache paths; Git publication metadata must be checked separately.",
+    "Missing before and present after does not prove the exact addition time or ineligibility.",
+    "Postdeadline states are audit evidence only, never forecast inputs."
+  ],
+  "observed_within_two_days_rows": 23,
+  "outputs": [
+    {
+      "path": "blocked_rows.csv",
+      "sha256": "1505315f48a92981b669d1df9faac761ee15f3feb50fcb46866b8d384cb35e23"
+    },
+    {
+      "path": "candidate_index.json",
+      "sha256": "ef80483a4a0efb045f4fbc61ba826f6f8ce3e97b85c28d4dc1205be17c816b07"
+    }
+  ],
+  "parent_checkpoint": "cc682afe9777925a9adaef06ddaec5d53e66e44a",
+  "present_nearest_post_rows": 0,
+  "publication_metadata_sha256": "df639274effc6ed04b6ccf547927647d2e9c3aa2829455e2cfccc2b2e751908b",
+  "recovered_predeadline_rows": 0,
+  "retained_snapshots": 31,
+  "source_candidates_checked": 119,
+  "source_inventory_manifest_sha256": "fc11272554d4bfffd3bce1ffbfc007341f8f969ed1d71818b217d4cce0e42f88",
+  "sources": [
+    {
+      "blob_sha": "d39f3f658ec7e4fdc4ae67d492f36d16e63bd238",
+      "bytes": 143184,
+      "gw": 22,
+      "month_tree_sha": "4722a42338dd06867d001256fd9e6dbadc9b5856",
+      "nominal_at": "2026-01-17T12:53:00+00:00",
+      "parts": [
+        {
+          "bytes": 32768,
+          "path": "snapshot-00.json.xz.part-0000",
+          "sha256": "71c0917c8b7c43cf67dce7a64051ba912f741db324af476274ca43a6f70a8b51"
+        },
+        {
+          "bytes": 32768,
+          "path": "snapshot-00.json.xz.part-0001",
+          "sha256": "23ebdd3ebd837a4e189a899f0e3024843e55d2198d33f1f00346698ba7550a56"
+        },
+        {
+          "bytes": 32768,
+          "path": "snapshot-00.json.xz.part-0002",
+          "sha256": "1447f8b861d888154780bd7d1a97017817e5cb9d310d67ca58b83291b25c8179"
+        },
+        {
+          "bytes": 32768,
+          "path": "snapshot-00.json.xz.part-0003",
+          "sha256": "1d327db9f4d9cad49a22a3a5ca70534d3925dd4407b895e493343550e8c82eef"
+        },
+        {
+          "bytes": 12112,
+          "path": "snapshot-00.json.xz.part-0004",
+          "sha256": "0e47f2793717f6b5ddef38329d3964a2a1e9504f5b12495f62fba273563e5523"
+        }
+      ],
+      "path": "1/17/1253.json.xz",
+      "sha256": "ce638e47a2a9f52498a758d955dc3b4e74ca5f619fb1db178f8b59bca501f116",
+      "source_head": "17e703acd4f744931afa9d1d90a2998cfb104286",
+      "source_url": "https://raw.githubusercontent.com/Randdalf/fplcache/17e703acd4f744931afa9d1d90a2998cfb104286/cache/2026/1/17/1253.json.xz"
+    },
+    {
+      "blob_sha": "a1ef36abd050e9d82960d32173acba517d446e5a",
+      "bytes": 145356,
+      "gw": 22,
+      "month_tree_sha": "4722a42338dd06867d001256fd9e6dbadc9b5856",
+      "nominal_at": "2026-01-18T02:28:00+00:00",
+      "parts": [
+        {
+          "bytes": 32768,
+          "path": "snapshot-01.json.xz.part-0000",
+          "sha256": "4c2f1f1997d41ee457b494f3a562d07c5179f225596d530c01db565772c8cbec"
+        },
+        {
+          "bytes": 32768,
+          "path": "snapshot-01.json.xz.part-0001",
+          "sha256": "85ae5f61278cb4f6aa30009fd5c9e2d85344773d2ccebb107241b0bc3b074d00"
+        },
+        {
+          "bytes": 32768,
+          "path": "snapshot-01.json.xz.part-0002",
+          "sha256": "742ff725b5bfea45769a9c964537262cc1bf1f6cef45a6d22056f24413c9323e"
+        },
+        {
+          "bytes": 32768,
+          "path": "snapshot-01.json.xz.part-0003",
+          "sha256": "1875dec409350d2731791414110cf82af35db76c186da8ad5ae1543af561a7e9"
+        },
+        {
+          "bytes": 14284,
+          "path": "snapshot-01.json.xz.part-0004",
+          "sha256": "41cef6272263f206dc7d27ad502912d54194b3a0ed72e1f77a3f481cc74c8381"
+        }
+      ],
+      "path": "1/18/0228.json.xz",
+      "sha256": "9d3a6e6112037b1f60da7b6f6971e640800a776ec7c62ca7823126668d9451c2",
+      "source_head": "17e703acd4f744931afa9d1d90a2998cfb104286",
+      "source_url": "https://raw.githubusercontent.com/Randdalf/fplcache/17e703acd4f744931afa9d1d90a2998cfb104286/cache/2026/1/18/0228.json.xz"
+    },
+    {
+      "blob_sha": "242f2abe0f9ec0d0c5ea2079cbb4f73150dddcb1",
+      "bytes": 144576,
+      "gw": 23,
+      "month_tree_sha": "4722a42338dd06867d001256fd9e6dbadc9b5856",
+      "nominal_at": "2026-01-24T12:55:00+00:00",
+      "parts": [
+        {
+          "bytes": 32768,
+          "path": "snapshot-02.json.xz.part-0000",
+          "sha256": "953cdf1f20732a0ea3300a841e1e8a35ea86120070d6e82bdf20296a55a15f9c"
+        },
+        {
+          "bytes": 32768,
+          "path": "snapshot-02.json.xz.part-0001",
+          "sha256": "dab667adbd2ad4094d5640e579d20789bd1ba362ab1eee714c4c0291367667dc"
+        },
+        {
+          "bytes": 32768,
+          "path": "snapshot-02.json.xz.part-0002",
+          "sha256": "04a47a7c28e893a6db699fb680a9d2cea93d436440b147ec7e211e6693da1ce2"
+        },
+        {
+          "bytes": 32768,
+          "path": "snapshot-02.json.xz.part-0003",
+          "sha256": "e9f8966d0022ca8be245a08929abf46af8d8546f65c931b004e8460002c6d6b7"
+        },
+        {
+          "bytes": 13504,
+          "path": "snapshot-02.json.xz.part-0004",
+          "sha256": "7af6be6011eb0fa241e7976d4455b3bd1aab60b88c9e2b0405e6dce082e03c3c"
+        }
+      ],
+      "path": "1/24/1255.json.xz",
+      "sha256": "75979970fd8667447cce86ceaeea8b222433aca6d225bde8870719f953adb29d",
+      "source_head": "17e703acd4f744931afa9d1d90a2998cfb104286",
+      "source_url": "https://raw.githubusercontent.com/Randdalf/fplcache/17e703acd4f744931afa9d1d90a2998cfb104286/cache/2026/1/24/1255.json.xz"
+    },
+    {
+      "blob_sha": "7fce10a711fc277b6cce3b9844484f8bb9773178",
+      "bytes": 146932,
+      "gw": 23,
+      "month_tree_sha": "4722a42338dd06867d001256fd9e6dbadc9b5856",
+      "nominal_at": "2026-01-26T02:30:00+00:00",
+      "parts": [
+        {
+          "bytes": 32768,
+          "path": "snapshot-03.json.xz.part-0000",
+          "sha256": "a15e5310f6e73c0ab29a27d14d6e0dbd2933200b80aa6f963d11d933dfcbbf54"
+        },
+        {
+          "bytes": 32768,
+          "path": "snapshot-03.json.xz.part-0001",
+          "sha256": "cbc28bcc7cf69108039ca7723f09d5c10a711c2395e20778490d743925ac3a4b"
+        },
+        {
+          "bytes": 32768,
+          "path": "snapshot-03.json.xz.part-0002",
+          "sha256": "625fb53da14bee76a2e0d87fa3314f66aba5d015c5391c590cc10f9e129308f5"
+        },
+        {
+          "bytes": 32768,
+          "path": "snapshot-03.json.xz.part-0003",
+          "sha256": "0b07cdcc4bcedfaa12240a27aa4f5926158ea5510a2f81e4537fec5d98acb507"
+        },
+        {
+          "bytes": 15860,
+          "path": "snapshot-03.json.xz.part-0004",
+          "sha256": "484f6d951c617be39114ed8d6f8261f7f59f251fa6275d8d64aa0d51ad0bb58e"
+        }
+      ],
+      "path": "1/26/0230.json.xz",
+      "sha256": "aba2f0c7db09fc5d7c3d6d176963f8362588cbcbbeb29221d044fbb8592af57b",
+      "source_head": "17e703acd4f744931afa9d1d90a2998cfb104286",
+      "source_url": "https://raw.githubusercontent.com/Randdalf/fplcache/17e703acd4f744931afa9d1d90a2998cfb104286/cache/2026/1/26/0230.json.xz"
+    },
+    {
+      "blob_sha": "0ea6c639663556ed1fc7ef794fd468620acd0a12",
+      "bytes": 146872,
+      "gw": 24,
+      "month_tree_sha": "4722a42338dd06867d001256fd9e6dbadc9b5856",
+      "nominal_at": "2026-01-31T18:42:00+00:00",
+      "parts": [
+        {
+          "bytes": 32768,
+          "path": "snapshot-04.json.xz.part-0000",
+          "sha256": "8214f582a010ac9acef3198dde8150bddf2d3acfd03a51b954161d113b65130e"
+        },
+        {
+          "bytes": 32768,
+          "path": "snapshot-04.json.xz.part-0001",
+          "sha256": "b87d3d7df1443b4929bc37fb1689553aa213b4280bac09c0d594f7e9be46e448"
+        },
+        {
+          "bytes": 32768,
+          "path": "snapshot-04.json.xz.part-0002",
+          "sha256": "9d3c23885c307414d84696d91b92c4025b15b5d9280695c4362d6661d5448ae8"
+        },
+        {
+          "bytes": 32768,
+          "path": "snapshot-04.json.xz.part-0003",
+          "sha256": "f29b55e9d9a09eb48349f41941844c1c64095ad936126d65e1a7f542d948a192"
+        },
+        {
+          "bytes": 15800,
+          "path": "snapshot-04.json.xz.part-0004",
+          "sha256": "6847bca3a4260973726b9eb4916d9a14d2428ebf32b427d13e287a3765085491"
+        }
+      ],
+      "path": "1/31/1842.json.xz",
+      "sha256": "9dd77a005604b23d426b59d5f6658a25990e5b1519ffd617268394ac347024fe",
+      "source_head": "17e703acd4f744931afa9d1d90a2998cfb104286",
+      "source_url": "https://raw.githubusercontent.com/Randdalf/fplcache/17e703acd4f744931afa9d1d90a2998cfb104286/cache/2026/1/31/1842.json.xz"
+    },
+    {
+      "blob_sha": "8b73c984d6cf52b6a064eaa5e6e18cce36e9066a",
+      "bytes": 147352,
+      "gw": 24,
+      "month_tree_sha": "1d6c9c39bb68e1cef0ab4dfb40c9733de0ce7975",
+      "nominal_at": "2026-02-01T03:17:00+00:00",
+      "parts": [
+        {
+          "bytes": 32768,
+          "path": "snapshot-05.json.xz.part-0000",
+          "sha256": "bf9070eba1575b0128874a1f1c45d7de5b8588199de4b40d74fe645d6e03460a"
+        },
+        {
+          "bytes": 32768,
+          "path": "snapshot-05.json.xz.part-0001",
+          "sha256": "819f1e3e61b2395820a13c0e971d25ca0488721cfef29c8aee15bcf31c69af63"
+        },
+        {
+          "bytes": 32768,
+          "path": "snapshot-05.json.xz.part-0002",
+          "sha256": "7e9348e9fb190cf7d0c1cd1378434faae07314fd01a297b95428d77bcd8087a7"
+        },
+        {
+          "bytes": 32768,
+          "path": "snapshot-05.json.xz.part-0003",
+          "sha256": "b18a9bc02ee72cda03eff11c0412ce69567e61e1ef0dbf6ffb6d8ae80db9f08f"
+        },
+        {
+          "bytes": 16280,
+          "path": "snapshot-05.json.xz.part-0004",
+          "sha256": "926b9ca6fe5e1013453f919f7a652d03ea2f631bff6e92e3ab11399461b8463a"
+        }
+      ],
+      "path": "2/1/0317.json.xz",
+      "sha256": "206d87301ca7706d58170488aa83b9b3223e05b9be4aa335f4a57008bebb98c2",
+      "source_head": "17e703acd4f744931afa9d1d90a2998cfb104286",
+      "source_url": "https://raw.githubusercontent.com/Randdalf/fplcache/17e703acd4f744931afa9d1d90a2998cfb104286/cache/2026/2/1/0317.json.xz"
+    },
+    {
+      "blob_sha": "21d90db8410b93f46effedf9be978d7b24edea04",
+      "bytes": 148492,
+      "gw": 24,
+      "month_tree_sha": "1d6c9c39bb68e1cef0ab4dfb40c9733de0ce7975",
+      "nominal_at": "2026-02-01T18:46:00+00:00",
+      "parts": [
+        {
+          "bytes": 32768,
+          "path": "snapshot-06.json.xz.part-0000",
+          "sha256": "4ccb789c33c092191d8952b123faa898cd4bc87bdeae17c6b6e25c9b21f61e76"
+        },
+        {
+          "bytes": 32768,
+          "path": "snapshot-06.json.xz.part-0001",
+          "sha256": "c7df162d450b81b6da51943d4d39370e8e3d5dd720200d8b95f2d3b3c2ee24d0"
+        },
+        {
+          "bytes": 32768,
+          "path": "snapshot-06.json.xz.part-0002",
+          "sha256": "96f08eebecbdaf1b506827b483ef72bedf768da4dfeca68d2ed376b5558a2b67"
+        },
+        {
+          "bytes": 32768,
+          "path": "snapshot-06.json.xz.part-0003",
+          "sha256": "a763560f1e1954a55334797507e3c8e78f2abb9df4f644992a8fe6797a8e23d8"
+        },
+        {
+          "bytes": 17420,
+          "path": "snapshot-06.json.xz.part-0004",
+          "sha256": "99d4df57a17a26abfb4b1d6cb1439b904d42e9e6f4112779507f4868a829de08"
+        }
+      ],
+      "path": "2/1/1846.json.xz",
+      "sha256": "ab5d73c3afd90719dfb812b9ff070be588f034c19861f39b168447401bef4a91",
+      "source_head": "17e703acd4f744931afa9d1d90a2998cfb104286",
+      "source_url": "https://raw.githubusercontent.com/Randdalf/fplcache/17e703acd4f744931afa9d1d90a2998cfb104286/cache/2026/2/1/1846.json.xz"
+    },
+    {
+      "blob_sha": "3284972412fca1e848aba4f9c1926886a74986ff",
+      "bytes": 151704,
+      "gw": 27,
+      "month_tree_sha": "1d6c9c39bb68e1cef0ab4dfb40c9733de0ce7975",
+      "nominal_at": "2026-02-21T18:46:00+00:00",
+      "parts": [
+        {
+          "bytes": 32768,
+          "path": "snapshot-07.json.xz.part-0000",
+          "sha256": "a015fd9c679ad572b306870a7b5eafd774a9383ca48b931066f366042e576d5d"
+        },
+        {
+          "bytes": 32768,
+          "path": "snapshot-07.json.xz.part-0001",
+          "sha256": "6fb0a4d3ba62bf55e4f1b1ad186a0c5e0604edfaad64ae79fb38825c375d35cf"
+        },
+        {
+          "bytes": 32768,
+          "path": "snapshot-07.json.xz.part-0002",
+          "sha256": "a18334d08cabe455839f047ae6302bc85ea956be4f004f36a2a98e0430d9aaf7"
+        },
+        {
+          "bytes": 32768,
+          "path": "snapshot-07.json.xz.part-0003",
+          "sha256": "f60c630273e4b00bcf3c72131eff3012ef372b6ada5acb3240a847d165494418"
+        },
+        {
+          "bytes": 20632,
+          "path": "snapshot-07.json.xz.part-0004",
+          "sha256": "2c7eccdcb9d8efb21a5025284c82cc75fd31f9e22c0faf2920d62121235cf055"
+        }
+      ],
+      "path": "2/21/1846.json.xz",
+      "sha256": "83768bbc6af9c7d0522d0676d46bceb7fb2f0d9a9272fa9548a80bfb38ea9cc6",
+      "source_head": "17e703acd4f744931afa9d1d90a2998cfb104286",
+      "source_url": "https://raw.githubusercontent.com/Randdalf/fplcache/17e703acd4f744931afa9d1d90a2998cfb104286/cache/2026/2/21/1846.json.xz"
+    },
+    {
+      "blob_sha": "a61a62f43e3a3de82b94c233a62ecc0e447359fa",
+      "bytes": 153388,
+      "gw": 27,
+      "month_tree_sha": "1d6c9c39bb68e1cef0ab4dfb40c9733de0ce7975",
+      "nominal_at": "2026-02-23T02:49:00+00:00",
+      "parts": [
+        {
+          "bytes": 32768,
+          "path": "snapshot-08.json.xz.part-0000",
+          "sha256": "5243761097ddb87352dbf9003991e721db397b03ce6995ed26a0517bfd0dcaf7"
+        },
+        {
+          "bytes": 32768,
+          "path": "snapshot-08.json.xz.part-0001",
+          "sha256": "9d8afc1875e2066687237eb8265b8bfcb47be68b383a2461ffaa8b4c2e881449"
+        },
+        {
+          "bytes": 32768,
+          "path": "snapshot-08.json.xz.part-0002",
+          "sha256": "fd26838443460f9b7895ac6ade26ce5e0aa8e5f46d67fdfa64bce6bb953c9ad8"
+        },
+        {
+          "bytes": 32768,
+          "path": "snapshot-08.json.xz.part-0003",
+          "sha256": "1dbe2486fbce393b19e1770c4248e9f707cc2492a06ba030cdf781a122c620e2"
+        },
+        {
+          "bytes": 22316,
+          "path": "snapshot-08.json.xz.part-0004",
+          "sha256": "4e2f521b04a448273a4bbe02489253e136f52b5ee2d745837de8ab4d2572877f"
+        }
+      ],
+      "path": "2/23/0249.json.xz",
+      "sha256": "866f88313a0b52260160e0634e7f9dc089c52a73e0f5998da490ef027f4841a9",
+      "source_head": "17e703acd4f744931afa9d1d90a2998cfb104286",
+      "source_url": "https://raw.githubusercontent.com/Randdalf/fplcache/17e703acd4f744931afa9d1d90a2998cfb104286/cache/2026/2/23/0249.json.xz"
+    },
+    {
+      "blob_sha": "be774ecc426b9d834ebda429a1c85439e1e49549",
+      "bytes": 154304,
+      "gw": 28,
+      "month_tree_sha": "1d6c9c39bb68e1cef0ab4dfb40c9733de0ce7975",
+      "nominal_at": "2026-02-27T18:55:00+00:00",
+      "parts": [
+        {
+          "bytes": 32768,
+          "path": "snapshot-09.json.xz.part-0000",
+          "sha256": "366ac2060bb6a31289008c8900ee3ba751add07f1b5c28dde55474a09373e1cf"
+        },
+        {
+          "bytes": 32768,
+          "path": "snapshot-09.json.xz.part-0001",
+          "sha256": "67ef47a56aa423572cb760226e153d3e5e8b5e15125e97fec814cb7d690e1608"
+        },
+        {
+          "bytes": 32768,
+          "path": "snapshot-09.json.xz.part-0002",
+          "sha256": "4a5197ee4a4c5f75ba8e1fb0ac4ec96e8afde961e10742ed3679c515d039746d"
+        },
+        {
+          "bytes": 32768,
+          "path": "snapshot-09.json.xz.part-0003",
+          "sha256": "82f16d78956d20f0d07ffb3afecd7bb2de1efa92c52915358dd7a0a6f095d7a3"
+        },
+        {
+          "bytes": 23232,
+          "path": "snapshot-09.json.xz.part-0004",
+          "sha256": "6683d1e5b62f58c6c7e3881563729d9aaa5fa44fd774b0de7bea960ba219727b"
+        }
+      ],
+      "path": "2/27/1855.json.xz",
+      "sha256": "4994a1c13b36b4a444ee90e0ccdf7db57eb36fcf7256e70a43b491e709d8facc",
+      "source_head": "17e703acd4f744931afa9d1d90a2998cfb104286",
+      "source_url": "https://raw.githubusercontent.com/Randdalf/fplcache/17e703acd4f744931afa9d1d90a2998cfb104286/cache/2026/2/27/1855.json.xz"
+    },
+    {
+      "blob_sha": "ac81523bf936ae2ae9cf106e38ac78a122522264",
+      "bytes": 153716,
+      "gw": 28,
+      "month_tree_sha": "1de19eb0b1ab174ecbc0331cda4f6007d94da3cb",
+      "nominal_at": "2026-03-01T03:13:00+00:00",
+      "parts": [
+        {
+          "bytes": 32768,
+          "path": "snapshot-10.json.xz.part-0000",
+          "sha256": "a61e3abd820ea5ce33f9f097a73b552fbc68599fccea066d33f06348ec152ced"
+        },
+        {
+          "bytes": 32768,
+          "path": "snapshot-10.json.xz.part-0001",
+          "sha256": "daab84cddcfeee0ceb95bbda57b0e9064b4c73f8b1a64aa624562e3634a12bf0"
+        },
+        {
+          "bytes": 32768,
+          "path": "snapshot-10.json.xz.part-0002",
+          "sha256": "6473af69cc22e44c16823426f729405e17e6c63097f1eb5582c5c6d1c4223080"
+        },
+        {
+          "bytes": 32768,
+          "path": "snapshot-10.json.xz.part-0003",
+          "sha256": "5755c759505aad6274170497c1fa05b3cdcf25d6c00eef0bd2a0611cb912638d"
+        },
+        {
+          "bytes": 22644,
+          "path": "snapshot-10.json.xz.part-0004",
+          "sha256": "ef465a7b2008e8265d384df2fe4558293ff5ad59171b684083058c38a8c4af3e"
+        }
+      ],
+      "path": "3/1/0313.json.xz",
+      "sha256": "c8a257776165d2a60b519dbaa49bd57242f53ad09b9ef0c177a90735eec616f4",
+      "source_head": "17e703acd4f744931afa9d1d90a2998cfb104286",
+      "source_url": "https://raw.githubusercontent.com/Randdalf/fplcache/17e703acd4f744931afa9d1d90a2998cfb104286/cache/2026/3/1/0313.json.xz"
+    },
+    {
+      "blob_sha": "28da64225568b4e2dbc10a3e6ed53f4fea671e62",
+      "bytes": 156376,
+      "gw": 30,
+      "month_tree_sha": "1de19eb0b1ab174ecbc0331cda4f6007d94da3cb",
+      "nominal_at": "2026-03-14T18:50:00+00:00",
+      "parts": [
+        {
+          "bytes": 32768,
+          "path": "snapshot-11.json.xz.part-0000",
+          "sha256": "a9a2729105a51f8571fec77010df4f5236f9b6869a81d8243e2702f8990e8a9a"
+        },
+        {
+          "bytes": 32768,
+          "path": "snapshot-11.json.xz.part-0001",
+          "sha256": "28ed2c8822e17f173275c1dfdaea666d4487a0c8abe517043138c9a47bfa76c1"
+        },
+        {
+          "bytes": 32768,
+          "path": "snapshot-11.json.xz.part-0002",
+          "sha256": "eb5bc4462232b7d3fd81a0e4ce7f57c8f3e2ebc5f58f75f1739d025b1abd316f"
+        },
+        {
+          "bytes": 32768,
+          "path": "snapshot-11.json.xz.part-0003",
+          "sha256": "a2e6f4ea4c3a5e9ced40f3d6d8965782c35e2e54c982a43ec64da043a0eb9a6e"
+        },
+        {
+          "bytes": 25304,
+          "path": "snapshot-11.json.xz.part-0004",
+          "sha256": "30b9d4739f8f3b8cfba6e2e412123058e4386a516e0995156bf1ff1bda7c12ca"
+        }
+      ],
+      "path": "3/14/1850.json.xz",
+      "sha256": "5b9acf79505b684ddade998cd83fce456de2dfbf0e32c1dbe5dcc41658a8846b",
+      "source_head": "17e703acd4f744931afa9d1d90a2998cfb104286",
+      "source_url": "https://raw.githubusercontent.com/Randdalf/fplcache/17e703acd4f744931afa9d1d90a2998cfb104286/cache/2026/3/14/1850.json.xz"
+    },
+    {
+      "blob_sha": "ae2f24ea4aab9bdcf9d2ad30ba75d09a309f10fe",
+      "bytes": 157084,
+      "gw": 30,
+      "month_tree_sha": "1de19eb0b1ab174ecbc0331cda4f6007d94da3cb",
+      "nominal_at": "2026-03-15T03:19:00+00:00",
+      "parts": [
+        {
+          "bytes": 32768,
+          "path": "snapshot-12.json.xz.part-0000",
+          "sha256": "99710a9017c5b22dfe6d228e1f677a0a18100da77a31f86dd8efb784a7d08c4d"
+        },
+        {
+          "bytes": 32768,
+          "path": "snapshot-12.json.xz.part-0001",
+          "sha256": "1e2ffc07499b43d128b694ca9a8573de203c6c7c9963cecce37a636eca377ce4"
+        },
+        {
+          "bytes": 32768,
+          "path": "snapshot-12.json.xz.part-0002",
+          "sha256": "81d97f47fe51d1163d58deb2a167873c7df94a35826a3d8c99ae36b5a63512e5"
+        },
+        {
+          "bytes": 32768,
+          "path": "snapshot-12.json.xz.part-0003",
+          "sha256": "7f725bddb3d1fca58f0cac9ab75bceece86c4dace6136c7b989b426171f5857c"
+        },
+        {
+          "bytes": 26012,
+          "path": "snapshot-12.json.xz.part-0004",
+          "sha256": "a9bb7d5c5e5782fd234784ccb0cd7a8774f9b65f2f71ec6f76589c381c1c3de2"
+        }
+      ],
+      "path": "3/15/0319.json.xz",
+      "sha256": "69526043d8e9aabd680bbc4d748b0fdf2952ed71fddcbe63952b25525a8b5578",
+      "source_head": "17e703acd4f744931afa9d1d90a2998cfb104286",
+      "source_url": "https://raw.githubusercontent.com/Randdalf/fplcache/17e703acd4f744931afa9d1d90a2998cfb104286/cache/2026/3/15/0319.json.xz"
+    },
+    {
+      "blob_sha": "2800059e50ee302d53e9220373d807d8b1830a59",
+      "bytes": 158920,
+      "gw": 31,
+      "month_tree_sha": "1de19eb0b1ab174ecbc0331cda4f6007d94da3cb",
+      "nominal_at": "2026-03-20T18:59:00+00:00",
+      "parts": [
+        {
+          "bytes": 32768,
+          "path": "snapshot-13.json.xz.part-0000",
+          "sha256": "22b66ae22f190376a90d6960e68709574606aeeb45ab53486d993ca1739d90e5"
+        },
+        {
+          "bytes": 32768,
+          "path": "snapshot-13.json.xz.part-0001",
+          "sha256": "9109ae36db684163579ab2d8aba6cdcdd6de0c4708dd9dde600a0d93998c1253"
+        },
+        {
+          "bytes": 32768,
+          "path": "snapshot-13.json.xz.part-0002",
+          "sha256": "eea0e82c8dab3ba4573ad73ed47e855b4c38df09b83543c65479f976e35dd517"
+        },
+        {
+          "bytes": 32768,
+          "path": "snapshot-13.json.xz.part-0003",
+          "sha256": "2f606fd8ae4248c08964163d68a72b3515071ba1652015db9cdfdbf7e8047266"
+        },
+        {
+          "bytes": 27848,
+          "path": "snapshot-13.json.xz.part-0004",
+          "sha256": "0d2ede14faa5fa685c8b8e77af0bf5b8d929b1e1c2c0e8f826e5e648336f1ab1"
+        }
+      ],
+      "path": "3/20/1859.json.xz",
+      "sha256": "90b63db8f37e82b5e769958fc6c170b22ac650b8221ec00ebe1c1fe335fc82ee",
+      "source_head": "17e703acd4f744931afa9d1d90a2998cfb104286",
+      "source_url": "https://raw.githubusercontent.com/Randdalf/fplcache/17e703acd4f744931afa9d1d90a2998cfb104286/cache/2026/3/20/1859.json.xz"
+    },
+    {
+      "blob_sha": "8dbc5b1c90c29d076e79e6e469257569c8a537ab",
+      "bytes": 156704,
+      "gw": 31,
+      "month_tree_sha": "1de19eb0b1ab174ecbc0331cda4f6007d94da3cb",
+      "nominal_at": "2026-03-22T02:53:00+00:00",
+      "parts": [
+        {
+          "bytes": 32768,
+          "path": "snapshot-14.json.xz.part-0000",
+          "sha256": "962b375dedc8fd0f8267c66026cc1f1b5232f80bab16930c7c2d0431733c3f2d"
+        },
+        {
+          "bytes": 32768,
+          "path": "snapshot-14.json.xz.part-0001",
+          "sha256": "8ad0dcacc1cb78e8d49f327f5fac9c73c8fb03907ed9046ee6aa79577d8d12f2"
+        },
+        {
+          "bytes": 32768,
+          "path": "snapshot-14.json.xz.part-0002",
+          "sha256": "138a85b4976f6c06577377069304b489939380d59a1132c4afa6bc824074ca69"
+        },
+        {
+          "bytes": 32768,
+          "path": "snapshot-14.json.xz.part-0003",
+          "sha256": "890c0b89872233cc5d371b6e5c0e764bc8f26d191dcc2be78d727db1687f7876"
+        },
+        {
+          "bytes": 25632,
+          "path": "snapshot-14.json.xz.part-0004",
+          "sha256": "47852bf219600e6bcae3fd68dbca06feb1e1e57b6aa89fb819f68668c583172d"
+        }
+      ],
+      "path": "3/22/0253.json.xz",
+      "sha256": "8f54039b4820ec960376feb11a49a235d91dbaa8df8004dcd76d68d80baaca1d",
+      "source_head": "17e703acd4f744931afa9d1d90a2998cfb104286",
+      "source_url": "https://raw.githubusercontent.com/Randdalf/fplcache/17e703acd4f744931afa9d1d90a2998cfb104286/cache/2026/3/22/0253.json.xz"
+    },
+    {
+      "blob_sha": "0444414cf53923d601fb52fc5f9ae0f438af1390",
+      "bytes": 151352,
+      "gw": 29,
+      "month_tree_sha": "1de19eb0b1ab174ecbc0331cda4f6007d94da3cb",
+      "nominal_at": "2026-03-03T19:01:00+00:00",
+      "parts": [
+        {
+          "bytes": 32768,
+          "path": "snapshot-15.json.xz.part-0000",
+          "sha256": "bf87e7451b70736defaa23b4b84aee2c643aae58253b55989f4aaadc6d2d6adc"
+        },
+        {
+          "bytes": 32768,
+          "path": "snapshot-15.json.xz.part-0001",
+          "sha256": "da830c2256f9a178d4b21ac8e93dabba36124e1e9e45a28ebd1fde2fdd50aa0a"
+        },
+        {
+          "bytes": 32768,
+          "path": "snapshot-15.json.xz.part-0002",
+          "sha256": "5c4e20df46871ec7ce5f034a31353e278c99bc1a656c4870f1533403cb5bcdaf"
+        },
+        {
+          "bytes": 32768,
+          "path": "snapshot-15.json.xz.part-0003",
+          "sha256": "b4c949343fdf01d33fed10ae4ef5b96b2c88c362bc42bde451b63d0abc594ac3"
+        },
+        {
+          "bytes": 20280,
+          "path": "snapshot-15.json.xz.part-0004",
+          "sha256": "e6cbd42c35fa7c14e51f08f2fbd2acf71cb582b35841ab343f87f41cb076493e"
+        }
+      ],
+      "path": "3/3/1901.json.xz",
+      "sha256": "a05907672397e93e5273d00853faff9d99eaac203fe076b89a24b99fcb108b19",
+      "source_head": "17e703acd4f744931afa9d1d90a2998cfb104286",
+      "source_url": "https://raw.githubusercontent.com/Randdalf/fplcache/17e703acd4f744931afa9d1d90a2998cfb104286/cache/2026/3/3/1901.json.xz"
+    },
+    {
+      "blob_sha": "58892241aa56199260cc66f58e1e25433e962ede",
+      "bytes": 153480,
+      "gw": 29,
+      "month_tree_sha": "1de19eb0b1ab174ecbc0331cda4f6007d94da3cb",
+      "nominal_at": "2026-03-04T02:40:00+00:00",
+      "parts": [
+        {
+          "bytes": 32768,
+          "path": "snapshot-16.json.xz.part-0000",
+          "sha256": "6e31cbeabe4f8928cb4534aa59553c42f9cc9267799ed09fa34427058e5f986d"
+        },
+        {
+          "bytes": 32768,
+          "path": "snapshot-16.json.xz.part-0001",
+          "sha256": "37dcdf14a7cbf273f55aa779437d96012213fd3878abc04f3e0ab2b5562436e7"
+        },
+        {
+          "bytes": 32768,
+          "path": "snapshot-16.json.xz.part-0002",
+          "sha256": "e9fccb7174ded1330cd12906bf18bd39e2f156f364b26893f86582252730a6b3"
+        },
+        {
+          "bytes": 32768,
+          "path": "snapshot-16.json.xz.part-0003",
+          "sha256": "2b52c400808c3784760d195c12e1df6da58e07dc9e2ea6a8fd5ce91a9e47899b"
+        },
+        {
+          "bytes": 22408,
+          "path": "snapshot-16.json.xz.part-0004",
+          "sha256": "66807bb0f2caca228d28d11d3ca82daf5096ae02d076cc506c148c4695aef1a4"
+        }
+      ],
+      "path": "3/4/0240.json.xz",
+      "sha256": "eb1419c463686d4650c223127d78b484a6d37ccfdb880c49bddebeba9a6ee708",
+      "source_head": "17e703acd4f744931afa9d1d90a2998cfb104286",
+      "source_url": "https://raw.githubusercontent.com/Randdalf/fplcache/17e703acd4f744931afa9d1d90a2998cfb104286/cache/2026/3/4/0240.json.xz"
+    },
+    {
+      "blob_sha": "16a6c5ebca7b2c3cf185507733d0c57f73a94a19",
+      "bytes": 155152,
+      "gw": 32,
+      "month_tree_sha": "e14d880edb8ba51e4bc48a44e4ecf8620db091ec",
+      "nominal_at": "2026-04-10T19:04:00+00:00",
+      "parts": [
+        {
+          "bytes": 32768,
+          "path": "snapshot-17.json.xz.part-0000",
+          "sha256": "4a12bd2f36bb28a04bea2c62955c5025ecb0fc337d4c1246ae39ee860db50cbe"
+        },
+        {
+          "bytes": 32768,
+          "path": "snapshot-17.json.xz.part-0001",
+          "sha256": "e51a1533a5d0f326f5cc16a3c76577fd5edf39ebbb92471ba433b5d63f5e7e6a"
+        },
+        {
+          "bytes": 32768,
+          "path": "snapshot-17.json.xz.part-0002",
+          "sha256": "84cb6d0021e74aa2b8c009f4e9eb52b99a4c6227882a24de5e40faf2acdab8ae"
+        },
+        {
+          "bytes": 32768,
+          "path": "snapshot-17.json.xz.part-0003",
+          "sha256": "ed1182cefef7479bead152b0dc18718600851c05f65a1a639d1f92837f8f7965"
+        },
+        {
+          "bytes": 24080,
+          "path": "snapshot-17.json.xz.part-0004",
+          "sha256": "98a50eddb94b847dc2f46df778f357bd3e7e67a465a2a5a145531e89d46b5ac3"
+        }
+      ],
+      "path": "4/10/1904.json.xz",
+      "sha256": "abf3132d3434497e5420d9817df33b10f0da8056a40ed97020a4d39726b2a3a5",
+      "source_head": "17e703acd4f744931afa9d1d90a2998cfb104286",
+      "source_url": "https://raw.githubusercontent.com/Randdalf/fplcache/17e703acd4f744931afa9d1d90a2998cfb104286/cache/2026/4/10/1904.json.xz"
+    },
+    {
+      "blob_sha": "393aa492918062f3d2d28925f2b07892dd622c01",
+      "bytes": 158080,
+      "gw": 32,
+      "month_tree_sha": "e14d880edb8ba51e4bc48a44e4ecf8620db091ec",
+      "nominal_at": "2026-04-11T18:56:00+00:00",
+      "parts": [
+        {
+          "bytes": 32768,
+          "path": "snapshot-18.json.xz.part-0000",
+          "sha256": "48b7ab814591bbf587536287bb14635acbcb117095cff8fe66b0c2d89ff29a6e"
+        },
+        {
+          "bytes": 32768,
+          "path": "snapshot-18.json.xz.part-0001",
+          "sha256": "a48f91d0c418ca09367c91b47824515bdab97d55bcde014878481988c8d6abd3"
+        },
+        {
+          "bytes": 32768,
+          "path": "snapshot-18.json.xz.part-0002",
+          "sha256": "f4efb615c86fcdc5caacfdd18599caa8a49d60f37d924b10ce98b6dd550b743e"
+        },
+        {
+          "bytes": 32768,
+          "path": "snapshot-18.json.xz.part-0003",
+          "sha256": "9e69592f46dbc1dd0e7cc563e02e2e27808208a01ee5daef29b5c737672aafb7"
+        },
+        {
+          "bytes": 27008,
+          "path": "snapshot-18.json.xz.part-0004",
+          "sha256": "7f8fadf42e422fcc50f99dda6f246ec240fec7741688474736ff1375257c636a"
+        }
+      ],
+      "path": "4/11/1856.json.xz",
+      "sha256": "cb92088ea7337196cf6026b9462d6962dda6716d8ba9e71afcaf5eb9b5686ab2",
+      "source_head": "17e703acd4f744931afa9d1d90a2998cfb104286",
+      "source_url": "https://raw.githubusercontent.com/Randdalf/fplcache/17e703acd4f744931afa9d1d90a2998cfb104286/cache/2026/4/11/1856.json.xz"
+    },
+    {
+      "blob_sha": "a4ba96b72f2f45d08eef2f5ef7000e6b3dd19b04",
+      "bytes": 157336,
+      "gw": 33,
+      "month_tree_sha": "e14d880edb8ba51e4bc48a44e4ecf8620db091ec",
+      "nominal_at": "2026-04-18T13:17:00+00:00",
+      "parts": [
+        {
+          "bytes": 32768,
+          "path": "snapshot-19.json.xz.part-0000",
+          "sha256": "8eab70dff031d2f9f9732671b79d13aae6aca6f0fa103d5fae57fa8f597777ac"
+        },
+        {
+          "bytes": 32768,
+          "path": "snapshot-19.json.xz.part-0001",
+          "sha256": "556e098ca1f31a612861348ca4dad0c8181e28c973e1677a750eb934bdaf2e3d"
+        },
+        {
+          "bytes": 32768,
+          "path": "snapshot-19.json.xz.part-0002",
+          "sha256": "3eeecee53de30d02faed04bd5735e2b5379401271d2e76a7000f4c8ad902da1d"
+        },
+        {
+          "bytes": 32768,
+          "path": "snapshot-19.json.xz.part-0003",
+          "sha256": "9eb273226e708639de3c410393248e59f4a5082750a7a9efbc60bcfc2a197dce"
+        },
+        {
+          "bytes": 26264,
+          "path": "snapshot-19.json.xz.part-0004",
+          "sha256": "63a21bc73ce94480b36f7f2558909954b34bb943475d0c95f0b36695bdc0f1d1"
+        }
+      ],
+      "path": "4/18/1317.json.xz",
+      "sha256": "acd42538ce915d3de770d82a42b8b350ac90e8a9e0fc31cc70c54cf2fd02680d",
+      "source_head": "17e703acd4f744931afa9d1d90a2998cfb104286",
+      "source_url": "https://raw.githubusercontent.com/Randdalf/fplcache/17e703acd4f744931afa9d1d90a2998cfb104286/cache/2026/4/18/1317.json.xz"
+    },
+    {
+      "blob_sha": "014612d2a2ef4c1fecb32351a945d497c2f10530",
+      "bytes": 158616,
+      "gw": 33,
+      "month_tree_sha": "e14d880edb8ba51e4bc48a44e4ecf8620db091ec",
+      "nominal_at": "2026-04-19T03:37:00+00:00",
+      "parts": [
+        {
+          "bytes": 32768,
+          "path": "snapshot-20.json.xz.part-0000",
+          "sha256": "07f1da474fb939e4ecceb1c96ae9e454ebeb76bdd446211fcf2ba50226481d29"
+        },
+        {
+          "bytes": 32768,
+          "path": "snapshot-20.json.xz.part-0001",
+          "sha256": "94b76b4089f1595969158ee85cac6919705a6c011fabb9d6d6585a489423526a"
+        },
+        {
+          "bytes": 32768,
+          "path": "snapshot-20.json.xz.part-0002",
+          "sha256": "c1994db7c6b5134581584215ec8d24b0a5e57ee3de2aaea4f956cc3611d25d21"
+        },
+        {
+          "bytes": 32768,
+          "path": "snapshot-20.json.xz.part-0003",
+          "sha256": "0b64aa4990bb9c6c23720687b7c6e44f3cf8fd5f329ad33b8125143eb61bac1f"
+        },
+        {
+          "bytes": 27544,
+          "path": "snapshot-20.json.xz.part-0004",
+          "sha256": "fafb99903fd752ff99e0ac707588f997feecd477bca2eb6cba770b1379b550d6"
+        }
+      ],
+      "path": "4/19/0337.json.xz",
+      "sha256": "9a1700cfab8ff9003c87b71004e0368a80541d97f5c4ea6fdad275c69c63f0f5",
+      "source_head": "17e703acd4f744931afa9d1d90a2998cfb104286",
+      "source_url": "https://raw.githubusercontent.com/Randdalf/fplcache/17e703acd4f744931afa9d1d90a2998cfb104286/cache/2026/4/19/0337.json.xz"
+    },
+    {
+      "blob_sha": "22e61f68cdfeeb92991e50f83295fd598e727c03",
+      "bytes": 155816,
+      "gw": 34,
+      "month_tree_sha": "e14d880edb8ba51e4bc48a44e4ecf8620db091ec",
+      "nominal_at": "2026-04-24T19:04:00+00:00",
+      "parts": [
+        {
+          "bytes": 32768,
+          "path": "snapshot-21.json.xz.part-0000",
+          "sha256": "c1ad448bd28ebbc5c523fe3a2826546d42b2497bc99a59fd6d0dba10df492a0d"
+        },
+        {
+          "bytes": 32768,
+          "path": "snapshot-21.json.xz.part-0001",
+          "sha256": "6d8270e113ccf9a626b80f5007849b51762d296cc71634fca49ea8db1cdf58ab"
+        },
+        {
+          "bytes": 32768,
+          "path": "snapshot-21.json.xz.part-0002",
+          "sha256": "9d56cbda5bd323fd3b8d3178b22c1668e1afa338219fa4d76a296ad7fa68c3ea"
+        },
+        {
+          "bytes": 32768,
+          "path": "snapshot-21.json.xz.part-0003",
+          "sha256": "3e4fc83c627e01fd06ce9df5d500a0e2e86e83e0f9523160d3bd45b2fba2626f"
+        },
+        {
+          "bytes": 24744,
+          "path": "snapshot-21.json.xz.part-0004",
+          "sha256": "af2c17041fa09ff52f047b73ad1098e1b085c8480fdc02b5779b35402339b52d"
+        }
+      ],
+      "path": "4/24/1904.json.xz",
+      "sha256": "0f21891366c3d93175b4fc0852dae058c962951a531f7205a667d378191adee0",
+      "source_head": "17e703acd4f744931afa9d1d90a2998cfb104286",
+      "source_url": "https://raw.githubusercontent.com/Randdalf/fplcache/17e703acd4f744931afa9d1d90a2998cfb104286/cache/2026/4/24/1904.json.xz"
+    },
+    {
+      "blob_sha": "45cd6507240a5ce6fd0d91a165c5062639cc8e2c",
+      "bytes": 158384,
+      "gw": 34,
+      "month_tree_sha": "e14d880edb8ba51e4bc48a44e4ecf8620db091ec",
+      "nominal_at": "2026-04-26T03:41:00+00:00",
+      "parts": [
+        {
+          "bytes": 32768,
+          "path": "snapshot-22.json.xz.part-0000",
+          "sha256": "e57560d13eb14a1334dc60951b0cc4495104ee9e6e45a05077fe5c3100dbadd5"
+        },
+        {
+          "bytes": 32768,
+          "path": "snapshot-22.json.xz.part-0001",
+          "sha256": "cc333a3daa333fe5b613465c542ccd81b36828f8db566ce75f22760b2e9167ed"
+        },
+        {
+          "bytes": 32768,
+          "path": "snapshot-22.json.xz.part-0002",
+          "sha256": "c6b135e5235a331231985b5c652b6d413b064f347fbb223078e43bbdfe3a7910"
+        },
+        {
+          "bytes": 32768,
+          "path": "snapshot-22.json.xz.part-0003",
+          "sha256": "84e0e09cc5d03333312df9ff301e7805e2a6224197720d63ba686b7b4f4b3c94"
+        },
+        {
+          "bytes": 27312,
+          "path": "snapshot-22.json.xz.part-0004",
+          "sha256": "707df40284bb1a59d7b2a6966407b7793c52deb8f87fa1aa56be0f120e704e7a"
+        }
+      ],
+      "path": "4/26/0341.json.xz",
+      "sha256": "94f86144dc73f81ff5726b465fd2b3723309580cc955cc9fedefbbd1849b8921",
+      "source_head": "17e703acd4f744931afa9d1d90a2998cfb104286",
+      "source_url": "https://raw.githubusercontent.com/Randdalf/fplcache/17e703acd4f744931afa9d1d90a2998cfb104286/cache/2026/4/26/0341.json.xz"
+    },
+    {
+      "blob_sha": "26472a3c082c6806fffded3e3bcf684e6f11d203",
+      "bytes": 156968,
+      "gw": 35,
+      "month_tree_sha": "49331db24bcc935c78ec7440d8aeae8dd3bc2e11",
+      "nominal_at": "2026-05-01T19:21:00+00:00",
+      "parts": [
+        {
+          "bytes": 32768,
+          "path": "snapshot-23.json.xz.part-0000",
+          "sha256": "83b6c507be63b7ed1551be80b146e2b4d14f6ee4024ff7a8894ec72f66c037a3"
+        },
+        {
+          "bytes": 32768,
+          "path": "snapshot-23.json.xz.part-0001",
+          "sha256": "fc47d1408f60fc90d2db746f0812c6bf258b2ed4f360cf819779bc5e760a1f2c"
+        },
+        {
+          "bytes": 32768,
+          "path": "snapshot-23.json.xz.part-0002",
+          "sha256": "0977be0598d5ee55470e02b9e048b2bd1a71bd8b4e6c3e242c2babd685c54133"
+        },
+        {
+          "bytes": 32768,
+          "path": "snapshot-23.json.xz.part-0003",
+          "sha256": "5fe4b75fc4dbfee3db1bcb70bf429cae7ae9aefb4a8a1032befe3b9c9ac428ab"
+        },
+        {
+          "bytes": 25896,
+          "path": "snapshot-23.json.xz.part-0004",
+          "sha256": "409ca0550c7980dce0c7528414d13f189c2b59ecc9de1f9eafb60d8a74e5a9ec"
+        }
+      ],
+      "path": "5/1/1921.json.xz",
+      "sha256": "2f3be4412ce038b6fcc3d6665762c39daa554be22cdf07e2f39064d8607d2e11",
+      "source_head": "17e703acd4f744931afa9d1d90a2998cfb104286",
+      "source_url": "https://raw.githubusercontent.com/Randdalf/fplcache/17e703acd4f744931afa9d1d90a2998cfb104286/cache/2026/5/1/1921.json.xz"
+    },
+    {
+      "blob_sha": "e19541c1b4aff503634076c2e8c80ceef45ac0bf",
+      "bytes": 158912,
+      "gw": 36,
+      "month_tree_sha": "49331db24bcc935c78ec7440d8aeae8dd3bc2e11",
+      "nominal_at": "2026-05-10T03:58:00+00:00",
+      "parts": [
+        {
+          "bytes": 32768,
+          "path": "snapshot-24.json.xz.part-0000",
+          "sha256": "502ba8472faa65a21831e187d94b9cc62fa965a4bb2ee3318e457e78b257453d"
+        },
+        {
+          "bytes": 32768,
+          "path": "snapshot-24.json.xz.part-0001",
+          "sha256": "51a41094e7a58039608932ae79dd108f69b91ef01406b73d8a4a3ba4df802b16"
+        },
+        {
+          "bytes": 32768,
+          "path": "snapshot-24.json.xz.part-0002",
+          "sha256": "a64a212132dae638cf3113394d22427321c63c58a7c2693775410bc1c93be318"
+        },
+        {
+          "bytes": 32768,
+          "path": "snapshot-24.json.xz.part-0003",
+          "sha256": "9ca881f7733748c2dbb7a5365ce453107de122e164633869b979653a66d07249"
+        },
+        {
+          "bytes": 27840,
+          "path": "snapshot-24.json.xz.part-0004",
+          "sha256": "d6e1fa833e6bde43231f8a4c3c9736c38f0b35472c5a255e2ea4838c60bd7261"
+        }
+      ],
+      "path": "5/10/0358.json.xz",
+      "sha256": "89ca06df45c85f7cd7ba0e5f5df90e1dc90e85ddec8a90bb6ae41d1eaef1b5c8",
+      "source_head": "17e703acd4f744931afa9d1d90a2998cfb104286",
+      "source_url": "https://raw.githubusercontent.com/Randdalf/fplcache/17e703acd4f744931afa9d1d90a2998cfb104286/cache/2026/5/10/0358.json.xz"
+    },
+    {
+      "blob_sha": "2058c293ae4a86e904ee22eaa49dd572fe7a05f3",
+      "bytes": 159668,
+      "gw": 36,
+      "month_tree_sha": "49331db24bcc935c78ec7440d8aeae8dd3bc2e11",
+      "nominal_at": "2026-05-10T19:14:00+00:00",
+      "parts": [
+        {
+          "bytes": 32768,
+          "path": "snapshot-25.json.xz.part-0000",
+          "sha256": "7bd67183c28e2e77ba6588f2f8ce8a4e94611fcd1d58f0ae7f27923a5f035acb"
+        },
+        {
+          "bytes": 32768,
+          "path": "snapshot-25.json.xz.part-0001",
+          "sha256": "5138b86f5fe9c6a5b0d45f9037606e0389b9cb42df2d81d0b9733026a2d50a33"
+        },
+        {
+          "bytes": 32768,
+          "path": "snapshot-25.json.xz.part-0002",
+          "sha256": "02984986b6542925a0f1b7732849ff5f9d6ef11b780320b9c33d89d997fe0a56"
+        },
+        {
+          "bytes": 32768,
+          "path": "snapshot-25.json.xz.part-0003",
+          "sha256": "90449009fda30f655d69a6c7ac56b0293bc2f312f9b364675285c4abac69da9a"
+        },
+        {
+          "bytes": 28596,
+          "path": "snapshot-25.json.xz.part-0004",
+          "sha256": "304b330f324f53c0837f07db2b77c20516181ac03a3c83a9284182899130e5df"
+        }
+      ],
+      "path": "5/10/1914.json.xz",
+      "sha256": "dc7bc52747cbc22f667325fc59657e7f7c1c088797561677adc195f0cbe111ca",
+      "source_head": "17e703acd4f744931afa9d1d90a2998cfb104286",
+      "source_url": "https://raw.githubusercontent.com/Randdalf/fplcache/17e703acd4f744931afa9d1d90a2998cfb104286/cache/2026/5/10/1914.json.xz"
+    },
+    {
+      "blob_sha": "dcc11351b96c4cbdcbbb87bc0add15d6c9f03764",
+      "bytes": 158648,
+      "gw": 37,
+      "month_tree_sha": "49331db24bcc935c78ec7440d8aeae8dd3bc2e11",
+      "nominal_at": "2026-05-15T19:48:00+00:00",
+      "parts": [
+        {
+          "bytes": 32768,
+          "path": "snapshot-26.json.xz.part-0000",
+          "sha256": "e827a4402794c33df38d778842b2bf3ed7d1eca1e41ce7a1a02b3214c1b7c400"
+        },
+        {
+          "bytes": 32768,
+          "path": "snapshot-26.json.xz.part-0001",
+          "sha256": "b1be8862e0e6e38759235f4566a6c039cb955784f3396833ff1626fe9d0c6f43"
+        },
+        {
+          "bytes": 32768,
+          "path": "snapshot-26.json.xz.part-0002",
+          "sha256": "ae20387a34eb1b7814e5bdd81eff8d90dda4a612da0b868fce750827d2477b13"
+        },
+        {
+          "bytes": 32768,
+          "path": "snapshot-26.json.xz.part-0003",
+          "sha256": "9b6b5a180f82366f7b9508eb64fc8937018359e62cdfef6cf2bfbc124ed0a542"
+        },
+        {
+          "bytes": 27576,
+          "path": "snapshot-26.json.xz.part-0004",
+          "sha256": "0d0b7a54b0ab7f7e3643a9a45e498c23639a9dee86ce7e512feb8c70caea468c"
+        }
+      ],
+      "path": "5/15/1948.json.xz",
+      "sha256": "f722ec35780fd15c226c01e861f7699e19037fbe7202950e58d729a0a7a22795",
+      "source_head": "17e703acd4f744931afa9d1d90a2998cfb104286",
+      "source_url": "https://raw.githubusercontent.com/Randdalf/fplcache/17e703acd4f744931afa9d1d90a2998cfb104286/cache/2026/5/15/1948.json.xz"
+    },
+    {
+      "blob_sha": "27080d58a48c961b55d00632d7903d99665491a9",
+      "bytes": 158532,
+      "gw": 35,
+      "month_tree_sha": "49331db24bcc935c78ec7440d8aeae8dd3bc2e11",
+      "nominal_at": "2026-05-02T19:10:00+00:00",
+      "parts": [
+        {
+          "bytes": 32768,
+          "path": "snapshot-27.json.xz.part-0000",
+          "sha256": "79d44268632864a7a34baa3f7a2f3251d843f235a2ad598f1c5c01b2a778470f"
+        },
+        {
+          "bytes": 32768,
+          "path": "snapshot-27.json.xz.part-0001",
+          "sha256": "89e37417f7ed4a3f91b634cdc3bcf74f0747f0b5a10b62b236b538a87b3cbc47"
+        },
+        {
+          "bytes": 32768,
+          "path": "snapshot-27.json.xz.part-0002",
+          "sha256": "af1c4b3d19316e7ea6fb2cbbe94145f269a685ca481f0813fd2aed320c1f05b8"
+        },
+        {
+          "bytes": 32768,
+          "path": "snapshot-27.json.xz.part-0003",
+          "sha256": "0c88a6a2e2134a09bc701a5406a901ec46ad05e24e2bde515228401d42ee3ba9"
+        },
+        {
+          "bytes": 27460,
+          "path": "snapshot-27.json.xz.part-0004",
+          "sha256": "609386c7d951c841ab462259532d18ebd537e8cdb1c7ae9b6b1ae03990b8e309"
+        }
+      ],
+      "path": "5/2/1910.json.xz",
+      "sha256": "8e35e3c9b6c1cdfbb6f45abc690d0449469d70b9920f48a1af07287b4ba0d4c1",
+      "source_head": "17e703acd4f744931afa9d1d90a2998cfb104286",
+      "source_url": "https://raw.githubusercontent.com/Randdalf/fplcache/17e703acd4f744931afa9d1d90a2998cfb104286/cache/2026/5/2/1910.json.xz"
+    },
+    {
+      "blob_sha": "dd31c84548f4c21fe24d2f5c6fc28e94758aaadd",
+      "bytes": 161652,
+      "gw": 38,
+      "month_tree_sha": "49331db24bcc935c78ec7440d8aeae8dd3bc2e11",
+      "nominal_at": "2026-05-24T13:49:00+00:00",
+      "parts": [
+        {
+          "bytes": 32768,
+          "path": "snapshot-28.json.xz.part-0000",
+          "sha256": "63540a6cf1a51dc7b76b3dea816684739cc9426e212cd58e1e19d8d0b15e4499"
+        },
+        {
+          "bytes": 32768,
+          "path": "snapshot-28.json.xz.part-0001",
+          "sha256": "72b9d98903fdaa9f0d709d32be691ec5e6d5e90ba2e29710873e70814f549cb9"
+        },
+        {
+          "bytes": 32768,
+          "path": "snapshot-28.json.xz.part-0002",
+          "sha256": "06ffa6e9796a4f18546ac492e902c789de4659fb9e969729561483f8609ed5ce"
+        },
+        {
+          "bytes": 32768,
+          "path": "snapshot-28.json.xz.part-0003",
+          "sha256": "a36129c4afeae3b3c44dfe942276a9c19b76fa9ec3160af6d72dac39019197ff"
+        },
+        {
+          "bytes": 30580,
+          "path": "snapshot-28.json.xz.part-0004",
+          "sha256": "be81070297a04be8fbb13912554157a707286d24b9454aea8c9fa401f32e4fe2"
+        }
+      ],
+      "path": "5/24/1349.json.xz",
+      "sha256": "e1167346c5fe3a4053b309d195e4001b41982e11be1f91343ad6d7c31af5b1dd",
+      "source_head": "17e703acd4f744931afa9d1d90a2998cfb104286",
+      "source_url": "https://raw.githubusercontent.com/Randdalf/fplcache/17e703acd4f744931afa9d1d90a2998cfb104286/cache/2026/5/24/1349.json.xz"
+    },
+    {
+      "blob_sha": "53e648827262fe3430cc231185a0a1216e73162c",
+      "bytes": 158556,
+      "gw": 38,
+      "month_tree_sha": "49331db24bcc935c78ec7440d8aeae8dd3bc2e11",
+      "nominal_at": "2026-05-24T19:25:00+00:00",
+      "parts": [
+        {
+          "bytes": 32768,
+          "path": "snapshot-29.json.xz.part-0000",
+          "sha256": "9deb585f6e3e555f138411fbb12b48d5d607892df3be6702de45aed8c5e6a8c7"
+        },
+        {
+          "bytes": 32768,
+          "path": "snapshot-29.json.xz.part-0001",
+          "sha256": "deacf7c96faccbf337cb36f4d2c91db081cb828f444bf81cba01f09c5edc55b6"
+        },
+        {
+          "bytes": 32768,
+          "path": "snapshot-29.json.xz.part-0002",
+          "sha256": "f63a1ffdc47ab710b0d8ea6467b02dcdcc5c7bc8736aa74e0329b74452a82d4c"
+        },
+        {
+          "bytes": 32768,
+          "path": "snapshot-29.json.xz.part-0003",
+          "sha256": "8661e4cd1424ad0d666276fa86e06cfae9bfd84f0ffcd34a6b5fffd023b4f5d9"
+        },
+        {
+          "bytes": 27484,
+          "path": "snapshot-29.json.xz.part-0004",
+          "sha256": "3a54033fc011c6d77933a6f4f50989f804430a57e47a27ed96f4c4b87d4baf1f"
+        }
+      ],
+      "path": "5/24/1925.json.xz",
+      "sha256": "776458eb086fabac29c80987ba9dc22c3237224eeed5faf6a2b8ea43928595ee",
+      "source_head": "17e703acd4f744931afa9d1d90a2998cfb104286",
+      "source_url": "https://raw.githubusercontent.com/Randdalf/fplcache/17e703acd4f744931afa9d1d90a2998cfb104286/cache/2026/5/24/1925.json.xz"
+    },
+    {
+      "blob_sha": "16efc10e6fa6e42f74cfbd52a54853d4ad3f17a7",
+      "bytes": 157656,
+      "gw": 36,
+      "month_tree_sha": "49331db24bcc935c78ec7440d8aeae8dd3bc2e11",
+      "nominal_at": "2026-05-09T13:41:00+00:00",
+      "parts": [
+        {
+          "bytes": 32768,
+          "path": "snapshot-30.json.xz.part-0000",
+          "sha256": "8f2d343eef58cf24a618dee6be6ede8b32218c9263aa6d140b379a577e99fbbf"
+        },
+        {
+          "bytes": 32768,
+          "path": "snapshot-30.json.xz.part-0001",
+          "sha256": "294d0d79e0c79932af43478d9bbd38750d2fc3d55ae3115b2c37a1cd900deb33"
+        },
+        {
+          "bytes": 32768,
+          "path": "snapshot-30.json.xz.part-0002",
+          "sha256": "13b7ed2d1486cc21b52feff94968b2dd26bbc79a10fe72b0047b3fca8e4cadfb"
+        },
+        {
+          "bytes": 32768,
+          "path": "snapshot-30.json.xz.part-0003",
+          "sha256": "2621eca7c50e9afa32112c7b2317feec769e99142100f848391aeab2a4665556"
+        },
+        {
+          "bytes": 26584,
+          "path": "snapshot-30.json.xz.part-0004",
+          "sha256": "23f952e7af1dfdfb0bcbab3531956cda90a1352f48675a99bbcfec3b8d760762"
+        }
+      ],
+      "path": "5/9/1341.json.xz",
+      "sha256": "f31c155f940e78839ab72f6bf0d91c9d9562c2b8b3757023af9d9282fe8528e0",
+      "source_head": "17e703acd4f744931afa9d1d90a2998cfb104286",
+      "source_url": "https://raw.githubusercontent.com/Randdalf/fplcache/17e703acd4f744931afa9d1d90a2998cfb104286/cache/2026/5/9/1341.json.xz"
+    }
+  ],
+  "unchanged": "All model inputs, predictions, simulator, adapter, scoring and transfer/chip policy",
+  "unique_players": 31
+}
