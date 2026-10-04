@@ -1,0 +1,82 @@
+{
+  "classification": "structural_timing_audit_not_new_holdout",
+  "control_rows": 13987,
+  "database_sha256": "a4742428fb0c9943ff3ee565f765eb98d733a1690180c566d6df794786ef409f",
+  "deadline_replay_component_inputs_ready": false,
+  "findings": [
+    "Original attack position/assist priors and discipline position priors update after each fixture in kickoff/fixture-ID order.",
+    "Those sequential states can contain results from fixtures after the common GW cutoff, including other fixtures starting simultaneously.",
+    "DC population/opponent states and team-goal contexts are also fixture-sequential; exact numerical forecast reproduction is not claimed here.",
+    "A first-entry extension must use a common predeadline population snapshot, not merely fill the archived omissions.",
+    "Counts are structural exposure from original ordering, not an estimate of the numerical impact on MAE/RMSE.",
+    "The old paired comparison remains a reused mechanistic diagnostic; it is not a certified deadline-safe decision backtest."
+  ],
+  "fixtures": 170,
+  "fixtures_with_postdeadline_league_state": 153,
+  "fixtures_with_postdeadline_player_history": 5,
+  "max_postdeadline_league_fixtures": 12,
+  "original_experiment_sources": [
+    {
+      "archive": "FPL_v1_1_PHASE_3C_PATCH(1).zip",
+      "archive_sha256": "95bc1465879148cd329d5c3d24ac976e6ab4cf7f69bfdb4139321200d30f0299",
+      "history_guard": "if int(r['gw'])>=min_gw and sw>0:",
+      "line": 63,
+      "member": "analysis/v1_1_player_attack_experiment.py",
+      "member_sha256": "e5af157093a711873efd0105ee15de74f6afb0107be55ca1c63e856f275ce890",
+      "preserved_source": "v1_1_player_attack_experiment.py"
+    },
+    {
+      "archive": "FPL_v1_1_PHASE_3D_PATCH(1).zip",
+      "archive_sha256": "d8624d5e274561c26835ee6e234373c10d2e61bf77935185113148690665b748",
+      "history_guard": "if int(r['gw'])>=6 and sw>0:",
+      "line": 40,
+      "member": "analysis/v1_1_defcon_experiment.py",
+      "member_sha256": "32d226b4155b79e13198f1033d3872c4ad86b9d1810c34383a6e479da161856a",
+      "preserved_source": "v1_1_defcon_experiment.py"
+    },
+    {
+      "archive": "FPL_v1_1_PHASE_3E_PATCH(1).zip",
+      "archive_sha256": "e30a60913c323f26c480eadbddb30935f50f38e3049fed38beb29ed55dfa5524",
+      "history_guard": "if int(r['gw'])>=6 and sw>0:",
+      "line": 50,
+      "member": "analysis/v1_1_negative_events_experiment.py",
+      "member_sha256": "29de0b93aa2a294f5061eb0f0694dfd3073cfa9c6818e939f47fd951157a028a",
+      "preserved_source": "v1_1_negative_events_experiment.py"
+    }
+  ],
+  "outputs": [
+    {
+      "path": "fixture_timing.csv",
+      "rows": 170,
+      "sha256": "ea25d409b2abc81b43cc6fcecb9ac4eab2efac2ba3753802db444844e2e565c9"
+    },
+    {
+      "path": "player_history_after_deadline.csv",
+      "rows": 409,
+      "sha256": "8fc11092e375e4e4903706051025351c0e8e35a889af4352bb0aa3e0db44f83c"
+    }
+  ],
+  "parent_checkpoint": "33f99cf4205e4853f9e8a31af91651310d95476b",
+  "player_rows_with_postdeadline_player_history": 409,
+  "required": "Generate a separately versioned deadline-batched common component input using frozen parameters and completed predeadline history; resolve remaining roster evidence before full replay.",
+  "season": "2025-26",
+  "sources": [
+    {
+      "path": "analysis/results/v2-reproduced/pstart_v2_fixture_holdout_2025_26.csv",
+      "sha256": "b0e7dfd015f1bba73afe66365b01b4ce559730e8cdf8121bfa504e0b1e511de6"
+    },
+    {
+      "path": "analysis/results/workload-recovered-minutes-v4/reused_holdout_diagnostic_predictions.csv.gz",
+      "sha256": "a98c8c6936c02847a3fa6041c8f5cce7c3b1897a8b7d7c17d11e0834f7645741"
+    },
+    {
+      "path": "analysis/results/joint-cold-start-audit-v1/original-rule-evidence.json",
+      "sha256": "93757f5f5fc974d29619a95988d922684ec731c219248083f7222b4bb2dfe9ae"
+    },
+    {
+      "path": "scripts/audit_joint_component_timing.py",
+      "sha256": "901dc93f1a7daa5f9180a5c23e40c669223c1e8d893a3ebada8ebdb0baf9b562"
+    }
+  ],
+  "unchanged": "Original adapter/simulator, frozen component forecasts, paired diagnostic, Core database and transfer/chip policy"
+}
