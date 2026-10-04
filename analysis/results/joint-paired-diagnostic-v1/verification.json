@@ -1,0 +1,27 @@
+{
+  "tests_passed": 103,
+  "tests_failed": 0,
+  "command": "PYTHONPATH=src python -m pytest -q tests",
+  "python": "3.12.14",
+  "numpy": "2.3.5",
+  "pandas": "2.2.3",
+  "scipy": "1.17.0",
+  "pytest": "9.1.1",
+  "policy_checks": [
+    {
+      "path": "src/fpl_xpts/season_replay.py",
+      "sha256": "c17ec0c5fcdee583539962bf705c5f72bf4ea9776a0291e23a429cfe4dd603b1",
+      "unchanged_from": "8091c857ccc9909637e4884212f534834b9576ac"
+    },
+    {
+      "path": "src/fpl_xpts/optimize.py",
+      "sha256": "9d10d292d0cb5928e481dcc65bc31e0605843a6cf90b67b57ffb0e553dda2ac6",
+      "unchanged_from": "8091c857ccc9909637e4884212f534834b9576ac"
+    },
+    {
+      "path": "model/decision_optimizer.py",
+      "sha256": "1025d657cc5b020522d3ca762381c58d3d302cbd41596f0b9836c53445912742",
+      "unchanged_from": "8091c857ccc9909637e4884212f534834b9576ac"
+    }
+  ]
+}

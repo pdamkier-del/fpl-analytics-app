@@ -1,0 +1,199 @@
+{
+  "changed": [
+    "candidate P(start) and selected v4 conditional minutes"
+  ],
+  "classification": "reused_diagnostic_not_new_holdout",
+  "code": [
+    {
+      "path": "scripts/run_paired_joint_diagnostic.py",
+      "sha256": "78ad353b9f06408e4435c1899352bb759e9f63ed107777c63a0237091bf01368"
+    },
+    {
+      "path": "src/fpl_v1_1_model/paired_joint.py",
+      "sha256": "f3eda1cc3e1bf326c74c09b150212883a389b02f1b3744ec82369e2e3c876ad6"
+    },
+    {
+      "path": "src/fpl_v1_1_model/phase4b.py",
+      "sha256": "48990ad1a55c0e78e593c8ff05f07e6c5ae754502ab48bb133eabc4aae293742"
+    },
+    {
+      "path": "src/fpl_v1_1_model/joint_simulator.py",
+      "sha256": "e0a9e76a2d73dff1f49ce7b779d38c1e8943cbf8578cd1b27f97800950a8b0d6"
+    }
+  ],
+  "fixed": [
+    "fixture roster",
+    "team goals",
+    "on-pitch attack/assist/DC rates",
+    "discipline",
+    "keeper saves",
+    "original simulator",
+    "scoring",
+    "transfer/chip policy"
+  ],
+  "full_2026_27_bps_on_2025_26_diagnostic": {
+    "control": {
+      "bias": 0.06506324603598788,
+      "mae": 0.9568189916265811,
+      "n": 11226,
+      "rmse": 1.8616001377967069
+    },
+    "v4": {
+      "bias": 0.05219913593443791,
+      "mae": 0.9381380277926243,
+      "n": 11226,
+      "rmse": 1.854527505039293
+    },
+    "v4_minus_control": {
+      "bias": -0.012864110101549975,
+      "mae": -0.018680963833956787,
+      "rmse": -0.007072632757413766
+    }
+  },
+  "full_season_replay_ready": false,
+  "gw_range": [
+    22,
+    38
+  ],
+  "inputs_manifest_sha256": "5cae3a813557f64f966bf3316d0f34904cf8c647de05c5ef874479800ca434c7",
+  "mean_simulated_minutes": {
+    "control": 23.372320951362905,
+    "v4": 23.097700650276145
+  },
+  "nonbonus": {
+    "control": {
+      "bias": 0.05182945840014253,
+      "mae": 0.8472084892214503,
+      "n": 11226,
+      "rmse": 1.5870860841309173
+    },
+    "v4": {
+      "bias": 0.03874042401567789,
+      "mae": 0.8292936041332619,
+      "n": 11226,
+      "rmse": 1.5797846747324487
+    },
+    "v4_minus_control": {
+      "bias": -0.01308903438446464,
+      "mae": -0.017914885088188393,
+      "rmse": -0.007301409398468683
+    }
+  },
+  "outputs": [
+    {
+      "compressed_sha256": "3bcbdffcb14090a7afbaccaee6446e3d76a11a8ea77cd6603d7e77c73448a0c7",
+      "name": "predictions",
+      "parts": [
+        {
+          "bytes": 32768,
+          "path": "predictions.csv.gz.part-0000",
+          "sha256": "e0ff01c4e37f04c728f635687a1ede6df6d956f47798ae4f221d12b43fdcf83e"
+        },
+        {
+          "bytes": 32768,
+          "path": "predictions.csv.gz.part-0001",
+          "sha256": "4f171fcf0ea6c72ac40141bacf466fe1c8da6fba9629719904bc3b5f59f8dc7d"
+        },
+        {
+          "bytes": 32768,
+          "path": "predictions.csv.gz.part-0002",
+          "sha256": "f167503f19ade154a4ecc60025051521b7505b9b081b4235de1fb906a7b0fbe5"
+        },
+        {
+          "bytes": 32768,
+          "path": "predictions.csv.gz.part-0003",
+          "sha256": "a2d3661216935a160e8a82fe2f7fe18b23100c69d77b835be841e2ce4b365a08"
+        },
+        {
+          "bytes": 32768,
+          "path": "predictions.csv.gz.part-0004",
+          "sha256": "96ec3f6b2e4dd542afca8b76cdc429c7ca3af273d08269a2ed9c4166c66309b5"
+        },
+        {
+          "bytes": 32768,
+          "path": "predictions.csv.gz.part-0005",
+          "sha256": "30e1f1f76bcfea1a0469cf811943b0134273578e64aef3e511a37be537721ea5"
+        },
+        {
+          "bytes": 32768,
+          "path": "predictions.csv.gz.part-0006",
+          "sha256": "cde201f8d8984a326f6ff1a223426ce932cb13ef05fe1837504614e8829c0156"
+        },
+        {
+          "bytes": 32768,
+          "path": "predictions.csv.gz.part-0007",
+          "sha256": "c16c3cb14b19428ac84f890ff10b29f04f43316c000f0e752538a9a0e66e0d80"
+        },
+        {
+          "bytes": 32768,
+          "path": "predictions.csv.gz.part-0008",
+          "sha256": "b1c239b0d8e58e0ac2bbd9b75ba30639bc6653d083c54d464ac7b78903509714"
+        },
+        {
+          "bytes": 32768,
+          "path": "predictions.csv.gz.part-0009",
+          "sha256": "5ec87d2a54c0a1dd6e3be217fd097ae51a4d18271f0f374918c7f0669476ad04"
+        },
+        {
+          "bytes": 32768,
+          "path": "predictions.csv.gz.part-0010",
+          "sha256": "dcf10645932b41528335683a35a9f9054bd299cfce037ce73e5b12021bdb3e66"
+        },
+        {
+          "bytes": 32768,
+          "path": "predictions.csv.gz.part-0011",
+          "sha256": "e5c9f8b249a644596ce921c59a614ab10978d66a8f534266af44525de661ceaa"
+        },
+        {
+          "bytes": 32768,
+          "path": "predictions.csv.gz.part-0012",
+          "sha256": "fd5e3e4c25f749660cc83030c393e2303308233d3c7d35c7993b35099cb20a5b"
+        },
+        {
+          "bytes": 32768,
+          "path": "predictions.csv.gz.part-0013",
+          "sha256": "dc46e447a7bb29f80213a825f2000908183cf38aee2bdda468158eea3e2b1827"
+        },
+        {
+          "bytes": 32768,
+          "path": "predictions.csv.gz.part-0014",
+          "sha256": "ac01f4bbe6aef3611f148e30361981c64fa471390f0b765a0418069d5f3d69b0"
+        },
+        {
+          "bytes": 32768,
+          "path": "predictions.csv.gz.part-0015",
+          "sha256": "4cdb2d1e037acfb9efeab6e33ab2904b6321f554b27082276523f8191a77050f"
+        },
+        {
+          "bytes": 32768,
+          "path": "predictions.csv.gz.part-0016",
+          "sha256": "4613dbeba1a1e5149e27e9bbd998a8cf422ef67d5e094e48fd514f16c81f12ef"
+        },
+        {
+          "bytes": 32768,
+          "path": "predictions.csv.gz.part-0017",
+          "sha256": "9837ef76cff7b4679230ded8aac119b5cbb5beead0315b242ed4694d050ff28b"
+        },
+        {
+          "bytes": 32768,
+          "path": "predictions.csv.gz.part-0018",
+          "sha256": "9bc7c999f691bcbfa46f470c3b8630d261afd90d904bb2659329eb9277c1c838"
+        },
+        {
+          "bytes": 19004,
+          "path": "predictions.csv.gz.part-0019",
+          "sha256": "d5c2b51ee89b7547e55ed288c79ea1a4f2f23e74091fbd43f7521651b4aba554"
+        }
+      ],
+      "rows": 11226,
+      "uncompressed_sha256": "ebb99f92765507c38be86ee9bd0a2b2f21f71dc511045ccc9db28dbfbd7a21af"
+    }
+  ],
+  "paired_fixtures": 137,
+  "paired_player_fixture_rows": 11226,
+  "primary": "bonus-neutral paired sensitivity; inherited direct-event model limitations remain",
+  "randomness": "Same fixture seed and budget; not event-aligned common random numbers; 80 draws is inherited technical budget, not precise xP ranking",
+  "season": "2025-26",
+  "seed_base": 26092501,
+  "simulations_per_fixture_per_arm": 80
+}
