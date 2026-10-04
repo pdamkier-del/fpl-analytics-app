@@ -1,0 +1,197 @@
+{
+  "data_limit": "Historical fixture DC exists only for 2025/26, so this uses an internal temporal split rather than a separate season holdout.",
+  "fit_gws": [
+    6,
+    21
+  ],
+  "validation_gws": [
+    22,
+    38
+  ],
+  "selected": {
+    "player_dc_half_life": 6.0,
+    "opponent_induced_half_life": 2.0,
+    "position_prior_minutes_tau": 29.763037559224358,
+    "opponent_factor_exponent_gamma": 0.3228390216376611,
+    "nb2_dispersion_alpha": {
+      "DEF": 1.6136326854524488,
+      "MID": 0.9017026562284318,
+      "FWD": 0.7194052759354805
+    },
+    "fit_nb_nll": 1.5121585414390286
+  },
+  "fit_metrics": {
+    "count": {
+      "n": 10723,
+      "mae": 1.5092869087556247,
+      "rmse": 2.7325663359351395,
+      "bias": -0.03447783870178218
+    },
+    "threshold_probability": {
+      "n": 10723,
+      "brier": 0.04624046310612339,
+      "log_loss": 0.1710786755327724,
+      "mean_pred": 0.060972366086896976,
+      "event_rate": 0.05977804718828686
+    },
+    "expected_dc_points": {
+      "n": 10723,
+      "mae": 0.1860333294617596,
+      "rmse": 0.4300719248463277,
+      "bias": 0.0023886377972202333
+    }
+  },
+  "validation_metrics": {
+    "count": {
+      "n": 12337,
+      "mae": 1.403137704218841,
+      "rmse": 2.5968802234055364,
+      "bias": 0.03430903893510464
+    },
+    "threshold_probability": {
+      "n": 12337,
+      "brier": 0.038704840774721735,
+      "log_loss": 0.1420895709218058,
+      "mean_pred": 0.05547194477168225,
+      "event_rate": 0.04985004458134068
+    },
+    "expected_dc_points": {
+      "n": 12337,
+      "mae": 0.16304120767643743,
+      "rmse": 0.3934709242497212,
+      "bias": 0.011243800380683119
+    }
+  },
+  "validation_ablations": {
+    "no_opponent_factor": {
+      "count": {
+        "n": 12337,
+        "mae": 1.4047498239221825,
+        "rmse": 2.5978852318416066,
+        "bias": 0.03997722200450114
+      },
+      "threshold_probability": {
+        "n": 12337,
+        "brier": 0.03870272930945773,
+        "log_loss": 0.14198190475433337,
+        "mean_pred": 0.055734577092377925,
+        "event_rate": 0.04985004458134068
+      },
+      "expected_dc_points": {
+        "n": 12337,
+        "mae": 0.16332659354588056,
+        "rmse": 0.393460191580085,
+        "bias": 0.011769065022074488
+      }
+    },
+    "poisson_instead_of_negative_binomial": {
+      "count": {
+        "n": 12337,
+        "mae": 1.403137704218841,
+        "rmse": 2.5968802234055364,
+        "bias": 0.03430903893510464
+      },
+      "threshold_probability": {
+        "n": 12337,
+        "brier": 0.03931041830500807,
+        "log_loss": 0.1795805725219148,
+        "mean_pred": 0.033502565909407096,
+        "event_rate": 0.04985004458134068
+      },
+      "expected_dc_points": {
+        "n": 12337,
+        "mae": 0.12102753945757795,
+        "rmse": 0.3965371213254065,
+        "bias": -0.032694957343867175
+      }
+    }
+  },
+  "candidate_grid": [
+    {
+      "fit_nb_nll": 1.5121585414390286,
+      "player_h": 6.0,
+      "opponent_h": 2.0
+    },
+    {
+      "fit_nb_nll": 1.5122766145663837,
+      "player_h": 6.0,
+      "opponent_h": 6.0
+    },
+    {
+      "fit_nb_nll": 1.512417395311606,
+      "player_h": 6.0,
+      "opponent_h": 16.0
+    },
+    {
+      "fit_nb_nll": 1.5124743626381398,
+      "player_h": 6.0,
+      "opponent_h": 40.0
+    },
+    {
+      "fit_nb_nll": 1.5125181557034022,
+      "player_h": 16.0,
+      "opponent_h": 2.0
+    },
+    {
+      "fit_nb_nll": 1.5126375802054493,
+      "player_h": 16.0,
+      "opponent_h": 6.0
+    },
+    {
+      "fit_nb_nll": 1.5127812363887978,
+      "player_h": 16.0,
+      "opponent_h": 16.0
+    },
+    {
+      "fit_nb_nll": 1.5128162850652964,
+      "player_h": 40.0,
+      "opponent_h": 2.0
+    },
+    {
+      "fit_nb_nll": 1.5128393109474325,
+      "player_h": 16.0,
+      "opponent_h": 40.0
+    },
+    {
+      "fit_nb_nll": 1.5129357811870277,
+      "player_h": 40.0,
+      "opponent_h": 6.0
+    },
+    {
+      "fit_nb_nll": 1.5130798513198775,
+      "player_h": 40.0,
+      "opponent_h": 16.0
+    },
+    {
+      "fit_nb_nll": 1.513138001286204,
+      "player_h": 40.0,
+      "opponent_h": 40.0
+    },
+    {
+      "fit_nb_nll": 1.514222251887663,
+      "player_h": 2.0,
+      "opponent_h": 2.0
+    },
+    {
+      "fit_nb_nll": 1.5143343400354043,
+      "player_h": 2.0,
+      "opponent_h": 6.0
+    },
+    {
+      "fit_nb_nll": 1.51446266261366,
+      "player_h": 2.0,
+      "opponent_h": 16.0
+    },
+    {
+      "fit_nb_nll": 1.51451371199041,
+      "player_h": 2.0,
+      "opponent_h": 40.0
+    }
+  ],
+  "notes": [
+    "Official 2026/27 thresholds are DEF CBIT>=10 and MID/FWD CBIRT>=12, worth 2 points and capped at 2.",
+    "No previous-season DC values are used because the metric was introduced in 2025/26.",
+    "Opponent factor is position-specific: how many relevant DC actions that opponent has induced from opposing DEF/MID/FWD units relative to the league rate.",
+    "Parameters remain candidates until 2026/27 provides a genuinely later validation sample."
+  ]
+}

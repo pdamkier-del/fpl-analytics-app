@@ -1,0 +1,294 @@
+{
+  "scope": "Direct negative FPL events from Historical Core. Penalty misses are not forecast independently; they are reserved for the shared penalty event model.",
+  "development_seasons": [
+    "2022-23",
+    "2023-24",
+    "2024-25"
+  ],
+  "holdout_season": "2025-26",
+  "target_from_gw": 6,
+  "development_selected": {
+    "yellow_prior_minutes_tau": 2109.9293156319636,
+    "red_prior_minutes_tau": 50000.00000000001,
+    "opponent_yellow_prior_fixtures_tau": 3.1626125252093398,
+    "opponent_yellow_exponent_gamma": 0.6329297256313822,
+    "own_goal_prior_minutes_tau": 21511.019415095274,
+    "development_discipline_nll": 0.18466342863885998,
+    "development_own_goal_logloss": 0.01108142058737578,
+    "optimizer_success": true
+  },
+  "recommended_for_joint_model": {
+    "yellow_prior_minutes_tau": 2109.9293156319636,
+    "red_model": "current-season position rate (player-specific red rate not supported)",
+    "own_goal_prior_minutes_tau": 21511.019415095274,
+    "opponent_yellow_factor": false,
+    "reason": "Holdout log loss does not support the opponent factor; red player-specific tau hit the upper bound. Keep the simpler candidate until a future 2026/27 validation block."
+  },
+  "development_metrics": {
+    "discipline": {
+      "n": 73548,
+      "log_loss": 0.18466342863886026,
+      "brier_multiclass": 0.09501813707707434,
+      "yellow": {
+        "n": 73548,
+        "brier": 0.04608795656446165,
+        "log_loss": 0.17307796694988214,
+        "mean_pred": 0.05165633927473991,
+        "event_rate": 0.05208843204437918
+      },
+      "red": {
+        "n": 73548,
+        "brier": 0.0016264009080142702,
+        "log_loss": 0.011516455352641503,
+        "mean_pred": 0.001733748048053536,
+        "event_rate": 0.0016315875346712351
+      }
+    },
+    "own_goal": {
+      "n": 73548,
+      "brier": 0.0014774560210999439,
+      "log_loss": 0.010518192848397645,
+      "mean_pred": 0.0015664520991380837,
+      "event_rate": 0.0014820253439930386
+    },
+    "direct_negative_points_ex_penalty_miss": {
+      "n": 73548,
+      "mae": 0.10400948862524456,
+      "rmse": 0.256864856024569,
+      "bias": -4.3242280797721436e-05
+    },
+    "mean_pred_direct_negative_points": -0.05999048761717669,
+    "mean_actual_direct_negative_points": -0.05994724533637896
+  },
+  "holdout_metrics": {
+    "discipline": {
+      "n": 26059,
+      "log_loss": 0.16798078293798077,
+      "brier_multiclass": 0.08704538323815901,
+      "yellow": {
+        "n": 26059,
+        "brier": 0.0423170184044955,
+        "log_loss": 0.15873242707756552,
+        "mean_pred": 0.04316149717893711,
+        "event_rate": 0.04781457461913351
+      },
+      "red": {
+        "n": 26059,
+        "brier": 0.0013768414907958787,
+        "log_loss": 0.009434393533873682,
+        "mean_pred": 0.0013811643343575532,
+        "event_rate": 0.001381480486588127
+      }
+    },
+    "own_goal": {
+      "n": 26059,
+      "brier": 0.0012981367733578355,
+      "log_loss": 0.008742786012257116,
+      "mean_pred": 0.0014078893645976204,
+      "event_rate": 0.0013047315706665643
+    },
+    "direct_negative_points_ex_penalty_miss": {
+      "n": 26059,
+      "mae": 0.0915853468417135,
+      "rmse": 0.24340141232271167,
+      "bias": 0.004447710309026005
+    },
+    "mean_pred_direct_negative_points": -0.05012076891120502,
+    "mean_actual_direct_negative_points": -0.05456847922023102
+  },
+  "recommended_holdout_metrics": {
+    "discipline": {
+      "n": 26059,
+      "log_loss": 0.16793914697395995,
+      "brier_multiclass": 0.08707541745326519,
+      "yellow": {
+        "n": 26059,
+        "brier": 0.04233064334667211,
+        "log_loss": 0.15870633910913437,
+        "mean_pred": 0.04332257860908728,
+        "event_rate": 0.04781457461913351
+      },
+      "red": {
+        "n": 26059,
+        "brier": 0.0013766776000233962,
+        "log_loss": 0.009416575393235063,
+        "mean_pred": 0.0013838296533900036,
+        "event_rate": 0.001381480486588127
+      }
+    },
+    "own_goal": {
+      "n": 26059,
+      "brier": 0.0012981367733578355,
+      "log_loss": 0.008742786012257116,
+      "mean_pred": 0.0014078893645976204,
+      "event_rate": 0.0013047315706665643
+    },
+    "direct_negative_points_ex_penalty_miss": {
+      "n": 26059,
+      "mae": 0.09175589759796375,
+      "rmse": 0.2434143288546465,
+      "bias": 0.0042786329217784835
+    },
+    "mean_pred_direct_negative_points": -0.05028984629845253,
+    "mean_actual_direct_negative_points": -0.05456847922023102
+  },
+  "holdout_ablations": {
+    "no_opponent_yellow_factor": {
+      "discipline": {
+        "n": 26059,
+        "log_loss": 0.16795590661946327,
+        "brier_multiclass": 0.08707584604375034,
+        "yellow": {
+          "n": 26059,
+          "brier": 0.042330631140328104,
+          "log_loss": 0.1587062878227004,
+          "mean_pred": 0.043323004286768156,
+          "event_rate": 0.04781457461913351
+        },
+        "red": {
+          "n": 26059,
+          "brier": 0.0013768239578059677,
+          "log_loss": 0.009433283888144737,
+          "mean_pred": 0.0013808197269011124,
+          "event_rate": 0.001381480486588127
+        }
+      },
+      "own_goal": {
+        "n": 26059,
+        "brier": 0.0012981367733578355,
+        "log_loss": 0.008742786012257116,
+        "mean_pred": 0.0014078893645976204,
+        "event_rate": 0.0013047315706665643
+      },
+      "direct_negative_points_ex_penalty_miss": {
+        "n": 26059,
+        "mae": 0.09175329731018383,
+        "rmse": 0.24341951591309233,
+        "bias": 0.004287237023564282
+      },
+      "mean_pred_direct_negative_points": -0.05028124219666673,
+      "mean_actual_direct_negative_points": -0.05456847922023102
+    },
+    "position_only_card_rates": {
+      "discipline": {
+        "n": 26059,
+        "log_loss": 0.16918965909578523,
+        "brier_multiclass": 0.08746694527713796,
+        "yellow": {
+          "n": 26059,
+          "brier": 0.04251937252748548,
+          "log_loss": 0.15995263628693668,
+          "mean_pred": 0.04339679231840149,
+          "event_rate": 0.04781457461913351
+        },
+        "red": {
+          "n": 26059,
+          "brier": 0.0013766434438949298,
+          "log_loss": 0.009412654681611891,
+          "mean_pred": 0.0013834513759616006,
+          "event_rate": 0.001381480486588127
+        }
+      },
+      "own_goal": {
+        "n": 26059,
+        "brier": 0.0012981367733578355,
+        "log_loss": 0.008742786012257116,
+        "mean_pred": 0.0014078893645976204,
+        "event_rate": 0.0013047315706665643
+      },
+      "direct_negative_points_ex_penalty_miss": {
+        "n": 26059,
+        "mae": 0.09218064280004272,
+        "rmse": 0.24391045195291303,
+        "bias": 0.004205554044749486
+      },
+      "mean_pred_direct_negative_points": -0.050362925175481535,
+      "mean_actual_direct_negative_points": -0.05456847922023102
+    },
+    "red_position_only": {
+      "discipline": {
+        "n": 26059,
+        "log_loss": 0.16796402318970663,
+        "brier_multiclass": 0.08704494639429494,
+        "yellow": {
+          "n": 26059,
+          "brier": 0.04231703257211161,
+          "log_loss": 0.15873248270518153,
+          "mean_pred": 0.0431610749241071,
+          "event_rate": 0.04781457461913351
+        },
+        "red": {
+          "n": 26059,
+          "brier": 0.001376695048934049,
+          "log_loss": 0.009417688535471754,
+          "mean_pred": 0.0013841777892918236,
+          "event_rate": 0.001381480486588127
+        }
+      },
+      "own_goal": {
+        "n": 26059,
+        "brier": 0.0012981367733578355,
+        "log_loss": 0.008742786012257116,
+        "mean_pred": 0.0014078893645976204,
+        "event_rate": 0.0013047315706665643
+      },
+      "direct_negative_points_ex_penalty_miss": {
+        "n": 26059,
+        "mae": 0.09158796412754172,
+        "rmse": 0.24339615001864884,
+        "bias": 0.004439092199053205
+      },
+      "mean_pred_direct_negative_points": -0.05012938702117781,
+      "mean_actual_direct_negative_points": -0.05456847922023102
+    },
+    "own_goal_position_only": {
+      "discipline": {
+        "n": 26059,
+        "log_loss": 0.16798078293798077,
+        "brier_multiclass": 0.08704538323815901,
+        "yellow": {
+          "n": 26059,
+          "brier": 0.0423170184044955,
+          "log_loss": 0.15873242707756552,
+          "mean_pred": 0.04316149717893711,
+          "event_rate": 0.04781457461913351
+        },
+        "red": {
+          "n": 26059,
+          "brier": 0.0013768414907958787,
+          "log_loss": 0.009434393533873682,
+          "mean_pred": 0.0013811643343575532,
+          "event_rate": 0.001381480486588127
+        }
+      },
+      "own_goal": {
+        "n": 26059,
+        "brier": 0.0012983215021057821,
+        "log_loss": 0.00878640600615257,
+        "mean_pred": 0.0014089281975045887,
+        "event_rate": 0.0013047315706665643
+      },
+      "direct_negative_points_ex_penalty_miss": {
+        "n": 26059,
+        "mae": 0.09158299860758115,
+        "rmse": 0.24339097337198168,
+        "bias": 0.0044456326432120675
+      },
+      "mean_pred_direct_negative_points": -0.05012284657701895,
+      "mean_actual_direct_negative_points": -0.05456847922023102
+    }
+  },
+  "historical_penalty_miss_events_in_forecast_rows": {
+    "2022-23": 21,
+    "2023-24": 8,
+    "2024-25": 11,
+    "2025-26": 12
+  },
+  "notes": [
+    "No new half-life is introduced in Phase 3E. Current-season player event counts use all prior season minutes with empirical-Bayes shrinkage.",
+    "Yellow/red are a categorical competing event because normalized FPL rows never contain both flags in one player-fixture. Historical Core cannot distinguish straight red from second-yellow red.",
+    "Own goals are modeled as a separate rare event with strong current-season position shrinkage.",
+    "Penalty misses remain observed truth only and are excluded from the direct-negative forecast metric to prevent double counting when the shared penalty model is added.",
+    "Red-card match-state effects and exact red suspension length wait for event time/subtype data; the core library requires authoritative suspension length rather than guessing it."
+  ]
+}

@@ -1,0 +1,128 @@
+{
+  "development_seasons": [
+    "2023-24",
+    "2024-25"
+  ],
+  "holdout_season": "2025-26",
+  "inputs": {
+    "team_goal_fit": {
+      "development_seasons": [
+        "2023-24",
+        "2024-25"
+      ],
+      "holdout_season": "2025-26",
+      "attack_half_life": 13.0,
+      "defence_half_life": 19.999999999999996,
+      "xg_weight_alpha": 0.8135217217926103,
+      "xga_weight_beta": 0.9933071490757153,
+      "intercept": -0.04862682584275402,
+      "home_log_effect": 0.16690398396705522,
+      "home_multiplier": 1.1816408033990595,
+      "optimizer_success": true
+    },
+    "minutes_half_lives": {
+      "role": 1.3150986300759975,
+      "duration": 0.32192611540889443
+    },
+    "pstart_regularization": {
+      "intercept": 0.03186876473704488,
+      "slope": 0.6645162300313383,
+      "optimizer_success": true
+    }
+  },
+  "goal": {
+    "recency_half_life": 14.301700060813651,
+    "current_season_position_prior_minutes_tau": 340.37043955522125,
+    "development": {
+      "n": 50168,
+      "poisson_nll_no_constant": 0.12317401760924596,
+      "mae": 0.06701142520225152,
+      "rmse": 0.20377411456976607,
+      "bias": 0.0015746148506624372,
+      "sum_mu": 2073.995277828033,
+      "sum_actual": 1995.0
+    },
+    "holdout": {
+      "n": 26059,
+      "poisson_nll_no_constant": 0.10967363798008092,
+      "mae": 0.05938431357025479,
+      "rmse": 0.18860766462320128,
+      "bias": 0.0022311537109796016,
+      "sum_mu": 944.1416345544175,
+      "sum_actual": 886.0
+    },
+    "no_recency_ablation": {
+      "half_life": "infinity",
+      "tau": 488.56592622432953,
+      "development": {
+        "n": 50168,
+        "poisson_nll_no_constant": 0.12324886824475466,
+        "mae": 0.06699145204455915,
+        "rmse": 0.20376436724026703,
+        "bias": 0.0015746148506628685,
+        "sum_mu": 2073.995277828055,
+        "sum_actual": 1995.0
+      },
+      "holdout": {
+        "n": 26059,
+        "poisson_nll_no_constant": 0.10970971293257437,
+        "mae": 0.05936830297459546,
+        "rmse": 0.18864878670929439,
+        "bias": 0.002231153710979602,
+        "sum_mu": 944.1416345544175,
+        "sum_actual": 886.0
+      }
+    }
+  },
+  "assist": {
+    "recency_half_life": 28.106996692019756,
+    "current_season_position_prior_minutes_tau": 365.22361910394244,
+    "development": {
+      "n": 50168,
+      "poisson_nll_no_constant": 0.12240407098887504,
+      "mae": 0.06413142921435912,
+      "rmse": 0.19468697306737875,
+      "bias": 0.00178301074020202,
+      "sum_mu": 1879.450082814455,
+      "sum_actual": 1790.0
+    },
+    "holdout": {
+      "n": 26059,
+      "poisson_nll_no_constant": 0.11400456290300533,
+      "mae": 0.05881203598889195,
+      "rmse": 0.1797335682547584,
+      "bias": 0.0025039471431816296,
+      "sum_mu": 891.2503586041701,
+      "sum_actual": 826.0
+    },
+    "no_recency_ablation": {
+      "half_life": "infinity",
+      "tau": 440.25807087660365,
+      "development": {
+        "n": 50168,
+        "poisson_nll_no_constant": 0.12242189896694783,
+        "mae": 0.06413786460287278,
+        "rmse": 0.19469687782423256,
+        "bias": 0.0017830107402020193,
+        "sum_mu": 1879.450082814455,
+        "sum_actual": 1790.0
+      },
+      "holdout": {
+        "n": 26059,
+        "poisson_nll_no_constant": 0.11401831880515326,
+        "mae": 0.0588344709004472,
+        "rmse": 0.17976420238534666,
+        "bias": 0.002503947143181631,
+        "sum_mu": 891.2503586041701,
+        "sum_actual": 826.0
+      }
+    }
+  },
+  "notes": [
+    "No previous-season player attack prior is used.",
+    "The current-season position mean supplies the only weak small-sample prior; its pseudo-minutes tau is fitted on development seasons.",
+    "Historical Core has FPL/Opta xG but no verified native npxG. Penalty separation is therefore deferred rather than faked as xG-0.79*penalties.",
+    "Player propensities are normalized to the independent team goal lambda, avoiding double-counting team strength and player xG.",
+    "Recency is selected on development seasons only; 2025/26 is untouched until evaluation."
+  ]
+}
