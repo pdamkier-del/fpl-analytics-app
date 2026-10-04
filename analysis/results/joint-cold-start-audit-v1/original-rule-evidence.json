@@ -1,0 +1,35 @@
+{
+  "sources": [
+    {
+      "archive": "FPL_v1_1_PHASE_3C_PATCH(1).zip",
+      "archive_sha256": "95bc1465879148cd329d5c3d24ac976e6ab4cf7f69bfdb4139321200d30f0299",
+      "member": "analysis/v1_1_player_attack_experiment.py",
+      "member_sha256": "e5af157093a711873efd0105ee15de74f6afb0107be55ca1c63e856f275ce890",
+      "history_guard": "if int(r['gw'])>=min_gw and sw>0:",
+      "line": 63
+    },
+    {
+      "archive": "FPL_v1_1_PHASE_3D_PATCH(1).zip",
+      "archive_sha256": "d8624d5e274561c26835ee6e234373c10d2e61bf77935185113148690665b748",
+      "member": "analysis/v1_1_defcon_experiment.py",
+      "member_sha256": "32d226b4155b79e13198f1033d3872c4ad86b9d1810c34383a6e479da161856a",
+      "history_guard": "if int(r['gw'])>=6 and sw>0:",
+      "line": 40
+    },
+    {
+      "archive": "FPL_v1_1_PHASE_3E_PATCH(1).zip",
+      "archive_sha256": "e30a60913c323f26c480eadbddb30935f50f38e3049fed38beb29ed55dfa5524",
+      "member": "analysis/v1_1_negative_events_experiment.py",
+      "member_sha256": "29de0b93aa2a294f5061eb0f0694dfd3073cfa9c6818e939f47fd951157a028a",
+      "history_guard": "if int(r['gw'])>=6 and sw>0:",
+      "line": 50
+    },
+    {
+      "archive": "FPL_PHASE_5Y_HIT_BUFFER.zip",
+      "archive_sha256": "4d1b7fcc269f7581a21849fc20c3472204ad2ef5ed82ed8df36c991a74b8850b",
+      "member": "PHASE_5X_MANUAL_COLD_START.md",
+      "member_sha256": "d9ef9c961734da56b2f01c83619ba52ef6f681ec0ff25f28cb0f74130a98af0b",
+      "scope": "Manual GW1\u20135 replay/chip sequence, not a new-player component forecasting contract"
+    }
+  ]
+}

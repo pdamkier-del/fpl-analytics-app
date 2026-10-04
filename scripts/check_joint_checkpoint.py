@@ -29,6 +29,21 @@ def main():
         if digest(ROOT/entry['path'])!=entry['sha256']:errors.append(entry['path']+': input changed')
     if digest(ROOT/'scripts/freeze_joint_diagnostic_inputs.py')!=inputs['code_sha256']:
         errors.append('Frozen-input builder changed')
+    recovered=ROOT/'analysis/results/joint-component-recovery-v1/manifest.json'
+    for entry in json.loads(recovered.read_text())['files']:
+        checks+=1
+        if digest(ROOT/entry['path'])!=entry['sha256']:errors.append(entry['path']+': recovered component bytes differ')
+    audit_path=ROOT/'analysis/results/joint-cold-start-audit-v1'
+    audit=json.loads((audit_path/'manifest.json').read_text())
+    for entry in audit['sources']:
+        checks+=1
+        if digest(ROOT/entry['path'])!=entry['sha256']:errors.append(entry['path']+': audit source changed')
+    checks+=1
+    if digest(audit_path/audit['output']['path'])!=audit['output']['sha256']:
+        errors.append('Cold-start audit rows changed')
+    checks+=1
+    if audit['missing_rows']!=inputs['missing_component_rows'] or audit['affected_fixtures']!=inputs['blocked_fixtures']:
+        errors.append('Cold-start audit does not cover the frozen missing cohort')
     for folder in ['joint-paired-inputs-v1','joint-paired-diagnostic-v1']:
         path=ROOT/'analysis/results'/folder
         m=json.loads((path/'manifest.json').read_text())
@@ -44,7 +59,11 @@ def main():
                 simulator_imports_available=True,paired_diagnostic_completed=True,
                 full_roster_replay_ready=False,full_season_replay_ready=False,
                 concrete_data_gap=dict(missing_frozen_component_rows=inputs['missing_component_rows'],
-                    affected_fixtures=inputs['blocked_fixtures'],required='Frozen attack/assist/discipline forecasts for 46 newly entering player-fixture rows; DC also missing for the 40 non-GK rows'),
+                    affected_fixtures=inputs['blocked_fixtures'],
+                    no_asof_registration=audit['no_asof_registration'],
+                    no_asof_player_state=audit['no_asof_player_state'],
+                    original_parameters_available=audit['original_parameters_available'],
+                    required='Predeadline 2025/26 squad/registration/state evidence plus a versioned first-entry component contract; original parameters recovered'),
                 remaining=['Full first-deadline horizon forecasts/eligibility/price/schedule inputs',
                            '2025/26 scoring mode and unresolved BPS subtypes/background; audit recorded separately',
                            'Season orchestration including GW16 AFCON transfer top-up',

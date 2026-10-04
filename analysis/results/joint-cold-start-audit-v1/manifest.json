@@ -1,0 +1,78 @@
+{
+  "affected_fixtures": 33,
+  "classification": "input_audit_not_new_holdout",
+  "database_sha256": "a4742428fb0c9943ff3ee565f765eb98d733a1690180c566d6df794786ef409f",
+  "findings": [
+    "Original Phase3C/3D/3E predictors skip players with empty current-season minutes history.",
+    "Frozen parameters alone do not restore forecasts for those first-entry rows.",
+    "Postmatch merged-GW presence and a synthetic deadline timestamp do not prove predeadline registration.",
+    "Current-season position priors are available mathematically, but enabling a cold-start path extends the frozen model contract.",
+    "Adding attack propensities changes within-team normalization; a future complete-roster comparison needs a new paired checkpoint."
+  ],
+  "full_roster_replay_ready": false,
+  "missing_rows": 46,
+  "no_asof_player_state": 46,
+  "no_asof_registration": 46,
+  "no_prior_season_history": 46,
+  "original_parameters_available": true,
+  "output": {
+    "path": "missing_rows.csv",
+    "sha256": "5217bfb48567f4d024d74925cbe4d4bc27edef787980f7f5a44744845d9fca49"
+  },
+  "required_inputs": [
+    "Archived 2025/26 predeadline squad/registration snapshots with player/team/position and source timestamps, including the 46 first-entry rows.",
+    "Predeadline FPL player-state/price snapshots and fixture/deadline horizon for full season replay.",
+    "A separately versioned first-entry component contract using recovered frozen position shrinkage parameters; no target fitting."
+  ],
+  "season": "2025-26",
+  "sources": [
+    {
+      "path": "analysis/results/joint-paired-inputs-v1/manifest.json",
+      "sha256": "5cae3a813557f64f966bf3316d0f34904cf8c647de05c5ef874479800ca434c7"
+    },
+    {
+      "path": "analysis/results/workload-recovered-minutes-v4/reused_holdout_diagnostic_predictions.csv.gz",
+      "sha256": "a98c8c6936c02847a3fa6041c8f5cce7c3b1897a8b7d7c17d11e0834f7645741"
+    },
+    {
+      "path": "analysis/results/joint-component-recovery-v1/manifest.json",
+      "sha256": "ea180afb307da159c08c482f82a7ad10f9a2c9b6395f86b542505e33a9e012cf"
+    },
+    {
+      "path": "scripts/audit_joint_cold_start_gaps.py",
+      "sha256": "c60cde48f00500aba9bf52129331e5683773c28e552bba05081510a3cade82f2"
+    }
+  ],
+  "table_inventory": {
+    "player_registrations": [
+      {
+        "earliest_observed_at": "2023-08-11T12:31:00+00:00",
+        "latest_observed_at": "2024-05-19T12:33:00+00:00",
+        "rows": 29510,
+        "season": "2023-24"
+      },
+      {
+        "earliest_observed_at": "2026-09-19T14:50:23+00:00",
+        "latest_observed_at": "2026-09-19T14:50:23+00:00",
+        "rows": 662,
+        "season": "2026-27"
+      }
+    ],
+    "player_state_snapshots": [
+      {
+        "earliest_observed_at": "2023-08-11T12:31:00+00:00",
+        "latest_observed_at": "2024-05-19T12:33:00+00:00",
+        "rows": 29510,
+        "season": "2023-24"
+      },
+      {
+        "earliest_observed_at": "2026-09-19T14:50:23+00:00",
+        "latest_observed_at": "2026-09-19T14:50:23+00:00",
+        "rows": 662,
+        "season": "2026-27"
+      }
+    ]
+  },
+  "unchanged": "Original simulator, adapter, control/v4 diagnostic and transfer/chip policy",
+  "unique_players": 46
+}
