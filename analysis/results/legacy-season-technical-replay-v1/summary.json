@@ -1,0 +1,48 @@
+{
+  "season": "2025-26",
+  "gameweeks": [
+    1,
+    38
+  ],
+  "total_points": 296,
+  "transfers": 3,
+  "hit_points": 0,
+  "chips": {
+    "wildcard": [
+      3
+    ],
+    "free_hit": [
+      2
+    ],
+    "bench_boost": [
+      4
+    ],
+    "triple_captain": []
+  },
+  "final_bank": 0.5,
+  "no_transfer_control_points": 196,
+  "uplift_vs_no_transfer_control": 100,
+  "transfer_policy": "simple_3gw",
+  "chip_policy": "joint_sequence",
+  "manual_triple_captain_gws": [
+    13,
+    33
+  ],
+  "manual_early_chips": {
+    "2": "free_hit",
+    "3": "wildcard",
+    "4": "bench_boost"
+  },
+  "hit_uncertainty_buffer": 2.0,
+  "transfer_rule": "jointly optimize legal bundles of zero to five transfers over the rolling unweighted current GW plus next 2 GWs; hits cost 4 plus a 2.00-point uncertainty buffer, bankable free transfers carry 2.16-point option value, and an expiring FT at the five-FT cap costs 0",
+  "forecast_sources": {
+    "GW1-5": "Phase 5Q event model with previous-season cold-start state",
+    "GW6-38": "rolling deadline-frozen Phase 5Q/v1.1, six-GW horizons"
+  },
+  "period_points": {
+    "GW1-5_cold_start": 296,
+    "GW6-21_development_assisted": 0,
+    "GW22-38_later_temporal_validation": 0
+  },
+  "status": "Phase 5Q rolling replay; GW1-5 cold start, schedule-snapshot and DC-development caveats apply"
+}
