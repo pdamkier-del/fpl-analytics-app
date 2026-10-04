@@ -1,0 +1,7 @@
+# Original rolling source contract recovered
+
+Continues 40f1ba0d4036fd32c805081ad796f42b853568fd. Recovered original Phase 5T, 5W and 5Y archives. Their common rolling player/GW forecast table is byte-identical; Phase 5T/5W fixture forecasts also agree. Original source code, notes, original manifest and archive/member provenance are preserved in legacy-rolling-recovery-v1. Original code is evidence, not an activated runner.
+
+The original builder uses origin_gw zero-based (0–37), decision_gw one-based (1–38), and projects the current GW plus five future GWs. It estimates deadlines from first kickoff minus 90 minutes. Its current_meta_by_origin reads same-target-GW merged_gw rows to construct roster/team/position/price, and future schedules come from the final season assignment. This does not supply authenticated predeadline metadata. Its legacy minutes and h12/ridge .25 team model are different from the current frozen control/v4 experiment.
+
+The completed local integrity audit confirms 163,459 player/GW rows, 165,900 player/fixture rows, all 213 legacy origin/target cells, and 191 checks. All 32 unverified roster rows appear in legacy own-GW forecasts. No v4 forecast cell has been recovered or promoted. The lossless packed tables and completed forensic reports are the next publication checkpoint. Existing inputs, 144-fixture paired predictions, simulator/adapter, scoring and policy hashes remain unchanged; saved model tests remain 125 passed.

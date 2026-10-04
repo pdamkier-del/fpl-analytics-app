@@ -1,0 +1,22 @@
+{
+  "phase": "5T",
+  "season": "2025-26",
+  "model": "Phase 5Q legacy-minutes + h12/ridge.25 reference, rolling state",
+  "origins": [
+    1,
+    38
+  ],
+  "horizons": [
+    1,
+    6
+  ],
+  "n_sim": 400,
+  "fixture_rows": 165900,
+  "player_gw_rows": 163459,
+  "gw1_5": "previous-season cold-start state; reported separately",
+  "cutoff": "matches with kickoff strictly before estimated deadline (first GW kickoff minus 90 minutes)",
+  "prices": "not used in forecast generation; replay uses archived weekly merged_gw value",
+  "fixture_schedule_caveat": "final archived 2025/26 GW assignment used because timestamped 2025/26 schedule snapshots are unavailable",
+  "defcon_caveat": "selected DC parameters were developed on 2025/26 GW6-21; only GW22-38 is later temporal validation",
+  "runtime_seconds": 325.18467950820923
+}

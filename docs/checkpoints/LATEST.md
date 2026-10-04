@@ -1,26 +1,17 @@
 # Latest continuation checkpoint
 
-Read [full-season origin/horizon coverage gate](2026-10-04-season-replay-coverage.md).
-Continues aab3a841346f28ba97552b17e96b8529094816b0 without restarting.
+Read [original rolling source contract](2026-10-04-legacy-rolling-source.md).
+Continues 40f1ba0d4036fd32c805081ad796f42b853568fd; no restart or model change.
 
-125 tests pass. The opt-in 2025/26 FT/chip bookkeeping layer is tested but not
-activated in archived orchestration. Original strategy hashes, scoring,
-adapter, simulator and paired predictions remain unchanged.
+Original Phase 5T/5W/5Y archives contain a complete legacy rolling forecast
+reference. Source code and checksummed provenance are now preserved. The local
+191-check audit verifies 213 legacy origin/target cells, but zero new v4 cells.
+The builder uses same-GW merged_gw metadata and final fixture assignments; all
+32 unverified roster rows occur in its own-GW forecasts. Do not activate it as
+predeadline control/v4 input or new holdout evidence.
 
-The 144-fixture controlled paired diagnostic is complete. GW22–38 remains
-reused diagnostic, not a new holdout. The remaining 32 roster rows/26 fixtures
-still lack predeadline listing/team/position evidence; the 119-snapshot source
-bracket did not recover it.
-
-Full-season coverage is now quantified: control targets begin GW6; selected
-v4 origins begin GW22. V4 stores 17 own-GW origin/target cells and no future-GW
-horizon at earlier origins. 196 of the 213 six-GW visibility cells are absent.
-Verified price snapshots only cover GW22–38. Coverage output is reproducible.
-Future deadline revisions are recorded; the final audit calendar is not an
-as-of BGW/DGW schedule. Full-season readiness remains false.
-
-Next: recover independently timestamped roster evidence or original fixed-origin
-forecast archives, then address the separately recorded price/schedule, scoring
-and mechanics-integration gates. Do not borrow later forecasts as earlier
-horizons, tune on GW22–38, restart reconstruction or repeat the completed paired
-run. See season-replay-coverage-v1 for all 38 deadline rows and six explicit gates.
+Next publication checkpoint: lossless legacy forecast tables and forensic
+reports. Then resume at independent roster/as-of schedule evidence or proper
+v4 fixed-origin generation. The completed 144-fixture paired run, original
+policy and 125-test model checkpoint are untouched. Full-season readiness
+remains false; see season-replay-coverage-v1 for the selected-v4 gaps.
