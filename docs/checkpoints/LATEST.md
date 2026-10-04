@@ -1,24 +1,23 @@
-# Latest continuation checkpoint
+# Latest checkpoint: legacy season simulation completed
 
-Read [complete legacy rolling recovery](2026-10-04-legacy-rolling-recovery.md).
-Continues 223d5de261d5d86b862695f4f5a73f4178f47fe6; no restart or active model change.
+See `2026-10-04-legacy-season-completed.md` for execution and limitations.
 
-Original Phase 5T/5W/5Y forecasts and builder are recovered with checksums:
-163,459 player/GW rows, 165,900 player/fixture rows, 38 origins and 213 legacy
-horizon cells. 191 integrity checks pass and recovery reproduces byte-for-byte.
-All original estimated deadlines match the recovered calendar.
+All 38 GWs executed: **2,096 net points**, 2,152 gross, 56 hit points,
+50 transfers, 1,367 no-transfer control, £1.5m final bank. All 570 lineup
+rows and 38 gameweek rows match the archive after autosub ID normalization.
+Scores and autosubs were recomputed for every GW. Existing suite: 125 passed.
 
-The old builder uses same-GW historical metadata and final-season schedules.
-All 32 unverified roster rows occur in its own-GW forecasts. These are legacy
-Phase5Q outputs, not v4; no forecast is promoted and no missing v4 horizon cell
-is resolved. The selected-v4 coverage audit still has 196 missing horizon cells.
+Small checkpoints published at GW5, GW19, GW30; final run_status has
+completed=true and last_completed_gw=38. Protected policy hashes unchanged.
+Exact historical bytes are recoverable from committed gzip parts.
+Launcher resumes by default and reconstructs its scratch runtime.
 
-The completed 144-fixture control/v4 paired diagnostic, original adapter and
-simulator, Core and transfer/chip policy remain unchanged; saved model tests
-remain 125 passed. GW22–38 is reused diagnostic, never a new holdout.
+This is a legacy technical reproduction, not v4 season performance and not
+new holdout evidence. GW22–38 remains reused diagnostic. The original
+runner's retrospective metadata/schedule and inherited rule limitations
+are retained and documented; transfer/chip policy was not changed.
 
-Next: recover timestamped early-season player/price/schedule snapshots and
-prepare v4 fixed-origin generation from verified as-of histories. Preserve the
-32-row/26-fixture roster gap; do not use quarantined legacy metadata or later
-forecasts to fill it. Separately controlled mechanics integration and the
-existing scoring audit remain gates before full-season decision replay.
+No further execution is needed for this legacy simulation. A separately
+controlled v4 full-season experiment still has early as-of snapshot gaps,
+196 missing selected-v4 horizon cells and a 32-row/26-fixture roster gap.
+The completed paired control/v4 diagnostic remains unchanged.
