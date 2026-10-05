@@ -1,0 +1,52 @@
+{
+  "axes": {
+    "attacking_mid": [
+      "CAM",
+      "RAM",
+      "LAM",
+      "RW",
+      "LW"
+    ],
+    "cb": [
+      "RCB",
+      "CB",
+      "LCB"
+    ],
+    "cm": [
+      "RCM",
+      "CM",
+      "LCM"
+    ],
+    "dm": [
+      "RDM",
+      "DM",
+      "LDM"
+    ],
+    "forward": [
+      "SS",
+      "ST"
+    ],
+    "fullback": [
+      "RB",
+      "LB"
+    ],
+    "wingback": [
+      "RWB",
+      "LWB"
+    ]
+  },
+  "comparison": [
+    "shared",
+    "soft",
+    "hard diagnostic"
+  ],
+  "development": "GW16-21 leave-one-GW-out CV on count deviance",
+  "features": [
+    "perf_last_def_actions",
+    "perf_last_minutes",
+    "perf_last_rating_proxy"
+  ],
+  "joint": "GW22-38 reused diagnostic; only mu_dc changes",
+  "promotion_allowed": false,
+  "purpose": "soft overlapping tactical-role conditioning for DefCon"
+}
