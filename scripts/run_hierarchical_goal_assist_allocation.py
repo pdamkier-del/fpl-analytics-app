@@ -238,7 +238,8 @@ def main():
     aud.to_csv(OUT/'team_total_conservation.csv',index=False)
 
     # Save selected weight diagnostics.
-    diag=candidate[KEYS+['gw','player','pos','expected_role','goal_rate90','assist_rate90','control_xmins']].copy()
+    diag_cols=KEYS+['gw','pos','goal_rate90','assist_rate90','control_xmins']
+    diag=candidate[[x for x in diag_cols if x in candidate.columns]].copy()
     diag['goal_share']=goal_share;diag['assist_share']=assist_share
     diag.to_csv(OUT/'allocation_weights.csv.gz',index=False,compression='gzip')
 
