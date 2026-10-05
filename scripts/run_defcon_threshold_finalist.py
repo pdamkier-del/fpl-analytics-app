@@ -101,7 +101,7 @@ def main():
     dev=read_frozen_table(ROLE,'development_prior_predictions')
     dev=dev[dev.tau==900].copy().reset_index(drop=True)
     need=BASE_FEATURES+axes
-    dev=dev.merge(feat[KEYS+need],on=KEYS,how='left',validate='one_to_one');dev[need]=dev[need].fillna(0.)
+    dev=dev.merge(feat[KEYS+['pos']+need],on=KEYS,how='left',validate='one_to_one');dev[need]=dev[need].fillna(0.)
     base_mu=np.maximum(dev.dc_role_prior90.to_numpy(float)*dev.minutes.to_numpy(float)/90,1e-9)
     X=design(dev,soft_sel['mode'])
     _,model=fit_model(dev,X,float(soft_sel['l2']),np.ones(len(dev),bool),base_mu)
