@@ -25,7 +25,7 @@ class PlannerConfig:
     candidate_return_per_depth: int = 12
     max_transfers_per_week: int = 5
     candidate_backend: str = "fast_local"
-    discount_transfer_costs: bool = True
+    discount_transfer_costs: bool = False
     milp_time_limit: float = 12.0
 
 
@@ -601,12 +601,10 @@ def plan_transfer_path(
                     )
                 candidate_squads.extend(candidate_cache[candidate_key])
             else:
-                candidate_counts = sorted({
-                    1,
-                    min(max_count, max(1, ft_before)),
-                    min(max_count, max(1, ft_before + 1)),
-                })
-                for transfer_count in candidate_counts:
+                # Joint lineup-aware MILP proposer: no per-leg positive-gain rule
+                # and no FT+1 pruning. Every exact transfer count 1..max is
+                # considered; 0 transfers is already represented by the hold squad.
+                for transfer_count in range(1, max_count + 1):
                     candidate_squads.extend(_top_squads_for_transfer_count(
                         node.state, meta, origin, remaining_gws, remaining_weights,
                         transfer_count, int(config.candidates_per_transfer_count),
