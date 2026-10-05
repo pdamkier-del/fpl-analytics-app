@@ -68,9 +68,10 @@ def run_v3(gws,names,forecast):
     origin1=hp.complete_current_projection(forecast[forecast.origin_gw==0],meta1,1)
     state=initial_squad(origin1,meta1,[1]);initial=list(state.squad)
     known=meta1.copy();total=0;control=0;logs=[];plans=[]
-    config=PlannerConfig(weights=WEIGHTS,hit_uncertainty_buffer=BUFFER,beam_width=4,
-                         candidates_per_transfer_count=1,candidate_limit_per_position=14,
-                         max_transfers_per_week=5,milp_time_limit=2.0)
+    config=PlannerConfig(weights=WEIGHTS,hit_uncertainty_buffer=BUFFER,beam_width=20,
+                         candidates_per_transfer_count=1,candidate_limit_per_position=18,
+                         top_targets_per_position=18,local_bundle_beam=60,
+                         max_transfers_per_week=5,candidate_backend='fast_local',milp_time_limit=2.0)
     for gw in range(1,39):
         t0=time.time()
         obs=hp.gw_meta(gws,names,gw)
@@ -161,9 +162,10 @@ def main():
     summary=dict(
       classification='TS v3 full-season strategy proxy; chips off; point model locked',
       forecast_provider='recovered rolling Phase5Q archive',
-      configuration=dict(weights=list(WEIGHTS),hit_buffer=BUFFER,beam_width=4,
-                         candidates_per_transfer_count=1,candidate_limit_per_position=14,
-                         max_transfers_per_week=5),
+      configuration=dict(weights=list(WEIGHTS),hit_buffer=BUFFER,beam_width=20,
+                         candidates_per_transfer_count=1,candidate_limit_per_position=18,
+                         top_targets_per_position=18,local_bundle_beam=60,
+                         max_transfers_per_week=5,candidate_backend='fast_local'),
       ts_v3=v3,ts_v2_comparator=v2,
       delta_vs_v2=dict(
           total_points=int(v3['total_points']-v2['total_points']),
