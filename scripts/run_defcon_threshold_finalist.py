@@ -53,7 +53,7 @@ def fit_platt(p,y,pos,mode,train):
         X=np.c_[np.ones(len(z)),z]
     elif mode=='position':
         cats=['DEF','MID','FWD']
-        X=np.c_[z]+[(pos==c).astype(float) for c in cats]
+        X=np.column_stack([z]+[(pos==c).astype(float) for c in cats])
     else: raise ValueError(mode)
     Xt=X[train];yt=y[train]
     def fg(b):
@@ -151,7 +151,7 @@ def main():
         if selected=='global':
             M=np.c_[np.ones(len(z)),z]
         else:
-            M=np.c_[z]+[(posj==c).astype(float) for c in ['DEF','MID','FWD']]
+            M=np.column_stack([z]+[(posj==c).astype(float) for c in ['DEF','MID','FWD']])
         pcal=expit(M@np.asarray(cal_model['coef']))
     mu_cal=np.array([invert_p(p,str(po),a) if str(po) in ('DEF','MID','FWD') else 0. for p,po,a in zip(pcal,posj,alphaj)])
     cand['mu_dc']=mu_cal
