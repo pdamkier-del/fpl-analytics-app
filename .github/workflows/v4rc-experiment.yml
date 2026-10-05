@@ -29,6 +29,7 @@ jobs:
       - name: Install model test dependencies
         run: |
           python -m pip install --upgrade pip
+          pip install -r requirements-model-checkpoint.txt
           pip install -r requirements-model-tests.txt
 
       - name: Run v4RC experiment
