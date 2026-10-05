@@ -1,0 +1,49 @@
+{
+  "classification": "development-selected candidate plus reused diagnostic; not independent OOS",
+  "conditional_minutes_unchanged": true,
+  "development_selection": {
+    "baseline": {
+      "brier": 0.07557819806325111,
+      "log_loss": 0.24717396245870218,
+      "n": 4670,
+      "xmins_bias": -0.06116105260116541,
+      "xmins_mae": 11.413821294436133,
+      "xmins_rmse": 21.73481007328899
+    },
+    "development_v4_reproduction_max_abs_error": 3.1422642265965806e-12,
+    "rule": "lowest development start log-loss; candidate must also not worsen xMins RMSE by >0.05 minutes vs v4; otherwise retain v4",
+    "selected": "v4",
+    "selected_family": null,
+    "selected_l2": null
+  },
+  "fixtures": 170,
+  "promotion_reason": "Independent OOS still required even if reused diagnostic improves.",
+  "reused_diagnostic": {
+    "delta_v4rc_minus_v4": {
+      "brier": 0.0,
+      "log_loss": 0.0,
+      "xmins_bias": 0.0,
+      "xmins_mae": 0.0,
+      "xmins_rmse": 0.0
+    },
+    "v4": {
+      "brier": 0.07506270559863747,
+      "log_loss": 0.24438059424582695,
+      "n": 13987,
+      "xmins_bias": -0.19095020583008251,
+      "xmins_mae": 11.473758971438937,
+      "xmins_rmse": 21.5831631959939
+    },
+    "v4_reproduction_max_abs_start_error": 1.7102985694350537e-13,
+    "v4rc": {
+      "brier": 0.07506270559863747,
+      "log_loss": 0.24438059424582695,
+      "n": 13987,
+      "xmins_bias": -0.19095020583008251,
+      "xmins_mae": 11.473758971438937,
+      "xmins_rmse": 21.5831631959939
+    }
+  },
+  "rows": 13987,
+  "selected_candidate_promoted": false
+}

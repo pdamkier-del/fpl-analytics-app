@@ -1,0 +1,56 @@
+{
+  "development_selection": "GW16-21",
+  "development_train": "GW6-15",
+  "exact_11_constraint": true,
+  "families": {
+    "rc_a": [
+      "rc_known_role",
+      "rc_h_gap_slow",
+      "rc_qh_gap_slow",
+      "rc_rank_qh_slow",
+      "rc_n_candidates_slow",
+      "rc_entropy_slow",
+      "rc_h_gap_fast",
+      "rc_qh_gap_fast",
+      "rc_rank_qh_fast",
+      "rc_n_candidates_fast",
+      "rc_entropy_fast"
+    ],
+    "rc_b": [
+      "rc_known_role",
+      "rc_h_gap_slow",
+      "rc_qh_gap_slow",
+      "rc_rank_qh_slow",
+      "rc_n_candidates_slow",
+      "rc_entropy_slow",
+      "rc_h_gap_fast",
+      "rc_qh_gap_fast",
+      "rc_rank_qh_fast",
+      "rc_n_candidates_fast",
+      "rc_entropy_fast",
+      "rc_v4_logit_gap",
+      "rc_started_last_gap",
+      "rc_work_starts_7d_gap",
+      "rc_work_starts_14d_gap",
+      "rc_work_minutes_7d_gap",
+      "rc_work_minutes_14d_gap",
+      "rc_rest_days_gap"
+    ]
+  },
+  "final_train": "GW6-21",
+  "l2_values": [
+    0.5,
+    2.0,
+    10.0
+  ],
+  "name": "v4RC role-competition residual correction",
+  "posthoc_slices_not_used_for_selection": [
+    "actual starter",
+    "actual substitute",
+    "did not play"
+  ],
+  "reused_diagnostic": "GW22-38; previously inspected, not independent OOS",
+  "selection_objective": "lowest development start log-loss; candidate must also not worsen xMins RMSE by >0.05 minutes vs v4; otherwise retain v4",
+  "source": "analysis/results/workload-recovered-v4/all_features.csv.gz",
+  "v4_preserved": "conditional starter minutes, sub appearance probability and sub duration unchanged"
+}

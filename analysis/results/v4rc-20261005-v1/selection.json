@@ -1,0 +1,15 @@
+{
+  "baseline": {
+    "brier": 0.07557819806325111,
+    "log_loss": 0.24717396245870218,
+    "n": 4670,
+    "xmins_bias": -0.06116105260116541,
+    "xmins_mae": 11.413821294436133,
+    "xmins_rmse": 21.73481007328899
+  },
+  "development_v4_reproduction_max_abs_error": 3.1422642265965806e-12,
+  "rule": "lowest development start log-loss; candidate must also not worsen xMins RMSE by >0.05 minutes vs v4; otherwise retain v4",
+  "selected": "v4",
+  "selected_family": null,
+  "selected_l2": null
+}
