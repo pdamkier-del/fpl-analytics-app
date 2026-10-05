@@ -8,7 +8,7 @@ cutoff-safe full-season strategy proxy. This is not the final vFinal season
 performance replay, but it is a true TS v3 season replay with receding-horizon
 planning, FT state and buffer 1.5.
 
-Primary configuration (broad fast-local search):
+Primary configuration (broad fast-local search with cached exact lineup scoring):
 - 6GW weights (1.00,0.85,0.70,0.55,0.40,0.25)
 - hit uncertainty buffer 1.5
 - beam width 30
