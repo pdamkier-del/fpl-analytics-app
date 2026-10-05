@@ -70,7 +70,7 @@ def run_v3(gws,names,forecast):
     known=meta1.copy();total=0;control=0;logs=[];plans=[]
     config=PlannerConfig(weights=WEIGHTS,hit_uncertainty_buffer=BUFFER,beam_width=20,
                          candidates_per_transfer_count=1,candidate_limit_per_position=18,
-                         top_targets_per_position=18,local_bundle_beam=60,
+                         top_targets_per_position=18,local_bundle_beam=60,candidate_return_per_depth=12,
                          max_transfers_per_week=5,candidate_backend='fast_local',milp_time_limit=2.0)
     for gw in range(1,39):
         t0=time.time()
@@ -164,7 +164,7 @@ def main():
       forecast_provider='recovered rolling Phase5Q archive',
       configuration=dict(weights=list(WEIGHTS),hit_buffer=BUFFER,beam_width=20,
                          candidates_per_transfer_count=1,candidate_limit_per_position=18,
-                         top_targets_per_position=18,local_bundle_beam=60,
+                         top_targets_per_position=18,local_bundle_beam=60,candidate_return_per_depth=12,
                          max_transfers_per_week=5,candidate_backend='fast_local'),
       ts_v3=v3,ts_v2_comparator=v2,
       delta_vs_v2=dict(
