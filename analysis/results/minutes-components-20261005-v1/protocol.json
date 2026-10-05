@@ -1,0 +1,26 @@
+{
+  "start": "frozen selected v4 workload_start P(start)",
+  "candidates": 27,
+  "choices": {
+    "S": {
+      "base": "start_minutes_mean",
+      "role": "role_start",
+      "workload": "workload_start"
+    },
+    "Q": {
+      "base": "p_cameo_given_bench",
+      "role": "role_sub_probability",
+      "workload": "workload_sub_probability"
+    },
+    "C": {
+      "base": "cameo_minutes_mean",
+      "role": "role_sub_duration",
+      "workload": "workload_sub_duration"
+    }
+  },
+  "selection": "lowest development GW16-21 RMSE; prefer baseline on ties within 1e-10",
+  "fitting": "none; existing development models trained GW6-15; final models trained GW6-21",
+  "final_evaluation": "same 144 fixtures as point diagnostic; reused GW22-38 only",
+  "deployment": "experimental composition screen; no automatic model promotion",
+  "diagnostic": "actual-substitute signed error decomposition is descriptive, not causal attribution"
+}

@@ -1,0 +1,91 @@
+{
+  "development": {
+    "selected": {
+      "S": "base",
+      "Q": "base",
+      "C": "workload",
+      "mae": 11.549019761238215,
+      "rmse": 21.691971791504812,
+      "bias": 0.06383290114811736
+    },
+    "baseline": {
+      "S": "base",
+      "Q": "base",
+      "C": "base",
+      "mae": 11.413821294437723,
+      "rmse": 21.73481007328728,
+      "bias": -0.06116105260129998
+    },
+    "selection_period": "GW16-21",
+    "no_test_metrics_used": true
+  },
+  "reused_diagnostic": {
+    "rows": 11794,
+    "fixtures": 144,
+    "baseline": {
+      "mae": 11.509260510028732,
+      "rmse": 21.57363072116027,
+      "bias": -0.2145216717365652
+    },
+    "candidate": {
+      "mae": 11.61109086730208,
+      "rmse": 21.52630572908809,
+      "bias": -0.09862331970987366
+    }
+  },
+  "role_coverage": {
+    "development_unknown": 2210,
+    "development_rows": 4670,
+    "diagnostic_unknown": 5342,
+    "diagnostic_rows": 11794
+  },
+  "no_estimators_refit": true,
+  "model_promoted": false,
+  "policy_unchanged": true,
+  "checks": {
+    "signed_error_reconstruction": true,
+    "frozen_v4_composition_match": true,
+    "exact_paired_cohort": true
+  },
+  "classification": "development_composition_screen_plus_reused_diagnostic",
+  "sources": [
+    {
+      "path": "analysis/results/workload-recovered-minutes-v4/development_predictions.csv.gz",
+      "sha256": "ea83a4af81608398405c372aded41f7bdf0a1472f28fbcb88db8264053db4a82"
+    },
+    {
+      "path": "analysis/results/workload-recovered-minutes-v4/reused_holdout_diagnostic_predictions.csv.gz",
+      "sha256": "a98c8c6936c02847a3fa6041c8f5cce7c3b1897a8b7d7c17d11e0834f7645741"
+    },
+    {
+      "path": "scripts/diagnose_minutes_components.py",
+      "sha256": "506f24d4fd3b9edc07d50a93aa09d621594341ac4ba4e1e2b0655a59b8ffea61"
+    }
+  ],
+  "outputs": [
+    {
+      "path": "conditional_component_metrics.csv",
+      "sha256": "ee9ded1e530ff118ea5924e2f3a5deee2533205713efcd1845cf1d19e2856ef7"
+    },
+    {
+      "path": "development_combinations.csv",
+      "sha256": "fa2a0e5031f3a63bae13440e61f3ce1520cf62c49caf2a4b2133628d9cb748e7"
+    },
+    {
+      "path": "protocol.json",
+      "sha256": "4a63ff64688b4d1b33580f6bfac7416041d9666e69b5cc8c912b504629b1a48b"
+    },
+    {
+      "path": "selected_candidate_groups.csv",
+      "sha256": "a286cd1875cb0b7980511aeff84a84d191a96befd129ad6db125543e46234b26"
+    },
+    {
+      "path": "selection.json",
+      "sha256": "0e64dbef2797d0f42df5d452ea3b6e875769d58a711dce17a54dec3ca9c53009"
+    },
+    {
+      "path": "signed_error_components.csv",
+      "sha256": "21410ab5f3cbc58362a5147645a88fab0a157f1ef40c2ca31c13e54b5ccfecf6"
+    }
+  ]
+}
