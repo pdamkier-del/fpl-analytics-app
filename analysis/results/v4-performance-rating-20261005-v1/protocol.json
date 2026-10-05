@@ -1,0 +1,63 @@
+{
+  "availability": "only prior player match stats with kickoff+3h < forecast cutoff",
+  "development_train": "GW6-15",
+  "development_validation": "GW16-21",
+  "families": {
+    "last": [
+      "perf_hist_n",
+      "perf_last_minutes",
+      "perf_last_goal_assist",
+      "perf_last_xgi",
+      "perf_last_sot",
+      "perf_last_chances",
+      "perf_last_dribbles",
+      "perf_last_def_actions",
+      "perf_last_pass_acc",
+      "perf_last_gk_actions",
+      "perf_last_goals_prevented",
+      "perf_last_goals_conceded",
+      "perf_last_dispossessed",
+      "perf_last_rating_proxy"
+    ],
+    "recent3": [
+      "perf_hist_n",
+      "perf_last_minutes",
+      "perf_last_goal_assist",
+      "perf_last_xgi",
+      "perf_last_sot",
+      "perf_last_chances",
+      "perf_last_dribbles",
+      "perf_last_def_actions",
+      "perf_last_pass_acc",
+      "perf_last_gk_actions",
+      "perf_last_goals_prevented",
+      "perf_last_goals_conceded",
+      "perf_last_dispossessed",
+      "perf_last_rating_proxy",
+      "perf_r3_minutes",
+      "perf_r3_goal_assist",
+      "perf_r3_xgi",
+      "perf_r3_sot",
+      "perf_r3_chances",
+      "perf_r3_dribbles",
+      "perf_r3_def_actions",
+      "perf_r3_pass_acc",
+      "perf_r3_gk_actions",
+      "perf_r3_goals_prevented",
+      "perf_r3_goals_conceded",
+      "perf_r3_dispossessed",
+      "perf_r3_rating_proxy",
+      "perf_rating_trend"
+    ]
+  },
+  "l2": [
+    0.5,
+    2.0,
+    10.0
+  ],
+  "question": "Does recent match-performance information improve next-match P(start) beyond v4?",
+  "rating_source": "No provider rating exists in frozen source; use rating ingredients + explicit proxy",
+  "reused_diagnostic": "GW22-38 only after development selection",
+  "selection": "lowest development start log-loss, must not worsen xMins RMSE by >0.05; otherwise v4",
+  "warning": "exploratory; requires independent validation before promotion"
+}
