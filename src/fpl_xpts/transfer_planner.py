@@ -434,6 +434,73 @@ def _apply_selected_squad(
     return next_state, outgoing, incoming
 
 
+def _build_fast_score_context(origin: pd.DataFrame, meta: pd.DataFrame, gws: list[int]) -> dict:
+    """Precompute exact inputs needed for repeated XI/captain scoring."""
+    meta_unique = meta.drop_duplicates("id").set_index("id")
+    ctx = {}
+    for gw in gws:
+        f = origin[origin.gw.eq(gw)][["id", "xpts_mean"] + (["p_play"] if "p_play" in origin.columns else [])].copy()
+        agg = {"xpts_mean": "sum"}
+        if "p_play" in f.columns:
+            agg["p_play"] = "max"
+        f = f.groupby("id", as_index=False).agg(agg).set_index("id")
+        xp = f["xpts_mean"].to_dict()
+        pp = f["p_play"].to_dict() if "p_play" in f.columns else {}
+        ctx[int(gw)] = {
+            "xp": {int(k): float(v) for k, v in xp.items()},
+            "p_play": {int(k): float(v) for k, v in pp.items()},
+            "position": {int(pid): str(meta_unique.loc[pid, "position"]) for pid in meta_unique.index},
+        }
+    return ctx
+
+
+def _fast_manager_score(ctx: dict, squad_ids: Iterable[int], gw: int) -> float:
+    """Exact equivalent of plan_squad.expected_score for repeated search scoring."""
+    data = ctx[int(gw)]
+    xp = data["xp"]; pp = data["p_play"]; pos = data["position"]
+    squad = [int(x) for x in squad_ids]
+
+    by_pos = {p: [] for p in POSITION_COUNTS}
+    for pid in squad:
+        by_pos[pos[pid]].append(pid)
+    for p in by_pos:
+        by_pos[p].sort(key=lambda pid: xp.get(pid, 0.0), reverse=True)
+
+    if len(by_pos["GKP"]) < 2:
+        return -1e9
+    gk = by_pos["GKP"][0]
+
+    best_ids = None
+    best_xi = -1e18
+    for defenders in range(3, 6):
+        for midfielders in range(2, 6):
+            forwards = 10 - defenders - midfielders
+            if forwards < 1 or forwards > 3:
+                continue
+            if len(by_pos["DEF"]) < defenders or len(by_pos["MID"]) < midfielders or len(by_pos["FWD"]) < forwards:
+                continue
+            ids = [gk] + by_pos["DEF"][:defenders] + by_pos["MID"][:midfielders] + by_pos["FWD"][:forwards]
+            value = sum(xp.get(pid, 0.0) for pid in ids)
+            if value > best_xi:
+                best_xi = float(value)
+                best_ids = ids
+    if best_ids is None:
+        return -1e9
+
+    # Match optimize._captain_pair exactly.
+    best_cap = -1e18
+    for captain in best_ids:
+        c_xp = xp.get(captain, 0.0)
+        c_pp = min(1.0, max(0.0, pp.get(captain, 1.0)))
+        for vice in best_ids:
+            if vice == captain:
+                continue
+            val = c_xp + (1.0 - c_pp) * xp.get(vice, 0.0)
+            if val > best_cap:
+                best_cap = float(val)
+    return float(best_xi + best_cap)
+
+
 def _hold_heuristic(
     state: ReplayState,
     origin: pd.DataFrame,
@@ -473,6 +540,15 @@ def plan_transfer_path(
         return PlannerResult(int(current_gw), (), (), 0.0, [])
 
     weights = list(config.weights[:len(horizon_gws)])
+    score_ctx = _build_fast_score_context(origin, meta, horizon_gws)
+    score_cache: dict[tuple[int, tuple[int, ...]], float] = {}
+
+    def score_for(squad_ids: Iterable[int], gw: int) -> float:
+        key = (int(gw), tuple(sorted(int(x) for x in squad_ids)))
+        if key not in score_cache:
+            score_cache[key] = _fast_manager_score(score_ctx, key[1], int(gw))
+        return score_cache[key]
+
     beam = [PlannerNode(clone_state(state), 0.0, [], 0.0)]
 
     for depth, gw in enumerate(horizon_gws):
@@ -522,7 +598,7 @@ def plan_transfer_path(
                 official_hit, uncertainty = transfer_penalties(
                     ft_before, transfers, config.hit_uncertainty_buffer
                 )
-                score = projected_manager_score(origin, meta, after.squad, gw)
+                score = score_for(after.squad, gw)
                 utility = float(score - official_hit - uncertainty)
                 after.free_transfers = next_free_transfers(ft_before, transfers)
 
@@ -544,7 +620,10 @@ def plan_transfer_path(
 
                 future_gws = horizon_gws[depth + 1:]
                 future_weights = weights[depth + 1:]
-                heuristic = _hold_heuristic(after, origin, meta, future_gws, future_weights) if future_gws else 0.0
+                heuristic = float(sum(
+                    float(w) * score_for(after.squad, fg)
+                    for fg, w in zip(future_gws, future_weights)
+                )) if future_gws else 0.0
                 expanded.append(PlannerNode(
                     state=after,
                     objective=objective,
