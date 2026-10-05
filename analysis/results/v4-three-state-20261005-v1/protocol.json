@@ -1,0 +1,25 @@
+{
+  "candidate_features": {
+    "3state_v4": 24,
+    "3state_v4_rc": 42
+  },
+  "development_selection": "GW16-21",
+  "development_train": "GW6-15",
+  "durations": "v4 start_minutes_mean and cameo_minutes_mean frozen",
+  "exact_11": "team-level S-vs-nonstart log-odds shift; C:Z ratio preserved",
+  "final_train": "GW6-21",
+  "name": "v4 three-state starter/substitute/zero experiment",
+  "no_other_model_changes": true,
+  "regularization_C": [
+    0.25,
+    1.0,
+    4.0
+  ],
+  "reused_diagnostic": "GW22-38; not fresh independent OOS",
+  "selection": "lowest development xMins RMSE; must beat v4 RMSE by >=0.01 min and not worsen state log-loss versus v4 by >0.005, otherwise retain v4",
+  "states": {
+    "0": "zero minutes",
+    "1": "substitute appearance",
+    "2": "starter"
+  }
+}

@@ -1,0 +1,67 @@
+{
+  "classification": "development-selected three-state experiment + reused diagnostic; not independent OOS",
+  "conditional_durations_unchanged": true,
+  "development_selection": {
+    "baseline_v4": {
+      "actual_start_rate": 0.2826552462526767,
+      "actual_sub_rate": 0.09914346895074946,
+      "mean_p_start": 0.28265524625267596,
+      "mean_p_sub": 0.10001735502332156,
+      "n": 4670,
+      "start_brier": 0.07557819806325111,
+      "start_log_loss": 0.24717396245870218,
+      "state_brier": 0.24109668437371068,
+      "state_log_loss": 0.7959127129409826,
+      "xmins_bias": -0.06116105260116541,
+      "xmins_mae": 11.413821294436133,
+      "xmins_rmse": 21.73481007328899
+    },
+    "rule": "lowest development xMins RMSE; must beat v4 RMSE by >=0.01 min and not worsen state log-loss versus v4 by >0.005, otherwise retain v4",
+    "selected": "v4",
+    "selected_C": null,
+    "v4_reproduction_max_abs_error": 3.1422642265965806e-12
+  },
+  "fixtures": 170,
+  "reused_diagnostic": {
+    "delta_3state_minus_v4": {
+      "start_brier": 0.0,
+      "start_log_loss": 0.0,
+      "state_brier": 0.0,
+      "state_log_loss": 0.0,
+      "xmins_bias": 0.0,
+      "xmins_mae": 0.0,
+      "xmins_rmse": 0.0
+    },
+    "v4": {
+      "actual_start_rate": 0.26739114892400084,
+      "actual_sub_rate": 0.09844855937656395,
+      "mean_p_start": 0.2673911489240007,
+      "mean_p_sub": 0.09326504527796554,
+      "n": 13987,
+      "start_brier": 0.07506270559863747,
+      "start_log_loss": 0.24438059424582695,
+      "state_brier": 0.23903176092963757,
+      "state_log_loss": 0.6540028058950533,
+      "xmins_bias": -0.19095020583008251,
+      "xmins_mae": 11.473758971438937,
+      "xmins_rmse": 21.5831631959939
+    },
+    "v4_3state": {
+      "actual_start_rate": 0.26739114892400084,
+      "actual_sub_rate": 0.09844855937656395,
+      "mean_p_start": 0.2673911489240007,
+      "mean_p_sub": 0.09326504527796554,
+      "n": 13987,
+      "start_brier": 0.07506270559863747,
+      "start_log_loss": 0.24438059424582695,
+      "state_brier": 0.23903176092963757,
+      "state_log_loss": 0.6540028058950533,
+      "xmins_bias": -0.19095020583008251,
+      "xmins_mae": 11.473758971438937,
+      "xmins_rmse": 21.5831631959939
+    },
+    "v4_reproduction_max_abs_start_error": 1.7102985694350537e-13
+  },
+  "rows": 13987,
+  "selected_candidate_promoted": false
+}

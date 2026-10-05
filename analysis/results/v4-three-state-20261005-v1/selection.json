@@ -1,0 +1,20 @@
+{
+  "baseline_v4": {
+    "actual_start_rate": 0.2826552462526767,
+    "actual_sub_rate": 0.09914346895074946,
+    "mean_p_start": 0.28265524625267596,
+    "mean_p_sub": 0.10001735502332156,
+    "n": 4670,
+    "start_brier": 0.07557819806325111,
+    "start_log_loss": 0.24717396245870218,
+    "state_brier": 0.24109668437371068,
+    "state_log_loss": 0.7959127129409826,
+    "xmins_bias": -0.06116105260116541,
+    "xmins_mae": 11.413821294436133,
+    "xmins_rmse": 21.73481007328899
+  },
+  "rule": "lowest development xMins RMSE; must beat v4 RMSE by >=0.01 min and not worsen state log-loss versus v4 by >0.005, otherwise retain v4",
+  "selected": "v4",
+  "selected_C": null,
+  "v4_reproduction_max_abs_error": 3.1422642265965806e-12
+}
