@@ -19,6 +19,7 @@ class PlannerConfig:
     hit_uncertainty_buffer: float = 1.5
     beam_width: int = 30
     candidates_per_transfer_count: int = 2
+    candidate_limit_per_position: int = 14
     max_transfers_per_week: int = 5
     milp_time_limit: float = 12.0
 
@@ -139,11 +140,24 @@ def _candidate_players(
     meta: pd.DataFrame,
     origin: pd.DataFrame,
     gws: list[int],
+    weights: list[float],
+    candidate_limit_per_position: int,
 ) -> pd.DataFrame:
     owned = set(map(int, state.squad))
-    forecast_ids = set(origin[origin.gw.isin(gws)].id.astype(int))
-    eligible = owned | forecast_ids
-    players = meta[meta.id.isin(eligible)].drop_duplicates("id").copy().reset_index(drop=True)
+    frame = origin[origin.gw.isin(gws)].copy()
+    weight_by_gw = {int(gw): float(w) for gw, w in zip(gws, weights)}
+    frame["weighted_xpts"] = [
+        float(x) * weight_by_gw.get(int(gw), 0.0)
+        for x, gw in zip(frame.xpts_mean, frame.gw)
+    ]
+    values = frame.groupby("id")["weighted_xpts"].sum()
+    pool = set(owned)
+    meta_unique = meta.drop_duplicates("id")
+    for position in POSITION_COUNTS:
+        ids = meta_unique[meta_unique.position.eq(position)].id.astype(int)
+        ranked = values.reindex(ids).fillna(0.0).nlargest(int(candidate_limit_per_position))
+        pool.update(int(x) for x in ranked.index)
+    players = meta_unique[meta_unique.id.isin(pool)].copy().reset_index(drop=True)
     if not owned.issubset(set(players.id.astype(int))):
         missing = sorted(owned - set(players.id.astype(int)))
         raise RuntimeError(f"planner missing owned players: {missing}")
@@ -178,6 +192,7 @@ def _top_squads_for_transfer_count(
     transfer_count: int,
     top_k: int,
     time_limit: float,
+    candidate_limit_per_position: int,
 ) -> list[set[int]]:
     """Generate strong immediate squads for a given transfer count.
 
@@ -185,7 +200,9 @@ def _top_squads_for_transfer_count(
     remaining visible horizon and optimizes XI plus captain each GW. The beam
     search can then make further transfers in later hypothetical GWs.
     """
-    players = _candidate_players(state, meta, origin, gws)
+    players = _candidate_players(
+        state, meta, origin, gws, weights, candidate_limit_per_position
+    )
     n = len(players)
     h = len(gws)
     if transfer_count < 0 or transfer_count > 5:
@@ -362,6 +379,7 @@ def plan_transfer_path(
                     node.state, meta, origin, remaining_gws, remaining_weights,
                     transfer_count, int(config.candidates_per_transfer_count),
                     float(config.milp_time_limit),
+                    int(config.candidate_limit_per_position),
                 ))
 
             seen_squads: set[tuple[int, ...]] = set()
