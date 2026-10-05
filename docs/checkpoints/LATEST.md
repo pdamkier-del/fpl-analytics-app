@@ -1,4 +1,12 @@
-# Latest checkpoint: minute component experiment and Saturday target
+# Latest checkpoint: completed role-event simulation
+
+See `2026-10-05-role-event-integration.md`. Role event layer implemented and
+tested, not promoted. 1,200-draw nonbonus MAE: current v4 0.828379 vs roles
+0.829757. 144 fixtures / 11,794 rows; reused GW22–38, not full season/holdout.
+218 integrity checks pass. Website explicitly deferred; no website changes.
+Current v4 retained. Full-season data and season-rule gates remain below.
+
+## Previous checkpoint: minute component experiment and Saturday target
 
 See `2026-10-05-minutes-components-and-release-plan.md`. The user has
 authorized preparing the complete model, with minutes first and detailed
