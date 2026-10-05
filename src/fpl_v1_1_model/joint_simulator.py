@@ -11,7 +11,7 @@ from math import exp
 from typing import Any, Iterable
 import numpy as np
 
-from .bps import BPSComponents, bps_2026_27, allocate_bonus_points
+from .bps import BPSComponents, bps_2025_26, bps_2026_27, allocate_bonus_points
 from .defcon import dc_points_from_count
 from .keeper import save_points
 from .negative_events import DisciplineProbabilities, sample_discipline, direct_negative_points
@@ -55,12 +55,13 @@ class MatchSimInput:
     home_penalty_conversion: float=0.78
     away_penalty_conversion: float=0.78
     p_penalty_save_given_miss: float=0.0
+    bps_rules: str="2026-27"
 
 @dataclass
 class PlayerSimResult:
     points: int=0; minutes: int=0; started: int=0; goals: int=0; assists: int=0
     clean_sheet: int=0; saves: int=0; dc_count: int=0; dc_points: int=0
-    yellow: int=0; red: int=0; own_goal: int=0; penalty_miss: int=0; penalty_saves: int=0; bonus: int=0; bps: int=0
+    yellow: int=0; red: int=0; own_goal: int=0; penalty_miss: int=0; penalty_saves: int=0; penalty_goals: int=0; bonus: int=0; bps: int=0
     goals_conceded_while_on_pitch: int=0
 
 def _sample_minutes(rng: Any,p: PlayerSimInput)->tuple[int,int,int]:
@@ -151,7 +152,7 @@ def simulate_match(inp:MatchSimInput,rng:Any)->dict[str,PlayerSimResult]:
     for t,team,predetermined,is_pen in goal_events:
         active=[p for p in ps if p.team==team and intervals[p.player_id][0] <= t < intervals[p.player_id][1] and out[p.player_id].minutes>0]
         scorer=next((p for p in active if p.player_id==predetermined),None) if predetermined else _weighted_choice(rng,active,[p.goal_weight for p in active])
-        if scorer: out[scorer.player_id].goals+=1
+        if scorer:\n            out[scorer.player_id].goals+=1\n            if is_pen: out[scorer.player_id].penalty_goals+=1
         if (not is_pen) and rng.random()<inp.assist_probability_per_goal:
             cand=[p for p in active if scorer is None or p.player_id!=scorer.player_id]
             assister=_weighted_choice(rng,cand,[p.assist_weight for p in cand])
@@ -195,9 +196,17 @@ def simulate_match(inp:MatchSimInput,rng:Any)->dict[str,PlayerSimResult]:
         pts += r.dc_points
         pts += direct_negative_points(yellow=r.yellow,red=r.red,own_goal=r.own_goal,penalty_miss=r.penalty_miss)
         r.points=pts
-        known=bps_2026_27(BPSComponents(minutes=m,position=p.position,non_penalty_goals=r.goals,assists=r.assists,
-            clean_sheet=r.clean_sheet,saves_total=r.saves,goals_conceded=r.goals_conceded_while_on_pitch,
-            yellow_cards=r.yellow,red_cards=r.red,own_goals=r.own_goal))
+        comp=BPSComponents(minutes=m,position=p.position,
+            non_penalty_goals=max(0,r.goals-r.penalty_goals),penalty_goals=r.penalty_goals,assists=r.assists,
+            clean_sheet=r.clean_sheet,penalty_saves=r.penalty_saves,saves_total=r.saves,
+            saves_inside_box=r.penalty_saves,goals_conceded=r.goals_conceded_while_on_pitch,
+            penalty_misses=r.penalty_miss,yellow_cards=r.yellow,red_cards=r.red,own_goals=r.own_goal)
+        if inp.bps_rules=="2025-26":
+            known=bps_2025_26(comp)
+        elif inp.bps_rules=="2026-27":
+            known=bps_2026_27(comp)
+        else:
+            raise ValueError("unknown BPS rules season")
         bg=float(rng.normal(p.bps_background_mean,p.bps_background_sd)) if p.bps_background_sd>0 else p.bps_background_mean
         r.bps=int(round(known+bg)); bps[p.player_id]=r.bps
     bonus=allocate_bonus_points(bps)
