@@ -1,0 +1,37 @@
+{
+  "baseline": "existing selected 900-minute soft-role prior",
+  "development": "GW16-21 leave-one-GW-out cross-validation only",
+  "families": {
+    "rating": [
+      "perf_last_rating_proxy"
+    ],
+    "rating_support": [
+      "perf_last_rating_proxy",
+      "perf_last_minutes",
+      "perf_last_sot",
+      "perf_last_chances",
+      "perf_last_dribbles",
+      "perf_last_pass_acc",
+      "perf_last_dispossessed",
+      "perf_last_def_actions"
+    ],
+    "support": [
+      "perf_last_minutes",
+      "perf_last_sot",
+      "perf_last_chances",
+      "perf_last_dribbles",
+      "perf_last_pass_acc",
+      "perf_last_dispossessed",
+      "perf_last_def_actions"
+    ]
+  },
+  "isolation": "current v4 minutes and all non-goal/assist components unchanged in joint diagnostic",
+  "l2": [
+    0.5,
+    2.0,
+    10.0
+  ],
+  "promotion_allowed": false,
+  "question": "Do recent match-performance features add goal/assist signal beyond soft roles?",
+  "reused_diagnostic": "GW22-38 paired joint simulation after development selection"
+}
