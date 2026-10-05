@@ -76,8 +76,9 @@ def run_v3(gws,names,forecast):
         obs=hp.gw_meta(gws,names,gw)
         known=pd.concat([known[~known.id.isin(obs.id)],obs],ignore_index=True).drop_duplicates('id',keep='last')
         meta=known.copy()
+        origin_raw=forecast[forecast.origin_gw==gw-1].copy()
+        current=hp.complete_current_projection(origin_raw,meta,gw)
         origin=origin_with_meta(forecast,meta,gw)
-        current=hp.complete_current_projection(origin,meta,gw)
 
         forced=[]
         if gw>1:
