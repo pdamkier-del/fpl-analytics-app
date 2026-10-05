@@ -27,4 +27,4 @@ jobs:
           pip install -r requirements-model-checkpoint.txt
           pip install -r requirements-model-tests.txt
       - name: Run planner tests
-        run: pytest -q tests/test_transfer_planner.py tests/test_season_replay.py
+        run: PYTHONPATH=src pytest -q tests/test_transfer_planner.py tests/test_season_replay.py
