@@ -1,0 +1,38 @@
+name: TS v3 targeted diagnostic
+
+on:
+  push:
+    branches: [audit-role-minutes-20261001]
+    paths:
+      - 'scripts/run_ts_v3_gw2_8_diagnostic.py'
+      - 'src/fpl_xpts/transfer_planner.py'
+      - '.github/workflows/ts-v3-targeted-diagnostic.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  diagnostic:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install
+        run: |
+          pip install -r requirements-model-checkpoint.txt
+          pip install -r requirements-model-tests.txt
+      - name: Tests
+        run: PYTHONPATH=src pytest -q tests/test_transfer_planner.py tests/test_season_replay.py
+      - name: Run targeted diagnostic
+        run: PYTHONPATH=src python scripts/run_ts_v3_gw2_8_diagnostic.py
+      - name: Commit diagnostic results
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add analysis/results/ts-v3-gw2-8-diagnostic-20261005-v1
+          git commit -m "results: TS v3 GW2-8 targeted diagnostic" || exit 0
+          git push
