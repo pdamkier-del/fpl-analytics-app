@@ -111,23 +111,36 @@ def main():
       l2_grid=L2,promotion_allowed=False))
 
     inputs=read_frozen_table(FROZEN,'inputs')
-    sides=inputs[['fixture_uuid','team_id','gw','home_team_id','away_team_id','lambda_saves']].drop_duplicates(['fixture_uuid','team_id'])
-    # Actual keeper saves are available directly in the frozen raw FPL-core
-    # fixture snapshots. Join by GW + home/away identity so no private SQLite
-    # artifact is required in CI.
-    fx=[]
+    sides=inputs[['fixture_uuid','team_id','gw','lambda_saves']].drop_duplicates(['fixture_uuid','team_id'])
+
+    # Map raw provider team codes to the frozen canonical team_id through the
+    # already-audited classified starter file. This avoids assuming provider
+    # team codes equal canonical IDs.
+    labels=pd.read_csv(ROOT/'analysis/results/reproducible-role-v1/classified_starters.csv',
+                       usecols=['match_id','fixture_uuid','team_id','player'])
+    actual_rows=[]
     for gw in range(22,39):
-        p=ROOT/f'data_v1_1/raw/fpl-core-2025-26/GW{gw}/fixtures.csv'
-        z=pd.read_csv(p,usecols=['gameweek','home_team','away_team','home_keeper_saves','away_keeper_saves'])
-        z=z[z.gameweek==gw].copy()
-        fx.append(z)
-    sched=pd.concat(fx,ignore_index=True).rename(columns={'gameweek':'gw','home_team':'home_team_id','away_team':'away_team_id'})
-    sched['gw']=sched.gw.astype(int);sched['home_team_id']=sched.home_team_id.astype(int);sched['away_team_id']=sched.away_team_id.astype(int)
-    sides=sides.merge(sched,on=['gw','home_team_id','away_team_id'],how='left',validate='many_to_one')
-    if sides[['home_keeper_saves','away_keeper_saves']].isna().any().any():
-        raise ValueError('Missing raw fixture keeper saves')
-    sides['actual_saves']=np.where(sides.team_id==sides.home_team_id,sides.home_keeper_saves,sides.away_keeper_saves)
-    d=sides.copy()
+        line=pd.read_csv(ROOT/f'data_v1_1/raw/all-competitions-2025-26/GW{gw}/lineups.csv')
+        line=line[line.is_starting.astype(str).str.lower().isin(['true','1','yes'])].copy()
+        j=line.merge(labels,left_on=['match_id','player_name'],right_on=['match_id','player'],
+                     how='inner',validate='many_to_many')
+        cmap=j[['match_id','team_code','fixture_uuid','team_id']].drop_duplicates()
+        bad=cmap.groupby(['match_id','team_code']).agg({'fixture_uuid':'nunique','team_id':'nunique'})
+        if ((bad.fixture_uuid>1)|(bad.team_id>1)).any():
+            raise ValueError('Ambiguous raw-to-canonical team mapping')
+        fx=pd.read_csv(ROOT/f'data_v1_1/raw/fpl-core-2025-26/GW{gw}/fixtures.csv',
+                       usecols=['gameweek','match_id','home_team','away_team','home_keeper_saves','away_keeper_saves'])
+        fx=fx[fx.gameweek==gw].copy()
+        for side in ['home','away']:
+            z=fx[['match_id',side+'_team',side+'_keeper_saves']].rename(
+                columns={side+'_team':'team_code',side+'_keeper_saves':'actual_saves'})
+            z=z.merge(cmap,on=['match_id','team_code'],how='left',validate='many_to_one')
+            z['gw']=gw
+            actual_rows.append(z[['fixture_uuid','team_id','gw','actual_saves']])
+    actual=pd.concat(actual_rows,ignore_index=True).dropna(subset=['fixture_uuid','team_id','actual_saves'])
+    actual['team_id']=actual.team_id.astype(int)
+    actual=actual.drop_duplicates(['fixture_uuid','team_id'])
+    d=sides.merge(actual,on=['fixture_uuid','team_id','gw'],how='inner',validate='one_to_one')
     if len(d)<200:raise ValueError('Insufficient keeper side rows')
 
     dev=d.gw.between(22,27).to_numpy();test=d.gw.between(28,38).to_numpy()
