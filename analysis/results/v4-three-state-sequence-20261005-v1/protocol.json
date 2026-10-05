@@ -1,0 +1,49 @@
+{
+  "C_grid": [
+    0.25,
+    1.0,
+    4.0
+  ],
+  "blend_grid": [
+    0.25,
+    0.5,
+    0.75,
+    1.0
+  ],
+  "candidate_q_models": [
+    "existing_v4_q",
+    "binary_v4_features",
+    "binary_v4_plus_sequence"
+  ],
+  "development_selection": "GW16-21",
+  "development_train": "GW6-15",
+  "durations": "unchanged v4 conditional start/cameo means",
+  "final_train": "GW6-21",
+  "name": "v4 3-state v2 sequence/substate experiment",
+  "principle": "freeze v4 P(start); learn only P(sub appearance | not start)",
+  "reused_diagnostic": "GW22-38 only after selection",
+  "selection": "lowest development xMins RMSE; v4 wins ties; require no >0.005 worsening in state log-loss",
+  "sequence_features": [
+    "seq_hist_n",
+    "seq_last_minutes",
+    "seq_prev_minutes",
+    "seq_mean2_minutes",
+    "seq_mean3_minutes",
+    "seq_mean5_minutes",
+    "seq_last_started",
+    "seq_start_share3",
+    "seq_start_share5",
+    "seq_sub_share3",
+    "seq_sub_share5",
+    "seq_zero_share3",
+    "seq_zero_share5",
+    "seq_trend_2_vs_prev3",
+    "seq_minutes_slope5",
+    "seq_start_streak",
+    "seq_nonstart_streak",
+    "seq_60plus_share3",
+    "seq_60plus_share5",
+    "seq_changed_state_last"
+  ],
+  "start_probability": "exact frozen v4, unchanged for every candidate"
+}
