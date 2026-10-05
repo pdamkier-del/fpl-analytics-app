@@ -112,6 +112,63 @@ def bps_2026_27(c: BPSComponents) -> int:
     return int(score)
 
 
+
+def bps_2025_26(c: BPSComponents) -> int:
+    """Deterministic 2025/26 BPS rules.
+
+    Differences from 2026/27:
+    - penalty save base +8 (rather than +7);
+    - GK saves are +3 from inside box / +2 from outside box, rather than the
+      2026/27 general-save + inside-box + big-chance layering;
+    - CBI earns 1 BPS per 2 actions (rather than per 3);
+    - being-tackled still existed in 2025/26, but the generic component object
+      does not currently carry it. Historical reconstruction therefore models
+      that and other unavailable Opta fields in background BPS.
+    """
+    pos=c.position
+    score=0
+    if c.minutes > 0:
+        score += 6 if c.minutes > 60 else 3
+    score += 12*c.penalty_goals
+    goal_value={"GK":12,"GKP":12,"DEF":12,"MID":18,"FWD":24}.get(pos,18)
+    score += goal_value*c.non_penalty_goals
+    score += 9*c.assists
+    if pos in ("GK","GKP","DEF"):
+        score += 12*int(bool(c.clean_sheet))
+    score += 8*c.penalty_saves
+    outside=max(0,c.saves_total-c.saves_inside_box)
+    score += 3*c.saves_inside_box + 2*outside
+    score += c.successful_open_play_crosses
+    score += 3*c.big_chances_created
+    score += c.clearances_blocks_interceptions//2
+    score += c.recoveries//3
+    score += 2*c.successful_tackles
+    score += c.key_passes
+    score += c.successful_dribbles
+    score += 3*c.winning_goals
+    score += 9*c.goal_line_clearances
+    score += c.fouls_won
+    score += 2*c.shots_on_target
+    if c.passes_attempted >= 30:
+        pct=100.0*c.passes_completed/c.passes_attempted
+        if pct >= 90: score += 6
+        elif pct >= 80: score += 4
+        elif pct >= 70: score += 2
+    if pos in ("GK","GKP","DEF"):
+        score -= 4*c.goals_conceded
+    score -= 3*c.penalties_conceded
+    score -= 6*c.penalty_misses
+    score -= 3*c.yellow_cards
+    score -= 9*c.red_cards
+    score -= 6*c.own_goals
+    score -= 3*c.big_chances_missed
+    score -= 3*c.errors_leading_to_goal
+    score -= c.errors_leading_to_attempt
+    score -= c.fouls_conceded
+    score -= c.offsides
+    score -= c.shots_off_target
+    return int(score)
+
 def allocate_bonus_points(bps_by_player: Mapping[str,int]) -> dict[str,int]:
     """Apply official 3/2/1 bonus allocation including all tie cases."""
     if not bps_by_player:
