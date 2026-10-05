@@ -39,6 +39,8 @@ class PlayerSimInput:
     is_keeper: bool=False
     lambda_saves: float=0.0
     save_bucket_tilts: tuple[float,float,float,float,float]|None=None
+    penalty_weight: float=0.0
+    penalty_conversion: float=0.78
 
 @dataclass(frozen=True)
 class MatchSimInput:
@@ -48,12 +50,17 @@ class MatchSimInput:
     lambda_away_goals: float
     players: tuple[PlayerSimInput,...]
     assist_probability_per_goal: float=0.72
+    lambda_home_penalties: float=0.0
+    lambda_away_penalties: float=0.0
+    home_penalty_conversion: float=0.78
+    away_penalty_conversion: float=0.78
+    p_penalty_save_given_miss: float=0.0
 
 @dataclass
 class PlayerSimResult:
     points: int=0; minutes: int=0; started: int=0; goals: int=0; assists: int=0
     clean_sheet: int=0; saves: int=0; dc_count: int=0; dc_points: int=0
-    yellow: int=0; red: int=0; own_goal: int=0; bonus: int=0; bps: int=0
+    yellow: int=0; red: int=0; own_goal: int=0; penalty_miss: int=0; penalty_saves: int=0; bonus: int=0; bps: int=0
     goals_conceded_while_on_pitch: int=0
 
 def _sample_minutes(rng: Any,p: PlayerSimInput)->tuple[int,int,int]:
@@ -102,18 +109,50 @@ def simulate_match(inp:MatchSimInput,rng:Any)->dict[str,PlayerSimResult]:
     for p in ps:
         m,a,b=_sample_minutes(rng,p); out[p.player_id].minutes=m; out[p.player_id].started=int(m>0 and a==0); intervals[p.player_id]=(a,b)
 
-    hg=int(rng.poisson(inp.lambda_home_goals)); ag=int(rng.poisson(inp.lambda_away_goals))
+    # Shared penalty process. Expected scored-penalty mass is removed from the
+    # ordinary team-goal Poisson before explicit penalties are simulated, so
+    # penalties do not inflate the existing team goal mean.
+    hp=max(0.0,float(inp.lambda_home_penalties)); ap=max(0.0,float(inp.lambda_away_penalties))
+    hc=min(1.0,max(0.0,float(inp.home_penalty_conversion))); ac=min(1.0,max(0.0,float(inp.away_penalty_conversion)))
+    h_open=max(0.0,float(inp.lambda_home_goals)-hp*hc)
+    a_open=max(0.0,float(inp.lambda_away_goals)-ap*ac)
+    hg=int(rng.poisson(h_open)); ag=int(rng.poisson(a_open))
     goal_events=[]
     for team,n in ((inp.home_team,hg),(inp.away_team,ag)):
-        for _ in range(n): goal_events.append((float(rng.uniform(0,90)),team))
-    goal_events.sort()
+        for _ in range(n): goal_events.append((float(rng.uniform(0,90)),team,None,False))
 
-    # Allocate scorers/assists only among players on pitch at the goal time.
-    for t,team in goal_events:
+    penalty_events=[]
+    for team,lam in ((inp.home_team,hp),(inp.away_team,ap)):
+        for _ in range(int(rng.poisson(lam))):
+            penalty_events.append((float(rng.uniform(0,90)),team))
+    penalty_events.sort()
+    for t,team in penalty_events:
         active=[p for p in ps if p.team==team and intervals[p.player_id][0] <= t < intervals[p.player_id][1] and out[p.player_id].minutes>0]
-        scorer=_weighted_choice(rng,active,[p.goal_weight for p in active])
+        taker=_weighted_choice(rng,active,[p.penalty_weight for p in active])
+        if taker is None:
+            taker=_weighted_choice(rng,active,[p.goal_weight for p in active])
+        if taker is None:
+            continue
+        conv=min(1.0,max(0.0,float(taker.penalty_conversion)))
+        if rng.random()<conv:
+            goal_events.append((t,team,taker.player_id,True))
+        else:
+            out[taker.player_id].penalty_miss+=1
+            opp=inp.away_team if team==inp.home_team else inp.home_team
+            keepers=[p for p in ps if p.team==opp and p.is_keeper and intervals[p.player_id][0] <= t < intervals[p.player_id][1] and out[p.player_id].minutes>0]
+            if keepers and rng.random()<min(1.0,max(0.0,float(inp.p_penalty_save_given_miss))):
+                k=keepers[0]
+                out[k.player_id].penalty_saves+=1
+                out[k.player_id].saves+=1
+    goal_events.sort(key=lambda x:x[0])
+
+    # Allocate ordinary scorers/assists; explicit scored penalties already have
+    # their taker and intentionally receive no assist in this layer.
+    for t,team,predetermined,is_pen in goal_events:
+        active=[p for p in ps if p.team==team and intervals[p.player_id][0] <= t < intervals[p.player_id][1] and out[p.player_id].minutes>0]
+        scorer=next((p for p in active if p.player_id==predetermined),None) if predetermined else _weighted_choice(rng,active,[p.goal_weight for p in active])
         if scorer: out[scorer.player_id].goals+=1
-        if rng.random()<inp.assist_probability_per_goal:
+        if (not is_pen) and rng.random()<inp.assist_probability_per_goal:
             cand=[p for p in active if scorer is None or p.player_id!=scorer.player_id]
             assister=_weighted_choice(rng,cand,[p.assist_weight for p in cand])
             if assister: out[assister.player_id].assists+=1
@@ -132,7 +171,11 @@ def simulate_match(inp:MatchSimInput,rng:Any)->dict[str,PlayerSimResult]:
         r=out[p.player_id]; m=r.minutes
         if m<=0: continue
         if p.is_keeper:
-            r.saves=_sample_calibrated_saves(rng,max(0.0,p.lambda_saves)*m/90.0,p.save_bucket_tilts)
+            opp_pen=ap if p.team==inp.home_team else hp
+            opp_conv=ac if p.team==inp.home_team else hc
+            exp_pen_save=opp_pen*(1-opp_conv)*min(1.0,max(0.0,float(inp.p_penalty_save_given_miss)))
+            regular=max(0.0,p.lambda_saves-exp_pen_save)*m/90.0
+            r.saves += _sample_calibrated_saves(rng,regular,p.save_bucket_tilts)
         r.dc_count=_sample_nb2(rng,max(0.0,p.dc_mu_90)*m/90.0,p.dc_alpha)
         r.dc_points=dc_points_from_count(p.position,r.dc_count)
         card=sample_discipline(rng,p.discipline)
@@ -147,10 +190,10 @@ def simulate_match(inp:MatchSimInput,rng:Any)->dict[str,PlayerSimResult]:
         pts=2 if m>=60 else 1
         pts += GOAL_POINTS[p.position]*r.goals + 3*r.assists
         pts += CS_POINTS[p.position]*r.clean_sheet
-        if p.is_keeper: pts += save_points(r.saves)
+        if p.is_keeper: pts += save_points(r.saves) + 5*r.penalty_saves
         if p.position in ("GK","GKP","DEF"): pts -= r.goals_conceded_while_on_pitch//2
         pts += r.dc_points
-        pts += direct_negative_points(yellow=r.yellow,red=r.red,own_goal=r.own_goal)
+        pts += direct_negative_points(yellow=r.yellow,red=r.red,own_goal=r.own_goal,penalty_miss=r.penalty_miss)
         r.points=pts
         known=bps_2026_27(BPSComponents(minutes=m,position=p.position,non_penalty_goals=r.goals,assists=r.assists,
             clean_sheet=r.clean_sheet,saves_total=r.saves,goals_conceded=r.goals_conceded_while_on_pitch,
@@ -165,7 +208,7 @@ def simulate_match(inp:MatchSimInput,rng:Any)->dict[str,PlayerSimResult]:
 def simulate_many(inp:MatchSimInput,n:int=20_000,seed:int=26092026)->dict[str,dict[str,float]]:
     if n<=0: raise ValueError("n must be positive")
     rng=np.random.default_rng(seed); samples={p.player_id:[] for p in inp.players}; nonbonus={p.player_id:[] for p in inp.players}; bonuses={p.player_id:[] for p in inp.players}; mins={p.player_id:[] for p in inp.players}
-    aux={p.player_id:{"start":0,"return":0,"ten":0,"cs":0,"appearance_pts":0.0,"goal_pts":0.0,"assist_pts":0.0,"cs_pts":0.0,"save_pts":0.0,"dc_pts":0.0,"negative_pts":0.0,"gc_pts":0.0} for p in inp.players}
+    aux={p.player_id:{"start":0,"return":0,"ten":0,"cs":0,"appearance_pts":0.0,"goal_pts":0.0,"assist_pts":0.0,"cs_pts":0.0,"save_pts":0.0,"dc_pts":0.0,"negative_pts":0.0,"gc_pts":0.0,"penalty_miss_pts":0.0,"penalty_save_pts":0.0} for p in inp.players}
     for _ in range(n):
         res=simulate_match(inp,rng)
         for p in inp.players:
@@ -176,14 +219,14 @@ def simulate_many(inp:MatchSimInput,n:int=20_000,seed:int=26092026)->dict[str,di
                 aux[p.player_id]["goal_pts"] += GOAL_POINTS[p.position]*r.goals
                 aux[p.player_id]["assist_pts"] += 3*r.assists
                 aux[p.player_id]["cs_pts"] += CS_POINTS[p.position]*r.clean_sheet
-                aux[p.player_id]["save_pts"] += save_points(r.saves) if p.is_keeper else 0
+                aux[p.player_id]["save_pts"] += save_points(r.saves) if p.is_keeper else 0\n                aux[p.player_id]["penalty_save_pts"] += 5*r.penalty_saves if p.is_keeper else 0\n                aux[p.player_id]["penalty_miss_pts"] += -2*r.penalty_miss
                 aux[p.player_id]["dc_pts"] += r.dc_points
-                aux[p.player_id]["negative_pts"] += direct_negative_points(yellow=r.yellow,red=r.red,own_goal=r.own_goal)
+                aux[p.player_id]["negative_pts"] += direct_negative_points(yellow=r.yellow,red=r.red,own_goal=r.own_goal,penalty_miss=r.penalty_miss)
                 aux[p.player_id]["gc_pts"] += -(r.goals_conceded_while_on_pitch//2) if p.position in ("GK","GKP","DEF") else 0
     ans={}
     for p in inp.players:
         a=np.asarray(samples[p.player_id],dtype=float)
         ans[p.player_id]={"xPts":float(a.mean()),"xPts_nonbonus":float(np.mean(nonbonus[p.player_id])),"expected_bonus":float(np.mean(bonuses[p.player_id])),"median":float(np.median(a)),"p10":float(np.quantile(a,.10)),"p90":float(np.quantile(a,.90)),
             "expected_minutes":float(np.mean(mins[p.player_id])),"p_start":aux[p.player_id]["start"]/n,"p_attacking_return":aux[p.player_id]["return"]/n,"p_10_plus":aux[p.player_id]["ten"]/n,"p_clean_sheet_award":aux[p.player_id]["cs"]/n,
-            "appearance_points":aux[p.player_id]["appearance_pts"]/n,"goal_points":aux[p.player_id]["goal_pts"]/n,"assist_points":aux[p.player_id]["assist_pts"]/n,"cs_points":aux[p.player_id]["cs_pts"]/n,"save_points":aux[p.player_id]["save_pts"]/n,"dc_points":aux[p.player_id]["dc_pts"]/n,"negative_points":aux[p.player_id]["negative_pts"]/n,"gc_points":aux[p.player_id]["gc_pts"]/n}
+            "appearance_points":aux[p.player_id]["appearance_pts"]/n,"goal_points":aux[p.player_id]["goal_pts"]/n,"assist_points":aux[p.player_id]["assist_pts"]/n,"cs_points":aux[p.player_id]["cs_pts"]/n,"save_points":aux[p.player_id]["save_pts"]/n,"dc_points":aux[p.player_id]["dc_pts"]/n,"negative_points":aux[p.player_id]["negative_pts"]/n,"gc_points":aux[p.player_id]["gc_pts"]/n,"penalty_miss_points":aux[p.player_id]["penalty_miss_pts"]/n,"penalty_save_points":aux[p.player_id]["penalty_save_pts"]/n}
     return ans
