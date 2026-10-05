@@ -34,8 +34,8 @@ from sklearn.preprocessing import StandardScaler
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "src"))
 from fpl_v1_1_model.workload import WORKLOAD_FEATURES
-from scripts.build_reproducible_role_benchmark import BASE_FEATURES, ROLE_FEATURES, normalize_eleven
-from scripts.benchmark_squad_minutes import serialize
+from build_reproducible_role_benchmark import BASE_FEATURES, ROLE_FEATURES, normalize_eleven
+from benchmark_squad_minutes import serialize
 
 SOURCE = ROOT / "analysis/results/workload-recovered-v4/all_features.csv.gz"
 V4_RESULTS = ROOT / "analysis/results/workload-recovered-minutes-v4"
