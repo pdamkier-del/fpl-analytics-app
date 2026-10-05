@@ -1,0 +1,42 @@
+{
+  "baseline": "frozen keeper save mean",
+  "families": {
+    "quality_efficiency": [
+      "att_xgot_per_sot",
+      "att_xg_per_sot",
+      "att_shots_per_sot",
+      "att_bigchance_per_sot",
+      "def_xgot_per_sot_allowed",
+      "def_xg_per_sot_allowed",
+      "team_save_rate",
+      "team_goals_prevented_per_sot"
+    ],
+    "save_efficiency": [
+      "team_save_rate",
+      "team_goals_prevented_per_sot"
+    ],
+    "shot_quality": [
+      "att_xgot_per_sot",
+      "att_xg_per_sot",
+      "att_shots_per_sot",
+      "att_bigchance_per_sot",
+      "def_xgot_per_sot_allowed",
+      "def_xg_per_sot_allowed"
+    ]
+  },
+  "features": "cutoff-safe shot quality + team save efficiency",
+  "half_lives": [
+    6.0,
+    13.0,
+    20.0
+  ],
+  "l2": [
+    10.0,
+    50.0,
+    200.0
+  ],
+  "promotion_allowed": false,
+  "reused_diagnostic": "GW22-38",
+  "selection": "GW16-21",
+  "train": "GW6-15"
+}

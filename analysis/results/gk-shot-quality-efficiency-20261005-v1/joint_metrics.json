@@ -1,0 +1,80 @@
+{
+  "classification": "reused_diagnostic_not_independent_holdout",
+  "delta_joint": {
+    "bias": -0.0017328726471086998,
+    "mae": 0.000805494319145228,
+    "rmse": 0.0013519949696110256
+  },
+  "draws_per_fixture": 320,
+  "fixtures": 144,
+  "keeper_metrics": {
+    "baseline": {
+      "actual_p3": 0.5441176470588235,
+      "mean_actual_points": 0.6235294117647059,
+      "mean_actual_saves": 2.8794117647058823,
+      "mean_pred_points": 0.580122687022696,
+      "mean_pred_saves": 2.740858642087101,
+      "p3": 0.5096794701381067,
+      "point_bias": -0.04340672474201,
+      "point_mae": 0.5828704273069791,
+      "point_rmse": 0.6750345164550557,
+      "save_bias": -0.13855312261878142,
+      "save_mae": 1.4835457612882135,
+      "save_nll": 2.0358162925988617,
+      "save_rmse": 1.9207080675682204
+    },
+    "candidate": {
+      "actual_p3": 0.5441176470588235,
+      "mean_actual_points": 0.6235294117647059,
+      "mean_actual_saves": 2.8794117647058823,
+      "mean_pred_points": 0.5780933719814442,
+      "mean_pred_saves": 2.73485084035364,
+      "p3": 0.5083342711514319,
+      "point_bias": -0.04543603978326171,
+      "point_mae": 0.5825023139733013,
+      "point_rmse": 0.6746228931121419,
+      "save_bias": -0.14456092435224221,
+      "save_mae": 1.4797159955738273,
+      "save_nll": 2.0331006290153564,
+      "save_rmse": 1.9174484211903682
+    }
+  },
+  "nonbonus": {
+    "final_dc": {
+      "bias": 0.03217101916228591,
+      "mae": 0.8227043411904359,
+      "rmse": 1.5763660404583928
+    },
+    "final_dc_plus_gk_quality": {
+      "bias": 0.03043814651517721,
+      "mae": 0.8235098355095811,
+      "rmse": 1.5777180354280038
+    }
+  },
+  "promoted": false,
+  "rows": 11794,
+  "selected": {
+    "family": "save_efficiency",
+    "half_life": 20.0,
+    "l2": 200.0,
+    "model": {
+      "coef": [
+        -0.02694455117826616,
+        0.04470457904958558
+      ],
+      "features": [
+        "team_save_rate",
+        "team_goals_prevented_per_sot"
+      ],
+      "l2": 200.0,
+      "mean": [
+        0.6576223206149592,
+        -0.009060732318198724
+      ],
+      "scale": [
+        0.09092524075692782,
+        0.06735312559878918
+      ]
+    }
+  }
+}
