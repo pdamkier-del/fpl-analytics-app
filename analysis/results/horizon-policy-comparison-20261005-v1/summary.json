@@ -1,0 +1,88 @@
+{
+  "best": {
+    "hit_points": 92,
+    "no_transfer_control": 1425,
+    "policy": "3gw_decay",
+    "total_points": 2093,
+    "transfers": 59,
+    "uplift": 668,
+    "weights": [
+      1.0,
+      0.85,
+      0.7
+    ]
+  },
+  "candidates": {
+    "3gw_decay": [
+      1.0,
+      0.85,
+      0.7
+    ],
+    "3gw_equal": [
+      1.0,
+      1.0,
+      1.0
+    ],
+    "6gw_decay": [
+      1.0,
+      0.85,
+      0.7,
+      0.55,
+      0.4,
+      0.25
+    ]
+  },
+  "caveat": "This is NOT a vFinal full-season performance result; forecast provider is recovered rolling Phase5Q because full vFinal origin-horizon coverage does not yet exist.",
+  "chips": "OFF",
+  "classification": "transfer-horizon policy test on recovered Phase5Q full-season forecasts; chips off",
+  "purpose": "select horizon policy before cutoff-safe vFinal rolling forecasts are regenerated",
+  "results": [
+    {
+      "hit_points": 112,
+      "no_transfer_control": 1425,
+      "policy": "3gw_equal",
+      "total_points": 2054,
+      "transfers": 65,
+      "uplift": 629,
+      "weights": [
+        1.0,
+        1.0,
+        1.0
+      ]
+    },
+    {
+      "hit_points": 92,
+      "no_transfer_control": 1425,
+      "policy": "3gw_decay",
+      "total_points": 2093,
+      "transfers": 59,
+      "uplift": 668,
+      "weights": [
+        1.0,
+        0.85,
+        0.7
+      ]
+    },
+    {
+      "hit_points": 116,
+      "no_transfer_control": 1425,
+      "policy": "6gw_decay",
+      "total_points": 2042,
+      "transfers": 65,
+      "uplift": 617,
+      "weights": [
+        1.0,
+        0.85,
+        0.7,
+        0.55,
+        0.4,
+        0.25
+      ]
+    }
+  ],
+  "same_transfer_costs": {
+    "hit": 4,
+    "hit_uncertainty_buffer": 2.0,
+    "saved_ft_value": 2.16
+  }
+}
