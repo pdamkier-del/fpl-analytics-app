@@ -1,0 +1,31 @@
+{
+  "rows": 11794,
+  "fixtures": 144,
+  "draws": 80,
+  "seed": 26092501,
+  "selected": {
+    "goal": 900,
+    "assist": 900,
+    "dc": 900
+  },
+  "nonbonus": {
+    "current_v4": {
+      "mae": 0.8317438952009497,
+      "rmse": 1.5857671287742299,
+      "bias": 0.0445427759877904
+    },
+    "role_candidate": {
+      "mae": 0.8338392402916737,
+      "rmse": 1.5891054450217141,
+      "bias": 0.044681617771748346
+    }
+  },
+  "classification": "reused_diagnostic_not_new_holdout",
+  "model_promoted": false,
+  "limitations": [
+    "original BPS season mismatch: nonbonus is primary",
+    "fixed 80 draws are technical sensitivity, not a precise ranking",
+    "development prior selection uses actual exposure; production uses current v4 minutes",
+    "q history begins GW6; missing role history uses position fallback"
+  ]
+}
