@@ -69,7 +69,7 @@ def main():
     for label,w in HAND.items():
         print('Running',label,flush=True)
         r=run_policy(label,w,gws,forecast,names)
-        row,logs=summarize_run(label,'hand',None,w,r)
+        row,logs=summarize_run(label,'hand','manual',w,r)
         rows.append(row)
         logs.to_csv(OUT/f'{label}_gameweek_log.csv',index=False)
 
