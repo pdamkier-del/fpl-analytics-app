@@ -1,0 +1,56 @@
+{
+  "caveat": "Not the final vFinal season score; forecast provider remains recovered Phase5Q until cutoff-safe rolling vFinal forecasts are generated.",
+  "classification": "TS v3 full-season strategy proxy; chips off; point model locked",
+  "configuration": {
+    "beam_width": 20,
+    "candidate_backend": "fast_local",
+    "candidate_limit_per_position": 18,
+    "candidate_return_per_depth": 12,
+    "candidates_per_transfer_count": 1,
+    "hit_buffer": 1.5,
+    "local_bundle_beam": 60,
+    "max_transfers_per_week": 5,
+    "top_targets_per_position": 18,
+    "weights": [
+      1.0,
+      0.85,
+      0.7,
+      0.55,
+      0.4,
+      0.25
+    ]
+  },
+  "delta_vs_v2": {
+    "hit_points": -36,
+    "total_points": -145,
+    "transfers": -9,
+    "uplift": -145
+  },
+  "forecast_provider": "recovered rolling Phase5Q archive",
+  "ts_v2_comparator": {
+    "hit_buffer": 1.5,
+    "hit_points": 68,
+    "no_transfer_control": 1425,
+    "policy": "tsv2_6gw_buffer_1.5",
+    "runtime_seconds": 353.22362901599996,
+    "total_points": 2137,
+    "transfers": 54,
+    "uplift": 712,
+    "weights": [
+      1.0,
+      0.85,
+      0.7,
+      0.55,
+      0.4,
+      0.25
+    ]
+  },
+  "ts_v3": {
+    "hit_points": 32,
+    "no_transfer_control": 1425,
+    "runtime_seconds": 174.652141057,
+    "total_points": 1992,
+    "transfers": 45,
+    "uplift": 567
+  }
+}
