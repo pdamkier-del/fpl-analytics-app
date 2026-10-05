@@ -1,0 +1,73 @@
+{
+  "architecture": {
+    "conversion": "player conversion shrunk to league conversion",
+    "keeper_save": "single shared miss outcome; keeper save probability conditional on a miss",
+    "occurrence": "EB blend 50/50 team penalties awarded + opponent penalties conceded, shrunk to league",
+    "scored_penalty_goal_integration": "subtract expected scored-penalty mass from team goal lambda, then simulate explicit penalty score; never add on top",
+    "taker": "recency-weighted prior penalty attempts within team"
+  },
+  "development": {
+    "conversion_best": {
+      "actual_rate": 0.7962962962962963,
+      "brier": 0.18420396302908965,
+      "log_loss": 1.2351047798514745,
+      "mean_pred": 0.7803109947861517,
+      "n": 54.0,
+      "tau": 20.0
+    },
+    "occurrence_best": {
+      "actual_rate": 0.115625,
+      "brier": 0.10316818158642063,
+      "log_loss": 0.3618380027732655,
+      "mean_pred": 0.11864085797434587,
+      "tau": 20.0
+    },
+    "taker_best": {
+      "half_life": 6.0,
+      "mean_true_taker_probability": 0.6978995894004415,
+      "n_events": 52.0,
+      "primary_taker_hit_rate": 0.34615384615384615
+    }
+  },
+  "event_counts": {
+    "fixtures_with_penalty": 89,
+    "missed": 15.0,
+    "scored": 77.0,
+    "total_attempts": 92.0
+  },
+  "next_integration": "joint simulator shared penalty event with explicit taker miss -2, keeper save +5, scored penalty goal replacing equal expected team-goal mass",
+  "penalty_save_source": {
+    "p_save_given_miss": 0.7333333333333333,
+    "penalty_misses": 15.0,
+    "penalty_saves": 11.0,
+    "source": "2025-26 FPL merged_gw"
+  },
+  "promotion_allowed": false,
+  "reused_diagnostic": {
+    "conversion": {
+      "actual_rate": 0.8947368421052632,
+      "brier": 0.10285122706538585,
+      "log_loss": 0.3729889338620361,
+      "mean_pred": 0.8662022949052526,
+      "n": 38
+    },
+    "occurrence": {
+      "actual_rate": 0.10882352941176471,
+      "brier": 0.09653205484398948,
+      "log_loss": 0.3412929117589363,
+      "mean_lambda": 0.12847637447342392,
+      "mean_pred": 0.12020255010029923
+    },
+    "taker": {
+      "mean_true_taker_probability": 0.7217873614620233,
+      "n_events": 37,
+      "primary_taker_hit_rate": 0.32432432432432434
+    }
+  },
+  "selected": {
+    "conversion_tau": 20.0,
+    "occurrence_tau": 20.0,
+    "p_keeper_save_given_miss": 0.7333333333333333,
+    "taker_half_life": 6.0
+  }
+}
