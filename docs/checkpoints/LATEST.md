@@ -1,4 +1,33 @@
-# Latest checkpoint: direct v4 minute/start evaluation complete
+# Latest checkpoint: minute component experiment and Saturday target
+
+See `2026-10-05-minutes-components-and-release-plan.md`. The user has
+authorized preparing the complete model, with minutes first and detailed
+roles considered for other components, targeting Saturday 10 October.
+
+Completed: exact signed minute-error decomposition; 27 frozen component
+combinations selected using development GW16–21 RMSE; selected substitute-
+duration hybrid tested through the original joint simulator on all 144 paired
+fixtures. Original control predictions are exactly unchanged. 43 experiment
+checks pass. No estimator refits or model/policy promotion.
+
+The hybrid slightly improves minute RMSE but worsens minute MAE. Its paired
+nonbonus point MAE is 0.834813 versus current v4 0.831744; point RMSE is
+1.591309 versus 1.585767. With 80 draws these small stochastic differences
+are not proof of inferiority; there is no demonstrated downstream gain.
+Retain current v4 as reference.
+
+Detailed role known for 3,121/3,168 actual starters in the paired cohort.
+Roles already inform minutes. Event rates currently use broad-position
+priors plus individual history. Next role experiment should add audited,
+predeadline role information with shrinkage/fallback to xG/xA and DefCon
+components, selected on development data before joint evaluation.
+
+Full v4 season validation still has concrete gaps: 196 origin-target cells,
+32 roster rows across 26 fixtures, early as-of states, competition coverage,
+and separately controlled season-rule integration. The release plan records
+these acceptance gates. GW22–38 remains reused diagnostic.
+
+## Previous completed direct evaluation
 
 See `2026-10-04-direct-minutes-v4.md`.
 
