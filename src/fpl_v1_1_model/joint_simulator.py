@@ -154,7 +154,9 @@ def simulate_match(inp:MatchSimInput,rng:Any)->dict[str,PlayerSimResult]:
     for t,team,predetermined,is_pen in goal_events:
         active=[p for p in ps if p.team==team and intervals[p.player_id][0] <= t < intervals[p.player_id][1] and out[p.player_id].minutes>0]
         scorer=next((p for p in active if p.player_id==predetermined),None) if predetermined else _weighted_choice(rng,active,[p.goal_weight for p in active])
-        if scorer:\n            out[scorer.player_id].goals+=1\n            if is_pen: out[scorer.player_id].penalty_goals+=1
+        if scorer:
+            out[scorer.player_id].goals+=1
+            if is_pen: out[scorer.player_id].penalty_goals+=1
         if (not is_pen) and rng.random()<inp.assist_probability_per_goal:
             cand=[p for p in active if scorer is None or p.player_id!=scorer.player_id]
             assister=_weighted_choice(rng,cand,[p.assist_weight for p in cand])
