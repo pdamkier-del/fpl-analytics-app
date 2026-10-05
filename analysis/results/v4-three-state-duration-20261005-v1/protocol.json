@@ -1,0 +1,22 @@
+{
+  "development_compare": "GW16-21 already reused for prior decisions",
+  "development_train": "GW6-15",
+  "duration_candidates": [
+    "frozen_v4",
+    "sequence_start",
+    "sequence_sub",
+    "sequence_both"
+  ],
+  "final_train": "GW6-21",
+  "fixed_start_probability": "v4",
+  "fixed_substate": "v4-3S-v2 binary_sequence C=4 alpha=0.75",
+  "name": "v4 3-state v3 conditional-duration exploration",
+  "reused_diagnostic": "GW22-38",
+  "ridge_alpha_grid": [
+    5.0,
+    20.0,
+    80.0
+  ],
+  "selection": "development xMins RMSE; prefer simpler/frozen model within 0.01 min",
+  "warning": "exploratory sequential tuning; independent season/test required before promotion"
+}

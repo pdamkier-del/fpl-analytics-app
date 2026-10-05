@@ -1,0 +1,78 @@
+{
+  "classification": "exploratory sequential development iteration; no independent confirmation",
+  "development_selection": {
+    "fixed_v2_substate": {
+      "actual_q_sub_given_nonstart": 0.1382089552238806,
+      "mean_q_sub_given_nonstart": 0.13445281025884873,
+      "n": 4670,
+      "state_brier": 0.2352214114261232,
+      "state_log_loss": 0.4538585171916011,
+      "sub_brier_given_nonstart": 0.0815917217045971,
+      "xmins_bias": -0.07850516853606362,
+      "xmins_mae": 11.431320067926062,
+      "xmins_rmse": 21.726910035520863
+    },
+    "selected_duration": "sequence_sub",
+    "selected_ridge_alpha": 80.0
+  },
+  "p_start_unchanged_v4": true,
+  "promoted": false,
+  "reused_diagnostic": {
+    "conditional_frozen": {
+      "start": {
+        "bias": 0.2993306181824298,
+        "mae": 7.81042242426141,
+        "n": 3740,
+        "rmse": 14.374910420520978
+      },
+      "sub": {
+        "bias": -0.08046970131812685,
+        "mae": 13.568323621910006,
+        "n": 1377,
+        "rmse": 18.441473476769723
+      }
+    },
+    "conditional_selected": {
+      "start": {
+        "bias": 0.2993306181824298,
+        "mae": 7.81042242426141,
+        "n": 3740,
+        "rmse": 14.374910420520978
+      },
+      "sub": {
+        "bias": 0.2907767911753513,
+        "mae": 10.946194596707729,
+        "n": 1377,
+        "rmse": 13.907266230582659
+      }
+    },
+    "delta_v3_minus_v2": {
+      "xmins_bias": 0.07718247878439902,
+      "xmins_mae": 0.08408327985856445,
+      "xmins_rmse": -0.02030882782727872
+    },
+    "v4_3S_v2": {
+      "actual_q_sub_given_nonstart": 0.1343807943788426,
+      "mean_q_sub_given_nonstart": 0.12271281928099152,
+      "n": 13987,
+      "state_brier": 0.23310776577319064,
+      "state_log_loss": 0.43895590558056224,
+      "sub_brier_given_nonstart": 0.07893418269071659,
+      "xmins_bias": -0.2544753385444952,
+      "xmins_mae": 11.49218519572684,
+      "xmins_rmse": 21.547694376130423
+    },
+    "v4_3S_v3": {
+      "actual_q_sub_given_nonstart": 0.1343807943788426,
+      "mean_q_sub_given_nonstart": 0.12271281928099152,
+      "n": 13987,
+      "state_brier": 0.23310776577319064,
+      "state_log_loss": 0.43895590558056224,
+      "sub_brier_given_nonstart": 0.07893418269071659,
+      "xmins_bias": -0.1772928597600962,
+      "xmins_mae": 11.576268475585405,
+      "xmins_rmse": 21.527385548303144
+    }
+  },
+  "substate_fixed_from_v2": true
+}
