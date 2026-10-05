@@ -219,7 +219,9 @@ def simulate_many(inp:MatchSimInput,n:int=20_000,seed:int=26092026)->dict[str,di
                 aux[p.player_id]["goal_pts"] += GOAL_POINTS[p.position]*r.goals
                 aux[p.player_id]["assist_pts"] += 3*r.assists
                 aux[p.player_id]["cs_pts"] += CS_POINTS[p.position]*r.clean_sheet
-                aux[p.player_id]["save_pts"] += save_points(r.saves) if p.is_keeper else 0\n                aux[p.player_id]["penalty_save_pts"] += 5*r.penalty_saves if p.is_keeper else 0\n                aux[p.player_id]["penalty_miss_pts"] += -2*r.penalty_miss
+                aux[p.player_id]["save_pts"] += save_points(r.saves) if p.is_keeper else 0
+                aux[p.player_id]["penalty_save_pts"] += 5*r.penalty_saves if p.is_keeper else 0
+                aux[p.player_id]["penalty_miss_pts"] += -2*r.penalty_miss
                 aux[p.player_id]["dc_pts"] += r.dc_points
                 aux[p.player_id]["negative_pts"] += direct_negative_points(yellow=r.yellow,red=r.red,own_goal=r.own_goal,penalty_miss=r.penalty_miss)
                 aux[p.player_id]["gc_pts"] += -(r.goals_conceded_while_on_pitch//2) if p.position in ("GK","GKP","DEF") else 0
