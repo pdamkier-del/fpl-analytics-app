@@ -162,7 +162,7 @@ def simulate_match(inp:MatchSimInput,rng:Any)->dict[str,PlayerSimResult]:
         a,b=intervals[p.player_id]
         if out[p.player_id].minutes<=0: continue
         opp=inp.away_team if p.team==inp.home_team else inp.home_team
-        gc=sum(1 for t,scoring_team in goal_events if scoring_team==opp and a<=t<b)
+        gc=sum(1 for t,scoring_team,_,_ in goal_events if scoring_team==opp and a<=t<b)
         out[p.player_id].goals_conceded_while_on_pitch=gc
         out[p.player_id].clean_sheet=int(out[p.player_id].minutes>=60 and gc==0)
 
