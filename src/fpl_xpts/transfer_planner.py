@@ -19,8 +19,11 @@ class PlannerConfig:
     hit_uncertainty_buffer: float = 1.5
     beam_width: int = 30
     candidates_per_transfer_count: int = 2
-    candidate_limit_per_position: int = 14
+    candidate_limit_per_position: int = 10
+    top_targets_per_position: int = 5
+    local_bundle_beam: int = 10
     max_transfers_per_week: int = 5
+    candidate_backend: str = "fast_local"
     milp_time_limit: float = 12.0
 
 
@@ -181,6 +184,120 @@ def _candidate_players(
         for row in players.itertuples()
     ]
     return players
+
+
+
+def _weighted_player_values(
+    origin: pd.DataFrame,
+    gws: list[int],
+    weights: list[float],
+) -> pd.Series:
+    frame = origin[origin.gw.isin(gws)][["id", "gw", "xpts_mean"]].copy()
+    weight_by_gw = {int(gw): float(w) for gw, w in zip(gws, weights)}
+    frame["weighted"] = [
+        float(x) * weight_by_gw.get(int(gw), 0.0)
+        for x, gw in zip(frame.xpts_mean, frame.gw)
+    ]
+    return frame.groupby("id")["weighted"].sum()
+
+
+def _fast_local_candidate_squads(
+    state: ReplayState,
+    meta: pd.DataFrame,
+    origin: pd.DataFrame,
+    gws: list[int],
+    weights: list[float],
+    max_transfers: int,
+    top_targets_per_position: int,
+    local_bundle_beam: int,
+) -> list[set[int]]:
+    """Generate strong legal transfer bundles without solving a MILP.
+
+    This is the performance-oriented candidate generator for the rolling
+    planner.  It searches bundles locally, keeps exact bank/sale-price/team
+    constraints, and ranks partial bundles by weighted player-value gain.
+    Final path evaluation is still lineup-aware (XI + captain) in the outer
+    planner, so this heuristic is only used to propose plausible squads.
+    """
+    by_id = meta.drop_duplicates("id").set_index("id")
+    values = _weighted_player_values(origin, gws, weights)
+    owned0 = set(map(int, state.squad))
+
+    # Small target pool per position, plus all currently owned players.
+    target_pool: dict[str, list[int]] = {}
+    for position in POSITION_COUNTS:
+        ids = by_id[by_id.position.eq(position)].index.astype(int)
+        ranked = values.reindex(ids).fillna(0.0).sort_values(ascending=False)
+        target_pool[position] = [int(x) for x in ranked.head(int(top_targets_per_position)).index]
+
+    # tuple: (rank_gain, squad_set, bank, purchase_prices, moves)
+    purchase0 = {int(pid): int(op.purchase_price) for pid, op in state.squad.items()}
+    frontier = [(0.0, owned0, int(state.bank), purchase0, 0)]
+    out: list[set[int]] = [set(owned0)]
+
+    for depth in range(1, max(0, int(max_transfers)) + 1):
+        next_frontier = []
+        seen = {}
+        for rank_gain, squad, bank, purchases, _moves in frontier:
+            team_counts = by_id.loc[list(squad), "team"].value_counts().to_dict()
+            # Prefer replacing low weighted-value players first.
+            outs = sorted(
+                squad,
+                key=lambda pid: float(values.get(int(pid), 0.0))
+            )
+            for out_id in outs:
+                out_row = by_id.loc[out_id]
+                position = str(out_row.position)
+                current_price = int(out_row.price_tenths)
+                sale = selling_price(int(purchases[out_id]), current_price)
+                for in_id in target_pool.get(position, []):
+                    if in_id in squad:
+                        continue
+                    in_row = by_id.loc[in_id]
+                    buy = int(in_row.price_tenths)
+                    if buy > sale + bank:
+                        continue
+                    if int(in_row.team) != int(out_row.team) and team_counts.get(in_row.team, 0) >= 3:
+                        continue
+
+                    new_squad = set(squad)
+                    new_squad.remove(int(out_id))
+                    new_squad.add(int(in_id))
+                    # Prevent immediate buy-back loops inside the same bundle by
+                    # requiring each depth to increase weighted player value.
+                    gain = float(values.get(in_id, 0.0) - values.get(out_id, 0.0))
+                    if gain <= -1e-12:
+                        continue
+                    new_bank = int(bank + sale - buy)
+                    new_purchases = dict(purchases)
+                    new_purchases.pop(int(out_id))
+                    new_purchases[int(in_id)] = buy
+                    new_gain = float(rank_gain + gain)
+                    key = tuple(sorted(new_squad))
+                    prev = seen.get(key)
+                    item = (new_gain, new_squad, new_bank, new_purchases, depth)
+                    if prev is None or new_gain > prev[0] + 1e-12:
+                        seen[key] = item
+
+        next_frontier = sorted(
+            seen.values(),
+            key=lambda x: (x[0], x[2]),
+            reverse=True,
+        )[:max(1, int(local_bundle_beam))]
+        frontier = next_frontier
+        out.extend(set(item[1]) for item in frontier)
+        if not frontier:
+            break
+
+    # De-duplicate while preserving search order.
+    unique = []
+    seen_keys = set()
+    for squad in out:
+        key = tuple(sorted(squad))
+        if key not in seen_keys:
+            seen_keys.add(key)
+            unique.append(set(squad))
+    return unique
 
 
 def _top_squads_for_transfer_count(
@@ -369,18 +486,29 @@ def plan_transfer_path(
             remaining_weights = weights[depth:]
 
             max_count = min(int(config.max_transfers_per_week), 5)
-            candidate_counts = sorted({
-                1,
-                min(max_count, max(1, ft_before)),
-                min(max_count, max(1, ft_before + 1)),
-            })
-            for transfer_count in candidate_counts:
-                candidate_squads.extend(_top_squads_for_transfer_count(
+            # Paid transfers beyond one hit are rarely attractive once the
+            # 1.5-point uncertainty buffer is included.  Search all free
+            # transfers plus at most one hit; when capped at 5 FT, allow all 5.
+            search_count = min(max_count, max(1, ft_before + 1))
+            if str(config.candidate_backend) == "fast_local":
+                candidate_squads.extend(_fast_local_candidate_squads(
                     node.state, meta, origin, remaining_gws, remaining_weights,
-                    transfer_count, int(config.candidates_per_transfer_count),
-                    float(config.milp_time_limit),
-                    int(config.candidate_limit_per_position),
+                    search_count, int(config.top_targets_per_position),
+                    int(config.local_bundle_beam),
                 ))
+            else:
+                candidate_counts = sorted({
+                    1,
+                    min(max_count, max(1, ft_before)),
+                    min(max_count, max(1, ft_before + 1)),
+                })
+                for transfer_count in candidate_counts:
+                    candidate_squads.extend(_top_squads_for_transfer_count(
+                        node.state, meta, origin, remaining_gws, remaining_weights,
+                        transfer_count, int(config.candidates_per_transfer_count),
+                        float(config.milp_time_limit),
+                        int(config.candidate_limit_per_position),
+                    ))
 
             seen_squads: set[tuple[int, ...]] = set()
             for selected in candidate_squads:
