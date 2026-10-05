@@ -19,9 +19,9 @@ class PlannerConfig:
     hit_uncertainty_buffer: float = 1.5
     beam_width: int = 30
     candidates_per_transfer_count: int = 2
-    candidate_limit_per_position: int = 10
-    top_targets_per_position: int = 5
-    local_bundle_beam: int = 10
+    candidate_limit_per_position: int = 18
+    top_targets_per_position: int = 18
+    local_bundle_beam: int = 60
     max_transfers_per_week: int = 5
     candidate_backend: str = "fast_local"
     milp_time_limit: float = 12.0
@@ -486,10 +486,10 @@ def plan_transfer_path(
             remaining_weights = weights[depth:]
 
             max_count = min(int(config.max_transfers_per_week), 5)
-            # Paid transfers beyond one hit are rarely attractive once the
-            # 1.5-point uncertainty buffer is included.  Search all free
-            # transfers plus at most one hit; when capped at 5 FT, allow all 5.
-            search_count = min(max_count, max(1, ft_before + 1))
+            # Search the full legal 0-5 transfer range. The uncertainty buffer
+            # and official hit cost decide whether deep hit paths survive;
+            # there is no hard FT+1 pruning.
+            search_count = max_count
             if str(config.candidate_backend) == "fast_local":
                 candidate_squads.extend(_fast_local_candidate_squads(
                     node.state, meta, origin, remaining_gws, remaining_weights,
