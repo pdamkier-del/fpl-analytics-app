@@ -1,0 +1,61 @@
+{
+  "classification": "reused_diagnostic_not_independent_holdout",
+  "delta_joint": {
+    "bias": 0.0005943170256062363,
+    "mae": -0.0016960424792265005,
+    "rmse": -0.0017239830240645126
+  },
+  "draws_per_fixture": 320,
+  "fixtures": 144,
+  "keeper_metrics": {
+    "baseline": {
+      "actual_p3": 0.5441176470588235,
+      "mean_actual_points": 0.6235294117647059,
+      "mean_actual_saves": 2.8794117647058823,
+      "mean_pred_points": 0.580122687022696,
+      "mean_pred_saves": 2.740858642087101,
+      "p3": 0.5096794701381067,
+      "point_bias": -0.04340672474201,
+      "point_mae": 0.5828704273069791,
+      "point_rmse": 0.6750345164550557,
+      "save_bias": -0.13855312261878142,
+      "save_mae": 1.4835457612882135,
+      "save_nll": 2.0358162925988617,
+      "save_rmse": 1.9207080675682204
+    },
+    "candidate": {
+      "actual_p3": 0.5441176470588235,
+      "mean_actual_points": 0.6235294117647059,
+      "mean_actual_saves": 2.8794117647058823,
+      "mean_pred_points": 0.5758818979281422,
+      "mean_pred_saves": 2.7279021601632105,
+      "p3": 0.5064889663572427,
+      "point_bias": -0.04764751383656375,
+      "point_mae": 0.5827128969394535,
+      "point_rmse": 0.6750672573074631,
+      "save_bias": -0.15150960454267176,
+      "save_mae": 1.4801907782731416,
+      "save_nll": 2.0374964871455385,
+      "save_rmse": 1.9220213790087795
+    }
+  },
+  "nonbonus": {
+    "final_dc": {
+      "bias": 0.03165513184670171,
+      "mae": 0.8235000317958282,
+      "rmse": 1.5777340641053477
+    },
+    "final_dc_plus_dynamic_gk": {
+      "bias": 0.03224944887230795,
+      "mae": 0.8218039893166017,
+      "rmse": 1.5760100810812832
+    }
+  },
+  "promoted": false,
+  "rows": 11794,
+  "selected": {
+    "family": "sot_form",
+    "fast_h": 3.0,
+    "l2": 50.0
+  }
+}
