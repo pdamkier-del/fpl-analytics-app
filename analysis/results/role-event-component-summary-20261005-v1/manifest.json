@@ -1,0 +1,31 @@
+{
+  "rows": 11794,
+  "fixtures": 144,
+  "draws_per_arm": 80,
+  "classification": "posthoc_reused_diagnostic_not_new_holdout",
+  "component_targets": "Core reconstructed point components; not official component ledger",
+  "official_flags": [
+    0
+  ],
+  "component_sum_mismatches": 0,
+  "limitations": [
+    "1200-draw confirmation retains totals only; these component estimates use 80 draws",
+    "Bonus uses inherited wrong-season BPS and is not season-valid",
+    "Penalty saves/misses are not represented by the simulator component mapping",
+    "MAEs across different point scales and cohorts are not comparable"
+  ],
+  "sources": [
+    {
+      "path": "analysis/results/role-event-priors-20261005-v1/manifest.json",
+      "sha256": "8305d4c8069db279ebe1256899b13d1b7e7296ef37e3a4aa10dd7e88e544f270"
+    },
+    {
+      "path": "work/core.sqlite3",
+      "sha256": "a4742428fb0c9943ff3ee565f765eb98d733a1690180c566d6df794786ef409f"
+    },
+    {
+      "path": "scripts/summarize_role_simulation.py",
+      "sha256": "a811262f47ec527c45386a2e4137cd3ee9cf8dc01048ffcd3efc3c40287a43bf"
+    }
+  ]
+}
