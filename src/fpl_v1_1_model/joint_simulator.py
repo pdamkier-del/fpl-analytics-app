@@ -38,6 +38,7 @@ class PlayerSimInput:
     bps_background_sd: float=0.0
     is_keeper: bool=False
     lambda_saves: float=0.0
+    save_bucket_tilts: tuple[float,float,float,float,float]|None=None
 
 @dataclass(frozen=True)
 class MatchSimInput:
@@ -73,6 +74,27 @@ def _sample_nb2(rng:Any,mu:float,alpha:float)->int:
     if alpha<=1e-12:return int(rng.poisson(mu))
     shape=1.0/alpha; scale=mu*alpha
     return int(rng.poisson(rng.gamma(shape,scale)))
+
+def _sample_calibrated_saves(rng:Any,lam:float,tilts:tuple[float,float,float,float,float]|None)->int:
+    lam=max(0.0,float(lam))
+    if tilts is None or lam<=0:
+        return int(rng.poisson(lam))
+    if len(tilts)!=5:
+        raise ValueError("save_bucket_tilts must have five entries")
+    # Reweight the Poisson count distribution by FPL save-point buckets
+    # (0-2, 3-5, 6-8, 9-11, 12+ saves). Conditional shape within each
+    # bucket remains the original Poisson shape.
+    probs=[];p=exp(-lam);probs.append(p)
+    for n in range(1,61):
+        p*=lam/n;probs.append(p)
+    arr=np.asarray(probs,dtype=float)
+    idx=np.minimum(np.arange(len(arr))//3,4)
+    arr*=np.exp(np.asarray(tilts,dtype=float)[idx])
+    s=float(arr.sum())
+    if s<=0 or not np.isfinite(s):
+        return int(rng.poisson(lam))
+    arr/=s
+    return int(rng.choice(len(arr),p=arr))
 
 def simulate_match(inp:MatchSimInput,rng:Any)->dict[str,PlayerSimResult]:
     if inp.lambda_home_goals<0 or inp.lambda_away_goals<0: raise ValueError("goal means must be non-negative")
@@ -110,7 +132,7 @@ def simulate_match(inp:MatchSimInput,rng:Any)->dict[str,PlayerSimResult]:
         r=out[p.player_id]; m=r.minutes
         if m<=0: continue
         if p.is_keeper:
-            r.saves=int(rng.poisson(max(0.0,p.lambda_saves)*m/90.0))
+            r.saves=_sample_calibrated_saves(rng,max(0.0,p.lambda_saves)*m/90.0,p.save_bucket_tilts)
         r.dc_count=_sample_nb2(rng,max(0.0,p.dc_mu_90)*m/90.0,p.dc_alpha)
         r.dc_points=dc_points_from_count(p.position,r.dc_count)
         card=sample_discipline(rng,p.discipline)
