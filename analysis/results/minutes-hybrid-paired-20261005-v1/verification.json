@@ -1,0 +1,26 @@
+{
+  "passed": true,
+  "checks": 43,
+  "original_control_predictions_identical": true,
+  "current_v4": {
+    "bias": 0.0445427759877904,
+    "mae": 0.8317438952009496,
+    "n": 11794,
+    "rmse": 1.5857671287742299
+  },
+  "experimental_hybrid": {
+    "bias": 0.04270921655078854,
+    "mae": 0.8348132525012719,
+    "n": 11794,
+    "rmse": 1.5913092392962238
+  },
+  "hybrid_minus_current_v4": {
+    "mae": 0.0030693573003223174,
+    "rmse": 0.005542110521993937,
+    "bias": -0.0018335594370018568
+  },
+  "decision": "retain current v4; hybrid gives no demonstrated downstream improvement at inherited 80-draw budget",
+  "model_promoted": false,
+  "classification": "reused_diagnostic_not_new_holdout",
+  "caveat": "Small stochastic differences do not establish statistical inferiority; confirm on development and independent data before promotion"
+}
