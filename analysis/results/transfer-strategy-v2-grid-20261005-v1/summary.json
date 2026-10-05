@@ -1,0 +1,258 @@
+{
+  "best": {
+    "hit_buffer": 1.5,
+    "hit_points": 68,
+    "hit_points_gw1_21": 36,
+    "hit_points_gw22_38": 32,
+    "label": "6gw_decay_buffer_1.5",
+    "no_transfer_control": 1425,
+    "points_gw1_21": 1160,
+    "points_gw22_38": 977,
+    "policy": "6gw_decay",
+    "rank_total": 1.0,
+    "total_points": 2137,
+    "transfers": 54,
+    "transfers_gw1_21": 29,
+    "transfers_gw22_38": 25,
+    "uplift": 712,
+    "weights": [
+      1.0,
+      0.85,
+      0.7,
+      0.55,
+      0.4,
+      0.25
+    ]
+  },
+  "caveat": "Recovered rolling Phase5Q forecasts are used as strategy proxy. Repeat identical TS v2 grid on cutoff-safe vFinal rolling forecasts when available.",
+  "chips": "OFF",
+  "classification": "TS v2 lineup-aware 9-way strategy proxy; chips off; point model locked",
+  "hit_buffers": [
+    1.0,
+    1.5,
+    2.0
+  ],
+  "point_model": "LOCKED; no vFinal component refit",
+  "policies": {
+    "3gw_080_060": [
+      1.0,
+      0.8,
+      0.6
+    ],
+    "3gw_085_070": [
+      1.0,
+      0.85,
+      0.7
+    ],
+    "6gw_decay": [
+      1.0,
+      0.85,
+      0.7,
+      0.55,
+      0.4,
+      0.25
+    ]
+  },
+  "results": [
+    {
+      "hit_buffer": 1.0,
+      "hit_points": 64,
+      "hit_points_gw1_21": 36,
+      "hit_points_gw22_38": 28,
+      "label": "3gw_085_070_buffer_1.0",
+      "no_transfer_control": 1425,
+      "points_gw1_21": 1161,
+      "points_gw22_38": 900,
+      "policy": "3gw_085_070",
+      "total_points": 2061,
+      "transfers": 53,
+      "transfers_gw1_21": 29,
+      "transfers_gw22_38": 24,
+      "uplift": 636,
+      "weights": [
+        1.0,
+        0.85,
+        0.7
+      ]
+    },
+    {
+      "hit_buffer": 1.5,
+      "hit_points": 48,
+      "hit_points_gw1_21": 20,
+      "hit_points_gw22_38": 28,
+      "label": "3gw_085_070_buffer_1.5",
+      "no_transfer_control": 1425,
+      "points_gw1_21": 1151,
+      "points_gw22_38": 891,
+      "policy": "3gw_085_070",
+      "total_points": 2042,
+      "transfers": 49,
+      "transfers_gw1_21": 25,
+      "transfers_gw22_38": 24,
+      "uplift": 617,
+      "weights": [
+        1.0,
+        0.85,
+        0.7
+      ]
+    },
+    {
+      "hit_buffer": 2.0,
+      "hit_points": 36,
+      "hit_points_gw1_21": 20,
+      "hit_points_gw22_38": 16,
+      "label": "3gw_085_070_buffer_2.0",
+      "no_transfer_control": 1425,
+      "points_gw1_21": 1151,
+      "points_gw22_38": 915,
+      "policy": "3gw_085_070",
+      "total_points": 2066,
+      "transfers": 46,
+      "transfers_gw1_21": 25,
+      "transfers_gw22_38": 21,
+      "uplift": 641,
+      "weights": [
+        1.0,
+        0.85,
+        0.7
+      ]
+    },
+    {
+      "hit_buffer": 1.0,
+      "hit_points": 40,
+      "hit_points_gw1_21": 20,
+      "hit_points_gw22_38": 20,
+      "label": "3gw_080_060_buffer_1.0",
+      "no_transfer_control": 1425,
+      "points_gw1_21": 1151,
+      "points_gw22_38": 905,
+      "policy": "3gw_080_060",
+      "total_points": 2056,
+      "transfers": 47,
+      "transfers_gw1_21": 25,
+      "transfers_gw22_38": 22,
+      "uplift": 631,
+      "weights": [
+        1.0,
+        0.8,
+        0.6
+      ]
+    },
+    {
+      "hit_buffer": 1.5,
+      "hit_points": 32,
+      "hit_points_gw1_21": 20,
+      "hit_points_gw22_38": 12,
+      "label": "3gw_080_060_buffer_1.5",
+      "no_transfer_control": 1425,
+      "points_gw1_21": 1151,
+      "points_gw22_38": 936,
+      "policy": "3gw_080_060",
+      "total_points": 2087,
+      "transfers": 45,
+      "transfers_gw1_21": 25,
+      "transfers_gw22_38": 20,
+      "uplift": 662,
+      "weights": [
+        1.0,
+        0.8,
+        0.6
+      ]
+    },
+    {
+      "hit_buffer": 2.0,
+      "hit_points": 24,
+      "hit_points_gw1_21": 16,
+      "hit_points_gw22_38": 8,
+      "label": "3gw_080_060_buffer_2.0",
+      "no_transfer_control": 1425,
+      "points_gw1_21": 1142,
+      "points_gw22_38": 855,
+      "policy": "3gw_080_060",
+      "total_points": 1997,
+      "transfers": 43,
+      "transfers_gw1_21": 24,
+      "transfers_gw22_38": 19,
+      "uplift": 572,
+      "weights": [
+        1.0,
+        0.8,
+        0.6
+      ]
+    },
+    {
+      "hit_buffer": 1.0,
+      "hit_points": 60,
+      "hit_points_gw1_21": 40,
+      "hit_points_gw22_38": 20,
+      "label": "6gw_decay_buffer_1.0",
+      "no_transfer_control": 1425,
+      "points_gw1_21": 1149,
+      "points_gw22_38": 941,
+      "policy": "6gw_decay",
+      "total_points": 2090,
+      "transfers": 52,
+      "transfers_gw1_21": 30,
+      "transfers_gw22_38": 22,
+      "uplift": 665,
+      "weights": [
+        1.0,
+        0.85,
+        0.7,
+        0.55,
+        0.4,
+        0.25
+      ]
+    },
+    {
+      "hit_buffer": 1.5,
+      "hit_points": 68,
+      "hit_points_gw1_21": 36,
+      "hit_points_gw22_38": 32,
+      "label": "6gw_decay_buffer_1.5",
+      "no_transfer_control": 1425,
+      "points_gw1_21": 1160,
+      "points_gw22_38": 977,
+      "policy": "6gw_decay",
+      "total_points": 2137,
+      "transfers": 54,
+      "transfers_gw1_21": 29,
+      "transfers_gw22_38": 25,
+      "uplift": 712,
+      "weights": [
+        1.0,
+        0.85,
+        0.7,
+        0.55,
+        0.4,
+        0.25
+      ]
+    },
+    {
+      "hit_buffer": 2.0,
+      "hit_points": 52,
+      "hit_points_gw1_21": 36,
+      "hit_points_gw22_38": 16,
+      "label": "6gw_decay_buffer_2.0",
+      "no_transfer_control": 1425,
+      "points_gw1_21": 1160,
+      "points_gw22_38": 965,
+      "policy": "6gw_decay",
+      "total_points": 2125,
+      "transfers": 50,
+      "transfers_gw1_21": 29,
+      "transfers_gw22_38": 21,
+      "uplift": 700,
+      "weights": [
+        1.0,
+        0.85,
+        0.7,
+        0.55,
+        0.4,
+        0.25
+      ]
+    }
+  ],
+  "saved_ft_value": 2.16,
+  "transfer_objective": "weighted projected manager score over horizon with legal XI + captain chosen separately each GW"
+}
