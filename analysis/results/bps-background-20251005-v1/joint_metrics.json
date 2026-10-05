@@ -1,0 +1,72 @@
+{
+  "bonus": {
+    "event": {
+      "actual_any": 0.039002882821773784,
+      "brier": 0.07257048012118582,
+      "expected_bonus_mae": 0.14514551383843186,
+      "expected_bonus_rmse": 0.40509298290257206,
+      "log_loss": 0.1954272464475405,
+      "mean_actual_bonus": 0.07792097676784805,
+      "mean_pred_bonus": 0.09208072211267039,
+      "p_any": 0.04758156189243825
+    },
+    "role": {
+      "actual_any": 0.039002882821773784,
+      "brier": 0.0720872086106652,
+      "expected_bonus_mae": 0.13890994438901885,
+      "expected_bonus_rmse": 0.40375436797488884,
+      "log_loss": 0.19838555991227802,
+      "mean_actual_bonus": 0.07792097676784805,
+      "mean_pred_bonus": 0.08328974639467036,
+      "p_any": 0.04100161912234688
+    },
+    "selected": {
+      "actual_any": 0.039002882821773784,
+      "brier": 0.07180237568428359,
+      "expected_bonus_mae": 0.1360424499154032,
+      "expected_bonus_rmse": 0.40252899871510767,
+      "log_loss": 0.19720825924186575,
+      "mean_actual_bonus": 0.07792097676784805,
+      "mean_pred_bonus": 0.08050704079935005,
+      "p_any": 0.03992675710228975
+    }
+  },
+  "classification": "reused_diagnostic_not_independent_holdout",
+  "delta_selected_vs_event_bonus": {
+    "brier": -0.0007681044369022283,
+    "expected_bonus_mae": -0.009103063923028648,
+    "expected_bonus_rmse": -0.0025639841874643965,
+    "log_loss": 0.001781012794325243
+  },
+  "delta_selected_vs_event_xpts": {
+    "bias": -0.011573681532982879,
+    "mae": -0.005508015809864264,
+    "rmse": 0.00025253687287718485
+  },
+  "draws_per_fixture": 260,
+  "fixtures": 144,
+  "promoted": false,
+  "rows": 11794,
+  "selected_background": {
+    "family": "role_recent_detail",
+    "half": 3.0,
+    "l2": 200.0
+  },
+  "total_xpts": {
+    "event": {
+      "bias": 0.037178943661053204,
+      "mae": 0.9279030406595271,
+      "rmse": 1.8465649696943074
+    },
+    "role": {
+      "bias": 0.028387967806316115,
+      "mae": 0.9237858885221951,
+      "rmse": 1.8477799465901201
+    },
+    "selected": {
+      "bias": 0.025605262128070325,
+      "mae": 0.9223950248496628,
+      "rmse": 1.8468175065671846
+    }
+  }
+}
