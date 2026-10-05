@@ -36,6 +36,8 @@ class PlayerSimInput:
     p_own_goal: float=0.0
     bps_background_mean: float=0.0
     bps_background_sd: float=0.0
+    bps_background_rate90: float|None=None
+    bps_background_sd90: float|None=None
     is_keeper: bool=False
     lambda_saves: float=0.0
     save_bucket_tilts: tuple[float,float,float,float,float]|None=None
@@ -207,7 +209,13 @@ def simulate_match(inp:MatchSimInput,rng:Any)->dict[str,PlayerSimResult]:
             known=bps_2026_27(comp)
         else:
             raise ValueError("unknown BPS rules season")
-        bg=float(rng.normal(p.bps_background_mean,p.bps_background_sd)) if p.bps_background_sd>0 else p.bps_background_mean
+        if p.bps_background_rate90 is not None:
+            frac=max(0.0,min(1.0,m/90.0))
+            mean_bg=float(p.bps_background_rate90)*frac
+            sd90=float(p.bps_background_sd90 or 0.0)
+            bg=float(rng.normal(mean_bg,sd90*np.sqrt(frac))) if sd90>0 else mean_bg
+        else:
+            bg=float(rng.normal(p.bps_background_mean,p.bps_background_sd)) if p.bps_background_sd>0 else p.bps_background_mean
         r.bps=int(round(known+bg)); bps[p.player_id]=r.bps
     bonus=allocate_bonus_points(bps)
     for pid,b in bonus.items():
