@@ -1,0 +1,28 @@
+{
+  "components": {
+    "p_start": "v4 + last-match performance residual, l2=0.5",
+    "p_sub_given_nonstart": "sequence binary C=4, 75% logit blend with v4",
+    "start_duration": "frozen v4",
+    "sub_duration": "blend(frozen v4, sequence Ridge)"
+  },
+  "development_selection": "GW16-21; already reused by earlier exploratory steps",
+  "development_train": "GW6-15",
+  "final_train": "GW6-21",
+  "name": "combined v4 minute candidate",
+  "promotion_allowed": false,
+  "reason": "sequential development tuning; independent season/test required",
+  "reused_diagnostic": "GW22-38; not independent",
+  "selection": "lowest development xMins RMSE; ties within 0.01 prefer lower blend, then lower MAE",
+  "sub_duration_blend_grid": [
+    0.0,
+    0.25,
+    0.5,
+    0.75,
+    1.0
+  ],
+  "sub_duration_ridge_grid": [
+    5.0,
+    20.0,
+    80.0
+  ]
+}

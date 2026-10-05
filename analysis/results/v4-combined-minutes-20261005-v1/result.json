@@ -1,0 +1,101 @@
+{
+  "classification": "combined exploratory minute candidate; sequentially tuned, reused diagnostic only",
+  "development_selection": {
+    "selected_development_metrics": {
+      "start_brier": 0.07533297286634286,
+      "start_log_loss": 0.246858070191714,
+      "state_brier": 0.23505916312151204,
+      "state_log_loss": 0.4535426216202897,
+      "sub_brier_given_nonstart": 0.0815917256255603,
+      "xmins_bias": -0.026123916113398402,
+      "xmins_mae": 11.395086272574888,
+      "xmins_rmse": 21.67070219157977
+    },
+    "selected_ridge_alpha": 80.0,
+    "selected_sub_blend": 0.5,
+    "v4": {
+      "actual_q_sub_given_nonstart": 0.1382089552238806,
+      "mean_q_sub_given_nonstart": 0.1387048235973839,
+      "n": 4670,
+      "start_brier": 0.07557819806325111,
+      "start_log_loss": 0.24717396245870218,
+      "state_brier": 0.24109665496027025,
+      "state_log_loss": 0.6200663221278653,
+      "sub_brier_given_nonstart": 0.08885467904541451,
+      "xmins_bias": -0.061154361801787745,
+      "xmins_mae": 11.413827732606778,
+      "xmins_rmse": 21.73481003416388
+    }
+  },
+  "next_requirement": "independent season/time-split validation before freezing/promoting",
+  "performance_proxy_rows": 13002,
+  "promoted": false,
+  "reused_diagnostic": {
+    "combined": {
+      "actual_q_sub_given_nonstart": 0.1343807943788426,
+      "mean_q_sub_given_nonstart": 0.1227128190329075,
+      "n": 13987,
+      "start_brier": 0.07469990263343729,
+      "start_log_loss": 0.24313579376527872,
+      "state_brier": 0.2325500018982222,
+      "state_log_loss": 0.43771110501508187,
+      "sub_brier_given_nonstart": 0.07893418263503087,
+      "xmins_bias": -0.22245894403247765,
+      "xmins_mae": 11.444300978642703,
+      "xmins_rmse": 21.465867777192223
+    },
+    "delta_combined_minus_v4": {
+      "start_brier": -0.00036280296520017907,
+      "start_log_loss": -0.0012448004805482304,
+      "state_brier": -0.006481741498604643,
+      "state_log_loss": -0.1333384310101055,
+      "sub_brier_given_nonstart": -0.00740488858751609,
+      "xmins_bias": -0.03151530893061305,
+      "xmins_mae": -0.029464293233194994,
+      "xmins_rmse": -0.11729530887322426
+    },
+    "performance_only": {
+      "actual_q_sub_given_nonstart": 0.1343807943788426,
+      "mean_q_sub_given_nonstart": 0.13095444106842496,
+      "n": 13987,
+      "start_brier": 0.07469990263343729,
+      "start_log_loss": 0.24313579376527872,
+      "state_brier": 0.23848253429678154,
+      "state_log_loss": 0.5698047355446391,
+      "sub_brier_given_nonstart": 0.08633907122254696,
+      "xmins_bias": -0.19785141555012645,
+      "xmins_mae": 11.388370610230597,
+      "xmins_rmse": 21.53780311158646
+    },
+    "performance_plus_sequence_state": {
+      "actual_q_sub_given_nonstart": 0.1343807943788426,
+      "mean_q_sub_given_nonstart": 0.1227128190329075,
+      "n": 13987,
+      "start_brier": 0.07469990263343729,
+      "start_log_loss": 0.24313579376527872,
+      "state_brier": 0.2325500018982222,
+      "state_log_loss": 0.43771110501508187,
+      "sub_brier_given_nonstart": 0.07893418263503087,
+      "xmins_bias": -0.26013961261107,
+      "xmins_mae": 11.406398590967013,
+      "xmins_rmse": 21.499720710601228
+    },
+    "v4": {
+      "actual_q_sub_given_nonstart": 0.1343807943788426,
+      "mean_q_sub_given_nonstart": 0.13095444106842496,
+      "n": 13987,
+      "start_brier": 0.07506270559863747,
+      "start_log_loss": 0.24438059424582695,
+      "state_brier": 0.23903174339682684,
+      "state_log_loss": 0.5710495360251874,
+      "sub_brier_given_nonstart": 0.08633907122254696,
+      "xmins_bias": -0.1909436351018646,
+      "xmins_mae": 11.473765271875898,
+      "xmins_rmse": 21.583163086065447
+    }
+  },
+  "selected_sub_duration": {
+    "blend": 0.5,
+    "ridge_alpha": 80.0
+  }
+}
