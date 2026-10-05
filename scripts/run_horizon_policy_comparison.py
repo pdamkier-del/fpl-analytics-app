@@ -155,11 +155,19 @@ def actual_gw(gws,gw):
 
 def complete_current_projection(origin,meta,gw):
     cur=origin[origin.gw==gw].copy()
-    cur=cur.merge(meta[['id','web_name','team','position','price_tenths']],on='id',how='right',suffixes=('','_m'))
-    cur['gw']=gw;cur['xpts_mean']=cur.xpts_mean.fillna(0.0)
-    cur['web_name']=cur.web_name.fillna(cur.web_name_m)
-    cur['team']=cur.team.fillna(cur.team_m)
-    cur['position']=cur.position.fillna(cur.position_m)
+    mm=meta[['id','web_name','team','position','price_tenths']].rename(columns={
+        'web_name':'meta_web_name','team':'meta_team','position':'meta_position','price_tenths':'meta_price_tenths'})
+    cur=cur.merge(mm,on='id',how='right')
+    cur['gw']=gw
+    if 'xpts_mean' not in cur: cur['xpts_mean']=0.0
+    cur['xpts_mean']=cur.xpts_mean.fillna(0.0)
+    if 'web_name' not in cur: cur['web_name']=cur.meta_web_name
+    else: cur['web_name']=cur.web_name.fillna(cur.meta_web_name)
+    if 'team' not in cur: cur['team']=cur.meta_team
+    else: cur['team']=cur.team.fillna(cur.meta_team)
+    if 'position' not in cur: cur['position']=cur.meta_position
+    else: cur['position']=cur.position.fillna(cur.meta_position)
+    cur['price_tenths']=cur.meta_price_tenths
     return cur
 
 
@@ -174,7 +182,11 @@ def run_policy(name,weights,gws,forecast,names):
         meta=known.copy()
         origin=forecast[forecast.origin_gw==gw-1].copy()
         current=complete_current_projection(origin,meta,gw)
-        origin=origin.merge(meta[['id','team','price_tenths']],on='id',how='left',suffixes=('','_m'))
+        mm=meta[['id','team','price_tenths']].rename(columns={'team':'meta_team','price_tenths':'meta_price_tenths'})
+        origin=origin.merge(mm,on='id',how='left')
+        if 'team' not in origin: origin['team']=origin.meta_team
+        else: origin['team']=origin.team.fillna(origin.meta_team)
+        origin['price_tenths']=origin.meta_price_tenths
         transfers=[];hit_cost=0
         if gw>1:
             transfers=legalize_team_limit(state,meta,origin,gw)
