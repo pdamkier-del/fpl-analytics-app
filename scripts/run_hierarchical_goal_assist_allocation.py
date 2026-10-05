@@ -104,8 +104,14 @@ def fit_allocator(df,event,base_rate_col,features,l2,train):
         return float(loss),grad
 
     res=minimize(lambda b:objective(b),np.zeros(len(features)),jac=True,method='L-BFGS-B',
-                 options={'maxiter':1000,'ftol':1e-12,'gtol':1e-9})
-    if not res.success: raise RuntimeError(res.message)
+                 bounds=[(-2.5,2.5)]*len(features),
+                 options={'maxiter':2000,'ftol':1e-10,'gtol':1e-7,'maxls':100})
+    if not res.success:
+        # Numerical line-search failures can occur on very sparse assist mass.
+        # The objective is smooth and convex enough for an unconstrained BFGS fallback.
+        res=minimize(lambda b:objective(b),np.zeros(len(features)),jac=True,method='BFGS',
+                     options={'maxiter':2000,'gtol':1e-6})
+    if not res.success: raise RuntimeError(str(res.message))
 
     corr=np.exp(np.clip(Z@res.x,-4,4))
     raw=base*corr
