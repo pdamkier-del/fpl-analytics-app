@@ -139,3 +139,34 @@ def test_execute_first_action_applies_only_current_move_and_ft_state():
     assert state.free_transfers == 2
     assert len(rows) == 1
     assert rows[0]["out_id"] == 8 and rows[0]["in_id"] == 16
+
+
+def test_fast_score_matches_reference_with_varying_play_probability():
+    import numpy as np
+    from fpl_xpts.transfer_planner import _build_fast_score_context, _fast_manager_score
+    rng = np.random.default_rng(20261005)
+    meta = _meta()
+    origin = _origin(gws=(20, 21, 22))
+    origin['xpts_mean'] = rng.uniform(-2, 15, len(origin))
+    origin['p_play'] = rng.uniform(0, 1, len(origin))
+    ctx = _build_fast_score_context(origin, meta, [20, 21, 22])
+    for gw in (20, 21, 22):
+        assert np.isclose(_fast_manager_score(ctx, range(1, 16), gw),
+                          projected_manager_score(origin, meta, range(1, 16), gw))
+
+
+def test_local_search_reaches_five_transfers_with_only_one_ft():
+    from fpl_xpts.transfer_planner import _fast_local_candidate_squads
+    meta = _meta()
+    extra = meta[meta.position == 'MID'].copy()
+    extra['id'] += 20
+    extra['team'] += 20
+    meta = pd.concat([meta, extra], ignore_index=True)
+    origin = _origin(gws=(20,))
+    new = origin[origin.id.between(8, 12)].copy()
+    new['id'] += 20
+    new['xpts_mean'] = 15.0
+    origin = pd.concat([origin, new], ignore_index=True)
+    candidates = _fast_local_candidate_squads(
+        _state(ft=1), meta, origin, [20], [1.0], 5, 18, 60, 12)
+    assert {len(set(s) - set(range(1, 16))) for s in candidates} == set(range(6))

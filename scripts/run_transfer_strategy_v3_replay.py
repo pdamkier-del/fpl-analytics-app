@@ -11,8 +11,8 @@ planning, FT state and buffer 1.5.
 Primary configuration (broad fast-local search with cached exact lineup scoring):
 - 6GW weights (1.00,0.85,0.70,0.55,0.40,0.25)
 - hit uncertainty buffer 1.5
-- beam width 30
-- 2 MILP candidates per transfer count
+- beam width 20
+- 18 targets per position, local beam 60, 12 returned per depth
 - max 5 transfers per hypothetical GW
 - chips OFF
 
@@ -32,14 +32,14 @@ import run_transfer_strategy_v2_grid as tsv2
 
 from fpl_xpts.optimize import plan_squad
 from fpl_xpts.season_replay import (
-    actual_team_points, initial_squad, legalize_team_limit, valid_squad
+    OwnedPlayer, ReplayState, actual_team_points, initial_squad, legalize_team_limit, valid_squad
 )
 from fpl_xpts.transfer_planner import (
     PlannerConfig, execute_first_action, plan_transfer_path
 )
 from run_v4rc_experiment import write_json,sha
 
-OUT=ROOT/'analysis/results/transfer-strategy-v3-replay-20261005-v1'
+OUT=ROOT/'analysis/results/transfer-strategy-v3-replay-20261005-v2'
 WEIGHTS=(1.00,.85,.70,.55,.40,.25)
 BUFFER=1.5
 
@@ -72,8 +72,27 @@ def run_v3(gws,names,forecast):
                          candidates_per_transfer_count=1,candidate_limit_per_position=18,
                          top_targets_per_position=18,local_bundle_beam=60,candidate_return_per_depth=12,
                          max_transfers_per_week=5,candidate_backend='fast_local',milp_time_limit=2.0)
-    for gw in range(1,39):
-        t0=time.time()
+    checkpoint=OUT/'checkpoint.json'
+    fingerprint={p:sha(ROOT/p) for p in [
+        'src/fpl_xpts/transfer_planner.py', 'scripts/run_transfer_strategy_v3_replay.py',
+        'analysis/results/legacy-rolling-recovery-v1/manifest.json',
+        'analysis/results/legacy-season-technical-replay-v1/runtime_input_manifest.json']}
+    next_gw=1
+    if checkpoint.exists():
+        saved=json.loads(checkpoint.read_text())
+        if saved['fingerprint'] != fingerprint:
+            raise RuntimeError('Checkpoint code/input mismatch; use a new output directory')
+        state=ReplayState({int(pid):OwnedPlayer(int(pid),int(price))
+                           for pid,price in saved['purchases'].items()},
+                          saved['bank'],saved['free_transfers'])
+        initial=saved['initial'];total=saved['total'];control=saved['control']
+        logs=saved['logs'];plans=saved['plans'];next_gw=saved['next_gw']
+        # Reconstruct the exact metadata history from observations already seen.
+        for seen_gw in range(2,next_gw):
+            obs=hp.gw_meta(gws,names,seen_gw)
+            known=pd.concat([known[~known.id.isin(obs.id)],obs],ignore_index=True).drop_duplicates('id',keep='last')
+    for gw in range(next_gw,39):
+        t0=time.perf_counter()
         obs=hp.gw_meta(gws,names,gw)
         known=pd.concat([known[~known.id.isin(obs.id)],obs],ignore_index=True).drop_duplicates('id',keep='last')
         meta=known.copy()
@@ -108,7 +127,7 @@ def run_v3(gws,names,forecast):
             transfers=len(transfers)+len(forced),forced_transfers=len(forced),
             hit_cost=hit_cost,bank=state.bank/10,free_transfers_after=state.free_transfers,
             planner_objective=result.objective,
-            runtime_seconds=time.time()-t0,
+            runtime_seconds=time.perf_counter()-t0,
         ))
         for step,a in enumerate(result.path,1):
             plans.append(dict(
@@ -123,6 +142,13 @@ def run_v3(gws,names,forecast):
                 bank_before=a.bank_before/10,bank_after=a.bank_after/10,
                 is_executed=(step==1),
             ))
+        saved=dict(fingerprint=fingerprint,next_gw=gw+1,
+                   purchases={str(pid):int(op.purchase_price) for pid,op in state.squad.items()},
+                   bank=int(state.bank),free_transfers=int(state.free_transfers),
+                   initial=initial,total=int(total),control=int(control),logs=logs,plans=plans)
+        tmp=checkpoint.with_suffix('.tmp');write_json(tmp,saved);tmp.replace(checkpoint)
+        pd.DataFrame(logs).to_csv(OUT/'tsv3_gameweek_log.csv',index=False)
+        pd.DataFrame(plans).to_csv(OUT/'tsv3_plans.csv',index=False)
         print(f'GW{gw}: {score} pts, cum {total}, transfers {len(transfers)+len(forced)}, FT {state.free_transfers}',flush=True)
     return dict(
         total_points=int(total),
@@ -130,6 +156,7 @@ def run_v3(gws,names,forecast):
         hit_points=int(sum(x['hit_cost'] for x in logs)),
         no_transfer_control=int(control),
         uplift=int(total-control),
+        runtime_seconds=sum(x['runtime_seconds'] for x in logs),
         logs=logs,plans=plans,
     )
 
@@ -140,22 +167,25 @@ def run_v2(gws,names,forecast):
 
 
 def main():
-    if OUT.exists(): raise FileExistsError(OUT)
-    OUT.mkdir(parents=True)
+    if (OUT/'summary.json').exists():
+        print((OUT/'summary.json').read_text());return
+    OUT.mkdir(parents=True,exist_ok=True)
     gws,names,forecast=prepare()
 
     v3=run_v3(gws,names,forecast)
     pd.DataFrame(v3.pop('logs')).to_csv(OUT/'tsv3_gameweek_log.csv',index=False)
     pd.DataFrame(v3.pop('plans')).to_csv(OUT/'tsv3_plans.csv',index=False)
 
+    v2_start=time.perf_counter()
     v2=run_v2(gws,names,forecast)
+    v2['runtime_seconds']=time.perf_counter()-v2_start
     pd.DataFrame(v2.pop('logs')).to_csv(OUT/'tsv2_gameweek_log.csv',index=False)
 
     comparison=pd.DataFrame([
         dict(strategy='TS v2 static 6GW',total_points=v2['total_points'],transfers=v2['transfers'],
-             hit_points=v2['hit_points'],uplift=v2['uplift']),
+             hit_points=v2['hit_points'],uplift=v2['uplift'],runtime_seconds=v2['runtime_seconds']),
         dict(strategy='TS v3 rolling 6GW',total_points=v3['total_points'],transfers=v3['transfers'],
-             hit_points=v3['hit_points'],uplift=v3['uplift']),
+             hit_points=v3['hit_points'],uplift=v3['uplift'],runtime_seconds=v3['runtime_seconds']),
     ])
     comparison.to_csv(OUT/'comparison.csv',index=False)
 

@@ -202,6 +202,20 @@ def _weighted_player_values(
     return frame.groupby("id")["weighted"].sum()
 
 
+def _prepare_local_candidates(meta, origin, gws, weights, top_targets):
+    """Immutable deadline inputs shared by all nodes at the same path depth."""
+    by_id = meta.drop_duplicates("id").set_index("id")
+    values = _weighted_player_values(origin, gws, weights)
+    targets = {}
+    for position in POSITION_COUNTS:
+        ids = by_id[by_id.position.eq(position)].index.astype(int)
+        ranked = values.reindex(ids).fillna(0.0).sort_values(ascending=False)
+        targets[position] = [int(x) for x in ranked.head(int(top_targets)).index]
+    rows = {int(pid): (str(r.position), r.team, int(r.price_tenths))
+            for pid, r in by_id.iterrows()}
+    return rows, values.to_dict(), targets
+
+
 def _fast_local_candidate_squads(
     state: ReplayState,
     meta: pd.DataFrame,
@@ -212,6 +226,7 @@ def _fast_local_candidate_squads(
     top_targets_per_position: int,
     local_bundle_beam: int,
     candidate_return_per_depth: int,
+    prepared: tuple | None = None,
 ) -> list[set[int]]:
     """Generate strong legal transfer bundles without solving a MILP.
 
@@ -221,16 +236,10 @@ def _fast_local_candidate_squads(
     Final path evaluation is still lineup-aware (XI + captain) in the outer
     planner, so this heuristic is only used to propose plausible squads.
     """
-    by_id = meta.drop_duplicates("id").set_index("id")
-    values = _weighted_player_values(origin, gws, weights)
+    if prepared is None:
+        prepared = _prepare_local_candidates(meta, origin, gws, weights, top_targets_per_position)
+    rows, values, target_pool = prepared
     owned0 = set(map(int, state.squad))
-
-    # Small target pool per position, plus all currently owned players.
-    target_pool: dict[str, list[int]] = {}
-    for position in POSITION_COUNTS:
-        ids = by_id[by_id.position.eq(position)].index.astype(int)
-        ranked = values.reindex(ids).fillna(0.0).sort_values(ascending=False)
-        target_pool[position] = [int(x) for x in ranked.head(int(top_targets_per_position)).index]
 
     # tuple: (rank_gain, squad_set, bank, purchase_prices, moves)
     purchase0 = {int(pid): int(op.purchase_price) for pid, op in state.squad.items()}
@@ -241,25 +250,25 @@ def _fast_local_candidate_squads(
         next_frontier = []
         seen = {}
         for rank_gain, squad, bank, purchases, _moves in frontier:
-            team_counts = by_id.loc[list(squad), "team"].value_counts().to_dict()
+            team_counts = {}
+            for pid in squad:
+                team = rows[pid][1]
+                team_counts[team] = team_counts.get(team, 0) + 1
             # Prefer replacing low weighted-value players first.
             outs = sorted(
                 squad,
                 key=lambda pid: float(values.get(int(pid), 0.0))
             )
             for out_id in outs:
-                out_row = by_id.loc[out_id]
-                position = str(out_row.position)
-                current_price = int(out_row.price_tenths)
+                position, out_team, current_price = rows[out_id]
                 sale = selling_price(int(purchases[out_id]), current_price)
                 for in_id in target_pool.get(position, []):
                     if in_id in squad:
                         continue
-                    in_row = by_id.loc[in_id]
-                    buy = int(in_row.price_tenths)
+                    _, in_team, buy = rows[in_id]
                     if buy > sale + bank:
                         continue
-                    if in_row.team != out_row.team and team_counts.get(in_row.team, 0) >= 3:
+                    if in_team != out_team and team_counts.get(in_team, 0) >= 3:
                         continue
 
                     new_squad = set(squad)
@@ -414,6 +423,7 @@ def _apply_selected_squad(
     state: ReplayState,
     selected: set[int],
     meta: pd.DataFrame,
+    prices: dict[int, int] | None = None,
 ) -> tuple[ReplayState, tuple[int, ...], tuple[int, ...]]:
     next_state = clone_state(state)
     owned = set(map(int, state.squad))
@@ -422,12 +432,13 @@ def _apply_selected_squad(
     if len(outgoing) != len(incoming):
         raise RuntimeError("planner transfer bundle is not balanced")
 
-    by_id = meta.drop_duplicates("id").set_index("id")
+    if prices is None:
+        prices = meta.drop_duplicates("id").set_index("id").price_tenths.astype(int).to_dict()
     sale_value = sum(
-        selling_price(state.squad[pid].purchase_price, int(by_id.loc[pid, "price_tenths"]))
+        selling_price(state.squad[pid].purchase_price, prices[pid])
         for pid in outgoing
     )
-    buy_cost = sum(int(by_id.loc[pid, "price_tenths"]) for pid in incoming)
+    buy_cost = sum(prices[pid] for pid in incoming)
     next_state.bank = int(state.bank + sale_value - buy_cost)
     if next_state.bank < 0:
         raise RuntimeError("planner produced unaffordable transfer bundle")
@@ -435,7 +446,7 @@ def _apply_selected_squad(
     for pid in outgoing:
         next_state.squad.pop(pid)
     for pid in incoming:
-        next_state.squad[pid] = OwnedPlayer(pid, int(by_id.loc[pid, "price_tenths"]))
+        next_state.squad[pid] = OwnedPlayer(pid, prices[pid])
     return next_state, outgoing, incoming
 
 
@@ -554,11 +565,16 @@ def plan_transfer_path(
             score_cache[key] = _fast_manager_score(score_ctx, key[1], int(gw))
         return score_cache[key]
 
+    prices = meta.drop_duplicates("id").set_index("id").price_tenths.astype(int).to_dict()
     beam = [PlannerNode(clone_state(state), 0.0, [], 0.0)]
 
     for depth, gw in enumerate(horizon_gws):
         weight = float(weights[depth])
         expanded: list[PlannerNode] = []
+        prepared = _prepare_local_candidates(
+            meta, origin, horizon_gws[depth:], weights[depth:], config.top_targets_per_position
+        ) if config.candidate_backend == "fast_local" else None
+        candidate_cache = {}
 
         for node in beam:
             ft_before = int(node.state.free_transfers)
@@ -572,12 +588,17 @@ def plan_transfer_path(
             # there is no hard FT+1 pruning.
             search_count = max_count
             if str(config.candidate_backend) == "fast_local":
-                candidate_squads.extend(_fast_local_candidate_squads(
-                    node.state, meta, origin, remaining_gws, remaining_weights,
-                    search_count, int(config.top_targets_per_position),
-                    int(config.local_bundle_beam),
-                    int(config.candidate_return_per_depth),
-                ))
+                # FT changes penalties, not the feasible bundles. Reuse generation
+                # for identical squad, purchase prices and bank at this depth.
+                candidate_key = _state_key(node.state)[:2]
+                if candidate_key not in candidate_cache:
+                    candidate_cache[candidate_key] = _fast_local_candidate_squads(
+                        node.state, meta, origin, remaining_gws, remaining_weights,
+                        search_count, int(config.top_targets_per_position),
+                        int(config.local_bundle_beam),
+                        int(config.candidate_return_per_depth), prepared,
+                    )
+                candidate_squads.extend(candidate_cache[candidate_key])
             else:
                 candidate_counts = sorted({
                     1,
@@ -599,7 +620,7 @@ def plan_transfer_path(
                     continue
                 seen_squads.add(squad_key)
 
-                after, outgoing, incoming = _apply_selected_squad(node.state, selected, meta)
+                after, outgoing, incoming = _apply_selected_squad(node.state, selected, meta, prices)
                 transfers = len(incoming)
                 official_hit, uncertainty = transfer_penalties(
                     ft_before, transfers, config.hit_uncertainty_buffer
