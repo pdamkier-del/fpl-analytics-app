@@ -1,0 +1,42 @@
+{
+  "classification": "reused_diagnostic_not_independent_holdout",
+  "delta": {
+    "bias": -0.01324905672375784,
+    "mae": -0.006559214431066662,
+    "rmse": -0.0026207019903303763
+  },
+  "development_metrics": [
+    {
+      "brier": 0.0388942656130783,
+      "candidate": "none",
+      "log_loss": 0.11956892481273654
+    },
+    {
+      "brier": 0.03782339235015216,
+      "candidate": "global",
+      "log_loss": 0.1154659637341424
+    },
+    {
+      "brier": 0.03798511715233687,
+      "candidate": "position",
+      "log_loss": 0.11570379889516952
+    }
+  ],
+  "draws_per_fixture": 320,
+  "fixtures": 144,
+  "nonbonus": {
+    "final_dc": {
+      "bias": 0.031711304476852636,
+      "mae": 0.8225175406986603,
+      "rmse": 1.575326300065994
+    },
+    "role_baseline": {
+      "bias": 0.04496036120061048,
+      "mae": 0.829076755129727,
+      "rmse": 1.5779470020563244
+    }
+  },
+  "promoted": false,
+  "rows": 11794,
+  "selected_calibration": "global"
+}
