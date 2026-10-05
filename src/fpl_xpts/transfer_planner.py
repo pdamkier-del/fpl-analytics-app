@@ -257,7 +257,7 @@ def _fast_local_candidate_squads(
                     buy = int(in_row.price_tenths)
                     if buy > sale + bank:
                         continue
-                    if int(in_row.team) != int(out_row.team) and team_counts.get(in_row.team, 0) >= 3:
+                    if in_row.team != out_row.team and team_counts.get(in_row.team, 0) >= 3:
                         continue
 
                     new_squad = set(squad)
