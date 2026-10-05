@@ -1,3 +1,21 @@
+# Latest checkpoint: combined exploratory minute candidate
+
+See `2026-10-05-combined-minutes-candidate.md`. The current best exploratory
+minute candidate combines v4 + last-match performance for P(start), a
+sequence-aware P(sub|not start), unchanged v4 starter duration, and a 50/50
+blend of v4 and sequence-aware substitute duration. On development GW16-21 it
+improves both xMins MAE (11.413828 -> 11.395086) and RMSE
+(21.734810 -> 21.670702). On the reused GW22-38 diagnostic it improves MAE
+11.473765 -> 11.444301 and RMSE 21.583163 -> 21.465868 while also improving
+start/state/sub probability metrics. This is saved, not promoted; independent
+season/time validation is still required.
+
+Next work moves to remaining xP components rather than continued broad minute
+tuning. Priority weaknesses from the existing component audit: keeper saves,
+DefCon calibration, negative-event penalties, and season-correct BPS/bonus.
+Goal/assist role priors improve conditional component error but did not improve
+joint point MAE; clean sheets and goals-conceded are aggregate-close.
+
 # Latest checkpoint: completed role-event simulation
 
 See `2026-10-05-role-event-integration.md`. Role event layer implemented and
