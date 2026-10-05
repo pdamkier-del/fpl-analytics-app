@@ -1,0 +1,39 @@
+{
+  "architecture": {
+    "conversion": "player conversion shrunk to league conversion",
+    "keeper_save": "single shared miss outcome; keeper save probability conditional on a miss",
+    "occurrence": "EB blend 50/50 team penalties awarded + opponent penalties conceded, shrunk to league",
+    "scored_penalty_goal_integration": "subtract expected scored-penalty mass from team goal lambda, then simulate explicit penalty score; never add on top",
+    "taker": "recency-weighted prior penalty attempts within team"
+  },
+  "classification": "reused_diagnostic_not_independent_holdout",
+  "delta": {
+    "bias": -0.006573469560793639,
+    "mae": -0.0029763015092417744,
+    "rmse": -0.0017649583933163626
+  },
+  "draws_per_fixture": 400,
+  "fixtures": 144,
+  "mean_penalty_miss_points": -0.0008127013735797864,
+  "mean_penalty_save_points": 0.0012622943869764287,
+  "nonbonus": {
+    "final_dc": {
+      "bias": 0.031103103272850607,
+      "mae": 0.822654315753773,
+      "rmse": 1.576298578620873
+    },
+    "final_dc_plus_shared_penalty": {
+      "bias": 0.024529633712056968,
+      "mae": 0.8196780142445312,
+      "rmse": 1.5745336202275566
+    }
+  },
+  "promoted": false,
+  "rows": 11794,
+  "selected": {
+    "conversion_tau": 20.0,
+    "occurrence_tau": 20.0,
+    "p_keeper_save_given_miss": 0.7333333333333333,
+    "taker_half_life": 6.0
+  }
+}
