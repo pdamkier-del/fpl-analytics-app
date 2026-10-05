@@ -351,7 +351,13 @@ def plan_transfer_path(
             remaining_gws = horizon_gws[depth:]
             remaining_weights = weights[depth:]
 
-            for transfer_count in range(1, min(int(config.max_transfers_per_week), 5) + 1):
+            max_count = min(int(config.max_transfers_per_week), 5)
+            candidate_counts = sorted({
+                1,
+                min(max_count, max(1, ft_before)),
+                min(max_count, max(1, ft_before + 1)),
+            })
+            for transfer_count in candidate_counts:
                 candidate_squads.extend(_top_squads_for_transfer_count(
                     node.state, meta, origin, remaining_gws, remaining_weights,
                     transfer_count, int(config.candidates_per_transfer_count),
