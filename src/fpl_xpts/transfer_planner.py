@@ -22,6 +22,7 @@ class PlannerConfig:
     candidate_limit_per_position: int = 18
     top_targets_per_position: int = 18
     local_bundle_beam: int = 60
+    candidate_return_per_depth: int = 12
     max_transfers_per_week: int = 5
     candidate_backend: str = "fast_local"
     milp_time_limit: float = 12.0
@@ -210,6 +211,7 @@ def _fast_local_candidate_squads(
     max_transfers: int,
     top_targets_per_position: int,
     local_bundle_beam: int,
+    candidate_return_per_depth: int,
 ) -> list[set[int]]:
     """Generate strong legal transfer bundles without solving a MILP.
 
@@ -285,7 +287,10 @@ def _fast_local_candidate_squads(
             reverse=True,
         )[:max(1, int(local_bundle_beam))]
         frontier = next_frontier
-        out.extend(set(item[1]) for item in frontier)
+        # Keep the internal search broad, but only return the strongest few
+        # candidates from each exact transfer-count depth to the expensive
+        # outer path scorer. Every depth 1..max_transfers remains represented.
+        out.extend(set(item[1]) for item in frontier[:max(1, int(candidate_return_per_depth))])
         if not frontier:
             break
 
@@ -571,6 +576,7 @@ def plan_transfer_path(
                     node.state, meta, origin, remaining_gws, remaining_weights,
                     search_count, int(config.top_targets_per_position),
                     int(config.local_bundle_beam),
+                    int(config.candidate_return_per_depth),
                 ))
             else:
                 candidate_counts = sorted({
