@@ -25,6 +25,7 @@ class PlannerConfig:
     candidate_return_per_depth: int = 12
     max_transfers_per_week: int = 5
     candidate_backend: str = "fast_local"
+    discount_transfer_costs: bool = True
     milp_time_limit: float = 12.0
 
 
@@ -643,7 +644,13 @@ def plan_transfer_path(
                     bank_before=int(node.state.bank),
                     bank_after=int(after.bank),
                 )
-                objective = float(node.objective + weight * utility)
+                if config.discount_transfer_costs:
+                    objective_increment = weight * utility
+                else:
+                    # Diagnostic alternative: forecast points decay with horizon,
+                    # but deterministic FPL hit/buffer costs do not.
+                    objective_increment = weight * score - official_hit - uncertainty
+                objective = float(node.objective + objective_increment)
 
                 future_gws = horizon_gws[depth + 1:]
                 future_weights = weights[depth + 1:]
