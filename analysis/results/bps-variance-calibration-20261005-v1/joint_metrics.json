@@ -1,0 +1,71 @@
+{
+  "bonus": {
+    "deterministic_mean": {
+      "actual_any": 0.039002882821773784,
+      "brier": 0.07191384193350583,
+      "expected_bonus_mae": 0.136394214867385,
+      "expected_bonus_rmse": 0.40319275658894316,
+      "log_loss": 0.19461828477547147,
+      "mean_actual_bonus": 0.07792097676784805,
+      "mean_pred_bonus": 0.08061632405346927,
+      "p_any": 0.03994404089799722
+    },
+    "variance_calibrated": {
+      "actual_any": 0.039002882821773784,
+      "brier": 0.07163927514481751,
+      "expected_bonus_mae": 0.13501356931680633,
+      "expected_bonus_rmse": 0.4021708412373348,
+      "log_loss": 0.18134319433243237,
+      "mean_actual_bonus": 0.07792097676784805,
+      "mean_pred_bonus": 0.07803591591024837,
+      "p_any": 0.03879703581301733
+    }
+  },
+  "classification": "reused_diagnostic_not_independent_holdout",
+  "delta_bonus": {
+    "brier": -0.00027456678868832685,
+    "expected_bonus_mae": -0.0013806455505786797,
+    "expected_bonus_rmse": -0.001021915351608338,
+    "log_loss": -0.013275090443039095,
+    "mean_pred_bonus": -0.0025804081432208997,
+    "p_any": -0.0011470050849798907
+  },
+  "delta_xpts": {
+    "bias": -0.003817619128370371,
+    "mae": -0.0014317543760482554,
+    "rmse": -0.002206387218578021
+  },
+  "development_variance_fit": {
+    "development_nll": {
+      "global": 2.6886883592126654,
+      "position": 2.663416883202532
+    },
+    "global_sd90": 4.6618004949410325,
+    "n": 1723,
+    "position_sd90": {
+      "DEF": 4.563479405448506,
+      "FWD": 4.275298878529564,
+      "GK": 3.29318322963065,
+      "MID": 5.116086373286964
+    },
+    "residual_mean": -0.004265437817375916,
+    "residual_rmse": 3.844643732924091
+  },
+  "draws_per_fixture": 360,
+  "fixtures": 144,
+  "promoted": false,
+  "rows": 11794,
+  "total_xpts": {
+    "deterministic_mean": {
+      "bias": 0.027067435419139682,
+      "mae": 0.9227257739340154,
+      "rmse": 1.8488138928217324
+    },
+    "variance_calibrated": {
+      "bias": 0.02324981629076931,
+      "mae": 0.9212940195579672,
+      "rmse": 1.8466075056031543
+    }
+  },
+  "variance_selected": "position"
+}
