@@ -16,15 +16,6 @@ on:
         required: false
         default: Published FPL model and website update
         type: string
-  push:
-    branches: [main]
-    paths:
-      - 'app/**'
-      - 'model/base_data.json'
-      - 'model/engine.py'
-      - 'model/decision_optimizer.py'
-      - 'start_app.py'
-      - 'scripts/publish_fpl_update.py'
 
 permissions:
   contents: write
