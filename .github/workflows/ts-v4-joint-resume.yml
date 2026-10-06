@@ -1,0 +1,60 @@
+name: TS v4 joint replay resume
+
+on:
+  push:
+    branches: [audit-role-minutes-20261001]
+    paths:
+      - '.github/workflows/ts-v4-joint-resume.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  actions: read
+
+jobs:
+  replay:
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install
+        run: |
+          pip install -r requirements-model-checkpoint.txt
+          pip install -r requirements-model-tests.txt
+      - name: Tests
+        run: PYTHONPATH=src pytest -q tests/test_transfer_planner_joint.py tests/test_transfer_planner.py tests/test_season_replay.py
+      - name: Restore GW1-8 checkpoint from failed run
+        uses: actions/download-artifact@v4
+        with:
+          name: ts-v4-joint-replay
+          path: analysis/results/transfer-strategy-v4-joint-replay-20261006-v1
+          github-token: ${{ github.token }}
+          repository: ${{ github.repository }}
+          run-id: 37431833876
+      - name: Verify restored checkpoint
+        run: |
+          test -f analysis/results/transfer-strategy-v4-joint-replay-20261006-v1/checkpoint.json
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          p=Path('analysis/results/transfer-strategy-v4-joint-replay-20261006-v1/checkpoint.json')
+          d=json.loads(p.read_text())
+          assert d['next_gw']==9, d['next_gw']
+          print('Restored checkpoint next_gw=',d['next_gw'],'total=',d['total'])
+          PY
+      - name: Resume TS v4 from GW9
+        env:
+          OPENBLAS_NUM_THREADS: '1'
+          OMP_NUM_THREADS: '1'
+          MKL_NUM_THREADS: '1'
+          ALLOW_CODE_CHANGE_RESUME: '1'
+        run: PYTHONPATH=src python scripts/run_transfer_strategy_v4_joint_replay.py
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: ts-v4-joint-replay-resumed
+          path: analysis/results/transfer-strategy-v4-joint-replay-20261006-v1
+          if-no-files-found: error
