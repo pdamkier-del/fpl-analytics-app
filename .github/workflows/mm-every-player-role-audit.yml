@@ -1,0 +1,35 @@
+name: MM every-player role audit
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [audit-role-minutes-20261001]
+    paths:
+      - 'scripts/audit_mm_every_player_role.py'
+      - '.github/workflows/mm-every-player-role-audit.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  audit:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: audit-role-minutes-20261001
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: |
+          pip install -r requirements-model-checkpoint.txt
+          pip install pandas numpy scipy scikit-learn requests
+      - run: PYTHONPATH=src python scripts/audit_mm_every_player_role.py
+      - name: Commit audit
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -f analysis/results/mm-role-player-audit-20261006-v1
+          git commit -m "results: full MM player role audit" || exit 0
+          git pull --rebase origin audit-role-minutes-20261001
+          git push origin HEAD:audit-role-minutes-20261001
