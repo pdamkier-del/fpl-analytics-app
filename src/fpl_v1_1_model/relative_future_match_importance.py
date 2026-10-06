@@ -162,8 +162,12 @@ def add_relative_future_mi_v2(frame:pd.DataFrame,snapshots:dict[int,pd.DataFrame
       "mi2_pl_race_multiplier","mi2_next_competition","mi2_next_stage"],index=out.index)
     for c in z:out[c]=z[c]
     p=out.mi2_rotation_pressure.fillna(0.).to_numpy(float)
+    cur=out.mi2_current_share.fillna(0.).to_numpy(float)
     for h in ("role_h_fast","role_h_slow"):
-        if h in out:out["mi2_"+h+"_pressure"]=pd.to_numeric(out[h],errors="coerce").fillna(0.).to_numpy()*p
+        if h in out:
+            hv=pd.to_numeric(out[h],errors="coerce").fillna(0.).to_numpy()
+            out["mi2_"+h+"_pressure"]=hv*p
+            out["mi2_"+h+"_current"]=hv*cur
     if "work_minutes_7d" in out:
         out["mi2_work7_pressure"]=np.clip(pd.to_numeric(out.work_minutes_7d,errors="coerce").fillna(0.).to_numpy()/180.,0.,2.)*p
     if "work_starts_7d" in out:
