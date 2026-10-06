@@ -1,12 +1,6 @@
 name: TS v4 joint full-season replay
 
 on:
-  push:
-    branches: [audit-role-minutes-20261001]
-    paths:
-      - 'scripts/run_transfer_strategy_v4_joint_replay.py'
-      - 'src/fpl_xpts/transfer_planner_joint.py'
-      - '.github/workflows/ts-v4-joint-replay.yml'
   workflow_dispatch:
 
 permissions:
