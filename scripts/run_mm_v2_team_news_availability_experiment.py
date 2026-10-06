@@ -52,8 +52,8 @@ def policy_caps(frame,policy):
         ],dtype=float)
     raise ValueError(policy)
 
-def evaluate_news_variant(frame,train,val,policy):
-    p_locked,q,sub,x_locked,_=full_mm(frame.copy(),train)
+def evaluate_news_variant(frame,train,val,policy,extra_base_features=()):
+    p_locked,q,sub,x_locked,_=full_mm(frame.copy(),train,extra_base_features=extra_base_features)
     caps=policy_caps(frame,policy)
 
     # Team News affects the competition state before the XI optimizer sees it.
