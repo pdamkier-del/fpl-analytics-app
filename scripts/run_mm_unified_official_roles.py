@@ -182,7 +182,7 @@ def fetch_fa_roles(session,fa_people):
 
 def build_role_games():
     classified=pd.read_csv(CLASSIFIED)
-    actual=pd.read_csv(ROOT/'analysis/results/reproducible-role-v1/all_feature_predictions.csv.gz')[['fixture_uuid','player_uuid','minutes']].drop_duplicates()
+    actual=pd.read_csv(ROOT/'analysis/results/reproducible-role-v1/all_feature_predictions.csv.gz')[['fixture_uuid','player_uuid','minutes','y']].drop_duplicates()
     classified=classified.merge(actual,on=['fixture_uuid','player_uuid'],how='left',validate='one_to_one')
     classified['kickoff']=pd.to_datetime(classified.kickoff,utc=True)
     matches=read_all('matches');lines=read_all('lineups')
@@ -196,7 +196,7 @@ def build_role_games():
     for (mid,team),g in classified.groupby(['match_id','team_id'],sort=False):
         key=str(mid)+'|'+str(int(team));m=meta.get(key)
         if m is None:continue
-        players=[{'player_uuid':str(x.player_uuid),'role':canonical(x.final_role),'started':True,
+        players=[{'player_uuid':str(x.player_uuid),'role':canonical(x.final_role),'started':bool(x.y) if pd.notna(x.y) else False,
                   'minutes':float(x.minutes) if pd.notna(x.minutes) else 0.0,
                   'disagreement':bool(x.disagreement)} for x in g.itertuples(index=False)]
         games.append({**m,'players':players})
