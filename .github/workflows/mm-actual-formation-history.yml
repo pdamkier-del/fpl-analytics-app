@@ -2,14 +2,6 @@ name: MM actual formation history
 
 on:
   workflow_dispatch:
-  push:
-    branches: [audit-role-minutes-20261001]
-    paths:
-      - 'src/fpl_v1_1_model/formation_history.py'
-      - 'scripts/run_mm_v2_relative_rating_competition.py'
-      - 'scripts/run_mm_v2_actual_formation_history_experiment.py'
-      - 'tests/test_formation_history.py'
-      - '.github/workflows/mm-actual-formation-history.yml'
 
 permissions:
   contents: write
