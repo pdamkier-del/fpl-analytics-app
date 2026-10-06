@@ -113,6 +113,36 @@ def resolve_uuid_to_fpl_ids(features, raw_players) -> tuple[dict[str,int], list[
                 continue
         still.append((uid,name))
 
+    # Tier 3b: unique surname plus compatible first-name prefix. This handles
+    # stable nickname/full-name variants such as Max/Maximilian Kilman and
+    # Trey/Treymaurice Nyoni without accepting surname-only guesses.
+    prefix_still=[]
+    for uid,name in still:
+        ft=name_tokens(name)
+        candidates=[]
+        if len(ft)>=2:
+            ff,fs=ft[0],ft[-1]
+            for pid,tsets in token_aliases.items():
+                ok=False
+                for rt in tsets:
+                    rtt=tuple(rt)
+                    # sets lose ordering, so derive ordered tokens from raw aliases.
+                for alias in _raw_aliases(raw[raw.id.astype(int).eq(pid)].iloc[0]):
+                    at=name_tokens(alias)
+                    if len(at)<2: continue
+                    af,asur=at[0],at[-1]
+                    if fs==asur and min(len(ff),len(af))>=3 and (ff.startswith(af) or af.startswith(ff)):
+                        ok=True; break
+                if ok:candidates.append(pid)
+        candidates=sorted(set(candidates))
+        if len(candidates)==1:
+            pid=candidates[0]
+            mapping[uid]=pid
+            matches.append(IdentityMatch(uid,pid,"surname_first_prefix",0.95,0.95))
+        else:
+            prefix_still.append((uid,name))
+    still=prefix_still
+
     for uid,name in still:
         fn=normalize_name(name)
         scored=[]
