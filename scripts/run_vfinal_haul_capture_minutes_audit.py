@@ -69,7 +69,7 @@ def apply_correction(origin,gw,vf):
     vp=np.clip(z.vfinal_p_play.fillna(z.base_p_play).astype(float),1e-4,1-1e-4)
     z['shift']=np.clip(logit(vp)-logit(bp),-1.5,1.5)
     fmap=dict(zip(z.id.astype(int),z.xp_factor.astype(float)))
-    smap=dict(zip(z.id.astype(int),z.shift.astype(float)))
+    smap=dict(zip(z.id.astype(int),z['shift'].astype(float)))
     idx=out.id.astype(int).isin(fmap)
     out.loc[idx,'xpts_mean']=out.loc[idx].apply(lambda r:float(r.xpts_mean)*fmap[int(r.id)],axis=1)
     out.loc[idx,'p_play']=out.loc[idx].apply(lambda r:float(expit(logit(float(np.clip(r.p_play,1e-4,1-1e-4)))+smap[int(r.id)])),axis=1)
