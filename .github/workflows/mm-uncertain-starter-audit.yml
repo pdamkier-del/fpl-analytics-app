@@ -39,9 +39,9 @@ jobs:
         shell: bash
         run: |
           set +e
-          rm -rf analysis/results/mm-uncertain-starters-20261006-v1
-          mkdir -p analysis/results/mm-uncertain-starters-20261006-v1
-          PYTHONPATH=src python scripts/run_mm_uncertain_starter_audit.py 2>&1 | tee analysis/results/mm-uncertain-starters-20261006-v1/run.log
+          rm -rf analysis/results/mm-uncertain-starters-final-20261006-v1
+          mkdir -p analysis/results/mm-uncertain-starters-final-20261006-v1
+          PYTHONPATH=src python scripts/run_mm_uncertain_starter_audit.py 2>&1 | tee analysis/results/mm-uncertain-starters-final-20261006-v1/run.log
           code=${PIPESTATUS[0]}
           echo "exit_code=${code}" >> "$GITHUB_OUTPUT"
           exit 0
@@ -50,7 +50,7 @@ jobs:
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add -f analysis/results/mm-uncertain-starters-20261006-v1
+          git add -f analysis/results/mm-uncertain-starters-final-20261006-v1
           git commit -m "results: MM uncertain starter audit" || exit 0
           git pull --rebase origin audit-role-minutes-20261001 || exit 1
           git push origin HEAD:audit-role-minutes-20261001
