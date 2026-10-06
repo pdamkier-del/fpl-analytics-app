@@ -125,3 +125,41 @@
  nav.querySelectorAll('a[href="transfer-planner.html"]').forEach(x=>x.remove());
  const file=(location.pathname.split('/').pop()||'overview.html').toLowerCase();nav.querySelectorAll('a').forEach(a=>a.classList.toggle('active',(a.getAttribute('href')||'').toLowerCase()===file));
 })();
+
+(()=>{
+  const sidebar=document.querySelector('.sidebar');if(!sidebar)return;
+  let title=[...sidebar.querySelectorAll('.nav-title')].find(x=>['model','models'].includes(x.textContent.trim().toLowerCase()));
+  if(!title){
+    title=document.createElement('div');title.className='nav-title';title.textContent='Models';
+    sidebar.querySelector('.sidebar-foot')?.insertAdjacentElement('beforebegin',title);
+    const nav=document.createElement('div');nav.className='nav';title.insertAdjacentElement('afterend',nav);
+  }
+  title.textContent='Models';
+  const nav=title.nextElementSibling;if(!nav?.classList.contains('nav'))return;
+  const legacy=[...nav.querySelectorAll('a')];
+  let explorer=nav.querySelector('a[href="models.html"]');
+  if(!explorer){explorer=document.createElement('a');explorer.href='models.html';explorer.innerHTML='<span>Model Explorer</span>';nav.prepend(explorer)}
+  const replay=nav.querySelector('a[href="replay.html"]');if(replay)replay.innerHTML='<span>Replay & Audit</span>';
+  const file=(location.pathname.split('/').pop()||'overview.html').toLowerCase();
+  nav.querySelectorAll('a').forEach(a=>a.classList.toggle('active',(a.getAttribute('href')||'').toLowerCase()===file));
+})();
+(()=>{
+  if((location.pathname.split('/').pop()||'').toLowerCase()!=='player.html')return;
+  const D=window.FPL_DATA;if(!D)return;
+  const id=Number(new URLSearchParams(location.search).get('id')||0),p=D.forecasts.find(x=>x.id===id)||D.forecasts[0];if(!p)return;
+  const g=p.gws?.[0]||{};
+  const anchor=document.querySelector('.summary-grid');if(!anchor||document.getElementById('playerModelPath'))return;
+  const panel=document.createElement('div');panel.id='playerModelPath';panel.className='panel';panel.style.margin='0 0 16px';
+  const role=g.assigned_role||g.role||p.assigned_role||'—';
+  const hierarchy=g.role_hierarchy_rank||p.role_hierarchy_rank||'—';
+  const rating=g.rating_recent??p.rating_recent;
+  const mi=g.match_importance??p.match_importance;
+  const fmt=x=>x==null?'—':Number(x).toFixed(2);
+  panel.innerHTML=`<div class="panel-head">Why this forecast?</div><div class="panel-body">
+    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px">
+      <a href="models.html#minutes" style="border:1px solid var(--line);border-radius:11px;padding:12px;text-decoration:none;color:inherit"><div class="card-label">Minute Model</div><div style="font-weight:900;margin:5px 0">${Number(g.xmins||0).toFixed(1)} xMins · ${g.pstart==null?'—':Math.round(g.pstart*100)+'%'} start</div><div class="card-note">Role ${role} · hierarchy ${hierarchy}${rating==null?'':' · rating '+fmt(rating)}${mi==null?'':' · importance '+fmt(mi)}</div></a>
+      <a href="models.html#points" style="border:1px solid var(--line);border-radius:11px;padding:12px;text-decoration:none;color:inherit"><div class="card-label">Point Model</div><div style="font-weight:900;margin:5px 0">${fmt(g.xpts)} xPts</div><div class="card-note">xG ${fmt(g.xg)} · xA ${fmt(g.xa)} · CS ${g.team_cs==null?'—':Math.round(g.team_cs*100)+'%'}</div></a>
+      <a href="models.html#transfers" style="border:1px solid var(--line);border-radius:11px;padding:12px;text-decoration:none;color:inherit"><div class="card-label">Transfer Model</div><div style="font-weight:900;margin:5px 0">${fmt(p.xpts6)} xPts / 6GW</div><div class="card-note">See how future value enters transfer planning →</div></a>
+    </div></div>`;
+  anchor.insertAdjacentElement('afterend',panel);
+})();
