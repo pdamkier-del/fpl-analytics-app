@@ -171,18 +171,22 @@ def fetch_fa_roles(session,fa_people):
 
 def build_role_games():
     classified=pd.read_csv(CLASSIFIED)
+    actual=pd.read_csv(ROOT/'analysis/results/reproducible-role-v1/all_feature_predictions.csv.gz')[['fixture_uuid','player_uuid','minutes']].drop_duplicates()
+    classified=classified.merge(actual,on=['fixture_uuid','player_uuid'],how='left',validate='one_to_one')
     classified['kickoff']=pd.to_datetime(classified.kickoff,utc=True)
     matches=read_all('matches');lines=read_all('lineups')
     lines,team_map=base_identity(lines,classified)
     meta={x['match_id']+'|'+str(x['team_id']):x for x in schedule_records(matches,team_map)}
 
+    workload=pd.read_csv(ROOT/'analysis/results/workload-recovered-v4/official_player_minutes.csv')
+    wmins={(str(r.match_id),int(r.team_id),str(r.player_uuid)):float(r.minutes) for r in workload.itertuples(index=False)}
     games=[]
     # Preserve audited PL roles exactly.
     for (mid,team),g in classified.groupby(['match_id','team_id'],sort=False):
         key=str(mid)+'|'+str(int(team));m=meta.get(key)
         if m is None:continue
         players=[{'player_uuid':str(x.player_uuid),'role':canonical(x.final_role),'started':True,
-                  'minutes':float(getattr(x,'minutes',90.0)) if hasattr(x,'minutes') else 90.0,
+                  'minutes':float(x.minutes) if pd.notna(x.minutes) else 0.0,
                   'disagreement':bool(x.disagreement)} for x in g.itertuples(index=False)]
         games.append({**m,'players':players})
 
@@ -203,8 +207,9 @@ def build_role_games():
             for x in g[g.is_starting.astype(str).str.lower().isin(['true','1','yes'])].itertuples(index=False):
                 uid=str(x.player_uuid);role=roles.get(uid)
                 if not role:continue
-                # workload ledger supplies reliable minutes if present; 90 is not invented here.
-                players.append({'player_uuid':uid,'role':role,'started':True,'minutes':90.0,'disagreement':False})
+                mins=wmins.get((str(m.match_id),int(team),uid))
+                if mins is None:continue
+                players.append({'player_uuid':uid,'role':role,'started':True,'minutes':float(mins),'disagreement':False})
             if len(players)!=11:continue
             md=meta.get(str(m.match_id)+'|'+str(team))
             if md:games.append({**md,'players':players})
@@ -346,9 +351,12 @@ def main():
     met=metrics(f,test,p,q,xm)
 
     old=pd.read_csv(OLD)
-    oldmet=metrics(f.loc[test],np.asarray(old.combined_p_start,float),
-                   np.asarray(old.combined_q_sub,float),np.asarray(old.combined_xmins,float))
-    # metrics() expects xMins in final arg; its substate is used for state metrics.
+    keys=['fixture_uuid','player_uuid','team_id','gw']
+    ft=f.loc[test].reset_index(drop=True)
+    old=ft[keys].merge(old[keys+['combined_p_start','combined_q_sub','combined_xmins']],on=keys,validate='one_to_one')
+    oldmet=metrics(ft,np.ones(len(ft),dtype=bool),old.combined_p_start.to_numpy(float),
+                   old.combined_q_sub.to_numpy(float),old.combined_xmins.to_numpy(float))
+    # Compare exact same rows; state metrics use old q while xMins uses old saved xMins.
     delta={k:met[k]-oldmet[k] for k in met if k in oldmet and isinstance(met[k],(int,float))}
 
     pred=f.loc[test,['fixture_uuid','player_uuid','team_id','gw','team','player','pos','y','minutes','expected_role']].copy()
