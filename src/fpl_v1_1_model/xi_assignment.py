@@ -149,3 +149,36 @@ def assignment_explanations(assignments:Iterable[Assignment])->list[dict]:
         'assignment_score':a.score,'q_role':a.q_role,'hierarchy':a.hierarchy,
         'performance':a.performance,'base_p_start':a.base_p_start
     } for a in assignments]
+
+
+DEFAULT_FORMATIONS=('4-2-3-1','4-3-3','4-4-2','3-4-2-1','3-4-3','3-5-2')
+
+
+def optimize_best_formation(players:Sequence[Mapping],
+                            formations:Sequence[str]=DEFAULT_FORMATIONS,
+                            formation_log_prior:Mapping[str,float]|None=None,
+                            **score_kwargs):
+    """Return the highest-scoring legal formation + XI.
+
+    formation_log_prior is optional cutoff-safe historical formation evidence.
+    It is additive in log-space.  Unsupported/infeasible formations are skipped.
+    """
+    priors=dict(formation_log_prior or {})
+    candidates=[]
+    for formation in formations:
+        try:
+            xi=optimize_xi(players,formation,**score_kwargs)
+        except (ValueError,RuntimeError):
+            continue
+        score=sum(a.score for a in xi)+float(priors.get(formation,0.0))
+        candidates.append((score,formation,xi))
+    if not candidates:
+        raise RuntimeError("No feasible formation/XI assignment")
+    candidates.sort(key=lambda x:(x[0],x[1]),reverse=True)
+    score,formation,xi=candidates[0]
+    return {
+        'formation':formation,
+        'score':float(score),
+        'xi':xi,
+        'alternatives':[{'formation':f,'score':float(s)} for s,f,_ in candidates],
+    }
