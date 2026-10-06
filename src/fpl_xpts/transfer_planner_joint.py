@@ -34,6 +34,8 @@ class JointPlannerConfig:
     first_gw_max_transfers: int | None = None
     time_limit: float = 60.0
     mip_rel_gap: float = 0.002
+    retry_time_limit: float = 180.0
+    retry_mip_rel_gap: float = 0.01
 
 
 def _forecast_arrays(
@@ -377,18 +379,37 @@ def plan_transfer_path_joint(
             vs = np.fromiter(coeff.values(), dtype=float)
             A[r, js] = vs
 
+    constraints = LinearConstraint(A.tocsr(), np.asarray(lower), np.asarray(upper))
     result = milp(
         c=c,
         integrality=integrality,
         bounds=Bounds(lb, ub),
-        constraints=LinearConstraint(A.tocsr(), np.asarray(lower), np.asarray(upper)),
+        constraints=constraints,
         options={
             "time_limit": float(config.time_limit),
             "mip_rel_gap": float(config.mip_rel_gap),
         },
     )
+    # Some deadlines are materially harder. If HiGHS reaches the primary
+    # limit before finding any feasible incumbent, retry the exact same model
+    # with more wall time and a looser optimality target. This changes only
+    # solver robustness, not the feasible set or objective.
+    if result.x is None and float(config.retry_time_limit) > float(config.time_limit):
+        result = milp(
+            c=c,
+            integrality=integrality,
+            bounds=Bounds(lb, ub),
+            constraints=constraints,
+            options={
+                "time_limit": float(config.retry_time_limit),
+                "mip_rel_gap": float(config.retry_mip_rel_gap),
+            },
+        )
     if result.x is None:
-        raise RuntimeError(f"joint planner found no feasible incumbent: {result.message}")
+        raise RuntimeError(
+            "joint planner found no feasible incumbent after retry: "
+            f"{result.message}"
+        )
 
     x = result.x
     path: list[TransferAction] = []
