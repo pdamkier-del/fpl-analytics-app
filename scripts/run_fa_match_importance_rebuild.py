@@ -47,7 +47,7 @@ SOURCE_COMMIT='1c9191ab6b0c191378ea27f257fdab2bae63caba'
 SOURCE_REPO='olbauday/FPL-Core-Insights'
 SOFA_TOURNAMENT=19
 SOFA_SEASON=82557
-SOFA='https://www.sofascore.com/api/v1'
+SOFA='https://api.sofascore.com/api/v1'
 FA_COMP='fa-cup'
 
 def norm(s):
