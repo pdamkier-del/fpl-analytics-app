@@ -102,3 +102,26 @@ def test_best_formation_returns_legal_unique_xi():
     assert out['formation'] in {'4-2-3-1','4-3-3'}
     assert len(out['xi'])==11
     assert len({x.player_uuid for x in out['xi']})==11
+
+
+def test_role_specific_adjustment_only_changes_target_role():
+    players=[
+        player('gk',{'GK':(1,.9)},.99),
+        player('rbA',{'RB':(1,.80),'RCB':(.5,.5)},.80),
+        player('rbB',{'RB':(1,.79)},.80),
+        player('rcb',{'RCB':(1,.9)},.9),
+        player('lcb',{'LCB':(1,.9)},.9),
+        player('lb',{'LB':(1,.9)},.9),
+        player('rdm',{'RDM':(1,.9)},.9),
+        player('ldm',{'LDM':(1,.9)},.9),
+        player('ram',{'RAM':(1,.9)},.9),
+        player('cam',{'CAM':(1,.9)},.9),
+        player('lam',{'LAM':(1,.9)},.9),
+        player('st',{'ST':(1,.9)},.9),
+    ]
+    players[1]['role_adjustments']={'RB':-.15,'RCB':0.0}
+    players[2]['role_adjustments']={'RB':.15}
+    xi=optimize_xi(players,'4-2-3-1')
+    byrole={x.role:x.player_uuid for x in xi}
+    assert byrole['RB']=='rbB'
+    assert byrole['RCB']=='rcb'
