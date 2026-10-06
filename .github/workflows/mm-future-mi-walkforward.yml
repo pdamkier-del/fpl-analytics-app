@@ -1,0 +1,40 @@
+name: MM future Match Importance walk-forward
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [audit-role-minutes-20261001]
+    paths:
+      - 'scripts/run_mm_future_mi_walkforward.py'
+      - 'src/fpl_v1_1_model/future_match_importance.py'
+      - '.github/workflows/mm-future-mi-walkforward.yml'
+
+jobs:
+  run:
+    runs-on: ubuntu-latest
+    timeout-minutes: 180
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: audit-role-minutes-20261001
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install
+        run: |
+          pip install -r requirements-model-checkpoint.txt
+          pip install numpy pandas scipy scikit-learn requests pytest
+      - name: Tests
+        run: PYTHONPATH=src pytest -q tests/test_future_match_importance.py tests/test_team_news_history.py tests/test_availability_projection.py
+      - name: Restore Team News
+        run: python scripts/restore_team_news_audit.py
+      - name: Run A/B
+        run: |
+          rm -rf analysis/results/mm-future-mi-walkforward-20261006-v1
+          PYTHONPATH=src python scripts/run_mm_future_mi_walkforward.py
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: mm-future-mi-walkforward-20261006-v1
+          path: analysis/results/mm-future-mi-walkforward-20261006-v1
+          retention-days: 90
