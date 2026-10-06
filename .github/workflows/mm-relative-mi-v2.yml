@@ -25,7 +25,7 @@ jobs:
           python-version: '3.12'
       - run: |
           pip install -r requirements-model-checkpoint.txt
-          pip install pandas numpy scikit-learn pytest
+          pip install pandas numpy scikit-learn pytest requests
       - run: PYTHONPATH=src pytest -q tests/test_relative_match_importance.py tests/test_relative_future_match_importance.py tests/test_future_match_importance.py
       - run: PYTHONPATH=src python scripts/run_mm_relative_mi_v2_walkforward.py
       - uses: actions/upload-artifact@v4
