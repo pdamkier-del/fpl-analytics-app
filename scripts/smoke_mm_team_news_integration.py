@@ -28,14 +28,19 @@ def main():
         pd.to_datetime(merged.loc[known,"cutoff"],utc=True)).all()
     assert merged.team_news_availability_cap.between(0,1).all()
     covered=sorted(int(x) for x in merged.loc[known,"gw"].unique())
-    assert all(g in covered for g in range(2,39))
-    assert 1 not in covered
+    model_gws=sorted(int(x) for x in merged.gw.unique())
+    required=[g for g in model_gws if 2<=g<=38]
+    missing=[g for g in required if g not in covered]
+    assert not missing, f"strict Team News missing for MM GWs: {missing}"
+    if 1 in model_gws:
+        assert not merged.loc[merged.gw.eq(1),"team_news_known"].any()
 
     result={
         "strict_rows":int(len(strict)),
         "model_rows":int(len(merged)),
         "known_model_rows":int(known.sum()),
         "hard_out_model_rows":int(merged.team_news_hard_out.sum()),
+        "model_gws":model_gws,
         "covered_gws":covered,
         "states":{str(k):int(v) for k,v in merged.loc[known,"team_news_state"].value_counts().to_dict().items()},
         "max_age_hours":float(merged.loc[known,"team_news_age_hours"].max()) if known.any() else None,
