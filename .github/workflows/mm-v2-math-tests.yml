@@ -7,8 +7,12 @@ on:
     paths:
       - 'src/fpl_v1_1_model/xi_assignment.py'
       - 'src/fpl_v1_1_model/rating_history.py'
+      - 'src/fpl_v1_1_model/team_news_history.py'
+      - 'src/fpl_v1_1_model/availability_projection.py'
       - 'tests/test_xi_assignment.py'
       - 'tests/test_rating_history.py'
+      - 'tests/test_team_news_history.py'
+      - 'tests/test_availability_projection.py'
       - '.github/workflows/mm-v2-math-tests.yml'
 
 jobs:
@@ -22,4 +26,4 @@ jobs:
         with:
           python-version: '3.12'
       - run: pip install numpy pandas scipy pytest
-      - run: PYTHONPATH=src pytest -q tests/test_xi_assignment.py tests/test_rating_history.py
+      - run: PYTHONPATH=src pytest -q tests/test_xi_assignment.py tests/test_rating_history.py tests/test_team_news_history.py tests/test_availability_projection.py
