@@ -1,0 +1,22 @@
+name: Identity coverage report
+on:
+  push:
+    branches: [audit-role-minutes-20261001]
+    paths:
+      - 'scripts/run_identity_coverage_report.py'
+      - 'src/fpl_xpts/identity.py'
+      - '.github/workflows/identity-coverage-report.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  report:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: pip install -r requirements-model-checkpoint.txt
+      - run: PYTHONPATH=src python scripts/run_identity_coverage_report.py
