@@ -28,11 +28,27 @@ def _team_fixture_rows(matches:pd.DataFrame,code_to_team:dict[int,int])->pd.Data
             code=getattr(r,side+"_team",np.nan)
             if pd.isna(code) or int(code) not in code_to_team: continue
             oppside="away" if side=="home" else "home"
+            opp_code=getattr(r,oppside+"_team",np.nan)
             rows.append({
                 "match_id":str(r.match_id),"team_id":int(code_to_team[int(code)]),
+                "opponent_team_id":(
+                    int(code_to_team[int(opp_code)])
+                    if pd.notna(opp_code) and int(opp_code) in code_to_team else np.nan
+                ),
                 "competition":str(r.competition),"kickoff":r.kickoff,
                 "opponent_elo":getattr(r,oppside+"_team_elo",np.nan),
                 "gameweek":getattr(r,"gameweek",np.nan),
+                "home_team_id":(
+                    int(code_to_team[int(getattr(r,"home_team"))])
+                    if pd.notna(getattr(r,"home_team",np.nan)) and int(getattr(r,"home_team")) in code_to_team else np.nan
+                ),
+                "away_team_id":(
+                    int(code_to_team[int(getattr(r,"away_team"))])
+                    if pd.notna(getattr(r,"away_team",np.nan)) and int(getattr(r,"away_team")) in code_to_team else np.nan
+                ),
+                "home_score":getattr(r,"home_score",np.nan),
+                "away_score":getattr(r,"away_score",np.nan),
+                "finished":bool(getattr(r,"finished",False)),
             })
     return pd.DataFrame(rows)
 
