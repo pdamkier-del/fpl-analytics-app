@@ -1,0 +1,112 @@
+name: Build Publisher Patch v2.3
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [audit-role-minutes-20261001]
+    paths:
+      - '.github/workflows/build-publisher-patch-v2.3.yml'
+
+permissions:
+  contents: write
+
+concurrency:
+  group: build-publisher-patch-v2.3
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: audit-role-minutes-20261001
+          fetch-depth: 0
+
+      - name: Build app 2.3 and repo patch
+        run: |
+          set -euo pipefail
+          rm -rf .patch_v23
+          mkdir -p .patch_v23/app .patch_v23/scripts .patch_v23/.github/workflows .patch_v23/updates publisher
+
+          cp app/index.html .patch_v23/app/index.html
+          cp app/models.html .patch_v23/app/models.html
+          cp app/nav.js .patch_v23/app/nav.js
+          cp scripts/publish_fpl_update.py .patch_v23/scripts/publish_fpl_update.py
+          cp .github/workflows/publish-fpl-update.yml .patch_v23/.github/workflows/publish-fpl-update.yml
+
+          printf '2.3\n' > .patch_v23/VERSION.txt
+
+          python - <<'PY'
+          from pathlib import Path
+          import zipfile, json, hashlib
+          from datetime import datetime, timezone
+
+          root=Path('.patch_v23')
+          updates=root/'updates'
+          appzip=updates/'app-2.3.zip'
+
+          with zipfile.ZipFile(appzip,'w',compression=zipfile.ZIP_DEFLATED,compresslevel=9) as z:
+              for rel in ['app/index.html','app/models.html','app/nav.js']:
+                  z.write(root/rel,rel)
+
+          old=json.loads(Path('updates/manifest.json').read_text(encoding='utf-8'))
+          appraw=appzip.read_bytes()
+          manifest={
+              'app_version':'2.3',
+              'data_version':old.get('data_version',''),
+              'published_utc':datetime.now(timezone.utc).isoformat().replace('+00:00','Z'),
+              'message':'Expected XI website, Model Explorer and automatic app update publishing',
+              'app':{
+                  'url':'https://raw.githubusercontent.com/pdamkier-del/fpl-analytics-app/main/updates/app-2.3.zip',
+                  'sha256':hashlib.sha256(appraw).hexdigest(),
+              },
+              'data':old.get('data',{}),
+          }
+          (updates/'manifest.json').write_text(json.dumps(manifest,indent=2,ensure_ascii=False)+'\n',encoding='utf-8')
+
+          patch=Path('publisher/FPL_Analytics_v2.3_repo_patch.zip')
+          if patch.exists(): patch.unlink()
+          with zipfile.ZipFile(patch,'w',compression=zipfile.ZIP_DEFLATED,compresslevel=9) as z:
+              for p in sorted(root.rglob('*')):
+                  if p.is_file():
+                      z.write(p,p.relative_to(root).as_posix())
+
+          print('built',patch,patch.stat().st_size)
+          print(json.dumps(manifest,indent=2))
+          PY
+
+      - name: Validate patch
+        run: |
+          python - <<'PY'
+          import zipfile,json,hashlib
+          from pathlib import Path
+          p=Path('publisher/FPL_Analytics_v2.3_repo_patch.zip')
+          with zipfile.ZipFile(p) as z:
+              names=set(z.namelist())
+              required={
+                'VERSION.txt','app/index.html','app/models.html','app/nav.js',
+                'scripts/publish_fpl_update.py',
+                '.github/workflows/publish-fpl-update.yml',
+                'updates/app-2.3.zip','updates/manifest.json'
+              }
+              missing=required-names
+              assert not missing,missing
+              assert z.read('VERSION.txt').decode().strip()=='2.3'
+              manifest=json.loads(z.read('updates/manifest.json'))
+              assert manifest['app_version']=='2.3'
+              app=z.read('updates/app-2.3.zip')
+              assert hashlib.sha256(app).hexdigest()==manifest['app']['sha256']
+              with zipfile.ZipFile(__import__('io').BytesIO(app)) as az:
+                  assert {'app/index.html','app/models.html','app/nav.js'}<=set(az.namelist())
+          print('publisher patch valid')
+          PY
+
+      - name: Commit patch
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -f publisher/FPL_Analytics_v2.3_repo_patch.zip
+          git commit -m "release: build FPL Analytics v2.3 publisher patch" || exit 0
+          git pull --rebase origin audit-role-minutes-20261001
+          git push origin HEAD:audit-role-minutes-20261001
