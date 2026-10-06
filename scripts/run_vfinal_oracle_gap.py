@@ -121,7 +121,7 @@ def main():
         optional=execute_first_action(oracle_state,ores,meta)
         ohit=sum(int(x.get('hit',0)) for x in forced)+sum(int(x.get('hit',0)) for x in optional)
         oplan=plan_squad(oracle_origin,list(oracle_state.squad),gw)
-        reachable_score,_=actual_team_points(oplan,actual,None,ohit)
+        reachable_score,_=actual_team_points(oplan.rows,actual,None,ohit)
 
         # Unconstrained theoretical £100m weekly ceiling.
         init=optimize_initial_squad_joint(
@@ -133,7 +133,7 @@ def main():
             bank=int(init.bank_tenths),free_transfers=0
         )
         uplan=plan_squad(oracle_origin,init.squad_ids,gw)
-        unconstrained_score,_=actual_team_points(uplan,actual,None,0)
+        unconstrained_score,_=actual_team_points(uplan.rows,actual,None,0)
 
         # Advance the model state using its executed action, so next pre-state is exact.
         q=model_plans[(model_plans.origin_gw==gw)&(model_plans.is_executed.astype(str).str.lower().isin(['true','1']))]
