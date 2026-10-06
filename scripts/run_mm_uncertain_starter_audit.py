@@ -23,7 +23,7 @@ from run_v4_three_state_sequence_experiment import (
     add_sequence_features,SEQ_FEATURES,metrics,write_gzip_csv,write_json
 )
 
-OUT=ROOT/'analysis/results/mm-uncertain-starters-20261006-v1'
+OUT=ROOT/'analysis/results/mm-uncertain-starters-final-20261006-v1'
 L2=[0.5,2.0,10.0,40.0]
 FAMILIES={
  'recent_start_state':[
@@ -46,14 +46,12 @@ def compose_with_p(frame,p,q,sub):
 
 def main():
     OUT.mkdir(parents=True,exist_ok=True)
-    base_result=json.loads((MM_OUT/'result.json').read_text())
-    qs=float(base_result['selected_importance_weights']['q'])
-    hs=float(base_result['selected_importance_weights']['H'])
-
     frame=add_sequence_features(pd.read_csv(SOURCE).reset_index(drop=True))
     frame=add_perf_features(frame,build_perf_ledger())
-    games,_,_=build_role_games();games=add_importance(games)
-    frame=role_features(frame,games,qs,hs)
+    # Final verified MM base: preserve the audited source PL q/H state and use
+    # the rebuilt official workload (including recovered FA Cup). The all-official
+    # q/H rebuild is not used because the final ablation failed to reproduce the
+    # source PL role state and worsened development metrics.
 
     known=pd.to_datetime(frame.outcome_known_at,utc=True)
     dev=frame.gw.between(16,21).to_numpy()
@@ -161,7 +159,7 @@ def main():
         worst=ugw[['gw','n','xmins_mae','xmins_rmse','state_log_loss','large_miss_30plus','large_miss_45plus']].head(8).to_dict(orient='records')
 
     result={
-      'classification':'targeted uncertain-starter development test; GW22-38 reused diagnostic',
+      'classification':'targeted uncertain-starter test on final verified MM base; GW22-38 reused diagnostic',
       'selected':selected,'selected_l2':sell2,
       'development':{'unified_all':base_dev_all,'unified_uncertain':base_dev_u,
                      'candidates':cand.to_dict(orient='records')},
@@ -173,7 +171,7 @@ def main():
       },
       'worst_uncertain_gameweeks':worst,
       'promotion_rule':'Only a development-selected candidate satisfying uncertain and overall guardrails is carried to reused diagnostic.',
-      'mm_lock_recommendation':'lock corrected candidate' if selected!='none' else 'keep unified MM; inspect GW/player misses rather than add unproven complexity'
+      'mm_lock_recommendation':'lock corrected candidate only if reused diagnostic also improves both uncertain and overall RMSE/MAE; otherwise keep final verified MM base'
     }
     write_json(OUT/'result.json',result)
     write_json(OUT/'selected_model.json',{'selected':selected,'l2':sell2,'model':model})
