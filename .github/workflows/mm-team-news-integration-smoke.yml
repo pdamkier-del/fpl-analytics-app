@@ -2,12 +2,6 @@ name: MM Team News integration smoke
 
 on:
   workflow_dispatch:
-  push:
-    branches: [audit-role-minutes-20261001]
-    paths:
-      - 'src/fpl_v1_1_model/team_news_history.py'
-      - 'scripts/smoke_mm_team_news_integration.py'
-      - '.github/workflows/mm-team-news-integration-smoke.yml'
 
 jobs:
   smoke:
