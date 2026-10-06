@@ -49,14 +49,14 @@ function expectedLineup(){
   const explicit=D.expected_lineups?.find?.(x=>x.club===club&&(!x.gw||x.gw===D.meta?.next_gw));
   if(explicit?.players?.length===11)return {formation:explicit.formation||'Expected XI',players:explicit.players.map(z=>{const p=D.forecasts.find(x=>x.id===z.id)||z;return {...p,_role:z.role||z.assigned_role,_competitor:z.competitor,_xmins:z.xmins??nextG(p).xmins,_pstart:z.pstart??nextG(p).pstart}})};
   const all=[...ps()].sort((a,b)=>(nextG(b).pstart||0)-(nextG(a).pstart||0));
-  const take=(pos,n)=>all.filter(p=>p.pos===pos).slice(0,n);
+  const take=(pos,n)=>all.filter(p=>pos==='GK'?['GK','GKP'].includes(p.pos):p.pos===pos).slice(0,n);
   let xi=[...take('GK',1),...take('DEF',4),...take('MID',5),...take('FWD',1)];
   if(xi.length<11)xi=[...all.slice(0,11)];
   const roles=['GK','RB','RCB','LCB','LB','RDM','LDM','RAM','CAM','LAM','ST'];
   xi=xi.map((p,i)=>({...p,_role:p.assigned_role||nextG(p).role||roles[i],_xmins:nextG(p).xmins,_pstart:nextG(p).pstart}));
   return {formation:'4-2-3-1',players:xi,fallback:true};
 }
-function competitorFor(p,xi){if(p._competitor)return p._competitor;const chosen=new Set(xi.map(x=>x.id));const candidates=ps().filter(x=>!chosen.has(x.id)&&x.pos===p.pos).sort((a,b)=>(nextG(b).pstart||0)-(nextG(a).pstart||0));return candidates[0]?{name:candidates[0].player,xmins:nextG(candidates[0]).xmins}:null}
+function competitorFor(p,xi){if(p._competitor)return p._competitor;const chosen=new Set(xi.map(x=>x.id));const candidates=ps().filter(x=>!chosen.has(x.id)&&x.pos===p.pos).sort((a,b)=>(nextG(b).pstart||0)-(nextG(a).pstart||0));return candidates[0]?{name:candidates[0].player,xmins:nextG(candidates[0]).xmins,pstart:nextG(candidates[0]).pstart}:null}
 function renderPitch(){
  const L=expectedLineup(),xi=L.players;document.getElementById('formationBadge').textContent=L.formation;document.getElementById('lineupSub').textContent=`GW${D.meta?.next_gw||'—'} · ${L.fallback?'preview from current P(start); MM-v2 slots will replace this automatically':'MM-v2 role-slot assignment'}`;
  const byRole=new Map(xi.map(p=>[p._role,p]));const groups=L.formation==='4-2-3-1'?[['ST'],['LAM','CAM','RAM'],['LDM','RDM'],['LB','LCB','RCB','RB'],['GK']]:[xi.slice(0,3).map(x=>x._role),xi.slice(3,6).map(x=>x._role),xi.slice(6,10).map(x=>x._role),[xi[10]?._role]];
@@ -64,7 +64,7 @@ function renderPitch(){
  const pitch=document.getElementById('pitch');pitch.innerHTML='<div class="pitch-center"></div>'+rowPlayers.map((row,ri)=>`<div class="line-row ${ri===rowPlayers.length-1?'gk':''}">${row.map(p=>{const c=competitorFor(p,xi);return `<div class="player-node" onclick="location.href='player.html?id=${p.id}'"><div class="shirt">${esc(p._role||p.pos)}</div><div class="node-card"><div class="node-name">${esc(p.player)}</div><div class="node-min">${num(p._xmins,0)} xMins · ${pct(p._pstart)}</div><div class="node-role">${esc(p._role||p.pos)}</div>${c?`<div class="competitor">↳ ${esc(c.name||c.player)} · ${num(c.xmins,0)}m</div>`:''}</div></div>`}).join('')}</div>`).join('');
  document.getElementById('xiMinutes').textContent=num(xi.reduce((s,p)=>s+Number(p._xmins||0),0),0);
  const uncertain=xi.filter(p=>Number(p._pstart||0)<.8).length;document.getElementById('uncertainty').textContent=`${uncertain}/11`;
- const battles=xi.map(p=>({p,c:competitorFor(p,xi),gap:Number(p._pstart||0)-(Number(competitorFor(p,xi)?.pstart||0))})).filter(x=>x.c).slice(0,4);
+ const battles=xi.map(p=>{const c=competitorFor(p,xi);return {p,c,gap:Number(p._pstart||0)-Number(c?.pstart||0)}}).filter(x=>x.c).sort((a,b)=>a.gap-b.gap).slice(0,4);
  document.getElementById('roleBattles').innerHTML=battles.map(x=>`<div class="why"><span>${esc(x.p._role||x.p.pos)} · ${esc(x.p.player)}</span><strong>${esc(x.c.name||x.c.player)} ${num(x.c.xmins,0)}m</strong></div>`).join('')||'<div class="notice">Role competitors will appear when MM-v2 data is published.</div>';
 }
 function renderHead(){const c=ci();document.getElementById('crest').textContent=c.code;document.getElementById('clubName').textContent=c.name;document.getElementById('crumb').textContent='Clubs / '+c.name;const nf=cfx().find(f=>!f.finished);document.getElementById('nextFix').textContent=nf?`GW${nf.gw} · ${nf.home===club?nf.away:nf.home} (${nf.home===club?'H':'A'})`:'No upcoming fixture';document.getElementById('modelStamp').textContent=D.meta?.model_version||'Current model'}
