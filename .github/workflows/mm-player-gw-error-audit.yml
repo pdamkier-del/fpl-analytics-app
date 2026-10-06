@@ -2,11 +2,6 @@ name: MM player GW error audit
 
 on:
   workflow_dispatch:
-  push:
-    branches: [audit-role-minutes-20261001]
-    paths:
-      - 'scripts/audit_mm_player_gw_errors.py'
-      - '.github/workflows/mm-player-gw-error-audit.yml'
 
 permissions:
   contents: write
