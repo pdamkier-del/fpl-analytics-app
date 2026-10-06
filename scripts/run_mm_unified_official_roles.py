@@ -97,7 +97,17 @@ def base_identity(lines,classified):
     aligned=lines.merge(classified[['match_id','player_uuid','team_id']].drop_duplicates(),on=['match_id','player_uuid'])
     pairs=aligned[['team_code','team_id']].dropna().drop_duplicates()
     pairs=pairs[~pairs.team_code.duplicated(keep=False)]
-    return lines,{int(r.team_code):int(r.team_id) for r in pairs.itertuples()}
+    team_map={int(r.team_code):int(r.team_id) for r in pairs.itertuples()}
+    # Recover roster players who never appeared as a PL starter. This remains an
+    # exact within-team name identity join; ambiguous aliases are left unresolved.
+    roster=pd.read_csv(SOURCE,usecols=['team_id','player_uuid','player']).drop_duplicates()
+    aliases={key:set(g.player_uuid.astype(str)) for key,g in roster.groupby(['team_id',roster.player.map(norm)])}
+    for idx,r in lines[lines.player_uuid.isna() & lines.team_code.notna()].iterrows():
+        team=team_map.get(int(r.team_code))
+        if team is None:continue
+        ids=aliases.get((team,norm(r.player_name)),set())
+        if len(ids)==1:lines.loc[idx,'player_uuid']=next(iter(ids))
+    return lines,team_map
 
 def schedule_records(matches,team_map):
     records=[]
@@ -115,7 +125,7 @@ def schedule_records(matches,team_map):
             records.append(dict(match_id=str(r.match_id),team_id=team_map[int(code)],competition=comp,
                 kickoff=ko,available_at=ko+pd.Timedelta(hours=3),round_name='',
                 opponent=str(opp_code),opponent_elo=opp_elo,gf=gf,ga=ga,
-                source='frozen-all-competitions'))
+                gameweek=getattr(r,'gameweek',np.nan),source='frozen-all-competitions'))
     return records
 
 def fetch_fa_roles(session,fa_people):
@@ -221,9 +231,13 @@ def build_role_games():
     return games,skipped,classified
 
 def add_importance(games):
-    # Participation is a season-start/competition-entry fact; no target outcomes.
+    # Participation is a season-start/competition-entry fact; build it from the
+    # full frozen schedule, not only the subset with verified role evidence.
+    classified=pd.read_csv(CLASSIFIED)
+    lines=read_all('lineups');lines,team_map=base_identity(lines,classified)
+    full_schedule=schedule_records(read_all('matches'),team_map)
     participation=defaultdict(lambda:{'prem','fa-cup','efl-cup'})
-    for g in games:participation[int(g['team_id'])].add(canonical_competition(g['competition']))
+    for g in full_schedule:participation[int(g['team_id'])].add(canonical_competition(g['competition']))
     active={t:set(v) for t,v in participation.items()}
     out=[];series=defaultdict(list)
     for g in sorted(games,key=lambda z:(z['kickoff'],z['match_id'],z['team_id'])):
@@ -231,8 +245,8 @@ def add_importance(games):
         aset=active[team]
         cv=dynamic_competition_value(comp,sorted(aset|{comp}),BASE_COMPETITION_VALUES,eta=.35)
         if comp=='prem':
-            # Map date to a conservative league-progress stage without using future result.
-            stage=max(.2,min(1.,.2+.8*((g['kickoff'].month-8)%12)/10.))
+            gw=g.get('gameweek')
+            stage=premier_league_stage_strength(int(gw)) if pd.notna(gw) else max(.2,min(1.,.2+.8*((g['kickoff'].month-8)%12)/10.))
         else:
             stage=knockout_stage_strength(g.get('round_name'),g['kickoff'].month)
         opp=opponent_strength_from_elo(g.get('opponent_elo'))
