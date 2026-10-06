@@ -175,7 +175,7 @@ def recover_fa(session,teams,players):
                     continue
                 fpl_id,rule=map_player(pname,int(local.code),by_team,global_full)
                 if fpl_id is None:
-                    unresolved.append(dict(event_id=int(e['id']),team_id=int(local.id),team=str(local['name']),
+                    unresolved.append(dict(event_id=int(e['id']),team_id=int(local.id),team=str(local.name),
                                            player=pname,started=started,minutes=mins))
                     if started:missing_starters+=1
                     continue
@@ -261,7 +261,16 @@ def rebuild_workload_features(fa_games,fa_people,uuid_map):
     return frame,fm,missing_uuid
 
 def source_schedule(session,teams,fa_games):
-    sched=get_csv('data/2025-2026/By Gameweek/GW38/matches.csv',session)
+    # Use the audited frozen all-GW source already stored in this repository.
+    # Those 38 folders form the historical season ledger used by workload;
+    # relying on one remote GW snapshot could silently omit earlier cups/Europe.
+    parts=[]
+    raw=ROOT/'data_v1_1/raw/all-competitions-2025-26'
+    for p in sorted(raw.glob('GW*/matches.csv')):
+        parts.append(pd.read_csv(p))
+    sched=pd.concat(parts,ignore_index=True)
+    if sched.match_id.duplicated().any():
+        raise ValueError('Frozen all-competition schedule contains duplicate match IDs')
     sched['competition']=sched.tournament.map(canonical_competition)
     sched['kickoff']=pd.to_datetime(sched.kickoff_time,utc=True,errors='coerce')
     code_to_id={int(r.code):int(r.id) for r in teams.itertuples(index=False)}
