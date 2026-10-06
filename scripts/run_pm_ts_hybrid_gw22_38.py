@@ -25,7 +25,6 @@ sys.path.insert(0,str(ROOT/'src'));sys.path.insert(0,str(ROOT/'scripts'))
 
 import run_horizon_policy_comparison as hp
 import run_transfer_strategy_v3_replay as base
-from run_v4_performance_rating_experiment import player_id_map
 from fpl_xpts.optimize import plan_squad
 from fpl_xpts.season_replay import OwnedPlayer,ReplayState,actual_team_points,initial_squad,valid_squad
 from fpl_xpts.transfer_planner import execute_first_action
@@ -45,13 +44,34 @@ def ints(cell):
     return [int(float(x)) for x in str(cell).split(';') if x and x!='nan']
 
 
+def _norm_name(x):
+    import unicodedata
+    s=unicodedata.normalize('NFKD',str(x)).encode('ascii','ignore').decode().casefold()
+    return ''.join(ch for ch in s if ch.isalnum())
+
 def mapping_uuid_to_id(gws,names):
-    direct=player_id_map()
-    out={str(uuid):int(pid) for pid,uuid in direct.items()}
-    need=set(pd.read_csv(VFINAL/'predictions.csv.gz',usecols=['player_uuid']).player_uuid.astype(str))
-    missing=sorted(need-set(out))
-    if missing:
-        raise RuntimeError(f'unresolved vFinal UUID->FPL ids: {len(missing)} first={missing[:10]}')
+    # Build the broadest reproducible bridge available in the committed replay
+    # inputs. Use unique canonical/web/full-name matches only; ambiguous or
+    # unresolved UUIDs stay unmapped and retain the frozen Phase5Q forecast.
+    feat=pd.read_csv(
+        ROOT/'analysis/results/workload-recovered-v4/all_features.csv.gz',
+        usecols=['player_uuid','player']
+    ).drop_duplicates()
+    raw=hp.unpack_runtime('players_raw.csv').drop_duplicates('id').copy()
+    candidates={}
+    for r in raw.itertuples():
+        vals=[getattr(r,'web_name','')]
+        first=getattr(r,'first_name',''); second=getattr(r,'second_name','')
+        if str(first)!='nan' or str(second)!='nan':
+            vals.append(f"{first} {second}")
+        for v in vals:
+            k=_norm_name(v)
+            if k:candidates.setdefault(k,set()).add(int(r.id))
+    out={}
+    for r in feat.itertuples():
+        ids=candidates.get(_norm_name(r.player),set())
+        if len(ids)==1:
+            out[str(r.player_uuid)]=next(iter(ids))
     return out
 
 
@@ -79,7 +99,10 @@ def reconstruct_state_at_gw22(gws,names,forecast):
 def vfinal_current_table(uuid_to_id):
     p=pd.read_csv(VFINAL/'predictions.csv.gz')
     p['id']=p.player_uuid.astype(str).map(uuid_to_id)
+    total_uuid=int(p.player_uuid.nunique())
     p=p[p.id.notna()].copy();p.id=p.id.astype(int)
+    mapped_uuid=int(p.player_uuid.nunique())
+    print(f'vFinal identity coverage: {mapped_uuid}/{total_uuid} UUIDs mapped; unresolved rows keep Phase5Q',flush=True)
     x=p.groupby(['gw','id'],as_index=False).agg(xpts_mean=('vfinal_xpts','sum'))
 
     m=pd.read_csv(MINS)
