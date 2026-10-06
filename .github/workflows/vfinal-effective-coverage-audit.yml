@@ -1,0 +1,26 @@
+name: vFinal effective coverage audit
+on:
+  push:
+    branches: [audit-role-minutes-20261001]
+    paths:
+      - 'scripts/run_vfinal_effective_coverage_audit.py'
+      - '.github/workflows/vfinal-effective-coverage-audit.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  audit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: pip install -r requirements-model-checkpoint.txt
+      - run: PYTHONPATH=src python scripts/run_vfinal_effective_coverage_audit.py
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: vfinal-effective-coverage-audit
+          path: analysis/results/vfinal-effective-coverage-audit-20261006-v2
