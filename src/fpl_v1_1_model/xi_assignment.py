@@ -108,7 +108,7 @@ def build_score_matrix(players:Sequence[Mapping],slots:Sequence[Slot],*,
         for j,slot in enumerate(slots):
             qr=q.get(slot.role,0.0)
             hr=h.get(slot.role,0.0)
-            if qr<min_q or hr<=0:
+            if qr<min_q:
                 continue
             mat[i,j]=role_score(q_role=qr,hierarchy=hr,performance=perf,
                                 base_p_start=base,q_weight=q_weight,h_weight=h_weight,
