@@ -1,0 +1,21 @@
+Traceback (most recent call last):
+  File "/home/runner/work/fpl-analytics-app/fpl-analytics-app/scripts/run_mm_uncertain_starter_audit.py", line 181, in <module>
+    if __name__=='__main__':main()
+                            ^^^^^^
+  File "/home/runner/work/fpl-analytics-app/fpl-analytics-app/scripts/run_mm_uncertain_starter_audit.py", line 61, in main
+    p0,q0,sub0,xm0,_=full_mm(frame,tr)
+                     ^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/fpl-analytics-app/fpl-analytics-app/scripts/run_mm_unified_official_roles.py", line 323, in full_mm
+    p,perf=fit_perf_offset(frame,p0,train,PERF_FAMILIES['last'],PERF_L2)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/fpl-analytics-app/fpl-analytics-app/scripts/run_v4_performance_rating_experiment.py", line 155, in fit_offset
+    X=frame[features].to_numpy(float)
+      ~~~~~^^^^^^^^^^
+  File "/opt/hostedtoolcache/Python/3.12.14/x64/lib/python3.12/site-packages/pandas/core/frame.py", line 4108, in __getitem__
+    indexer = self.columns._get_indexer_strict(key, "columns")[1]
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/hostedtoolcache/Python/3.12.14/x64/lib/python3.12/site-packages/pandas/core/indexes/base.py", line 6200, in _get_indexer_strict
+    self._raise_if_missing(keyarr, indexer, axis_name)
+  File "/opt/hostedtoolcache/Python/3.12.14/x64/lib/python3.12/site-packages/pandas/core/indexes/base.py", line 6249, in _raise_if_missing
+    raise KeyError(f"None of [{key}] are in the [{axis_name}]")
+KeyError: "None of [Index(['perf_hist_n', 'perf_last_minutes', 'perf_last_goal_assist',\n       'perf_last_xgi', 'perf_last_sot', 'perf_last_chances',\n       'perf_last_dribbles', 'perf_last_def_actions', 'perf_last_pass_acc',\n       'perf_last_gk_actions', 'perf_last_goals_prevented',\n       'perf_last_goals_conceded', 'perf_last_dispossessed',\n       'perf_last_rating_proxy'],\n      dtype='object')] are in the [columns]"
