@@ -4,6 +4,8 @@ on:
     branches: [audit-role-minutes-20261001]
     paths:
       - 'scripts/run_pm_ts_vfinal_fullhorizon_proxy.py'
+      - 'src/fpl_xpts/identity.py'
+      - 'tests/test_identity.py'
       - '.github/workflows/pm-ts-vfinal-fullhorizon-proxy.yml'
   workflow_dispatch:
 permissions:
@@ -28,7 +30,9 @@ jobs:
           github-token: ${{ github.token }}
           repository: ${{ github.repository }}
           run-id: 37433364153
-      - name: Run GW22-38 full-horizon vFinal proxy
+      - name: Run identity tests
+        run: PYTHONPATH=src pytest -q tests/test_identity.py
+      - name: Run GW22-38 full-horizon vFinal proxy v2
         env:
           OPENBLAS_NUM_THREADS: '1'
           OMP_NUM_THREADS: '1'
@@ -37,5 +41,5 @@ jobs:
       - uses: actions/upload-artifact@v4
         if: always()
         with:
-          name: pm-ts-vfinal-fullhorizon-proxy
-          path: analysis/results/pm-ts-vfinal-fullhorizon-proxy-gw22-38-20261006-v1
+          name: pm-ts-vfinal-fullhorizon-proxy-v2
+          path: analysis/results/pm-ts-vfinal-fullhorizon-proxy-gw22-38-20261006-v2
