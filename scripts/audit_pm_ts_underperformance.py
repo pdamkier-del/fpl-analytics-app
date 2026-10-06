@@ -80,7 +80,13 @@ def main():
     c['score_delta']=c.score_new-c.score_old
     c['cum_delta']=c.cumulative_new-c.cumulative_old
     c['transfer_delta']=c.transfers_new-c.transfers_old
-    c['hit_delta']=c.hit_points_new-c.hit_cost_old if 'hit_points_new' in c else c.hit_cost_new-c.hit_cost_old
+    old_hit_col = 'hit_cost_old' if 'hit_cost_old' in c.columns else ('hit_points_old' if 'hit_points_old' in c.columns else None)
+    new_hit_col = 'hit_points_new' if 'hit_points_new' in c.columns else ('hit_cost_new' if 'hit_cost_new' in c.columns else None)
+    c['hit_delta'] = (
+        c[new_hit_col] - c[old_hit_col]
+        if old_hit_col is not None and new_hit_col is not None
+        else 0
+    )
     c.to_csv(OUT/'gameweek_comparison.csv',index=False)
 
     op=oldplans[['origin_gw','outgoing','incoming','transfers']].rename(columns={
