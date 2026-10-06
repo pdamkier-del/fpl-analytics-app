@@ -1,3 +1,33 @@
+# Latest checkpoint: MM architecture frozen (2026-10-06)
+
+See `2026-10-06-mm-final-architecture.md`.
+
+The Minute Model (MM) is now structurally frozen as the agreed model, while
+production promotion remains false pending genuinely fresh independent
+validation. Locked architecture: exact-11 P(start), official-club workload,
+verified non-PL q/H role history, Match Importance applied primarily to
+historical hierarchy H using dynamic Competition Value + Stage + Opponent
+Strength, q MI scale 0.10, H MI scale 0.40, evidence floor 0.35, retained
+performance residual, league-state subappearance sequence, frozen starter
+duration and 50/50 sequence-aware substitute duration blend (Ridge alpha 80).
+
+Verified role-history coverage includes PL, Champions League, Europa League,
+EFL Cup and the strictly verified subset of recovered FA Cup. Conference
+League remains in workload history but is not assigned guessed roles when the
+11-slot role evidence is insufficient. A tested all-official-match sequence
+variant and a targeted uncertain-starter correction were both rejected because
+they failed the development/generalisation guardrails.
+
+Reused GW22-38 diagnostic versus the previous combined MM: state log-loss
+0.437711 -> 0.435540, Brier 0.232550 -> 0.231644, xMins RMSE
+21.465868 -> 21.446396, bias -0.222459 -> -0.164589; MAE worsens
+11.444301 -> 11.549921. RMSE remains the primary conditional-mean xMins
+objective and MAE is retained as an explicit guardrail.
+
+**Next model area is PM. Do not tune MM indirectly during PM or TS work.**
+
+---
+
 # Latest checkpoint: combined exploratory minute candidate
 
 See `2026-10-05-combined-minutes-candidate.md`. The current best exploratory
