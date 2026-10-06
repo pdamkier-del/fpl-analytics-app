@@ -36,6 +36,7 @@ jobs:
         shell: bash
         run: |
           set +e
+          rm -rf analysis/results/fa-match-importance-20261006-v1
           PYTHONPATH=src python scripts/run_fa_match_importance_rebuild.py 2>&1 | tee /tmp/fa-mi-audit.log
           code=${PIPESTATUS[0]}
           echo "exit_code=${code}" >> "$GITHUB_OUTPUT"
