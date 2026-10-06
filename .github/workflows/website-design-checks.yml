@@ -1,0 +1,42 @@
+name: Website design checks
+
+on:
+  push:
+    branches: [audit-role-minutes-20261001]
+    paths:
+      - 'app/**'
+      - 'scripts/publish_fpl_update.py'
+      - '.github/workflows/publish-fpl-update.yml'
+      - '.github/workflows/website-design-checks.yml'
+  workflow_dispatch:
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: audit-role-minutes-20261001
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Validate Python
+        run: python -m py_compile scripts/publish_fpl_update.py start_app.py updater.py
+      - name: Validate shared JavaScript
+        run: node --check app/nav.js
+      - name: Validate HTML links and required pages
+        run: |
+          python - <<'PY'
+          from html.parser import HTMLParser
+          from pathlib import Path
+          required=['index.html','player.html','models.html','overview.html','rankings.html']
+          for name in required:
+              p=Path('app')/name
+              assert p.exists() and p.stat().st_size>100, name
+              class P(HTMLParser): pass
+              P().feed(p.read_text(encoding='utf-8'))
+          print('frontend structure ok')
+          PY
