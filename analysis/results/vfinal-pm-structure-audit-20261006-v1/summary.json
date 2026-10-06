@@ -1,0 +1,112 @@
+{
+  "classification": "structural audit of current vFinal simulation; no model change",
+  "fixture_team_rows": 288,
+  "expected_starters_min": 10.999999999998545,
+  "expected_starters_max": 11.00000000000171,
+  "mean_probability_not_exactly_11_starters": 0.7675084920085499,
+  "median_probability_not_exactly_11_starters": 0.7706808324251045,
+  "mean_probability_wrong_gk_count": 0.1623046484470455,
+  "mean_probability_zero_gk": 0.09441939120953474,
+  "mean_probability_two_plus_gk": 0.06788525723751074,
+  "mean_expected_abs_starter_count_deviation": 1.3453585029785218,
+  "worst_lineup_rows": [
+    {
+      "fixture_uuid": "4fe9f44c-bfba-5934-849a-d84876aa86e8",
+      "team_id": 8,
+      "gw": 32,
+      "p_not_11": 0.8159026835820493,
+      "starter_variance": 4.649647314610016,
+      "expected_abs_deviation": 1.692269247715836
+    },
+    {
+      "fixture_uuid": "ecd48097-3a63-58b6-a353-65332e720c42",
+      "team_id": 18,
+      "gw": 32,
+      "p_not_11": 0.8139224801183937,
+      "starter_variance": 4.567686347251538,
+      "expected_abs_deviation": 1.6755710911216217
+    },
+    {
+      "fixture_uuid": "ecd48097-3a63-58b6-a353-65332e720c42",
+      "team_id": 17,
+      "gw": 32,
+      "p_not_11": 0.8116817039421025,
+      "starter_variance": 4.478067416798566,
+      "expected_abs_deviation": 1.657226010987332
+    },
+    {
+      "fixture_uuid": "ee2e6f43-96fc-5070-b018-615238c06305",
+      "team_id": 2,
+      "gw": 32,
+      "p_not_11": 0.810392194942273,
+      "starter_variance": 4.402844807238949,
+      "expected_abs_deviation": 1.6436758218977505
+    },
+    {
+      "fixture_uuid": "4fe9f44c-bfba-5934-849a-d84876aa86e8",
+      "team_id": 15,
+      "gw": 32,
+      "p_not_11": 0.8080671507828678,
+      "starter_variance": 4.287193712926976,
+      "expected_abs_deviation": 1.6218407579745235
+    },
+    {
+      "fixture_uuid": "b28efaf8-9f88-581f-b35a-177aca0f37a6",
+      "team_id": 1,
+      "gw": 32,
+      "p_not_11": 0.8072546460394447,
+      "starter_variance": 4.2570213341582175,
+      "expected_abs_deviation": 1.615427498737179
+    },
+    {
+      "fixture_uuid": "6b1ba362-3ee7-5a51-8722-835e7613942b",
+      "team_id": 13,
+      "gw": 32,
+      "p_not_11": 0.8061179784902694,
+      "starter_variance": 4.226101687189033,
+      "expected_abs_deviation": 1.6080477555352932
+    },
+    {
+      "fixture_uuid": "6b1ba362-3ee7-5a51-8722-835e7613942b",
+      "team_id": 7,
+      "gw": 32,
+      "p_not_11": 0.8056253724034843,
+      "starter_variance": 4.181452267320468,
+      "expected_abs_deviation": 1.6008014229371887
+    },
+    {
+      "fixture_uuid": "3886cdbf-b8bc-5850-8a2a-d84384ac71f7",
+      "team_id": 19,
+      "gw": 32,
+      "p_not_11": 0.8047476612374522,
+      "starter_variance": 4.174104163556821,
+      "expected_abs_deviation": 1.5971016298172878
+    },
+    {
+      "fixture_uuid": "a0ae96c4-499d-5d2a-9cc8-6d59f1b73917",
+      "team_id": 16,
+      "gw": 26,
+      "p_not_11": 0.8029979989647137,
+      "starter_variance": 4.059902787108346,
+      "expected_abs_deviation": 1.5770393759397405
+    },
+    {
+      "fixture_uuid": "3886cdbf-b8bc-5850-8a2a-d84384ac71f7",
+      "team_id": 20,
+      "gw": 32,
+      "p_not_11": 0.8019539589743738,
+      "starter_variance": 4.07006178942305,
+      "expected_abs_deviation": 1.5755383871829847
+    },
+    {
+      "fixture_uuid": "5556a528-cdc7-5a14-8fd1-7f9b7820b711",
+      "team_id": 3,
+      "gw": 32,
+      "p_not_11": 0.8006767489957011,
+      "starter_variance": 4.013941051169712,
+      "expected_abs_deviation": 1.564360844522758
+    }
+  ],
+  "interpretation": "P(start) is normalized to 11 in expectation, but independent Bernoulli sampling does not enforce a legal XI in each Monte Carlo draw. This can make downstream on-pitch goal, clean-sheet, goals-conceded and BPS states internally inconsistent.",
+  "recommended_gate": "Replace independent starter Bernoulli draws with a joint role/availability-constrained XI sample before calling the PM structurally production-ready."
+}
