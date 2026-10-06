@@ -7,7 +7,9 @@ set "REPO=pdamkier-del/fpl-analytics-app"
 set "WORKFLOW=build-publisher-patch-v2.3.yml"
 
 echo.
-echo FPL Publisher
+echo ==========================================
+echo              FPL PUBLISHER
+echo ==========================================
 echo Repo: %REPO%
 echo.
 
@@ -15,7 +17,6 @@ where gh >nul 2>&1
 if errorlevel 1 (
   color 0C
   echo ERROR: GitHub CLI ^(gh^) blev ikke fundet.
-  echo Installer GitHub CLI og prov igen.
   echo.
   pause
   exit /b 1
@@ -26,56 +27,70 @@ gh auth status -h github.com
 if errorlevel 1 (
   color 0E
   echo.
-  echo Du er ikke logget ind i GitHub CLI.
-  echo Kor: gh auth login
-  echo og start publisheren igen.
+  echo GitHub CLI er ikke logget ind.
   echo.
   pause
   exit /b 1
 )
 
+set "OLD_RUN="
+for /f "delims=" %%R in ('gh run list --repo "%REPO%" --workflow "%WORKFLOW%" --event workflow_dispatch --limit 1 --json databaseId --jq ".[0].databaseId // empty" 2^>nul') do set "OLD_RUN=%%R"
+
 echo.
-echo Starter Publish FPL Update...
+echo Starter FPL-publisheren...
 gh workflow run "%WORKFLOW%" --repo "%REPO%" --ref main
 if errorlevel 1 (
   color 0C
   echo.
-  echo FAILURE: Kunne ikke starte publisher-workflowet.
+  echo FAILURE: Kunne ikke starte GitHub-workflowet.
   echo.
   pause
   exit /b 1
 )
 
-echo Venter pa at GitHub registrerer korslen...
+echo Venter pa at GitHub registrerer den nye korsel...
 set "RUN_ID="
-for /L %%I in (1,1,15) do (
-  for /f "delims=" %%R in ('gh run list --repo "%REPO%" --workflow "%WORKFLOW%" --event workflow_dispatch --limit 1 --json databaseId --jq ".[0].databaseId" 2^>nul') do set "RUN_ID=%%R"
-  if defined RUN_ID goto :WATCH
+for /L %%I in (1,1,30) do (
+  set "LATEST="
+  for /f "delims=" %%R in ('gh run list --repo "%REPO%" --workflow "%WORKFLOW%" --event workflow_dispatch --limit 1 --json databaseId --jq ".[0].databaseId // empty" 2^>nul') do set "LATEST=%%R"
+  if defined LATEST (
+    if not "!LATEST!"=="!OLD_RUN!" (
+      set "RUN_ID=!LATEST!"
+      goto :WATCH
+    )
+  )
   timeout /t 2 /nobreak >nul
 )
 
-color 0E
+color 0C
 echo.
-echo Workflowet blev startet, men run-id kunne ikke findes endnu.
-echo Tjek GitHub Actions for status.
+echo ==========================================
+echo FAILURE - RUN-ID KUNNE IKKE FINDES
+echo ==========================================
+echo.
+echo Workflowet kan vaere startet, men publisheren kunne ikke koble sig til korslen.
+echo Prov igen om et ojeblik.
 echo.
 pause
-exit /b 0
+exit /b 1
 
 :WATCH
 echo.
-echo Folger run !RUN_ID!...
+echo Fundet run !RUN_ID!.
+echo Folger publiceringen...
 echo.
 gh run watch !RUN_ID! --repo "%REPO%" --exit-status
+
 if errorlevel 1 (
   color 0C
   echo.
   echo ==========================================
-  echo FAILURE - FPL update blev ikke publiceret
+  echo FAILURE - PUBLICERING FEJLEDE
   echo ==========================================
   echo.
-  echo Abner den fejlede korsel i GitHub...
-  gh run view !RUN_ID! --repo "%REPO%" --web >nul 2>&1
+  echo Fejlede trin:
+  gh run view !RUN_ID! --repo "%REPO%" --log-failed
+  echo.
   pause
   exit /b 1
 )
@@ -83,10 +98,11 @@ if errorlevel 1 (
 color 0A
 echo.
 echo ==========================================
-echo SUCCESS - FPL update er publiceret
+echo SUCCESS - FPL UPDATE ER PUBLICERET
 echo ==========================================
 echo.
-echo Din FPL Analytics-app henter opdateringen ved naeste start.
+echo Luk FPL Analytics og start appen igen.
+echo Den henter den nye version automatisk.
 echo.
 pause
 exit /b 0
