@@ -397,7 +397,7 @@ def full_mm(frame,train):
 def main():
     OUT.mkdir(parents=True,exist_ok=True)
     frame=pd.read_csv(SOURCE).reset_index(drop=True)
-    frame=add_official_sequence_features(frame)
+    frame=add_sequence_features(frame)
     ledger=build_perf_ledger();frame=add_perf_features(frame,ledger)
     games,fa_skipped,classified=build_role_games()
     games=add_importance(games)
@@ -462,9 +462,9 @@ def main():
         'H':'recency-weighted role hierarchy with stronger Match Importance weighting',
         'match_importance':'dynamic competition value + stage + opponent strength on historical role evidence',
         'p_start':'role+workload logistic + retained last-match performance residual',
-        'substate':'sequence-aware q model C=4, 75% logit blend using all audited official club matches',
+        'substate':'league-state sequence q model C=4, 75% logit blend; all official matches already enter workload and role state',
         'start_duration':'retained frozen conditional starter duration',
-        'sub_duration':'50/50 frozen+sequence Ridge(alpha=80) with all-official-match sequence history',
+        'sub_duration':'50/50 frozen+sequence Ridge(alpha=80) using league-state sequence history',
         'exact_11':True},
       'promoted':False,
       'lock_rule':'Do not lock from reused diagnostic alone; this run establishes the agreed architecture and checks whether it behaves sensibly.'
