@@ -109,3 +109,60 @@ def infer_stage_2025_26(competition:str,kickoff,gameweek=None)->str:
         if m in (1,2):return "semi_final"
         if m==3:return "final"
     return "early_cup"
+
+# Important PL boundaries are configurable because European qualification can
+# differ by season. 2025/26 experiment uses title, UCL/Europe and relegation
+# boundaries; callers may override them with a season-specific certified set.
+DEFAULT_PL_BOUNDARIES=(1,5,7,17)
+
+def premier_race_multiplier(
+    *,position:int,points:float,opponent_position:int,opponent_points:float,
+    table_points_by_position:Mapping[int,float],games_remaining:int,
+    important_boundaries:Sequence[int]=DEFAULT_PL_BOUNDARIES,
+)->float:
+    """Cutoff-safe PL race urgency multiplier.
+
+    Increases PL priority when a club is close in points to an important table
+    boundary and when the opponent is a direct rival. The multiplier changes
+    only PL's raw share; normalized_competition_shares_v2 keeps the total
+    importance budget fixed.
+    """
+    # A points gap means more late in the season because there are fewer points
+    # left to recover. Keep the scale conservative and bounded.
+    remaining=max(1,int(games_remaining))
+    scale=max(2.0,min(8.0,0.22*remaining+1.5))
+
+    closeness=0.0
+    for b in important_boundaries:
+        bp=table_points_by_position.get(int(b))
+        if bp is None: continue
+        gap=abs(float(points)-float(bp))
+        closeness=max(closeness,max(0.0,1.0-gap/scale))
+
+    opp_gap=abs(float(points)-float(opponent_points))
+    same_race=max(0.0,1.0-opp_gap/scale)
+    position_proximity=max(0.0,1.0-abs(int(position)-int(opponent_position))/4.0)
+    direct_rival=same_race*position_proximity
+
+    # Late-season races should matter more than identical gaps in autumn.
+    late=1.0-min(1.0,remaining/37.0)
+    multiplier=1.0 + (0.55+0.35*late)*closeness + (0.30+0.35*late)*direct_rival
+    return float(min(2.10,max(1.0,multiplier)))
+
+def normalized_competition_shares_v2(
+    active:Sequence[tuple[str,str|None]],
+    *,
+    premier_race_mult:float=1.0,
+    base_values:Mapping[str,float]=BASE_COMPETITION_VALUES,
+)->dict[str,float]:
+    """Fixed-budget shares with PL race context. Sum is always one."""
+    raw={}
+    for comp,stage in active:
+        c=canonical_competition(comp)
+        v=raw_competition_priority(c,stage,base_values)
+        if c=="prem":
+            v*=max(0.0,float(premier_race_mult))
+        raw[c]=raw.get(c,0.0)+v
+    denom=sum(raw.values())
+    if denom<=0:return {c:0.0 for c in raw}
+    return {c:v/denom for c,v in raw.items()}
