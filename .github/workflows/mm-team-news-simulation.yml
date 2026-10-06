@@ -1,0 +1,41 @@
+name: MM Team News simulation
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [audit-role-minutes-20261001]
+    paths:
+      - '.github/workflows/mm-team-news-simulation.yml'
+
+jobs:
+  simulate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: audit-role-minutes-20261001
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install
+        run: |
+          pip install -r requirements-model-checkpoint.txt
+          pip install numpy pandas scipy scikit-learn pytest requests
+      - name: Restore strict Team News dataset
+        run: python scripts/restore_team_news_audit.py
+      - name: Validate Team News
+        run: python scripts/validate_team_news_audit.py
+      - name: Run MM Team News simulation
+        run: |
+          rm -rf analysis/results/mm-v2-team-news-availability-20261006-v2
+          PYTHONPATH=src python scripts/run_mm_v2_team_news_availability_experiment.py \
+            --ratings data_v1_1/derived/mm_v2_ratings/player_match_ratings.csv.gz \
+            --team-news-folder data_v1_1/derived/team_news_audit/2025-26-v2 \
+            --out analysis/results/mm-v2-team-news-availability-20261006-v2
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: mm-v2-team-news-availability-20261006-v2
+          path: analysis/results/mm-v2-team-news-availability-20261006-v2
+          retention-days: 90
