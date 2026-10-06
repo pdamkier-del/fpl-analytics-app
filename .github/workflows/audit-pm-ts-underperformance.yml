@@ -1,0 +1,42 @@
+name: Audit PM TS underperformance
+on:
+  push:
+    branches: [audit-role-minutes-20261001]
+    paths:
+      - 'scripts/audit_pm_ts_underperformance.py'
+      - '.github/workflows/audit-pm-ts-underperformance.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+  actions: read
+jobs:
+  audit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: {python-version: '3.12'}
+      - run: pip install -r requirements-model-checkpoint.txt
+      - name: Download TS v4 Phase5Q artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: ts-v4-joint-replay-resumed
+          path: analysis/results/compare_inputs/ts_v4_phase5q
+          github-token: ${{ github.token }}
+          repository: ${{ github.repository }}
+          run-id: 37433364153
+      - name: Download PM TS warmstart artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: pm-ts-vfinal-warmstart-fullseason
+          path: analysis/results/compare_inputs/pm_ts_vfinal
+          github-token: ${{ github.token }}
+          repository: ${{ github.repository }}
+          run-id: 37441525365
+      - run: PYTHONPATH=src python scripts/audit_pm_ts_underperformance.py
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: pm-ts-underperformance-audit
+          path: analysis/results/pm-ts-underperformance-audit-20261006-v1
