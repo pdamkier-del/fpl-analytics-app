@@ -1,0 +1,41 @@
+name: TS v4 joint full-season replay
+
+on:
+  push:
+    branches: [audit-role-minutes-20261001]
+    paths:
+      - 'scripts/run_transfer_strategy_v4_joint_replay.py'
+      - 'src/fpl_xpts/transfer_planner_joint.py'
+      - '.github/workflows/ts-v4-joint-replay.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  replay:
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install
+        run: |
+          pip install -r requirements-model-checkpoint.txt
+          pip install -r requirements-model-tests.txt
+      - name: Tests
+        run: PYTHONPATH=src pytest -q tests/test_transfer_planner_joint.py tests/test_transfer_planner.py tests/test_season_replay.py
+      - name: Run TS v4 full-season replay
+        env:
+          OPENBLAS_NUM_THREADS: '1'
+          OMP_NUM_THREADS: '1'
+          MKL_NUM_THREADS: '1'
+        run: PYTHONPATH=src python scripts/run_transfer_strategy_v4_joint_replay.py
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: ts-v4-joint-replay
+          path: analysis/results/transfer-strategy-v4-joint-replay-20261006-v1
+          if-no-files-found: warn
