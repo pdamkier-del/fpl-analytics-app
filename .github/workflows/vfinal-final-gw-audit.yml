@@ -1,0 +1,42 @@
+name: vFinal final GW audit
+on:
+  push:
+    branches: [audit-role-minutes-20261001]
+    paths:
+      - 'scripts/run_vfinal_final_gw_audit.py'
+      - '.github/workflows/vfinal-final-gw-audit.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+  actions: read
+jobs:
+  audit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: {python-version: '3.12'}
+      - run: pip install pandas==2.2.3
+      - name: Download model replay
+        uses: actions/download-artifact@v4
+        with:
+          name: pm-ts-vfinal-fullhorizon-proxy
+          path: analysis/results/final_audit_inputs/model
+          github-token: ${{ github.token }}
+          repository: ${{ github.repository }}
+          run-id: 37445455546
+      - name: Download oracle audit
+        uses: actions/download-artifact@v4
+        with:
+          name: vfinal-oracle-gap
+          path: analysis/results/final_audit_inputs/oracle
+          github-token: ${{ github.token }}
+          repository: ${{ github.repository }}
+          run-id: 37448764850
+      - run: python scripts/run_vfinal_final_gw_audit.py
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: vfinal-final-gw-audit
+          path: analysis/results/vfinal-final-gw-audit-20261006-v1
