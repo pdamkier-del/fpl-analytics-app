@@ -1,6 +1,6 @@
 import pytest
 
-from fpl_v1_1_model.xi_assignment import formation_slots,optimize_xi
+from fpl_v1_1_model.xi_assignment import formation_slots,optimize_xi,optimize_best_formation
 
 
 def player(pid,roles,base=.5,perf=.5):
@@ -81,3 +81,24 @@ def test_performance_can_break_close_role_hierarchy_tie():
     ]
     xi=optimize_xi(base,'4-2-3-1',performance_weight=1.0)
     assert {x.role:x.player_uuid for x in xi}['RB']=='rbB'
+
+
+def test_best_formation_returns_legal_unique_xi():
+    players=[
+        player('gk',{'GK':(1,.9)},.99),
+        player('rb',{'RB':(1,.9),'RWB':(.6,.6)},.9),
+        player('rcb',{'RCB':(1,.9)},.9),
+        player('lcb',{'LCB':(1,.9)},.9),
+        player('lb',{'LB':(1,.9),'LWB':(.6,.6)},.9),
+        player('rdm',{'RDM':(1,.9),'RCM':(.4,.4)},.9),
+        player('ldm',{'LDM':(1,.9),'LCM':(.4,.4)},.9),
+        player('ram',{'RAM':(1,.9),'RW':(.5,.5)},.9),
+        player('cam',{'CAM':(1,.9),'CM':(.3,.3)},.9),
+        player('lam',{'LAM':(1,.9),'LW':(.5,.5)},.9),
+        player('st',{'ST':(1,.9)},.9),
+        player('extra',{'CM':(1,.6),'ST':(.2,.2)},.5),
+    ]
+    out=optimize_best_formation(players,formations=['4-2-3-1','4-3-3'])
+    assert out['formation'] in {'4-2-3-1','4-3-3'}
+    assert len(out['xi'])==11
+    assert len({x.player_uuid for x in out['xi']})==11
