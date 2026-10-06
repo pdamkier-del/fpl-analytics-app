@@ -1,0 +1,151 @@
+{
+  "architecture": {
+    "H": "recency-weighted role hierarchy with stronger Match Importance weighting",
+    "exact_11": true,
+    "match_importance": "dynamic competition value + stage + opponent strength on historical role evidence",
+    "official_matches": "PL + verified CL/EL/Conference/EFL + verified FA role sides",
+    "p_start": "role+workload logistic + retained last-match performance residual",
+    "q": "recency-weighted role minutes with mild Match Importance weighting",
+    "start_duration": "retained frozen conditional starter duration",
+    "sub_duration": "retained 50/50 frozen+sequence Ridge(alpha=80)",
+    "substate": "retained sequence-aware q model C=4, 75% logit blend"
+  },
+  "classification": "unified official-club-match MM candidate; GW22-38 reused diagnostic only",
+  "development_candidates": [
+    {
+      "actual_q_sub_given_nonstart": 0.1382089552238806,
+      "h_importance_scale": 1.0,
+      "mean_q_sub_given_nonstart": 0.13438310604164674,
+      "n": 4670,
+      "q_importance_scale": 0.35,
+      "state_brier": 0.2356174772461932,
+      "state_log_loss": 0.4547062887901982,
+      "sub_brier_given_nonstart": 0.08117770899724115,
+      "xmins_bias": -0.01394513450642416,
+      "xmins_mae": 11.560602978048271,
+      "xmins_rmse": 21.7508818524869
+    },
+    {
+      "actual_q_sub_given_nonstart": 0.1382089552238806,
+      "h_importance_scale": 0.0,
+      "mean_q_sub_given_nonstart": 0.1342190070205845,
+      "n": 4670,
+      "q_importance_scale": 0.0,
+      "state_brier": 0.23563159544159312,
+      "state_log_loss": 0.4547793712661589,
+      "sub_brier_given_nonstart": 0.08117373093019792,
+      "xmins_bias": -0.015026035766827215,
+      "xmins_mae": 11.562473220730485,
+      "xmins_rmse": 21.751541163034368
+    },
+    {
+      "actual_q_sub_given_nonstart": 0.1382089552238806,
+      "h_importance_scale": 0.8,
+      "mean_q_sub_given_nonstart": 0.1342568659566975,
+      "n": 4670,
+      "q_importance_scale": 0.25,
+      "state_brier": 0.23562788525429038,
+      "state_log_loss": 0.454788962342682,
+      "sub_brier_given_nonstart": 0.08117600173138974,
+      "xmins_bias": -0.013678487625569061,
+      "xmins_mae": 11.561139341437146,
+      "xmins_rmse": 21.75232901997366
+    },
+    {
+      "actual_q_sub_given_nonstart": 0.1382089552238806,
+      "h_importance_scale": 0.4,
+      "mean_q_sub_given_nonstart": 0.13434702364940215,
+      "n": 4670,
+      "q_importance_scale": 0.1,
+      "state_brier": 0.23566097581492235,
+      "state_log_loss": 0.4547904028361755,
+      "sub_brier_given_nonstart": 0.08117973333630947,
+      "xmins_bias": -0.01361718791187381,
+      "xmins_mae": 11.561128795240085,
+      "xmins_rmse": 21.75404053569544
+    },
+    {
+      "actual_q_sub_given_nonstart": 0.1382089552238806,
+      "h_importance_scale": 0.65,
+      "mean_q_sub_given_nonstart": 0.13435174363379224,
+      "n": 4670,
+      "q_importance_scale": 0.2,
+      "state_brier": 0.235658137955807,
+      "state_log_loss": 0.4548193028645706,
+      "sub_brier_given_nonstart": 0.08116548557951105,
+      "xmins_bias": -0.012425307267726404,
+      "xmins_mae": 11.564179213118823,
+      "xmins_rmse": 21.755959398426416
+    }
+  ],
+  "fa_role_sides_skipped": 42,
+  "lock_rule": "Do not lock from reused diagnostic alone; this run establishes the agreed architecture and checks whether it behaves sensibly.",
+  "promoted": false,
+  "reused_diagnostic": {
+    "delta_unified_minus_old": {
+      "actual_q_sub_given_nonstart": 0.0,
+      "mean_q_sub_given_nonstart": 0.002166520121477125,
+      "n": 0,
+      "state_brier": -0.0009352350113048247,
+      "state_log_loss": -0.0022018076605975767,
+      "sub_brier_given_nonstart": 6.793987898030818e-05,
+      "xmins_bias": 0.058591063747996,
+      "xmins_mae": 0.10987014373162651,
+      "xmins_rmse": -0.020977828052931358
+    },
+    "old_combined": {
+      "actual_q_sub_given_nonstart": 0.1343807943788426,
+      "mean_q_sub_given_nonstart": 0.12271281903290746,
+      "n": 13987,
+      "state_brier": 0.2325500018982222,
+      "state_log_loss": 0.437711105015082,
+      "sub_brier_given_nonstart": 0.07893418263503087,
+      "xmins_bias": -0.22245894403247762,
+      "xmins_mae": 11.444300978642703,
+      "xmins_rmse": 21.465867777192223
+    },
+    "unified_mm": {
+      "actual_q_sub_given_nonstart": 0.1343807943788426,
+      "mean_q_sub_given_nonstart": 0.12487933915438458,
+      "n": 13987,
+      "state_brier": 0.23161476688691737,
+      "state_log_loss": 0.4355092973544844,
+      "sub_brier_given_nonstart": 0.07900212251401117,
+      "xmins_bias": -0.16386788028448163,
+      "xmins_mae": 11.55417112237433,
+      "xmins_rmse": 21.44488994913929
+    }
+  },
+  "role_coverage": [
+    {
+      "competition": "champions-league",
+      "role_player_rows": 473,
+      "team_games": 43
+    },
+    {
+      "competition": "efl-cup",
+      "role_player_rows": 275,
+      "team_games": 25
+    },
+    {
+      "competition": "europa-league",
+      "role_player_rows": 99,
+      "team_games": 9
+    },
+    {
+      "competition": "fa-cup",
+      "role_player_rows": 154,
+      "team_games": 14
+    },
+    {
+      "competition": "prem",
+      "role_player_rows": 8360,
+      "team_games": 760
+    }
+  ],
+  "selected_importance_weights": {
+    "H": 1.0,
+    "importance_floor": 0.35,
+    "q": 0.35
+  }
+}
