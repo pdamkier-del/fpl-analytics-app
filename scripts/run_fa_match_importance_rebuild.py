@@ -2,7 +2,7 @@
 """Recover 2025/26 FA Cup workload, rebuild workload features, and audit Match Importance.
 
 This is a historical reconstruction experiment. FA Cup match/lineup data are
-retrieved from SofaScore's public JSON endpoints. FPL player IDs and team IDs
+retrieved from FotMob's public JSON endpoints. FPL player IDs and team IDs
 are anchored to a pinned FPL-Core-Insights snapshot. Match outcomes are made
 available at kickoff+3h, matching the existing historical workload proxy.
 
@@ -45,9 +45,8 @@ from build_reproducible_role_benchmark import (
 OUT=ROOT/'analysis/results/fa-match-importance-20261006-v1'
 SOURCE_COMMIT='1c9191ab6b0c191378ea27f257fdab2bae63caba'
 SOURCE_REPO='olbauday/FPL-Core-Insights'
-SOFA_TOURNAMENT=19
-SOFA_SEASON=82557
-SOFA='https://api.sofascore.com/api/v1'
+FOTMOB_FA_LEAGUE=132
+FOTMOB='https://www.fotmob.com/api/data'
 FA_COMP='fa-cup'
 
 def norm(s):
@@ -72,28 +71,29 @@ def get_csv(path,session):
     r=session.get(url,timeout=30);r.raise_for_status()
     return pd.read_csv(io.StringIO(r.text))
 
-def fetch_fa_events(session):
-    events={}
-    empty=0
-    for page in range(30):
-        data=get_json(f'{SOFA}/unique-tournament/{SOFA_TOURNAMENT}/season/{SOFA_SEASON}/events/last/{page}',session)
-        batch=data.get('events',[])
-        if not batch:
-            empty+=1
-            if empty>=2: break
-        else: empty=0
-        for e in batch:
-            events[int(e['id'])]=e
-        if data.get('hasNextPage') is False: break
-    if not events:
-        raise RuntimeError('No FA Cup events returned by SofaScore')
-    return sorted(events.values(),key=lambda e:e.get('startTimestamp',0))
+def fotmob_minutes(value):
+    """Recursively find a FotMob per-player minutes field."""
+    if isinstance(value,dict):
+        for k,v in value.items():
+            nk=norm(k)
+            if nk in ('minutesplayed','minsplayed') and isinstance(v,(int,float)):
+                return float(v)
+            if nk in ('minutesplayed','minsplayed') and isinstance(v,dict):
+                for kk in ('value','stat'):
+                    z=v.get(kk)
+                    if isinstance(z,(int,float)): return float(z)
+            z=fotmob_minutes(v)
+            if z is not None:return z
+    elif isinstance(value,list):
+        for v in value:
+            z=fotmob_minutes(v)
+            if z is not None:return z
+    return None
 
 def team_aliases(teams):
     aliases={}
     for r in teams.itertuples(index=False):
         vals=[getattr(r,'name',None),getattr(r,'short_name',None),getattr(r,'fotmob_name',None)]
-        # common provider variants
         if int(r.id)==4: vals+=['Bournemouth','AFC Bournemouth']
         if int(r.id)==16: vals+=['Nottingham Forest',"Nott'm Forest"]
         if int(r.id)==18: vals+=['Tottenham','Tottenham Hotspur','Spurs']
@@ -123,7 +123,6 @@ def map_player(name,team_code,by_team,global_full):
     if len(ids)==1:return next(iter(ids)),'team_exact'
     ids=global_full.get(k,set())
     if len(ids)==1:return next(iter(ids)),'global_full_exact'
-    # conservative surname fallback only when unique inside team
     bits=re.findall(r'[A-Za-zÀ-ÿ]+',str(name or ''))
     if bits:
         ids=d.get('second:'+norm(bits[-1]),set())
@@ -132,70 +131,82 @@ def map_player(name,team_code,by_team,global_full):
 
 def recover_fa(session,teams,players):
     aliases=team_aliases(teams);by_team,global_full=player_indexes(players)
-    events=fetch_fa_events(session)
-    games=[];people=[];unresolved=[]
-    for e in events:
-        status=(e.get('status') or {}).get('type','')
-        if status not in ('finished','afterpenalties','afterextra'):
-            continue
-        home=e.get('homeTeam') or {};away=e.get('awayTeam') or {}
+    url=f'{FOTMOB}/leagues?id={FOTMOB_FA_LEAGUE}&season=2025%2F2026'
+    league=get_json(url,session)
+    fixtures=(league.get('fixtures') or {}).get('allMatches') or []
+    games=[];people=[];unresolved=[];used=[]
+    for e in fixtures:
+        status=e.get('status') or {}
+        if not status.get('finished'):continue
+        home=e.get('home') or {};away=e.get('away') or {}
         mapped=[]
         for side,t in [('home',home),('away',away)]:
             local=aliases.get(norm(t.get('name') or t.get('shortName')))
             if local is not None:mapped.append((side,t,local))
         if not mapped:continue
-        ts=e.get('startTimestamp')
-        if not ts:continue
-        ko=pd.Timestamp(datetime.fromtimestamp(int(ts),tz=timezone.utc))
+        match_id_raw=str(e.get('id') or '')
+        if not match_id_raw:continue
+        ko=pd.to_datetime(status.get('utcTime'),utc=True,errors='coerce')
+        if pd.isna(ko):continue
         known=ko+pd.Timedelta(hours=3)
-        line=get_json(f'{SOFA}/event/{int(e["id"])}/lineups',session)
-        round_info=e.get('roundInfo') or {}
-        round_name=str(round_info.get('name') or round_info.get('round') or '')
+        detail=get_json(f'{FOTMOB}/matchDetails?matchId={match_id_raw}',session)
+        content=detail.get('content') or {}
+        lineup=content.get('lineup') or {}
+        pstats=content.get('playerStats') or {}
+        round_name=str(e.get('roundName') or e.get('round') or (detail.get('general') or {}).get('matchRound') or '')
+        reason=(status.get('reason') or {}).get('short','')
+        max_minutes=120.0 if reason in ('AET','Pen') else 90.0
+        used.append(e)
         for side,t,local in mapped:
-            block=line.get(side) or {}
-            rows=block.get('players') or []
+            block=lineup.get(side+'Team') or {}
+            starters=block.get('starters') or []
+            subs=block.get('subs') or []
+            rows=[(x,True) for x in starters]+[(x,False) for x in subs]
             mapped_n=0;missing_starters=0
-            match_id=f'fa-sofa-{int(e["id"])}'
-            for item in rows:
-                p=item.get('player') or {}
-                pname=p.get('name') or p.get('shortName') or ''
-                substitute=bool(item.get('substitute',False))
-                started=not substitute
-                stats=item.get('statistics') or {}
-                mins=stats.get('minutesPlayed')
+            mid=f'fa-fotmob-{match_id_raw}'
+            for item,started in rows:
+                pname=item.get('name') or ''
+                pid=item.get('id')
+                statrow=pstats.get(str(pid),{}) if isinstance(pstats,dict) else {}
+                mins=fotmob_minutes(statrow)
+                if mins is None:mins=fotmob_minutes(item)
                 if mins is None:
-                    if substitute:
-                        mins=0.0
+                    on=item.get('timeSubbedOn');off=item.get('timeSubbedOff')
+                    if started:
+                        if isinstance(off,(int,float)):mins=float(off)
+                        else:mins=max_minutes
                     else:
-                        missing_starters+=1
-                        continue
+                        if isinstance(on,(int,float)):mins=max(0.0,max_minutes-float(on))
+                        else:mins=0.0
                 mins=float(mins)
                 if not np.isfinite(mins) or mins<0 or mins>120:
                     if started:missing_starters+=1
                     continue
                 fpl_id,rule=map_player(pname,int(local.code),by_team,global_full)
                 if fpl_id is None:
-                    unresolved.append(dict(event_id=int(e['id']),team_id=int(local.id),team=str(local.name),
+                    unresolved.append(dict(event_id=int(match_id_raw),team_id=int(local.id),team=str(local.name),
                                            player=pname,started=started,minutes=mins))
                     if started:missing_starters+=1
                     continue
                 mapped_n+=1
-                people.append(dict(match_id=match_id,source_event_id=int(e['id']),team_id=int(local.id),
+                people.append(dict(match_id=mid,source_event_id=int(match_id_raw),team_id=int(local.id),
                                    team_code=int(local.code),fpl_player_id=int(fpl_id),player_name=pname,
                                    kickoff=ko.isoformat(),available_at=known.isoformat(),competition=FA_COMP,
                                    started=started,minutes=mins,mapping_rule=rule,round_name=round_name))
-            games.append(dict(match_id=match_id,source_event_id=int(e['id']),team_id=int(local.id),
+            games.append(dict(match_id=mid,source_event_id=int(match_id_raw),team_id=int(local.id),
                               team_code=int(local.code),competition=FA_COMP,kickoff=ko.isoformat(),
                               available_at=known.isoformat(),mapped_players=mapped_n,
-                              complete_player_stats=(missing_starters==0 and sum(1 for x in rows if not x.get('substitute',False))>=11),
+                              complete_player_stats=(missing_starters==0 and len(starters)==11),
                               missing_starter_stats=missing_starters,round_name=round_name,
                               opponent=str((away if side=='home' else home).get('name') or ''),
-                              source='SofaScore public JSON; historical kickoff+3h availability proxy'))
-    g=pd.DataFrame(games).drop_duplicates(['match_id','team_id']).sort_values(['kickoff','match_id','team_id'])
-    p=pd.DataFrame(people).drop_duplicates(['match_id','team_id','fpl_player_id']).sort_values(['kickoff','match_id','team_id','fpl_player_id'])
+                              source='FotMob public JSON; historical kickoff+3h availability proxy'))
+    g=pd.DataFrame(games)
+    p=pd.DataFrame(people)
     u=pd.DataFrame(unresolved)
     if g.empty or p.empty:raise RuntimeError('FA Cup recovery produced no PL-club workload')
-    return g,p,u,events
+    g=g.drop_duplicates(['match_id','team_id']).sort_values(['kickoff','match_id','team_id'])
+    p=p.drop_duplicates(['match_id','team_id','fpl_player_id']).sort_values(['kickoff','match_id','team_id','fpl_player_id'])
+    return g,p,u,used
 
 def build_fpl_uuid_map():
     cls=pd.read_csv(ROOT/'analysis/results/reproducible-role-v1/classified_starters.csv')
@@ -409,7 +420,7 @@ def main():
     pd.DataFrame(slices).to_csv(OUT/'diagnostic_slices.csv',index=False)
     summary=dict(
       classification='FA Cup workload + hierarchy-modulated Match Importance exploratory rebuild',
-      source=dict(fpl_core_commit=SOURCE_COMMIT,sofascore_tournament=SOFA_TOURNAMENT,sofascore_season=SOFA_SEASON,
+      source=dict(fpl_core_commit=SOURCE_COMMIT,fotmob_fa_league=FOTMOB_FA_LEAGUE,
                   historical_availability='kickoff+3h proxy, same convention as existing workload'),
       fa_cup=dict(events_seen=len(events),pl_team_games=len(fa_games),player_rows=len(fa_people),
                   mapped_uuid_rows=len(mapped_fa),unresolved_rows=len(unresolved),missing_uuid_after_fpl_mapping=missing_uuid,
