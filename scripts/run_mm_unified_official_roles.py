@@ -339,7 +339,7 @@ def main():
         met=metrics(f,dev,p,q,xm)
         candidates.append({'q_importance_scale':qs,'h_importance_scale':hs,**met})
         dev_frames[(qs,hs)]=f
-    cand=pd.DataFrame(candidates).sort_values(['xmins_rmse','start_log_loss','xmins_mae'])
+    cand=pd.DataFrame(candidates).sort_values(['xmins_rmse','state_log_loss','xmins_mae'])
     cand.to_csv(OUT/'development_candidates.csv',index=False)
     best=cand.iloc[0];qs=float(best.q_importance_scale);hs=float(best.h_importance_scale)
 
