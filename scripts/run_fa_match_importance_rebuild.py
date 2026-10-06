@@ -38,6 +38,7 @@ from fpl_v1_1_model.match_importance import (
     premier_league_stage_strength,opponent_strength_from_elo,hierarchy_interactions
 )
 from fpl_v1_1_model.minutes_decomposition import compose_expected_minutes
+from fpl_xpts.identity import resolve_uuid_to_fpl_ids
 from build_reproducible_role_benchmark import (
     BASE_FEATURES,ROLE_FEATURES,write_json,write_prediction_csv
 )
@@ -72,16 +73,27 @@ def get_csv(path,session):
     return pd.read_csv(io.StringIO(r.text))
 
 def fotmob_minutes(value):
-    """Recursively find a FotMob per-player minutes field."""
+    """Recursively find a FotMob per-player Minutes played statistic."""
     if isinstance(value,dict):
+        label=norm(value.get('title') or value.get('key') or '')
+        if label in ('minutesplayed','minsplayed'):
+            z=value.get('stat')
+            if isinstance(z,(int,float)):return float(z)
+            if isinstance(z,dict):
+                q=z.get('value')
+                if isinstance(q,(int,float)):return float(q)
+            q=value.get('value')
+            if isinstance(q,(int,float)):return float(q)
         for k,v in value.items():
             nk=norm(k)
             if nk in ('minutesplayed','minsplayed') and isinstance(v,(int,float)):
                 return float(v)
             if nk in ('minutesplayed','minsplayed') and isinstance(v,dict):
-                for kk in ('value','stat'):
-                    z=v.get(kk)
-                    if isinstance(z,(int,float)): return float(z)
+                q=v.get('value')
+                if isinstance(q,(int,float)): return float(q)
+                q=v.get('stat')
+                if isinstance(q,(int,float)): return float(q)
+                if isinstance(q,dict) and isinstance(q.get('value'),(int,float)):return float(q['value'])
             z=fotmob_minutes(v)
             if z is not None:return z
     elif isinstance(value,list):
@@ -114,7 +126,8 @@ def player_indexes(players):
         for k in keys:
             if k:d.setdefault(k,set()).add(int(r.player_id))
         if second:d.setdefault('second:'+second,set()).add(int(r.player_id))
-        if full:global_full.setdefault(full,set()).add(int(r.player_id))
+        for k in keys:
+            if k:global_full.setdefault(k,set()).add(int(r.player_id))
     return by_team,global_full
 
 def map_player(name,team_code,by_team,global_full):
@@ -208,7 +221,22 @@ def recover_fa(session,teams,players):
     p=p.drop_duplicates(['match_id','team_id','fpl_player_id']).sort_values(['kickoff','match_id','team_id','fpl_player_id'])
     return g,p,u,used
 
-def build_fpl_uuid_map():
+def build_fpl_uuid_map(players):
+    # Reuse the project's audited conservative identity resolver instead of
+    # relying only on exact starter-name joins.
+    feats=pd.read_csv(ROOT/'analysis/results/reproducible-role-v1/all_feature_predictions.csv.gz')[['player_uuid','player']].drop_duplicates()
+    raw=players.rename(columns={'player_id':'id'}).copy()
+    for col in ('known_name','first_name','second_name','web_name'):
+        if col not in raw:raw[col]=''
+    raw=raw[['id','known_name','first_name','second_name','web_name']].drop_duplicates('id')
+    u2f,matches=resolve_uuid_to_fpl_ids(feats,raw)
+    inv={}
+    for uid,fid in u2f.items():
+        if fid in inv and inv[fid]!=uid:
+            raise ValueError(f'ambiguous FPL id -> UUID {fid}')
+        inv[int(fid)]=str(uid)
+    # Starter exact joins remain a deterministic supplement for any identities
+    # absent from the feature-level resolver.
     cls=pd.read_csv(ROOT/'analysis/results/reproducible-role-v1/classified_starters.csv')
     line=[]
     for gw in range(1,39):
@@ -224,7 +252,9 @@ def build_fpl_uuid_map():
     bad=pairs.groupby('player_id').player_uuid.nunique()
     bad=set(bad[bad>1].index)
     pairs=pairs[~pairs.player_id.isin(bad)]
-    return {int(r.player_id):str(r.player_uuid) for r in pairs.itertuples(index=False)}
+    for r in pairs.itertuples(index=False):
+        inv.setdefault(int(r.player_id),str(r.player_uuid))
+    return inv
 
 def rebuild_workload_features(fa_games,fa_people,uuid_map):
     base=ROOT/'analysis/results/workload-recovered-v4'
@@ -362,11 +392,14 @@ def main():
     OUT.mkdir(parents=True)
     s=requests.Session();s.headers.update({'User-Agent':'Mozilla/5.0 (FPL historical model audit)'})
     teams=get_csv('data/2025-2026/By Gameweek/GW38/teams.csv',s)
-    players=get_csv('data/2025-2026/By Gameweek/GW38/players.csv',s)
+    player_parts=[]
+    for gw in range(1,39):
+        player_parts.append(get_csv(f'data/2025-2026/By Gameweek/GW{gw}/players.csv',s))
+    players=pd.concat(player_parts,ignore_index=True).drop_duplicates(['player_id','team_code','first_name','second_name','web_name'])
     fa_games,fa_people,unresolved,events=recover_fa(s,teams,players)
     fa_games.to_csv(OUT/'fa_team_games.csv',index=False);fa_people.to_csv(OUT/'fa_player_minutes.csv',index=False)
     unresolved.to_csv(OUT/'fa_unresolved_players.csv',index=False)
-    uuid_map=build_fpl_uuid_map()
+    uuid_map=build_fpl_uuid_map(players)
     frame,mapped_fa,missing_uuid=rebuild_workload_features(fa_games,fa_people,uuid_map)
     mapped_fa.to_csv(OUT/'fa_player_minutes_uuid.csv',index=False)
     cls=pd.read_csv(ROOT/'analysis/results/reproducible-role-v1/classified_starters.csv')
