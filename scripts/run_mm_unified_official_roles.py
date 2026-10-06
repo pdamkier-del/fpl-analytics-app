@@ -62,66 +62,6 @@ PARAM_GRID=[(0.0,0.0),(0.10,0.40),(0.20,0.65),(0.25,0.80),(0.35,1.0)]
 MI_PARAMS=MatchImportanceParams(intercept=-1.0,competition_coef=1.0,round_coef=1.0,opponent_coef=1.0,scarcity_eta=.35)
 
 
-def official_minutes_ledger():
-    base=pd.read_csv(ROOT/'analysis/results/workload-recovered-v4/official_player_minutes.csv')
-    base=base[['match_id','player_uuid','available_at','started','minutes']].copy()
-    fa=pd.read_csv(FA_DIR/'fa_player_minutes_uuid.csv')
-    fa=fa[['match_id','player_uuid','available_at','started','minutes']].copy()
-    x=pd.concat([base,fa],ignore_index=True)
-    x['available_at']=pd.to_datetime(x.available_at,utc=True,errors='raise')
-    x['started']=x.started.fillna(False).astype(bool)
-    x=x.drop_duplicates(['match_id','player_uuid']).sort_values(['player_uuid','available_at','match_id'])
-    return x
-
-def add_official_sequence_features(frame):
-    """Same sequence schema as v4-3S, but history is all audited official club matches."""
-    f=frame.copy().reset_index(drop=True)
-    ledger=official_minutes_ledger()
-    by={str(pid):g[['available_at','started','minutes']].to_records(index=False)
-        for pid,g in ledger.groupby('player_uuid',sort=False)}
-    rows=[]
-    for r in f.itertuples(index=False):
-        cutoff=pd.to_datetime(r.cutoff,utc=True)
-        hist=[]
-        for z in by.get(str(r.player_uuid),[]):
-            t=pd.Timestamp(z[0])
-            if t<cutoff:hist.append((t,int(bool(z[1])),float(z[2])))
-        hist=hist[-8:]
-        mins=[z[2] for z in hist];starts=[z[1] for z in hist]
-        states=[2 if z[1] else (1 if z[2]>0 else 0) for z in hist]
-        def tail_mean(x,n):return float(np.mean(x[-n:])) if x else 0.
-        def share(pred,n):
-            q=hist[-n:];return float(np.mean([pred(v) for v in q])) if q else 0.
-        def streak(pred):
-            n=0
-            for v in reversed(states):
-                if pred(v):n+=1
-                else:break
-            return float(n)
-        if len(mins)>=2:
-            recent2=float(np.mean(mins[-2:]));prev3=mins[-5:-2]
-            trend=recent2-(float(np.mean(prev3)) if prev3 else float(np.mean(mins[:-2])) if len(mins)>2 else recent2)
-        else:trend=0.
-        z5=np.asarray(mins[-5:],float)
-        slope=float(np.polyfit(np.arange(len(z5)),z5,1)[0]) if len(z5)>=2 else 0.
-        rows.append({
-          'seq_hist_n':float(min(len(hist),5)),
-          'seq_last_minutes':mins[-1] if mins else 0.,
-          'seq_prev_minutes':mins[-2] if len(mins)>=2 else (mins[-1] if mins else 0.),
-          'seq_mean2_minutes':tail_mean(mins,2),'seq_mean3_minutes':tail_mean(mins,3),'seq_mean5_minutes':tail_mean(mins,5),
-          'seq_last_started':float(starts[-1]) if starts else 0.,
-          'seq_start_share3':share(lambda z:z[1]==1,3),'seq_start_share5':share(lambda z:z[1]==1,5),
-          'seq_sub_share3':share(lambda z:z[1]==0 and z[2]>0,3),'seq_sub_share5':share(lambda z:z[1]==0 and z[2]>0,5),
-          'seq_zero_share3':share(lambda z:z[2]==0,3),'seq_zero_share5':share(lambda z:z[2]==0,5),
-          'seq_trend_2_vs_prev3':trend,'seq_minutes_slope5':slope,
-          'seq_start_streak':streak(lambda s:s==2),'seq_nonstart_streak':streak(lambda s:s!=2),
-          'seq_60plus_share3':share(lambda z:z[2]>=60,3),'seq_60plus_share5':share(lambda z:z[2]>=60,5),
-          'seq_changed_state_last':float(len(states)>=2 and states[-1]!=states[-2])})
-    seq=pd.DataFrame(rows,index=f.index)
-    for col in SEQ_FEATURES:f[col]=seq[col].to_numpy(float)
-    assert np.isfinite(f[SEQ_FEATURES].to_numpy(float)).all()
-    return f
-
 def norm(s):
     s=unicodedata.normalize('NFKD',str(s or ''))
     s=''.join(c for c in s if not unicodedata.combining(c)).lower().replace('&','and')
