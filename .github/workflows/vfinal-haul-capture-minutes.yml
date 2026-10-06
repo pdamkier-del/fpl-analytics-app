@@ -1,0 +1,38 @@
+name: vFinal haul capture and minutes audit
+on:
+  workflow_dispatch:
+permissions:
+  contents: read
+  actions: read
+jobs:
+  audit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: pip install -r requirements-model-checkpoint.txt
+      - name: Download model replay
+        uses: actions/download-artifact@v4
+        with:
+          name: pm-ts-vfinal-fullhorizon-proxy-v2
+          path: analysis/results/haul_capture_inputs/model
+          github-token: ${{ github.token }}
+          repository: ${{ github.repository }}
+          run-id: 37452172061
+      - name: Download baseline state replay
+        uses: actions/download-artifact@v4
+        with:
+          name: ts-v4-joint-replay-resumed
+          path: analysis/results/haul_capture_inputs/base
+          github-token: ${{ github.token }}
+          repository: ${{ github.repository }}
+          run-id: 37433364153
+      - run: PYTHONPATH=src python scripts/run_vfinal_haul_capture_minutes_audit.py
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: vfinal-haul-capture-minutes-audit
+          path: analysis/results/vfinal-haul-capture-minutes-audit-20261006-v1
