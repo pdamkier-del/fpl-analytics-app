@@ -36,18 +36,21 @@ jobs:
         shell: bash
         run: |
           set +e
-          mkdir -p analysis/results/fa-match-importance-20261006-v1
-          PYTHONPATH=src python scripts/run_fa_match_importance_rebuild.py 2>&1 | tee analysis/results/fa-match-importance-20261006-v1/run.log
+          PYTHONPATH=src python scripts/run_fa_match_importance_rebuild.py 2>&1 | tee /tmp/fa-mi-audit.log
           code=${PIPESTATUS[0]}
           echo "exit_code=${code}" >> "$GITHUB_OUTPUT"
+          if [ "${code}" != "0" ]; then
+            mkdir -p analysis/results/fa-match-importance-20261006-v1
+            cp /tmp/fa-mi-audit.log analysis/results/fa-match-importance-20261006-v1/run.log
+          fi
           exit 0
       - name: Commit audit outputs
         if: always()
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add analysis/results/fa-match-importance-20261006-v1
-          git commit -m "results: FA Cup workload and Match Importance audit trace" || exit 0
+          git add -f analysis/results/fa-match-importance-20261006-v1
+          git commit -m "results: FA Cup workload and Match Importance audit" || exit 0
           git push origin HEAD:audit-role-minutes-20261001
       - name: Fail if rebuild failed
         if: steps.audit.outputs.exit_code != '0'
