@@ -1,0 +1,94 @@
+name: Build Publisher Patch v2.3
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: build-publisher-patch-v2.3
+  cancel-in-progress: false
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out website/model source
+        uses: actions/checkout@v4
+        with:
+          ref: audit-role-minutes-20261001
+          fetch-depth: 0
+          path: source
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Build publish package
+        working-directory: source
+        run: |
+          set -euo pipefail
+          python scripts/publish_fpl_update.py --message "Published from Build Publisher Patch v2.3"
+
+      - name: Verify package
+        working-directory: source
+        run: |
+          python - <<'PY'
+          import gzip, hashlib, json
+          from pathlib import Path
+
+          m=json.loads(Path('updates/manifest.json').read_text(encoding='utf-8'))
+          app=Path('updates')/Path(m['app']['url']).name
+          data=Path('updates/data-base.json.gz')
+          assert app.exists(), app
+          assert data.exists(), data
+          assert hashlib.sha256(app.read_bytes()).hexdigest()==m['app']['sha256']
+          assert hashlib.sha256(data.read_bytes()).hexdigest()==m['data']['sha256']
+          raw=gzip.decompress(data.read_bytes())
+          assert hashlib.sha256(raw).hexdigest()==m['data']['uncompressed_sha256']
+          payload=json.loads(raw)
+          assert isinstance(payload, dict)
+          assert 'meta' in payload and 'forecasts' in payload
+          print('Publisher package verified')
+          PY
+
+      - name: Check out public update channel
+        uses: actions/checkout@v4
+        with:
+          ref: main
+          fetch-depth: 0
+          path: target
+
+      - name: Publish update to main
+        run: |
+          set -euo pipefail
+          mkdir -p target/updates
+          app_name="$(python - <<'PY'
+          import json
+          from pathlib import Path
+          m=json.loads(Path('source/updates/manifest.json').read_text(encoding='utf-8'))
+          print(Path(m['app']['url']).name)
+          PY
+          )"
+          cp "source/updates/$app_name" "target/updates/$app_name"
+          cp source/updates/data-base.json.gz target/updates/data-base.json.gz
+          cp source/updates/manifest.json target/updates/manifest.json
+          cp source/VERSION.txt target/VERSION.txt
+          cp source/DATA_VERSION.txt target/DATA_VERSION.txt
+
+      - name: Commit published update
+        working-directory: target
+        run: |
+          set -euo pipefail
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add updates/ VERSION.txt DATA_VERSION.txt
+          if git diff --cached --quiet; then
+            echo "No changes to publish."
+            exit 0
+          fi
+          git commit -m "publish: FPL update $(cat VERSION.txt)"
+          git pull --rebase origin main
+          git push origin HEAD:main
