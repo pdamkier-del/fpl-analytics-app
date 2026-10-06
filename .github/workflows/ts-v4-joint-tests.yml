@@ -1,0 +1,29 @@
+name: TS v4 joint planner tests
+
+on:
+  push:
+    branches: [audit-role-minutes-20261001]
+    paths:
+      - 'src/fpl_xpts/transfer_planner_joint.py'
+      - 'tests/test_transfer_planner_joint.py'
+      - '.github/workflows/ts-v4-joint-tests.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install
+        run: |
+          pip install -r requirements-model-checkpoint.txt
+          pip install -r requirements-model-tests.txt
+      - name: Joint planner unit tests
+        run: PYTHONPATH=src pytest -q tests/test_transfer_planner_joint.py tests/test_transfer_planner.py
