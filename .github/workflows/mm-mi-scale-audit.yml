@@ -1,0 +1,30 @@
+name: MM Match Importance scale audit
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [audit-role-minutes-20261001]
+    paths:
+      - 'scripts/audit_match_importance_scale.py'
+      - '.github/workflows/mm-mi-scale-audit.yml'
+
+jobs:
+  audit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: audit-role-minutes-20261001
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: |
+          pip install -r requirements-model-checkpoint.txt
+          pip install pandas numpy
+      - run: PYTHONPATH=src python scripts/audit_match_importance_scale.py
+      - uses: actions/upload-artifact@v4
+        with:
+          name: mi-scale-audit-20261006-v1
+          path: analysis/results/mi-scale-audit-20261006-v1
+          retention-days: 90
