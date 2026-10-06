@@ -97,10 +97,10 @@ def main():
     summary={
         'teams':int(out.team.nunique()),
         'players':int(len(out)),
-        'unknown_role':int(out.flags.str.contains('UNKNOWN_ROLE').sum()),
-        'low_primary_q':int(out.flags.str.contains('LOW_PRIMARY_Q').sum()),
-        'multi_role':int(out.flags.str.contains('MULTI_ROLE').sum()),
-        'low_role_evidence':int(out.flags.str.contains('LOW_ROLE_EVIDENCE').sum()),
+        'unknown_role':int(out['flags'].str.contains('UNKNOWN_ROLE').sum()),
+        'low_primary_q':int(out['flags'].str.contains('LOW_PRIMARY_Q').sum()),
+        'multi_role':int(out['flags'].str.contains('MULTI_ROLE').sum()),
+        'low_role_evidence':int(out['flags'].str.contains('LOW_ROLE_EVIDENCE').sum()),
         'players_per_team':out.groupby('team').size().to_dict(),
         'primary_role_counts':out.primary_role.value_counts().to_dict(),
     }
