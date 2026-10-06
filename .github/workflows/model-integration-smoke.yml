@@ -1,0 +1,26 @@
+name: Model integration smoke
+on:
+  push:
+    branches: [audit-role-minutes-20261001]
+    paths:
+      - 'src/fpl_xpts/identity.py'
+      - 'tests/test_identity.py'
+      - 'src/fpl_v1_1_model/phase4b.py'
+      - 'tests/test_v1_1_phase4b.py'
+      - '.github/workflows/model-integration-smoke.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: |
+          pip install -r requirements-model-checkpoint.txt
+          pip install -r requirements-model-tests.txt
+      - run: PYTHONPATH=src pytest -q tests/test_identity.py tests/test_v1_1_phase4b.py
