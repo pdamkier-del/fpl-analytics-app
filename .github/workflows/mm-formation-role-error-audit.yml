@@ -2,11 +2,6 @@ name: MM formation role error audit
 
 on:
   workflow_dispatch:
-  push:
-    branches: [audit-role-minutes-20261001]
-    paths:
-      - 'scripts/audit_mm_formation_role_errors.py'
-      - '.github/workflows/mm-formation-role-error-audit.yml'
 
 permissions:
   contents: write
