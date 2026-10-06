@@ -95,7 +95,8 @@ def build_rating_features(targets:pd.DataFrame,ledger:pd.DataFrame,*,lookback_ma
         g=hist.get(pid)
         all_past=x.iloc[0:0] if g is None else g[g.available_at<cutoff]
         past=all_past.tail(lookback_matches)
-        long_past=all_past.tail(long_lookback_matches)
+        prior_pool=all_past.iloc[:-lookback_matches] if len(all_past)>lookback_matches else all_past.iloc[0:0]
+        long_past=prior_pool.tail(long_lookback_matches)
         vals=past.rating.to_numpy(float)
         recent=_weighted(vals)
         last=float(vals[-1]) if len(vals) else np.nan
