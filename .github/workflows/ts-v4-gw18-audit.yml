@@ -1,0 +1,43 @@
+name: TS v4 GW18 audit
+
+on:
+  push:
+    branches: [audit-role-minutes-20261001]
+    paths:
+      - 'scripts/run_ts_v4_gw18_audit.py'
+      - '.github/workflows/ts-v4-gw18-audit.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  actions: read
+
+jobs:
+  audit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install
+        run: |
+          pip install -r requirements-model-checkpoint.txt
+          pip install -r requirements-model-tests.txt
+      - name: Download completed replay artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: ts-v4-joint-replay-resumed
+          path: analysis/results/transfer-strategy-v4-joint-replay-20261006-v1
+          github-token: ${{ github.token }}
+          repository: ${{ github.repository }}
+          run-id: 37433364153
+      - name: Audit GW18
+        run: PYTHONPATH=src python scripts/run_ts_v4_gw18_audit.py
+      - uses: actions/upload-artifact@v4
+        with:
+          name: ts-v4-gw18-audit
+          path: |
+            analysis/results/transfer-strategy-v4-joint-replay-20261006-v1/gw18_audit.json
+            analysis/results/transfer-strategy-v4-joint-replay-20261006-v1/gw18_lineup_audit.csv
