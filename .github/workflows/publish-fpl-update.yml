@@ -1,0 +1,80 @@
+name: Publish FPL Update
+
+on:
+  workflow_dispatch:
+    inputs:
+      app_version:
+        description: Optional explicit app version
+        required: false
+        type: string
+      data_version:
+        description: Optional explicit data version
+        required: false
+        type: string
+      message:
+        description: Release message
+        required: false
+        default: Published FPL model and website update
+        type: string
+  push:
+    branches: [main]
+    paths:
+      - 'app/**'
+      - 'model/base_data.json'
+      - 'model/engine.py'
+      - 'model/decision_optimizer.py'
+      - 'start_app.py'
+      - 'scripts/publish_fpl_update.py'
+
+permissions:
+  contents: write
+
+concurrency:
+  group: publish-fpl-update
+  cancel-in-progress: false
+
+jobs:
+  publish:
+    if: github.actor != 'github-actions[bot]'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+          fetch-depth: 0
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Build update
+        env:
+          INPUT_APP_VERSION: ${{ github.event.inputs.app_version }}
+          INPUT_DATA_VERSION: ${{ github.event.inputs.data_version }}
+          INPUT_MESSAGE: ${{ github.event.inputs.message }}
+        run: |
+          args=()
+          if [ -n "$INPUT_APP_VERSION" ]; then args+=(--app-version "$INPUT_APP_VERSION"); fi
+          if [ -n "$INPUT_DATA_VERSION" ]; then args+=(--data-version "$INPUT_DATA_VERSION"); fi
+          message="${INPUT_MESSAGE:-Published FPL model and website update}"
+          python scripts/publish_fpl_update.py "${args[@]}" --message "$message"
+      - name: Verify package
+        run: |
+          python - <<'PY'
+          import gzip,json,hashlib
+          from pathlib import Path
+          m=json.loads(Path('updates/manifest.json').read_text())
+          app=Path('updates')/Path(m['app']['url']).name
+          data=Path('updates/data-base.json.gz')
+          assert hashlib.sha256(app.read_bytes()).hexdigest()==m['app']['sha256']
+          raw=gzip.decompress(data.read_bytes())
+          assert hashlib.sha256(data.read_bytes()).hexdigest()==m['data']['sha256']
+          assert hashlib.sha256(raw).hexdigest()==m['data']['uncompressed_sha256']
+          json.loads(raw)
+          print('update package verified')
+          PY
+      - name: Commit published update
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add updates/ VERSION.txt DATA_VERSION.txt
+          git commit -m "publish: FPL update $(cat VERSION.txt)" || exit 0
+          git push origin HEAD:main
