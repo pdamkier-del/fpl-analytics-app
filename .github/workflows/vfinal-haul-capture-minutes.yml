@@ -1,5 +1,10 @@
 name: vFinal haul capture and minutes audit
 on:
+  push:
+    branches: [audit-role-minutes-20261001]
+    paths:
+      - 'scripts/run_vfinal_haul_capture_minutes_audit.py'
+      - '.github/workflows/vfinal-haul-capture-minutes.yml'
   workflow_dispatch:
 permissions:
   contents: read
