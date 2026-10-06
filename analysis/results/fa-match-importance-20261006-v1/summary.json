@@ -1,0 +1,85 @@
+{
+  "classification": "FA Cup workload + hierarchy-modulated Match Importance exploratory rebuild",
+  "fa_cup": {
+    "complete_team_games": 13,
+    "events_seen": 43,
+    "mapped_uuid_rows": 832,
+    "missing_uuid_after_fpl_mapping": 137,
+    "pl_team_games": 56,
+    "player_rows": 969,
+    "unresolved_rows": 151
+  },
+  "match_importance": {
+    "base_values": {
+      "champions-league": 0.95,
+      "conference-league": 0.5,
+      "efl-cup": 0.35,
+      "europa-league": 0.7,
+      "fa-cup": 0.55,
+      "prem": 1.0
+    },
+    "design": "competition value + stage + opponent strength; interactions with role hierarchy only; no additive team-wide player intercept",
+    "development": [
+      {
+        "control_log_loss": 0.24717396245874518,
+        "control_xmins_rmse": 21.734810073290458,
+        "delta_log_loss": -0.00153126620887592,
+        "delta_xmins_rmse": -0.07036202115024537,
+        "eta": 0.5,
+        "mi_log_loss": 0.24564269624986926,
+        "mi_xmins_rmse": 21.664448052140212
+      },
+      {
+        "control_log_loss": 0.24717396245874518,
+        "control_xmins_rmse": 21.734810073290458,
+        "delta_log_loss": -0.0014867655649752898,
+        "delta_xmins_rmse": -0.06952533265035754,
+        "eta": 0.35,
+        "mi_log_loss": 0.2456871968937699,
+        "mi_xmins_rmse": 21.6652847406401
+      },
+      {
+        "control_log_loss": 0.24717396245874518,
+        "control_xmins_rmse": 21.734810073290458,
+        "delta_log_loss": -0.001268666606145108,
+        "delta_xmins_rmse": -0.05906469825072236,
+        "eta": 0.2,
+        "mi_log_loss": 0.24590529585260007,
+        "mi_xmins_rmse": 21.675745375039735
+      }
+    ],
+    "reused_diagnostic": {
+      "control": {
+        "brier": 0.07533293271288691,
+        "log_loss": 0.2448662171988407,
+        "n": 13987,
+        "xmins_bias": -0.18651138968919045,
+        "xmins_mae": 11.533441406248954,
+        "xmins_rmse": 21.615305877622102
+      },
+      "delta": {
+        "brier": 0.002993901292097978,
+        "log_loss": 0.009860559309263467,
+        "xmins_bias": -0.1862167252528868,
+        "xmins_mae": 1.051986763103253,
+        "xmins_rmse": 0.3656384852675352
+      },
+      "match_importance": {
+        "brier": 0.07832683400498489,
+        "log_loss": 0.25472677650810416,
+        "n": 13987,
+        "xmins_bias": -0.37272811494207725,
+        "xmins_mae": 12.585428169352207,
+        "xmins_rmse": 21.980944362889637
+      }
+    },
+    "selected_eta": 0.5
+  },
+  "promoted": false,
+  "source": {
+    "fotmob_fa_league": 132,
+    "fpl_core_commit": "1c9191ab6b0c191378ea27f257fdab2bae63caba",
+    "historical_availability": "kickoff+3h proxy, same convention as existing workload"
+  },
+  "warning": "GW22-38 is reused diagnostic. Establishes data/implementation and diagnoses effect; independent validation remains required before production promotion."
+}
