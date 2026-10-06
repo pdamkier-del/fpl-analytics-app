@@ -46,6 +46,7 @@ class Assignment:
     hierarchy:float
     performance:float
     base_p_start:float
+    role_adjustment:float=0.0
 
 
 def formation_slots(formation:str)->list[Slot]:
@@ -105,6 +106,7 @@ def build_score_matrix(players:Sequence[Mapping],slots:Sequence[Slot],*,
         h={canonical(k):_safe01(v) for k,v in dict(p.get('H') or {}).items()}
         base=_safe01(p.get('base_p_start'))
         perf=_safe01(p.get('performance',0.5),0.5)
+        role_adjustments={canonical(k):float(v) for k,v in dict(p.get('role_adjustments') or {}).items()}
         for j,slot in enumerate(slots):
             qr=q.get(slot.role,0.0)
             hr=h.get(slot.role,0.0)
@@ -112,7 +114,7 @@ def build_score_matrix(players:Sequence[Mapping],slots:Sequence[Slot],*,
                 continue
             mat[i,j]=role_score(q_role=qr,hierarchy=hr,performance=perf,
                                 base_p_start=base,q_weight=q_weight,h_weight=h_weight,
-                                performance_weight=performance_weight,base_weight=base_weight)
+                                performance_weight=performance_weight,base_weight=base_weight) + role_adjustments.get(slot.role,0.0)
     return mat
 
 
@@ -136,6 +138,7 @@ def optimize_xi(players:Sequence[Mapping],formation:str,**score_kwargs)->list[As
             score=float(mat[i,j]),q_role=q.get(role,0.0),hierarchy=h.get(role,0.0),
             performance=_safe01(p.get('performance',0.5),0.5),
             base_p_start=_safe01(p.get('base_p_start')),
+            role_adjustment=float(dict(p.get('role_adjustments') or {}).get(role,0.0)),
         ))
     ids=[x.player_uuid for x in out]
     if len(ids)!=11 or len(set(ids))!=11:
@@ -147,7 +150,8 @@ def assignment_explanations(assignments:Iterable[Assignment])->list[dict]:
     return [{
         'player_uuid':a.player_uuid,'slot_index':a.slot_index,'role':a.role,
         'assignment_score':a.score,'q_role':a.q_role,'hierarchy':a.hierarchy,
-        'performance':a.performance,'base_p_start':a.base_p_start
+        'performance':a.performance,'base_p_start':a.base_p_start,
+        'role_adjustment':a.role_adjustment
     } for a in assignments]
 
 
