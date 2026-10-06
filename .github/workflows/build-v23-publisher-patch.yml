@@ -1,0 +1,50 @@
+name: Build FPL Publisher v2.3 Patch
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [audit-role-minutes-20261001]
+    paths:
+      - 'app/index.html'
+      - 'app/models.html'
+      - 'app/nav.js'
+      - 'scripts/publish_fpl_update.py'
+      - 'scripts/build_v23_publisher_patch.py'
+      - '.github/workflows/publish-fpl-update.yml'
+      - '.github/workflows/build-v23-publisher-patch.yml'
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: audit-role-minutes-20261001
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Build patch
+        run: python scripts/build_v23_publisher_patch.py
+      - name: Inspect patch
+        run: |
+          python - <<'PY'
+          import zipfile
+          p='FPL_Analytics_v2.3_repo_patch.zip'
+          with zipfile.ZipFile(p) as z:
+              names=set(z.namelist())
+          required={
+            'VERSION.txt',
+            'app/index.html','app/models.html','app/nav.js',
+            'updates/app-2.3.zip','updates/manifest.json',
+            'scripts/publish_fpl_update.py',
+            '.github/workflows/publish-fpl-update.yml',
+          }
+          missing=required-names
+          assert not missing,missing
+          print('\n'.join(sorted(names)))
+          PY
+      - uses: actions/upload-artifact@v4
+        with:
+          name: FPL_Analytics_v2.3_repo_patch
+          path: FPL_Analytics_v2.3_repo_patch.zip
+          if-no-files-found: error
