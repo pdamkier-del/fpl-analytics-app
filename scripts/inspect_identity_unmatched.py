@@ -11,6 +11,8 @@ def norm(x):
 
 f=pd.read_csv(F)
 raw=hp.unpack_runtime('players_raw.csv').drop_duplicates('id').copy()
+teams=hp.unpack_runtime('teams_raw.csv').drop_duplicates('id')
+team_name=dict(zip(teams.id.astype(int),teams.name.astype(str)))
 print('FEATURE_COLUMNS',list(f.columns))
 print('RAW_COLUMNS',list(raw.columns))
 feat=f[['player_uuid','player']].drop_duplicates()
@@ -33,4 +35,5 @@ for r in un.head(120).itertuples():
  for m in ms:
   for x in rawnames:
    if x[0]==m and x[2] not in [z[2] for z in seen]:seen.append(x)
- print('UNMATCHED',r.player_uuid,repr(r.player),'NEAREST',[(x[1],x[2],round(difflib.SequenceMatcher(None,k,x[0]).ratio(),3)) for x in seen[:5]])
+ frow=f[f.player_uuid.astype(str)==str(r.player_uuid)].iloc[0]
+ print('UNMATCHED',r.player_uuid,repr(r.player),'FEATURE_TEAM',repr(frow.get('team',None)),'TEAM_ID',repr(frow.get('team_id',None)),'NEAREST',[(x[1],x[2],team_name.get(int(x[3]),x[3]),round(difflib.SequenceMatcher(None,k,x[0]).ratio(),3)) for x in seen[:5]])
