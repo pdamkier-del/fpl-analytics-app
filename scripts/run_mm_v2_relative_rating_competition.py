@@ -106,7 +106,7 @@ def build_players_with_relative_form(g,p,gamma,rel_w,self_w,trend_w,min_q=.005):
         })
     return rows
 
-def add_relative_xi_features(frame,p,cfg):
+def add_relative_xi_features(frame,p,cfg,formation_history=None,formation_half_life=5.0,formation_strength=0.0):
     f=frame.copy()
     for c in ASSIGN_FEATURES:f[c]=0.0
     for c in ['rating_comp_rel_gap','rating_comp_self_shock','rating_comp_trend',
@@ -118,9 +118,17 @@ def add_relative_xi_features(frame,p,cfg):
         idxs=np.asarray(idxs,dtype=int);g=f.iloc[idxs]
         players=build_players_with_relative_form(
             g,p,cfg['gamma'],cfg['rel_w'],cfg['self_w'],cfg['trend_w'])
+        formation_prior=None
+        if formation_history is not None and formation_strength>0:
+            cutoff=g.iloc[0]['cutoff']; team_id=int(g.iloc[0]['team_id'])
+            formation_prior=formation_history.log_prior(
+                team_id,cutoff,half_life=formation_half_life,
+                formations=('4-2-3-1','4-3-3','4-4-2','3-4-2-1','3-4-3','3-5-2'),
+                strength=formation_strength)
         try:
             out=optimize_best_formation(
-                players,q_weight=.55,h_weight=.85,
+                players,formation_log_prior=formation_prior,
+                q_weight=.55,h_weight=.85,
                 performance_weight=0.0,base_weight=1.0,min_q=.005)
         except RuntimeError:
             continue
