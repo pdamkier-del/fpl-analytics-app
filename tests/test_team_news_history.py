@@ -51,3 +51,46 @@ def test_future_effective_time_rejected():
     x["effective_at"]="2026-01-02T10:00:00Z"
     with pytest.raises(ValueError):
         validate_team_news_ledger(x)
+
+
+from fpl_v1_1_model.team_news_history import (
+    validate_strict_projection,build_strict_team_news_features,strict_state_cap
+)
+
+def strict_rows():
+    return pd.DataFrame([
+        {"gw":2,"cutoff":"2025-08-22T17:30:00Z","player_uuid":"p1",
+         "effective_at":"2025-08-22T12:51:18Z","identity_status":"mapped","timing_verified":True,
+         "normalized_availability_state":"OUT","scoped_chance":0,"tier":"strict",
+         "raw_status":"i","raw_news":"Out","news_added":"2025-08-22T10:00:00Z",
+         "source":"fpl","source_id":"s1","carried_from_earlier_gw":False,
+         "unchanged_news_since_previous_gw":False},
+        {"gw":2,"cutoff":"2025-08-22T17:30:00Z","player_uuid":"p2",
+         "effective_at":"2025-08-22T12:51:18Z","identity_status":"mapped","timing_verified":True,
+         "normalized_availability_state":"DOUBT","scoped_chance":50,"tier":"strict",
+         "raw_status":"d","raw_news":"Doubt","news_added":"2025-08-22T10:00:00Z",
+         "source":"fpl","source_id":"s1","carried_from_earlier_gw":False,
+         "unchanged_news_since_previous_gw":False},
+    ])
+
+def test_strict_projection_merge_uses_gw_specific_scoped_chance():
+    targets=pd.DataFrame([
+        {"gw":2,"player_uuid":"p1","cutoff":"2025-08-22T17:30:00Z"},
+        {"gw":2,"player_uuid":"p2","cutoff":"2025-08-22T17:30:00Z"},
+        {"gw":1,"player_uuid":"p1","cutoff":"2025-08-15T17:30:00Z"},
+    ])
+    out=build_strict_team_news_features(targets,strict_rows(),doubt_cap=.75,major_doubt_cap=.25)
+    assert out.loc[0,"team_news_availability_cap"]==0.0
+    assert out.loc[1,"team_news_availability_cap"]==pytest.approx(.5)
+    assert out.loc[2,"team_news_state"]=="UNKNOWN"
+    assert out.loc[2,"team_news_availability_cap"]==1.0
+
+def test_strict_projection_rejects_postdeadline_effective_time():
+    x=strict_rows()
+    x.loc[0,"effective_at"]="2025-08-22T18:00:00Z"
+    with pytest.raises(ValueError):
+        validate_strict_projection(x)
+
+def test_returned_available_is_not_positive_start_evidence():
+    assert strict_state_cap("RETURNED_AVAILABLE",None)==1.0
+    assert strict_state_cap("AVAILABLE",None)==1.0
