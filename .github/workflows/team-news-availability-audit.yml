@@ -1,0 +1,41 @@
+name: Team News availability research audit
+on:
+  push:
+    branches: [audit-role-minutes-20261001]
+    paths:
+      - scripts/audit_fpl_team_news.py
+      - tests/test_team_news_audit.py
+      - .github/workflows/team-news-availability-audit.yml
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  audit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 35
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - uses: actions/cache@v4
+        with:
+          path: .cache/team-news-audit
+          key: team-news-audit-v1-${{ github.run_id }}
+          restore-keys: team-news-audit-v1-
+      - run: python tests/test_team_news_audit.py
+      - run: python scripts/restore_core_checkpoint.py --out work/core.sqlite3
+      - run: python scripts/audit_fpl_team_news.py --out data_v1_1/derived/team_news_audit/2025-26-v1
+        env:
+          GH_TOKEN: ${{ github.token }}
+      - run: |
+          python scripts/audit_fpl_team_news.py --rebuild data_v1_1/derived/team_news_audit/2025-26-v1 --out work/team-news-offline-rebuild
+          diff -r data_v1_1/derived/team_news_audit/2025-26-v1 work/team-news-offline-rebuild
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: team-news-availability-audit
+          path: data_v1_1/derived/team_news_audit/2025-26-v1
+          retention-days: 90
