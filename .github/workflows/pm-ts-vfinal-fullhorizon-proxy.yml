@@ -1,0 +1,41 @@
+name: PM TS vFinal full horizon proxy
+on:
+  push:
+    branches: [audit-role-minutes-20261001]
+    paths:
+      - 'scripts/run_pm_ts_vfinal_fullhorizon_proxy.py'
+      - '.github/workflows/pm-ts-vfinal-fullhorizon-proxy.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+  actions: read
+jobs:
+  replay:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: {python-version: '3.12'}
+      - run: |
+          pip install -r requirements-model-checkpoint.txt
+          pip install -r requirements-model-tests.txt
+      - name: Download TS v4 Phase5Q replay
+        uses: actions/download-artifact@v4
+        with:
+          name: ts-v4-joint-replay-resumed
+          path: analysis/results/compare_inputs/ts_v4_phase5q
+          github-token: ${{ github.token }}
+          repository: ${{ github.repository }}
+          run-id: 37433364153
+      - name: Run GW22-38 full-horizon vFinal proxy
+        env:
+          OPENBLAS_NUM_THREADS: '1'
+          OMP_NUM_THREADS: '1'
+          MKL_NUM_THREADS: '1'
+        run: PYTHONPATH=src python scripts/run_pm_ts_vfinal_fullhorizon_proxy.py
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: pm-ts-vfinal-fullhorizon-proxy
+          path: analysis/results/pm-ts-vfinal-fullhorizon-proxy-gw22-38-20261006-v1
