@@ -1,0 +1,56 @@
+name: MM actual formation history
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [audit-role-minutes-20261001]
+    paths:
+      - 'src/fpl_v1_1_model/formation_history.py'
+      - 'scripts/run_mm_v2_relative_rating_competition.py'
+      - 'scripts/run_mm_v2_actual_formation_history_experiment.py'
+      - 'tests/test_formation_history.py'
+      - '.github/workflows/mm-actual-formation-history.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  run:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: audit-role-minutes-20261001
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: |
+          pip install -r requirements-model-checkpoint.txt
+          pip install numpy pandas scipy scikit-learn pytest requests
+      - run: PYTHONPATH=src pytest -q tests/test_formation_history.py tests/test_xi_assignment.py
+      - name: Run formation-history experiment
+        id: exp
+        shell: bash
+        run: |
+          set +e
+          rm -rf analysis/results/mm-v2-actual-formation-history-20261006-v1
+          PYTHONPATH=src python scripts/run_mm_v2_actual_formation_history_experiment.py \
+            2>&1 | tee /tmp/mm-formation-history.log
+          code=\${PIPESTATUS[0]}
+          echo "exit_code=\${code}" >> "$GITHUB_OUTPUT"
+          mkdir -p analysis/results/mm-v2-actual-formation-history-20261006-v1
+          cp /tmp/mm-formation-history.log analysis/results/mm-v2-actual-formation-history-20261006-v1/run.log
+          exit 0
+      - name: Commit outputs
+        if: always()
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -f analysis/results/mm-v2-actual-formation-history-20261006-v1
+          git commit -m "results: MM actual formation history experiment" || exit 0
+          git pull --rebase origin audit-role-minutes-20261001
+          git push origin HEAD:audit-role-minutes-20261001
+      - name: Fail if experiment failed
+        if: steps.exp.outputs.exit_code != '0'
+        run: exit 1
