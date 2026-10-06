@@ -1,6 +1,6 @@
 <!doctype html>
 <html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Match Centre · FPL Analytics</title>
+<title>Match Centre · FPL Analytics</title><link rel="stylesheet" href="assets.css">
 <style>
 :root{--bg:#f4f6f8;--panel:#fff;--ink:#101820;--muted:#6d7882;--line:#e4e9ed;--green:#087a52;--soft:#eaf7f1;--nav:#0b1720;--nav2:#172733;--shadow:0 10px 32px rgba(15,29,40,.06)}
 *{box-sizing:border-box}body{margin:0;font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;background:var(--bg);color:var(--ink)}a{text-decoration:none;color:inherit}
@@ -32,7 +32,7 @@
 <section id="stats" class="view"><div class="panel"><div class="panel-head"><div><div class="panel-title">Team stats</div><div class="panel-sub">Current fields available in the FPL dataset</div></div></div><div class="panel-body" id="teamStats"></div></div></section>
 <section id="players" class="view"><div class="table-wrap"><table><thead><tr><th>Player</th><th>Club</th><th>Min</th><th>Pts</th><th>Goals</th><th>xG</th><th>Assists</th><th>xA</th><th>DefCon</th><th>Bonus</th><th>BPS</th></tr></thead><tbody id="playerBody"></tbody></table></div></section>
 </main></div>
-<script src="data.js"></script><script>
+<script src="data.js"></script><script src="assets.js"></script><script>
 const D=window.FPL_DATA||{clubs:[],forecasts:[],actuals:[],fixtures:[]};
 const q=new URLSearchParams(location.search),gw=Number(q.get('gw')),home=q.get('home'),away=q.get('away');
 const fx=D.fixtures.find(f=>Number(f.gw)===gw&&f.home===home&&f.away===away)||{gw,home,away,finished:true,home_score:'—',away_score:'—'};
@@ -40,7 +40,7 @@ const clubName=c=>D.clubs.find(x=>x.code===c)?.name||c||'—';
 const num=(x,d=1)=>x==null||Number.isNaN(Number(x))?'—':Number(x).toFixed(d);
 const esc=s=>String(s??'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
 const sum=(a,k)=>a.reduce((s,x)=>s+Number(x?.[k]||0),0);
-document.getElementById('homeCrest').textContent=home||'H';document.getElementById('awayCrest').textContent=away||'A';
+document.getElementById('homeCrest').innerHTML=window.FPL_ASSETS?window.FPL_ASSETS.badgeHTML(home,'asset-badge-lg'):(home||'H');document.getElementById('awayCrest').innerHTML=window.FPL_ASSETS?window.FPL_ASSETS.badgeHTML(away,'asset-badge-lg'):(away||'A');
 document.getElementById('homeName').textContent=clubName(home);document.getElementById('awayName').textContent=clubName(away);
 document.getElementById('score').textContent=fx.finished?fx.home_score+' – '+fx.away_score:'—';
 document.getElementById('matchMeta').textContent='Premier League · GW '+(gw||'—')+' · '+(fx.finished?'Full time':'Fixture');
@@ -71,9 +71,9 @@ function pitch(el,club,formation){
  const xi=previewXI(club,formation);let rows;
  if(formation==='4-2-3-1')rows=[[xi[10]],[xi[7],xi[8],xi[9]],[xi[5],xi[6]],[xi[1],xi[2],xi[3],xi[4]],[xi[0]]];
  else rows=[[xi[8],xi[9],xi[10]],[xi[5],xi[6],xi[7]],[xi[1],xi[2],xi[3],xi[4]],[xi[0]]];
- document.getElementById(el).innerHTML='<div class="formation">'+formation+'</div>'+rows.map(r=>'<div class="line">'+r.filter(Boolean).map(p=>'<div class="node click" onclick="location.href=\'player.html?id='+p.id+'\'"><div class="shirt">'+esc(p.pos)+'</div><div class="name">'+esc(p.player)+'</div></div>').join('')+'</div>').join('');
+ document.getElementById(el).innerHTML='<div class="formation">'+formation+'</div>'+rows.map(r=>'<div class="line">'+r.filter(Boolean).map(p=>'<div class="node click" onclick="location.href=\'player.html?id='+p.id+'\'">'+(window.FPL_ASSETS?window.FPL_ASSETS.faceHTML(p,'asset-face-pitch'):'<div class="shirt">'+esc(p.pos)+'</div>')+'<div class="name">'+esc(p.player)+'</div></div>').join('')+'</div>').join('');
 }
 pitch('homePitch',home,'4-2-3-1');pitch('awayPitch',away,'4-3-3');
-document.getElementById('playerBody').innerHTML=[...acts].sort((a,b)=>Number(b.points||0)-Number(a.points||0)).map(a=>'<tr class="click" onclick="location.href=\'player.html?id='+a.id+'\'"><td>'+esc(a.player)+'</td><td>'+esc(a.club)+'</td><td>'+num(a.minutes,0)+'</td><td><strong>'+num(a.points,0)+'</strong></td><td>'+num(a.goals,0)+'</td><td>'+num(a.xg,2)+'</td><td>'+num(a.assists,0)+'</td><td>'+num(a.xa,2)+'</td><td>'+num(a.defcon,0)+'</td><td>'+num(a.bonus,0)+'</td><td>'+num(a.bps,0)+'</td></tr>').join('');
+document.getElementById('playerBody').innerHTML=[...acts].sort((a,b)=>Number(b.points||0)-Number(a.points||0)).map(a=>'<tr class="click" onclick="location.href=\'player.html?id='+a.id+'\'"><td><span class="asset-inline">'+(window.FPL_ASSETS?window.FPL_ASSETS.faceHTML(a):'')+'<span>'+esc(a.player)+'</span></span></td><td><span class="asset-inline">'+(window.FPL_ASSETS?window.FPL_ASSETS.badgeHTML(a.club,'asset-badge-sm'):'')+'<span>'+esc(a.club)+'</span></span></td><td>'+num(a.minutes,0)+'</td><td><strong>'+num(a.points,0)+'</strong></td><td>'+num(a.goals,0)+'</td><td>'+num(a.xg,2)+'</td><td>'+num(a.assists,0)+'</td><td>'+num(a.xa,2)+'</td><td>'+num(a.defcon,0)+'</td><td>'+num(a.bonus,0)+'</td><td>'+num(a.bps,0)+'</td></tr>').join('');
 document.querySelectorAll('.tab').forEach(t=>t.onclick=()=>{document.querySelectorAll('.tab').forEach(x=>x.classList.remove('active'));document.querySelectorAll('.view').forEach(x=>x.classList.remove('active'));t.classList.add('active');document.getElementById(t.dataset.view).classList.add('active')});
 </script><script src="nav.js"></script></body></html>
