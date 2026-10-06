@@ -44,15 +44,41 @@ def ints(cell):
     return [int(float(x)) for x in str(cell).split(';') if x and x!='nan']
 
 
-def mapping_uuid_to_id():
-    db=ROOT/'data_v1_1/normalized/fpl_v1_1.sqlite3'
-    con=sqlite3.connect(f'file:{db.resolve()}?mode=ro',uri=True)
-    z=pd.read_sql_query("""SELECT player_uuid,CAST(external_id AS INTEGER) id
-                           FROM player_id_mapping
-                           WHERE season='2025-26' AND id_namespace='fpl_element'""",con)
-    con.close()
-    z=z.dropna().drop_duplicates('player_uuid')
-    return dict(zip(z.player_uuid.astype(str),z.id.astype(int)))
+def _norm_name(x):
+    return ''.join(ch for ch in str(x).casefold() if ch.isalnum())
+
+def mapping_uuid_to_id(gws,names):
+    # GitHub Actions does not carry the local SQLite database. Reconstruct the
+    # stable identity bridge from two committed historical sources:
+    # vFinal feature player_uuid+canonical name and archived FPL players_raw.
+    feat=pd.read_csv(
+        ROOT/'analysis/results/workload-recovered-v4/all_features.csv.gz',
+        usecols=['player_uuid','player']
+    ).drop_duplicates()
+    raw=hp.unpack_runtime('players_raw.csv')
+    raw=raw.drop_duplicates('id').copy()
+    candidates={}
+    for r in raw.itertuples():
+        vals=[getattr(r,'web_name','')]
+        first=getattr(r,'first_name','');second=getattr(r,'second_name','')
+        if str(first)!='nan' or str(second)!='nan':
+            vals.append(f"{first} {second}")
+        for v in vals:
+            k=_norm_name(v)
+            if k:candidates.setdefault(k,set()).add(int(r.id))
+    out={};amb=[]
+    for r in feat.itertuples():
+        k=_norm_name(r.player); ids=candidates.get(k,set())
+        if len(ids)==1:out[str(r.player_uuid)]=next(iter(ids))
+        elif len(ids)>1:amb.append((r.player_uuid,r.player,sorted(ids)))
+    if amb:
+        raise RuntimeError(f'ambiguous canonical-name identity rows: {amb[:10]}')
+    # Require exact coverage of the vFinal prediction UUIDs used in GW22-38.
+    need=set(pd.read_csv(VFINAL/'predictions.csv.gz',usecols=['player_uuid']).player_uuid.astype(str))
+    missing=sorted(need-set(out))
+    if missing:
+        raise RuntimeError(f'unresolved vFinal UUID->FPL ids: {len(missing)} first={missing[:10]}')
+    return out
 
 
 def reconstruct_state_at_gw22(gws,names,forecast):
@@ -96,7 +122,7 @@ def main():
     if OUT.exists(): raise FileExistsError(OUT)
     OUT.mkdir(parents=True)
     gws,names,forecast=base.prepare()
-    uuid_to_id=mapping_uuid_to_id()
+    uuid_to_id=mapping_uuid_to_id(gws,names)
     vf=vfinal_current_table(uuid_to_id)
     state=reconstruct_state_at_gw22(gws,names,forecast)
     start_ids=sorted(state.squad)
