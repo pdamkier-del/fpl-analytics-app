@@ -51,7 +51,16 @@ class StructuralHistory:
             p=official_minutes.copy()
             cov=team_coverage[["match_id","team_id","competition","kickoff","available_at"]].copy()
             cov["available_at"]=pd.to_datetime(cov.available_at,utc=True,errors="coerce")
-            p=p.merge(cov,on=["match_id","team_id"],how="left",validate="many_to_one")
+            # official_player_minutes may already carry these metadata columns.
+            # Only enrich fields that are missing to avoid _x/_y suffix drift.
+            meta_cols=["competition","kickoff","available_at"]
+            missing_meta=[x for x in meta_cols if x not in p.columns]
+            if missing_meta:
+                p=p.merge(cov[["match_id","team_id"]+missing_meta],
+                          on=["match_id","team_id"],how="left",validate="many_to_one")
+            if "available_at" not in p.columns:
+                raise ValueError("official minutes missing available_at after metadata enrichment")
+            p["available_at"]=pd.to_datetime(p["available_at"],utc=True,errors="coerce")
             for r in p.itertuples(index=False):
                 if pd.isna(r.available_at): continue
                 st=getattr(r,"started",np.nan)
