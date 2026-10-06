@@ -40,3 +40,29 @@ def test_mapping_retains_provider_rows_and_does_not_fuzzy_fill():
     mapped,audit=map_rows(rows,registry,{}, {}, {'10':{'uuid'}}, {}, {})
     assert len(mapped)==2 and set(mapped.provider)=={'fotmob','sofascore'}
     assert not mapped.duplicated(['provider','player_uuid','match_id']).any()
+
+
+def test_provider_bootstrap_is_order_independent_and_conflicts_stay_ambiguous():
+    base=dict(provider='fotmob',provider_player_id='8',provider_match_id='7',
+        season='2025/26',competition='prem',team_code=3,team_id=1,
+        kickoff='2026-01-01T15:00:00Z',rating=7.2,player_name='Player')
+    raw=pd.DataFrame([{**base,'provider_opta_id':'10'}, {**base,'provider_opta_id':'11','provider_match_id':'9'}])
+    registry={('2025/26','prem','2026-01-01',3):{'m'}}
+    for rows in [raw,raw.iloc[::-1]]:
+        mapped,audit=map_rows(rows,registry,{}, {}, {'10':{'uuid-a'},'11':{'uuid-b'}}, {}, {})
+        assert mapped.empty
+        assert set(audit.player_mapping_status)=={'ambiguous'}
+
+
+def test_unfinished_matches_do_not_produce_ratings():
+    detail={'general':{'matchId':'7','finished':False},'header':{'status':{'finished':False}}}
+    assert extract_fotmob(detail,{'id':'7'},'2025/26','prem',{})==[]
+
+
+def test_competition_phase_requires_exact_canonical_parent_id():
+    from fpl_v1_1_model.external_rating_ingest import provider_competition_matches
+    d={'general':{'leagueId':9999,'parentLeagueId':42}}
+    assert provider_competition_matches(d,42)
+    assert not provider_competition_matches(d,73)
+    assert provider_competition_matches({'general':{'leagueId':47}},47)
+    assert not provider_competition_matches({'general':{}},42)

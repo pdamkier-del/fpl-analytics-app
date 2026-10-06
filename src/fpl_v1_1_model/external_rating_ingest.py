@@ -40,6 +40,13 @@ def scalar_stat(value, labels):
     return None
 
 
+def provider_competition_matches(detail, league_id):
+    # Cups/Europe expose phase-specific leagueId and the canonical parent ID.
+    general=detail.get('general') or {}
+    expected=str(league_id)
+    return expected in {str(general.get('leagueId')),str(general.get('parentLeagueId'))}
+
+
 def extract_fotmob(detail, event, season, competition, team_lookup):
     general=detail.get('general') or {};header=detail.get('header') or {}
     if str(general.get('matchId'))!=str(event['id']):raise ValueError('Provider event ID mismatch')
@@ -79,6 +86,7 @@ def extract_fotmob(detail, event, season, competition, team_lookup):
                 provider_team_id=str(team['id']),competition=competition,kickoff=kickoff.isoformat(),
                 available_at=available.isoformat(),rating=rating,minutes=minutes,
                 provider_position_id=player.get('positionId'),rating_origin=origin,
+                provider_league_id=general.get('leagueId'),provider_parent_league_id=general.get('parentLeagueId'),
                 available_at_policy='kickoff+6h proxy; original publication/revision clock unavailable'))
     return result
 

@@ -12,7 +12,7 @@ import pandas as pd
 
 ROOT=Path(__file__).resolve().parents[1]
 sys.path[:0]=[str(ROOT/'src'),str(ROOT/'scripts')]
-from fpl_v1_1_model.external_rating_ingest import norm,extract_fotmob,map_rows
+from fpl_v1_1_model.external_rating_ingest import norm,extract_fotmob,map_rows,provider_competition_matches
 from fpl_v1_1_model.rating_history import validate_rating_ledger
 from fpl_v1_1_model.match_importance import canonical_competition
 from run_mm_unified_official_roles import base_identity,read_all,SOURCE,CLASSIFIED
@@ -161,7 +161,9 @@ def main():
         e=item['event'];url=f'{BASE}/matchDetails?matchId={e["id"]}'
         try:
             detail=cache.get(url)
-            if str((detail.get('general') or {}).get('leagueId'))!=str(item['league_id']):raise ValueError('Inventory/detail competition mismatch')
+            if not provider_competition_matches(detail,item['league_id']):
+                g=detail.get('general') or {}
+                raise ValueError(f'Inventory/detail competition mismatch: expected={item["league_id"]}, leagueId={g.get("leagueId")}, parentLeagueId={g.get("parentLeagueId")}, name={g.get("leagueName")}')
             return extract_fotmob(detail,e,item['season'],item['competition'],lookups[item['season']]),None
         except Exception as exc:return [],{'season':item['season'],'competition':item['competition'],'stage':'match','match_id':str(e['id']),'error':str(exc)}
     raw=[]
