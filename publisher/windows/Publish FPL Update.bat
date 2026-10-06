@@ -1,108 +1,26 @@
 @echo off
-setlocal EnableExtensions EnableDelayedExpansion
+setlocal EnableExtensions
 title FPL Publisher
 color 0A
 
-set "REPO=pdamkier-del/fpl-analytics-app"
-set "WORKFLOW=build-publisher-patch-v2.3.yml"
+set "BASE=%LOCALAPPDATA%\FPLPublisher"
+set "RUNNER=%BASE%\Publisher Runner.bat"
+set "URL=https://raw.githubusercontent.com/pdamkier-del/fpl-analytics-app/main/publisher/windows/Publisher%%20Runner.bat"
 
-echo.
-echo ==========================================
-echo              FPL PUBLISHER
-echo ==========================================
-echo Repo: %REPO%
-echo.
+if not exist "%BASE%" mkdir "%BASE%"
 
-where gh >nul 2>&1
-if errorlevel 1 (
-  color 0C
-  echo ERROR: GitHub CLI ^(gh^) blev ikke fundet.
-  echo.
-  pause
-  exit /b 1
-)
-
-echo Tjekker GitHub-login...
-gh auth status -h github.com
-if errorlevel 1 (
-  color 0E
-  echo.
-  echo GitHub CLI er ikke logget ind.
-  echo.
-  pause
-  exit /b 1
-)
-
-set "OLD_RUN="
-for /f "delims=" %%R in ('gh run list --repo "%REPO%" --workflow "%WORKFLOW%" --event workflow_dispatch --limit 1 --json databaseId --jq ".[0].databaseId // empty" 2^>nul') do set "OLD_RUN=%%R"
-
-echo.
-echo Starter FPL-publisheren...
-gh workflow run "%WORKFLOW%" --repo "%REPO%" --ref main
-if errorlevel 1 (
-  color 0C
-  echo.
-  echo FAILURE: Kunne ikke starte GitHub-workflowet.
-  echo.
-  pause
-  exit /b 1
-)
-
-echo Venter pa at GitHub registrerer den nye korsel...
-set "RUN_ID="
-for /L %%I in (1,1,30) do (
-  set "LATEST="
-  for /f "delims=" %%R in ('gh run list --repo "%REPO%" --workflow "%WORKFLOW%" --event workflow_dispatch --limit 1 --json databaseId --jq ".[0].databaseId // empty" 2^>nul') do set "LATEST=%%R"
-  if defined LATEST (
-    if not "!LATEST!"=="!OLD_RUN!" (
-      set "RUN_ID=!LATEST!"
-      goto :WATCH
-    )
-  )
-  timeout /t 2 /nobreak >nul
-)
-
-color 0C
-echo.
-echo ==========================================
-echo FAILURE - RUN-ID KUNNE IKKE FINDES
-echo ==========================================
-echo.
-echo Workflowet kan vaere startet, men publisheren kunne ikke koble sig til korslen.
-echo Prov igen om et ojeblik.
-echo.
-pause
-exit /b 1
-
-:WATCH
-echo.
-echo Fundet run !RUN_ID!.
-echo Folger publiceringen...
-echo.
-gh run watch !RUN_ID! --repo "%REPO%" --exit-status
+powershell.exe -NoProfile -ExecutionPolicy Bypass -Command ^
+  "try { Invoke-WebRequest -UseBasicParsing -Uri '%URL%' -OutFile '%RUNNER%'; Unblock-File -LiteralPath '%RUNNER%' -ErrorAction SilentlyContinue; exit 0 } catch { exit 1 }"
 
 if errorlevel 1 (
   color 0C
   echo.
-  echo ==========================================
-  echo FAILURE - PUBLICERING FEJLEDE
-  echo ==========================================
-  echo.
-  echo Fejlede trin:
-  gh run view !RUN_ID! --repo "%REPO%" --log-failed
+  echo ERROR: Kunne ikke hente den nyeste publisher.
+  echo Tjek internetforbindelsen og prov igen.
   echo.
   pause
   exit /b 1
 )
 
-color 0A
-echo.
-echo ==========================================
-echo SUCCESS - FPL UPDATE ER PUBLICERET
-echo ==========================================
-echo.
-echo Luk FPL Analytics og start appen igen.
-echo Den henter den nye version automatisk.
-echo.
-pause
-exit /b 0
+call "%RUNNER%"
+exit /b %errorlevel%
