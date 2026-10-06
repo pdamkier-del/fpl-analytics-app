@@ -18,7 +18,7 @@ sys.path.insert(0,str(ROOT/'src'));sys.path.insert(0,str(ROOT/'scripts'))
 from run_mm_unified_official_roles import (
     SOURCE,OUT as MM_OUT,build_role_games,add_importance,role_features,full_mm
 )
-from run_v4_performance_rating_experiment import fit_offset
+from run_v4_performance_rating_experiment import fit_offset,build_perf_ledger,add_features as add_perf_features
 from run_v4_three_state_sequence_experiment import (
     add_sequence_features,SEQ_FEATURES,metrics,write_gzip_csv,write_json
 )
@@ -51,6 +51,7 @@ def main():
     hs=float(base_result['selected_importance_weights']['H'])
 
     frame=add_sequence_features(pd.read_csv(SOURCE).reset_index(drop=True))
+    frame=add_perf_features(frame,build_perf_ledger())
     games,_,_=build_role_games();games=add_importance(games)
     frame=role_features(frame,games,qs,hs)
 
