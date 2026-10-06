@@ -3,8 +3,8 @@ const PLAYER_CODES={"1":154561,"2":109745,"3":437495,"4":226597,"5":445122,"6":4
 const TEAM_CODES={"ARS":3,"AVL":7,"BOU":91,"BRE":94,"BHA":36,"CHE":8,"COV":9,"CRY":31,"EVE":11,"FUL":54,"HUL":88,"IPS":40,"LEE":2,"LIV":14,"MCI":43,"MUN":1,"NEW":4,"NFO":17,"TOT":6,"SUN":56};
 const esc=s=>String(s??'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
 const initials=s=>(String(s||'?').split(/\s+/).filter(Boolean).map(x=>x[0]).join('').slice(0,2)||'?').toUpperCase();
-function playerFace(id){const code=PLAYER_CODES[String(id)];return code?`https://resources.premierleague.com/premierleague/photos/players/110x140/p${code}.png`:''}
-function teamBadge(club){const code=TEAM_CODES[String(club||'').toUpperCase()];return code?`https://resources.premierleague.com/premierleague/badges/70/t${code}.png`:''}
+function playerFace(id){const code=PLAYER_CODES[String(id)];return code?`https://resources.premierleague.com/premierleague25/photos/players/110x140/${code}.png`:''}
+function teamBadge(club){const code=TEAM_CODES[String(club||'').toUpperCase()];return code?`https://resources.premierleague.com/premierleague25/badges/${code}.svg`:''}
 function faceHTML(p,cls='asset-face'){const src=playerFace(p?.id),fallback=initials(p?.player||p?.full_name);return src?`<span class="${cls} asset-frame"><img src="${src}" alt="" loading="lazy" onerror="this.style.display='none';this.nextElementSibling.style.display='grid'"><span class="asset-fallback" style="display:none">${esc(fallback)}</span></span>`:`<span class="${cls} asset-frame"><span class="asset-fallback">${esc(fallback)}</span></span>`}
 function badgeHTML(club,cls='asset-badge'){const src=teamBadge(club),fb=String(club||'?').slice(0,3).toUpperCase();return src?`<span class="${cls} asset-frame"><img src="${src}" alt="" loading="lazy" onerror="this.style.display='none';this.nextElementSibling.style.display='grid'"><span class="asset-fallback" style="display:none">${esc(fb)}</span></span>`:`<span class="${cls} asset-frame"><span class="asset-fallback">${esc(fb)}</span></span>`}
 window.FPL_ASSETS={PLAYER_CODES,TEAM_CODES,playerFace,teamBadge,faceHTML,badgeHTML};
