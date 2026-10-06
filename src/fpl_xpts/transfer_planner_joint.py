@@ -31,6 +31,7 @@ class JointPlannerConfig:
     weights: tuple[float, ...] = (1.00, 0.85, 0.70, 0.55, 0.40, 0.25)
     hit_uncertainty_buffer: float = 1.5
     max_transfers_per_week: int = 5
+    first_gw_max_transfers: int | None = None
     time_limit: float = 60.0
     mip_rel_gap: float = 0.002
 
@@ -276,6 +277,14 @@ def plan_transfer_path_joint(
 
         # Exactly one FT/transfer-count transition state.
         add({qidx(g, qi): 1.0 for qi in range(q_count)}, 1.0, 1.0)
+        if g == 0 and config.first_gw_max_transfers is not None:
+            disallowed = {
+                qidx(g, qi): 1.0
+                for qi, (_ft, tr) in enumerate(q_states)
+                if tr > int(config.first_gw_max_transfers)
+            }
+            if disallowed:
+                add(disallowed, 0.0, 0.0)
 
         # Exact FT state transition.
         if g == 0:
