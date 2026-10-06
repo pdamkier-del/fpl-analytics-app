@@ -2,11 +2,6 @@ name: MM relative rating player impact
 
 on:
   workflow_dispatch:
-  push:
-    branches: [audit-role-minutes-20261001]
-    paths:
-      - 'scripts/audit_mm_relative_rating_player_impact.py'
-      - '.github/workflows/mm-relative-rating-player-impact.yml'
 
 permissions:
   contents: write
