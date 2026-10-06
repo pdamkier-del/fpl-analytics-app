@@ -169,9 +169,9 @@ def add_relative_xi_features(frame,p,cfg,formation_history=None,formation_half_l
                 f.at[global_i,'xi_role_competitors']=float(len(candidate_scores))
     return f
 
-def evaluate_variant(frame,train,val,cfg,l2s=(.5,2.,10.,40.)):
+def evaluate_variant(frame,train,val,cfg,l2s=(.5,2.,10.,40.),formation_history=None,formation_half_life=5.0,formation_strength=0.0):
     p0,q,sub,x0,_=full_mm(frame.copy(),train)
-    feat=add_relative_xi_features(frame,p0,cfg)
+    feat=add_relative_xi_features(frame,p0,cfg,formation_history=formation_history,formation_half_life=formation_half_life,formation_strength=formation_strength)
     rows=[];models={};preds={}
     for l2 in l2s:
         p,m=fit_residual(feat,p0,train,ASSIGN_FEATURES,l2)
