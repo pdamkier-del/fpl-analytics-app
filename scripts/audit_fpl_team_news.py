@@ -139,7 +139,30 @@ def collect(db, cache):
             run_result = getj(run_url, cache)
             # Refuse a truncated timestamp search rather than quietly guessing.
             assert run_result['total_count'] <= 100
+            clock_time = max(timestamp(c['nominal']), timestamp(commit['commit']['committer']['date']))
             effective, verified, run = certified_time(timestamp(c['nominal']), timestamp(commit['commit']['committer']['date']), parent, run_result['workflow_runs'])
+            job = None
+            jobs_url = API + '/actions/runs/' + str(run['id']) + '/jobs?per_page=100' if run else None
+            if run:
+                jobs = getj(jobs_url, cache)
+                assert jobs['total_count'] <= 100
+                good = [j for j in jobs['jobs'] if j.get('name') == 'cache' and j.get('conclusion') == 'success'
+                        and j.get('completed_at') and timestamp(j['started_at']) <= timestamp(commit['commit']['committer']['date']) <= timestamp(j['completed_at'])]
+                if good:
+                    job = min(good, key=lambda j: j['completed_at'])
+                    effective = max(clock_time, timestamp(job['completed_at']))
+            # Verify the historical fetch/push pipeline, not just today's archive workflow.
+            pipeline = {}
+            pipeline_ok = True
+            for path in ['cache.py', '.github/workflows/cache.yml']:
+                prefix = 'https://raw.githubusercontent.com/' + ARCHIVE + '/'
+                historical = get(prefix + parent + '/' + path, cache)
+                pinned = get(prefix + PIN + '/' + path, cache)
+                pipeline[path] = dict(url=prefix + parent + '/' + path, sha256=sha(historical), identical_to_pinned=historical == pinned)
+                pipeline_ok = pipeline_ok and historical == pinned
+            assert b'https://fantasy.premierleague.com/api/bootstrap-static/' in get('https://raw.githubusercontent.com/'+ARCHIVE+'/'+PIN+'/cache.py', cache)
+            assert b'git push' in get('https://raw.githubusercontent.com/'+ARCHIVE+'/'+PIN+'/.github/workflows/cache.yml', cache)
+            verified = verified and pipeline_ok
             source_url = 'https://raw.githubusercontent.com/' + ARCHIVE + '/' + commit['sha'] + '/' + c['path']
             raw = get(source_url, cache)
             assert hashlib.sha1(b'blob ' + str(len(raw)).encode() + b'\0' + raw).hexdigest() == c['sha']
@@ -152,7 +175,10 @@ def collect(db, cache):
             source_id = commit['sha'] + ':' + c['path']
             src = dict(c, source_id=source_id, source_url=source_url, source_commit=commit['sha'],
                        commit_at=commit['commit']['committer']['date'], effective_at=iso(effective), timing_verified=verified,
-                       run_id=run['id'] if run else None, run_completed_at=run['updated_at'] if run else None,
+                       run_id=run['id'] if run else None, run_updated_at=run['updated_at'] if run else None,
+                       job_id=job['id'] if job else None, job_completed_at=job['completed_at'] if job else None,
+                       jobs_metadata_url=jobs_url, parent_commit=parent, pipeline=pipeline, pipeline_verified=pipeline_ok,
+                       archive_clock_effective_at=iso(clock_time),
                        run_created_at=run['created_at'] if run else None, commit_metadata_url=url, run_metadata_url=run_url,
                        raw_sha256=sha(raw), audit_gw=d['gw'], cutoff=d['cutoff'], selection=label,
                        deadline_matches=deadline_matches, official_deadline=ev['deadline_time'])
@@ -170,22 +196,27 @@ def collect(db, cache):
                     fpl_element=e['id'], fpl_code=e['code'], player_name=e['first_name'] + ' ' + e['second_name'],
                     team=teams[e['team']]['name'], team_id=e['team'], observed_at=c['nominal'], effective_at=iso(effective),
                     source='official_fpl_bootstrap_via_randdalf_archive', source_id=source_id, source_url=source_url,
-                    source_commit=commit['sha'], timing_verified=verified,
-                    timestamp_basis='github_successful_cache_run_completion' if verified else 'archive_clock_only',
+                    source_commit=commit['sha'], timing_verified=verified, archive_clock_effective_at=iso(clock_time),
+                    timestamp_basis=('github_successful_cache_job_completion' if job else 'github_successful_cache_run_updated_upper_bound') if verified else 'archive_clock_only',
                     raw_status=e.get('status'), raw_news=e.get('news'), news_added=news_added,
                     chance_this_round=e.get('chance_of_playing_this_round'), chance_next_round=e.get('chance_of_playing_next_round'),
                     payload_current_event=current, payload_next_event=nextev, scoped_chance=scoped_chance,
                     normalized_availability_state=normalized(e.get('status'), scoped_chance), identity_status=identity,
                     selection=label, deadline_matches=deadline_matches, future_news_timestamp=future_news,
                     strict_eligible=verified and effective < cutoff and deadline_matches and not future_news,
-                    conditional_clock_eligible=effective < cutoff and deadline_matches and not future_news))
+                    conditional_clock_eligible=clock_time < cutoff and deadline_matches and (not news_added or timestamp(news_added) <= clock_time)))
             print('GW', d['gw'], label, 'verified', verified, 'players', len(payload['elements']), flush=True)
     return observations, sources, deadlines
 
 def project(observations, deadlines, strict):
     # Only audited snapshots, not a claim of observing every update between captures.
     pool = {}
-    for r in observations:
+    for original in observations:
+        r = dict(original)
+        if not strict:
+            r['effective_at'] = r['archive_clock_effective_at']
+            r['timestamp_basis'] = 'archive_clock_only'
+            r['future_news_timestamp'] = bool(r['news_added'] and timestamp(r['news_added']) > timestamp(r['effective_at']))
         if r['deadline_matches'] and not r['future_news_timestamp'] and (r['timing_verified'] or not strict):
             pool[(r['source_id'], r['fpl_element'])] = r
     pool = list(pool.values())
@@ -218,7 +249,7 @@ def project(observations, deadlines, strict):
             unchanged_news_rows=sum(r['unchanged_news_since_previous_gw'] for r in out),
             selected_observation=newest,
             observation_age_hours=(cutoff-timestamp(newest)).total_seconds()/3600 if newest else None,
-            post_deadline_excluded_rows=sum(r['gw'] == d['gw'] and timestamp(r['effective_at']) >= cutoff for r in observations)))
+            post_deadline_excluded_rows=sum(r['gw'] == d['gw'] and timestamp(r['effective_at'] if strict else r['archive_clock_effective_at']) >= cutoff for r in observations)))
     return result, coverage
 
 def main():
@@ -255,7 +286,7 @@ def main():
                    future_news_rows=sum(r['future_news_timestamp'] for r in observations),
                    deadline_mismatch_snapshots=sum(not s['deadline_matches'] for s in sources),
                    coverage=coverage, strict_target_leakage=0,
-                   limitations=['Two sampled captures per GW, not every historical update.', 'Server completion is a conservative inferred availability bound, not official news publication time.', 'Clock-only archive timestamps remain unverified and are excluded from strict tier.'])
+                   limitations=['Two sampled captures per GW, not every historical update.', 'Server job completion (or run updated upper bound) is a conservative inferred availability bound, not official news publication time.', 'Clock-only archive timestamps remain unverified and are excluded from strict tier.'])
     write_json(a.out/'summary.json', summary)
     write_json(a.out/'SHA256_MANIFEST.json', {p.name: sha(p.read_bytes()) for p in sorted(a.out.iterdir()) if p.is_file()})
     print(json.dumps({k:v for k,v in summary.items() if k != 'coverage'}, indent=2))

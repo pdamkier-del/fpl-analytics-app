@@ -22,7 +22,7 @@ class ResearchContract(unittest.TestCase):
         t,v,r=a.certified_time(n,c,'parent',[run])
         self.assertTrue(v); self.assertEqual(t,a.timestamp(run['updated_at']))
     def test_postdeadline_exclusion_and_carry(self):
-        base=dict(source_id='one',fpl_element=1,gw=1,cutoff='2025-08-15T17:30:00Z',effective_at='2025-08-15T12:00:00Z',deadline_matches=True,future_news_timestamp=False,timing_verified=True,raw_status='i',raw_news='injury',news_added='2025-08-15T11:00:00Z',payload_current_event=None,payload_next_event=1,chance_this_round=None,chance_next_round=0,identity_status='mapped')
+        base=dict(source_id='one',fpl_element=1,gw=1,cutoff='2025-08-15T17:30:00Z',effective_at='2025-08-15T12:00:00Z',archive_clock_effective_at='2025-08-15T12:00:00Z',deadline_matches=True,future_news_timestamp=False,timing_verified=True,raw_status='i',raw_news='injury',news_added='2025-08-15T11:00:00Z',payload_current_event=None,payload_next_event=1,chance_this_round=None,chance_next_round=0,identity_status='mapped')
         late=dict(base,source_id='late',effective_at='2025-08-15T18:00:00Z',raw_status='a')
         ds=[dict(gw=1,cutoff=base['cutoff']),dict(gw=2,cutoff='2025-08-22T17:30:00Z')]
         rows,c=a.project([base,late],ds,True)

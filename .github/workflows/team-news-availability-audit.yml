@@ -25,17 +25,20 @@ jobs:
           path: .cache/team-news-audit
           key: team-news-audit-v1-${{ github.run_id }}
           restore-keys: team-news-audit-v1-
+      - run: python scripts/research_team_news_sources.py
       - run: python tests/test_team_news_audit.py
       - run: python scripts/restore_core_checkpoint.py --out work/core.sqlite3
-      - run: python scripts/audit_fpl_team_news.py --out data_v1_1/derived/team_news_audit/2025-26-v1
+      - run: python scripts/audit_fpl_team_news.py --out data_v1_1/derived/team_news_audit/2025-26-v2
         env:
           GH_TOKEN: ${{ github.token }}
       - run: |
-          python scripts/audit_fpl_team_news.py --rebuild data_v1_1/derived/team_news_audit/2025-26-v1 --out work/team-news-offline-rebuild
-          diff -r data_v1_1/derived/team_news_audit/2025-26-v1 work/team-news-offline-rebuild
+          python scripts/audit_fpl_team_news.py --rebuild data_v1_1/derived/team_news_audit/2025-26-v2 --out work/team-news-offline-rebuild
+          diff -r data_v1_1/derived/team_news_audit/2025-26-v2 work/team-news-offline-rebuild
       - uses: actions/upload-artifact@v4
         if: always()
         with:
           name: team-news-availability-audit
-          path: data_v1_1/derived/team_news_audit/2025-26-v1
+          path: |
+            data_v1_1/derived/team_news_audit/2025-26-v2
+            analysis/results/team-news-source-research-20261006-v1
           retention-days: 90
