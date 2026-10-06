@@ -78,6 +78,7 @@ def actual_projection(meta,actual,gw):
     a['xpts_mean']=a.points.astype(float)
     a['p_play']=(a.minutes.astype(float)>0).astype(float)
     out=meta[['id','web_name','team','position','price_tenths']].merge(a,on='id',how='left')
+    out['gw']=int(gw)
     out[['xpts_mean','p_play']]=out[['xpts_mean','p_play']].fillna(0.0)
     return out
 
