@@ -19,3 +19,8 @@ print('LEAGUE_KEYS',list(league))
 print('DETAILS',json.dumps(league.get('details'),ensure_ascii=False)[:5000])
 print('FIXTURES_TYPE',type(league.get('fixtures')).__name__)
 print('FIXTURES',json.dumps(league.get('fixtures'),ensure_ascii=False)[:20000])
+from pathlib import Path
+out=Path('analysis/results/fotmob-fa-probe-20261006')
+out.mkdir(parents=True,exist_ok=True)
+payload={'hits':hits,'fa':fa,'league_keys':list(league),'details':league.get('details'),'fixtures':league.get('fixtures')}
+(out/'probe.json').write_text(json.dumps(payload,ensure_ascii=False,indent=2))
