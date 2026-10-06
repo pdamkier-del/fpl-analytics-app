@@ -149,7 +149,13 @@ def main():
         hit=sum(int(x.get('hit',0)) for x in rows)
         if not valid_squad(meta,state.squad): raise RuntimeError(f'GW{gw}: invalid squad')
 
-        current=hp.complete_current_projection(origin,meta,gw)
+        # complete_current_projection itself appends meta_* helper columns.
+        # origin_with_meta has already appended those for the planner, so strip
+        # them here to avoid a second merge producing meta_team_x/meta_team_y.
+        current_input=origin.drop(
+            columns=[x for x in ['meta_team','meta_price_tenths','meta_web_name','meta_position'] if x in origin.columns]
+        )
+        current=hp.complete_current_projection(current_input,meta,gw)
         plan=plan_squad(current,list(state.squad),gw)
         score,_=actual_team_points(plan.rows,hp.actual_gw(gws,gw),None,hit)
         total+=score
