@@ -152,3 +152,133 @@ def build_team_news_features(targets:pd.DataFrame,ledger:pd.DataFrame,*,max_age_
     out["team_news_known"]=(out.team_news_state!="UNKNOWN").astype(float)
     out["team_news_hard_out"]=out.team_news_state.isin(["OUT","SUSPENDED"]).astype(float)
     return out
+
+
+# ---------------------------------------------------------------------------
+# Historical strict FPL Team News projection (2025/26 audit hand-off)
+# ---------------------------------------------------------------------------
+
+def read_split_gzip_jsonl(folder, stem="predeadline_strict.jsonl.gz"):
+    """Read a checksum-manifested split gzip JSONL dataset without materializing it."""
+    from pathlib import Path
+    import gzip, hashlib, json
+    folder=Path(folder)
+    direct=folder/stem
+    if direct.exists():
+        raw=direct.read_bytes()
+    else:
+        manifest=json.loads((folder/"PARTS_MANIFEST.json").read_text())
+        entry=next((x for x in manifest["files"] if x["path"]==stem),None)
+        if entry is None:
+            raise FileNotFoundError(stem)
+        pieces=[]
+        for part in entry["parts"]:
+            b=(folder/part["path"]).read_bytes()
+            if len(b)!=part["bytes"] or hashlib.sha256(b).hexdigest()!=part["sha256"]:
+                raise ValueError("Team News part checksum failed: "+part["path"])
+            pieces.append(b)
+        raw=b"".join(pieces)
+        if len(raw)!=entry["bytes"] or hashlib.sha256(raw).hexdigest()!=entry["sha256"]:
+            raise ValueError("Team News reconstructed file checksum failed")
+    return pd.DataFrame(json.loads(line) for line in gzip.decompress(raw).splitlines())
+
+def validate_strict_projection(strict:pd.DataFrame)->pd.DataFrame:
+    """Validate Work's immutable pre-deadline projection before model use."""
+    required={
+        "gw","cutoff","player_uuid","effective_at","identity_status",
+        "timing_verified","normalized_availability_state","scoped_chance","tier"
+    }
+    missing=required-set(strict.columns)
+    if missing:
+        raise ValueError(f"missing strict Team News fields: {sorted(missing)}")
+    x=strict.copy()
+    x["player_uuid"]=x.player_uuid.astype(str)
+    x["gw"]=pd.to_numeric(x.gw,errors="raise").astype(int)
+    x["cutoff"]=pd.to_datetime(x.cutoff,utc=True,errors="coerce")
+    x["effective_at"]=pd.to_datetime(x.effective_at,utc=True,errors="coerce")
+    if x[["cutoff","effective_at"]].isna().any().any():
+        raise ValueError("invalid strict Team News timestamps")
+    if (x.effective_at>=x.cutoff).any():
+        raise ValueError("strict Team News target leakage")
+    if (~x.identity_status.eq("mapped")).any():
+        raise ValueError("strict Team News contains unmapped identity")
+    if (~x.timing_verified.astype(bool)).any():
+        raise ValueError("strict Team News contains unverified timing")
+    if (~x.tier.eq("strict")).any():
+        raise ValueError("non-strict Team News row supplied")
+    if x.duplicated(["gw","player_uuid"]).any():
+        raise ValueError("duplicate strict Team News player/GW")
+    bad=~x.normalized_availability_state.isin(NORMALIZED_STATES)
+    if bad.any():
+        raise ValueError("invalid strict normalized availability state")
+    sc=pd.to_numeric(x.scoped_chance,errors="coerce")
+    if ((sc.notna())&((sc<0)|(sc>100))).any():
+        raise ValueError("strict scoped chance outside 0..100")
+    x["scoped_chance"]=sc
+    return x
+
+def strict_state_cap(state:str, scoped_chance=None, *, doubt_cap=.75, major_doubt_cap=.25):
+    """Availability cap for already-normalized strict historical evidence.
+
+    OUT/SUSPENDED are deterministic availability exclusions. FPL's scoped chance
+    is authoritative when present for a doubtful state. AVAILABLE,
+    RETURNED_AVAILABLE and UNKNOWN are not converted into positive start evidence.
+    """
+    s=str(state)
+    if s in {"OUT","SUSPENDED"}:
+        return 0.0
+    p=_prob(scoped_chance)
+    if s=="MAJOR_DOUBT":
+        return min(float(major_doubt_cap),p) if p is not None else float(major_doubt_cap)
+    if s=="DOUBT":
+        return min(float(doubt_cap),p) if p is not None else float(doubt_cap)
+    return 1.0
+
+def build_strict_team_news_features(targets:pd.DataFrame, strict:pd.DataFrame, *,
+                                    doubt_cap=.75, major_doubt_cap=.25)->pd.DataFrame:
+    """Merge one certified historical Team News row onto each player/GW target.
+
+    Missing strict coverage (notably GW1) is neutral. We never carry a chance
+    value ourselves: Work's projection has already re-scoped it for that GW.
+    """
+    x=validate_strict_projection(strict)
+    keep=["gw","player_uuid","cutoff","effective_at","normalized_availability_state",
+          "scoped_chance","raw_status","raw_news","news_added","source","source_id",
+          "carried_from_earlier_gw","unchanged_news_since_previous_gw"]
+    keep=[k for k in keep if k in x.columns]
+    z=x[keep].copy().rename(columns={
+        "cutoff":"team_news_source_cutoff",
+        "effective_at":"team_news_effective_at",
+        "normalized_availability_state":"team_news_state",
+        "scoped_chance":"team_news_scoped_chance",
+        "raw_status":"team_news_raw_status",
+        "raw_news":"team_news_raw",
+        "news_added":"team_news_news_added",
+        "source":"team_news_source",
+        "source_id":"team_news_source_id",
+        "carried_from_earlier_gw":"team_news_carried_forward",
+        "unchanged_news_since_previous_gw":"team_news_unchanged",
+    })
+    out=targets.copy()
+    out["player_uuid"]=out.player_uuid.astype(str)
+    out=out.merge(z,on=["gw","player_uuid"],how="left",validate="many_to_one",sort=False)
+    target_cut=pd.to_datetime(out.cutoff,utc=True)
+    known=out.team_news_effective_at.notna()
+    if known.any():
+        eff=pd.to_datetime(out.loc[known,"team_news_effective_at"],utc=True)
+        if (eff>=target_cut.loc[known]).any():
+            raise ValueError("Team News row is not pre-target cutoff")
+    out["team_news_state"]=out.team_news_state.fillna("UNKNOWN")
+    out["team_news_known"]=known.astype(float)
+    out["team_news_hard_out"]=out.team_news_state.isin(["OUT","SUSPENDED"]).astype(float)
+    out["team_news_availability_cap"]=[
+        strict_state_cap(s,c,doubt_cap=doubt_cap,major_doubt_cap=major_doubt_cap)
+        for s,c in zip(out.team_news_state,out.team_news_scoped_chance)
+    ]
+    out["team_news_age_hours"]=float("nan")
+    if known.any():
+        out.loc[known,"team_news_age_hours"]=[
+            (a-b).total_seconds()/3600
+            for a,b in zip(target_cut.loc[known],pd.to_datetime(out.loc[known,"team_news_effective_at"],utc=True))
+        ]
+    return out
