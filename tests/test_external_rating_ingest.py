@@ -1,0 +1,42 @@
+import pandas as pd
+from fpl_v1_1_model.external_rating_ingest import extract_fotmob,resolve_player,resolve_match,map_rows
+
+
+def test_exact_ids_win_and_conflicts_are_not_forced():
+    row=dict(provider='fotmob',provider_player_id='1',provider_opta_id='2',match_id='m',team_id=3,player_name='Joe Smith')
+    ids={('fotmob','1'):{'uuid-a'}};opta={'2':{'uuid-b'}}
+    assert resolve_player(row,ids,opta,{})==('uuid-a','mapped','known_provider_id')
+    ids[('fotmob','1')].add('uuid-b')
+    assert resolve_player(row,ids,opta,{})[:2]==(None,'ambiguous')
+    assert resolve_player(row,{}, {}, {('m',3,'joesmith'):{'uuid-a'}})[0]=='uuid-a'
+    assert resolve_player({**row,'player_name':'J. Smith'}, {}, {}, {('m',3,'joesmith'):{'uuid-a'}})[0] is None
+
+
+def test_known_match_id_requires_date_and_competition_agreement():
+    row=dict(provider='fotmob',provider_match_id='7',season='2025/26',competition='prem',team_code=3,kickoff='2026-01-01T15:00:00Z')
+    registry={('2025/26','prem','2026-01-01',3):{'right'}}
+    assert resolve_match(row,registry,{('fotmob','7'):{'wrong'}})==(None,'unresolved')
+    assert resolve_match(row,registry,{})==('right','mapped')
+    registry[next(iter(registry))].add('other')
+    assert resolve_match(row,registry,{})==(None,'ambiguous')
+
+
+def test_extraction_preserves_rating_scale_and_post_match_proxy():
+    event={'id':'7','status':{'utcTime':'2026-01-01T15:00:00Z'}}
+    player={'id':8,'name':'Player','performance':{'rating':7.5}}
+    detail={'general':{'matchId':'7','finished':True,'matchTimeUTCDate':event['status']['utcTime'],'homeTeam':{'id':9}},
+        'header':{'status':{'finished':True}},'content':{'lineup':{'homeTeam':{'starters':[player]}},
+        'playerStats':{'8':{'id':8,'teamId':9,'optaId':'10','stats':[{'stats':{'FotMob rating':{'stat':{'value':7.54321}}}}]}}}}
+    r=extract_fotmob(detail,event,'2025/26','prem',{'9':{'team_id':1,'team_code':3,'team_name':'Arsenal'}})[0]
+    assert r['rating']==7.54321
+    assert pd.Timestamp(r['available_at'])==pd.Timestamp(event['status']['utcTime'])+pd.Timedelta(hours=6)
+
+
+def test_mapping_retains_provider_rows_and_does_not_fuzzy_fill():
+    rows=pd.DataFrame([dict(provider=p,provider_match_id='7',provider_player_id='8',provider_opta_id='10',
+        season='2025/26',competition='prem',team_code=3,team_id=1,kickoff='2026-01-01T15:00:00Z',rating=7.2,player_name='Player')
+        for p in ['fotmob','sofascore']])
+    registry={('2025/26','prem','2026-01-01',3):{'m'}}
+    mapped,audit=map_rows(rows,registry,{}, {}, {'10':{'uuid'}}, {}, {})
+    assert len(mapped)==2 and set(mapped.provider)=={'fotmob','sofascore'}
+    assert not mapped.duplicated(['provider','player_uuid','match_id']).any()

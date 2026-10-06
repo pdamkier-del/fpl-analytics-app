@@ -1,0 +1,57 @@
+name: MM external ratings ledger and unchanged v2 test
+on:
+  push:
+    branches: [audit-role-minutes-20261001]
+    paths:
+      - 'scripts/collect_mm_external_ratings.py'
+      - 'src/fpl_v1_1_model/external_rating_ingest.py'
+      - '.github/workflows/mm-external-ratings.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: mm-external-ratings
+  cancel-in-progress: false
+jobs:
+  run:
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: |
+          pip install -r requirements-model-checkpoint.txt
+          pip install -r requirements-model-tests.txt
+          pip install requests
+      - uses: actions/cache/restore@v4
+        with:
+          path: .cache/mm-external-ratings
+          key: mm-original-ratings-${{ github.run_id }}
+          restore-keys: mm-original-ratings-
+      - name: Exact ingestion tests
+        run: PYTHONPATH=src pytest -q tests/test_external_rating_ingest.py tests/test_rating_history.py
+      - name: Collect original ratings
+        run: |
+          mkdir -p data_v1_1/derived/mm_v2_ratings
+          set -o pipefail
+          PYTHONPATH=src python scripts/collect_mm_external_ratings.py --as-of 2026-10-06T23:59:59Z 2>&1 | tee data_v1_1/derived/mm_v2_ratings/collection.log
+      - name: Existing MM v2 experiment unchanged
+        run: |
+          mkdir -p analysis/results/mm-v2-xi-rating-with-external-ratings-20261006-v1
+          set -o pipefail
+          PYTHONPATH=src python scripts/run_mm_v2_xi_rating_experiment.py --ratings data_v1_1/derived/mm_v2_ratings/player_match_ratings.csv.gz --out analysis/results/mm-v2-xi-rating-with-external-ratings-20261006-v1 2>&1 | tee analysis/results/mm-v2-xi-rating-with-external-ratings-20261006-v1/run.log
+      - uses: actions/cache/save@v4
+        if: always()
+        with:
+          path: .cache/mm-external-ratings
+          key: mm-original-ratings-${{ github.run_id }}
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: mm-external-ratings-results
+          path: |
+            data_v1_1/derived/mm_v2_ratings
+            analysis/results/mm-v2-xi-rating-with-external-ratings-20261006-v1
+          retention-days: 90
