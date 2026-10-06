@@ -25,6 +25,7 @@ sys.path.insert(0,str(ROOT/'src'));sys.path.insert(0,str(ROOT/'scripts'))
 
 import run_horizon_policy_comparison as hp
 import run_transfer_strategy_v3_replay as base
+from run_v4_performance_rating_experiment import player_id_map
 from fpl_xpts.optimize import plan_squad
 from fpl_xpts.season_replay import OwnedPlayer,ReplayState,actual_team_points,initial_squad,valid_squad
 from fpl_xpts.transfer_planner import execute_first_action
@@ -44,36 +45,9 @@ def ints(cell):
     return [int(float(x)) for x in str(cell).split(';') if x and x!='nan']
 
 
-def _norm_name(x):
-    return ''.join(ch for ch in str(x).casefold() if ch.isalnum())
-
 def mapping_uuid_to_id(gws,names):
-    # GitHub Actions does not carry the local SQLite database. Reconstruct the
-    # stable identity bridge from two committed historical sources:
-    # vFinal feature player_uuid+canonical name and archived FPL players_raw.
-    feat=pd.read_csv(
-        ROOT/'analysis/results/workload-recovered-v4/all_features.csv.gz',
-        usecols=['player_uuid','player']
-    ).drop_duplicates()
-    raw=hp.unpack_runtime('players_raw.csv')
-    raw=raw.drop_duplicates('id').copy()
-    candidates={}
-    for r in raw.itertuples():
-        vals=[getattr(r,'web_name','')]
-        first=getattr(r,'first_name','');second=getattr(r,'second_name','')
-        if str(first)!='nan' or str(second)!='nan':
-            vals.append(f"{first} {second}")
-        for v in vals:
-            k=_norm_name(v)
-            if k:candidates.setdefault(k,set()).add(int(r.id))
-    out={};amb=[]
-    for r in feat.itertuples():
-        k=_norm_name(r.player); ids=candidates.get(k,set())
-        if len(ids)==1:out[str(r.player_uuid)]=next(iter(ids))
-        elif len(ids)>1:amb.append((r.player_uuid,r.player,sorted(ids)))
-    if amb:
-        raise RuntimeError(f'ambiguous canonical-name identity rows: {amb[:10]}')
-    # Require exact coverage of the vFinal prediction UUIDs used in GW22-38.
+    direct=player_id_map()
+    out={str(uuid):int(pid) for pid,uuid in direct.items()}
     need=set(pd.read_csv(VFINAL/'predictions.csv.gz',usecols=['player_uuid']).player_uuid.astype(str))
     missing=sorted(need-set(out))
     if missing:
