@@ -12,7 +12,7 @@ import pandas as pd
 
 ROOT=Path(__file__).resolve().parents[1]
 sys.path[:0]=[str(ROOT/'src'),str(ROOT/'scripts')]
-from fpl_v1_1_model.external_rating_ingest import norm,extract_fotmob,map_rows,provider_competition_matches
+from fpl_v1_1_model.external_rating_ingest import norm,extract_fotmob,map_rows,provider_competition_matches,in_season
 from fpl_v1_1_model.rating_history import validate_rating_ledger
 from fpl_v1_1_model.match_importance import canonical_competition
 from run_mm_unified_official_roles import base_identity,read_all,SOURCE,CLASSIFIED
@@ -114,7 +114,7 @@ def main():
     a=ap.parse_args();out=ROOT/a.out;out.mkdir(parents=True,exist_ok=True);cache=Cache(ROOT/a.cache)
     asof=pd.to_datetime(a.as_of,utc=True)
     team_map,opta,registry,known,names,roles,classified=build_anchors(out)
-    errors=[];events=[];lookups={};source_clubs={};club_audits=[]
+    errors=[];events=[];lookups={};source_clubs={};club_audits=[];rejected_season_events=[]
     previous_teams=read_source('data/2025-2026/teams.csv',out)
     for season,folder in [('2025/2026','2025-2026'),('2026/2027','2026-2027')]:
         try:teams=read_source(f'data/{folder}/teams.csv',out)
@@ -170,6 +170,9 @@ def main():
         for league,comp,e in inventories:
             key=str(e['id']);status=e.get('status') or {};ko=pd.to_datetime(status.get('utcTime'),utc=True,errors='coerce')
             if key in seen or pd.isna(ko) or ko>asof or not status.get('finished') or status.get('cancelled') or status.get('awarded'):continue
+            if not in_season(ko,season):
+                rejected_season_events.append({'requested_season':season,'competition':comp,'provider_match_id':key,'kickoff':ko.isoformat(),'reason':'provider inventory outside July-to-June season; possible endpoint fallback'})
+                continue
             if not any(str((e.get(side) or {}).get('id')) in lookup for side in ['home','away']):continue
             seen.add(key);events.append({'season':season,'competition':comp,'league_id':league,'event':e})
         print(f'{season}: {len(seen)} completed PL-club fixtures',flush=True)
@@ -223,7 +226,7 @@ def main():
     for (season,team),scope in fixture_scope.groupby(['season','team_name']):
         r=raw[(raw.season==season)&(raw.team_name==team)];m=mapped[(mapped.season==season)&(mapped.team_name==team)]
         team_fixture_coverage.append({'season':season,'team_name':team,'completed_inventory_team_games':len(scope),'rated_team_games':int(r.provider_match_id.nunique()),'mapped_team_games':int(m.provider_match_id.nunique())})
-    coverage={'as_of':asof.isoformat(),'providers':['fotmob'],'club_identity_inventory':club_audits,'sofascore':'www.sofascore.com official API probe HTTP403; no fabricated provider rows','by_competition':grouped(['season','competition']),'fixture_coverage_by_competition':fixture_coverage,'fixture_coverage_by_team':team_fixture_coverage,'by_team':grouped(['season','team_name']),'duplicate_provider_player_match':duplicate,'ratings_outside_0_10':int((~mapped.rating.between(0,10)).sum()),'target_match_leakage':leakage,'postmatch_proxy_violations':postmatch,'target_rows_checked':len(join),'available_at_policy':'kickoff + 6 hours for provider-confirmed finished matches; conservative proxy, not original publication time; historical revisions cannot be certified','completed_inventory_matches':len(events),'matched_rating_events':int(raw.groupby(['season','provider_match_id']).ngroups),'errors':errors,'promotion_allowed':False}
+    coverage={'as_of':asof.isoformat(),'providers':['fotmob'],'club_identity_inventory':club_audits,'rejected_out_of_season_inventory':rejected_season_events,'latest_rated_kickoff_by_season':raw.groupby('season').kickoff.max().to_dict(),'sofascore':'www.sofascore.com official API probe HTTP403; no fabricated provider rows','by_competition':grouped(['season','competition']),'fixture_coverage_by_competition':fixture_coverage,'fixture_coverage_by_team':team_fixture_coverage,'by_team':grouped(['season','team_name']),'duplicate_provider_player_match':duplicate,'ratings_outside_0_10':int((~mapped.rating.between(0,10)).sum()),'target_match_leakage':leakage,'postmatch_proxy_violations':postmatch,'target_rows_checked':len(join),'available_at_policy':'kickoff + 6 hours for provider-confirmed finished matches; conservative proxy, not original publication time; historical revisions cannot be certified','completed_inventory_matches':len(events),'matched_rating_events':int(raw.groupby(['season','provider_match_id']).ngroups),'errors':errors,'promotion_allowed':False}
     for filename,frame in [('player_match_ratings.csv.gz',mapped),('rating_identity_rows.csv.gz',audit),('raw_provider_ratings.csv.gz',raw)]:frame.to_csv(out/filename,index=False,compression={'method':'gzip','mtime':0})
     pd.DataFrame([{'season':i['season'],'competition':i['competition'],'provider_match_id':i['event']['id'],'kickoff':i['event']['status']['utcTime'],'home_name':i['event']['home']['name'],'away_name':i['event']['away']['name']} for i in events]).to_csv(out/'fixture_inventory.csv',index=False)
     # Freeze exact mapping inputs for offline rebuild (no network dependency).

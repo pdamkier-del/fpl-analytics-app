@@ -40,6 +40,13 @@ def scalar_stat(value, labels):
     return None
 
 
+def in_season(kickoff, season):
+    """English/UEFA club season, July 1 to next July 1 (exclusive)."""
+    year=int(str(season).split('/')[0])
+    ko=pd.to_datetime(kickoff,utc=True,errors='raise')
+    return pd.Timestamp(f'{year}-07-01',tz='UTC') <= ko < pd.Timestamp(f'{year+1}-07-01',tz='UTC')
+
+
 def provider_competition_matches(detail, league_id):
     # Cups/Europe expose phase-specific leagueId and the canonical parent ID.
     general=detail.get('general') or {}
@@ -54,6 +61,7 @@ def extract_fotmob(detail, event, season, competition, team_lookup):
         return []
     kickoff=pd.to_datetime(general.get('matchTimeUTCDate'),utc=True,errors='raise')
     inventory_ko=pd.to_datetime(event['status']['utcTime'],utc=True,errors='raise')
+    if not in_season(kickoff,season):raise ValueError('Provider response outside requested season')
     if kickoff != inventory_ko:raise ValueError('Provider inventory/detail kickoff mismatch')
     # No original publication clock: six hours after kickoff, rather than during
     # or immediately after 90/120-minute play. Revision timing remains unknown.

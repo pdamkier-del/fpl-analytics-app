@@ -66,3 +66,11 @@ def test_competition_phase_requires_exact_canonical_parent_id():
     assert not provider_competition_matches(d,73)
     assert provider_competition_matches({'general':{'leagueId':47}},47)
     assert not provider_competition_matches({'general':{}},42)
+
+
+def test_requested_season_does_not_accept_previous_fa_cup_fallback():
+    from fpl_v1_1_model.external_rating_ingest import in_season
+    assert in_season('2026-05-16T14:00:00Z','2025/2026')
+    assert not in_season('2026-05-16T14:00:00Z','2026/2027')
+    assert in_season('2026-07-01T00:00:00Z','2026/2027')
+    assert not in_season('2027-07-01T00:00:00Z','2026/2027')

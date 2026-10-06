@@ -1,0 +1,144 @@
+{
+  "scope": "MM only; existing ratings/XI math and minute-duration models unchanged",
+  "reused_diagnostic_only": true,
+  "promotion": false,
+  "fixed_slice_definitions": {
+    "multi_role": "at least two q_role_slow >= .20",
+    "close_role_competition": "xi_role_competitors >=2 and abs(xi_score_margin) <= .25",
+    "rating_up_down": "at least two historical ratings and trend >= +.25 / <= -.25 on original scale",
+    "lineup_shock": "base P(start)>=.8 and no start OR <=.2 and start",
+    "incumbent_competitor": "same expected role/team/fixture; base>=.8 incumbent does not start; actual starter has higher prior recent rating; descriptive outcomes only"
+  },
+  "locked_reference": {
+    "n": 13987,
+    "state_brier": 0.2317809725255207,
+    "state_log_loss": 0.4356944257045665,
+    "sub_brier_given_nonstart": 0.07882755490139977,
+    "xmins_mae": 11.487502348479174,
+    "xmins_rmse": 21.43760181416725,
+    "xmins_bias": -0.21605115513908382
+  },
+  "xi_only_reference": {
+    "base": {
+      "actual_q_sub_given_nonstart": 0.1343807943788426,
+      "mean_q_sub_given_nonstart": 0.1221542811777256,
+      "n": 13987,
+      "state_brier": 0.23178097255445243,
+      "state_log_loss": 0.4356944257979422,
+      "sub_brier_given_nonstart": 0.07882755495627314,
+      "xmins_bias": -0.21605114971701758,
+      "xmins_mae": 11.487502344509036,
+      "xmins_rmse": 21.43760181501542
+    },
+    "delta": {
+      "state_brier": 3.4366967307242202e-06,
+      "state_log_loss": -0.0001216626117228059,
+      "xmins_bias": 0.0005768484949833508,
+      "xmins_mae": -0.009947284869470607,
+      "xmins_rmse": -0.00467393694510676
+    },
+    "uncertain_base": {
+      "actual_q_sub_given_nonstart": 0.528957528957529,
+      "mean_q_sub_given_nonstart": 0.5313302238318505,
+      "n": 2644,
+      "state_brier": 0.5637205034170688,
+      "state_log_loss": 0.9709352846246259,
+      "sub_brier_given_nonstart": 0.23447704652890752,
+      "xmins_bias": -1.465459655773825,
+      "xmins_mae": 29.91282295790562,
+      "xmins_rmse": 34.683744784199675
+    },
+    "uncertain_delta": {
+      "state_brier": -8.956043033014893e-05,
+      "state_log_loss": 3.116358816268594e-05,
+      "xmins_bias": 0.19212427666195353,
+      "xmins_mae": -0.015272535751428507,
+      "xmins_rmse": 0.005989300981923407
+    },
+    "uncertain_v2": {
+      "actual_q_sub_given_nonstart": 0.528957528957529,
+      "mean_q_sub_given_nonstart": 0.5313302238318505,
+      "n": 2644,
+      "state_brier": 0.5636309429867387,
+      "state_log_loss": 0.9709664482127885,
+      "sub_brier_given_nonstart": 0.23447704652890752,
+      "xmins_bias": -1.2733353791118716,
+      "xmins_mae": 29.897550422154193,
+      "xmins_rmse": 34.6897340851816
+    },
+    "v2": {
+      "actual_q_sub_given_nonstart": 0.1343807943788426,
+      "mean_q_sub_given_nonstart": 0.1221542811777256,
+      "n": 13987,
+      "state_brier": 0.23178440925118315,
+      "state_log_loss": 0.4355727631862194,
+      "sub_brier_given_nonstart": 0.07882755495627314,
+      "xmins_bias": -0.21547430122203423,
+      "xmins_mae": 11.477555059639565,
+      "xmins_rmse": 21.432927878070313
+    }
+  },
+  "external_ratings": {
+    "base": {
+      "actual_q_sub_given_nonstart": 0.1343807943788426,
+      "mean_q_sub_given_nonstart": 0.12215428094407826,
+      "n": 13987,
+      "state_brier": 0.2317809725255207,
+      "state_log_loss": 0.4356944257045665,
+      "sub_brier_given_nonstart": 0.07882755490139977,
+      "xmins_bias": -0.21605115513908382,
+      "xmins_mae": 11.487502348479174,
+      "xmins_rmse": 21.43760181416725
+    },
+    "delta": {
+      "state_brier": 0.0,
+      "state_log_loss": 0.0,
+      "xmins_bias": 0.0,
+      "xmins_mae": 0.0,
+      "xmins_rmse": 0.0
+    },
+    "uncertain_base": {
+      "actual_q_sub_given_nonstart": 0.528957528957529,
+      "mean_q_sub_given_nonstart": 0.5313302220342525,
+      "n": 2644,
+      "state_brier": 0.5637205032189682,
+      "state_log_loss": 0.9709352843533048,
+      "sub_brier_given_nonstart": 0.23447704636214053,
+      "xmins_bias": -1.465459669555293,
+      "xmins_mae": 29.91282296142854,
+      "xmins_rmse": 34.68374478173533
+    },
+    "uncertain_delta": {
+      "state_brier": 0.0,
+      "state_log_loss": 0.0,
+      "xmins_bias": 0.0,
+      "xmins_mae": 0.0,
+      "xmins_rmse": 0.0
+    },
+    "uncertain_v2": {
+      "actual_q_sub_given_nonstart": 0.528957528957529,
+      "mean_q_sub_given_nonstart": 0.5313302220342525,
+      "n": 2644,
+      "state_brier": 0.5637205032189682,
+      "state_log_loss": 0.9709352843533048,
+      "sub_brier_given_nonstart": 0.23447704636214053,
+      "xmins_bias": -1.465459669555293,
+      "xmins_mae": 29.91282296142854,
+      "xmins_rmse": 34.68374478173533
+    },
+    "v2": {
+      "actual_q_sub_given_nonstart": 0.1343807943788426,
+      "mean_q_sub_given_nonstart": 0.12215428094407826,
+      "n": 13987,
+      "state_brier": 0.2317809725255207,
+      "state_log_loss": 0.4356944257045665,
+      "sub_brier_given_nonstart": 0.07882755490139977,
+      "xmins_bias": -0.21605115513908382,
+      "xmins_mae": 11.487502348479174,
+      "xmins_rmse": 21.43760181416725
+    }
+  },
+  "incumbent_competitor_pairs": 47,
+  "input_sha256": "bc113a5805a60ee4dd6e68238d0edcd223aefd477429ac6339ba71fcb27ab861",
+  "warning": "Observational reused-data slices cannot establish causal performance-driven selection or independent OOS improvement."
+}

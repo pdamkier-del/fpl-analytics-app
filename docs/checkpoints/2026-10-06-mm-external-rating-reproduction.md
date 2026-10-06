@@ -10,7 +10,7 @@ The frozen FPL identity source is `olbauday/FPL-Core-Insights` at `1c9191ab6b0c1
 
 Match IDs must exist in the source registries. Provider match-ID anchors must also agree with season, competition, date and PL club. Date-free repeated European fixture keys quarantined by the earlier independent audit are excluded. Existing dated recovered IDs are retained. Unresolved raw provider facts and ambiguity reasons are saved rather than forced into the model ledger.
 
-Competition inventories cover PL, Champions League, Europa League, Conference League (including its qualification), FA Cup and EFL Cup. Only completed, non-cancelled/non-awarded matches with a PL club from the corresponding season's club roster are requested. Coverage counts describe the returned provider inventories and frozen internal registry; failures and unmapped fixtures are explicitly reported. They do not establish that a failed competition endpoint had no matches.
+Competition inventories cover PL, Champions League, Europa League, Conference League (including its qualification), FA Cup and EFL Cup. Only completed, non-cancelled/non-awarded matches with a PL club from the corresponding season's club roster are requested. July-to-June kickoff bounds reject season-selector fallbacks; a future-season endpoint is not assumed to honour its selector. Known club aliases/provider IDs carry forward only via permanent club codes. Coverage counts describe the returned provider inventories and frozen internal registry; failures and unmapped fixtures are explicitly reported. They do not establish that a failed competition endpoint had no matches.
 
 ## Time availability
 
@@ -25,7 +25,7 @@ PYTHONPATH=src python scripts/run_mm_v2_xi_rating_experiment.py --ratings data_v
 PYTHONPATH=src python scripts/analyze_mm_external_rating_experiment.py
 ```
 
-Successful provider responses are cached by URL, with response hashes and retrieval time. GitHub Actions restores and saves this cache even if later steps fail. It uploads outputs as artifacts; repository publication is through the authenticated GitHub connector, without local HTTPS push credentials. The offline rebuild uses `raw_provider_ratings.csv.gz` and `exact_mapping_inputs.json.gz` and requires no provider network access. It asserts equivalence with the published mapped CSV.
+Successful provider responses are cached by URL, with response hashes and retrieval time. GitHub Actions restores and saves this cache even if later steps fail. It uploads outputs as artifacts; repository publication is through the authenticated GitHub connector, without local HTTPS push credentials. The captured-run season-scope audit removed only unmapped past-season fallback rows and verified byte-identical model inputs; no model refit is needed for that cleanup. `scripts/audit_mm_rating_season_scope.py` documents this one-time audit. The offline rebuild uses `raw_provider_ratings.csv.gz` and `exact_mapping_inputs.json.gz` and requires no provider network access. It asserts equivalence with the published mapped CSV.
 
 The data directory holds the mapped ratings, every raw rated player, row-level mapping audit, fixture inventory, exact mapping inputs, frozen identity sources, identity/coverage audits and SHA256 data manifest. It preserves unresolved provider data for future certified mapping without redownloading matches. A manifest retains HTTP provenance; the full HTTP cache is a resume aid rather than a required offline ledger-rebuild input.
 

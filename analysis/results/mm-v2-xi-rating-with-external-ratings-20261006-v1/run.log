@@ -1,0 +1,153 @@
+{
+  "classification": "MM v2 development-selected role-slot assignment experiment; GW22-38 reused diagnostic",
+  "ratings_used": true,
+  "rating_source": "data_v1_1/derived/mm_v2_ratings/player_match_ratings.csv.gz",
+  "performance_weight_in_assignment": 0.45,
+  "development_base": {
+    "n": 4670,
+    "state_log_loss": 0.4535426216202897,
+    "state_brier": 0.23505916312151204,
+    "sub_brier_given_nonstart": 0.0815917256255603,
+    "xmins_mae": 11.395086272574888,
+    "xmins_rmse": 21.67070219157977,
+    "xmins_bias": -0.026123916113398402,
+    "mean_q_sub_given_nonstart": 0.13445281332076575,
+    "actual_q_sub_given_nonstart": 0.1382089552238806
+  },
+  "development_candidates": [
+    {
+      "l2": 0.5,
+      "n": 4670,
+      "state_log_loss": 0.4539734457502271,
+      "state_brier": 0.23554818030132038,
+      "sub_brier_given_nonstart": 0.0815917256255603,
+      "xmins_mae": 11.33993455848933,
+      "xmins_rmse": 21.710657776631333,
+      "xmins_bias": 0.025758417419143767,
+      "mean_q_sub_given_nonstart": 0.13445281332076575,
+      "actual_q_sub_given_nonstart": 0.1382089552238806,
+      "delta_state_log_loss": 0.0004308241299373905,
+      "delta_state_brier": 0.0004890171798083431,
+      "delta_xmins_mae": -0.0551517140855573,
+      "delta_xmins_rmse": 0.039955585051561826
+    },
+    {
+      "l2": 2.0,
+      "n": 4670,
+      "state_log_loss": 0.45397719745277926,
+      "state_brier": 0.2355559013092738,
+      "sub_brier_given_nonstart": 0.0815917256255603,
+      "xmins_mae": 11.344337137180062,
+      "xmins_rmse": 21.710849837699435,
+      "xmins_bias": 0.025208590681408797,
+      "mean_q_sub_given_nonstart": 0.13445281332076575,
+      "actual_q_sub_given_nonstart": 0.1382089552238806,
+      "delta_state_log_loss": 0.0004345758324895699,
+      "delta_state_brier": 0.0004967381877617749,
+      "delta_xmins_mae": -0.05074913539482573,
+      "delta_xmins_rmse": 0.040147646119663705
+    },
+    {
+      "l2": 40.0,
+      "n": 4670,
+      "state_log_loss": 0.4539906012045895,
+      "state_brier": 0.23555922937386817,
+      "sub_brier_given_nonstart": 0.0815917256255603,
+      "xmins_mae": 11.364520813154956,
+      "xmins_rmse": 21.709767405159496,
+      "xmins_bias": 0.019753398381254825,
+      "mean_q_sub_given_nonstart": 0.13445281332076575,
+      "actual_q_sub_given_nonstart": 0.1382089552238806,
+      "delta_state_log_loss": 0.000447979584299818,
+      "delta_state_brier": 0.0005000662523561294,
+      "delta_xmins_mae": -0.030565459419932495,
+      "delta_xmins_rmse": 0.039065213579725366
+    },
+    {
+      "l2": 10.0,
+      "n": 4670,
+      "state_log_loss": 0.45400391795721357,
+      "state_brier": 0.23558272435805927,
+      "sub_brier_given_nonstart": 0.0815917256255603,
+      "xmins_mae": 11.355257259737867,
+      "xmins_rmse": 21.711761381476908,
+      "xmins_bias": 0.023453944118342427,
+      "mean_q_sub_given_nonstart": 0.13445281332076575,
+      "actual_q_sub_given_nonstart": 0.1382089552238806,
+      "delta_state_log_loss": 0.0004612963369238776,
+      "delta_state_brier": 0.000523561236547232,
+      "delta_xmins_mae": -0.03982901283702134,
+      "delta_xmins_rmse": 0.04105918989713686
+    }
+  ],
+  "selected_l2": null,
+  "reused_diagnostic": {
+    "base": {
+      "n": 13987,
+      "state_log_loss": 0.4356944257045665,
+      "state_brier": 0.2317809725255207,
+      "sub_brier_given_nonstart": 0.07882755490139977,
+      "xmins_mae": 11.487502348479174,
+      "xmins_rmse": 21.43760181416725,
+      "xmins_bias": -0.21605115513908382,
+      "mean_q_sub_given_nonstart": 0.12215428094407826,
+      "actual_q_sub_given_nonstart": 0.1343807943788426
+    },
+    "v2": {
+      "n": 13987,
+      "state_log_loss": 0.4356944257045665,
+      "state_brier": 0.2317809725255207,
+      "sub_brier_given_nonstart": 0.07882755490139977,
+      "xmins_mae": 11.487502348479174,
+      "xmins_rmse": 21.43760181416725,
+      "xmins_bias": -0.21605115513908382,
+      "mean_q_sub_given_nonstart": 0.12215428094407826,
+      "actual_q_sub_given_nonstart": 0.1343807943788426
+    },
+    "delta": {
+      "state_log_loss": 0.0,
+      "state_brier": 0.0,
+      "xmins_mae": 0.0,
+      "xmins_rmse": 0.0,
+      "xmins_bias": 0.0
+    },
+    "uncertain_base": {
+      "n": 2644,
+      "state_log_loss": 0.9709352843533048,
+      "state_brier": 0.5637205032189682,
+      "sub_brier_given_nonstart": 0.23447704636214053,
+      "xmins_mae": 29.91282296142854,
+      "xmins_rmse": 34.68374478173533,
+      "xmins_bias": -1.465459669555293,
+      "mean_q_sub_given_nonstart": 0.5313302220342525,
+      "actual_q_sub_given_nonstart": 0.528957528957529
+    },
+    "uncertain_v2": {
+      "n": 2644,
+      "state_log_loss": 0.9709352843533048,
+      "state_brier": 0.5637205032189682,
+      "sub_brier_given_nonstart": 0.23447704636214053,
+      "xmins_mae": 29.91282296142854,
+      "xmins_rmse": 34.68374478173533,
+      "xmins_bias": -1.465459669555293,
+      "mean_q_sub_given_nonstart": 0.5313302220342525,
+      "actual_q_sub_given_nonstart": 0.528957528957529
+    },
+    "uncertain_delta": {
+      "state_log_loss": 0.0,
+      "state_brier": 0.0,
+      "xmins_mae": 0.0,
+      "xmins_rmse": 0.0,
+      "xmins_bias": 0.0
+    }
+  },
+  "rules": {
+    "one_player_max_one_slot": true,
+    "exactly_11_unique_map_xi": true,
+    "multi_role_allowed_but_single_assignment": true,
+    "probabilistic_pstart_preserved": true,
+    "minutes_models_unchanged": true
+  },
+  "promoted": false,
+  "promotion_note": "Do not promote from reused diagnostic alone."
+}
