@@ -1,0 +1,43 @@
+name: vFinal v2 three-way audit
+on:
+  push:
+    branches: [audit-role-minutes-20261001]
+    paths:
+      - 'scripts/run_vfinal_v2_threeway_audit.py'
+      - '.github/workflows/vfinal-v2-threeway-audit.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+  actions: read
+jobs:
+  audit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: pip install -r requirements-model-checkpoint.txt
+      - name: Download coverage-fixed vFinal proxy v2
+        uses: actions/download-artifact@v4
+        with:
+          name: pm-ts-vfinal-fullhorizon-proxy-v2
+          path: analysis/results/threeway_inputs/model
+          github-token: ${{ github.token }}
+          repository: ${{ github.repository }}
+          run-id: 37452172061
+      - name: Download Phase5Q state replay
+        uses: actions/download-artifact@v4
+        with:
+          name: ts-v4-joint-replay-resumed
+          path: analysis/results/threeway_inputs/base
+          github-token: ${{ github.token }}
+          repository: ${{ github.repository }}
+          run-id: 37433364153
+      - run: PYTHONPATH=src python scripts/run_vfinal_v2_threeway_audit.py
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: vfinal-v2-threeway-audit
+          path: analysis/results/vfinal-v2-threeway-audit-20261006-v1
