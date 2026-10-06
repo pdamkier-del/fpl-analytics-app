@@ -1,0 +1,25 @@
+name: MM v2 math tests
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [audit-role-minutes-20261001]
+    paths:
+      - 'src/fpl_v1_1_model/xi_assignment.py'
+      - 'src/fpl_v1_1_model/rating_history.py'
+      - 'tests/test_xi_assignment.py'
+      - 'tests/test_rating_history.py'
+      - '.github/workflows/mm-v2-math-tests.yml'
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: audit-role-minutes-20261001
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: pip install numpy pandas scipy pytest
+      - run: PYTHONPATH=src pytest -q tests/test_xi_assignment.py tests/test_rating_history.py
