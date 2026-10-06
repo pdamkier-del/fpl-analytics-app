@@ -13,28 +13,37 @@ class RoleHistory:
     def __init__(self):
         self.games=defaultdict(list)
 
-    def add_game(self,team,known_at,fixture,players):
-        self.games[int(team)].append({'known_at':known_at,'fixture':fixture,'players':players})
+    def add_game(self,team,known_at,fixture,players,importance=1.0,competition=None):
+        imp=max(0.0,min(1.0,float(importance)))
+        self.games[int(team)].append({'known_at':known_at,'fixture':fixture,'players':players,
+                                      'importance':imp,'competition':competition})
 
     def before(self,team,cutoff):
         return sorted((g for g in self.games[int(team)] if g['known_at']<cutoff),
                       key=lambda g:(g['known_at'],g['fixture']))
 
-    def state(self,team,cutoff,half_life=10):
+    def state(self,team,cutoff,half_life=10,q_importance_scale=0.0,h_importance_scale=0.0,importance_floor=0.35):
         games=self.before(team,cutoff)
         minutes=defaultdict(lambda:defaultdict(float));starts=defaultdict(lambda:defaultdict(float))
         totals=defaultdict(float);cap_mass=defaultdict(float);den=0.;players=set()
         disagreements=defaultdict(float);appearance_evidence=defaultdict(float)
+        qis=max(0.0,min(1.0,float(q_importance_scale)))
+        his=max(0.0,min(1.0,float(h_importance_scale)))
+        floor=max(0.0,min(1.0,float(importance_floor)))
         for lag,g in enumerate(reversed(games)):
-            weight=2**(-lag/half_life);den+=weight
+            weight=2**(-lag/half_life)
+            imp=floor+(1.0-floor)*max(0.0,min(1.0,float(g.get('importance',1.0))))
+            qweight=weight*((1.0-qis)+qis*imp)
+            hweight=weight*((1.0-his)+his*imp)
+            den+=hweight
             for p in g['players']:
                 pid=str(p['player_uuid']);role=p.get('role')
                 players.add(pid)
                 if role not in ROLES or not p.get('started'): continue
-                minutes[pid][role]+=weight*min(1.35,max(0,float(p['minutes']))/90)
-                starts[pid][role]+=weight;totals[role]+=weight;cap_mass[role]+=weight
-                disagreements[pid]+=weight*bool(p.get('disagreement'))
-                appearance_evidence[pid]+=weight
+                minutes[pid][role]+=qweight*min(1.35,max(0,float(p['minutes']))/90)
+                starts[pid][role]+=hweight;totals[role]+=hweight;cap_mass[role]+=hweight
+                disagreements[pid]+=qweight*bool(p.get('disagreement'))
+                appearance_evidence[pid]+=qweight
         capacities={r:cap_mass[r]/den if den else 0. for r in ROLES}
         states={}
         for pid in players:
