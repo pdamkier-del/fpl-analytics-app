@@ -27,6 +27,8 @@ def main():
     OUT.mkdir(parents=True,exist_ok=True)
     frame=add_sequence_features(pd.read_csv(SOURCE).reset_index(drop=True))
     frame=add_perf_features(frame,build_perf_ledger())
+    if 'performance_score' not in frame.columns:
+        frame['performance_score']=0.5
 
     known=pd.to_datetime(frame.outcome_known_at,utc=True)
     test=frame.gw.between(22,38).to_numpy()
