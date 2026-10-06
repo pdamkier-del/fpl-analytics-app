@@ -42,6 +42,10 @@ jobs:
           mkdir -p analysis/results/mm-v2-xi-rating-with-external-ratings-20261006-v1
           set -o pipefail
           PYTHONPATH=src python scripts/run_mm_v2_xi_rating_experiment.py --ratings data_v1_1/derived/mm_v2_ratings/player_match_ratings.csv.gz --out analysis/results/mm-v2-xi-rating-with-external-ratings-20261006-v1 2>&1 | tee analysis/results/mm-v2-xi-rating-with-external-ratings-20261006-v1/run.log
+      - name: Offline ledger reproduction
+        run: PYTHONPATH=src python scripts/rebuild_mm_rating_ledger.py
+      - name: Fixed diagnostic comparisons
+        run: PYTHONPATH=src python scripts/analyze_mm_external_rating_experiment.py
       - uses: actions/cache/save@v4
         if: always()
         with:

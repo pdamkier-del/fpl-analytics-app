@@ -173,7 +173,7 @@ def main():
             if n%50==0:print(f'{n}/{len(events)} fixtures; {len(raw)} original ratings',flush=True)
     raw=pd.DataFrame(raw)
     if raw.empty:raise RuntimeError('No original ratings collected; refusing an empty benchmark')
-    raw=raw.drop_duplicates(['provider','season','provider_match_id','provider_player_id'])
+    raw=raw.drop_duplicates(['provider','season','provider_match_id','provider_player_id']).sort_values(['provider','season','provider_match_id','provider_player_id']).reset_index(drop=True)
     mapped,audit=map_rows(raw,registry,known,{},opta,names,roles)
     if mapped.empty:raise RuntimeError('No mapped original ratings')
     validate_rating_ledger(mapped)
@@ -189,7 +189,23 @@ def main():
     def grouped(cols):
         return audit.groupby(cols+['mapping_status'],dropna=False).size().unstack(fill_value=0).reset_index().to_dict('records')
     identity={'total_rating_rows':len(raw),'mapped':len(mapped),'unresolved':int((audit.mapping_status=='unresolved').sum()),'ambiguous':int((audit.mapping_status=='ambiguous').sum()),'invalid_rating':int((audit.mapping_status=='invalid_rating').sum()),'mapping_rules':audit.groupby(['mapping_rule','mapping_status']).size().reset_index(name='rows').to_dict('records'),'no_fuzzy_matching':True,'source_pin':PIN}
-    coverage={'as_of':asof.isoformat(),'providers':['fotmob'],'sofascore':'www.sofascore.com official API probe HTTP403; no fabricated provider rows','by_competition':grouped(['season','competition']),'by_team':grouped(['season','team_name']),'duplicate_provider_player_match':duplicate,'ratings_outside_0_10':int((~mapped.rating.between(0,10)).sum()),'target_match_leakage':leakage,'postmatch_proxy_violations':postmatch,'target_rows_checked':len(join),'available_at_policy':'kickoff + 6 hours for provider-confirmed finished matches; conservative proxy, not original publication time; historical revisions cannot be certified','completed_inventory_matches':len(events),'matched_rating_events':int(raw.groupby(['season','provider_match_id']).ngroups),'errors':errors,'promotion_allowed':False}
+    fixture_rows=[]
+    for item in events:
+        for side in ['home','away']:
+            club=lookups[item['season']].get(str(item['event'][side]['id']))
+            if club:fixture_rows.append({'season':item['season'],'competition':item['competition'],'team_name':club['team_name'],'provider_match_id':str(item['event']['id'])})
+    fixture_scope=pd.DataFrame(fixture_rows).drop_duplicates()
+    fixture_coverage=[]
+    for season,comp in fixture_scope[['season','competition']].drop_duplicates().itertuples(index=False,name=None):
+        scope=fixture_scope[(fixture_scope.season==season)&(fixture_scope.competition==comp)]
+        r=raw[(raw.season==season)&(raw.competition==comp)]
+        m=mapped[(mapped.season==season)&(mapped.competition==comp)]
+        fixture_coverage.append({'season':season,'competition':comp,'completed_inventory_matches':int(scope.provider_match_id.nunique()),'matches_with_original_ratings':int(r.provider_match_id.nunique()),'matches_with_mapped_ratings':int(m.provider_match_id.nunique()),'inventory_team_games':len(scope),'rated_team_games':len(r[['provider_match_id','team_name']].drop_duplicates()),'mapped_team_games':len(m[['provider_match_id','team_name']].drop_duplicates())})
+    team_fixture_coverage=[]
+    for (season,team),scope in fixture_scope.groupby(['season','team_name']):
+        r=raw[(raw.season==season)&(raw.team_name==team)];m=mapped[(mapped.season==season)&(mapped.team_name==team)]
+        team_fixture_coverage.append({'season':season,'team_name':team,'completed_inventory_team_games':len(scope),'rated_team_games':int(r.provider_match_id.nunique()),'mapped_team_games':int(m.provider_match_id.nunique())})
+    coverage={'as_of':asof.isoformat(),'providers':['fotmob'],'sofascore':'www.sofascore.com official API probe HTTP403; no fabricated provider rows','by_competition':grouped(['season','competition']),'fixture_coverage_by_competition':fixture_coverage,'fixture_coverage_by_team':team_fixture_coverage,'by_team':grouped(['season','team_name']),'duplicate_provider_player_match':duplicate,'ratings_outside_0_10':int((~mapped.rating.between(0,10)).sum()),'target_match_leakage':leakage,'postmatch_proxy_violations':postmatch,'target_rows_checked':len(join),'available_at_policy':'kickoff + 6 hours for provider-confirmed finished matches; conservative proxy, not original publication time; historical revisions cannot be certified','completed_inventory_matches':len(events),'matched_rating_events':int(raw.groupby(['season','provider_match_id']).ngroups),'errors':errors,'promotion_allowed':False}
     for filename,frame in [('player_match_ratings.csv.gz',mapped),('rating_identity_rows.csv.gz',audit),('raw_provider_ratings.csv.gz',raw)]:frame.to_csv(out/filename,index=False,compression={'method':'gzip','mtime':0})
     pd.DataFrame([{'season':i['season'],'competition':i['competition'],'provider_match_id':i['event']['id'],'kickoff':i['event']['status']['utcTime'],'home_name':i['event']['home']['name'],'away_name':i['event']['away']['name']} for i in events]).to_csv(out/'fixture_inventory.csv',index=False)
     # Freeze exact mapping inputs for offline rebuild (no network dependency).
