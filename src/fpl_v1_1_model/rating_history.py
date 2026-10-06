@@ -74,7 +74,8 @@ def _weighted(values):
 
 
 def build_rating_features(targets:pd.DataFrame,ledger:pd.DataFrame,*,lookback_matches:int=4,
-                          role_reference_matches:int=200,min_role_reference:int=20)->pd.DataFrame:
+                          long_lookback_matches:int=12,role_reference_matches:int=200,
+                          min_role_reference:int=20)->pd.DataFrame:
     """Attach cutoff-safe recent rating features to target player-fixture rows.
 
     targets requires player_uuid and cutoff, and may include expected_role.
@@ -92,12 +93,17 @@ def build_rating_features(targets:pd.DataFrame,ledger:pd.DataFrame,*,lookback_ma
         cutoff=pd.to_datetime(getattr(r,'cutoff'),utc=True)
         pid=str(getattr(r,'player_uuid'))
         g=hist.get(pid)
-        past=x.iloc[0:0] if g is None else g[g.available_at<cutoff].tail(lookback_matches)
+        all_past=x.iloc[0:0] if g is None else g[g.available_at<cutoff]
+        past=all_past.tail(lookback_matches)
+        long_past=all_past.tail(long_lookback_matches)
         vals=past.rating.to_numpy(float)
         recent=_weighted(vals)
         last=float(vals[-1]) if len(vals) else np.nan
         prev=_weighted(vals[:-1]) if len(vals)>1 else np.nan
         trend=(last-prev) if np.isfinite(last) and np.isfinite(prev) else 0.0
+        long_vals=long_past.rating.to_numpy(float)
+        long_mean=float(np.mean(long_vals)) if len(long_vals) else np.nan
+        self_delta=(recent-long_mean) if np.isfinite(recent) and np.isfinite(long_mean) else 0.0
 
         role=str(getattr(r,'expected_role','UNKNOWN') or 'UNKNOWN')
         ref=x[(x.available_at<cutoff)&(x.role==role)] if role!='UNKNOWN' else x.iloc[0:0]
@@ -117,6 +123,8 @@ def build_rating_features(targets:pd.DataFrame,ledger:pd.DataFrame,*,lookback_ma
             'rating_recent':float(recent) if np.isfinite(recent) else 0.0,
             'rating_last':float(last) if np.isfinite(last) else 0.0,
             'rating_trend':float(trend),
+            'rating_long_mean':float(long_mean) if np.isfinite(long_mean) else 0.0,
+            'rating_self_delta':float(self_delta),
             'rating_role_z':float(role_z),
             'performance_score':score if len(past) else 0.5,
             'rating_provider_matches':int(past.provider_count.sum()) if len(past) else 0,
