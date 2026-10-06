@@ -320,8 +320,7 @@ def full_mm(frame,train):
     return p,q,sub,xm,{'performance':perf,'q':qm,'sub_duration':sm}
 
 def main():
-    if OUT.exists():raise FileExistsError(OUT)
-    OUT.mkdir(parents=True)
+    OUT.mkdir(parents=True,exist_ok=True)
     frame=pd.read_csv(SOURCE).reset_index(drop=True)
     frame=add_sequence_features(frame)
     ledger=build_perf_ledger();frame=add_perf_features(frame,ledger)
