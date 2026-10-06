@@ -310,8 +310,8 @@ def role_features(frame,games,qscale,hscale):
         if c not in out:out[c]=0.
     return out
 
-def fit_base(frame,train):
-    cols=BASE_FEATURES+ROLE_FEATURES+WORKLOAD_FEATURES
+def fit_base(frame,train,extra_features=()):
+    cols=BASE_FEATURES+ROLE_FEATURES+WORKLOAD_FEATURES+list(extra_features)
     m=make_pipeline(StandardScaler(),LogisticRegression(C=1.,max_iter=2000,random_state=0))
     m.fit(frame.loc[train,cols],frame.loc[train,'y'])
     return normalize_eleven(frame,m.predict_proba(frame[cols])[:,1])
@@ -319,8 +319,8 @@ def fit_base(frame,train):
 def compose(frame,p,q,sub):
     return p*frame.start_minutes_mean.to_numpy(float)+(1-p)*q*np.asarray(sub,float)
 
-def full_mm(frame,train):
-    p0=fit_base(frame,train)
+def full_mm(frame,train,extra_base_features=()):
+    p0=fit_base(frame,train,extra_base_features)
     p,perf=fit_perf_offset(frame,p0,train,PERF_FAMILIES['last'],PERF_L2)
     q0=np.clip(frame.p_cameo_given_bench.to_numpy(float),1e-6,1-1e-6)
     qhat,qm=fit_q(frame,train,BASE_Q_FEATURES+SEQ_FEATURES,Q_C)
