@@ -69,12 +69,27 @@ def run():
         'analysis/results/legacy-rolling-recovery-v1/manifest.json',
         'analysis/results/legacy-season-technical-replay-v1/runtime_input_manifest.json',
     ]}
+    immutable_inputs=[
+        'analysis/results/legacy-rolling-recovery-v1/manifest.json',
+        'analysis/results/legacy-season-technical-replay-v1/runtime_input_manifest.json',
+    ]
 
     next_gw=1
     if checkpoint.exists():
         saved=json.loads(checkpoint.read_text())
         if saved['fingerprint'] != fingerprint:
-            raise RuntimeError('Checkpoint code/input mismatch; use a new output directory')
+            allow_code_change=str(__import__('os').environ.get('ALLOW_CODE_CHANGE_RESUME','0'))=='1'
+            inputs_ok=all(
+                saved.get('fingerprint',{}).get(p)==fingerprint.get(p)
+                for p in immutable_inputs
+            )
+            if not (allow_code_change and inputs_ok):
+                raise RuntimeError('Checkpoint code/input mismatch; use a new output directory')
+            print(
+                f"Resuming checkpoint at GW{saved.get('next_gw')} across solver-only code change; "
+                "immutable input hashes match.",
+                flush=True,
+            )
         state=ReplayState(
             {int(pid):OwnedPlayer(int(pid),int(price)) for pid,price in saved['purchases'].items()},
             int(saved['bank']), int(saved['free_transfers'])
@@ -115,6 +130,8 @@ def run():
             first_gw_max_transfers=remaining_cap,
             time_limit=60.0,
             mip_rel_gap=0.002,
+            retry_time_limit=180.0,
+            retry_mip_rel_gap=0.01,
         )
         result=plan_transfer_path_joint(state,meta,origin,gw,cfg)
         optional=execute_first_action(state,result,meta)
@@ -191,6 +208,7 @@ def run():
         configuration=dict(
             weights=list(WEIGHTS),hit_buffer=BUFFER,max_transfers_per_week=5,
             solver_time_limit_seconds=60.0,mip_rel_gap=0.002,
+            retry_time_limit_seconds=180.0,retry_mip_rel_gap=0.01,
             candidate_generator='NONE - joint MILP over full player universe',
             horizon='rolling/receding 6GW; execute first action only',
             deterministic_transfer_costs_horizon_discounted=False,
