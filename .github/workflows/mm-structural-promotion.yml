@@ -1,0 +1,42 @@
+name: MM structural promotion pipeline
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [audit-role-minutes-20261001]
+    paths:
+      - 'scripts/run_mm_structural_promotion_pipeline.py'
+      - 'src/fpl_v1_1_model/structural_context.py'
+      - '.github/workflows/mm-structural-promotion.yml'
+
+jobs:
+  run:
+    runs-on: ubuntu-latest
+    timeout-minutes: 240
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: audit-role-minutes-20261001
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install
+        run: |
+          pip install -r requirements-model-checkpoint.txt
+          pip install numpy pandas scipy scikit-learn requests pytest
+      - name: Structural tests
+        run: |
+          PYTHONPATH=src pytest -q tests/test_structural_context.py tests/test_future_match_importance.py tests/test_team_news_history.py tests/test_availability_projection.py
+          python -m py_compile scripts/run_mm_structural_promotion_pipeline.py
+      - name: Restore Team News
+        run: python scripts/restore_team_news_audit.py
+      - name: Run promotion pipeline
+        run: |
+          rm -rf analysis/results/mm-structural-promotion-20261006-v1
+          PYTHONPATH=src python scripts/run_mm_structural_promotion_pipeline.py
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: mm-structural-promotion-20261006-v1
+          path: analysis/results/mm-structural-promotion-20261006-v1
+          retention-days: 90
