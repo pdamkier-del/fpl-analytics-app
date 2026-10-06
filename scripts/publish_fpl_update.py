@@ -11,7 +11,7 @@ Outputs:
 The installed app already checks updates/manifest.json on main at startup.
 """
 from __future__ import annotations
-import argparse, gzip, hashlib, json, os, re, zipfile
+import argparse, gzip, hashlib, json, os, re, zipfile, subprocess, sys
 from datetime import datetime, timezone
 from pathlib import Path
 
@@ -64,6 +64,10 @@ def main():
     base_raw=base_path.read_bytes()
     base=read_json(base_path)
     data_version=safe_version(args.data_version or derive_data_version(base,stamp))
+
+    match_builder=ROOT/'scripts'/'build_match_centre_data.py'
+    if match_builder.exists():
+        subprocess.run([sys.executable,str(match_builder)],check=True,cwd=ROOT)
 
     UPDATES.mkdir(exist_ok=True)
     bundle=UPDATES/f'app-{app_version}.zip'
