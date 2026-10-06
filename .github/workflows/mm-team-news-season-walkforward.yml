@@ -1,0 +1,38 @@
+name: MM Team News season walk-forward
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [audit-role-minutes-20261001]
+    paths:
+      - '.github/workflows/mm-team-news-season-walkforward.yml'
+
+jobs:
+  replay:
+    runs-on: ubuntu-latest
+    timeout-minutes: 180
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: audit-role-minutes-20261001
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install
+        run: |
+          pip install -r requirements-model-checkpoint.txt
+          pip install numpy pandas scipy scikit-learn requests
+      - name: Restore Team News
+        run: python scripts/restore_team_news_audit.py
+      - name: Validate Team News
+        run: python scripts/validate_team_news_audit.py
+      - name: Run season walk-forward
+        run: |
+          rm -rf analysis/results/mm-team-news-season-walkforward-20261006-v1
+          PYTHONPATH=src python scripts/run_mm_team_news_season_walkforward.py
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: mm-team-news-season-walkforward-20261006-v1
+          path: analysis/results/mm-team-news-season-walkforward-20261006-v1
+          retention-days: 90
