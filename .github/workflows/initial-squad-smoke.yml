@@ -1,0 +1,16 @@
+name: Initial squad 6GW smoke
+on:
+  push:
+    branches: [audit-role-minutes-20261001]
+    paths: ['scripts/run_initial_squad_joint_smoke.py','.github/workflows/initial-squad-smoke.yml']
+permissions: {contents: read}
+jobs:
+  smoke:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: {python-version: '3.12'}
+      - run: pip install -r requirements-model-checkpoint.txt
+      - run: PYTHONPATH=src python scripts/run_initial_squad_joint_smoke.py
