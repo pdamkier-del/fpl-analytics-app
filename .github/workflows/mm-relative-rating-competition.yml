@@ -1,0 +1,61 @@
+name: MM relative rating competition
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [audit-role-minutes-20261001]
+    paths:
+      - 'scripts/run_mm_v2_relative_rating_competition.py'
+      - 'src/fpl_v1_1_model/rating_history.py'
+      - 'src/fpl_v1_1_model/xi_assignment.py'
+      - 'tests/test_xi_assignment.py'
+      - '.github/workflows/mm-relative-rating-competition.yml'
+
+permissions:
+  contents: write
+
+concurrency:
+  group: mm-relative-rating-competition
+  cancel-in-progress: true
+
+jobs:
+  run:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: audit-role-minutes-20261001
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install
+        run: |
+          pip install -r requirements-model-checkpoint.txt
+          pip install numpy pandas scipy scikit-learn pytest requests
+      - name: Unit tests
+        run: PYTHONPATH=src pytest -q tests/test_xi_assignment.py tests/test_rating_history.py
+      - name: Run relative-rating grid
+        id: exp
+        shell: bash
+        run: |
+          set +e
+          rm -rf analysis/results/mm-v2-relative-rating-competition-20261006-v1
+          PYTHONPATH=src python scripts/run_mm_v2_relative_rating_competition.py             --ratings data_v1_1/derived/mm_v2_ratings/player_match_ratings.csv.gz             --out analysis/results/mm-v2-relative-rating-competition-20261006-v1             2>&1 | tee /tmp/mm-relative-rating.log
+          code=${PIPESTATUS[0]}
+          echo "exit_code=${code}" >> "$GITHUB_OUTPUT"
+          mkdir -p analysis/results/mm-v2-relative-rating-competition-20261006-v1
+          cp /tmp/mm-relative-rating.log analysis/results/mm-v2-relative-rating-competition-20261006-v1/run.log
+          exit 0
+      - name: Commit outputs
+        if: always()
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -f analysis/results/mm-v2-relative-rating-competition-20261006-v1
+          git commit -m "results: MM bounded relative-rating competition" || exit 0
+          git pull --rebase origin audit-role-minutes-20261001
+          git push origin HEAD:audit-role-minutes-20261001
+      - name: Fail if experiment failed
+        if: steps.exp.outputs.exit_code != '0'
+        run: exit 1
