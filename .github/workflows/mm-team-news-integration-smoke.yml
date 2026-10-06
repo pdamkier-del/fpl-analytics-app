@@ -22,5 +22,5 @@ jobs:
           python-version: '3.12'
       - run: |
           pip install -r requirements-model-checkpoint.txt
-          pip install pandas numpy scipy scikit-learn
+          pip install pandas numpy scipy scikit-learn requests
       - run: PYTHONPATH=src python scripts/smoke_mm_team_news_integration.py
