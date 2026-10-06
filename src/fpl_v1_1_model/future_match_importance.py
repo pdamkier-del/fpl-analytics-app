@@ -69,10 +69,17 @@ def add_forward_match_importance(frame:pd.DataFrame,snapshots:dict[int,pd.DataFr
             vals.append((np.nan,np.nan,np.nan,0.,0.,0.,0.));continue
         # The target fixture kickoff itself is the anchor; only fixtures present
         # in this GW's snapshot can become forward context.
-        cur=sched[(sched.team_id.eq(team))&(sched.match_id.astype(str).eq(str(r.fixture_uuid)))]
+        target_ko=getattr(r,"target_kickoff",None)
+        cur=pd.DataFrame()
+        if target_ko is not None and pd.notna(target_ko):
+            tk=pd.Timestamp(target_ko)
+            if tk.tzinfo is None: tk=tk.tz_localize("UTC")
+            else: tk=tk.tz_convert("UTC")
+            cur=sched[(sched.team_id.eq(team))&(sched.kickoff.eq(tk))]
         if cur.empty:
-            # fixture_uuid and source match_id are not always identical; use the
-            # nearest PL fixture around the target GW as conservative anchor.
+            cur=sched[(sched.team_id.eq(team))&(sched.match_id.astype(str).eq(str(r.fixture_uuid)))]
+        if cur.empty:
+            # Final conservative fallback: nearest PL fixture after deadline.
             cand=sched[(sched.team_id.eq(team))&(sched.competition.eq("prem"))]
             target_cut=pd.Timestamp(r.cutoff)
             future=cand[cand.kickoff>=target_cut]
