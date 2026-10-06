@@ -27,3 +27,17 @@ def test_ambiguous_surname_does_not_guess():
     m,d=resolve_uuid_to_fpl_ids(f,r)
     assert "u1" not in m
     assert d[0].method=="unresolved"
+
+
+def test_first_name_prefix_with_same_surname_resolves():
+    f=pd.DataFrame([
+      {"player_uuid":"u1","player":"Max Kilman"},
+      {"player_uuid":"u2","player":"Treymaurice Nyoni"},
+    ])
+    r=pd.DataFrame([
+      {"id":605,"web_name":"Kilman","known_name":"","first_name":"Maximilian","second_name":"Kilman"},
+      {"id":396,"web_name":"Trey Nyoni","known_name":"","first_name":"Trey","second_name":"Nyoni"},
+    ])
+    m,d=resolve_uuid_to_fpl_ids(f,r)
+    assert m["u1"]==605
+    assert m["u2"]==396
