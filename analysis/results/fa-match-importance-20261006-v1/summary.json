@@ -1,13 +1,13 @@
 {
   "classification": "FA Cup workload + hierarchy-modulated Match Importance exploratory rebuild",
   "fa_cup": {
-    "complete_team_games": 13,
+    "complete_team_games": 14,
     "events_seen": 43,
-    "mapped_uuid_rows": 832,
-    "missing_uuid_after_fpl_mapping": 137,
+    "mapped_uuid_rows": 970,
+    "missing_uuid_after_fpl_mapping": 0,
     "pl_team_games": 56,
-    "player_rows": 969,
-    "unresolved_rows": 151
+    "player_rows": 970,
+    "unresolved_rows": 150
   },
   "match_importance": {
     "base_values": {
@@ -21,56 +21,56 @@
     "design": "competition value + stage + opponent strength; interactions with role hierarchy only; no additive team-wide player intercept",
     "development": [
       {
-        "control_log_loss": 0.24717396245874518,
-        "control_xmins_rmse": 21.734810073290458,
-        "delta_log_loss": -0.00153126620887592,
-        "delta_xmins_rmse": -0.07036202115024537,
+        "control_log_loss": 0.24717396245869147,
+        "control_xmins_rmse": 21.73481007328866,
+        "delta_log_loss": -0.001531262610484807,
+        "delta_xmins_rmse": -0.07036170110301398,
         "eta": 0.5,
-        "mi_log_loss": 0.24564269624986926,
-        "mi_xmins_rmse": 21.664448052140212
+        "mi_log_loss": 0.24564269984820666,
+        "mi_xmins_rmse": 21.664448372185646
       },
       {
-        "control_log_loss": 0.24717396245874518,
-        "control_xmins_rmse": 21.734810073290458,
-        "delta_log_loss": -0.0014867655649752898,
-        "delta_xmins_rmse": -0.06952533265035754,
+        "control_log_loss": 0.24717396245869147,
+        "control_xmins_rmse": 21.73481007328866,
+        "delta_log_loss": -0.0014867655645365019,
+        "delta_xmins_rmse": -0.06952533262484906,
         "eta": 0.35,
-        "mi_log_loss": 0.2456871968937699,
-        "mi_xmins_rmse": 21.6652847406401
+        "mi_log_loss": 0.24568719689415497,
+        "mi_xmins_rmse": 21.66528474066381
       },
       {
-        "control_log_loss": 0.24717396245874518,
-        "control_xmins_rmse": 21.734810073290458,
-        "delta_log_loss": -0.001268666606145108,
-        "delta_xmins_rmse": -0.05906469825072236,
+        "control_log_loss": 0.24717396245869147,
+        "control_xmins_rmse": 21.73481007328866,
+        "delta_log_loss": -0.001268666606313723,
+        "delta_xmins_rmse": -0.059064698257813575,
         "eta": 0.2,
-        "mi_log_loss": 0.24590529585260007,
-        "mi_xmins_rmse": 21.675745375039735
+        "mi_log_loss": 0.24590529585237775,
+        "mi_xmins_rmse": 21.675745375030846
       }
     ],
     "reused_diagnostic": {
       "control": {
-        "brier": 0.07533293271288691,
-        "log_loss": 0.2448662171988407,
+        "brier": 0.07480586360491391,
+        "log_loss": 0.24337866513651701,
         "n": 13987,
-        "xmins_bias": -0.18651138968919045,
-        "xmins_mae": 11.533441406248954,
-        "xmins_rmse": 21.615305877622102
+        "xmins_bias": -0.181851622897387,
+        "xmins_mae": 11.519025638000453,
+        "xmins_rmse": 21.557924951982443
       },
       "delta": {
-        "brier": 0.002993901292097978,
-        "log_loss": 0.009860559309263467,
-        "xmins_bias": -0.1862167252528868,
-        "xmins_mae": 1.051986763103253,
-        "xmins_rmse": 0.3656384852675352
+        "brier": 0.0029026880159928464,
+        "log_loss": 0.009815645312382992,
+        "xmins_bias": -0.18598921696576465,
+        "xmins_mae": 1.063959047596704,
+        "xmins_rmse": 0.36127025633748744
       },
       "match_importance": {
-        "brier": 0.07832683400498489,
-        "log_loss": 0.25472677650810416,
+        "brier": 0.07770855162090676,
+        "log_loss": 0.2531943104489,
         "n": 13987,
-        "xmins_bias": -0.37272811494207725,
-        "xmins_mae": 12.585428169352207,
-        "xmins_rmse": 21.980944362889637
+        "xmins_bias": -0.36784083986315164,
+        "xmins_mae": 12.582984685597157,
+        "xmins_rmse": 21.91919520831993
       }
     },
     "selected_eta": 0.5
