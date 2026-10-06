@@ -1,0 +1,34 @@
+name: MM relative rating player impact
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [audit-role-minutes-20261001]
+    paths:
+      - 'scripts/audit_mm_relative_rating_player_impact.py'
+      - '.github/workflows/mm-relative-rating-player-impact.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  audit:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: audit-role-minutes-20261001
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: |
+          pip install pandas numpy
+      - run: python scripts/audit_mm_relative_rating_player_impact.py
+      - name: Commit impact audit
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -f analysis/results/mm-relative-rating-player-impact-20261006-v1
+          git commit -m "results: MM relative-rating player impact" || exit 0
+          git pull --rebase origin audit-role-minutes-20261001
+          git push origin HEAD:audit-role-minutes-20261001
