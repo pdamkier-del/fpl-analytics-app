@@ -1,0 +1,57 @@
+{
+  "classification": "final locked Minute Model checkpoint",
+  "date": "2026-10-06",
+  "status": "locked",
+  "scope": "MM only; PM and TS unchanged",
+  "selected_base": "audited predeadline PL q/H state + official club workload including recovered FA Cup",
+  "architecture": {
+    "p_start": "role+workload logistic exact-11 + last-match performance residual L2=0.5",
+    "p_sub_given_nonstart": "sequence-aware binary C=4; 75% logit blend with frozen baseline",
+    "start_duration": "frozen v4",
+    "sub_duration": "50/50 frozen cameo + sequence-aware Ridge alpha=80",
+    "exact_11": true,
+    "official_workload_competitions": ["prem","champions-league","europa-league","conference-league","fa-cup","efl-cup"],
+    "role_state": "existing audited PL q/H",
+    "match_importance_role_weighting": "implemented but not enabled in locked MM because official-role replay failed promotion gate"
+  },
+  "development_gw16_21": {
+    "n": 4670,
+    "state_log_loss": 0.4535426216202897,
+    "xmins_mae": 11.395086272574888,
+    "xmins_rmse": 21.67070219157977,
+    "xmins_bias": -0.026123916113398402
+  },
+  "reused_diagnostic_gw22_38": {
+    "n": 13987,
+    "state_brier": 0.2317809725255207,
+    "state_log_loss": 0.4356944257045665,
+    "sub_brier_given_nonstart": 0.07882755490139977,
+    "xmins_mae": 11.487502348479174,
+    "xmins_rmse": 21.43760181416725,
+    "xmins_bias": -0.21605115513908382
+  },
+  "uncertain_starters": {
+    "definition": "0.20 <= P(start) <= 0.80",
+    "development": {
+      "n": 833,
+      "state_log_loss": 0.9469170405902858,
+      "xmins_mae": 30.50340693883164,
+      "xmins_rmse": 34.725587320855894
+    },
+    "reused_diagnostic": {
+      "n": 2644,
+      "state_log_loss": 0.9709352843533048,
+      "xmins_mae": 29.91282296142854,
+      "xmins_rmse": 34.68374478173533,
+      "xmins_bias": -1.465459669555293
+    },
+    "extra_sequence_correction_promoted": false,
+    "worst_gws": [30,22,31,36,32,38,37,29]
+  },
+  "promotion_decisions": {
+    "all_official_role_rebuild": false,
+    "match_importance_weighted_role_rebuild": false,
+    "uncertain_starter_sequence_correction": false
+  },
+  "warning": "GW22-38 is reused diagnostic, not independent holdout. Lock means stop tuning on this data."
+}
