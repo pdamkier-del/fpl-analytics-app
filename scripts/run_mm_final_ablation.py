@@ -67,8 +67,9 @@ def main():
     # among official-role variants, choose lowest dev RMSE, then dev MAE.
     official=out[out.arm.isin(['pl_plus_europe','pl_plus_domestic_cups','all_official_no_mi','all_official_mi'])].copy()
     choice=official.sort_values(['dev_xmins_rmse','dev_xmins_mae','dev_state_log_loss']).iloc[0]
+    clean=out.replace({np.nan:None})
     result={'classification':'final MM structural ablation; GW22-38 reused diagnostic only',
-      'arms':out.to_dict(orient='records'),'details':detail,
+      'arms':clean.to_dict(orient='records'),'details':detail,
       'development_selected_official_role_arm':str(choice.arm),
       'note':'Selection does not use GW22-38. Source PL-role arm is comparator, not structurally eligible final MM because official non-PL role evidence is omitted.'}
     write_json(OUT/'result.json',result);print(json.dumps(result,indent=2))
