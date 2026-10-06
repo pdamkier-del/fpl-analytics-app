@@ -24,7 +24,8 @@ from run_mm_unified_official_roles import SOURCE
 from run_v4_performance_rating_experiment import build_perf_ledger,add_features as add_perf_features
 from run_v4_three_state_sequence_experiment import add_sequence_features,metrics,write_gzip_csv,write_json
 from run_mm_v2_team_news_availability_experiment import evaluate_news_variant
-from run_mm_v2_relative_rating_competition import evaluate_variant,RATING_CFG
+from run_mm_v2_relative_rating_competition import evaluate_variant
+RATING_CFG={"name":"relative_self_trend","gamma":.02,"rel_w":.65,"self_w":.25,"trend_w":.10}
 
 RATINGS=ROOT/"data_v1_1/derived/mm_v2_ratings/player_match_ratings.csv.gz"
 TEAM_NEWS=ROOT/"data_v1_1/derived/team_news_audit/2025-26-v2"
