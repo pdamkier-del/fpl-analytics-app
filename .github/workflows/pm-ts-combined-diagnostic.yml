@@ -1,0 +1,47 @@
+name: PM plus TS combined diagnostic
+
+on:
+  push:
+    branches: [audit-role-minutes-20261001]
+    paths:
+      - 'scripts/run_pm_ts_hybrid_gw22_38.py'
+      - '.github/workflows/pm-ts-combined-diagnostic.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  actions: read
+
+jobs:
+  combined:
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install
+        run: |
+          pip install -r requirements-model-checkpoint.txt
+          pip install -r requirements-model-tests.txt
+      - name: Restore TS v4 completed replay artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: ts-v4-joint-replay-resumed
+          path: analysis/results/transfer-strategy-v4-joint-replay-20261006-v1
+          github-token: ${{ github.token }}
+          repository: ${{ github.repository }}
+          run-id: 37433364153
+      - name: Combined PM plus TS diagnostic
+        env:
+          OPENBLAS_NUM_THREADS: '1'
+          OMP_NUM_THREADS: '1'
+          MKL_NUM_THREADS: '1'
+        run: PYTHONPATH=src python scripts/run_pm_ts_hybrid_gw22_38.py
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: pm-ts-combined-diagnostic
+          path: analysis/results/pm-ts-hybrid-gw22-38-20261006-v1
+          if-no-files-found: warn
