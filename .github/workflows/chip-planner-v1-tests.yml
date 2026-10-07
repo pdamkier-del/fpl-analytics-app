@@ -20,6 +20,6 @@ jobs:
         with:
           python-version: '3.12'
       - name: Install
-        run: pip install pandas numpy
+        run: pip install pandas numpy scipy
       - name: Run chip planner tests
         run: PYTHONPATH=src python -m unittest tests.test_chip_planner -v
