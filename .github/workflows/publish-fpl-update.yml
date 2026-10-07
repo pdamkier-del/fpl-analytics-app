@@ -66,6 +66,6 @@ jobs:
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add updates/ VERSION.txt DATA_VERSION.txt
+          git add updates/ VERSION.txt DATA_VERSION.txt data_v1_1/derived/fpl_schedule_knowledge/live/
           git commit -m "publish: FPL update $(cat VERSION.txt)" || exit 0
           git push origin HEAD:main
