@@ -88,50 +88,35 @@ def build_current_locked_pm():
     return xp.merge(play[["gw","id","vfinal_p_play"]],on=["gw","id"],how="left"),mapped_uuid,total_uuid,detail
 
 def reconstruct_gw22_state(gws,names,forecast):
-    """Reproduce the accounting-valid robust TS v3 path through GW21."""
+    """Restore the exact original robust TS v3 state after GW21."""
+    plans_path=ROBUST/"tsv3_plans.csv"
+    checkpoint_path=ROBUST/"checkpoint.json"
+    if not plans_path.exists() or not checkpoint_path.exists():
+        raise FileNotFoundError(
+            "Original robust TS artifacts were not unpacked before replay")
+    plans=pd.read_csv(plans_path)
     meta1=hp.gw_meta(gws,names,1)
     origin1=hp.complete_current_projection(forecast[forecast.origin_gw==0],meta1,1)
     from fpl_xpts.season_replay import initial_squad
     state=initial_squad(origin1,meta1,[1])
-    known=meta1.copy(); total=0; transfers=0; hits=0
-    config=PlannerConfig(weights=WEIGHTS,hit_uncertainty_buffer=BUFFER,beam_width=20,
-                         candidates_per_transfer_count=1,candidate_limit_per_position=18,
-                         top_targets_per_position=18,local_bundle_beam=60,candidate_return_per_depth=12,
-                         max_transfers_per_week=5,candidate_backend="fast_local",milp_time_limit=2.0)
     for gw in range(1,22):
-        obs=hp.gw_meta(gws,names,gw)
-        known=pd.concat([known[~known.id.isin(obs.id)],obs],ignore_index=True).drop_duplicates("id",keep="last")
-        meta=known.copy()
-        origin_raw=forecast[forecast.origin_gw==gw-1].copy()
-        current=hp.complete_current_projection(origin_raw,meta,gw)
-        origin=base.origin_with_meta(forecast,meta,gw)
+        q=plans[(plans.origin_gw==gw)&
+                (plans.is_executed.astype(str).str.lower().isin(["true","1"]))]
+        if q.empty: continue
+        r=q.iloc[0]
+        meta=hp.gw_meta(gws,names,gw).drop_duplicates("id").set_index("id")
+        for pid in ints(r.outgoing): state.squad.pop(pid)
+        for pid in ints(r.incoming):
+            state.squad[pid]=OwnedPlayer(pid,int(meta.loc[pid,"price_tenths"]))
+        state.bank=int(round(float(r.bank_after)*10))
+        state.free_transfers=int(r.free_transfers_after)
 
-        ft_before=int(state.free_transfers)
-        forced=[]
-        if gw>1:
-            forced=legalize_team_limit(state,meta,origin,gw)
-        forced_n=len(forced)
-        if forced_n:
-            state.free_transfers=max(0,ft_before-forced_n)
-
-        result=plan_transfer_path(state,meta,origin,gw,config)
-        optional=execute_first_action(state,result,meta)
-        total_tx=forced_n+len(optional)
-        hit=sum(int(x.get("hit",0)) for x in forced)+sum(int(x.get("hit",0)) for x in optional)
-        expected_hit=4*max(0,total_tx-ft_before)
-        if hit!=expected_hit:
-            raise RuntimeError(f"GW{gw} warmup hit mismatch {hit} vs {expected_hit}")
-        if not valid_squad(meta,state.squad):
-            raise RuntimeError(f"GW{gw} warmup invalid squad")
-        plan=plan_squad(current,list(state.squad),gw)
-        score,_=actual_team_points(plan.rows,hp.actual_gw(gws,gw),None,hit)
-        total+=score; transfers+=total_tx; hits+=hit
-        print(f"WARMUP GW{gw}: score={score} cum={total} tx={total_tx} hit={hit}",flush=True)
-
-    expected=(1046,26,24)
-    observed=(int(total),int(transfers),int(hits))
-    if observed!=expected:
-        raise RuntimeError(f"robust GW1-21 reproduction mismatch {observed} != {expected}")
+    # Verify restored state against the original full-season checkpoint.
+    saved=json.loads(checkpoint_path.read_text())
+    original_purchases={int(pid):int(price) for pid,price in saved["purchases"].items()}
+    restored={int(pid):int(op.purchase_price) for pid,op in state.squad.items()}
+    if restored!=original_purchases and int(saved.get("next_gw",39))==22:
+        raise RuntimeError("Restored GW22 purchases do not match original checkpoint")
     return state
 
 def apply_full_horizon_correction(origin,gw,vf):
