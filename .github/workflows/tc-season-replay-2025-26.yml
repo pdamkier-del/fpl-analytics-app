@@ -1,0 +1,124 @@
+name: TC season replay 2025-26
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [audit-role-minutes-20261001]
+    paths:
+      - 'scripts/run_tc_long_horizon_origin.py'
+      - 'scripts/run_tc_season_replay.py'
+      - 'src/fpl_xpts/chip_planner.py'
+      - 'src/fpl_v1_1_model/joint_simulator.py'
+      - '.github/workflows/tc-season-replay-2025-26.yml'
+
+jobs:
+  origin:
+    strategy:
+      fail-fast: false
+      max-parallel: 20
+      matrix:
+        include:
+          - {origin: 6, end: 19}
+          - {origin: 7, end: 19}
+          - {origin: 8, end: 19}
+          - {origin: 9, end: 19}
+          - {origin: 10, end: 19}
+          - {origin: 11, end: 19}
+          - {origin: 12, end: 19}
+          - {origin: 13, end: 19}
+          - {origin: 14, end: 19}
+          - {origin: 15, end: 19}
+          - {origin: 16, end: 19}
+          - {origin: 17, end: 19}
+          - {origin: 18, end: 19}
+          - {origin: 19, end: 19}
+          - {origin: 20, end: 38}
+          - {origin: 21, end: 38}
+          - {origin: 22, end: 38}
+          - {origin: 23, end: 38}
+          - {origin: 24, end: 38}
+          - {origin: 25, end: 38}
+          - {origin: 26, end: 38}
+          - {origin: 27, end: 38}
+          - {origin: 28, end: 38}
+          - {origin: 29, end: 38}
+          - {origin: 30, end: 38}
+          - {origin: 31, end: 38}
+          - {origin: 32, end: 38}
+          - {origin: 33, end: 38}
+          - {origin: 34, end: 38}
+          - {origin: 35, end: 38}
+          - {origin: 36, end: 38}
+          - {origin: 37, end: 38}
+          - {origin: 38, end: 38}
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+    permissions:
+      actions: read
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: audit-role-minutes-20261001
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install
+        run: |
+          pip install -r requirements-model-checkpoint.txt
+          pip install pandas numpy scipy scikit-learn requests
+      - name: Restore core
+        run: |
+          mkdir -p work
+          cat model/checkpoints/phase5e_core/parts/core.gz.part-* | gzip -dc > work/core.sqlite3
+      - name: Download authoritative locked MM
+        uses: actions/download-artifact@v4
+        with:
+          name: final-locked-chain-gw1-38
+          path: work/final-chain
+          github-token: ${{ github.token }}
+          run-id: 37612845586
+      - name: Run TC origin
+        run: |
+          PYTHONPATH=src python scripts/run_tc_long_horizon_origin.py \
+            --db work/core.sqlite3 \
+            --source analysis/results/fa-match-importance-20261006-v1/all_features_fa_mi.csv.gz \
+            --mm work/final-chain/locked-mm-final-gw6-38/locked_mm_predictions.csv.gz \
+            --out analysis/results/tc-origin-${{ matrix.origin }} \
+            --origin ${{ matrix.origin }} --period-end ${{ matrix.end }} \
+            --draws 400 --top-k 20
+      - uses: actions/upload-artifact@v4
+        with:
+          name: tc-origin-${{ matrix.origin }}
+          path: analysis/results/tc-origin-${{ matrix.origin }}
+          retention-days: 30
+
+  replay:
+    needs: origin
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: audit-role-minutes-20261001
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install
+        run: pip install pandas numpy
+      - name: Download origins
+        uses: actions/download-artifact@v4
+        with:
+          pattern: tc-origin-*
+          path: work/tc-origins
+      - name: Replay TC decisions and hindsight
+        run: |
+          PYTHONPATH=src python scripts/run_tc_season_replay.py \
+            --origins work/tc-origins \
+            --out analysis/results/tc-season-replay-2025-26 \
+            --discount 0.97
+      - uses: actions/upload-artifact@v4
+        with:
+          name: tc-season-replay-2025-26
+          path: analysis/results/tc-season-replay-2025-26
+          retention-days: 90
