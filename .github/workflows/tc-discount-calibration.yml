@@ -1,0 +1,52 @@
+name: TC discount calibration
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [audit-role-minutes-20261001]
+    paths:
+      - 'scripts/run_tc_discount_calibration.py'
+      - '.github/workflows/tc-discount-calibration.yml'
+
+jobs:
+  calibrate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    permissions:
+      actions: read
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: audit-role-minutes-20261001
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install
+        run: pip install pandas numpy
+      - name: Download 2024/25 TC origins
+        uses: actions/download-artifact@v4
+        with:
+          pattern: tc24-origin-*
+          path: work/tc24
+          github-token: ${{ github.token }}
+          run-id: 37660297901
+      - name: Download 2025/26 TC origins
+        uses: actions/download-artifact@v4
+        with:
+          pattern: tc-origin-*
+          path: work/tc25
+          github-token: ${{ github.token }}
+          run-id: 37648731822
+      - name: Calibrate empirical discount
+        run: |
+          python scripts/run_tc_discount_calibration.py \
+            --origins24 work/tc24 \
+            --origins25 work/tc25 \
+            --out analysis/results/tc-discount-calibration
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: tc-discount-calibration
+          path: analysis/results/tc-discount-calibration
+          retention-days: 90
