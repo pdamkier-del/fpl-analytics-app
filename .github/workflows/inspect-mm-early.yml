@@ -1,0 +1,32 @@
+name: Inspect MM early GW coverage
+on:
+  workflow_dispatch:
+  push:
+    branches: [audit-role-minutes-20261001]
+    paths: ['.github/workflows/inspect-mm-early.yml']
+jobs:
+  inspect:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with: {ref: audit-role-minutes-20261001}
+      - uses: actions/setup-python@v5
+        with: {python-version: '3.12'}
+      - run: pip install pandas numpy scipy scikit-learn
+      - name: Inspect
+        run: |
+          python - <<'PY'
+          import pandas as pd, json
+          paths=[
+            'analysis/results/reproducible-role-v1/all_feature_predictions.csv.gz',
+            'analysis/results/workload-recovered-v4/all_features.csv.gz',
+            'analysis/results/fa-match-importance-20261006-v1/all_features_fa_mi.csv.gz',
+            'data_v1_1/derived/mm_v2_ratings/player_match_ratings.csv.gz'
+          ]
+          for p in paths:
+            try:
+              x=pd.read_csv(p)
+              print(p, 'rows',len(x),'gw_min',x.gw.min() if 'gw' in x else None,'gw_max',x.gw.max() if 'gw' in x else None)
+              if 'gw' in x: print(x.groupby('gw').size().head(10).to_dict())
+            except Exception as e: print(p,'ERROR',repr(e))
+          PY
