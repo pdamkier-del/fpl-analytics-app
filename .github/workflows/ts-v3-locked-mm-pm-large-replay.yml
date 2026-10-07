@@ -1,0 +1,30 @@
+name: TS v3 locked MM PM large replay
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [audit-role-minutes-20261001]
+    paths:
+      - 'scripts/run_ts_v3_locked_mm_pm_large_replay.py'
+      - '.github/workflows/ts-v3-locked-mm-pm-large-replay.yml'
+
+jobs:
+  run:
+    runs-on: ubuntu-latest
+    timeout-minutes: 240
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: audit-role-minutes-20261001
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: |
+          pip install -r requirements-model-checkpoint.txt
+          pip install pandas numpy scipy scikit-learn requests
+      - run: PYTHONPATH=src python scripts/run_ts_v3_locked_mm_pm_large_replay.py
+      - uses: actions/upload-artifact@v4
+        with:
+          name: ts-v3-locked-mm-pm-large-replay-20261007-v1
+          path: analysis/results/ts-v3-locked-mm-pm-large-replay-20261007-v1
+          retention-days: 90
