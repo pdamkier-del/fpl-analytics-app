@@ -1,0 +1,46 @@
+name: Conditional 2024-25 locked MM
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [audit-role-minutes-20261001]
+    paths:
+      - 'scripts/run_2024_25_conditional_mm.py'
+      - '.github/workflows/conditional-2024-25-mm.yml'
+
+jobs:
+  replay:
+    runs-on: ubuntu-latest
+    timeout-minutes: 180
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: audit-role-minutes-20261001
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install
+        run: |
+          pip install -r requirements-model-checkpoint.txt
+          pip install pandas==2.2.3 numpy==2.3.5 scipy scikit-learn
+      - name: Restore core and 2024-25 checkpoint
+        run: |
+          mkdir -p work
+          cat model/checkpoints/phase5e_core/parts/core.gz.part-* | gzip -dc > work/core.sqlite3
+          python scripts/restore_2024_25_data_checkpoint.py
+      - name: Verify checkpoint
+        run: |
+          python -m unittest discover -s tests -p test_2024_25_data_audit.py -v
+      - name: Run conditional locked MM
+        run: |
+          rm -rf analysis/results/conditional-2024-25-mm
+          PYTHONPATH=src python scripts/run_2024_25_conditional_mm.py \
+            --db work/core.sqlite3 \
+            --derived data_v1_1/derived/season_2024_25_v1 \
+            --out analysis/results/conditional-2024-25-mm
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: conditional-2024-25-mm
+          path: analysis/results/conditional-2024-25-mm
+          retention-days: 30
