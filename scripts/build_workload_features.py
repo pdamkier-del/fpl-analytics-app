@@ -130,6 +130,7 @@ def main():
     ap=argparse.ArgumentParser(description=__doc__)
     ap.add_argument('--db',required=True)
     ap.add_argument('--out',default=str(ROOT/'analysis/results/workload-recovered-v4'))
+    ap.add_argument('--features',default=str(ROOT/'analysis/results/reproducible-role-v1/all_feature_predictions.csv.gz'))
     ap.add_argument('--quarantine-csv',default=str(ROOT/'analysis/results/independent-europe-audit/workload_quarantine.csv'),
       help='Audited source exclusions; combined CL/EL/Conference quarantine is mandatory by default')
     ap.add_argument('--allow-unverified-cup-source',action='store_true',
@@ -147,7 +148,7 @@ def main():
         q=pd.read_csv(a.quarantine_csv);assert not q.match_id.duplicated().any()
         quarantine=dict(zip(q.match_id,q.reason))
     history,pl_history,ledger,coverage,excluded,matches,identity=build_ledger(con,raw,classified,quarantine,a.restored_workload)
-    features_path=ROOT/'analysis/results/reproducible-role-v1/all_feature_predictions.csv.gz'
+    features_path=Path(a.features)
     frame=pd.read_csv(features_path)
     deadlines=pd.read_csv(raw/'gameweek_summaries.csv')
     assert not deadlines.id.duplicated().any()
