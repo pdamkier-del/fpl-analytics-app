@@ -65,6 +65,8 @@ def main():
     ap=argparse.ArgumentParser()
     ap.add_argument('--db',required=True);ap.add_argument('--source',required=True)
     ap.add_argument('--mm',required=True);ap.add_argument('--out',required=True)
+    ap.add_argument('--start-origin',type=int,default=6);ap.add_argument('--end-origin',type=int,default=38)
+    ap.add_argument('--max-fixtures',type=int,default=0)
     a=ap.parse_args();out=Path(a.out);out.mkdir(parents=True,exist_ok=True)
     src=pd.read_csv(a.source).reset_index(drop=True);mm=pd.read_csv(a.mm)
     src['cutoff']=pd.to_datetime(src.cutoff,utc=True);mm['cutoff']=pd.to_datetime(mm.cutoff,utc=True)
@@ -94,7 +96,7 @@ def main():
     mp,ids=map_ids(src);ids.to_csv(out/'identity_resolution.csv',index=False)
 
     rows=[];faudit=[];counter=0
-    for origin in range(6,39):
+    for origin in range(a.start_origin,a.end_origin+1):
         cutoff=src.loc[src.gw.eq(origin),'cutoff'].min()
         sstate=src[src.gw<=origin].sort_values(['gw','cutoff']).drop_duplicates('player_uuid',keep='last').copy()
         mstate=mm[mm.gw<=origin].sort_values(['gw','cutoff']).drop_duplicates('player_uuid',keep='last').copy()
@@ -110,6 +112,7 @@ def main():
         fx=sched[(sched.competition=='prem')&
                  pd.to_numeric(sched.gameweek,errors='coerce').between(origin,min(38,origin+5))&
                  (sched.kickoff>=cutoff)].drop_duplicates('match_id').copy()
+        if a.max_fixtures>0: fx=fx.head(a.max_fixtures).copy()
         if fx.empty:continue
         lambdas=fit_team_latent(th[th.available_at<=cutoff],fx[['match_id','home_team_id','away_team_id']],origin)
         past=ph[ph.available_at<=cutoff].copy()
@@ -178,7 +181,7 @@ def main():
     agg.to_csv(out/'rolling_vfinal_forecast.csv.gz',index=False,compression='gzip')
     pd.DataFrame(faudit).to_csv(out/'origin_audit.csv',index=False)
     summary={'classification':'cutoff-safe frozen-state rolling locked MM + vFinal PM',
-             'decision_gws':[6,38],'horizon':6,'draws_per_fixture':400,
+             'decision_gws':[int(a.start_origin),int(a.end_origin)],'horizon':6,'draws_per_fixture':400,
              'phase5q_xp_used':False,'rows':int(len(agg))}
     (out/'summary.json').write_text(json.dumps(summary,indent=2)+'\n');print(json.dumps(summary,indent=2))
 if __name__=='__main__':main()
