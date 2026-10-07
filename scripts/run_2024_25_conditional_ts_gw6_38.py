@@ -43,6 +43,9 @@ def runtime_inputs(derived):
     z['element']=pd.to_numeric(z.element,errors='coerce').astype('Int64')
     z=z[z.element.notna()].copy();z.element=z.element.astype(int)
     z=z.merge(meta,on=['gw','element'],how='left',validate='many_to_one',suffixes=('','_deadline'))
+    for col in ['team','position','value']:
+        dcol=col+'_deadline'
+        if dcol in z.columns:z[col]=z[dcol]
     if z[['team','position','value']].isna().any().any():
         # Conditional snapshots are expected to cover the active FPL cohort.
         miss=z[z[['team','position','value']].isna().any(axis=1)][['gw','element']].drop_duplicates()
