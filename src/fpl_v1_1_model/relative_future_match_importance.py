@@ -154,7 +154,10 @@ def add_relative_future_mi_v2(frame:pd.DataFrame,snapshots:dict[int,pd.DataFrame
             mult2[ncomp]=0.85+0.30*opponent_strength_from_elo(nxt.get("opponent_elo"))
         shares2=_shares(active2,mult2)
         next_share=float(shares2.get(ncomp,0.0))
-        pressure=max(0.,next_share-cur_share)*math.exp(-max(0.,days)/float(tau_days))
+        decay=math.exp(-max(0.,days)/float(tau_days))
+        # v2.1: absolute future importance. A highly important next match should
+        # create rotation pressure even when the current PL match is also important.
+        pressure=next_share*decay
         vals.append((cur_share,next_share,pressure,days,mult["prem"],ncomp,nstage))
 
     z=pd.DataFrame(vals,columns=[
