@@ -4,11 +4,11 @@ import numpy as np
 import pandas as pd
 from scipy.special import expit,logit
 
-from .deadline_components import player_components_at_deadline,weighted_totals
-from .role_event_priors import role_priors_at_deadline,QCOLS
-from .defcon import threshold_probability
-from .negative_events import rare_event_probability
-from .attack import shrunk_rate_per90
+from fpl_v1_1_model.deadline_components import player_components_at_deadline,weighted_totals
+from fpl_v1_1_model.role_event_priors import role_priors_at_deadline,QCOLS
+from fpl_v1_1_model.defcon import threshold_probability
+from fpl_v1_1_model.negative_events import rare_event_probability
+from fpl_v1_1_model.attack import shrunk_rate_per90
 from run_v4_performance_rating_experiment import add_features as add_perf_features
 from run_soft_role_performance_allocation import apply_perf_rate,GOAL_BASE,ASSIST_BASE
 from run_soft_role_defcon import add_axes as add_dc_axes,design as dc_design
