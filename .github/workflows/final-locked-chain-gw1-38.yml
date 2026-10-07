@@ -1,0 +1,71 @@
+name: Final locked chain GW1-38
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [audit-role-minutes-20261001]
+    paths:
+      - 'scripts/run_rolling_vfinal_gw6_38.py'
+      - 'scripts/run_ts_v3_final_chain_gw6.py'
+      - 'scripts/vfinal_replay_components.py'
+      - 'src/fpl_v1_1_model/vfinal_replay_state.py'
+      - '.github/workflows/final-locked-chain-gw1-38.yml'
+
+jobs:
+  replay:
+    runs-on: ubuntu-latest
+    timeout-minutes: 360
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: audit-role-minutes-20261001
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install
+        run: |
+          pip install -r requirements-model-checkpoint.txt
+          pip install pandas numpy scipy scikit-learn requests
+      - name: Restore core and Team News
+        run: |
+          mkdir -p work
+          cat model/checkpoints/phase5e_core/parts/core.gz.part-* | gzip -dc > work/core.sqlite3
+          python scripts/restore_team_news_audit.py
+          python scripts/validate_team_news_audit.py
+      - name: Build GW1-38 base features
+        run: |
+          rm -rf analysis/results/v2-reproduced-final-gw1
+          PYTHONPATH=src python scripts/reproduce_pstart_v2_fixture_minutes.py             --db work/core.sqlite3 --out analysis/results/v2-reproduced-final-gw1 --min-gw 1
+          rm -rf analysis/results/reproducible-role-final-gw1
+          PYTHONPATH=src python scripts/build_reproducible_role_benchmark.py             --db work/core.sqlite3             --baseline analysis/results/v2-reproduced-final-gw1/pstart_v2_fixture_holdout_2025_26.csv             --cutoffs analysis/results/workload-recovered-v4/authoritative_deadlines.csv             --out analysis/results/reproducible-role-final-gw1
+          rm -rf analysis/results/workload-final-gw1
+          PYTHONPATH=src python scripts/build_workload_features.py             --db work/core.sqlite3             --features analysis/results/reproducible-role-final-gw1/all_feature_predictions.csv.gz             --out analysis/results/workload-final-gw1
+      - name: Rebuild FA and Match Importance
+        run: |
+          cp analysis/results/reproducible-role-final-gw1/all_feature_predictions.csv.gz analysis/results/reproducible-role-v1/all_feature_predictions.csv.gz
+          cp analysis/results/workload-final-gw1/all_features.csv.gz analysis/results/workload-recovered-v4/all_features.csv.gz
+          cp analysis/results/workload-final-gw1/official_player_minutes.csv analysis/results/workload-recovered-v4/official_player_minutes.csv
+          cp analysis/results/workload-final-gw1/team_match_coverage.csv analysis/results/workload-recovered-v4/team_match_coverage.csv
+          rm -rf analysis/results/fa-match-importance-20261006-v1
+          PYTHONPATH=src python scripts/run_fa_match_importance_rebuild.py
+      - name: Locked MM GW6-38
+        run: |
+          rm -rf analysis/results/locked-mm-final-gw6-38
+          PYTHONPATH=src python scripts/run_locked_mm_gw6_38.py             --source analysis/results/fa-match-importance-20261006-v1/all_features_fa_mi.csv.gz             --out analysis/results/locked-mm-final-gw6-38
+      - name: Rolling vFinal PM GW6-38
+        run: |
+          rm -rf analysis/results/rolling-vfinal-final-gw6-38
+          PYTHONPATH=src python scripts/run_rolling_vfinal_gw6_38.py             --db work/core.sqlite3             --source analysis/results/fa-match-importance-20261006-v1/all_features_fa_mi.csv.gz             --mm analysis/results/locked-mm-final-gw6-38/locked_mm_predictions.csv.gz             --out analysis/results/rolling-vfinal-final-gw6-38
+      - name: Locked TS v3 GW1-38
+        run: |
+          rm -rf analysis/results/final-locked-chain-gw1-38
+          PYTHONPATH=src python scripts/run_ts_v3_final_chain_gw6.py             --vfinal analysis/results/rolling-vfinal-final-gw6-38/rolling_vfinal_forecast.csv.gz             --out analysis/results/final-locked-chain-gw1-38
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: final-locked-chain-gw1-38
+          path: |
+            analysis/results/locked-mm-final-gw6-38
+            analysis/results/rolling-vfinal-final-gw6-38
+            analysis/results/final-locked-chain-gw1-38
+          retention-days: 90
