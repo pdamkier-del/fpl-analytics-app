@@ -11,7 +11,7 @@ from math import exp
 from typing import Any, Iterable
 import numpy as np
 
-from .bps import BPSComponents, bps_2025_26, bps_2026_27, allocate_bonus_points
+from .bps import BPSComponents, bps_2024_25, bps_2025_26, bps_2026_27, allocate_bonus_points
 from .defcon import dc_points_from_count
 from .keeper import save_points
 from .negative_events import DisciplineProbabilities, sample_discipline, direct_negative_points
@@ -182,7 +182,7 @@ def simulate_match(inp:MatchSimInput,rng:Any)->dict[str,PlayerSimResult]:
             regular=max(0.0,p.lambda_saves-exp_pen_save)*m/90.0
             r.saves += _sample_calibrated_saves(rng,regular,p.save_bucket_tilts)
         r.dc_count=_sample_nb2(rng,max(0.0,p.dc_mu_90)*m/90.0,p.dc_alpha)
-        r.dc_points=dc_points_from_count(p.position,r.dc_count)
+        r.dc_points=0 if inp.bps_rules=="2024-25" else dc_points_from_count(p.position,r.dc_count)
         card=sample_discipline(rng,p.discipline)
         r.yellow=int(card=="yellow"); r.red=int(card=="red")
         r.own_goal=int(rng.random()<min(1,max(0,p.p_own_goal)))
@@ -205,7 +205,9 @@ def simulate_match(inp:MatchSimInput,rng:Any)->dict[str,PlayerSimResult]:
             clean_sheet=r.clean_sheet,penalty_saves=r.penalty_saves,saves_total=r.saves,
             saves_inside_box=r.penalty_saves,goals_conceded=r.goals_conceded_while_on_pitch,
             penalty_misses=r.penalty_miss,yellow_cards=r.yellow,red_cards=r.red,own_goals=r.own_goal)
-        if inp.bps_rules=="2025-26":
+        if inp.bps_rules=="2024-25":
+            known=bps_2024_25(comp)
+        elif inp.bps_rules=="2025-26":
             known=bps_2025_26(comp)
         elif inp.bps_rules=="2026-27":
             known=bps_2026_27(comp)
