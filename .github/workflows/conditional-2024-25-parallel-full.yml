@@ -1,0 +1,127 @@
+name: Conditional 2024-25 parallel PM TS GW6-38
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [audit-role-minutes-20261001]
+    paths:
+      - '.github/workflows/conditional-2024-25-parallel-full.yml'
+
+jobs:
+  pm:
+    strategy:
+      fail-fast: false
+      matrix:
+        chunk:
+          - {name: a, start: 6, end: 13}
+          - {name: b, start: 14, end: 21}
+          - {name: c, start: 22, end: 29}
+          - {name: d, start: 30, end: 38}
+    runs-on: ubuntu-latest
+    timeout-minutes: 180
+    permissions:
+      actions: read
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: audit-role-minutes-20261001
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install
+        run: |
+          pip install -r requirements-model-checkpoint.txt
+          pip install pandas==2.2.3 numpy==2.3.5 scipy scikit-learn requests
+      - name: Restore inputs
+        run: |
+          mkdir -p work
+          cat model/checkpoints/phase5e_core/parts/core.gz.part-* | gzip -dc > work/core.sqlite3
+          python scripts/restore_2024_25_data_checkpoint.py
+      - name: Download verified full MM
+        uses: actions/download-artifact@v4
+        with:
+          name: conditional-2024-25-mm
+          path: analysis/results/conditional-2024-25-mm
+          github-token: ${{ github.token }}
+          run-id: 37635030493
+      - name: Run PM chunk
+        run: |
+          rm -rf analysis/results/conditional-pm-${{ matrix.chunk.name }}
+          PYTHONPATH=src python scripts/run_2024_25_conditional_pm.py \
+            --db work/core.sqlite3 \
+            --derived data_v1_1/derived/season_2024_25_v1 \
+            --source analysis/results/conditional-2024-25-mm/conditional_feature_frame.csv.gz \
+            --mm analysis/results/conditional-2024-25-mm/locked_mm_predictions.csv.gz \
+            --out analysis/results/conditional-pm-${{ matrix.chunk.name }} \
+            --start-origin ${{ matrix.chunk.start }} --end-origin ${{ matrix.chunk.end }}
+      - uses: actions/upload-artifact@v4
+        with:
+          name: conditional-pm-${{ matrix.chunk.name }}
+          path: analysis/results/conditional-pm-${{ matrix.chunk.name }}
+          retention-days: 30
+
+  ts:
+    needs: pm
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: audit-role-minutes-20261001
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install
+        run: |
+          pip install -r requirements-model-checkpoint.txt
+          pip install pandas==2.2.3 numpy==2.3.5 scipy scikit-learn requests
+      - name: Restore historical data
+        run: python scripts/restore_2024_25_data_checkpoint.py
+      - name: Download PM chunks
+        uses: actions/download-artifact@v4
+        with:
+          pattern: conditional-pm-*
+          path: work/pm_chunks
+      - name: Merge PM chunks
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          import pandas as pd, json
+          root=Path('work/pm_chunks')
+          out=Path('analysis/results/conditional-2024-25-pm-parallel');out.mkdir(parents=True,exist_ok=True)
+          dirs=sorted([p for p in root.iterdir() if p.is_dir()])
+          for fn in ['rolling_vfinal_forecast.csv.gz','fixture_predictions.csv.gz']:
+              parts=[pd.read_csv(d/fn) for d in dirs]
+              z=pd.concat(parts,ignore_index=True)
+              keys=['origin_gw','gw','id'] if fn.startswith('rolling') else ['origin_gw','gw','id','fixture']
+              z=z.drop_duplicates(keys,keep='last').sort_values(keys)
+              z.to_csv(out/fn,index=False,compression='gzip')
+          aud=pd.concat([pd.read_csv(d/'origin_audit.csv') for d in dirs],ignore_index=True)
+          aud=aud.drop_duplicates('decision_gw').sort_values('decision_gw')
+          aud.to_csv(out/'origin_audit.csv',index=False)
+          summary={
+            'classification':'CONDITIONAL_ROBUSTNESS_REPLAY_PM_NOT_STRICT_PARALLEL_EXECUTION',
+            'season':'2024-25','decision_gws':[6,38],'horizon':6,'draws_per_fixture':400,
+            'parallelization_only':True,'model_math_changed':False,'retuned':False,
+            'rows':int(len(pd.read_csv(out/'rolling_vfinal_forecast.csv.gz')))
+          }
+          (out/'summary.json').write_text(json.dumps(summary,indent=2)+'\n')
+          print(summary)
+          PY
+      - name: Locked TS v3 GW6-38
+        run: |
+          rm -rf analysis/results/conditional-2024-25-ts-gw6-38
+          PYTHONPATH=src python scripts/run_2024_25_conditional_ts_gw6_38.py \
+            --derived data_v1_1/derived/season_2024_25_v1 \
+            --vfinal analysis/results/conditional-2024-25-pm-parallel/rolling_vfinal_forecast.csv.gz \
+            --out analysis/results/conditional-2024-25-ts-gw6-38 \
+            --start-gw 6 --end-gw 38
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: conditional-2024-25-parallel-full-gw6-38
+          path: |
+            analysis/results/conditional-2024-25-pm-parallel
+            analysis/results/conditional-2024-25-ts-gw6-38
+          retention-days: 90
