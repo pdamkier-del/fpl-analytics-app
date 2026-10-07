@@ -90,13 +90,21 @@ def main():
     sd=models['bpsvar']['position_sd90']
     state['bg_sd90']=[float(sd.get(p,models['bpsvar']['global_sd90'])) for p in broad]
 
-    sched=snaps[origin]
-    fx=sched[
-        (sched.competition=='prem') &
-        pd.to_numeric(sched.gameweek,errors='coerce').between(origin,a.period_end) &
-        (sched.kickoff>=cutoff)
-    ].drop_duplicates('match_id').copy()
-    if fx.empty: raise ValueError('No future Premier League fixtures in TC horizon')
+    # TC logic stress-test schedule proxy: concatenate the archived PL fixture
+    # rows from each target GW. This gives the realised GW calendar (including
+    # later reschedules), so it is NOT a cutoff-safe future-schedule source.
+    # We use it only to validate TC timing logic; forecast state remains frozen
+    # at the decision deadline and future opportunities are uncertainty-discounted.
+    parts=[]
+    for target_gw in range(origin,int(a.period_end)+1):
+        s=snaps.get(target_gw)
+        if s is None or s.empty: continue
+        q=s[(s.competition=='prem') & pd.to_numeric(s.gameweek,errors='coerce').eq(target_gw)].copy()
+        parts.append(q)
+    fx=pd.concat(parts,ignore_index=True) if parts else pd.DataFrame()
+    if not fx.empty:
+        fx=fx[fx.kickoff>=cutoff].drop_duplicates('match_id').copy()
+    if fx.empty: raise ValueError('No future Premier League fixtures in TC horizon proxy')
 
     lambdas=fit_team_latent(th[th.available_at<=cutoff],fx[['match_id','home_team_id','away_team_id']],origin)
     past=ph[ph.available_at<=cutoff].copy()
@@ -224,7 +232,7 @@ def main():
         top_k_per_gw=int(a.top_k),
         model_math_changed=False,
         tc_only=True,
-        future_schedule_source='deadline schedule snapshot at origin',
+        future_schedule_source='REALIZED_GW_CALENDAR_PROXY_NOT_CUTOFF_SAFE',
         rows=int(len(sample_df)),
         candidate_rows=int(len(selected)),
     )
