@@ -15,9 +15,9 @@ from run_soft_role_defcon import add_axes as add_dc_axes,design as dc_design
 from run_defcon_threshold_finalist import invert_p
 
 def build_fixture_components(rg,pastph,rolehist,cutoff,attack,dc,neg,ga_models,dc_model,dccal,
-                             perf_ledger,home,away,hgoal,agoal,assist_prob):
+                             perf_ledger,home,away,hgoal,agoal,assist_prob,season='2025-26'):
     rg=rg.copy()
-    comps=player_components_at_deadline(pastph,rg,cutoff,attack=attack,dc=dc,discipline=neg)
+    comps=player_components_at_deadline(pastph,rg,cutoff,attack=attack,dc=dc,discipline=neg,season=season)
     rg=rg.merge(comps.drop(columns=['cutoff'],errors='ignore'),
                 on=['fixture_uuid','player_uuid'],how='left',validate='one_to_one')
     if rg.goal_rate90.isna().any():raise ValueError('missing player components')
