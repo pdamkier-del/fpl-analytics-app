@@ -195,41 +195,32 @@ def test_free_hit_bridge_preserves_permanent_ft_and_forbids_transfers():
     assert [a.free_transfers_after for a in result.path] == [2, 2, 3]
 
 
-def test_fh_aware_ts_can_buy_for_post_fh_run_before_the_bridge():
-    from fpl_xpts.fh_transfer_planner import evaluate_fh_aware_path
-
+def test_fh_bridge_can_buy_for_post_fh_run_before_the_bridge():
     meta = _meta(extra=True)
     origin = _origin(gws=(20, 21, 22), extra=True)
 
-    # Owned MID P8 is excellent in the bridge GW but poor afterwards.
-    origin.loc[(origin.id == 8) & (origin.gw == 20), "xpts_mean"] = 3.0
-    origin.loc[(origin.id == 8) & (origin.gw == 21), "xpts_mean"] = 12.0
-    origin.loc[(origin.id == 8) & (origin.gw == 22), "xpts_mean"] = 1.0
+    origin.loc[(origin.id == 8) & (origin.gw == 20), 'xpts_mean'] = 3.0
+    origin.loc[(origin.id == 8) & (origin.gw == 21), 'xpts_mean'] = 12.0
+    origin.loc[(origin.id == 8) & (origin.gw == 22), 'xpts_mean'] = 1.0
 
-    # NewMID is mediocre now, terrible in the bridge GW, but elite afterwards.
-    # Ordinary TS should dislike the move; FH-aware TS should be able to buy
-    # before GW21 because the permanent squad's GW21 score is skipped.
-    origin.loc[(origin.id == 16) & (origin.gw == 20), "xpts_mean"] = 2.0
-    origin.loc[(origin.id == 16) & (origin.gw == 21), "xpts_mean"] = -10.0
-    origin.loc[(origin.id == 16) & (origin.gw == 22), "xpts_mean"] = 20.0
+    origin.loc[(origin.id == 16) & (origin.gw == 20), 'xpts_mean'] = 2.0
+    origin.loc[(origin.id == 16) & (origin.gw == 21), 'xpts_mean'] = -10.0
+    origin.loc[(origin.id == 16) & (origin.gw == 22), 'xpts_mean'] = 20.0
 
-    config = PlannerConfig(
+    base = PlannerConfig(
         weights=(1.0, 1.0, 1.0),
-        hit_uncertainty_buffer=1.0,
-        beam_width=10,
-        top_targets_per_position=18,
-        local_bundle_beam=30,
-        candidate_return_per_depth=8,
-        max_transfers_per_week=2,
+        hit_uncertainty_buffer=1.0,beam_width=10,
+        top_targets_per_position=18,local_bundle_beam=30,
+        candidate_return_per_depth=8,max_transfers_per_week=2,
     )
-    r = evaluate_fh_aware_path(
+    normal = plan_transfer_path(_state(ft=1), meta, origin, 20, base)
+    bridge = plan_transfer_path(
         _state(ft=1), meta, origin, 20,
-        period_end_gw=21, min_fh_gw=21, config=config, allow_fh=True,
+        PlannerConfig(**{**base.__dict__, 'free_hit_gw': 21}),
     )
-    assert r.recommended_fh_gw == 21
-    assert r.use_fh_now is False
-    assert r.active_result.first_action is not None
-    assert 16 in r.active_result.first_action.incoming
-    normal = r.normal_result.first_action
-    assert normal is not None
-    assert 16 not in normal.incoming
+    assert normal.first_action is not None
+    assert bridge.first_action is not None
+    assert 16 not in normal.first_action.incoming
+    assert 16 in bridge.first_action.incoming
+
+
