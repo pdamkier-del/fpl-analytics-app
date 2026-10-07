@@ -179,3 +179,57 @@ def main():
                 player_uuid=str(rr.player_uuid),team=int(rr.team_id),
                 position='GKP' if rr.pos in ('G','GK','GKP') else str(rr.pos)
             )
+
+    if not sample_sums:
+        raise ValueError('No TC samples generated')
+
+    means=[]
+    for key,arr in sample_sums.items():
+        meta=meta_rows[key].copy()
+        meta['mean_points']=float(np.mean(arr))
+        means.append(meta)
+    mean_df=pd.DataFrame(means)
+
+    selected=[]
+    for gw,g in mean_df.groupby('gw',sort=True):
+        selected.append(g.sort_values('mean_points',ascending=False).head(int(a.top_k)))
+    selected=pd.concat(selected,ignore_index=True)
+    keep_keys={(int(r.gw),int(r.candidate_id)) for r in selected.itertuples(index=False)}
+
+    rows=[]
+    for key,arr in sample_sums.items():
+        if key not in keep_keys: continue
+        meta=meta_rows[key]
+        for sim_id,pts in enumerate(arr):
+            rows.append(dict(
+                simulation=int(sim_id),
+                gw=int(meta['gw']),
+                candidate_id=int(meta['candidate_id']),
+                candidate_name=str(meta['candidate_name']),
+                player_uuid=str(meta['player_uuid']),
+                team=int(meta['team']),
+                position=str(meta['position']),
+                points=float(pts),
+            ))
+
+    sample_df=pd.DataFrame(rows)
+    sample_df.to_csv(out/'tc_samples.csv.gz',index=False,compression='gzip')
+    selected.sort_values(['gw','mean_points'],ascending=[True,False]).to_csv(out/'tc_candidates.csv',index=False)
+
+    summary=dict(
+        classification='TC long-horizon frozen vFinal opportunity samples',
+        origin_gw=origin,
+        period_end_gw=int(a.period_end),
+        draws=int(a.draws),
+        top_k_per_gw=int(a.top_k),
+        model_math_changed=False,
+        tc_only=True,
+        future_schedule_source='deadline schedule snapshot at origin',
+        rows=int(len(sample_df)),
+        candidate_rows=int(len(selected)),
+    )
+    (out/'summary.json').write_text(json.dumps(summary,indent=2)+'\n')
+    print(json.dumps(summary,indent=2))
+
+if __name__=='__main__':
+    main()
