@@ -55,12 +55,18 @@ def replay_half(root,prefix,start,end,mu,policy):
             raise ValueError(policy)
         cur=ch[ch.gw.eq(gw)].iloc[0]
         fut=ch[ch.gw.gt(gw)]
-        save=0.0 if fut.empty else float(fut.adj.max())
+        if fut.empty:
+            save=0.0;best_future_gw=None;best_future_name=None;best_future_raw=None
+        else:
+            fr=fut.loc[fut.adj.idxmax()]
+            save=float(fr.adj);best_future_gw=int(fr.gw);best_future_name=str(fr.candidate_name);best_future_raw=float(fr["mean"])
         edge=float(cur["mean"]-save)
         use=(gw==end) or edge>=0
         trace.append(dict(
           gw=gw,candidate_id=int(cur.candidate_id),candidate_name=str(cur.candidate_name),
           mean=float(cur["mean"]),save_option=save,edge=edge,
+          best_future_gw=best_future_gw,best_future_name=best_future_name,
+          best_future_raw=best_future_raw,
           action="USE_TC" if use else "SAVE_TC"
         ))
         if use:
