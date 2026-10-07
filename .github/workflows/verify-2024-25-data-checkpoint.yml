@@ -18,8 +18,8 @@ jobs:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
         with:
-          python-version: '3.11'
-      - run: pip install pandas==2.2.3
+          python-version: '3.12'
+      - run: pip install pandas==2.2.3 numpy==2.3.5
       - run: python scripts/restore_2024_25_data_checkpoint.py
       - run: python -m unittest discover -s tests -p test_2024_25_data_audit.py -v
       - run: python scripts/audit_2024_25_historical_layer.py
