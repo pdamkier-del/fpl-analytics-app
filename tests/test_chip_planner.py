@@ -1,7 +1,7 @@
 import unittest
 import pandas as pd
 
-from fpl_xpts.chip_planner import ChipPlannerConfig, build_tc_values, best_chip_options, decide_chip, tc_opportunity_probabilities, decide_tc_from_samples, probabilistic_dgw_xp, unresolved_dgw_probability, latent_dgw_option_value
+from fpl_xpts.chip_planner import ChipPlannerConfig, TCV2Config, build_tc_values, best_chip_options, decide_chip, tc_opportunity_probabilities, decide_tc_from_samples, decide_tc_v2_from_samples, probabilistic_dgw_xp, unresolved_dgw_probability, latent_dgw_option_value
 
 
 class ChipPlannerTests(unittest.TestCase):
