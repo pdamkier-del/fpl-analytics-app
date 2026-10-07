@@ -223,3 +223,117 @@ def decide_chip(values: pd.DataFrame, *, current_gw: int, period_end_gw: int,
         "reason":reason,
         "comparison":comparison,
     }
+
+def tc_opportunity_probabilities(
+    samples: pd.DataFrame,
+    *,
+    current_gw: int,
+    period_end_gw: int,
+    config: ChipPlannerConfig = ChipPlannerConfig(),
+    sim_col: str = "simulation",
+    gw_col: str = "gw",
+    points_col: str = "points",
+    id_col: str = "candidate_id",
+    name_col: str = "candidate_name",
+) -> pd.DataFrame:
+    """Probability that each remaining GW is the best TC opportunity."""
+    req = {sim_col, gw_col, points_col, id_col}
+    missing = req.difference(samples.columns)
+    if missing:
+        raise ValueError(f"TC samples missing columns: {sorted(missing)}")
+    x = samples.copy()
+    x[gw_col] = pd.to_numeric(x[gw_col], errors="raise").astype(int)
+    x[points_col] = pd.to_numeric(x[points_col], errors="raise").astype(float)
+    x = x[x[gw_col].between(current_gw, period_end_gw)].copy()
+    if x.empty:
+        raise ValueError("No TC samples in requested GW range")
+    if name_col not in x:
+        x[name_col] = x[id_col].astype(str)
+
+    idx = x.groupby([sim_col, gw_col], sort=True)[points_col].idxmax()
+    best = x.loc[idx, [sim_col, gw_col, id_col, name_col, points_col]].copy()
+    best["gw_offset"] = best[gw_col] - int(current_gw)
+    best["reliability"] = np.power(config.future_discount, best.gw_offset)
+    best["adjusted_points"] = best[points_col] * best.reliability
+
+    best = best.sort_values([sim_col, "adjusted_points", gw_col], ascending=[True, False, True])
+    winners = best.groupby(sim_col, sort=False).head(1)
+    n_sim = int(best[sim_col].nunique())
+    if n_sim <= 0:
+        raise ValueError("No simulations")
+    counts = winners[gw_col].value_counts().to_dict()
+
+    rows = []
+    for gw in range(int(current_gw), int(period_end_gw)+1):
+        g = best[best[gw_col].eq(gw)]
+        if len(g):
+            mean_best = float(g.groupby(sim_col)[points_col].max().mean())
+            mean_adjusted = float(g.groupby(sim_col)["adjusted_points"].max().mean())
+        else:
+            mean_best = float("nan")
+            mean_adjusted = float("nan")
+        rows.append(dict(
+            gw=gw,
+            probability_best=float(counts.get(gw,0)/n_sim),
+            expected_best_tc_points=mean_best,
+            expected_adjusted_tc_points=mean_adjusted,
+            reliability=float(config.future_discount ** (gw-current_gw)),
+        ))
+    out = pd.DataFrame(rows)
+    total = float(out.probability_best.sum())
+    if not np.isclose(total,1.0,atol=1e-12):
+        raise RuntimeError(f"TC GW probabilities do not sum to one: {total}")
+    return out
+
+
+def decide_tc_from_samples(
+    samples: pd.DataFrame,
+    *,
+    current_gw: int,
+    period_end_gw: int,
+    config: ChipPlannerConfig = ChipPlannerConfig(),
+    sim_col: str = "simulation",
+    gw_col: str = "gw",
+    points_col: str = "points",
+    id_col: str = "candidate_id",
+    name_col: str = "candidate_name",
+) -> dict:
+    """Expected-value TC stopping rule plus normalized timing probabilities."""
+    probs = tc_opportunity_probabilities(
+        samples,current_gw=current_gw,period_end_gw=period_end_gw,config=config,
+        sim_col=sim_col,gw_col=gw_col,points_col=points_col,id_col=id_col,name_col=name_col,
+    )
+    x = samples.copy()
+    x[gw_col] = pd.to_numeric(x[gw_col], errors="raise").astype(int)
+    x[points_col] = pd.to_numeric(x[points_col], errors="raise").astype(float)
+    x = x[x[gw_col].between(current_gw,period_end_gw)].copy()
+    if name_col not in x:
+        x[name_col] = x[id_col].astype(str)
+    idx = x.groupby([sim_col,gw_col],sort=True)[points_col].idxmax()
+    best = x.loc[idx,[sim_col,gw_col,id_col,name_col,points_col]].copy()
+    best["adjusted_points"] = best[points_col] * np.power(config.future_discount,best[gw_col]-int(current_gw))
+    now = best[best[gw_col].eq(current_gw)]
+    if now.empty:
+        raise ValueError(f"No TC candidates for current GW{current_gw}")
+    use_now = float(now.groupby(sim_col)[points_col].max().mean())
+    future = best[best[gw_col].gt(current_gw)]
+    save_value = 0.0 if future.empty else float(future.groupby(sim_col).adjusted_points.max().mean())
+    cur_player = (
+        x[x[gw_col].eq(current_gw)]
+        .groupby([id_col,name_col],as_index=False)[points_col].mean()
+        .sort_values(points_col,ascending=False)
+        .iloc[0]
+    )
+    use = (current_gw==period_end_gw) or (use_now >= save_value + config.min_use_edge)
+    return dict(
+        action="USE_TC" if use else "SAVE_TC",
+        current_gw=int(current_gw),
+        period_end_gw=int(period_end_gw),
+        candidate_id=cur_player[id_col] if use else None,
+        candidate_name=cur_player[name_col] if use else None,
+        use_now_value=use_now,
+        save_option_value=save_value,
+        use_edge=use_now-save_value,
+        probability_current_gw_best=float(probs.loc[probs.gw.eq(current_gw),"probability_best"].iloc[0]),
+        timing_probabilities=probs,
+    )
