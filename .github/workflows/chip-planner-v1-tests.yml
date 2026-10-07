@@ -1,0 +1,25 @@
+name: Chip planner v1 tests
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [audit-role-minutes-20261001]
+    paths:
+      - 'src/fpl_xpts/chip_planner.py'
+      - 'tests/test_chip_planner.py'
+      - '.github/workflows/chip-planner-v1-tests.yml'
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: audit-role-minutes-20261001
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install
+        run: pip install pandas numpy
+      - name: Run chip planner tests
+        run: PYTHONPATH=src python -m unittest tests.test_chip_planner -v
