@@ -281,7 +281,7 @@ def perf_ledger(obs):
     return pd.DataFrame(rows)
 
 def main():
-    ap=argparse.ArgumentParser();ap.add_argument('--db',required=True);ap.add_argument('--derived',required=True);ap.add_argument('--out',required=True)
+    ap=argparse.ArgumentParser();ap.add_argument('--db',required=True);ap.add_argument('--derived',required=True);ap.add_argument('--out',required=True);ap.add_argument('--start-gw',type=int,default=6);ap.add_argument('--end-gw',type=int,default=38)
     a=ap.parse_args();derived=Path(a.derived);out=Path(a.out);out.mkdir(parents=True,exist_ok=True)
     deadlines={int(r['gw']):pd.to_datetime(r['cutoff'],utc=True) for r in json.loads((derived/'deadlines.json').read_text())}
     cands=jsonl_gz(derived/'deadline_player_candidates.jsonl.gz')
@@ -299,7 +299,8 @@ def main():
     frame['team_news_known']=0;frame['team_news_hard_out']=0;frame['team_news_age_hours']=np.nan;frame['team_news_source']='UNAVAILABLE_2024_25'
     known=pd.to_datetime(frame.outcome_known_at,utc=True)
     rows=[];audit=[]
-    for gw in range(6,39):
+    if not (6<=a.start_gw<=a.end_gw<=38):raise ValueError('Expected 6 <= start-gw <= end-gw <= 38')
+    for gw in range(a.start_gw,a.end_gw+1):
       val=frame.gw.eq(gw).to_numpy()
       if not val.any():raise ValueError(f'missing GW{gw}')
       cut=pd.to_datetime(frame.loc[val,'cutoff'],utc=True).min()
@@ -320,6 +321,6 @@ def main():
       team_news='UNKNOWN neutral; exact predeadline timing unavailable',history_timing='kickoff+4h proxy',
       baseline_training_overlap='Frozen P(start) coefficients were originally fit on 2023-24 + 2024-25; replay does not refit them, but this is not independent OOS',
       match_importance=dict(q_scale=Q_IMPORTANCE_SCALE,h_scale=H_IMPORTANCE_SCALE,importance_floor=IMPORTANCE_FLOOR,scarcity_eta=.35,opponent_strength='neutral proxy because historical Elo unavailable'),
-      role_games=int(role_games),workload_team_games=int(work_games),rows=int(len(pred)),forecast_gws=[6,38])
+      role_games=int(role_games),workload_team_games=int(work_games),rows=int(len(pred)),forecast_gws=[int(a.start_gw),int(a.end_gw)])
     (out/'summary.json').write_text(json.dumps(summary,indent=2)+'\n');print(json.dumps(summary,indent=2))
 if __name__=='__main__':main()
