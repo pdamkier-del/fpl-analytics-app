@@ -37,7 +37,8 @@ jobs:
           PYTHONPATH=src python scripts/run_2024_25_conditional_mm.py \
             --db work/core.sqlite3 \
             --derived data_v1_1/derived/season_2024_25_v1 \
-            --out analysis/results/conditional-2024-25-mm
+            --out analysis/results/conditional-2024-25-mm \
+            --start-gw 6 --end-gw 6
       - name: One-fixture PM smoke
         run: |
           rm -rf analysis/results/conditional-2024-25-pm-smoke
