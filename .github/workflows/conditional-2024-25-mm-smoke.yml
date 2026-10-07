@@ -2,6 +2,11 @@ name: 2024-25 conditional MM smoke
 
 on:
   workflow_dispatch:
+  push:
+    branches: [audit-role-minutes-20261001]
+    paths:
+      - 'scripts/run_2024_25_conditional_mm.py'
+      - '.github/workflows/conditional-2024-25-mm-smoke.yml'
 
 jobs:
   smoke:
