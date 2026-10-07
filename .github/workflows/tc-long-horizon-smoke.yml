@@ -1,0 +1,57 @@
+name: TC long-horizon smoke
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [audit-role-minutes-20261001]
+    paths:
+      - 'scripts/run_tc_long_horizon_origin.py'
+      - '.github/workflows/tc-long-horizon-smoke.yml'
+
+jobs:
+  smoke:
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: audit-role-minutes-20261001
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install
+        run: |
+          pip install -r requirements-model-checkpoint.txt
+          pip install pandas numpy scipy scikit-learn requests
+      - name: Restore inputs
+        run: |
+          mkdir -p work
+          cat model/checkpoints/phase5e_core/parts/core.gz.part-* | gzip -dc > work/core.sqlite3
+          python scripts/restore_team_news_audit.py
+          python scripts/validate_team_news_audit.py
+      - name: Build locked source and MM
+        run: |
+          PYTHONPATH=src python scripts/reproduce_pstart_v2_fixture_minutes.py --db work/core.sqlite3 --out analysis/results/tc-v2 --min-gw 1
+          PYTHONPATH=src python scripts/build_reproducible_role_benchmark.py --db work/core.sqlite3 --baseline analysis/results/tc-v2/pstart_v2_fixture_holdout_2025_26.csv --cutoffs analysis/results/workload-recovered-v4/authoritative_deadlines.csv --out analysis/results/tc-role
+          PYTHONPATH=src python scripts/build_workload_features.py --db work/core.sqlite3 --features analysis/results/tc-role/all_feature_predictions.csv.gz --out analysis/results/tc-work
+          cp analysis/results/tc-role/all_feature_predictions.csv.gz analysis/results/reproducible-role-v1/all_feature_predictions.csv.gz
+          cp analysis/results/tc-work/all_features.csv.gz analysis/results/workload-recovered-v4/all_features.csv.gz
+          cp analysis/results/tc-work/official_player_minutes.csv analysis/results/workload-recovered-v4/official_player_minutes.csv
+          cp analysis/results/tc-work/team_match_coverage.csv analysis/results/workload-recovered-v4/team_match_coverage.csv
+          rm -rf analysis/results/fa-match-importance-20261006-v1
+          PYTHONPATH=src python scripts/run_fa_match_importance_rebuild.py
+          PYTHONPATH=src python scripts/run_locked_mm_gw6_38.py --source analysis/results/fa-match-importance-20261006-v1/all_features_fa_mi.csv.gz --out analysis/results/tc-mm
+      - name: Run TC origin smoke
+        run: |
+          PYTHONPATH=src python scripts/run_tc_long_horizon_origin.py \
+            --db work/core.sqlite3 \
+            --source analysis/results/fa-match-importance-20261006-v1/all_features_fa_mi.csv.gz \
+            --mm analysis/results/tc-mm/locked_mm_predictions.csv.gz \
+            --out analysis/results/tc-origin-6 \
+            --origin 6 --period-end 19 --draws 40 --top-k 20
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: tc-long-horizon-smoke
+          path: analysis/results/tc-origin-6
+          retention-days: 30
