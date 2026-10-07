@@ -32,6 +32,62 @@ import pandas as pd
 
 CHIPS = ("TC", "BB", "FH", "WC")
 
+# Four-season (2022/23--2025/26) historical pre-GW calibration.
+# This is a structural prior for an as-yet-unresolved future DGW opportunity,
+# not a forecast for any named player or gameweek.
+DEFAULT_TC_DGW_REFERENCE_XP = 12.26875
+
+
+def probabilistic_dgw_xp(base_gw_xp: float, extra_fixture_xp: float, concrete_probability: float) -> float:
+    """Expected GW xP when an extra fixture may land in this GW.
+
+    A confirmed DGW has probability=1 and therefore becomes an ordinary
+    two-fixture GW forecast. A merely possible DGW contributes only its
+    probability-weighted extra-fixture xP.
+    """
+    p=float(concrete_probability)
+    if not 0.0 <= p <= 1.0:
+        raise ValueError("concrete_probability must be in [0,1]")
+    return float(base_gw_xp) + p*float(extra_fixture_xp)
+
+
+def unresolved_dgw_probability(structural_probability: float, concrete_probability: float) -> float:
+    """Residual probability mass for an unidentified future DGW.
+
+    As a concrete DGW scenario becomes identified, probability mass transfers
+    out of the latent option. At concrete_probability=1 the latent option is
+    fully resolved and disappears.
+    """
+    ps=float(structural_probability);pc=float(concrete_probability)
+    if not 0.0 <= ps <= 1.0:
+        raise ValueError("structural_probability must be in [0,1]")
+    if not 0.0 <= pc <= 1.0:
+        raise ValueError("concrete_probability must be in [0,1]")
+    return float(ps*(1.0-pc))
+
+
+def latent_dgw_option_value(
+    *,
+    mu_tc: float,
+    unresolved_probability: float,
+    dgw_reference_xp: float = DEFAULT_TC_DGW_REFERENCE_XP,
+) -> float | None:
+    """Absolute TC option value of an unidentified future DGW.
+
+    Returns None once no unresolved DGW probability remains, so the latent
+    option cannot double-count a concrete/confirmed DGW. Otherwise the option
+    is a probability-weighted regression from the normal TC baseline toward
+    the historical DGW opportunity level.
+    """
+    p=float(unresolved_probability)
+    if not 0.0 <= p <= 1.0:
+        raise ValueError("unresolved_probability must be in [0,1]")
+    if p <= 0.0:
+        return None
+    mu=float(mu_tc);ref=float(dgw_reference_xp)
+    return float(mu + p*(max(ref,mu)-mu))
+
+
 
 @dataclass(frozen=True)
 class ChipPlannerConfig:
