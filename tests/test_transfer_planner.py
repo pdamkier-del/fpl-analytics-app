@@ -199,6 +199,10 @@ def test_fh_bridge_can_buy_for_post_fh_run_before_the_bridge():
     meta = _meta(extra=True)
     origin = _origin(gws=(20, 21, 22), extra=True)
 
+    # Other owned MIDs are deliberately strong in every GW so NewMID can only
+    # rationally replace P8 if the bridge GW is skipped.
+    origin.loc[origin.id.isin([9,10,11,12]), 'xpts_mean'] = 10.0
+
     origin.loc[(origin.id == 8) & (origin.gw == 20), 'xpts_mean'] = 3.0
     origin.loc[(origin.id == 8) & (origin.gw == 21), 'xpts_mean'] = 12.0
     origin.loc[(origin.id == 8) & (origin.gw == 22), 'xpts_mean'] = 1.0
