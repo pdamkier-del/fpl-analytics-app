@@ -27,7 +27,7 @@ def load(root,prefix,gw):
 def choose_mean(samples):
     s=(samples.groupby(["gw","candidate_id","candidate_name"],as_index=False).points.mean()
        .rename(columns={"points":"mean"}))
-    idx=s.groupby("gw").mean.idxmax()
+    idx=s.groupby("gw")["mean"].idxmax()
     return s.loc[idx].sort_values("gw").reset_index(drop=True)
 
 def replay_half(root,prefix,start,end,policy):
