@@ -26,6 +26,7 @@ def load_season(root:Path,season:str):
     x["xP"]=pd.to_numeric(x["xP"],errors="coerce")
     x["total_points"]=pd.to_numeric(x["total_points"],errors="coerce").fillna(0.)
     x["minutes"]=pd.to_numeric(x["minutes"],errors="coerce").fillna(0.)
+    x=x[x["position"].astype(str).isin(["GK","GKP","DEF","MID","FWD"])].copy()
     return x
 
 def add_past_upside(x):
@@ -53,8 +54,10 @@ def choose(g,var):
     if mode=="mean":
         return eligible.sort_values(["xP","selected"],ascending=False).iloc[0]
     metric={"q75":"past_q75","p10":"past_p10","p15":"past_p15"}[mode]
-    eligible[metric]=eligible[metric].fillna(-1.)
-    return eligible.sort_values([metric,"xP"],ascending=False).iloc[0]
+    known=eligible[eligible[metric].notna()].copy()
+    if known.empty:
+        return eligible.sort_values(["xP","selected"],ascending=False).iloc[0]
+    return known.sort_values([metric,"xP"],ascending=False).iloc[0]
 
 def main():
     ap=argparse.ArgumentParser();ap.add_argument("--vaastav",required=True);ap.add_argument("--out",required=True)
