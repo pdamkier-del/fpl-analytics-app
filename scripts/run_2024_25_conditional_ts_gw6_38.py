@@ -46,10 +46,28 @@ def runtime_inputs(derived):
     for col in ['team','position','value']:
         dcol=col+'_deadline'
         if dcol in z.columns:z[col]=z[dcol]
-    if z[['team','position','value']].isna().any().any():
-        # Conditional snapshots are expected to cover the active FPL cohort.
-        miss=z[z[['team','position','value']].isna().any(axis=1)][['gw','element']].drop_duplicates()
-        raise ValueError('Missing conditional deadline metadata: '+str(miss.head(20).to_dict('records')))
+
+    # Conditional snapshot candidates do not always contain a player in the exact
+    # GW in which a post-match outcome row exists (typically newly-added players).
+    # This is metadata only: forecasts/xP still come exclusively from PM. Prefer
+    # the latest prior snapshot; if none exists, use the player's first later
+    # snapshot as an explicitly conditional roster-metadata proxy.
+    missing=z[['team','position','value']].isna().any(axis=1)
+    fallback_rows=0;dropped_rows=0
+    if missing.any():
+        hist={int(e):g.sort_values('gw') for e,g in meta.groupby('element')}
+        for idx,r in z.loc[missing,['gw','element']].iterrows():
+            g=hist.get(int(r.element))
+            if g is None or g.empty:
+                dropped_rows+=1;continue
+            prior=g[g.gw<=int(r.gw)]
+            q=prior.iloc[-1] if len(prior) else g.iloc[0]
+            z.at[idx,'team']=q.team;z.at[idx,'position']=q.position;z.at[idx,'value']=q.value
+            fallback_rows+=1
+    still=z[['team','position','value']].isna().any(axis=1)
+    if still.any():
+        dropped_rows+=int(still.sum());z=z.loc[~still].copy()
+    print(f'Conditional TS metadata fallback rows={fallback_rows}, dropped rows={dropped_rows}',flush=True)
     z=z.rename(columns={'gw':'GW'})
     keep=['GW','element','team','position','value','total_points','minutes']
     return z[keep].copy(),names
