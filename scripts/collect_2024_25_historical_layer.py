@@ -158,10 +158,12 @@ def external_inventories(teams):
  dump(AUDIT/'external_inventory_probes.json',probes)
  # Direct provider probes: preserve failures and do not hammer denied endpoints.
  selected={}
- for comp,lid in [('prem',47),('cl',42),('el',73),('conf',525),('fa',132),('efl',133)]:
+ for comp,lid in [('prem',47),('cl',42),('el',73),('conf',10216),('fa',132),('efl',133)]:
   url=f'https://www.fotmob.com/api/data/leagues?id={lid}&season=2024%2F2025'
   try:
-   league=json.loads(capture(url,f'fotmob/{comp}_league.json','EXACT_POSTMATCH'))
+   league=json.loads(capture(url,f'fotmob/{comp}_{lid}_league.json','EXACT_POSTMATCH'))
+   expected={'prem':'Premier League','cl':'Champions League','el':'Europa League','conf':'Conference League','fa':'FA Cup','efl':'EFL Cup'}
+   assert league['details']['name']==expected[comp],(comp,league['details'])
    for e in (league.get('fixtures') or {}).get('allMatches',[]):
     status=e.get('status') or {};ko=pd.to_datetime(status.get('utcTime'),utc=True,errors='coerce')
     if pd.isna(ko) or not (T('2024-07-01')<=ko<T('2025-06-02')):continue
