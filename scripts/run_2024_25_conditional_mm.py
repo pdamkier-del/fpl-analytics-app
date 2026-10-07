@@ -17,7 +17,6 @@ from collections import defaultdict
 from pathlib import Path
 import numpy as np,pandas as pd
 from scipy.special import logit
-from sklearn.linear_model import LogisticRegression
 
 ROOT=Path(__file__).resolve().parents[1]
 sys.path.insert(0,str(ROOT/'src'));sys.path.insert(0,str(ROOT/'scripts'))
@@ -91,11 +90,13 @@ def build_baseline(con,season,deadlines):
     X=pd.concat([x[feat],pd.get_dummies(x.pos,prefix='pos',dtype=float)],axis=1)
     for c in ['pos_DEF','pos_FWD','pos_GK','pos_GKP','pos_MID']:
         if c not in X:X[c]=0.
-    cols=list(X.columns);dev=x.season.isin(['2023-24','2024-25'])
-    model=LogisticRegression(C=1.,max_iter=1000).fit(X.loc[dev,cols],x.loc[dev,'y'])
+    frozen=json.loads((ROOT/'analysis/results/v2-reproduced/metrics.json').read_text())['coefficients']
+    cols=['fast','slow','recent_mins','last_start','last_mins','pos_DEF','pos_FWD','pos_GK','pos_MID','pos_GKP']
     t=x[x.season.eq(season)].copy().reset_index(drop=True)
     Xt=X.loc[x.season.eq(season),cols].reset_index(drop=True)
-    t['p_start_v2_raw']=model.predict_proba(Xt)[:,1]
+    z=np.full(len(t),float(frozen['intercept']))
+    for col in cols:z+=Xt[col].to_numpy(float)*float(frozen.get(col,0.0))
+    t['p_start_v2_raw']=1/(1+np.exp(-z))
     t['p_start_v2']=exact11(t,t.p_start_v2_raw)
     # Locked conditional duration/cameo decomposition, current-season history only.
     obs=allobs[allobs.season.eq(season)].copy()
@@ -112,7 +113,7 @@ def build_baseline(con,season,deadlines):
     t['outcome_known_at']=(pd.to_datetime(t.kickoff_at,utc=True)+pd.Timedelta(hours=4)).astype(str)
     names=dict(con.execute('select player_uuid,canonical_name from players'))
     t['player']=t.player_uuid.map(names).fillna(t.player_uuid);t['team']=t.team_id.astype(str)
-    return t,model,cols
+    return t,frozen,cols
 
 def team_name_map(cands):
     d=defaultdict(set)
@@ -244,7 +245,7 @@ def main():
     summary=dict(classification='CONDITIONAL_ROBUSTNESS_REPLAY_MM_NOT_STRICT',season='2024-25',policy=POLICY,
       model_math_changed=False,retuned=False,role_geometry_proxy='formation structural slots; measured average positions unavailable',
       team_news='UNKNOWN neutral; exact predeadline timing unavailable',history_timing='kickoff+4h proxy',
-      baseline_training_overlap='P(start) locked fit uses 2023-24 + 2024-25; this is not independent OOS',
+      baseline_training_overlap='Frozen P(start) coefficients were originally fit on 2023-24 + 2024-25; replay does not refit them, but this is not independent OOS',
       role_games=int(role_games),workload_team_games=int(work_games),rows=int(len(pred)),forecast_gws=[6,38])
     (out/'summary.json').write_text(json.dumps(summary,indent=2)+'\n');print(json.dumps(summary,indent=2))
 if __name__=='__main__':main()
