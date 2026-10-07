@@ -93,5 +93,81 @@ class ChipPlannerTests(unittest.TestCase):
         self.assertAlmostEqual(float(r['timing_probabilities'].probability_best.sum()),1.0,places=12)
         self.assertIn(r['action'],{'USE_TC','SAVE_TC'})
 
+
+    def test_probabilistic_dgw_becomes_normal_when_confirmed(self):
+        self.assertAlmostEqual(probabilistic_dgw_xp(7.0,6.0,0.0),7.0)
+        self.assertAlmostEqual(probabilistic_dgw_xp(7.0,6.0,0.5),10.0)
+        self.assertAlmostEqual(probabilistic_dgw_xp(7.0,6.0,1.0),13.0)
+
+    def test_latent_dgw_mass_disappears_as_concrete_dgw_resolves(self):
+        self.assertAlmostEqual(unresolved_dgw_probability(1.0,0.0),1.0)
+        self.assertAlmostEqual(unresolved_dgw_probability(1.0,0.7),0.3)
+        self.assertAlmostEqual(unresolved_dgw_probability(1.0,1.0),0.0)
+
+    def test_latent_dgw_option_regresses_between_mu_and_reference(self):
+        mu=8.57
+        full=latent_dgw_option_value(mu_tc=mu,unresolved_probability=1.0)
+        half=latent_dgw_option_value(mu_tc=mu,unresolved_probability=0.5)
+        none=latent_dgw_option_value(mu_tc=mu,unresolved_probability=0.0)
+        self.assertAlmostEqual(full,12.26875)
+        self.assertAlmostEqual(half,mu+0.5*(12.26875-mu))
+        self.assertIsNone(none)
+
+    def test_tc_v2_latent_dgw_can_hold_chip(self):
+        rows=[]
+        for s in range(100):
+            rows += [
+                dict(simulation=s,gw=20,candidate_id=1,candidate_name='Now',points=10.0),
+                dict(simulation=s,gw=21,candidate_id=2,candidate_name='Future',points=9.0),
+            ]
+        r=decide_tc_v2_from_samples(
+            pd.DataFrame(rows),current_gw=20,period_end_gw=38,
+            unresolved_dgw_probability=1.0,
+            config=TCV2Config(mu_tc=8.57,dgw_reference_xp=12.26875),
+        )
+        self.assertEqual(r['action'],'SAVE_TC')
+        self.assertEqual(r['save_source'],'latent_dgw')
+        self.assertAlmostEqual(r['latent_dgw_option_value'],12.26875)
+
+    def test_tc_v2_confirmed_dgw_removes_latent_option(self):
+        rows=[]
+        for s in range(100):
+            rows += [
+                dict(simulation=s,gw=20,candidate_id=1,candidate_name='Now',points=10.0),
+                dict(simulation=s,gw=21,candidate_id=2,candidate_name='ConfirmedDGW',points=13.0),
+            ]
+        r=decide_tc_v2_from_samples(
+            pd.DataFrame(rows),current_gw=20,period_end_gw=38,
+            unresolved_dgw_probability=0.0,
+        )
+        self.assertIsNone(r['latent_dgw_option_value'])
+        self.assertEqual(r['save_source'],'concrete_gw')
+        self.assertEqual(r['best_future_gw'],21)
+
+    def test_tc_v2_uses_historical_structural_prior_by_default(self):
+        rows=[]
+        for s in range(50):
+            rows += [
+                dict(simulation=s,gw=20,candidate_id=1,candidate_name='Now',points=10.0),
+                dict(simulation=s,gw=21,candidate_id=2,candidate_name='Future',points=9.0),
+            ]
+        r=decide_tc_v2_from_samples(pd.DataFrame(rows),current_gw=20,period_end_gw=38)
+        self.assertAlmostEqual(r['structural_dgw_probability'],1.0)
+        self.assertAlmostEqual(r['unresolved_dgw_probability'],1.0)
+        self.assertEqual(r['save_source'],'latent_dgw')
+
+    def test_tc_v2_concrete_probability_transfers_structural_mass(self):
+        rows=[]
+        for s in range(50):
+            rows += [
+                dict(simulation=s,gw=20,candidate_id=1,candidate_name='Now',points=10.0),
+                dict(simulation=s,gw=21,candidate_id=2,candidate_name='Future',points=11.0),
+            ]
+        r=decide_tc_v2_from_samples(
+            pd.DataFrame(rows),current_gw=20,period_end_gw=38,
+            concrete_dgw_probability=0.75,
+        )
+        self.assertAlmostEqual(r['unresolved_dgw_probability'],0.25)
+
 if __name__=='__main__':
     unittest.main()
