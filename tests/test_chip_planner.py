@@ -1,7 +1,7 @@
 import unittest
 import pandas as pd
 
-from fpl_xpts.chip_planner import ChipPlannerConfig, TCV2Config, build_tc_values, best_chip_options, decide_chip, tc_opportunity_probabilities, decide_tc_from_samples, decide_tc_v2_from_samples, probabilistic_dgw_xp, unresolved_dgw_probability, latent_dgw_option_value
+from fpl_xpts.chip_planner import ChipPlannerConfig, TCV2Config, build_tc_values, best_chip_options, decide_chip, tc_opportunity_probabilities, decide_tc_from_samples, decide_tc_v2_from_samples, fh_opportunity_probabilities, decide_fh_from_samples, probabilistic_dgw_xp, unresolved_dgw_probability, latent_dgw_option_value
 
 
 class ChipPlannerTests(unittest.TestCase):
@@ -93,6 +93,39 @@ class ChipPlannerTests(unittest.TestCase):
         self.assertAlmostEqual(float(r['timing_probabilities'].probability_best.sum()),1.0,places=12)
         self.assertIn(r['action'],{'USE_TC','SAVE_TC'})
 
+
+
+    def test_fh_timing_probabilities_sum_to_one(self):
+        rows=[]
+        for s in range(100):
+            rows += [
+                dict(simulation=s,gw=10,points=14 if s<60 else 4),
+                dict(simulation=s,gw=11,points=8 if s<60 else 18),
+            ]
+        p=fh_opportunity_probabilities(
+            pd.DataFrame(rows),current_gw=10,period_end_gw=11,
+            config=ChipPlannerConfig(future_discount=1.0),
+        )
+        self.assertAlmostEqual(float(p.probability_best.sum()),1.0,places=12)
+        self.assertAlmostEqual(float(p.loc[p.gw.eq(10),'probability_best'].iloc[0]),0.60,places=12)
+        self.assertAlmostEqual(float(p.loc[p.gw.eq(11),'probability_best'].iloc[0]),0.40,places=12)
+
+    def test_fh_saves_when_future_marginal_gain_is_better(self):
+        rows=[]
+        for s in range(50):
+            rows += [dict(simulation=s,gw=10,points=8.0),dict(simulation=s,gw=11,points=14.0)]
+        r=decide_fh_from_samples(
+            pd.DataFrame(rows),current_gw=10,period_end_gw=19,
+            config=ChipPlannerConfig(future_discount=1.0),
+        )
+        self.assertEqual(r['action'],'SAVE_FH')
+        self.assertFalse(r['forced_by_expiry'])
+
+    def test_fh_is_forced_in_gw19(self):
+        rows=[dict(simulation=s,gw=19,points=2.0) for s in range(50)]
+        r=decide_fh_from_samples(pd.DataFrame(rows),current_gw=19,period_end_gw=19)
+        self.assertEqual(r['action'],'USE_FH')
+        self.assertTrue(r['forced_by_expiry'])
 
     def test_probabilistic_dgw_becomes_normal_when_confirmed(self):
         self.assertAlmostEqual(probabilistic_dgw_xp(7.0,6.0,0.0),7.0)
