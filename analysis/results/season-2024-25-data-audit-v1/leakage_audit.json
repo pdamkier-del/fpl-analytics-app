@@ -1,0 +1,24 @@
+{
+  "raw_checksum_failures": [],
+  "verified_raw_files": 1559,
+  "strict_snapshot_eligible_rows": 0,
+  "unverified_snapshot_rows_quarantined": 27159,
+  "publication_time_known_rows": 0,
+  "observations_available_not_after_kickoff": 0,
+  "rating_out_of_range": 0,
+  "final_future_schedule_eligible_rows": 0,
+  "model_executed": false,
+  "model_math_changed": false,
+  "training_overlap": {
+    "confirmed": "reproduce_pstart_v2_fixture_minutes.py trains on 2023-24 + 2024-25, holds out 2025-26",
+    "implication": "2024/25 is not an independent unseen baseline season",
+    "other_locked_fits": "requires complete training provenance review; no extrapolation from baseline evidence"
+  },
+  "conditional_proxy_only": true,
+  "notes": [
+    "observed_at in old Core is 2026 ingestion, not historical publication",
+    "news_added timestamps a news change, not validity of entire later snapshot",
+    "A future direct API revision can alter an old match rating/stat; no revision vintage is available",
+    "All strict data missing stays missing; zero target leakage is not a claim of full historical usability"
+  ]
+}

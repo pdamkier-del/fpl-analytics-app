@@ -1,0 +1,229 @@
+[
+  {
+    "path": "scripts/reproduce_pstart_v2_fixture_minutes.py",
+    "git_blob_sha": "d6cbc8d5c42f182bb68eeacbbbdc92d4086bdd3a",
+    "task_head": "2c118102c34469acdaaa89d25430f11439cb212b",
+    "relevant_lines": [
+      {
+        "line": 14,
+        "text": "ap.add_argument('--out',required=True)"
+      },
+      {
+        "line": 24,
+        "text": "where p.season in ('2023-24','2024-25','2025-26') and p.is_final=1"
+      },
+      {
+        "line": 31,
+        "text": "    for season in ['2023-24','2024-25','2025-26']:"
+      },
+      {
+        "line": 42,
+        "text": "                    return float(np.average(vals,weights=ws)) if ws else default"
+      },
+      {
+        "line": 73,
+        "text": "dev=x.season.isin(['2023-24','2024-25']); hold=x.season.eq('2025-26')"
+      },
+      {
+        "line": 75,
+        "text": "model.fit(X.loc[dev,cols],x.loc[dev,'y'])"
+      },
+      {
+        "line": 81,
+        "text": "obs25=df[df.season.eq('2025-26')].copy()"
+      },
+      {
+        "line": 99,
+        "text": " 'train_seasons':['2023-24','2024-25'],'holdout':'2025-26','min_gw':int(a.min_gw),'n':len(hf),"
+      }
+    ]
+  },
+  {
+    "path": "scripts/run_locked_mm_gw6_38.py",
+    "git_blob_sha": "2836bdf1f13490c2658d2c9fe47fb1dd054d33a1",
+    "task_head": "2c118102c34469acdaaa89d25430f11439cb212b",
+    "relevant_lines": [
+      {
+        "line": 2,
+        "text": "\"\"\"Locked Team-News MM walk-forward from GW6 through GW38."
+      },
+      {
+        "line": 5,
+        "text": "is to allow a source feature table that includes GW1-5 so those GWs can serve"
+      },
+      {
+        "line": 6,
+        "text": "as history/training before the first normal forecast at GW6."
+      },
+      {
+        "line": 23,
+        "text": "TEAM_NEWS=ROOT/'data_v1_1/derived/team_news_audit/2025-26-v2'"
+      },
+      {
+        "line": 27,
+        "text": "    ap.add_argument('--source',required=True)"
+      },
+      {
+        "line": 28,
+        "text": "    ap.add_argument('--out',required=True)"
+      },
+      {
+        "line": 40,
+        "text": "        if not val.any(): raise ValueError(f'missing GW{gw} target rows')"
+      },
+      {
+        "line": 44,
+        "text": "        if not train_gws: raise ValueError(f'GW{gw}: no prior training history')"
+      },
+      {
+        "line": 64,
+        "text": "        print(f'GW{gw}: train {train_gws[0]}-{train_gws[-1]} rows={train.sum()} target={val.sum()}',flush=True)"
+      },
+      {
+        "line": 73,
+        "text": "      'note':'Architecture/hyperparameters are final locked choices; state and labels for each forecast use only rows known before that GW cutoff.'"
+      }
+    ]
+  },
+  {
+    "path": "scripts/run_rolling_vfinal_gw6_38.py",
+    "git_blob_sha": "c5bf082ac2392197183f2b0633135b9beebc1df0",
+    "task_head": "2c118102c34469acdaaa89d25430f11439cb212b",
+    "relevant_lines": [
+      {
+        "line": 25,
+        "text": "RAW=ROOT/'data_v1_1/raw/all-competitions-2025-26'"
+      },
+      {
+        "line": 66,
+        "text": "    ap.add_argument('--db',required=True);ap.add_argument('--source',required=True)"
+      },
+      {
+        "line": 67,
+        "text": "    ap.add_argument('--mm',required=True);ap.add_argument('--out',required=True)"
+      },
+      {
+        "line": 79,
+        "text": "      FROM player_fixture_observations WHERE season='2025-26' AND is_final=1\"\"\",con)"
+      },
+      {
+        "line": 81,
+        "text": "      FROM team_fixture_observations WHERE season='2025-26' AND source_name='vaastav_historical_core'\"\"\",con)"
+      },
+      {
+        "line": 84,
+        "text": "      WHERE season='2025-26' AND source_name='football_data_co_uk'\"\"\",con)"
+      },
+      {
+        "line": 173,
+        "text": "        print(f'GW{origin}: horizon fixtures={len(fx)} rows={origin_count}',flush=True)"
+      }
+    ]
+  },
+  {
+    "path": "scripts/run_ts_v3_final_chain_gw6.py",
+    "git_blob_sha": "58651fdc3010f5ed7f4063d28b67223aca072b74",
+    "task_head": "2c118102c34469acdaaa89d25430f11439cb212b",
+    "relevant_lines": [
+      {
+        "line": 11,
+        "text": "WEIGHTS=(1.0,.60,.36,.216,.1296,.07776)"
+      },
+      {
+        "line": 15,
+        "text": "    ap=argparse.ArgumentParser();ap.add_argument('--vfinal',required=True);ap.add_argument('--out',required=True)"
+      },
+      {
+        "line": 17,
+        "text": "    gws,names,cold=ts.prepare()"
+      },
+      {
+        "line": 18,
+        "text": "    # Cold-start provider is retained only for decisions GW1-5 (origin_gw 0-4)."
+      },
+      {
+        "line": 19,
+        "text": "    cold=cold[cold.origin_gw<=4].copy()"
+      },
+      {
+        "line": 24,
+        "text": "    forecast=pd.concat([cold[keep],vf],ignore_index=True)"
+      },
+      {
+        "line": 25,
+        "text": "    # Assert the handoff: no old provider from decision GW6 onward."
+      },
+      {
+        "line": 26,
+        "text": "    assert not (forecast[(forecast.origin_gw>=5)&forecast.origin_gw.isin(cold.origin_gw)].shape[0])"
+      },
+      {
+        "line": 29,
+        "text": "    ts.WEIGHTS=WEIGHTS;ts.BUFFER=BUFFER;ts.OUT=out"
+      },
+      {
+        "line": 34,
+        "text": "      'classification':'full-season TS v3 replay: cold-start decisions GW1-5, locked MM+vFinal PM decisions GW6-38',"
+      },
+      {
+        "line": 35,
+        "text": "      'weights':list(WEIGHTS),'hit_uncertainty_buffer':BUFFER,'chips':'OFF',"
+      },
+      {
+        "line": 39,
+        "text": "      'cold_start_decision_gws':[1,2,3,4,5],"
+      }
+    ]
+  },
+  {
+    "path": ".github/workflows/final-locked-chain-gw1-38.yml",
+    "git_blob_sha": "3a0d8d6c2e5b7ef6819e47756401e5116ae79ea1",
+    "task_head": "2c118102c34469acdaaa89d25430f11439cb212b",
+    "relevant_lines": [
+      {
+        "line": 1,
+        "text": "name: Final locked chain GW1-38"
+      },
+      {
+        "line": 35,
+        "text": "      - name: Build GW1-38 base features"
+      },
+      {
+        "line": 38,
+        "text": "          PYTHONPATH=src python scripts/reproduce_pstart_v2_fixture_minutes.py             --db work/core.sqlite3 --out analysis/results/v2-reproduced-final-gw1 --min-gw 1"
+      },
+      {
+        "line": 40,
+        "text": "          PYTHONPATH=src python scripts/build_reproducible_role_benchmark.py             --db work/core.sqlite3             --baseline analysis/results/v2-reproduced-final-gw1/pstart_v2_fixture_holdout_2025_26.csv             --cutoffs analysis/results/workload-recovered-v4/authoritative_deadlines.csv             --out analysis/results/reproducible-role-final-gw1"
+      },
+      {
+        "line": 42,
+        "text": "          PYTHONPATH=src python scripts/build_workload_features.py             --db work/core.sqlite3             --features analysis/results/reproducible-role-final-gw1/all_feature_predictions.csv.gz             --out analysis/results/workload-final-gw1"
+      },
+      {
+        "line": 51,
+        "text": "      - name: Locked MM GW6-38"
+      },
+      {
+        "line": 54,
+        "text": "          PYTHONPATH=src python scripts/run_locked_mm_gw6_38.py             --source analysis/results/fa-match-importance-20261006-v1/all_features_fa_mi.csv.gz             --out analysis/results/locked-mm-final-gw6-38"
+      },
+      {
+        "line": 55,
+        "text": "      - name: Rolling vFinal PM GW6-38"
+      },
+      {
+        "line": 58,
+        "text": "          PYTHONPATH=src python scripts/run_rolling_vfinal_gw6_38.py             --db work/core.sqlite3             --source analysis/results/fa-match-importance-20261006-v1/all_features_fa_mi.csv.gz             --mm analysis/results/locked-mm-final-gw6-38/locked_mm_predictions.csv.gz             --out analysis/results/rolling-vfinal-final-gw6-38"
+      },
+      {
+        "line": 59,
+        "text": "      - name: Locked TS v3 GW1-38"
+      },
+      {
+        "line": 62,
+        "text": "          PYTHONPATH=src python scripts/run_ts_v3_final_chain_gw6.py             --vfinal analysis/results/rolling-vfinal-final-gw6-38/rolling_vfinal_forecast.csv.gz             --out analysis/results/final-locked-chain-gw1-38"
+      }
+    ]
+  }
+]

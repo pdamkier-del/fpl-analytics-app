@@ -1,0 +1,70 @@
+{
+  "status": "NOT_READY",
+  "purpose": "Strict unchanged independent locked 2024/25 replay",
+  "blockers": [
+    "Unverified historical capture clocks for all 38 bootstrap candidates: strict deadline price/cohort/availability missing.",
+    "Historical future schedule/draw versions are absent; final cup/PL inventory is outcome-only.",
+    "Measured average positions and prior-season role bootstrap unavailable; full q/H classifier parity not established.",
+    "Locked runner season queries/paths and cold-start input artifacts are hardcoded to 2025/26; a data-only season adapter is not yet implemented.",
+    "Confirmed 2024/25 training overlap in baseline builder prevents describing this as an independent unseen-season test.",
+    "2024/25 point scoring differs: defensive contribution points introduced in 2025/26. Model was not changed.",
+    "Provider historical publication/revision times unavailable; kickoff + 4h is explicitly conditional proxy."
+  ],
+  "collected_data_usable_for": "Outcome evaluation and explicitly conditional historical-history experiments; no replay run",
+  "official_competitions": {
+    "cl": {
+      "matches": 46,
+      "player_rows": 1001,
+      "mapped_rows": 989,
+      "ratings": 649,
+      "formation_rows": 506
+    },
+    "conf": {
+      "matches": 13,
+      "player_rows": 285,
+      "mapped_rows": 268,
+      "ratings": 184,
+      "formation_rows": 143
+    },
+    "conf_qual": {
+      "matches": 2,
+      "player_rows": 41,
+      "mapped_rows": 41,
+      "ratings": 30,
+      "formation_rows": 22
+    },
+    "efl": {
+      "matches": 42,
+      "player_rows": 1219,
+      "mapped_rows": 1204,
+      "ratings": 892,
+      "formation_rows": 671
+    },
+    "el": {
+      "matches": 29,
+      "player_rows": 654,
+      "mapped_rows": 647,
+      "ratings": 426,
+      "formation_rows": 330
+    },
+    "fa": {
+      "matches": 45,
+      "player_rows": 1212,
+      "mapped_rows": 1203,
+      "ratings": 880,
+      "formation_rows": 671
+    },
+    "prem": {
+      "matches": 380,
+      "player_rows": 15188,
+      "mapped_rows": 15188,
+      "ratings": 10553,
+      "formation_rows": 8360
+    }
+  },
+  "ratings": 13614,
+  "role_rows": 10703,
+  "eligible_fpl_rows": 27283,
+  "player_gw_rows": 26919,
+  "cutoff_gws": 38
+}

@@ -1,0 +1,14 @@
+component,fields,quality,rows,note
+FPL outcomes,"points, minutes, starts, goals, assists, clean_sheets, saves, bonus, BPS, cards, own_goals, penalties, xG, xA",EXACT_POSTMATCH,27283,Only usable after relevant match. DGW rows remain per-fixture; aggregate in player_gw_actuals.
+Identity,"season FPL element, stable code, player_uuid",RECONSTRUCTED_CUTOFF_SAFE,784,Identity only; no end-season team/price/availability fed back.
+Deadline,GW deadline,RECONSTRUCTED_CUTOFF_SAFE,38,Official API event values preserved in archived season payload; not a certificate of historical revisions.
+TS/availability,"deadline price, team, position, cohort, status, news, news_added, chances",UNAVAILABLE,27159,38 raw candidate snapshots preserved; historical capture timing lacks independent server proof. Candidate clocks may support conditional sensitivity analysis only.
+MM workload,"kickoff, competition, round/stage, result",EXACT_POSTMATCH,557,Final inventories cannot reconstruct future draws or schedules.
+MM role,"formation, provider lineup slot, layout, starts",EXACT_POSTMATCH,10703,"Layout is planned formation geometry, NOT measured average position; no q/H calculation or classifier changes."
+MM role,"average position, formation changes, prior-season role bootstrap",UNAVAILABLE,0,No measured average-position field found in captured provider payloads; cannot claim classifier parity.
+PM events,"raw FotMob xG/xA/shots/SOT, defensive events, keeper saves, penalties",EXACT_POSTMATCH,19600,"Original key-value stats retained; missing values stay null, provider xA is not replaced by FPL expected assists."
+MM ratings,rating 0-10,EXACT_POSTMATCH,13614,Original FotMob scale retained.
+History timing,available_at_proxy kickoff + 4h,PROXY_CUTOFF_SAFE,19600,Conservative regulation/extra-time buffer; unknown publication/revision timestamps. Not exact real-time vintage. Core kickoff + 3h remains separately retained.
+MI/TS schedule,predeadline future fixture/DGW/BGW and cup draw knowledge,UNAVAILABLE,0,Final schedules explicitly forecast-ineligible; actual DGW/BGW counts are outcomes only.
+PM scoring,2024 defensive contribution FPL points,UNAVAILABLE,0,Not part of 2024/25 FPL scoring. Never synthesize 2025/26 points for the 2024 actual target.
+Cold start,GW1-5 prior-season contextual inputs,UNAVAILABLE,0,2023/24 raw role/workload layer outside this collection; same rule must be supplied historical inputs.

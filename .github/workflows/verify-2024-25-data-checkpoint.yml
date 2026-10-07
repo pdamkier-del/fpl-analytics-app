@@ -1,0 +1,34 @@
+name: Verify immutable 2024-25 data checkpoint ONLY
+on:
+  push:
+    branches: [audit-role-minutes-20261001]
+    paths:
+      - 'checkpoints/season_2024_25_v1/**'
+      - 'scripts/restore_2024_25_data_checkpoint.py'
+      - 'scripts/audit_2024_25_historical_layer.py'
+      - 'tests/test_2024_25_data_audit.py'
+      - '.github/workflows/verify-2024-25-data-checkpoint.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  offline-data-audit:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - run: pip install pandas==2.2.3
+      - run: python scripts/restore_2024_25_data_checkpoint.py
+      - run: python -m unittest discover -s tests -p test_2024_25_data_audit.py -v
+      - run: python scripts/audit_2024_25_historical_layer.py
+      - name: Verify existing tracked files remain unchanged
+        run: git diff --exit-code
+      - uses: actions/upload-artifact@v4
+        with:
+          name: verified-2024-25-offline-audit
+          path: |
+            analysis/results/season-2024-25-data-audit-v1/*.json
+            analysis/results/season-2024-25-data-audit-v1/*.csv
+          retention-days: 90
