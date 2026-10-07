@@ -1,0 +1,36 @@
+name: TC latent DGW calibration
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [audit-role-minutes-20261001]
+    paths:
+      - 'scripts/run_tc_latent_dgw_calibration.py'
+      - '.github/workflows/tc-latent-dgw-calibration.yml'
+
+jobs:
+  calibrate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: audit-role-minutes-20261001
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install
+        run: pip install pandas numpy
+      - name: Clone historical FPL data
+        run: git clone --depth 1 https://github.com/vaastav/Fantasy-Premier-League.git work/vaastav
+      - name: Calibrate latent DGW prior
+        run: |
+          python scripts/run_tc_latent_dgw_calibration.py \
+            --vaastav work/vaastav \
+            --out analysis/results/tc-latent-dgw-calibration
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: tc-latent-dgw-calibration
+          path: analysis/results/tc-latent-dgw-calibration
+          retention-days: 90
