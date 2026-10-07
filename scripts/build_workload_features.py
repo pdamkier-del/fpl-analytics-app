@@ -148,7 +148,7 @@ def main():
         q=pd.read_csv(a.quarantine_csv);assert not q.match_id.duplicated().any()
         quarantine=dict(zip(q.match_id,q.reason))
     history,pl_history,ledger,coverage,excluded,matches,identity=build_ledger(con,raw,classified,quarantine,a.restored_workload)
-    features_path=Path(a.features)
+    features_path=Path(a.features).resolve()
     frame=pd.read_csv(features_path)
     deadlines=pd.read_csv(raw/'gameweek_summaries.csv')
     assert not deadlines.id.duplicated().any()
