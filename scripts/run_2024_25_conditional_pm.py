@@ -15,6 +15,7 @@ This is a robustness replay, not a strict historical or independent OOS replay.
 from __future__ import annotations
 import argparse,gzip,json,sqlite3,sys,re,unicodedata
 from collections import defaultdict
+from dataclasses import replace
 from pathlib import Path
 import numpy as np,pandas as pd
 
@@ -224,14 +225,14 @@ def main():
             rg['v4_workload_start_p_start']=rg.new_p_start;rg['v4_workload_start_xmins']=rg.new_xmins
             rg['v4_p_cameo_given_bench']=rg.new_q_sub;rg['v4_start_minutes_mean']=rg.new_start_minutes;rg['v4_cameo_minutes_mean']=rg.new_sub_minutes;rg['cutoff']=cutoff
             inp,_=make_vfinal_input(rg)
+            inp=replace(inp,bps_rules='2024-25')
             sim=simulate_many(inp,n=400,seed=92400000+counter);counter+=1
             for rr in rg.itertuples(index=False):
                 fid=mp.get(str(rr.player_uuid))
                 if fid is None:continue
                 sr=sim[str(rr.player_uuid)]
-                # 2024/25 scoring adapter: defensive-contribution FPL points did not exist.
-                xp=float(sr['xPts']-sr.get('dc_points',0.0))
-                xnb=float(sr['xPts_nonbonus']-sr.get('dc_points',0.0))
+                xp=float(sr['xPts'])
+                xnb=float(sr['xPts_nonbonus'])
                 pplay=float(rr.new_p_start+(1-rr.new_p_start)*rr.new_q_sub)
                 rows.append(dict(origin_gw=origin-1,decision_gw=origin,gw=int(fr.gameweek),id=int(fid),
                     player_uuid=str(rr.player_uuid),team=int(rr.team_id),position='GKP' if rr.pos in ('G','GK','GKP') else str(rr.pos),
@@ -254,8 +255,8 @@ def main():
       future_schedule='FINAL_SEASON_SCHEDULE_PROXY',history_timing='kickoff+4h proxy',
       role_geometry='inherits structural formation proxy from conditional MM',
       penalty_history='provider xG-npxG + missed_penalty reconstruction proxy',
-      scoring_adapter='subtract simulated defensive-contribution points; absent in 2024/25',
-      bps_rules='locked 2025/26 BPS engine retained; historical bonus mechanics therefore remain a known proxy',
+      scoring_adapter='joint simulator historical 2024/25 scoring; defensive-contribution FPL points disabled',
+      bps_rules='2024-25 historical scoring adapter; unavailable background Opta fields remain frozen-model proxies',
       phase5q_xp_used=False,rows=int(len(agg)))
     (out/'summary.json').write_text(json.dumps(summary,indent=2)+'\n');print(json.dumps(summary,indent=2))
 if __name__=='__main__':main()
