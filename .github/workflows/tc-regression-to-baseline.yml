@@ -1,0 +1,52 @@
+name: TC regression-to-baseline test
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [audit-role-minutes-20261001]
+    paths:
+      - 'scripts/run_tc_regression_to_baseline.py'
+      - '.github/workflows/tc-regression-to-baseline.yml'
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    permissions:
+      actions: read
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: audit-role-minutes-20261001
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install
+        run: pip install pandas numpy
+      - name: Download 2024/25 TC origins
+        uses: actions/download-artifact@v4
+        with:
+          pattern: tc24-origin-*
+          path: work/tc24
+          github-token: ${{ github.token }}
+          run-id: 37660297901
+      - name: Download 2025/26 TC origins
+        uses: actions/download-artifact@v4
+        with:
+          pattern: tc-origin-*
+          path: work/tc25
+          github-token: ${{ github.token }}
+          run-id: 37648731822
+      - name: Run regression-to-baseline comparison
+        run: |
+          python scripts/run_tc_regression_to_baseline.py \
+            --origins24 work/tc24 \
+            --origins25 work/tc25 \
+            --out analysis/results/tc-regression-to-baseline
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: tc-regression-to-baseline
+          path: analysis/results/tc-regression-to-baseline
+          retention-days: 90
