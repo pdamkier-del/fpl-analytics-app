@@ -237,7 +237,7 @@ def main():
 
     exact_gws=sorted(exact.gw.unique().tolist())
     summary={
-      "classification":"full-season single-state TS v3 replay; exact locked-MM vFinal where component cohort exists, explicit cold-start identity before that",
+      "classification":"full-season single-state TS v3 replay; GW1-5 cold-start PM, GW6-21 rolling Phase5Q PM, GW22-38 exact locked-MM vFinal",
       "total_points":int(total),
       "points_gw1_21":int(sum(x["score"] for x in logs if x["gw"]<=21)),
       "points_gw22_38":int(sum(x["score"] for x in logs if x["gw"]>=22)),
@@ -246,9 +246,9 @@ def main():
       "weights":list(WEIGHTS),"hit_uncertainty_buffer":BUFFER,
       "chips":"OFF",
       "exact_locked_mm_vfinal_gws":exact_gws,
-      "cold_start_gws":[x["gw"] for x in logs if x["pm_source"]=="cold_start_identity"],
+      "cold_start_gws":[x["gw"] for x in logs if x["pm_source"]=="cold_start_pm"],\n      "rolling_phase5q_gws":[x["gw"] for x in logs if x["pm_source"]=="rolling_phase5q_pm"],
       "future_information_leakage":False,
-      "important_limitation":"The repository currently has full reconstructed vFinal component inputs only for GW22-38. GW1-21 therefore use the cutoff-safe frozen base PM as an explicit vFinal cold start, not backward-filled later-season vFinal components. This is a true GW1-38 TS state replay, but not yet an exact component-level vFinal rebuild for GW1-21."
+      "important_limitation":"The repository currently has full reconstructed vFinal component inputs only for GW22-38. GW1-5 use the agreed cold-start PM and GW6-21 use the cutoff-safe recovered rolling Phase5Q PM. This is a true GW1-38 TS state replay, but not yet an exact component-level vFinal rebuild for GW6-21."
     }
     (OUT/"summary.json").write_text(json.dumps(summary,indent=2)+"\n")
     print(json.dumps(summary,indent=2))
