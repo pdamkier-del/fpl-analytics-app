@@ -75,3 +75,107 @@ def main():
     team_code_to_id=dict(zip(cm.team_code.astype(int),cm.team_id.astype(int)))
     mp,ids=map_ids(src)
     ids.to_csv(out/'identity_resolution.csv',index=False)
+
+    cutoff=src.loc[src.gw.eq(origin),'cutoff'].min()
+    sstate=src[src.gw<=origin].sort_values(['gw','cutoff']).drop_duplicates('player_uuid',keep='last').copy()
+    mstate=mm[mm.gw<=origin].sort_values(['gw','cutoff']).drop_duplicates('player_uuid',keep='last').copy()
+    state=sstate.merge(
+        mstate[['player_uuid','new_p_start','new_xmins','new_q_sub','new_sub_minutes','new_start_minutes']],
+        on='player_uuid',how='inner',validate='one_to_one'
+    )
+    state['cutoff']=cutoff
+    bf=bps_features(state,3.,bpsledger)
+    state['bg_mean_rate90']=np.clip(bps_apply(bf,models['bps']),lo,hi)
+    broad=state.pos.replace({'G':'GK','GKP':'GK'}).astype(str)
+    sd=models['bpsvar']['position_sd90']
+    state['bg_sd90']=[float(sd.get(p,models['bpsvar']['global_sd90'])) for p in broad]
+
+    sched=snaps[origin]
+    fx=sched[
+        (sched.competition=='prem') &
+        pd.to_numeric(sched.gameweek,errors='coerce').between(origin,a.period_end) &
+        (sched.kickoff>=cutoff)
+    ].drop_duplicates('match_id').copy()
+    if fx.empty: raise ValueError('No future Premier League fixtures in TC horizon')
+
+    lambdas=fit_team_latent(th[th.available_at<=cutoff],fx[['match_id','home_team_id','away_team_id']],origin)
+    past=ph[ph.available_at<=cutoff].copy()
+    goals=float(past.goals.sum())
+    assist_prob=min(1.,max(.5,float(past.fpl_assists.sum())/goals)) if goals>0 else .7
+    pen_state,pen_lam=penalty_state(origin,state,pen_sides,pen,team_code_to_id,models['pen'])
+    bmean=state.set_index('player_uuid').bg_mean_rate90.to_dict()
+    bsd=state.set_index('player_uuid').bg_sd90.to_dict()
+
+    sample_sums={}
+    meta_rows={}
+    counter=0
+
+    for fr in fx.itertuples(index=False):
+        home=int(fr.home_team_id);away=int(fr.away_team_id)
+        rg=state[state.team_id.astype(int).isin([home,away])].copy()
+        if rg.empty: continue
+        rg['fixture_uuid']=f'tc-o{origin}-{fr.match_id}'
+        rg['home_team_id']=home
+        rg['away_team_id']=away
+        rg['opponent_team_id']=np.where(rg.team_id.astype(int)==home,away,home)
+        rg['was_home']=rg.team_id.astype(int)==home
+        rg['evidence_at']=cutoff
+        rg['expected_minutes']=rg.new_xmins.astype(float)
+        rg['pos']=rg.pos.replace({'G':'GK'})
+
+        hgoal,agoal=lambdas[str(fr.match_id)]
+        rg=build_fixture_components(
+            rg,past,rolehist,cutoff,models['attack'],models['dc'],models['neg'],
+            models['ga'],models['dc_model'],models['dc_cal'],perf,
+            home,away,hgoal,agoal,assist_prob
+        )
+
+        sides=rg[['fixture_uuid','team_id','opponent_team_id','was_home']].drop_duplicates(['fixture_uuid','team_id'])
+        ks=keeper_saves_at_deadline(sot,sides,cutoff,models['keeper'])
+        rg=rg.merge(
+            ks[['fixture_uuid','team_id','lambda_saves']],
+            on=['fixture_uuid','team_id'],how='left',validate='many_to_one'
+        )
+
+        vals=[pen_state.get(str(pid),(0.,.78)) for pid in rg.player_uuid]
+        rg['pen_attempt_state']=[v[0] for v in vals]
+        rg['pen_conversion']=[v[1] for v in vals]
+        rg['pen_weight_raw']=rg.pen_attempt_state+.02*np.maximum(rg.goal_rate90,1e-6)
+        den=rg.groupby('team_id').pen_weight_raw.transform('sum')
+        rg['pen_weight']=np.where(den>0,rg.pen_weight_raw/den,0)
+        rg['team_pen_conversion']=(rg.pen_weight*rg.pen_conversion).groupby(rg.team_id).transform('sum')
+        rg['lambda_pen']=[pen_lam(int(t),int(o)) for t,o in zip(rg.team_id,rg.opponent_team_id)]
+        rg['bg_mean_rate90']=rg.player_uuid.map(bmean).fillna(0.)
+        rg['bg_sd90']=rg.player_uuid.map(bsd).fillna(float(models['bpsvar']['global_sd90']))
+
+        rg['control_p_start']=rg.new_p_start
+        rg['control_xmins']=rg.new_xmins
+        rg['p_cameo_given_bench']=rg.new_q_sub
+        rg['start_minutes_mean']=rg.new_start_minutes
+        rg['cameo_minutes_mean']=rg.new_sub_minutes
+        rg['v4_workload_start_p_start']=rg.new_p_start
+        rg['v4_workload_start_xmins']=rg.new_xmins
+        rg['v4_p_cameo_given_bench']=rg.new_q_sub
+        rg['v4_start_minutes_mean']=rg.new_start_minutes
+        rg['v4_cameo_minutes_mean']=rg.new_sub_minutes
+        rg['cutoff']=cutoff
+
+        inp,_=make_vfinal_input(rg)
+        sim=simulate_many_samples(inp,n=int(a.draws),seed=96000000+origin*1000+counter)
+        counter+=1
+        target_gw=int(fr.gameweek)
+
+        for rr in rg.itertuples(index=False):
+            fid=mp.get(str(rr.player_uuid))
+            if fid is None: continue
+            key=(target_gw,int(fid))
+            arr=np.asarray(sim[str(rr.player_uuid)],dtype=np.float32)
+            if key in sample_sums:
+                sample_sums[key]+=arr
+            else:
+                sample_sums[key]=arr.copy()
+            meta_rows[key]=dict(
+                gw=target_gw,candidate_id=int(fid),candidate_name=str(rr.player),
+                player_uuid=str(rr.player_uuid),team=int(rr.team_id),
+                position='GKP' if rr.pos in ('G','GK','GKP') else str(rr.pos)
+            )
