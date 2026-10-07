@@ -1,0 +1,41 @@
+name: vFinal full-season TS replay
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [audit-role-minutes-20261001]
+    paths:
+      - 'scripts/run_vfinal_fullseason_ts.py'
+      - '.github/workflows/vfinal-fullseason-ts.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  replay:
+    runs-on: ubuntu-latest
+    timeout-minutes: 240
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: audit-role-minutes-20261001
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install
+        run: |
+          pip install -r requirements-model-checkpoint.txt
+          pip install pandas numpy scipy scikit-learn requests
+      - name: Run GW1-38 locked chain
+        env:
+          OPENBLAS_NUM_THREADS: '1'
+          OMP_NUM_THREADS: '1'
+          MKL_NUM_THREADS: '1'
+        run: PYTHONPATH=src python scripts/run_vfinal_fullseason_ts.py
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: vfinal-fullseason-ts-20261007-v1
+          path: analysis/results/vfinal-fullseason-ts-20261007-v1
+          if-no-files-found: warn
+          retention-days: 90
