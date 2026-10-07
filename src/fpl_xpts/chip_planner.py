@@ -445,6 +445,110 @@ def decide_tc_v2_from_samples(
     )
 
 
+
+def fh_opportunity_probabilities(
+    samples: pd.DataFrame,
+    *,
+    current_gw: int,
+    period_end_gw: int,
+    config: ChipPlannerConfig = ChipPlannerConfig(),
+    sim_col: str = "simulation",
+    gw_col: str = "gw",
+    points_col: str = "points",
+) -> pd.DataFrame:
+    """Probability that each remaining GW is the best Free Hit opportunity.
+
+    points must already be the ex-ante FH marginal value for that simulation:
+        optimal FH XI + captain - normal TS XI + captain
+    The normal path may include the transfers/hits TS would actually choose.
+
+    Free Hit changes no persistent squad state. The same uncertainty discount
+    used by the TC stopping rule is applied to future FH opportunities.
+    """
+    req={sim_col,gw_col,points_col}
+    missing=req.difference(samples.columns)
+    if missing:
+        raise ValueError(f"FH samples missing columns: {sorted(missing)}")
+    x=samples.copy()
+    x[gw_col]=pd.to_numeric(x[gw_col],errors="raise").astype(int)
+    x[points_col]=pd.to_numeric(x[points_col],errors="raise").astype(float)
+    x=x[x[gw_col].between(current_gw,period_end_gw)].copy()
+    if x.empty:
+        raise ValueError("No FH samples in requested GW range")
+
+    means=x.groupby(gw_col,as_index=False)[points_col].mean().rename(
+        columns={points_col:"expected_fh_gain"}
+    )
+    x=x.merge(means,on=gw_col,how="left",validate="many_to_one")
+    x["gw_offset"]=x[gw_col]-int(current_gw)
+    x["reliability"]=np.power(config.future_discount,x.gw_offset)
+    x["adjusted_points"]=x[points_col]*x.reliability
+
+    winners=(x.sort_values(
+        [sim_col,"adjusted_points",gw_col],ascending=[True,False,True]
+    ).groupby(sim_col,sort=False).head(1))
+    n_sim=int(x[sim_col].nunique())
+    counts=winners[gw_col].value_counts().to_dict()
+
+    rows=[]
+    mean_map=dict(zip(means[gw_col],means.expected_fh_gain))
+    for gw in range(int(current_gw),int(period_end_gw)+1):
+        mean=mean_map.get(gw,float("nan"))
+        reliability=float(config.future_discount**(gw-current_gw))
+        rows.append(dict(
+            gw=gw,
+            probability_best=float(counts.get(gw,0)/n_sim),
+            expected_fh_gain=float(mean) if not pd.isna(mean) else float("nan"),
+            expected_adjusted_fh_gain=(float(mean)*reliability if not pd.isna(mean) else float("nan")),
+            reliability=reliability,
+        ))
+    out=pd.DataFrame(rows)
+    total=float(out.probability_best.sum())
+    if not np.isclose(total,1.0,atol=1e-12):
+        raise RuntimeError(f"FH GW probabilities do not sum to one: {total}")
+    return out
+
+
+def decide_fh_from_samples(
+    samples: pd.DataFrame,
+    *,
+    current_gw: int,
+    period_end_gw: int,
+    config: ChipPlannerConfig = ChipPlannerConfig(),
+    sim_col: str = "simulation",
+    gw_col: str = "gw",
+    points_col: str = "points",
+) -> dict:
+    """FH optimal-stopping rule, parallel to the TC rule.
+
+    For the first chip period call with period_end_gw=19. If the chip is still
+    unused at GW19 it is forced automatically.
+    """
+    probs=fh_opportunity_probabilities(
+        samples,current_gw=current_gw,period_end_gw=period_end_gw,config=config,
+        sim_col=sim_col,gw_col=gw_col,points_col=points_col,
+    )
+    cur=probs[probs.gw.eq(current_gw)]
+    if cur.empty or pd.isna(cur.iloc[0].expected_fh_gain):
+        raise ValueError(f"No FH value for current GW{current_gw}")
+    cr=cur.iloc[0]
+    use_now=float(cr.expected_fh_gain)
+    future=probs[probs.gw.gt(current_gw)&probs.expected_adjusted_fh_gain.notna()]
+    save_value=0.0 if future.empty else float(future.expected_adjusted_fh_gain.max())
+    forced=(current_gw==period_end_gw)
+    use=forced or (use_now>=save_value+config.min_use_edge)
+    return dict(
+        action="USE_FH" if use else "SAVE_FH",
+        current_gw=int(current_gw),
+        period_end_gw=int(period_end_gw),
+        use_now_value=use_now,
+        save_option_value=save_value,
+        use_edge=use_now-save_value,
+        probability_current_gw_best=float(cr.probability_best),
+        forced_by_expiry=bool(forced),
+        timing_probabilities=probs,
+    )
+
 def _fixed_tc_candidates(samples: pd.DataFrame, gw_col: str, points_col: str, id_col: str, name_col: str) -> tuple[pd.DataFrame,pd.DataFrame]:
     """Choose one TC candidate per GW ex ante by highest expected points."""
     means=(samples.groupby([gw_col,id_col,name_col],as_index=False)[points_col].mean())
