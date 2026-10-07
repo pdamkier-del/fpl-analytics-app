@@ -26,9 +26,6 @@ from fpl_v1_1_model.role_classifier import ROLES,template,canonical
 from fpl_v1_1_model.role_history import RoleHistory,summarize_state
 from fpl_v1_1_model.workload import WorkloadHistory,WORKLOAD_FEATURES
 from fpl_v1_1_model.rating_history import build_rating_features
-from fpl_v1_1_model.match_importance import (BASE_COMPETITION_VALUES,canonical_competition,dynamic_competition_value,
-    premier_league_stage_strength,knockout_stage_strength,opponent_strength_from_elo)
-from fpl_v1_1_model.pstart_v2 import match_importance,MatchImportanceParams
 from run_v4_three_state_sequence_experiment import add_sequence_features
 from run_v4_performance_rating_experiment import add_features as add_perf_features
 from run_mm_v2_team_news_availability_experiment import evaluate_news_variant
@@ -39,10 +36,6 @@ ROLE_H=1.3150986300759975
 DUR_H=0.32192611540889443
 LI=0.03186876473704488
 LS=0.6645162300313383
-Q_IMPORTANCE_SCALE=0.10
-H_IMPORTANCE_SCALE=0.40
-IMPORTANCE_FLOOR=0.35
-MI_PARAMS=MatchImportanceParams(intercept=-1.0,competition_coef=1.0,round_coef=1.0,opponent_coef=1.0,scarcity_eta=.35)
 
 def norm(s):
     s=unicodedata.normalize('NFKD',str(s or ''))
@@ -128,72 +121,8 @@ def team_name_map(cands):
       if r.get('team') is not None and r.get('team_id') is not None:d[norm(r['team'])].add(int(r['team_id']))
     return {k:next(iter(v)) for k,v in d.items() if len(v)==1}
 
-def _score_pair(value):
-    if value is None:return None,None
-    m=re.search(r'(\\d+)\\s*[-–:]\\s*(\\d+)',str(value))
-    return (float(m.group(1)),float(m.group(2))) if m else (None,None)
-
-def build_importance_map(derived,tmap):
-    """Locked historical Match Importance on observed role evidence.
-
-    Opponent Elo is absent from the 2024/25 checkpoint, so that one sub-signal is
-    neutral rather than invented. Round/stage and competition are observed with
-    the completed match and only enter role history after available_at_proxy.
-    """
-    matches=jsonl_gz(derived/'all_competition_match_actuals.jsonl.gz')
-    fixtures=pd.read_csv(derived/'pl_fixture_actuals.csv')
-    gw_by_fixture={int(r.id):int(r.event) for r in fixtures[fixtures.event.notna()].itertuples()}
-    sides=[]
-    participation=defaultdict(set)
-    for m in matches:
-        comp=canonical_competition(m.get('competition') or m.get('competition_name') or '')
-        h=tmap.get(norm(m.get('home_team')));a=tmap.get(norm(m.get('away_team')))
-        ko=pd.to_datetime(m.get('kickoff'),utc=True,errors='coerce')
-        if pd.isna(ko):continue
-        hs,as_=_score_pair(m.get('result'))
-        for team,opp,gf,ga in ((h,a,hs,as_),(a,h,as_,hs)):
-            if team is None:continue
-            participation[int(team)].add(comp)
-            sides.append(dict(match_id=str(m['match_id']),team_id=int(team),opponent_team_id=opp,
-                competition=comp,kickoff=ko,round_name=m.get('stage') or m.get('round') or '',
-                gameweek=gw_by_fixture.get(int(m['fpl_fixture_id'])) if m.get('fpl_fixture_id') is not None else None,
-                gf=gf,ga=ga))
-    # Domestic entries are known structural competitions; European participation
-    # comes from the season inventory and is therefore explicitly a conditional proxy.
-    for team in list(participation):
-        participation[team].update({'prem','fa-cup','efl-cup'})
-    active={t:set(v) for t,v in participation.items()}
-    series=defaultdict(list);out={}
-    for g in sorted(sides,key=lambda z:(z['kickoff'],z['match_id'],z['team_id'])):
-        team=int(g['team_id']);comp=canonical_competition(g['competition']);aset=active.setdefault(team,{'prem','fa-cup','efl-cup'})
-        cv=dynamic_competition_value(comp,sorted(aset|{comp}),BASE_COMPETITION_VALUES,eta=.35)
-        if comp=='prem' and g.get('gameweek') is not None:
-            stage=premier_league_stage_strength(int(g['gameweek']))
-        elif comp=='prem':
-            stage=.5
-        else:
-            stage=knockout_stage_strength(g.get('round_name'),g['kickoff'].month)
-        opp=opponent_strength_from_elo(None)
-        mi=match_importance(competition=comp,active_competitions=sorted(aset|{comp}),
-            round_strength=stage,opponent_strength=opp,base_values=BASE_COMPETITION_VALUES,params=MI_PARAMS)
-        out[(str(g['match_id']),team)]=float(mi)
-        gf,ga=g.get('gf'),g.get('ga');lost=gf is not None and ga is not None and gf<ga
-        if comp=='fa-cup' and lost:
-            active[team].discard(comp)
-        elif comp=='efl-cup' and lost:
-            if g['kickoff'].month not in (1,2):active[team].discard(comp)
-            else:
-                k=(team,comp,str(g.get('opponent_team_id')));series[k].append((gf,ga))
-                if len(series[k])>=2 and sum(a for a,b in series[k])<sum(b for a,b in series[k]):active[team].discard(comp)
-        elif comp in ('champions-league','europa-league','conference-league') and lost and g['kickoff'].month>=2:
-            k=(team,comp,str(g.get('opponent_team_id')));series[k].append((gf,ga))
-            if g['kickoff'].month>=5 and len(series[k])==1:active[team].discard(comp)
-            elif len(series[k])>=2 and sum(a for a,b in series[k])<sum(b for a,b in series[k]):active[team].discard(comp)
-    return out
-
 def build_histories(derived,cands):
     tmap=team_name_map(cands)
-    importance=build_importance_map(derived,tmap)
     obs=jsonl_gz(derived/'all_competition_player_observations.jsonl.gz')
     bymatch=defaultdict(dict)
     for r in obs:
@@ -216,7 +145,7 @@ def build_histories(derived,cands):
         mins=float(o.get('minutes') or 0.)
         players.append({'player_uuid':str(rr['player_uuid']),'role':rl,'started':True,'minutes':mins,'disagreement':False})
       known=pd.to_datetime(g[0]['available_at_proxy'],utc=True)
-      role.add_game(tid,known,mid,players,importance=float(importance.get((mid,tid),1.0)),competition=str(g[0].get('competition') or 'prem'))
+      role.add_game(tid,known,mid,players,importance=1.0,competition=str(g[0].get('competition') or 'prem'))
       role_games+=1
     work=WorkloadHistory();wg=defaultdict(list)
     for r in obs:
@@ -239,7 +168,7 @@ def add_role_work(frame,role,work):
     for r in frame.itertuples(index=False):
       cut=pd.to_datetime(r.cutoff,utc=True);key=(int(r.team_id),str(cut))
       if key not in cache:
-        cache[key]=({s:role.state(int(r.team_id),cut,h,q_importance_scale=Q_IMPORTANCE_SCALE,h_importance_scale=H_IMPORTANCE_SCALE,importance_floor=IMPORTANCE_FLOOR) for s,h in [('fast',3),('slow',10)]},work.state(int(r.team_id),cut))
+        cache[key]=({s:role.state(int(r.team_id),cut,h) for s,h in [('fast',3),('slow',10)]},work.state(int(r.team_id),cut))
       rs,ws=cache[key];rec={}
       for speed in ('fast','slow'):
         states,caps,games=rs[speed];st=states.get(str(r.player_uuid),{});sm=summarize_state(st,caps)
@@ -320,7 +249,6 @@ def main():
       model_math_changed=False,retuned=False,role_geometry_proxy='formation structural slots; measured average positions unavailable',
       team_news='UNKNOWN neutral; exact predeadline timing unavailable',history_timing='kickoff+4h proxy',
       baseline_training_overlap='Frozen P(start) coefficients were originally fit on 2023-24 + 2024-25; replay does not refit them, but this is not independent OOS',
-      match_importance=dict(q_scale=Q_IMPORTANCE_SCALE,h_scale=H_IMPORTANCE_SCALE,importance_floor=IMPORTANCE_FLOOR,scarcity_eta=.35,opponent_strength='neutral proxy because historical Elo unavailable'),
       role_games=int(role_games),workload_team_games=int(work_games),rows=int(len(pred)),forecast_gws=[int(a.start_gw),int(a.end_gw)])
     (out/'summary.json').write_text(json.dumps(summary,indent=2)+'\n');print(json.dumps(summary,indent=2))
 if __name__=='__main__':main()
