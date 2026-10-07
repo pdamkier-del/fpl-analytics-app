@@ -1,0 +1,62 @@
+name: Extended MM GW6 smoke
+
+on:
+  push:
+    branches: [audit-role-minutes-20261001]
+    paths:
+      - 'scripts/reproduce_pstart_v2_fixture_minutes.py'
+      - 'scripts/build_workload_features.py'
+      - '.github/workflows/extended-mm-gw6-smoke.yml'
+  workflow_dispatch:
+
+jobs:
+  smoke:
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: audit-role-minutes-20261001
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install
+        run: |
+          pip install -r requirements-model-checkpoint.txt
+          pip install pandas numpy scipy scikit-learn requests
+      - name: Restore core
+        run: |
+          mkdir -p work
+          cat model/checkpoints/phase5e_core/parts/core.gz.part-* | gzip -dc > work/core.sqlite3
+      - name: Build P-start GW1-38
+        run: |
+          rm -rf analysis/results/v2-reproduced-fullseason-gw1-v1
+          PYTHONPATH=src python scripts/reproduce_pstart_v2_fixture_minutes.py --db work/core.sqlite3 --out analysis/results/v2-reproduced-fullseason-gw1-v1 --min-gw 1
+      - name: Build role features GW1-38
+        run: |
+          rm -rf analysis/results/reproducible-role-fullseason-gw1-v1
+          PYTHONPATH=src python scripts/build_reproducible_role_benchmark.py             --db work/core.sqlite3             --baseline analysis/results/v2-reproduced-fullseason-gw1-v1/pstart_v2_fixture_holdout_2025_26.csv             --cutoffs analysis/results/workload-recovered-v4/authoritative_deadlines.csv             --out analysis/results/reproducible-role-fullseason-gw1-v1
+      - name: Build workload GW1-38
+        run: |
+          rm -rf analysis/results/workload-fullseason-gw1-v1
+          PYTHONPATH=src python scripts/build_workload_features.py             --db work/core.sqlite3             --features analysis/results/reproducible-role-fullseason-gw1-v1/all_feature_predictions.csv.gz             --out analysis/results/workload-fullseason-gw1-v1
+      - name: Coverage
+        run: |
+          python - <<'PY'
+          import pandas as pd
+          for p in [
+            'analysis/results/v2-reproduced-fullseason-gw1-v1/pstart_v2_fixture_holdout_2025_26.csv',
+            'analysis/results/reproducible-role-fullseason-gw1-v1/all_feature_predictions.csv.gz',
+            'analysis/results/workload-fullseason-gw1-v1/all_features.csv.gz']:
+            x=pd.read_csv(p)
+            print(p, int(x.gw.min()), int(x.gw.max()), x.groupby('gw').size().head(10).to_dict())
+          PY
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: extended-mm-gw6-smoke
+          path: |
+            analysis/results/v2-reproduced-fullseason-gw1-v1
+            analysis/results/reproducible-role-fullseason-gw1-v1
+            analysis/results/workload-fullseason-gw1-v1
+          retention-days: 30
