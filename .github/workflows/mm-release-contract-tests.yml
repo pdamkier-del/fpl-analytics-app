@@ -1,0 +1,27 @@
+name: MM release contract tests
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [audit-role-minutes-20261001]
+    paths:
+      - 'src/fpl_v1_1_model/mm_release.py'
+      - 'scripts/export_mm_release.py'
+      - 'tests/test_mm_release.py'
+      - '.github/workflows/mm-release-contract-tests.yml'
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: audit-role-minutes-20261001
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: |
+          pip install -r requirements-model-checkpoint.txt
+          pip install pytest
+      - run: PYTHONPATH=src pytest -q tests/test_mm_release.py
