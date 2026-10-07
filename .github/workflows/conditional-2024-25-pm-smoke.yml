@@ -46,6 +46,14 @@ jobs:
             --mm analysis/results/conditional-2024-25-mm/locked_mm_predictions.csv.gz \
             --out analysis/results/conditional-2024-25-pm-smoke \
             --start-origin 6 --end-origin 6 --max-fixtures 1
+      - name: One-GW TS smoke
+        run: |
+          rm -rf analysis/results/conditional-2024-25-ts-smoke
+          PYTHONPATH=src python scripts/run_2024_25_conditional_ts_gw6_38.py \
+            --derived data_v1_1/derived/season_2024_25_v1 \
+            --vfinal analysis/results/conditional-2024-25-pm-smoke/rolling_vfinal_forecast.csv.gz \
+            --out analysis/results/conditional-2024-25-ts-smoke \
+            --start-gw 6 --end-gw 6
       - uses: actions/upload-artifact@v4
         if: always()
         with:
@@ -53,4 +61,5 @@ jobs:
           path: |
             analysis/results/conditional-2024-25-mm
             analysis/results/conditional-2024-25-pm-smoke
+            analysis/results/conditional-2024-25-ts-smoke
           retention-days: 30
