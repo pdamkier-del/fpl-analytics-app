@@ -203,6 +203,10 @@ def main():
             rg['opponent_team_id']=np.where(rg.team_id.astype(int)==home,away,home)
             rg['was_home']=rg.team_id.astype(int)==home;rg['evidence_at']=cutoff;rg['expected_minutes']=rg.new_xmins.astype(float)
             rg['pos']=rg.pos.replace({'G':'GK'})
+            # The MM feature frame already carries performance-history columns.
+            # vFinal's frozen component builder must construct them exactly once
+            # from its own cutoff-safe performance ledger.
+            rg=rg.drop(columns=[x for x in rg.columns if str(x).startswith('perf_')],errors='ignore')
             hgoal,agoal=lambdas[str(fr.match_id)]
             rg=build_fixture_components(rg,past,rolehist,cutoff,models['attack'],models['dc'],models['neg'],
                                         models['ga'],models['dc_model'],models['dc_cal'],perf,
