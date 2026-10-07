@@ -1,0 +1,47 @@
+name: Diagnose 2125 baseline reproduction
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [audit-role-minutes-20261001]
+    paths:
+      - '.github/workflows/diagnose-2125-baseline.yml'
+
+jobs:
+  replay:
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    permissions:
+      actions: read
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: audit-role-minutes-20261001
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install
+        run: pip install pandas numpy scipy scikit-learn
+      - name: Download authoritative 2125 locked-chain artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: final-locked-chain-gw1-38
+          path: work/old
+          github-token: ${{ github.token }}
+          run-id: 37612845586
+      - name: Replay current TS on exact old vFinal forecast
+        run: |
+          find work/old -maxdepth 3 -type f | sort
+          VF=$(find work/old -name rolling_vfinal_forecast.csv.gz | head -1)
+          test -n "$VF"
+          rm -rf analysis/results/diagnose-2125-current-planner
+          PYTHONPATH=src python scripts/run_ts_v3_final_chain_gw6.py \
+            --vfinal "$VF" \
+            --out analysis/results/diagnose-2125-current-planner
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: diagnose-2125-baseline
+          path: analysis/results/diagnose-2125-current-planner
+          retention-days: 90
