@@ -27,6 +27,10 @@ class PlannerConfig:
     candidate_backend: str = "fast_local"
     discount_transfer_costs: bool = False
     milp_time_limit: float = 12.0
+    # Optional hypothetical Free-Hit bridge inside the visible path. The
+    # permanent squad scores zero in that GW, makes no permanent transfers,
+    # and carries bank/FT state through unchanged.
+    free_hit_gw: int | None = None
 
 
 @dataclass
@@ -557,6 +561,9 @@ def plan_transfer_path(
         return PlannerResult(int(current_gw), (), (), 0.0, [])
 
     weights = list(config.weights[:len(horizon_gws)])
+    if config.free_hit_gw is not None:
+        weights = [0.0 if int(gw) == int(config.free_hit_gw) else float(w)
+                   for gw, w in zip(horizon_gws, weights)]
     score_ctx = _build_fast_score_context(origin, meta, horizon_gws)
     score_cache: dict[tuple[int, tuple[int, ...]], float] = {}
 
@@ -584,11 +591,14 @@ def plan_transfer_path(
             remaining_weights = weights[depth:]
 
             max_count = min(int(config.max_transfers_per_week), 5)
-            # Search the full legal 0-5 transfer range. The uncertainty buffer
-            # and official hit cost decide whether deep hit paths survive;
-            # there is no hard FT+1 pruning.
-            search_count = max_count
-            if str(config.candidate_backend) == "fast_local":
+            is_fh_bridge = config.free_hit_gw is not None and int(gw) == int(config.free_hit_gw)
+            # On a Free Hit deadline all transfer moves are temporary, so the
+            # permanent TS state is not allowed to buy/sell anyone in this step.
+            # Before/after the bridge, ordinary 0-5 transfer search is unchanged.
+            search_count = 0 if is_fh_bridge else max_count
+            if is_fh_bridge:
+                pass
+            elif str(config.candidate_backend) == "fast_local":
                 # FT changes penalties, not the feasible bundles. Reuse generation
                 # for identical squad, purchase prices and bank at this depth.
                 candidate_key = _state_key(node.state)[:2]
@@ -600,7 +610,7 @@ def plan_transfer_path(
                         int(config.candidate_return_per_depth), prepared,
                     )
                 candidate_squads.extend(candidate_cache[candidate_key])
-            else:
+            elif not is_fh_bridge:
                 # Joint lineup-aware MILP proposer: no per-leg positive-gain rule
                 # and no FT+1 pruning. Every exact transfer count 1..max is
                 # considered; 0 transfers is already represented by the hold squad.
@@ -621,12 +631,21 @@ def plan_transfer_path(
 
                 after, outgoing, incoming = _apply_selected_squad(node.state, selected, meta, prices)
                 transfers = len(incoming)
-                official_hit, uncertainty = transfer_penalties(
-                    ft_before, transfers, config.hit_uncertainty_buffer
-                )
-                score = score_for(after.squad, gw)
-                utility = float(score - official_hit - uncertainty)
-                after.free_transfers = next_free_transfers(ft_before, transfers)
+                if is_fh_bridge:
+                    if transfers != 0:
+                        raise RuntimeError("FH bridge produced permanent transfers")
+                    official_hit, uncertainty = 0, 0.0
+                    score = score_for(after.squad, gw)  # diagnostic only
+                    utility = 0.0
+                    # A Free Hit does not consume or create a permanent FT.
+                    after.free_transfers = int(ft_before)
+                else:
+                    official_hit, uncertainty = transfer_penalties(
+                        ft_before, transfers, config.hit_uncertainty_buffer
+                    )
+                    score = score_for(after.squad, gw)
+                    utility = float(score - official_hit - uncertainty)
+                    after.free_transfers = next_free_transfers(ft_before, transfers)
 
                 action = TransferAction(
                     gw=int(gw),
