@@ -30,7 +30,7 @@ jobs:
           mkdir -p work
           cat model/checkpoints/phase5e_core/parts/core.gz.part-* | gzip -dc > work/core.sqlite3
           python scripts/restore_2024_25_data_checkpoint.py
-      - name: Download verified full MM artifact
+      - name: Download exact-parity MM artifact
         uses: actions/download-artifact@v4
         with:
           name: conditional-2024-25-mm
@@ -60,6 +60,7 @@ jobs:
         with:
           name: conditional-2024-25-downstream-full-gw6-38
           path: |
+            analysis/results/conditional-2024-25-mm
             analysis/results/conditional-2024-25-pm
             analysis/results/conditional-2024-25-ts-gw6-38
           retention-days: 90
