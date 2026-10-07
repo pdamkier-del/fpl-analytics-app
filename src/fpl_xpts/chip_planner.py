@@ -37,6 +37,30 @@ CHIPS = ("TC", "BB", "FH", "WC")
 # not a forecast for any named player or gameweek.
 DEFAULT_TC_DGW_REFERENCE_XP = 12.26875
 
+# Four-season structural prior: probability that at least one DGW still remains
+# later in the active chip half. This is intentionally anonymous: it says
+# "a DGW opportunity is still likely to emerge", not which team/GW will double.
+STRUCTURAL_DGW_PRIOR_BY_GW = {
+    **{gw:0.75 for gw in range(1,7)},
+    **{gw:0.50 for gw in range(7,9)},
+    **{gw:0.25 for gw in range(9,19)},
+    19:0.0,
+    **{gw:1.00 for gw in range(20,33)},
+    **{gw:0.75 for gw in range(33,36)},
+    36:0.50,
+    37:0.0,
+    38:0.0,
+}
+
+
+def structural_dgw_probability(current_gw: int) -> float:
+    """Historical probability that an unresolved later DGW remains in the half."""
+    gw=int(current_gw)
+    if gw not in STRUCTURAL_DGW_PRIOR_BY_GW:
+        raise ValueError("current_gw must be 1..38")
+    return float(STRUCTURAL_DGW_PRIOR_BY_GW[gw])
+
+
 
 def probabilistic_dgw_xp(base_gw_xp: float, extra_fixture_xp: float, concrete_probability: float) -> float:
     """Expected GW xP when an extra fixture may land in this GW.
@@ -64,6 +88,9 @@ def unresolved_dgw_probability(structural_probability: float, concrete_probabili
     if not 0.0 <= pc <= 1.0:
         raise ValueError("concrete_probability must be in [0,1]")
     return float(ps*(1.0-pc))
+
+
+unresolved_dgw_probability_fn = unresolved_dgw_probability
 
 
 def latent_dgw_option_value(
@@ -332,7 +359,8 @@ def decide_tc_v2_from_samples(
     *,
     current_gw: int,
     period_end_gw: int,
-    unresolved_dgw_probability: float = 0.0,
+    unresolved_dgw_probability: float | None = None,
+    concrete_dgw_probability: float = 0.0,
     config: TCV2Config = TCV2Config(),
     gw_col: str = "gw",
     points_col: str = "points",
@@ -381,9 +409,15 @@ def decide_tc_v2_from_samples(
     else:
         concrete_save=0.0;best_future_gw=None;best_future_candidate_name=None
 
+    if unresolved_dgw_probability is None:
+        structural=structural_dgw_probability(current_gw)
+        unresolved=float(unresolved_dgw_probability_fn(structural,concrete_dgw_probability))
+    else:
+        unresolved=float(unresolved_dgw_probability)
+        structural=None
     latent=latent_dgw_option_value(
         mu_tc=config.mu_tc,
-        unresolved_probability=float(unresolved_dgw_probability),
+        unresolved_probability=unresolved,
         dgw_reference_xp=config.dgw_reference_xp,
     )
     latent_save=0.0 if latent is None else float(latent)
@@ -400,7 +434,9 @@ def decide_tc_v2_from_samples(
         use_now_value=use_now,
         concrete_save_option_value=concrete_save,
         latent_dgw_option_value=(None if latent is None else float(latent)),
-        unresolved_dgw_probability=float(unresolved_dgw_probability),
+        unresolved_dgw_probability=unresolved,
+        structural_dgw_probability=structural,
+        concrete_dgw_probability=float(concrete_dgw_probability),
         save_option_value=save_value,
         save_source=save_source,
         best_future_gw=best_future_gw,
