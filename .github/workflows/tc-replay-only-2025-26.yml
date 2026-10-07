@@ -1,0 +1,44 @@
+name: TC replay-only 2025-26
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [audit-role-minutes-20261001]
+    paths:
+      - '.github/workflows/tc-replay-only-2025-26.yml'
+
+jobs:
+  replay:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    permissions:
+      actions: read
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: audit-role-minutes-20261001
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install
+        run: pip install pandas numpy scipy
+      - name: Download completed TC origin artifacts
+        uses: actions/download-artifact@v4
+        with:
+          pattern: tc-origin-*
+          path: work/tc-origins
+          github-token: ${{ github.token }}
+          run-id: 37647659319
+      - name: Replay TC decisions and hindsight
+        run: |
+          PYTHONPATH=src python scripts/run_tc_season_replay.py \
+            --origins work/tc-origins \
+            --out analysis/results/tc-season-replay-2025-26 \
+            --discount 0.97
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: tc-season-replay-2025-26
+          path: analysis/results/tc-season-replay-2025-26
+          retention-days: 90
