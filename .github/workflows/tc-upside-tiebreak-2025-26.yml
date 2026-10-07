@@ -1,0 +1,45 @@
+name: TC upside tiebreak sensitivity 2025-26
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [audit-role-minutes-20261001]
+    paths:
+      - 'scripts/run_tc_tiebreak_experiment.py'
+      - '.github/workflows/tc-upside-tiebreak-2025-26.yml'
+
+jobs:
+  experiment:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    permissions:
+      actions: read
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: audit-role-minutes-20261001
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install
+        run: pip install pandas numpy scipy scikit-learn
+      - name: Download corrected TC origin artifacts
+        uses: actions/download-artifact@v4
+        with:
+          pattern: tc-origin-*
+          path: work/tc-origins
+          github-token: ${{ github.token }}
+          run-id: 37648731822
+      - name: Run upside tie-break sensitivity
+        run: |
+          PYTHONPATH=src python scripts/run_tc_tiebreak_experiment.py \
+            --origins work/tc-origins \
+            --out analysis/results/tc-upside-tiebreak-2025-26 \
+            --discount 0.97
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: tc-upside-tiebreak-2025-26
+          path: analysis/results/tc-upside-tiebreak-2025-26
+          retention-days: 90
