@@ -197,14 +197,16 @@ def perf_ledger(obs):
       if not r.get('player_uuid') or r.get('minutes') is None:continue
       s=r.get('stats') or {};mins=float(r['minutes'] or 0.)
       goals=val(s,'goals');ass=val(s,'assists','goal_assist');xg=val(s,'expected_goals','xg');xa=val(s,'expected_assists','xa')
-      de=val(s,'tackles_won')+val(s,'interceptions')+val(s,'recoveries')+val(s,'blocks')+val(s,'clearances')
+      sot=val(s,'shots_on_target','ShotsOnTarget');ch=val(s,'chances_created','key_passes')
+      dr=val(s,'successful_dribbles','dribbles_succeeded')
+      de=val(s,'tackles_won','matchstats.headers.tackles')+val(s,'interceptions')+val(s,'recoveries')+val(s,'blocks','shot_blocks','blocked_shots')+val(s,'clearances')
       saves=val(s,'saves');gp=val(s,'goals_prevented');gc=val(s,'goals_conceded');disp=val(s,'dispossessed')
-      rating=val(s,'rating_title','rating')
+      rating_proxy=4*goals+3*ass+1.5*xg+1.2*xa+.25*sot+.15*ch+.08*de+.20*saves+.70*gp-.30*gc-.10*disp
       rows.append(dict(player_uuid=str(r['player_uuid']),match_id=str(r['match_id']),available_at=pd.to_datetime(r['available_at_proxy'],utc=True),
         tournament=str(r.get('competition') or ''),minutes_played=mins,goal_assist=goals+ass,xgi=xg+xa,
-        shots_on_target=val(s,'shots_on_target'),chances_created=val(s,'chances_created','key_passes'),
-        successful_dribbles=val(s,'successful_dribbles'),def_actions=de,accurate_passes_percent=val(s,'accurate_passes_percent'),
-        gk_actions=saves,goals_prevented=gp,goals_conceded=gc,dispossessed=disp,rating_proxy=rating))
+        shots_on_target=sot,chances_created=ch,successful_dribbles=dr,def_actions=de,
+        accurate_passes_percent=val(s,'accurate_passes_percent'),gk_actions=saves,
+        goals_prevented=gp,goals_conceded=gc,dispossessed=disp,rating_proxy=rating_proxy))
     return pd.DataFrame(rows)
 
 def main():
