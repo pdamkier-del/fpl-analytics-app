@@ -10,7 +10,7 @@ from fpl_v1_1_model.defcon import threshold_probability
 from fpl_v1_1_model.negative_events import rare_event_probability
 from fpl_v1_1_model.attack import shrunk_rate_per90
 from run_v4_performance_rating_experiment import add_features as add_perf_features
-from run_soft_role_performance_allocation import apply_perf_rate,GOAL_BASE,ASSIST_BASE
+from run_soft_role_performance_allocation import apply_model,add_role_axes,GOAL_BASE,ASSIST_BASE
 from run_soft_role_defcon import add_axes as add_dc_axes,design as dc_design
 from run_defcon_threshold_finalist import invert_p
 
@@ -37,19 +37,25 @@ def build_fixture_components(rg,pastph,rolehist,cutoff,attack,dc,neg,ga_models,d
     rg['role_dc_rate90']=np.maximum(0,rg.dc_rate90.to_numpy()+tau/(den+tau)*
                                     (rg.dc_role_prior90-rg.dc_position_prior90))
     rg['mu_dc']=rg.expected_minutes/90*rg.role_dc_rate90*rg.dc_opponent_factor
+    rg['control_xmins']=rg.expected_minutes.astype(float)
     rg=add_perf_features(rg,perf_ledger)
-    gr=apply_perf_rate(rg,'goal_rate90',GOAL_BASE,ga_models['goal'])
-    ar=apply_perf_rate(rg,'assist_rate90',ASSIST_BASE,ga_models['assist'])
+    rg=add_role_axes(rg)
+    def mode_for(model):
+        if model is None:
+            return 'role_only'
+        cols=model.get('columns',[])
+        if any('__hard_' in x for x in cols):
+            return 'hard'
+        if any('__axis_' in x for x in cols):
+            return 'soft'
+        return 'shared'
+    gs=apply_model(rg,'goal_rate90',GOAL_BASE,mode_for(ga_models['goal']),ga_models['goal'])
+    ass=apply_model(rg,'assist_rate90',ASSIST_BASE,mode_for(ga_models['assist']),ga_models['assist'])
     rg['lambda_home_goals']=hgoal;rg['lambda_away_goals']=agoal
     rg['assist_probability_per_goal']=assist_prob
     teamlam=np.where(rg.team_id.astype(int)==home,hgoal,agoal)
-    exp=np.maximum(rg.expected_minutes.to_numpy(float)/90,0)
-    for kind,rate,mult in [('goal',gr,np.ones(len(rg))),('assist',ar,np.full(len(rg),assist_prob))]:
-        raw=np.maximum(rate*exp,1e-12);share=np.zeros(len(rg));teams=rg.team_id.astype(int).to_numpy()
-        for team in (home,away):
-            ix=np.flatnonzero(teams==team)
-            if len(ix):share[ix]=raw[ix]/raw[ix].sum()
-        rg[kind+'_mu']=teamlam*mult*share
+    rg['goal_mu']=teamlam*gs
+    rg['assist_mu']=teamlam*assist_prob*ass
     rg=add_dc_axes(rg)
     X=dc_design(rg,'soft').to_numpy(float)
     Z=(X-np.asarray(dc_model['mean']))/np.asarray(dc_model['scale'])
