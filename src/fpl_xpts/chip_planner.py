@@ -280,6 +280,135 @@ def decide_chip(values: pd.DataFrame, *, current_gw: int, period_end_gw: int,
         "comparison":comparison,
     }
 
+@dataclass(frozen=True)
+class TCV2Config:
+    """Empirically calibrated TC-v2 timing/candidate policy."""
+
+    mu_tc: float = 8.57
+    q75_tolerance: float = 0.50
+    dgw_reference_xp: float = DEFAULT_TC_DGW_REFERENCE_XP
+    reliability_curve: tuple[float, ...] = (
+        1.0,0.7572751521131194,0.7032843858581395,0.7047189482895067,
+        0.7294450774664305,0.6880248132392998,0.6620089774056516,
+        0.6816599534494022,0.7101325898781952,0.6529360545248581,
+        0.7087400991235955,0.6672920340616874,0.6971400904834832,
+        0.5674284775030258,0.5791542145584311,0.745201742667648,
+        0.6785355419273525,0.8894051176011658,
+    )
+
+    def reliability(self, k: int) -> float:
+        if k <= 0:
+            return 1.0
+        if k < len(self.reliability_curve):
+            return float(self.reliability_curve[k])
+        return float(np.nanmedian(self.reliability_curve[5:13]))
+
+
+def _tc_v2_candidates(
+    samples: pd.DataFrame,
+    *,
+    gw_col: str,
+    points_col: str,
+    id_col: str,
+    name_col: str,
+    q75_tolerance: float,
+) -> pd.DataFrame:
+    grp=samples.groupby([gw_col,id_col,name_col],sort=False)[points_col]
+    s=grp.agg(mean="mean").reset_index()
+    s=s.merge(
+        grp.quantile(.75).rename("q75").reset_index(),
+        on=[gw_col,id_col,name_col],how="left"
+    )
+    rows=[]
+    for gw,g in s.groupby(gw_col,sort=True):
+        maxmean=float(g["mean"].max())
+        eligible=g[g["mean"]>=maxmean-float(q75_tolerance)].copy()
+        rows.append(eligible.sort_values(["q75","mean"],ascending=False).iloc[0])
+    return pd.DataFrame(rows).sort_values(gw_col).reset_index(drop=True)
+
+
+def decide_tc_v2_from_samples(
+    samples: pd.DataFrame,
+    *,
+    current_gw: int,
+    period_end_gw: int,
+    unresolved_dgw_probability: float = 0.0,
+    config: TCV2Config = TCV2Config(),
+    gw_col: str = "gw",
+    points_col: str = "points",
+    id_col: str = "candidate_id",
+    name_col: str = "candidate_name",
+) -> dict:
+    """TC-v2 decision including an unresolved future-DGW option.
+
+    Concrete/probabilistic DGW fixtures belong in the ordinary per-GW samples.
+    This function adds only the residual *unidentified* DGW option, preventing
+    double counting as schedule information resolves.
+    """
+    req={gw_col,points_col,id_col}
+    missing=req.difference(samples.columns)
+    if missing:
+        raise ValueError(f"TC samples missing columns: {sorted(missing)}")
+    x=samples.copy()
+    x[gw_col]=pd.to_numeric(x[gw_col],errors="raise").astype(int)
+    x[points_col]=pd.to_numeric(x[points_col],errors="raise").astype(float)
+    x=x[x[gw_col].between(current_gw,period_end_gw)].copy()
+    if x.empty:
+        raise ValueError("No TC samples in requested GW range")
+    if name_col not in x:
+        x[name_col]=x[id_col].astype(str)
+
+    chosen=_tc_v2_candidates(
+        x,gw_col=gw_col,points_col=points_col,id_col=id_col,name_col=name_col,
+        q75_tolerance=config.q75_tolerance,
+    )
+    cur=chosen[chosen[gw_col].eq(current_gw)]
+    if cur.empty:
+        raise ValueError(f"No TC candidate for current GW{current_gw}")
+    cr=cur.iloc[0]
+    use_now=float(cr["mean"])
+
+    future=chosen[chosen[gw_col].gt(current_gw)].copy()
+    if len(future):
+        future["adjusted_value"]=[
+            float(config.mu_tc + config.reliability(int(g-current_gw))*(m-config.mu_tc))
+            for g,m in zip(future[gw_col],future["mean"])
+        ]
+        fr=future.loc[future.adjusted_value.idxmax()]
+        concrete_save=float(fr.adjusted_value)
+        best_future_gw=int(fr[gw_col])
+        best_future_candidate_name=str(fr[name_col])
+    else:
+        concrete_save=0.0;best_future_gw=None;best_future_candidate_name=None
+
+    latent=latent_dgw_option_value(
+        mu_tc=config.mu_tc,
+        unresolved_probability=float(unresolved_dgw_probability),
+        dgw_reference_xp=config.dgw_reference_xp,
+    )
+    latent_save=0.0 if latent is None else float(latent)
+    save_value=max(concrete_save,latent_save)
+    save_source="latent_dgw" if latent is not None and latent_save>concrete_save else "concrete_gw"
+    use=(current_gw==period_end_gw) or (use_now>=save_value)
+
+    return dict(
+        action="USE_TC" if use else "SAVE_TC",
+        current_gw=int(current_gw),
+        period_end_gw=int(period_end_gw),
+        candidate_id=cr[id_col] if use else None,
+        candidate_name=cr[name_col] if use else None,
+        use_now_value=use_now,
+        concrete_save_option_value=concrete_save,
+        latent_dgw_option_value=(None if latent is None else float(latent)),
+        unresolved_dgw_probability=float(unresolved_dgw_probability),
+        save_option_value=save_value,
+        save_source=save_source,
+        best_future_gw=best_future_gw,
+        best_future_candidate_name=best_future_candidate_name,
+        use_edge=use_now-save_value,
+    )
+
+
 def _fixed_tc_candidates(samples: pd.DataFrame, gw_col: str, points_col: str, id_col: str, name_col: str) -> tuple[pd.DataFrame,pd.DataFrame]:
     """Choose one TC candidate per GW ex ante by highest expected points."""
     means=(samples.groupby([gw_col,id_col,name_col],as_index=False)[points_col].mean())
