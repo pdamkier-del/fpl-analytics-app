@@ -1,0 +1,56 @@
+name: vFinal PM smoke GW6
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [audit-role-minutes-20261001]
+    paths:
+      - 'scripts/run_rolling_vfinal_gw6_38.py'
+      - 'scripts/vfinal_replay_components.py'
+      - 'src/fpl_v1_1_model/vfinal_replay_state.py'
+      - '.github/workflows/vfinal-pm-smoke-gw6.yml'
+
+jobs:
+  smoke:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    permissions:
+      actions: read
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: audit-role-minutes-20261001
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install
+        run: |
+          pip install -r requirements-model-checkpoint.txt
+          pip install pandas numpy scipy scikit-learn requests
+      - name: Restore core
+        run: |
+          mkdir -p work
+          cat model/checkpoints/phase5e_core/parts/core.gz.part-* | gzip -dc > work/core.sqlite3
+      - name: Download successful locked MM artifact
+        uses: actions/download-artifact@v4
+        with:
+          github-token: ${{ github.token }}
+          run-id: 37604277530
+          name: locked-mm-gw6-38-20261007-v1
+          path: analysis/results
+      - name: Wire artifact inputs
+        run: |
+          find analysis/results -maxdepth 3 -type f | sort | tail -100
+          cp analysis/results/workload-fullseason-gw1-v2/all_features.csv.gz analysis/results/workload-recovered-v4/all_features.csv.gz
+          cp analysis/results/workload-fullseason-gw1-v2/official_player_minutes.csv analysis/results/workload-recovered-v4/official_player_minutes.csv
+          cp analysis/results/workload-fullseason-gw1-v2/team_match_coverage.csv analysis/results/workload-recovered-v4/team_match_coverage.csv
+          cp analysis/results/reproducible-role-fullseason-gw1-v2/classified_starters.csv analysis/results/reproducible-role-v1/classified_starters.csv
+      - name: Run one GW6 fixture through complete vFinal PM
+        run: |
+          rm -rf analysis/results/vfinal-pm-smoke-gw6
+          PYTHONPATH=src python scripts/run_rolling_vfinal_gw6_38.py             --db work/core.sqlite3             --source analysis/results/fa-match-importance-20261006-v1/all_features_fa_mi.csv.gz             --mm analysis/results/locked-mm-gw6-38-20261007-v1/locked_mm_predictions.csv.gz             --out analysis/results/vfinal-pm-smoke-gw6             --start-origin 6 --end-origin 6 --max-fixtures 1
+      - name: Verify output
+        run: |
+          test -s analysis/results/vfinal-pm-smoke-gw6/rolling_vfinal_forecast.csv.gz
+          cat analysis/results/vfinal-pm-smoke-gw6/summary.json
