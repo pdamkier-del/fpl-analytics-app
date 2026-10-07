@@ -206,7 +206,7 @@ def main():
             hgoal,agoal=lambdas[str(fr.match_id)]
             rg=build_fixture_components(rg,past,rolehist,cutoff,models['attack'],models['dc'],models['neg'],
                                         models['ga'],models['dc_model'],models['dc_cal'],perf,
-                                        home,away,hgoal,agoal,assist_prob)
+                                        home,away,hgoal,agoal,assist_prob,season='2024-25')
             sides=rg[['fixture_uuid','team_id','opponent_team_id','was_home']].drop_duplicates(['fixture_uuid','team_id'])
             try:
                 ks=keeper_saves_at_deadline(sot,sides,cutoff,models['keeper'],season='2024-25')
