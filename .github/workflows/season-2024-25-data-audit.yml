@@ -1,0 +1,40 @@
+name: Historical 2024-25 data collection ONLY
+on:
+  push:
+    branches: [audit-role-minutes-20261001]
+    paths:
+      - scripts/collect_2024_25_historical_layer.py
+      - research/season_2024_25_v1/config.json
+      - .github/workflows/season-2024-25-data-audit.yml
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  collect:
+    runs-on: ubuntu-latest
+    timeout-minutes: 55
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: pip install pandas
+      - uses: actions/cache@v4
+        with:
+          path: .cache/season-2024-25-data-v1
+          key: season-2024-25-data-v1-${{ github.run_id }}
+          restore-keys: season-2024-25-data-v1-
+      - run: python scripts/restore_core_checkpoint.py --out work/core.sqlite3
+      - run: python scripts/collect_2024_25_historical_layer.py
+        env:
+          GH_TOKEN: ${{ github.token }}
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: season-2024-25-data-audit-v1
+          path: |
+            analysis/results/season-2024-25-data-audit-v1
+            data_v1_1/derived/season_2024_25_v1
+          retention-days: 90
