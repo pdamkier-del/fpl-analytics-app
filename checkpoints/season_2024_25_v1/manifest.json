@@ -1130,5 +1130,48 @@
       "bytes": 85712,
       "sha256": "28cf7e375ea8a322ff6cab2d10474457eba740da1b0e3d7128a966c6e4c17703"
     }
+  ],
+  "overlays": [
+    {
+      "sha256": "356d511c963664f39371471c0bae89b69b4574a1318469ad280acf7ecc8b8b25",
+      "bytes": 710184,
+      "parts": [
+        {
+          "name": "repair-01-0000.bin",
+          "bytes": 131072,
+          "sha256": "2c495b4d58e80bc619f824a75252e1b15036256b23161bfdf06eccd864a4e28d"
+        },
+        {
+          "name": "repair-01-0001.bin",
+          "bytes": 131072,
+          "sha256": "b00491b5acf8cc57cbd6f9fc866e289414c07d0c0bed442a5595e14e14b89372"
+        },
+        {
+          "name": "repair-01-0002.bin",
+          "bytes": 131072,
+          "sha256": "ce93b2196ad23c23d908d76fc8c07c71739b05d3d162a68c2d91c8bec025771f"
+        },
+        {
+          "name": "repair-01-0003.bin",
+          "bytes": 131072,
+          "sha256": "8b796b72f8f3c0a2469766e15df3f6da6c2195dcaebdd85f42071b29d58c43a9"
+        },
+        {
+          "name": "repair-01-0004.bin",
+          "bytes": 131072,
+          "sha256": "2a65c7907fe5a5d5bd1356a20cc027b58125bcc876d6380baad86e891dae252d"
+        },
+        {
+          "name": "repair-01-0005.bin",
+          "bytes": 54824,
+          "sha256": "59513ee62274eae495af7912f4b1fe455cb5bb97b6dabb34e09aa4d259b746cd"
+        }
+      ],
+      "supersedes": [
+        "data_v1_1/derived/season_2024_25_v1/player_gw_actuals.csv.gz",
+        "analysis/results/season-2024-25-data-audit-v1/prepared_manifest.json"
+      ],
+      "reason": "Complete and CRC-validated player-GW gzip; incomplete derived stream superseded. Raw data unchanged."
+    }
   ]
 }

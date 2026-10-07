@@ -47,7 +47,12 @@ def main():
  eligible.to_csv(OUT/'eligible_player_fixture_actuals.csv.gz',index=False,compression={'method':'gzip','mtime':0})
  gwcols=['total_points','minutes','starts','goals_scored','assists','clean_sheets','saves','bonus','bps','yellow_cards','red_cards','own_goals','penalties_missed','penalties_saved','expected_goals','expected_assists']
  pg=eligible.groupby(['gw','element','player_uuid'],as_index=False)[gwcols].sum(min_count=1)
- pg['quality']='EXACT_POSTMATCH';pg.to_csv(OUT/'player_gw_actuals.csv.gz',index=False,compression={'method':'gzip','mtime':0})
+ pg['quality']='EXACT_POSTMATCH'
+ # Materialize CSV, then compress atomically; validate CRC and complete row count.
+ csv_bytes=pg.to_csv(index=False).encode()
+ assert csv_bytes.count(b'\n')==len(pg)+1
+ (OUT/'player_gw_actuals.csv.gz').write_bytes(gzip.compress(csv_bytes,mtime=0))
+ assert gzip.decompress((OUT/'player_gw_actuals.csv.gz').read_bytes())==csv_bytes
  fixtures=pd.read_csv(OUT/'pl_fixture_actuals.csv');teams=pd.read_csv(RAW/'Vaastav/data/2024-25/teams.csv')
  team_names={int(r.id):club(r.name) for r in teams.itertuples()};plclubs=set(team_names.values())
  corefi={int(r['fpl_fixture_id']):r['fixture_uuid'] for r in rows(OUT/'existing_core_fixtures.jsonl.gz')}
@@ -161,6 +166,8 @@ def main():
  dump(AUD/'readiness.json',dict(status='NOT_READY',purpose='Strict unchanged independent locked 2024/25 replay',blockers=blockers,collected_data_usable_for='Outcome evaluation and explicitly conditional historical-history experiments; no replay run',official_competitions=bycomp,ratings=len(ratings),role_rows=len(role_rows),eligible_fpl_rows=len(eligible),player_gw_rows=len(pg),cutoff_gws=38))
  # Exact hashes of all prepared input files, avoiding a self-referential manifest.
  dump(AUD/'checkpoint_summary.json',dict(raw_source_files=len(manifest['sources']),provider_matches=len(matches),provider_player_rows=len(observations),mapped_provider_rows=mapped_count,ratings=len(ratings),role_input_rows=len(role_rows),fpl_fixture_rows=len(eligible),fpl_player_gw_rows=len(pg),verified_predeadline_gws=sum(any(r['timing_verified'] for r in snapshots if r['gw']==d['gw']) for d in deadlines),models_unchanged=True))
+ for p in OUT.glob('*.gz'):
+  gzip.decompress(p.read_bytes()) # CRC and trailer must validate for every input.
  dump(AUD/'prepared_manifest.json',[dict(path=str(p.relative_to(ROOT)),bytes=p.stat().st_size,sha256=hashlib.sha256(p.read_bytes()).hexdigest()) for p in sorted(OUT.glob('*')) if p.is_file()])
  print(json.dumps(json.loads((AUD/'readiness.json').read_text()),indent=2))
 
