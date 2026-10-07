@@ -446,6 +446,96 @@ def decide_tc_v2_from_samples(
 
 
 
+def optimize_free_hit_squad(
+    *,
+    state,
+    meta: pd.DataFrame,
+    forecast: pd.DataFrame,
+    gw: int,
+    normal_squad_ids: Iterable[int] | None = None,
+    normal_score: float | None = None,
+    candidate_limit_per_position: int = 45,
+) -> dict:
+    """Optimize a legal one-GW Free Hit squad and return marginal value.
+
+    Budget is the manager's *current spendable Free Hit budget*: bank plus the
+    official selling value of the real squad. The temporary FH squad is never
+    written back to ReplayState, so purchase prices, bank and FT state survive
+    unchanged.
+
+    The comparison baseline should be the normal TS solution for the same GW.
+    Callers can pass either its squad IDs or its already-computed manager score.
+    """
+    # Local imports avoid coupling the generic chip timing code to replay state.
+    from .optimize import optimize_squad_milp, plan_squad
+    from .season_replay import squad_sale_value
+
+    if normal_score is None and normal_squad_ids is None:
+        raise ValueError("Pass normal_squad_ids or normal_score for FH baseline")
+
+    m=meta.drop_duplicates('id').copy()
+    if 'price_tenths' not in m.columns:
+        raise ValueError("meta must contain price_tenths")
+    if 'status' not in m.columns:
+        m['status']='a'
+    m['price']=pd.to_numeric(m['price_tenths'],errors='raise').astype(float)/10.0
+
+    budget_tenths=int(state.bank)+int(squad_sale_value(state,m))
+    budget=float(budget_tenths)/10.0
+
+    result=optimize_squad_milp(
+        forecast,m,[int(gw)],budget=budget,
+        candidate_limit_per_position=int(candidate_limit_per_position),
+    )
+    if not result.get('success'):
+        raise RuntimeError(f"Free Hit squad optimization failed: {result.get('message')}")
+
+    fh_ids=[int(x) for x in result['squad_ids']]
+    # Re-score with the standard lineup engine. This restores the exact
+    # captain/vice availability treatment used elsewhere in TS.
+    cols=['id','web_name','team','position']
+    base=m[cols].copy()
+    f=forecast[forecast['gw'].eq(int(gw))].copy()
+    f['xpts_mean']=pd.to_numeric(f['xpts_mean'],errors='coerce').fillna(0.0)
+    agg={'xpts_mean':'sum'}
+    if 'p_play' in f.columns:
+        f['p_play']=pd.to_numeric(f['p_play'],errors='coerce').fillna(1.0).clip(0,1)
+        agg['p_play']='max'
+    f=f.groupby('id',as_index=False).agg(agg)
+    proj=base.merge(f,on='id',how='left')
+    proj['gw']=int(gw)
+    proj['xpts_mean']=proj['xpts_mean'].fillna(0.0)
+    if 'p_play' not in proj.columns:
+        proj['p_play']=1.0
+    else:
+        proj['p_play']=proj['p_play'].fillna(1.0).clip(0,1)
+
+    fh_plan=plan_squad(proj,fh_ids,int(gw))
+    fh_score=float(fh_plan.expected_score)
+    if normal_score is None:
+        normal_ids=[int(x) for x in normal_squad_ids]
+        normal_plan=plan_squad(proj,normal_ids,int(gw))
+        normal_score=float(normal_plan.expected_score)
+    else:
+        normal_score=float(normal_score)
+
+    captain_row=fh_plan.rows[fh_plan.rows.role.eq('C')].iloc[0]
+    vice_row=fh_plan.rows[fh_plan.rows.role.eq('VC')].iloc[0]
+    xi=fh_plan.rows[fh_plan.rows.role.isin(['C','VC','XI'])].id.astype(int).tolist()
+    return {
+        'gw':int(gw),
+        'budget_tenths':budget_tenths,
+        'fh_squad_ids':fh_ids,
+        'fh_xi_ids':xi,
+        'fh_captain_id':int(captain_row.id),
+        'fh_vice_id':int(vice_row.id),
+        'fh_score':fh_score,
+        'normal_score':normal_score,
+        'fh_gain':float(fh_score-normal_score),
+        'plan_rows':fh_plan.rows.copy(),
+    }
+
+
 def fh_opportunity_probabilities(
     samples: pd.DataFrame,
     *,
