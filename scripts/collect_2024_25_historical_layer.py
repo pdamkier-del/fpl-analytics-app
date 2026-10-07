@@ -118,6 +118,7 @@ def snapshots():
 def core_export():
  con=sqlite3.connect((ROOT/'work/core.sqlite3').resolve().as_uri()+'?mode=ro',uri=True)
  tables={r[0] for r in con.execute("SELECT name FROM sqlite_master WHERE type='table'")};inventory=[]
+ dump(OUT/'core_schema.json',{r[0]:r[1] for r in con.execute("SELECT name,sql FROM sqlite_master WHERE type='table' AND sql IS NOT NULL")})
  for name in sorted(tables):
   columns=[r[1] for r in con.execute('PRAGMA table_info('+name+')')]
   if 'season' in columns:
@@ -126,6 +127,7 @@ def core_export():
    if len(df):gz(OUT/('existing_core_'+name+'.jsonl.gz'),df.to_dict('records'))
  ids=pd.read_sql_query("SELECT * FROM player_id_mapping",con)
  players=pd.read_sql_query('SELECT * FROM players',con)
+ gz(OUT/'reference_player_identity_rows.jsonl.gz',ids.to_dict('records'));gz(OUT/'reference_player_names.jsonl.gz',players.to_dict('records'))
  con.close();dump(AUDIT/'existing_core_inventory.json',inventory)
  return ids,players
 
@@ -155,10 +157,32 @@ def external_inventories(teams):
  with cf.ThreadPoolExecutor(max_workers=6) as ex:list(ex.map(summary,events.items()))
  dump(AUDIT/'external_inventory_probes.json',probes)
  # Direct provider probes: preserve failures and do not hammer denied endpoints.
+ selected={}
  for comp,lid in [('prem',47),('cl',42),('el',73),('conf',525),('fa',132),('efl',133)]:
   url=f'https://www.fotmob.com/api/data/leagues?id={lid}&season=2024%2F2025'
-  try:capture(url,f'fotmob/{comp}_league.json','EXACT_POSTMATCH')
+  try:
+   league=json.loads(capture(url,f'fotmob/{comp}_league.json','EXACT_POSTMATCH'))
+   for e in (league.get('fixtures') or {}).get('allMatches',[]):
+    status=e.get('status') or {};ko=pd.to_datetime(status.get('utcTime'),utc=True,errors='coerce')
+    if pd.isna(ko) or not (T('2024-07-01')<=ko<T('2025-06-02')):continue
+    if any(club((e.get(side) or {}).get('name','')) in plnames for side in ['home','away']):selected[str(e['id'])]=(comp,e)
   except Exception as e:ERRORS.append(dict(source='FotMob',competition=comp,url=url,error=str(e)))
+ # Pin PL provider match IDs already witnessed in the archived Core source too.
+ for p in sorted((RAW/'olbauday/data/2024-2025/matches').rglob('matches.csv')):
+  df=pd.read_csv(p)
+  for e in df.to_dict('records'):
+   if pd.notna(e.get('fotmob_id')):selected.setdefault(str(int(e['fotmob_id'])),('prem',e))
+ def detail(pair):
+  mid,(comp,e)=pair;url=f'https://www.fotmob.com/api/data/matchDetails?matchId={mid}'
+  try:capture(url,f'fotmob/details/{mid}.json','EXACT_POSTMATCH')
+  except Exception as ex:ERRORS.append(dict(source='FotMob',competition=comp,match_id=mid,url=url,error=str(ex)))
+ # Small probe before a full pass; preserve a denied provider as unavailable.
+ pairs=list(selected.items());probe=pairs[:3]
+ before=len(ERRORS)
+ for pair in probe:detail(pair)
+ if len(ERRORS)-before<len(probe):
+  with cf.ThreadPoolExecutor(max_workers=5) as ex:list(ex.map(detail,pairs[3:]))
+ dump(AUDIT/'fotmob_selected_inventory.json',[dict(provider_match_id=mid,competition=c,fixture=e) for mid,(c,e) in selected.items()])
  return events
 
 def main():
