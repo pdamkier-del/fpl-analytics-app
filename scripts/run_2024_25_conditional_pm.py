@@ -171,7 +171,7 @@ def main():
     pd.DataFrame([{'player_uuid':k,'id':v} for k,v in mp.items()]).to_csv(out/'identity_resolution.csv',index=False)
     rolehist=src[['fixture_uuid','player_uuid','team_id','cutoff','max_history_known_at']+QCOLS].copy()
 
-    rows=[];faudit=[];counter=0
+    rows=[];faudit=[]
     for origin in range(a.start_origin,a.end_origin+1):
         cutoff=src.loc[src.gw.eq(origin),'cutoff'].min()
         sstate=src[src.gw<=origin].sort_values(['gw','cutoff']).drop_duplicates('player_uuid',keep='last').copy()
@@ -194,7 +194,7 @@ def main():
         ps,plam=penalty_state(origin,state,pens,fixtures,models['pen'])
         bmean=state.set_index('player_uuid').bg_mean_rate90.to_dict();bsd=state.set_index('player_uuid').bg_sd90.to_dict()
         origin_count=0
-        for fr in fx.itertuples(index=False):
+        for fixture_index,fr in enumerate(fx.itertuples(index=False)):
             home=int(fr.home_team_id);away=int(fr.away_team_id)
             rg=state[state.team_id.astype(int).isin([home,away])].copy()
             if rg.empty:continue
@@ -230,7 +230,9 @@ def main():
             rg['v4_p_cameo_given_bench']=rg.new_q_sub;rg['v4_start_minutes_mean']=rg.new_start_minutes;rg['v4_cameo_minutes_mean']=rg.new_sub_minutes;rg['cutoff']=cutoff
             inp,_=make_vfinal_input(rg)
             inp=replace(inp,bps_rules='2024-25')
-            sim=simulate_many(inp,n=400,seed=92400000+counter);counter+=1
+            # Execution-order independent deterministic MC seed so sequential and parallel
+            # origin execution produce the same forecast draws.
+            sim=simulate_many(inp,n=400,seed=92400000+int(origin)*1000+int(fixture_index))
             for rr in rg.itertuples(index=False):
                 fid=mp.get(str(rr.player_uuid))
                 if fid is None:continue
