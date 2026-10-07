@@ -1,7 +1,7 @@
 import unittest
 import pandas as pd
 
-from fpl_xpts.chip_planner import ChipPlannerConfig, TCV2Config, build_tc_values, best_chip_options, decide_chip, tc_opportunity_probabilities, decide_tc_from_samples, decide_tc_v2_from_samples, fh_opportunity_probabilities, decide_fh_from_samples, probabilistic_dgw_xp, unresolved_dgw_probability, latent_dgw_option_value
+from fpl_xpts.chip_planner import ChipPlannerConfig, TCV2Config, build_tc_values, best_chip_options, decide_chip, tc_opportunity_probabilities, decide_tc_from_samples, decide_tc_v2_from_samples, fh_opportunity_probabilities, decide_fh_from_samples, optimize_free_hit_squad, probabilistic_dgw_xp, unresolved_dgw_probability, latent_dgw_option_value
 
 
 class ChipPlannerTests(unittest.TestCase):
@@ -94,6 +94,60 @@ class ChipPlannerTests(unittest.TestCase):
         self.assertIn(r['action'],{'USE_TC','SAVE_TC'})
 
 
+
+
+    def test_free_hit_optimizer_uses_sale_value_and_does_not_mutate_state(self):
+        from fpl_xpts.season_replay import OwnedPlayer, ReplayState
+        positions=['GKP']*2+['DEF']*5+['MID']*5+['FWD']*3
+        meta=pd.DataFrame({
+            'id':list(range(1,17)),
+            'web_name':[f'P{i}' for i in range(1,17)],
+            'position':positions+['MID'],
+            'team':list(range(1,17)),
+            'price_tenths':[50]*16,
+            'status':['a']*16,
+        })
+        state=ReplayState(
+            squad={i:OwnedPlayer(i,50) for i in range(1,16)},
+            bank=0,free_transfers=3,
+        )
+        rows=[]
+        for pid in range(1,17):
+            rows.append(dict(id=pid,gw=10,xpts_mean=3.0,p_play=1.0))
+        forecast=pd.DataFrame(rows)
+        forecast.loc[forecast.id.eq(16),'xpts_mean']=20.0
+        before=(set(state.squad),state.bank,state.free_transfers,{k:list(v) for k,v in state.chips_used.items()})
+        r=optimize_free_hit_squad(
+            state=state,meta=meta,forecast=forecast,gw=10,
+            normal_squad_ids=list(range(1,16)),
+        )
+        after=(set(state.squad),state.bank,state.free_transfers,{k:list(v) for k,v in state.chips_used.items()})
+        self.assertEqual(before,after)
+        self.assertEqual(r['budget_tenths'],750)
+        self.assertEqual(len(r['fh_squad_ids']),15)
+        self.assertEqual(len(r['fh_xi_ids']),11)
+        self.assertIn(16,r['fh_squad_ids'])
+        self.assertGreater(r['fh_gain'],0.0)
+
+    def test_free_hit_optimizer_respects_three_per_club(self):
+        from fpl_xpts.season_replay import OwnedPlayer, ReplayState, valid_squad
+        positions=['GKP']*2+['DEF']*5+['MID']*5+['FWD']*3
+        meta=pd.DataFrame({
+            'id':list(range(1,19)),
+            'web_name':[f'P{i}' for i in range(1,19)],
+            'position':positions+['MID','MID','FWD'],
+            'team':list(range(1,16))+[99,99,99],
+            'price_tenths':[50]*18,
+            'status':['a']*18,
+        })
+        state=ReplayState({i:OwnedPlayer(i,50) for i in range(1,16)},0,1)
+        forecast=pd.DataFrame([
+            dict(id=pid,gw=10,xpts_mean=(30.0 if pid>=16 else 3.0),p_play=1.0)
+            for pid in range(1,19)
+        ])
+        r=optimize_free_hit_squad(state=state,meta=meta,forecast=forecast,gw=10,normal_squad_ids=list(range(1,16)))
+        self.assertTrue(valid_squad(meta,r['fh_squad_ids']))
+        self.assertLessEqual(int(meta[meta.id.isin(r['fh_squad_ids'])].groupby('team').size().max()),3)
 
     def test_fh_timing_probabilities_sum_to_one(self):
         rows=[]
