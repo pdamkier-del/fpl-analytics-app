@@ -20,17 +20,23 @@ def load_origin(root:Path,prefix:str,gw:int)->pd.DataFrame:
     if not p.exists():raise FileNotFoundError(p)
     return pd.read_csv(p)
 
-def choose_mean(samples:pd.DataFrame)->pd.DataFrame:
-    s=(samples.groupby(["gw","candidate_id","candidate_name"],as_index=False)
-       .points.mean().rename(columns={"points":"mean"}))
-    idx=s.groupby("gw")["mean"].idxmax()
-    return s.loc[idx].sort_values("gw").reset_index(drop=True)
+def choose_tc(samples:pd.DataFrame)->pd.DataFrame:
+    grp=samples.groupby(["gw","candidate_id","candidate_name"],sort=False).points
+    s=grp.agg(mean="mean").reset_index()
+    s=s.merge(grp.quantile(.75).rename("q75").reset_index(),
+              on=["gw","candidate_id","candidate_name"],how="left")
+    rows=[]
+    for gw,g in s.groupby("gw",sort=True):
+        maxmean=float(g["mean"].max())
+        eligible=g[g["mean"]>=maxmean-0.50].copy()
+        rows.append(eligible.sort_values(["q75","mean"],ascending=False).iloc[0])
+    return pd.DataFrame(rows).sort_values("gw").reset_index(drop=True)
 
 def estimate_mu_from_origins(root:Path,prefix:str,start=6,end=38)->float:
     vals=[]
     for gw in range(start,end+1):
         s=load_origin(root,prefix,gw)
-        ch=choose_mean(s)
+        ch=choose_tc(s)
         cur=ch[ch.gw.eq(gw)]
         if len(cur):vals.append(float(cur.iloc[0]["mean"]))
     if not vals:raise ValueError("no current-GW best-xP values for mu")
@@ -40,7 +46,7 @@ def replay_half(root,prefix,start,end,mu,policy):
     trace=[];decision=None
     for gw in range(start,end+1):
         s=load_origin(root,prefix,gw)
-        ch=choose_mean(s)
+        ch=choose_tc(s)
         if policy=="regress":
             ch["adj"]=[float(mu + rweight(int(g-gw))*(m-mu)) for g,m in zip(ch.gw,ch["mean"])]
         elif policy=="d097":
@@ -87,6 +93,7 @@ def main():
       "mu_pooled":pooled,
       "reliability_curve":R,
       "formula":"V_adj = mu_TC + R_k * (xP - mu_TC)",
+      "candidate_rule":"highest q75 among players within 0.50 xP of the max mean",
       "decisions":dec.to_dict("records")
     }
     (o/"summary.json").write_text(json.dumps(summary,indent=2,default=str)+"\n")
