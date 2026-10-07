@@ -12,6 +12,7 @@ import argparse
 ap=argparse.ArgumentParser()
 ap.add_argument('--db',required=True)
 ap.add_argument('--out',required=True)
+ap.add_argument('--min-gw',type=int,default=6)
 a=ap.parse_args()
 DB=Path(a.db)
 OUT=Path(a.out)
@@ -61,7 +62,7 @@ def exact11_series(ph, frame):
         out.loc[inds]=1/(1+np.exp(-(logits+(lo+hi)/2)))
     return out
 
-x=make_features(); x=x[x.gw>=6].copy()
+x=make_features(); x=x[x.gw>=a.min_gw].copy()
 feat=['fast','slow','recent_mins','last_start','last_mins']
 X=pd.concat([x[feat],pd.get_dummies(x['pos'],prefix='pos',dtype=float)],axis=1)
 # Ensure stable columns
@@ -95,7 +96,7 @@ outcols=['season','gw','fixture_uuid','player_uuid','team_id','pos','y','minutes
 hf[outcols].to_csv(OUT/'pstart_v2_fixture_holdout_2025_26.csv',index=False)
 y=hf.y.to_numpy(); p=hf.p_start_v2.to_numpy()
 res={
- 'train_seasons':['2023-24','2024-25'],'holdout':'2025-26','min_gw':6,'n':len(hf),
+ 'train_seasons':['2023-24','2024-25'],'holdout':'2025-26','min_gw':int(a.min_gw),'n':len(hf),
  'brier':float(brier_score_loss(y,p)),'log_loss':float(log_loss(y,p,labels=[0,1])),
  'mean_p_start':float(p.mean()),'actual_start_rate':float(y.mean()),
  'coefficients':{'intercept':float(model.intercept_[0]),**{c:float(v) for c,v in zip(cols,model.coef_[0])}},
