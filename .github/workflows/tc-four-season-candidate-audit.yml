@@ -1,0 +1,36 @@
+name: TC four-season candidate upside audit
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [audit-role-minutes-20261001]
+    paths:
+      - 'scripts/run_tc_historical_candidate_audit.py'
+      - '.github/workflows/tc-four-season-candidate-audit.yml'
+
+jobs:
+  audit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: audit-role-minutes-20261001
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install
+        run: pip install pandas numpy
+      - name: Clone historical FPL data
+        run: git clone --depth 1 https://github.com/vaastav/Fantasy-Premier-League.git work/vaastav
+      - name: Run four-season upside audit
+        run: |
+          python scripts/run_tc_historical_candidate_audit.py \
+            --vaastav work/vaastav \
+            --out analysis/results/tc-four-season-candidate-audit
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: tc-four-season-candidate-audit
+          path: analysis/results/tc-four-season-candidate-audit
+          retention-days: 90
