@@ -73,8 +73,8 @@ def main():
     mm.to_csv(OUT/"locked_mm_predictions.csv.gz",index=False,compression="gzip")
 
     # Exact cohort and one-to-one integration.
-    use=mm[KEYS+["new_p_start","new_xmins","new_q_sub","new_sub_minutes",
-                 "team_news_state","team_news_availability_cap"]]
+    use=mm[KEYS+["minutes","new_p_start","new_xmins","new_q_sub","new_sub_minutes",
+                 "team_news_state","team_news_availability_cap"]].rename(columns={"minutes":"actual_minutes_mm"})
     new=old.merge(use,on=KEYS,how="left",validate="one_to_one")
     if new[["new_p_start","new_xmins","new_q_sub","new_sub_minutes"]].isna().any().any():
         miss=new[new.new_p_start.isna()][KEYS+["gw"]].head(20).to_dict(orient="records")
@@ -98,7 +98,7 @@ def main():
             pid=str(r.player_uuid)
             rows.append({
               "fixture_uuid":fx,"player_uuid":pid,"gw":int(r.gw),"pos":r.pos,
-              "actual_minutes":float(r.minutes),
+              "actual_minutes":float(r.actual_minutes_mm),
               "old_p_start":float(og.loc[og.player_uuid.astype(str).eq(pid),"combined_p_start"].iloc[0]),
               "new_p_start":float(r.new_p_start),
               "old_xmins_input":float(og.loc[og.player_uuid.astype(str).eq(pid),"combined_xmins"].iloc[0]),
