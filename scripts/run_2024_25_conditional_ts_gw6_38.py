@@ -65,6 +65,7 @@ def origin_with_meta(forecast,meta,gw):
 
 def main():
     ap=argparse.ArgumentParser();ap.add_argument('--derived',required=True);ap.add_argument('--vfinal',required=True);ap.add_argument('--out',required=True)
+    ap.add_argument('--start-gw',type=int,default=6);ap.add_argument('--end-gw',type=int,default=38)
     a=ap.parse_args();derived=Path(a.derived);out=Path(a.out);out.mkdir(parents=True,exist_ok=True)
     gws,names=runtime_inputs(derived)
     forecast=pd.read_csv(a.vfinal);forecast.id=forecast.id.astype(int)
@@ -75,12 +76,13 @@ def main():
             if c=='team':forecast[c]=pd.NA
             else:raise ValueError('Missing forecast column '+c)
     forecast=forecast[keep].copy()
-    missing=[g for g in range(6,39) if not (forecast.origin_gw==g-1).any()]
+    if not (6<=a.start_gw<=a.end_gw<=38):raise ValueError('Expected 6 <= start-gw <= end-gw <= 38')
+    missing=[g for g in range(a.start_gw,a.end_gw+1) if not (forecast.origin_gw==g-1).any()]
     if missing:raise ValueError('Missing PM origins '+str(missing))
 
-    meta=hp.gw_meta(gws,names,6)
-    origin6=hp.complete_current_projection(forecast[forecast.origin_gw==5],meta,6)
-    state=initial_squad(origin6,meta,[6]);initial=list(state.squad)
+    meta=hp.gw_meta(gws,names,a.start_gw)
+    origin0=hp.complete_current_projection(forecast[forecast.origin_gw==a.start_gw-1],meta,a.start_gw)
+    state=initial_squad(origin0,meta,[a.start_gw]);initial=list(state.squad)
     total=0;control=0;logs=[];plans=[]
     config=PlannerConfig(weights=WEIGHTS,hit_uncertainty_buffer=BUFFER,beam_width=20,
         candidates_per_transfer_count=1,candidate_limit_per_position=18,top_targets_per_position=18,
@@ -88,7 +90,7 @@ def main():
         candidate_backend='fast_local',milp_time_limit=2.0)
 
     known=meta.copy()
-    for gw in range(6,39):
+    for gw in range(a.start_gw,a.end_gw+1):
         t0=time.perf_counter()
         obs=hp.gw_meta(gws,names,gw)
         known=pd.concat([known[~known.id.isin(obs.id)],obs],ignore_index=True).drop_duplicates('id',keep='last')
@@ -97,7 +99,7 @@ def main():
         current=hp.complete_current_projection(origin_raw,meta,gw)
         origin=origin_with_meta(forecast,meta,gw)
         forced=[]
-        if gw>6:forced=legalize_team_limit(state,meta,origin,gw)
+        if gw>a.start_gw:forced=legalize_team_limit(state,meta,origin,gw)
         result=plan_transfer_path(state,meta,origin,gw,config)
         transfers=execute_first_action(state,result,meta)
         hit_cost=sum(int(x.get('hit',0)) for x in transfers)+sum(int(x.get('hit',0)) for x in forced)
@@ -120,10 +122,10 @@ def main():
 
     log=pd.DataFrame(logs);log.to_csv(out/'gameweek_log.csv',index=False);pd.DataFrame(plans).to_csv(out/'plans.csv',index=False)
     summary=dict(classification='CONDITIONAL_ROBUSTNESS_TS_GW6_38_NOT_FULL_SEASON',season='2024-25',
-      start_gw=6,end_gw=38,initialization='fresh optimized GW6 squad from locked conditional vFinal forecast',
+      start_gw=int(a.start_gw),end_gw=int(a.end_gw),initialization=f'fresh optimized GW{a.start_gw} squad from locked conditional vFinal forecast',
       weights=list(WEIGHTS),hit_uncertainty_buffer=BUFFER,chips='OFF',ts_v3_mechanics='unchanged planner/search mechanics',
-      total_points_gw6_38=int(total),transfers=int(log.transfers.sum()),hit_points=int(log.hit_cost.sum()),
-      no_transfer_control_gw6_38=int(control),uplift_vs_no_transfer_control=int(total-control),
+      total_points_window=int(total),transfers=int(log.transfers.sum()),hit_points=int(log.hit_cost.sum()),
+      no_transfer_control_window=int(control),uplift_vs_no_transfer_control=int(total-control),
       conditional_metadata='deadline price/team/position snapshots have unverified historical capture clocks',
       cold_start_gw1_5='NOT SCORED; no equivalent historical locked cold-start provider was available')
     (out/'summary.json').write_text(json.dumps(summary,indent=2)+'\n');print(json.dumps(summary,indent=2))
