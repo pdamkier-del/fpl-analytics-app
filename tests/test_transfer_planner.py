@@ -170,3 +170,66 @@ def test_local_search_reaches_five_transfers_with_only_one_ft():
     candidates = _fast_local_candidate_squads(
         _state(ft=1), meta, origin, [20], [1.0], 5, 18, 60, 12)
     assert {len(set(s) - set(range(1, 16))) for s in candidates} == set(range(6))
+
+
+def test_free_hit_bridge_preserves_permanent_ft_and_forbids_transfers():
+    result = plan_transfer_path(
+        _state(ft=1),
+        _meta(),
+        _origin(gws=(20, 21, 22)),
+        20,
+        PlannerConfig(
+            weights=(1.0, 0.8, 0.6),
+            free_hit_gw=21,
+            beam_width=4,
+            max_transfers_per_week=2,
+        ),
+    )
+    assert [a.gw for a in result.path] == [20, 21, 22]
+    bridge = next(a for a in result.path if a.gw == 21)
+    assert bridge.transfers == 0
+    assert bridge.outgoing == ()
+    assert bridge.incoming == ()
+    assert bridge.free_transfers_before == 2
+    assert bridge.free_transfers_after == 2
+    assert [a.free_transfers_after for a in result.path] == [2, 2, 3]
+
+
+def test_fh_aware_ts_can_buy_for_post_fh_run_before_the_bridge():
+    from fpl_xpts.fh_transfer_planner import evaluate_fh_aware_path
+
+    meta = _meta(extra=True)
+    origin = _origin(gws=(20, 21, 22), extra=True)
+
+    # Owned MID P8 is excellent in the bridge GW but poor afterwards.
+    origin.loc[(origin.id == 8) & (origin.gw == 20), "xpts_mean"] = 3.0
+    origin.loc[(origin.id == 8) & (origin.gw == 21), "xpts_mean"] = 12.0
+    origin.loc[(origin.id == 8) & (origin.gw == 22), "xpts_mean"] = 1.0
+
+    # NewMID is mediocre now, terrible in the bridge GW, but elite afterwards.
+    # Ordinary TS should dislike the move; FH-aware TS should be able to buy
+    # before GW21 because the permanent squad's GW21 score is skipped.
+    origin.loc[(origin.id == 16) & (origin.gw == 20), "xpts_mean"] = 2.0
+    origin.loc[(origin.id == 16) & (origin.gw == 21), "xpts_mean"] = -10.0
+    origin.loc[(origin.id == 16) & (origin.gw == 22), "xpts_mean"] = 20.0
+
+    config = PlannerConfig(
+        weights=(1.0, 1.0, 1.0),
+        hit_uncertainty_buffer=1.0,
+        beam_width=10,
+        top_targets_per_position=18,
+        local_bundle_beam=30,
+        candidate_return_per_depth=8,
+        max_transfers_per_week=2,
+    )
+    r = evaluate_fh_aware_path(
+        _state(ft=1), meta, origin, 20,
+        period_end_gw=21, min_fh_gw=21, config=config, allow_fh=True,
+    )
+    assert r.recommended_fh_gw == 21
+    assert r.use_fh_now is False
+    assert r.active_result.first_action is not None
+    assert 16 in r.active_result.first_action.incoming
+    normal = r.normal_result.first_action
+    assert normal is not None
+    assert 16 not in normal.incoming
