@@ -51,13 +51,19 @@ def main():
     priors=[]
     for start,end,label in [(1,19,"H1"),(20,38,"H2")]:
         for gw in range(start,end+1):
-            vals=[]
+            vals=[];future_best=[]
             for s in SEASONS:
-                z=allgw[(allgw.season==s)&allgw.gw.between(gw+1,end)]
-                vals.append(float(z.is_dgw.any()))
-            priors.append(dict(half=label,gw=gw,seasons=len(vals),
-                               p_any_future_dgw=float(np.mean(vals)),
-                               n_seasons_future_dgw=int(sum(vals))))
+                z=allgw[(allgw.season==s)&allgw.gw.between(gw+1,end)&allgw.is_dgw]
+                has=bool(len(z))
+                vals.append(float(has))
+                if has: future_best.append(float(z.top_xp.max()))
+            priors.append(dict(
+                half=label,gw=gw,seasons=len(vals),
+                p_any_future_dgw=float(np.mean(vals)),
+                n_seasons_future_dgw=int(sum(vals)),
+                conditional_mean_best_future_dgw_xp=(float(np.mean(future_best)) if future_best else np.nan),
+                conditional_median_best_future_dgw_xp=(float(np.median(future_best)) if future_best else np.nan)
+            ))
     prior=pd.DataFrame(priors)
 
     # Also count distribution of number of DGW gameweeks in each half.
@@ -80,7 +86,7 @@ def main():
       "median_positive_dgw_uplift_over_sgw_mean":med_uplift,
       "season_counts":counts.to_dict("records"),
       "prior_by_gw":prior.to_dict("records"),
-      "formula":"latent_value = mu_TC + p_unresolved_future_dgw * expected_positive_dgw_uplift"
+      "formula":"latent_value = mu_TC + p_unresolved_future_dgw * (E[best future DGW xP | unresolved DGW] - mu_TC)"
     }
     (out/"summary.json").write_text(json.dumps(summary,indent=2,default=str)+"\n")
     print(json.dumps(summary,indent=2,default=str))
