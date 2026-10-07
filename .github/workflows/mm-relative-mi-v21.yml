@@ -1,0 +1,31 @@
+name: MM relative MI v2.1
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [audit-role-minutes-20261001]
+    paths:
+      - 'src/fpl_v1_1_model/relative_future_match_importance.py'
+      - 'scripts/run_mm_relative_mi_v21.py'
+      - '.github/workflows/mm-relative-mi-v21.yml'
+
+jobs:
+  run:
+    runs-on: ubuntu-latest
+    timeout-minutes: 180
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: audit-role-minutes-20261001
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: |
+          pip install -r requirements-model-checkpoint.txt
+          pip install pandas numpy scikit-learn requests
+      - run: PYTHONPATH=src python scripts/run_mm_relative_mi_v21.py
+      - uses: actions/upload-artifact@v4
+        with:
+          name: mm-relative-mi-v21-20261007-v1
+          path: analysis/results/mm-relative-mi-v21-20261007-v1
+          retention-days: 90
