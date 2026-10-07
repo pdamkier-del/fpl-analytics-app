@@ -143,7 +143,7 @@ def build_histories(derived,cands):
         o=bymatch.get((mid,str(rr['player_uuid'])),{})
         mins=float(o.get('minutes') or 0.)
         players.append({'player_uuid':str(rr['player_uuid']),'role':rl,'started':True,'minutes':mins,'disagreement':False})
-      known=str(g[0]['available_at_proxy'])
+      known=pd.to_datetime(g[0]['available_at_proxy'],utc=True)
       role.add_game(tid,known,mid,players,importance=1.0,competition=str(g[0].get('competition') or 'prem'))
       role_games+=1
     work=WorkloadHistory();wg=defaultdict(list)
