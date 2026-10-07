@@ -255,3 +255,16 @@ def simulate_many(inp:MatchSimInput,n:int=20_000,seed:int=26092026)->dict[str,di
             "expected_minutes":float(np.mean(mins[p.player_id])),"p_start":aux[p.player_id]["start"]/n,"p_attacking_return":aux[p.player_id]["return"]/n,"p_10_plus":aux[p.player_id]["ten"]/n,"p_clean_sheet_award":aux[p.player_id]["cs"]/n,"p_bonus_1":aux[p.player_id]["bonus1"]/n,"p_bonus_2":aux[p.player_id]["bonus2"]/n,"p_bonus_3":aux[p.player_id]["bonus3"]/n,
             "appearance_points":aux[p.player_id]["appearance_pts"]/n,"goal_points":aux[p.player_id]["goal_pts"]/n,"assist_points":aux[p.player_id]["assist_pts"]/n,"cs_points":aux[p.player_id]["cs_pts"]/n,"save_points":aux[p.player_id]["save_pts"]/n,"dc_points":aux[p.player_id]["dc_pts"]/n,"negative_points":aux[p.player_id]["negative_pts"]/n,"gc_points":aux[p.player_id]["gc_pts"]/n,"penalty_miss_points":aux[p.player_id]["penalty_miss_pts"]/n,"penalty_save_points":aux[p.player_id]["penalty_save_pts"]/n}
     return ans
+
+
+def simulate_many_samples(inp:MatchSimInput,n:int=1000,seed:int=26092026)->dict[str,np.ndarray]:
+    """Return raw FPL point draws per player for downstream chip decisions."""
+    if n<=0:
+        raise ValueError("n must be positive")
+    rng=np.random.default_rng(seed)
+    out={p.player_id:np.empty(n,dtype=np.float32) for p in inp.players}
+    for i in range(n):
+        res=simulate_match(inp,rng)
+        for p in inp.players:
+            out[p.player_id][i]=float(res[p.player_id].points)
+    return out
