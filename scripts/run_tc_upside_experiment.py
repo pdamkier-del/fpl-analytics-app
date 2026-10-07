@@ -20,7 +20,10 @@ VARIANTS={
 }
 
 def load_origin(root:Path,gw:int)->pd.DataFrame:
-    hits=list(root.glob(f"**/*{gw}*/tc_samples.csv.gz"))
+    exact=root/f"tc-origin-{gw}"/"tc_samples.csv.gz"
+    if exact.exists():
+        return pd.read_csv(exact)
+    hits=[p for p in root.glob("*/tc_samples.csv.gz") if p.parent.name==f"tc-origin-{gw}"]
     if len(hits)!=1:
         raise RuntimeError(f"Expected one origin sample file for GW{gw}, got {hits}")
     return pd.read_csv(hits[0])
