@@ -42,6 +42,45 @@ jobs:
           test -n "$VF24"
           rm -rf analysis/results/fh-exact-gap-reference
           PYTHONPATH=src:scripts python scripts/run_fh_exact_gap_reference.py             --derived data_v1_1/derived/season_2024_25_v1             --vfinal "$VF24"             --out analysis/results/fh-exact-gap-reference
+      - name: Download structural DGW prior calibration
+        uses: actions/download-artifact@v4
+        with:
+          name: tc-latent-dgw-calibration
+          path: work/tc-structural
+          github-token: ${{ github.token }}
+          run-id: 37669173496
+      - name: Build cutoff-safe FH structural save prior
+        run: |
+          python - <<'PY'
+          import pandas as pd, numpy as np
+          gaps=pd.read_csv('analysis/results/fh-exact-gap-reference/historical_exact_fh_gaps_2024_25.csv')
+          sched=pd.read_csv('data_v1_1/derived/fpl_schedule_knowledge/2024-25_dgw_bgw_cutoff.csv')
+          structural=set(pd.to_numeric(sched['event'],errors='coerce').dropna().astype(int))
+          z=gaps[gaps.fh_gap.notna()].copy()
+          s=z[z.gw.isin(structural)].fh_gap
+          n=z[~z.gw.isin(structural)].fh_gap
+          uplift=max(0.0,float(s.mean()-n.mean()))
+          aud=pd.read_csv('work/tc-structural/gw_dgw_audit.csv')
+          aud=aud[aud.season.isin(['2022-23','2023-24','2024-25'])].copy()
+          base=pd.read_csv('analysis/results/fh-exact-gap-reference/expected_best_remaining_reference.csv')
+          rows=[]
+          for _,r in base.iterrows():
+              gw=int(r.gw); end=19 if gw<=19 else 38
+              vals=[]
+              for season in ['2022-23','2023-24','2024-25']:
+                  q=aud[(aud.season==season)&aud.gw.between(gw+1,end)&aud.is_dgw.astype(bool)]
+                  vals.append(1.0 if len(q) else 0.0)
+              p=float(np.mean(vals))
+              b=float(r.expected_best_remaining_gap)
+              rows.append(dict(gw=gw,p_future_structural=p,structural_uplift=uplift,
+                               latent_structural_bonus=p*uplift,
+                               base_expected_best_remaining_gap=b,
+                               structural_save_value=b+p*uplift))
+          out=pd.DataFrame(rows)
+          out.to_csv('analysis/results/fh-exact-gap-reference/structural_option_reference.csv',index=False)
+          print('structural FH gap uplift',uplift)
+          print(out.to_string(index=False))
+          PY
       - name: Download locked 2125 chain
         uses: actions/download-artifact@v4
         with:
