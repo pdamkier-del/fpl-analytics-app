@@ -17,6 +17,15 @@ from fpl_xpts.transfer_planner import PlannerConfig,plan_transfer_path,execute_f
 WEIGHTS=(1.0,.60,.36,.216,.1296,.07776)
 BUFFER=1.0
 
+EXPECTED_BEST_REMAINING={
+    1:21.475,2:21.475,3:21.475,4:21.475,5:19.750,6:17.850,7:17.725,8:17.325,
+    9:13.350,10:13.350,11:13.350,12:13.350,13:13.350,14:13.350,15:13.350,
+    16:10.050,17:9.425,18:9.425,19:0.0,
+    20:18.825,21:18.825,22:18.825,23:18.825,24:18.025,25:18.025,26:17.375,
+    27:16.050,28:12.700,29:10.150,30:10.150,31:8.850,32:8.850,33:7.300,
+    34:4.625,35:2.000,36:1.475,37:0.0,38:0.0,
+}
+
 def cfg():
     return PlannerConfig(weights=WEIGHTS,hit_uncertainty_buffer=BUFFER,beam_width=20,
         candidates_per_transfer_count=1,candidate_limit_per_position=18,
@@ -65,8 +74,10 @@ def run(label,gws,names,forecast,use_fh):
         best_future=max(future,key=lambda x:x['gain']) if future else None
         now_gain=-1e9 if now is None else now['gain']
         future_gain=0.0 if best_future is None else best_future['gain']
+        potential_best=float(EXPECTED_BEST_REMAINING[gw])
+        threshold=max(future_gain,potential_best)
         available=bool(use_fh and half not in used)
-        fire=bool(available and (gw==period_end or now_gain>=future_gain))
+        fire=bool(available and (gw==period_end or now_gain>=threshold))
         if fire:
             result=plan_transfer_path(state,meta,origin,gw,replace(pcfg,free_hit_gw=gw))
         else:
@@ -85,8 +96,9 @@ def run(label,gws,names,forecast,use_fh):
         total+=int(score)
         logs.append(dict(gw=gw,score=int(score),cumulative=total,fh_used=fire,fh_gain_now=now_gain,
                          best_visible_future_gain=future_gain,best_visible_future_gw=(None if best_future is None else best_future['gw']),
+                         expected_best_remaining_gain=potential_best,fh_use_threshold=threshold,
                          transfers=len(transfers)+len(forced),hit_cost=hit))
-        print(f'{label} GW{gw}: {score} cum={total} FH={fire} now={now_gain:.3f} future={future_gain:.3f}',flush=True)
+        print(f'{label} GW{gw}: {score} cum={total} FH={fire} now={now_gain:.3f} future={future_gain:.3f} prior={potential_best:.3f}',flush=True)
     return dict(label=label,total_points=total,fh_gws=[x['gw'] for x in logs if x['fh_used']],
                 transfers=sum(x['transfers'] for x in logs),hit_points=sum(x['hit_cost'] for x in logs),logs=logs)
 
@@ -101,7 +113,8 @@ def main():
     if b['total_points']!=2125:
         raise RuntimeError(f"baseline {b['total_points']} != 2125")
     s={'classification':'raw FH xP-gap timing test',
-       'rule':'use FH when current raw xP gain >= best raw visible future xP gain; no FH discount/decay',
+       'rule':'use FH when current raw xP gain >= max(best raw visible future xP gain, historical mean best remaining FH gap to GW19/38); no FH discount/decay',
+       'historical_reference':'mean of each seasons best later FH proxy from 2022/23-2025/26',
        'baseline':b,'fh':f,'delta':f['total_points']-b['total_points']}
     (out/'summary.json').write_text(json.dumps(s,indent=2)+'\n')
     print(json.dumps(s,indent=2))
