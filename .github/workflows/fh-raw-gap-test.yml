@@ -49,36 +49,62 @@ jobs:
           path: work/tc-structural
           github-token: ${{ github.token }}
           run-id: 37669173496
+      - name: Clone historical FPL data
+        run: git clone --depth 1 https://github.com/vaastav/Fantasy-Premier-League.git work/vaastav
       - name: Build cutoff-safe FH structural save prior
         run: |
           python - <<'PY'
           import pandas as pd, numpy as np
+          from pathlib import Path
+
           gaps=pd.read_csv('analysis/results/fh-exact-gap-reference/historical_exact_fh_gaps_2024_25.csv')
           sched=pd.read_csv('data_v1_1/derived/fpl_schedule_knowledge/2024-25_dgw_bgw_cutoff.csv')
-          structural=set(pd.to_numeric(sched['event'],errors='coerce').dropna().astype(int))
+          dgw_events=set(pd.to_numeric(sched.loc[sched.type.eq('DGW'),'event'],errors='coerce').dropna().astype(int))
+          bgw_events=set(pd.to_numeric(sched.loc[sched.type.eq('BGW'),'event'],errors='coerce').dropna().astype(int))
+
           z=gaps[gaps.fh_gap.notna()].copy()
-          s=z[z.gw.isin(structural)].fh_gap
-          n=z[~z.gw.isin(structural)].fh_gap
-          uplift=max(0.0,float(s.mean()-n.mean()))
-          aud=pd.read_csv('work/tc-structural/gw_dgw_audit.csv')
-          aud=aud[aud.season.isin(['2022-23','2023-24','2024-25'])].copy()
+          normal=z[~z.gw.isin(dgw_events|bgw_events)].fh_gap
+          dgw=z[z.gw.isin(dgw_events)].fh_gap
+          bgw=z[z.gw.isin(bgw_events)].fh_gap
+
+          mean_normal=float(normal.mean())
+          dgw_uplift=max(0.0,float(dgw.mean()-mean_normal)) if len(dgw) else 0.0
+          bgw_uplift=max(0.0,float(bgw.mean()-mean_normal)) if len(bgw) else 0.0
+
+          seasons=['2022-23','2023-24','2024-25']
+          struct={}
+          for season in seasons:
+              p=Path('work/vaastav/data')/season/'fixtures.csv'
+              fx=pd.read_csv(p)
+              ev=pd.to_numeric(fx.get('event'),errors='coerce')
+              counts=ev.dropna().astype(int).value_counts().to_dict()
+              struct[season]={
+                  'dgw':{int(g) for g,n in counts.items() if int(n)>10},
+                  'bgw':{int(g) for g,n in counts.items() if int(n)<10},
+              }
+
           base=pd.read_csv('analysis/results/fh-exact-gap-reference/expected_best_remaining_reference.csv')
           rows=[]
           for _,r in base.iterrows():
               gw=int(r.gw); end=19 if gw<=19 else 38
-              vals=[]
-              for season in ['2022-23','2023-24','2024-25']:
-                  q=aud[(aud.season==season)&aud.gw.between(gw+1,end)&aud.is_dgw.astype(bool)]
-                  vals.append(1.0 if len(q) else 0.0)
-              p=float(np.mean(vals))
+              p_dgw=float(np.mean([any(gw<e<=end for e in struct[s]['dgw']) for s in seasons]))
+              p_bgw=float(np.mean([any(gw<e<=end for e in struct[s]['bgw']) for s in seasons]))
               b=float(r.expected_best_remaining_gap)
-              rows.append(dict(gw=gw,p_future_structural=p,structural_uplift=uplift,
-                               latent_structural_bonus=p*uplift,
-                               base_expected_best_remaining_gap=b,
-                               structural_save_value=b+p*uplift))
+              dgw_bonus=p_dgw*dgw_uplift
+              bgw_bonus=p_bgw*bgw_uplift
+              rows.append(dict(
+                  gw=gw,
+                  p_future_dgw=p_dgw,p_future_bgw=p_bgw,
+                  dgw_uplift=dgw_uplift,bgw_uplift=bgw_uplift,
+                  dgw_bonus=dgw_bonus,bgw_bonus=bgw_bonus,
+                  latent_structural_bonus=dgw_bonus+bgw_bonus,
+                  base_expected_best_remaining_gap=b,
+                  structural_save_value=b+dgw_bonus+bgw_bonus))
           out=pd.DataFrame(rows)
           out.to_csv('analysis/results/fh-exact-gap-reference/structural_option_reference.csv',index=False)
-          print('structural FH gap uplift',uplift)
+          print('normal raw FH gap mean',mean_normal)
+          print('DGW raw FH uplift',dgw_uplift,'events',sorted(dgw_events),'n',len(dgw))
+          print('BGW raw FH uplift',bgw_uplift,'events',sorted(bgw_events),'n',len(bgw))
           print(out.to_string(index=False))
           PY
       - name: Download locked 2125 chain
