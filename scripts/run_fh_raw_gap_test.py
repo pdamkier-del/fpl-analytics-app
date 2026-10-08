@@ -88,7 +88,22 @@ def run(label,gws,names,forecast,use_fh,ref,structural_threshold):
         threshold=max(future_gain,potential_best,structural_save)
         available=bool(use_fh and half not in used)
         fire=bool(available and (gw==period_end or now_gain>=threshold))
+        # Same-deadline, same-state no-chip counterfactual. This isolates the
+        # chip's actual gain from differences between whole-season TS histories.
+        counterfactual_actual=None
+        counterfactual_xp=None
+        counterfactual_ids=None
+        pre_fh_bank=state.bank
+        pre_fh_ft=state.free_transfers
+        pre_fh_squad=set(state.squad)
         if fire:
+            normal_state=clone_state(state)
+            normal_moves=execute_first_action(normal_state,normal,meta)
+            normal_hit=sum(int(x.get('hit',0)) for x in normal_moves)
+            normal_plan=plan_squad(current,list(normal_state.squad),gw)
+            counterfactual_actual,_=actual_team_points(normal_plan.rows,hp.actual_gw(gws,gw),None,normal_hit)
+            counterfactual_xp=float(normal_plan.expected_score)
+            counterfactual_ids=list(normal_state.squad)
             result=plan_transfer_path(state,meta,origin,gw,replace(pcfg,free_hit_gw=gw))
         else:
             result=normal
@@ -100,6 +115,8 @@ def run(label,gws,names,forecast,use_fh,ref,structural_threshold):
             fh=optimize_free_hit_squad(state=state,meta=meta,forecast=origin,gw=gw,normal_squad_ids=list(state.squad))
             score,_=actual_team_points(fh['plan_rows'],hp.actual_gw(gws,gw),'free_hit',0)
             used.add(half)
+            if set(state.squad)!=pre_fh_squad or state.bank!=pre_fh_bank or state.free_transfers!=pre_fh_ft:
+                raise AssertionError(f'FH bridge mutated permanent squad/bank/FT at GW{gw}')
         else:
             plan=plan_squad(current,list(state.squad),gw)
             score,_=actual_team_points(plan.rows,hp.actual_gw(gws,gw),None,hit)
@@ -107,7 +124,13 @@ def run(label,gws,names,forecast,use_fh,ref,structural_threshold):
         logs.append(dict(gw=gw,score=int(score),cumulative=total,fh_used=fire,fh_gain_now=now_gain,
                          best_visible_future_gain=future_gain,best_visible_future_gw=(None if best_future is None else best_future['gw']),
                          expected_best_remaining_gain=potential_best,structural_save_value=structural_save,fh_use_threshold=threshold,
-                         transfers=len(transfers)+len(forced),hit_cost=hit))
+                         transfers=len(transfers)+len(forced),hit_cost=hit,
+                         normal_same_state_actual=counterfactual_actual,
+                         normal_same_state_xp=counterfactual_xp,
+                         fh_same_state_actual_gain=(int(score)-int(counterfactual_actual) if fire else None),
+                         fh_same_state_xp_gain=(float(fh['fh_score'])-float(counterfactual_xp) if fire else None),
+                         fh_fixture_double_count=(int(sum(origin[(origin.gw==gw)&(origin.fixtures==2)].id.isin(fh['fh_squad_ids']))) if fire else None),
+                         forecast_origin_gw=gw-1))
         print(f'{label} GW{gw}: {score} cum={total} FH={fire} now={now_gain:.3f} future={future_gain:.3f} prior={potential_best:.3f} structural={structural_save:.3f}',flush=True)
     return dict(label=label,total_points=total,fh_gws=[x['gw'] for x in logs if x['fh_used']],
                 transfers=sum(x['transfers'] for x in logs),hit_points=sum(x['hit_cost'] for x in logs),logs=logs)
