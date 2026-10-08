@@ -1,0 +1,52 @@
+name: FH randomized-origin calibration
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [audit-role-minutes-20261001]
+    paths:
+      - 'scripts/run_fh_randomized_origin_calibration.py'
+      - '.github/workflows/fh-randomized-origin-calibration.yml'
+
+jobs:
+  calibrate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 180
+    permissions:
+      actions: read
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: audit-role-minutes-20261001
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install
+        run: |
+          pip install -r requirements-model-checkpoint.txt
+          pip install pandas numpy scipy scikit-learn
+      - name: Download authoritative locked 2125 chain
+        uses: actions/download-artifact@v4
+        with:
+          name: final-locked-chain-gw1-38
+          path: work/locked2125
+          github-token: ${{ github.token }}
+          run-id: 37612845586
+      - name: Run randomized-origin FH reliability calibration
+        run: |
+          VF=$(find work/locked2125 -name rolling_vfinal_forecast.csv.gz | head -1)
+          test -n "$VF"
+          rm -rf analysis/results/fh-randomized-origin-calibration
+          OPENBLAS_NUM_THREADS=1 OMP_NUM_THREADS=1 MKL_NUM_THREADS=1 PYTHONPATH=src \
+            python scripts/run_fh_randomized_origin_calibration.py \
+              --vfinal "$VF" \
+              --seed 20261008 \
+              --bootstrap 1000 \
+              --out analysis/results/fh-randomized-origin-calibration
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: fh-randomized-origin-calibration
+          path: analysis/results/fh-randomized-origin-calibration
+          retention-days: 90
