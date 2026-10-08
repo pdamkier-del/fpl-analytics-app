@@ -1,0 +1,35 @@
+name: FH latent save calibration
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [audit-role-minutes-20261001]
+    paths:
+      - 'scripts/run_fh_latent_save_calibration.py'
+      - '.github/workflows/fh-latent-save-calibration.yml'
+
+jobs:
+  calibrate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: audit-role-minutes-20261001
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install
+        run: pip install pandas numpy scipy
+      - name: Clone historical FPL data
+        run: git clone --depth 1 https://github.com/vaastav/Fantasy-Premier-League.git work/vaastav
+      - name: Calibrate latent FH save value
+        run: |
+          rm -rf analysis/results/fh-latent-save-calibration
+          OPENBLAS_NUM_THREADS=1 OMP_NUM_THREADS=1 MKL_NUM_THREADS=1             python scripts/run_fh_latent_save_calibration.py               --vaastav work/vaastav               --out analysis/results/fh-latent-save-calibration
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: fh-latent-save-calibration
+          path: analysis/results/fh-latent-save-calibration
+          retention-days: 90
