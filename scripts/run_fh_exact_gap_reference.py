@@ -16,7 +16,9 @@ from run_2024_25_conditional_ts_gw6_38 import runtime_inputs,origin_with_meta,WE
 
 def expected_empirical_max(values,n):
     if n<=0 or len(values)==0:return 0.0
-    x=np.sort(np.asarray(values,float))
+    x=np.asarray(values,float)
+    x=x[np.isfinite(x)]
+    x=np.sort(x)
     m=len(x);out=0.0;prev=0.0
     for i,v in enumerate(x,1):
         f=i/m
@@ -69,7 +71,7 @@ def main():
         half=1 if gw<=19 else 2
         end=19 if half==1 else 38
         n=max(0,end-gw)
-        pool=raw.loc[raw.half.eq(half),'fh_gap'].to_numpy(float)
+        pool=raw.loc[raw.half.eq(half)&raw.fh_gap.notna(),'fh_gap'].to_numpy(float)
         refs.append(dict(gw=gw,half=half,n_remaining=n,pool_size=len(pool),
                          expected_best_remaining_gap=expected_empirical_max(pool,n),
                          historical_mean_gap=float(np.mean(pool)),
