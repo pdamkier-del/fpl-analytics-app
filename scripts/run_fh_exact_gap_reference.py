@@ -12,7 +12,7 @@ from fpl_xpts.chip_planner import optimize_free_hit_squad
 from fpl_xpts.optimize import plan_squad
 from fpl_xpts.season_replay import initial_squad,legalize_team_limit,valid_squad
 from fpl_xpts.transfer_planner import PlannerConfig,execute_first_action,plan_transfer_path
-from scripts.run_2024_25_conditional_ts_gw6_38 import runtime_inputs,origin_with_meta,WEIGHTS,BUFFER
+from run_2024_25_conditional_ts_gw6_38 import runtime_inputs,origin_with_meta,WEIGHTS,BUFFER
 
 def expected_empirical_max(values,n):
     if n<=0 or len(values)==0:return 0.0
