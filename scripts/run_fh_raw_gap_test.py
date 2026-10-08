@@ -51,7 +51,7 @@ def raw_fh_values(state,meta,origin,gw,period_end,pcfg):
         vals.append(dict(gw=target,gain=float(fh['fh_gain']),fh=fh))
     return normal,vals
 
-def run(label,gws,names,forecast,use_fh):
+def run(label,gws,names,forecast,use_fh,ref):
     meta1=hp.gw_meta(gws,names,1)
     origin1=hp.complete_current_projection(forecast[forecast.origin_gw==0],meta1,1)
     state=initial_squad(origin1,meta1,[1])
@@ -107,8 +107,8 @@ def main():
     a=ap.parse_args();out=Path(a.out);out.mkdir(parents=True,exist_ok=True)
     gws,names,forecast=load(a.vfinal)
     ref=pd.read_csv(a.reference).set_index('gw')['expected_best_remaining_gap'].to_dict()
-    b=run('baseline',gws,names,forecast,False)
-    f=run('fh_raw_gap',gws,names,forecast,True)
+    b=run('baseline',gws,names,forecast,False,ref)
+    f=run('fh_raw_gap',gws,names,forecast,True,ref)
     pd.DataFrame(b.pop('logs')).to_csv(out/'baseline.csv',index=False)
     pd.DataFrame(f.pop('logs')).to_csv(out/'fh_raw_gap.csv',index=False)
     if b['total_points']!=2125:
