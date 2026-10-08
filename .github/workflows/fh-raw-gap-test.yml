@@ -95,7 +95,7 @@ jobs:
           test -n "$VF"
           test -f "$REF"
           rm -rf analysis/results/fh-raw-gap-test
-          PYTHONPATH=src:scripts python scripts/run_fh_raw_gap_test.py             --vfinal "$VF"             --reference "$REF"             --out analysis/results/fh-raw-gap-test
+          PYTHONPATH=src:scripts python scripts/run_fh_raw_gap_test.py             --vfinal "$VF"             --reference "$REF"             --structural-prior analysis/results/fh-exact-gap-reference/structural_option_reference.csv             --out analysis/results/fh-raw-gap-test
       - uses: actions/upload-artifact@v4
         if: always()
         with:
