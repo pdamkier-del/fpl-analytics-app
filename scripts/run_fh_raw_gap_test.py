@@ -51,7 +51,7 @@ def raw_fh_values(state,meta,origin,gw,period_end,pcfg):
         vals.append(dict(gw=target,gain=float(fh['fh_gain']),fh=fh))
     return normal,vals
 
-def run(label,gws,names,forecast,use_fh,ref):
+def run(label,gws,names,forecast,use_fh,ref,structural_threshold):
     meta1=hp.gw_meta(gws,names,1)
     origin1=hp.complete_current_projection(forecast[forecast.origin_gw==0],meta1,1)
     state=initial_squad(origin1,meta1,[1])
@@ -75,7 +75,8 @@ def run(label,gws,names,forecast,use_fh,ref):
         now_gain=-1e9 if now is None else now['gain']
         future_gain=0.0 if best_future is None else best_future['gain']
         potential_best=float(ref[gw])
-        threshold=max(future_gain,potential_best)
+        structural_save=float(structural_threshold[gw])
+        threshold=max(future_gain,potential_best,structural_save)
         available=bool(use_fh and half not in used)
         fire=bool(available and (gw==period_end or now_gain>=threshold))
         if fire:
@@ -96,26 +97,28 @@ def run(label,gws,names,forecast,use_fh,ref):
         total+=int(score)
         logs.append(dict(gw=gw,score=int(score),cumulative=total,fh_used=fire,fh_gain_now=now_gain,
                          best_visible_future_gain=future_gain,best_visible_future_gw=(None if best_future is None else best_future['gw']),
-                         expected_best_remaining_gain=potential_best,fh_use_threshold=threshold,
+                         expected_best_remaining_gain=potential_best,structural_save_value=structural_save,fh_use_threshold=threshold,
                          transfers=len(transfers)+len(forced),hit_cost=hit))
-        print(f'{label} GW{gw}: {score} cum={total} FH={fire} now={now_gain:.3f} future={future_gain:.3f} prior={potential_best:.3f}',flush=True)
+        print(f'{label} GW{gw}: {score} cum={total} FH={fire} now={now_gain:.3f} future={future_gain:.3f} prior={potential_best:.3f} structural={structural_save:.3f}',flush=True)
     return dict(label=label,total_points=total,fh_gws=[x['gw'] for x in logs if x['fh_used']],
                 transfers=sum(x['transfers'] for x in logs),hit_points=sum(x['hit_cost'] for x in logs),logs=logs)
 
 def main():
-    ap=argparse.ArgumentParser();ap.add_argument('--vfinal',required=True);ap.add_argument('--out',required=True);ap.add_argument('--reference',required=True)
+    ap=argparse.ArgumentParser();ap.add_argument('--vfinal',required=True);ap.add_argument('--out',required=True);ap.add_argument('--reference',required=True);ap.add_argument('--structural-prior',required=True)
     a=ap.parse_args();out=Path(a.out);out.mkdir(parents=True,exist_ok=True)
     gws,names,forecast=load(a.vfinal)
     ref=pd.read_csv(a.reference).set_index('gw')['expected_best_remaining_gap'].to_dict()
-    b=run('baseline',gws,names,forecast,False,ref)
-    f=run('fh_raw_gap',gws,names,forecast,True,ref)
+    sp=pd.read_csv(a.structural_prior).set_index('gw')
+    structural_threshold={int(g):float(r['base_expected_best_remaining_gap']+r['latent_structural_bonus']) for g,r in sp.iterrows()}
+    b=run('baseline',gws,names,forecast,False,ref,structural_threshold)
+    f=run('fh_raw_gap',gws,names,forecast,True,ref,structural_threshold)
     pd.DataFrame(b.pop('logs')).to_csv(out/'baseline.csv',index=False)
     pd.DataFrame(f.pop('logs')).to_csv(out/'fh_raw_gap.csv',index=False)
     if b['total_points']!=2125:
         raise RuntimeError(f"baseline {b['total_points']} != 2125")
     s={'classification':'raw FH xP-gap timing test',
        'rule':'use FH when current raw xP gain >= max(best raw visible future xP gain, historical mean best remaining FH gap to GW19/38); no FH discount/decay',
-       'historical_reference':'2024/25 exact raw FH-gap empirical expected maximum for number of remaining GWs',
+       'historical_reference':'2024/25 exact raw FH-gap empirical expected maximum plus cutoff-safe latent DGW/BGW structural option',
        'baseline':b,'fh':f,'delta':f['total_points']-b['total_points']}
     (out/'summary.json').write_text(json.dumps(s,indent=2)+'\n')
     print(json.dumps(s,indent=2))
