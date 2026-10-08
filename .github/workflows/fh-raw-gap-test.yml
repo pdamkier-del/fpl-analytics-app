@@ -1,0 +1,47 @@
+name: FH raw xP gap test
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [audit-role-minutes-20261001]
+    paths:
+      - 'scripts/run_fh_raw_gap_test.py'
+      - '.github/workflows/fh-raw-gap-test.yml'
+
+jobs:
+  replay:
+    runs-on: ubuntu-latest
+    timeout-minutes: 360
+    permissions:
+      actions: read
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: audit-role-minutes-20261001
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install
+        run: |
+          pip install -r requirements-model-checkpoint.txt
+          pip install pandas numpy scipy scikit-learn requests
+      - name: Download locked 2125 chain
+        uses: actions/download-artifact@v4
+        with:
+          name: final-locked-chain-gw1-38
+          path: work/locked2125
+          github-token: ${{ github.token }}
+          run-id: 37612845586
+      - name: Run raw FH xP-gap replay
+        run: |
+          VF=$(find work/locked2125 -name rolling_vfinal_forecast.csv.gz | head -1)
+          test -n "$VF"
+          rm -rf analysis/results/fh-raw-gap-test
+          PYTHONPATH=src python scripts/run_fh_raw_gap_test.py --vfinal "$VF" --out analysis/results/fh-raw-gap-test
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: fh-raw-gap-test
+          path: analysis/results/fh-raw-gap-test
+          retention-days: 90
