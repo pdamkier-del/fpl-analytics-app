@@ -12,7 +12,7 @@ from fpl_xpts.chip_planner import optimize_free_hit_squad
 from fpl_xpts.fh_transfer_planner import _state_before_target
 from fpl_xpts.optimize import plan_squad
 from fpl_xpts.season_replay import actual_team_points,initial_squad,legalize_team_limit,valid_squad
-from fpl_xpts.transfer_planner import PlannerConfig,plan_transfer_path,execute_first_action
+from fpl_xpts.transfer_planner import PlannerConfig,plan_transfer_path,execute_first_action,clone_state,_apply_selected_squad
 
 WEIGHTS=(1.0,.60,.36,.216,.1296,.07776)
 BUFFER=1.0
@@ -46,8 +46,17 @@ def raw_fh_values(state,meta,origin,gw,period_end,pcfg):
     vals=[]
     for target in [int(x) for x in normal.horizon_gws if int(x)<=int(period_end)]:
         before=_state_before_target(state,normal,meta,target)
+        # Compare FH with the normal TS squad AFTER this GW's permanent action.
+        # Previously it used before.squad, overstating the marginal FH gain.
+        action=next((a for a in normal.path if int(a.gw)==target),None)
+        if action is None:
+            normal_ids=list(before.squad)
+        else:
+            selected=(set(before.squad)-set(action.outgoing))|set(action.incoming)
+            after,_,_=_apply_selected_squad(before,selected,meta)
+            normal_ids=list(after.squad)
         fh=optimize_free_hit_squad(state=before,meta=meta,forecast=origin,gw=target,
-                                   normal_squad_ids=list(before.squad))
+                                   normal_squad_ids=normal_ids)
         vals.append(dict(gw=target,gain=float(fh['fh_gain']),fh=fh))
     return normal,vals
 
