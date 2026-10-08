@@ -5,7 +5,7 @@ on:
   push:
     branches: [audit-role-minutes-20261001]
     paths:
-      - 'scripts/run_fh_raw_gap_test.py'
+      - 'scripts/run_fh_qvalue_v2.py'
       - 'scripts/run_fh_exact_gap_reference.py'
       - '.github/workflows/fh-raw-gap-test.yml'
 
@@ -120,13 +120,13 @@ jobs:
           REF=analysis/results/fh-exact-gap-reference/expected_best_remaining_reference.csv
           test -n "$VF"
           test -f "$REF"
-          rm -rf analysis/results/fh-raw-gap-test
-          PYTHONPATH=src:scripts python scripts/run_fh_raw_gap_test.py             --vfinal "$VF"             --reference "$REF"             --structural-prior analysis/results/fh-exact-gap-reference/structural_option_reference.csv             --out analysis/results/fh-raw-gap-test
+          rm -rf analysis/results/fh-qvalue-v2
+          PYTHONPATH=src:scripts python scripts/run_fh_raw_gap_test.py             --vfinal "$VF"             --reference "$REF"             --structural-prior analysis/results/fh-exact-gap-reference/structural_option_reference.csv             --out analysis/results/fh-qvalue-v2
       - uses: actions/upload-artifact@v4
         if: always()
         with:
-          name: fh-raw-gap-test
+          name: fh-qvalue-v2
           path: |
             analysis/results/fh-exact-gap-reference
-            analysis/results/fh-raw-gap-test
+            analysis/results/fh-qvalue-v2
           retention-days: 90
