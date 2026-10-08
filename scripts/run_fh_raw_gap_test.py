@@ -74,7 +74,7 @@ def run(label,gws,names,forecast,use_fh):
         best_future=max(future,key=lambda x:x['gain']) if future else None
         now_gain=-1e9 if now is None else now['gain']
         future_gain=0.0 if best_future is None else best_future['gain']
-        potential_best=float(EXPECTED_BEST_REMAINING[gw])
+        potential_best=float(ref[gw])
         threshold=max(future_gain,potential_best)
         available=bool(use_fh and half not in used)
         fire=bool(available and (gw==period_end or now_gain>=threshold))
@@ -103,9 +103,10 @@ def run(label,gws,names,forecast,use_fh):
                 transfers=sum(x['transfers'] for x in logs),hit_points=sum(x['hit_cost'] for x in logs),logs=logs)
 
 def main():
-    ap=argparse.ArgumentParser();ap.add_argument('--vfinal',required=True);ap.add_argument('--out',required=True)
+    ap=argparse.ArgumentParser();ap.add_argument('--vfinal',required=True);ap.add_argument('--out',required=True);ap.add_argument('--reference',required=True)
     a=ap.parse_args();out=Path(a.out);out.mkdir(parents=True,exist_ok=True)
     gws,names,forecast=load(a.vfinal)
+    ref=pd.read_csv(a.reference).set_index('gw')['expected_best_remaining_gap'].to_dict()
     b=run('baseline',gws,names,forecast,False)
     f=run('fh_raw_gap',gws,names,forecast,True)
     pd.DataFrame(b.pop('logs')).to_csv(out/'baseline.csv',index=False)
@@ -114,7 +115,7 @@ def main():
         raise RuntimeError(f"baseline {b['total_points']} != 2125")
     s={'classification':'raw FH xP-gap timing test',
        'rule':'use FH when current raw xP gain >= max(best raw visible future xP gain, historical mean best remaining FH gap to GW19/38); no FH discount/decay',
-       'historical_reference':'mean of each seasons best later FH proxy from 2022/23-2025/26',
+       'historical_reference':'2024/25 exact raw FH-gap empirical expected maximum for number of remaining GWs',
        'baseline':b,'fh':f,'delta':f['total_points']-b['total_points']}
     (out/'summary.json').write_text(json.dumps(s,indent=2)+'\n')
     print(json.dumps(s,indent=2))
