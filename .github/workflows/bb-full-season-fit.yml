@@ -1,0 +1,56 @@
+name: Fit Bench Boost frozen FH WC
+on:
+  workflow_dispatch:
+  push:
+    branches: [audit-role-minutes-20261001]
+    paths:
+      - 'src/fpl_xpts/bench_boost_policy.py'
+      - 'scripts/run_joint_fh_wc_stopping_replay.py'
+      - 'scripts/run_bb_chip_replay.py'
+      - '.github/workflows/bb-full-season-fit.yml'
+jobs:
+  fit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 240
+    strategy:
+      fail-fast: false
+      matrix:
+        bb: [0, 5, 10, 15, 20, 25]
+    permissions:
+      actions: read
+      contents: read
+    env:
+      PYTHONHASHSEED: '0'
+      OPENBLAS_NUM_THREADS: '1'
+      OMP_NUM_THREADS: '1'
+      MKL_NUM_THREADS: '1'
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.sha }}
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: |
+          pip install -r requirements-model-checkpoint.txt
+          pip install pandas==2.2.3 numpy==2.3.5 scipy scikit-learn requests pytest
+      - run: |
+          python -m compileall -q scripts/run_joint_fh_wc_stopping_replay.py scripts/run_bb_chip_replay.py src/fpl_xpts/bench_boost_policy.py
+          PYTHONPATH=src pytest -q tests/test_bench_boost_policy.py tests/test_simple_chip_thresholds.py
+      - uses: actions/download-artifact@v4
+        with:
+          name: final-locked-chain-gw1-38
+          path: work/locked2125
+          github-token: ${{ github.token }}
+          run-id: 37612845586
+      - name: Full season BB replay
+        run: |
+          VF=$(find work/locked2125 -name rolling_vfinal_forecast.csv.gz | head -1)
+          test -n "$VF"
+          PYTHONPATH=src:scripts python scripts/run_bb_chip_replay.py --vfinal "$VF" --lambda-bb ${{ matrix.bb }} --out analysis/results/bb-fit/bb${{ matrix.bb }}
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: bb-fit-${{ matrix.bb }}
+          path: analysis/results/bb-fit/
+          retention-days: 90
