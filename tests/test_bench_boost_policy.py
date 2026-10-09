@@ -1,6 +1,6 @@
 import pandas as pd
 import pytest
-from fpl_xpts.bench_boost_policy import evaluate_bench_boost,bb_threshold
+from fpl_xpts.bench_boost_policy import evaluate_bench_boost,bb_threshold,post_wildcard_bb_opportunities
 
 def lineup():
     # Valid 4-4-2; bench consists of DEF, MID, FWD and GKP.
@@ -44,3 +44,12 @@ def test_bb_caution_decreases_toward_each_half_end():
 def test_invalid_bb_input():
     with pytest.raises(ValueError):evaluate_bench_boost(lineup().iloc[:-1])
     with pytest.raises(ValueError):bb_threshold(39,5)
+
+def test_post_wc_options_start_next_week_and_end_at_half():
+    x=lineup()
+    horizons=pd.concat([x.assign(gw=g) for g in (17,18,19,20)],ignore_index=True)
+    opportunity=post_wildcard_bb_opportunities(
+        wc_gw=17,wc_squad_ids=list(range(1,16)),asof_projection=horizons,
+        lookahead=5)
+    assert opportunity.bb_gw.tolist()==[18,19]
+    assert (opportunity.bb_incremental_xp>=0).all()
