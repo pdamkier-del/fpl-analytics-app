@@ -1,0 +1,49 @@
+name: BB against frozen FH WC
+on:
+  workflow_dispatch:
+  push:
+    branches: [audit-role-minutes-20261001]
+    paths:
+      - 'scripts/run_bb_locked_fh_wc_grid.py'
+      - '.github/workflows/bb-locked-chip-grid.yml'
+jobs:
+  replay:
+    runs-on: ubuntu-latest
+    timeout-minutes: 240
+    env:
+      PYTHONHASHSEED: '0'
+      OPENBLAS_NUM_THREADS: '1'
+      OMP_NUM_THREADS: '1'
+      MKL_NUM_THREADS: '1'
+    permissions:
+      actions: read
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.sha }}
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: |
+          pip install -r requirements-model-checkpoint.txt
+          pip install pandas==2.2.3 numpy==2.3.5 scipy scikit-learn requests pytest
+      - uses: actions/download-artifact@v4
+        with:
+          name: final-locked-chain-gw1-38
+          path: work/locked2125
+          github-token: ${{ github.token }}
+          run-id: 37612845586
+      - name: Validate locked policy and BB increment
+        run: PYTHONPATH=src python -m pytest -q tests/test_simple_chip_thresholds.py tests/test_bench_boost_policy.py
+      - name: Scan BB opportunities and fit thresholds
+        run: |
+          VF=$(find work/locked2125 -name rolling_vfinal_forecast.csv.gz | head -1)
+          test -n "$VF"
+          PYTHONPATH=src:scripts python scripts/run_bb_locked_fh_wc_grid.py --vfinal "$VF" --out analysis/results/bb-locked-fh-wc
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: bb-locked-fh-wc-initial-grid
+          path: analysis/results/bb-locked-fh-wc
+          retention-days: 90
