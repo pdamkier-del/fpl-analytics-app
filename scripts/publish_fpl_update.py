@@ -79,6 +79,10 @@ def main():
     match_builder=ROOT/'scripts'/'build_match_centre_data.py'
     if match_builder.exists():
         subprocess.run([sys.executable,str(match_builder)],check=True,cwd=ROOT)
+    role_builder=ROOT/'scripts'/'build_live_role_snapshot.py'
+    if not role_builder.exists():
+        raise FileNotFoundError(role_builder)
+    subprocess.run([sys.executable,str(role_builder)],check=True,cwd=ROOT)
 
     UPDATES.mkdir(exist_ok=True)
     bundle=UPDATES/f'app-{app_version}.zip'
