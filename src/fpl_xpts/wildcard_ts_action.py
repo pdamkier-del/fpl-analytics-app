@@ -13,7 +13,7 @@ import numpy as np
 import pandas as pd
 from scipy.optimize import Bounds, LinearConstraint, milp
 from .optimize import POSITION_COUNTS,START_MAX,START_MIN,plan_squad
-from .season_replay import ReplayState,valid_squad
+from .season_replay import ReplayState,valid_squad,selling_price
 from .transfer_planner import (
     PlannerConfig, PlannerResult, _candidate_players, _apply_selected_squad,
     clone_state,plan_transfer_path,execute_first_action,projected_manager_score,
