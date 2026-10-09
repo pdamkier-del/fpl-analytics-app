@@ -1,0 +1,87 @@
+"""Standalone Bench Boost value estimate. No changes to locked TS, TC, FH or WC.
+
+Estimates the *incremental* points of activating BB now compared with ordinary
+automatic substitutions, using independent Bernoulli appearance assumptions.
+This is NOT a player availability forecast; probabilities come from locked PM.
+"""
+from dataclasses import dataclass
+from itertools import product
+from math import prod
+import pandas as pd
+
+from .season_replay import _formation_ok
+
+@dataclass(frozen=True)
+class BenchBoostEstimate:
+    bench_xp: float
+    expected_autosub_xp: float
+    incremental_xp: float
+    bench_player_ids: tuple[int, ...]
+
+def evaluate_bench_boost(plan_rows: pd.DataFrame) -> BenchBoostEstimate:
+    """Evaluate an already selected, legal 15-player locked TS lineup.
+
+    xpts_mean is treated as unconditional expected player points.
+    p_play is the chance of a nonzero-minutes appearance.
+    Starter/bench appearances are independent in this baseline approximation.
+    Bench points that would enter through ordinary autosubs are *not* BB uplift.
+    """
+    required={'id','role','position','p_play','xpts_mean'}
+    if not required.issubset(plan_rows.columns):
+        raise ValueError(f'Missing columns: {sorted(required-set(plan_rows.columns))}')
+    if len(plan_rows)!=15 or plan_rows.id.nunique()!=15:
+        raise ValueError('BB requires 15 different players')
+    df=plan_rows.set_index('id').copy()
+    start=plan_rows[plan_rows.role.isin(('C','VC','XI'))]
+    if len(start)!=11: raise ValueError('BB requires 11 starters')
+    benches=[]
+    for role in ('Bench 1','Bench 2','Bench 3','GK bench'):
+        row=plan_rows[plan_rows.role.eq(role)]
+        if len(row)!=1: raise ValueError('BB requires exactly one '+role)
+        benches.append(int(row.iloc[0].id))
+    out_bench=benches[:3]; bench_gk=benches[3]
+    starters=[int(pid) for pid in start.id]
+    starter_gk=[pid for pid in starters if df.at[pid,'position']=='GKP']
+    if len(starter_gk)!=1: raise ValueError('Invalid goalkeeper count')
+    field_starters=[pid for pid in starters if pid!=starter_gk[0]]
+    p={int(pid):min(1.,max(0.,float(row.p_play))) for pid,row in plan_rows.set_index('id').iterrows()}
+    xp={int(pid):max(0.,float(row.xpts_mean)) for pid,row in plan_rows.set_index('id').iterrows()}
+    bench_xp=sum(xp[pid] for pid in benches)
+    autosub=xp[bench_gk]*(1.-p[starter_gk[0]])
+
+    # Enumerate availability outcomes only to calculate bench contribution,
+    # not to predict a new transfer strategy or alter the forecast.
+    for starter_bits in product((False,True),repeat=10):
+        pw=prod(p[pid] if available else (1.-p[pid])
+                for pid,available in zip(field_starters,starter_bits))
+        if pw==0: continue
+        missing=[pid for pid,available in zip(field_starters,starter_bits) if not available]
+        if not missing: continue
+        for bench_bits in product((False,True),repeat=3):
+            weight=pw*prod(p[pid] if available else (1.-p[pid])
+                           for pid,available in zip(out_bench,bench_bits))
+            if weight==0: continue
+            active=set(pid for pid,available in zip(out_bench,bench_bits) if available)
+            scoring=starters.copy()
+            reward=0.
+            for absent in missing:
+                for pid in out_bench:
+                    if pid not in active or pid in scoring: continue
+                    candidate=[x for x in scoring if x!=absent]+[pid]
+                    if _formation_ok([str(df.at[x,'position']) for x in candidate]):
+                        scoring=candidate
+                        reward+=xp[pid]/p[pid]
+                        break
+            autosub+=weight*reward
+    return BenchBoostEstimate(
+        bench_xp=float(bench_xp),
+        expected_autosub_xp=float(autosub),
+        incremental_xp=max(0.,float(bench_xp-autosub)),
+        bench_player_ids=tuple(benches),
+    )
+
+def bb_threshold(gw: int, lambda_bb: float) -> float:
+    """One-parameter chip holding threshold, matching frozen FH/WC decay."""
+    if gw<1 or gw>38 or lambda_bb<0:raise ValueError('Invalid BB GW/threshold')
+    first,last=(1,19) if gw<=19 else (20,38)
+    return float(lambda_bb)*(last-gw)/(last-first)
