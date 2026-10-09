@@ -75,7 +75,7 @@ def main():
                 assert valid_squad(meta,state.squad)
                 moves.append(dict(start=start,variant=variant,gw=gw,chip=('wc' if variant=='wc_then_ts' and gw==start else 'normal'),out=';'.join(names.get(i,str(i)) for i in sorted(before-after)),incoming=';'.join(names.get(i,str(i)) for i in sorted(after-before)),hit=hit,bank=state.bank,ft=state.free_transfers))
                 plan=plan_squad(current,list(state.squad),gw)
-                xp,actuals,score=player_breakdown(plan,base.hp.actual_gw(gws,gw))
+                xp,actuals,score=player_breakdown(plan.rows,base.hp.actual_gw(gws,gw))
                 assert score==sum(actuals.values())
                 assert abs(sum(xp.values())-plan.expected_score)<1e-6
                 expected=float(plan.expected_score)
