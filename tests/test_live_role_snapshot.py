@@ -73,12 +73,16 @@ def main():
            'id':i+200,'team_id':1,'role_source':'current_season_confirmed',
            'q':{role:1.},'H':{role:.9},'evidence':3.}
            for i,role in enumerate(['GK','RB','RCB','LCB','LB','RDM','LDM','RAM','CAM','LAM','ST'],1)]
-        recent={'current_tactical_lineups_found':20,'players':future}
+        recent={'current_tactical_lineups_found':20,'players':future,
+           'team_formations':[{'team_id':1,'confidence':'current_observed',
+             'formations':[{'formation':'4-2-3-1','weighted_share':1.,'current_season_games':3}]}]}
         b={'meta':{'updated':'2026-10-09T11:00:00Z','model_version':'locked_mm_pm_vfinal','next_gw':8},
            'forecasts':[{'id':x['id'],'player':'P'+str(x['id']),
                          'gws':[{'gw':8,'pstart':.95,'xmins':82}]} for x in future]}
         official_xi={'official_next_gw':8,'teams':[{'id':1,'code':94,'short_name':'CHE'}]}
-        def dummy_optimizer(players):
+        def dummy_optimizer(players,**kwargs):
+            assert kwargs['formations']==('4-2-3-1',)
+            assert kwargs['formation_log_prior']=={'4-2-3-1':0.0}
             slots=['GK','RB','RCB','LCB','LB','RDM','LDM','RAM','CAM','LAM','ST']
             return {'formation':'4-2-3-1','xi':[
                 SimpleNamespace(player_uuid=p['player_uuid'],role=role,q_role=1.,
