@@ -13,6 +13,8 @@ on:
       - 'tests/test_publisher_bundle.py'
       - 'tests/test_live_snapshot.py'
       - 'tests/test_live_role_snapshot.py'
+      - 'tests/test_predicted_lineup_source.py'
+      - 'scripts/snapshot_predicted_lineups.py'
       - 'scripts/build_live_role_snapshot.py'
       - 'scripts/snapshot_fpl_schedule.py'
       - 'model/forecast_preview.py'
@@ -58,6 +60,8 @@ jobs:
         run: python tests/test_publisher_bundle.py
       - name: Verify historical tactical role evidence and transfer safety
         run: python tests/test_live_role_snapshot.py
+      - name: Test source-labelled current-GW expert XI and actual pitch coordinates
+        run: python tests/test_predicted_lineup_source.py
       - name: Validate HTML links and required pages
         run: |
           python - <<'PY'
