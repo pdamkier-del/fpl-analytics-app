@@ -153,17 +153,17 @@ function renderPitch(){
  const L=expectedLineup(),xi=L.players;
  const outside=currentExpertLineup();
  if(L.fallback&&outside){renderExpertLineup(outside);return;}
- const pitch=document.getElementById('pitch');
- pitch.classList.remove('expert-formation');
+ const earlyPitch=document.getElementById('pitch');
+ earlyPitch.classList.remove('expert-formation');
  if(L.fallback){
-   pitch.classList.add('no-fake-xi');
+   earlyPitch.classList.add('no-fake-xi');
    const hist=(R.team_formations||[]).find(t=>t.club===club);
    document.getElementById('formationBadge').textContent='Ingen verificeret forventet XI';
    document.getElementById('lineupSub').textContent=
      'Ingen opdateret taktisk start-XI for GW'+(R.official_next_gw||'—')+
      (hist?' · sidste dokumenterede formation '+hist.observed_latest_formation+
        ' ('+hist.latest_observed_season+')':'');
-   pitch.innerHTML='<div class="no-lineup-notice"><strong>Forventet XI ikke tilgængelig.</strong><p>Vi har ikke verificeret '+
+   earlyPitch.innerHTML='<div class="no-lineup-notice"><strong>Forventet XI ikke tilgængelig.</strong><p>Vi har ikke verificeret '+
      'en aktuel formation og de 11 startere. Historiske roller vises i spillertabellen, '+
      'men vi indsætter ikke vilkårlige spillere på en taktisk bane.</p></div>';
    document.getElementById('xiMinutes').textContent='—';
@@ -173,7 +173,7 @@ function renderPitch(){
      'forventet aktuel start-XI. Ingen opstilling udledes fra bare FPL-positioner.</div>';
    return;
  }
- pitch.classList.remove('no-fake-xi');
+ earlyPitch.classList.remove('no-fake-xi');
  document.getElementById('formationBadge').textContent=L.fallback?'Ingen taktisk XI':L.formation;
  document.getElementById('lineupSub').textContent=L.fallback?
    `GW${D.meta?.next_gw||'—'} · højeste P(start) sorteret efter FPL-position (IKKE taktiske roller eller forudsagt formation). MM-rolledata mangler.`:
