@@ -90,7 +90,7 @@ def evidence_from_directory(history,raw_root,stats_root,code_by_historical_id,cu
             if len(lineup_rows)!=11:continue
             games.append((ko,mid,int(team_code),lineup[0]['formation'],lineup_rows,folder.name,source))
     for ko,mid,team,formation,lineup,gw,season in sorted(games,key=lambda x:(x[0],x[1],x[2])):
-        prior,_,_=history.state(team,ko)
+        prior,_,_=history.state(team,ko.isoformat())
         try:
             patterns=template(formation)
             geometry={}
