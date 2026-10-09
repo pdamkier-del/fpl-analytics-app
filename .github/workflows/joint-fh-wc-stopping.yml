@@ -39,6 +39,13 @@ jobs:
           path: work/structural-history
           github-token: ${{ github.token }}
           run-id: 37899491409
+      - name: Fetch pre-2025 squad disruption calibration
+        uses: actions/download-artifact@v4
+        with:
+          name: squad-shock-calibration
+          path: work/squad-shocks
+          github-token: ${{ github.token }}
+          run-id: 37913868798
       - name: Test stochastic Bellman model
         run: PYTHONPATH=src pytest -q tests/test_joint_chip_stopping.py
       - name: Replay 2025-26 with joint WC and FH
@@ -47,7 +54,9 @@ jobs:
           STRUCT=$(find work/structural-history -name mc_structural_by_gw.csv | head -1)
           test -n "$VF"
           test -n "$STRUCT"
-          PYTHONPATH=src:scripts python scripts/run_joint_fh_wc_stopping_replay.py --vfinal "$VF" --structural "$STRUCT" --out analysis/results/joint-fh-wc-stopping
+          CAL=$(find work/squad-shocks -name availability_calibration.json | head -1)
+          test -n "$CAL"
+          PYTHONPATH=src:scripts python scripts/run_joint_fh_wc_stopping_replay.py --vfinal "$VF" --structural "$STRUCT" --calibration "$CAL" --persistent-fraction .35 --out analysis/results/joint-fh-wc-stopping
       - uses: actions/upload-artifact@v4
         if: always()
         with:
