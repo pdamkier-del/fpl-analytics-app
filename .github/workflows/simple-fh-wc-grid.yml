@@ -1,0 +1,57 @@
+name: Fit simple FH WC thresholds
+on:
+  workflow_dispatch:
+  push:
+    branches: [audit-role-minutes-20261001]
+    paths:
+      - 'src/fpl_xpts/simple_chip_thresholds.py'
+      - 'scripts/run_simple_chip_replay.py'
+      - 'scripts/run_joint_fh_wc_stopping_replay.py'
+      - '.github/workflows/simple-fh-wc-grid.yml'
+jobs:
+  fit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 360
+    strategy:
+      fail-fast: false
+      matrix:
+        fh: [0, 10, 20]
+        wc: [0, 10, 20]
+    env:
+      PYTHONHASHSEED: '0'
+      OPENBLAS_NUM_THREADS: '1'
+      OMP_NUM_THREADS: '1'
+      MKL_NUM_THREADS: '1'
+    permissions:
+      actions: read
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.sha }}
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: |
+          pip install -r requirements-model-checkpoint.txt
+          pip install pandas==2.2.3 numpy==2.3.5 scipy scikit-learn requests pytest
+      - uses: actions/download-artifact@v4
+        with:
+          name: final-locked-chain-gw1-38
+          path: work/locked2125
+          github-token: ${{ github.token }}
+          run-id: 37612845586
+      - name: Unit-check thresholds
+        run: |
+          PYTHONPATH=src python -c "from fpl_xpts.simple_chip_thresholds import choose_simple_chip as c; assert c(19,1,5,0,100,0).choice=='fh'; assert c(6,3,1,1,20,20).choice=='normal'"
+      - name: Full-season replay
+        run: |
+          VF=$(find work/locked2125 -name rolling_vfinal_forecast.csv.gz | head -1)
+          test -n "$VF"
+          PYTHONPATH=src:scripts python scripts/run_simple_chip_replay.py --vfinal "$VF" --lambda-fh ${{ matrix.fh }} --lambda-wc ${{ matrix.wc }} --out analysis/results/simple-fh-wc/fh${{ matrix.fh }}-wc${{ matrix.wc }}
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: simple-fh${{ matrix.fh }}-wc${{ matrix.wc }}
+          path: analysis/results/simple-fh-wc/
+          retention-days: 90
