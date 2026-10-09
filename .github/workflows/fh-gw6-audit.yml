@@ -1,0 +1,160 @@
+name: FH GW6 counterfactual audit
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [audit-role-minutes-20261001]
+    paths:
+      - 'scripts/run_fh_gw6_counterfactual.py'
+      - 'scripts/run_fh_exact_gap_reference.py'
+      - '.github/workflows/fh-gw6-audit.yml'
+
+jobs:
+  replay:
+    runs-on: ubuntu-latest
+    timeout-minutes: 360
+    permissions:
+      actions: read
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: audit-role-minutes-20261001
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install
+        run: |
+          pip install -r requirements-model-checkpoint.txt
+          pip install pandas==2.2.3 numpy==2.3.5 scipy scikit-learn requests
+      - name: Restore 2024-25 historical data
+        run: python scripts/restore_2024_25_data_checkpoint.py
+      - name: Download 2024-25 conditional TS inputs
+        uses: actions/download-artifact@v4
+        with:
+          name: conditional-2024-25-per-origin-full-gw6-38
+          path: work/historical2425
+          github-token: ${{ github.token }}
+          run-id: 37639946603
+      - name: Build exact 2024-25 raw FH-gap reference
+        run: |
+          VF24=$(find work/historical2425 -name rolling_vfinal_forecast.csv.gz | head -1)
+          test -n "$VF24"
+          rm -rf analysis/results/fh-exact-gap-reference
+          PYTHONPATH=src:scripts python scripts/run_fh_exact_gap_reference.py             --derived data_v1_1/derived/season_2024_25_v1             --vfinal "$VF24"             --out analysis/results/fh-exact-gap-reference
+      - name: Download structural DGW prior calibration
+        uses: actions/download-artifact@v4
+        with:
+          name: tc-latent-dgw-calibration
+          path: work/tc-structural
+          github-token: ${{ github.token }}
+          run-id: 37669173496
+      - name: Clone historical FPL data
+        run: git clone --depth 1 https://github.com/vaastav/Fantasy-Premier-League.git work/vaastav
+      - name: Build cutoff-safe FH structural save prior
+        run: |
+          python - <<'PY'
+          import pandas as pd, numpy as np
+          from pathlib import Path
+
+          gaps=pd.read_csv('analysis/results/fh-exact-gap-reference/historical_exact_fh_gaps_2024_25.csv')
+          sched=pd.read_csv('data_v1_1/derived/fpl_schedule_knowledge/2024-25_dgw_bgw_cutoff.csv')
+          dgw_events=set(pd.to_numeric(sched.loc[sched.type.eq('DGW'),'event'],errors='coerce').dropna().astype(int))
+          bgw_events=set(pd.to_numeric(sched.loc[sched.type.eq('BGW'),'event'],errors='coerce').dropna().astype(int))
+
+          z=gaps[gaps.fh_gap.notna()].copy()
+          normal=z[~z.gw.isin(dgw_events|bgw_events)].fh_gap
+          dgw=z[z.gw.isin(dgw_events)].fh_gap
+          bgw=z[z.gw.isin(bgw_events)].fh_gap
+
+          mean_normal=float(normal.mean())
+          dgw_uplift=max(0.0,float(dgw.mean()-mean_normal)) if len(dgw) else 0.0
+          bgw_uplift=max(0.0,float(bgw.mean()-mean_normal)) if len(bgw) else 0.0
+
+          seasons=['2022-23','2023-24','2024-25']
+          struct={}
+          for season in seasons:
+              p=Path('work/vaastav/data')/season/'fixtures.csv'
+              fx=pd.read_csv(p)
+              ev=pd.to_numeric(fx.get('event'),errors='coerce')
+              counts=ev.dropna().astype(int).value_counts().to_dict()
+              struct[season]={
+                  'dgw':{int(g) for g,n in counts.items() if int(n)>10},
+                  'bgw':{int(g) for g,n in counts.items() if int(n)<10},
+              }
+
+          base=pd.read_csv('analysis/results/fh-exact-gap-reference/expected_best_remaining_reference.csv')
+          rows=[]
+          for _,r in base.iterrows():
+              gw=int(r.gw); end=19 if gw<=19 else 38
+              p_dgw=float(np.mean([any(gw<e<=end for e in struct[s]['dgw']) for s in seasons]))
+              p_bgw=float(np.mean([any(gw<e<=end for e in struct[s]['bgw']) for s in seasons]))
+              b=float(r.expected_best_remaining_gap)
+              dgw_bonus=p_dgw*dgw_uplift
+              bgw_bonus=p_bgw*bgw_uplift
+              rows.append(dict(
+                  gw=gw,
+                  p_future_dgw=p_dgw,p_future_bgw=p_bgw,
+                  dgw_uplift=dgw_uplift,bgw_uplift=bgw_uplift,
+                  dgw_bonus=dgw_bonus,bgw_bonus=bgw_bonus,
+                  latent_structural_bonus=dgw_bonus+bgw_bonus,
+                  base_expected_best_remaining_gap=b,
+                  structural_save_value=b+dgw_bonus+bgw_bonus))
+          out=pd.DataFrame(rows)
+          out.to_csv('analysis/results/fh-exact-gap-reference/structural_option_reference.csv',index=False)
+          print('normal raw FH gap mean',mean_normal)
+          print('DGW raw FH uplift',dgw_uplift,'events',sorted(dgw_events),'n',len(dgw))
+          print('BGW raw FH uplift',bgw_uplift,'events',sorted(bgw_events),'n',len(bgw))
+          print(out.to_string(index=False))
+          PY
+      - name: Prepare Monte Carlo historical structural observations
+        run: |
+          python - <<'PY'
+          import numpy as np, pandas as pd
+          from pathlib import Path
+          root=Path('analysis/results/fh-exact-gap-reference')
+          gaps=pd.read_csv(root/'historical_exact_fh_gaps_2024_25.csv')
+          known=pd.read_csv('data_v1_1/derived/fpl_schedule_knowledge/2024-25_dgw_bgw_cutoff.csv')
+          bg=set(known.loc[known.type.eq('BGW'),'event'].astype(int))
+          dg=set(known.loc[known.type.eq('DGW'),'event'].astype(int))
+          gaps['kind']=['BGW' if int(g) in bg else 'DGW' if int(g) in dg else 'SGW' for g in gaps.gw]
+          gaps.to_csv(root/'historical_mc_gaps.csv',index=False)
+          events=[]
+          for season in ['2022-23','2023-24','2024-25']:
+              fx=pd.read_csv(Path('work/vaastav/data')/season/'fixtures.csv')
+              counts=pd.to_numeric(fx.event,errors='coerce').dropna().astype(int).value_counts()
+              for gw in range(1,39):
+                  n=int(counts.get(gw,10))
+                  events.append(dict(season=season,gw=gw,kind=('BGW' if n<10 else 'DGW' if n>10 else 'SGW')))
+          ev=pd.DataFrame(events)
+          freq=ev.pivot_table(index='gw',columns='kind',values='season',aggfunc='count',fill_value=0)
+          for kind in ['BGW','DGW']:
+              if kind not in freq:freq[kind]=0
+          structural=pd.DataFrame({'gw':freq.index.astype(int),'p_bgw':freq.BGW.to_numpy()/3,'p_dgw':freq.DGW.to_numpy()/3})
+          structural.to_csv(root/'mc_structural_by_gw.csv',index=False)
+          print('Historical MC rows:',len(gaps),'structural rows:',len(structural))
+          print('BGW:',sorted(bg),'DGW:',sorted(dg))
+          PY
+      - name: Download locked 2125 chain
+        uses: actions/download-artifact@v4
+        with:
+          name: final-locked-chain-gw1-38
+          path: work/locked2125
+          github-token: ${{ github.token }}
+          run-id: 37612845586
+      - name: Run 2025-26 raw FH xP-gap replay
+        run: |
+          VF=$(find work/locked2125 -name rolling_vfinal_forecast.csv.gz | head -1)
+          REF=analysis/results/fh-exact-gap-reference/expected_best_remaining_reference.csv
+          test -n "$VF"
+          test -f "$REF"
+          rm -rf analysis/results/fh-gw6-audit
+          PYTHONPATH=src:scripts python scripts/run_fh_gw6_counterfactual.py             --vfinal "$VF"             --reference "$REF"             --structural-prior analysis/results/fh-exact-gap-reference/structural_option_reference.csv             --historical analysis/results/fh-exact-gap-reference/historical_mc_gaps.csv             --structure analysis/results/fh-exact-gap-reference/mc_structural_by_gw.csv             --out analysis/results/fh-gw6-audit
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: fh-gw6-audit
+          path: |
+            analysis/results/fh-exact-gap-reference
+            analysis/results/fh-gw6-audit
+          retention-days: 90
