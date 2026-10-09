@@ -1,0 +1,56 @@
+name: FH WC joint stochastic replay
+on:
+  workflow_dispatch:
+  push:
+    branches: [audit-role-minutes-20261001]
+    paths:
+      - 'scripts/run_joint_fh_wc_stopping_replay.py'
+      - 'src/fpl_xpts/joint_chip_stopping.py'
+      - '.github/workflows/joint-fh-wc-stopping.yml'
+jobs:
+  replay:
+    runs-on: ubuntu-latest
+    timeout-minutes: 240
+    permissions:
+      actions: read
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: audit-role-minutes-20261001
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install
+        run: |
+          pip install -r requirements-model-checkpoint.txt
+          pip install pandas==2.2.3 numpy==2.3.5 scipy scikit-learn requests
+      - name: Fetch locked TS 2025-26
+        uses: actions/download-artifact@v4
+        with:
+          name: final-locked-chain-gw1-38
+          path: work/locked2125
+          github-token: ${{ github.token }}
+          run-id: 37612845586
+      - name: Fetch historical BGW/DGW priors
+        uses: actions/download-artifact@v4
+        with:
+          name: fh-mc-v3
+          path: work/structural-history
+          github-token: ${{ github.token }}
+          run-id: 37899491409
+      - name: Test stochastic Bellman model
+        run: PYTHONPATH=src pytest -q tests/test_joint_chip_stopping.py
+      - name: Replay 2025-26 with joint WC and FH
+        run: |
+          VF=$(find work/locked2125 -name rolling_vfinal_forecast.csv.gz | head -1)
+          STRUCT=$(find work/structural-history -name mc_structural_by_gw.csv | head -1)
+          test -n "$VF"
+          test -n "$STRUCT"
+          PYTHONPATH=src:scripts python scripts/run_joint_fh_wc_stopping_replay.py --vfinal "$VF" --structural "$STRUCT" --out analysis/results/joint-fh-wc-stopping
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: joint-fh-wc-stopping
+          path: analysis/results/joint-fh-wc-stopping
+          retention-days: 90
