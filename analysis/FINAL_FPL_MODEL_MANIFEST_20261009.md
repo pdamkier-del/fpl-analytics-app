@@ -36,3 +36,24 @@ Historical deadline inputs
 - A pure one-GW FH candidate can differ from actual FH value under stateful downstream transfer decisions. Historical point uplift is in-sample, not causal EV.
 - Assembled model must pass end-to-end chip legality, FT/budget, points, and dependency provenance checks before deployment.
 - This is the model logic checkpoint; integrating it into the publisher website is a separate UI/data wiring task.
+
+
+## Final end-to-end assembled replay — VERIFIED
+
+GitHub Actions run **37934278566** succeeded:
+https://github.com/pdamkier-del/fpl-analytics-app/actions/runs/37934278566
+
+- Frozen TS without chips: **2,125** points.
+- FH/WC: **2,209** points.
+- FH/WC + BB(20): **2,242** points.
+- FH/WC + BB(20) + existing TC-v2 restricted to manager's legal XI: **2,266** points.
+- Final incremental TC: **+24** over FH/WC/BB, **+141** over locked TS without chips.
+- FH in GW3, GW25; WC in GW6, GW26; BB in GW11, GW29; TC in GW13 (Thiago, ID 136), GW36 (Haaland, ID 430).
+- State/score checks passed; one chip per GW, at most one each chip per half. Frozen baseline replay checked equal to exactly 2,242 points.
+- All CI unit tests for coordinator and frozen chip policy passed; see workflow steps.
+- **This success certifies the historical integration, NOT production deadline/provenance integrity.** The archived TC future schedule can use the realized calendar, and some WC later-GW values are synthetic. Do not advertise the 2,266 score as a fully cutoff-safe out-of-sample prediction.
+
+## Release
+
+Frozen version branch: `fpl-model-complete-locked-20261009`.
+Machine-readable config: `config/fpl_locked_model.json`. To deploy in publisher, wire live cutoff-aware data and team state into these existing modules; do not refit the locked parameters.
