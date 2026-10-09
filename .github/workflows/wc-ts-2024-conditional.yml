@@ -5,6 +5,7 @@ on:
   push:
     branches: [audit-role-minutes-20261001]
     paths:
+      - 'src/fpl_xpts/wildcard_ts_action.py'
       - 'scripts/run_wc_ts_2024_conditional.py'
       - 'scripts/run_fh_exact_gap_reference.py'
       - '.github/workflows/wc-ts-2024-conditional.yml'
