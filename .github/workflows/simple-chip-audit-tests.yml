@@ -1,0 +1,21 @@
+name: Audit simple chip decision tests
+on:
+  workflow_dispatch:
+  push:
+    branches: [audit-role-minutes-20261001]
+    paths:
+      - 'tests/test_simple_chip_thresholds.py'
+      - 'src/fpl_xpts/simple_chip_thresholds.py'
+      - '.github/workflows/simple-chip-audit-tests.yml'
+jobs:
+  tests:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.sha }}
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: pip install pytest
+      - run: PYTHONPATH=src python -m pytest -q tests/test_simple_chip_thresholds.py
