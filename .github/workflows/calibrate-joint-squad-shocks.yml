@@ -1,0 +1,32 @@
+name: Historical squad disruption calibration
+on:
+  workflow_dispatch:
+  push:
+    branches: [audit-role-minutes-20261001]
+    paths:
+      - 'scripts/calibrate_joint_squad_shocks.py'
+      - '.github/workflows/calibrate-joint-squad-shocks.yml'
+jobs:
+  calibrate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: audit-role-minutes-20261001
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install
+        run: pip install pandas==2.2.3 numpy==2.3.5
+      - name: Download historical FPL appearances
+        run: git clone --depth 1 https://github.com/vaastav/Fantasy-Premier-League.git work/vaastav
+      - name: Estimate availability-shock rates
+        run: |
+          python scripts/calibrate_joint_squad_shocks.py --vaastav work/vaastav --out analysis/results/squad-shock-calibration
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: squad-shock-calibration
+          path: analysis/results/squad-shock-calibration
+          retention-days: 90
