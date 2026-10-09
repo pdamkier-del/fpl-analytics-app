@@ -31,6 +31,7 @@ MODEL_FILES=[
     ROOT/'model'/'decision_optimizer.py',
     ROOT/'model'/'forecast_preview.py',
     ROOT/'config'/'fpl_locked_model.json',
+    ROOT/'data_v1_1'/'derived'/'fpl_schedule_knowledge'/'live'/'latest.json',
 ]
 
 def sha_bytes(raw:bytes)->str:
