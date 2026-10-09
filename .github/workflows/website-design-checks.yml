@@ -7,6 +7,9 @@ on:
       - 'app/**'
       - 'tests/test_model_tree_navigation.py'
       - 'tests/model-tree-ui-smoke.js'
+      - 'tests/test_forecast_preview.py'
+      - 'model/forecast_preview.py'
+      - 'start_app.py'
       - 'scripts/publish_fpl_update.py'
       - '.github/workflows/publish-fpl-update.yml'
       - '.github/workflows/website-design-checks.yml'
@@ -26,7 +29,7 @@ jobs:
         with:
           node-version: '22'
       - name: Validate Python
-        run: python -m py_compile scripts/publish_fpl_update.py start_app.py updater.py
+        run: python -m py_compile scripts/publish_fpl_update.py start_app.py updater.py model/forecast_preview.py
       - name: Validate all model tree scripts and existing navigation
         run: |
           node --check app/nav.js
@@ -38,12 +41,14 @@ jobs:
         run: |
           npm install --no-save --no-package-lock jsdom@24
           node tests/model-tree-ui-smoke.js
+      - name: Verify live forecast preview and chip candidate provenance
+        run: python tests/test_forecast_preview.py
       - name: Validate HTML links and required pages
         run: |
           python - <<'PY'
           from html.parser import HTMLParser
           from pathlib import Path
-          required=['index.html','player.html','models.html','overview.html','rankings.html']
+          required=['index.html','player.html','models.html','overview.html','rankings.html','forecast-center.html']
           for name in required:
               p=Path('app')/name
               assert p.exists() and p.stat().st_size>100, name
