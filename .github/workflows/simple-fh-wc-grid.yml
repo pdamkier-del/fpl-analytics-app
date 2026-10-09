@@ -1,13 +1,6 @@
 name: Refine simple FH WC thresholds
 on:
   workflow_dispatch:
-  push:
-    branches: [audit-role-minutes-20261001]
-    paths:
-      - 'src/fpl_xpts/simple_chip_thresholds.py'
-      - 'scripts/run_simple_chip_replay.py'
-      - 'scripts/run_joint_fh_wc_stopping_replay.py'
-      - '.github/workflows/simple-fh-wc-grid.yml'
 jobs:
   fit:
     runs-on: ubuntu-latest
