@@ -1,0 +1,90 @@
+{
+  "version": "fpl-model-2026-10-09-assembled",
+  "season_reference": "2025-26",
+  "status": "chip_parameters_locked_integration_validation_pending",
+  "minutes_model": {
+    "status": "locked",
+    "source": "scripts/run_locked_mm_gw6_38.py",
+    "start_gw": 6
+  },
+  "points_model": {
+    "status": "locked",
+    "source": "scripts/run_rolling_vfinal_gw6_38.py",
+    "start_gw": 6
+  },
+  "cold_start": {
+    "from_gw": 1,
+    "to_gw": 5
+  },
+  "transfer_strategy": {
+    "version": "v3",
+    "locked": true,
+    "horizon_gw": 6,
+    "rho": 0.6,
+    "weights": [
+      1,
+      0.6,
+      0.36,
+      0.216,
+      0.1296,
+      0.07776
+    ],
+    "hit_uncertainty_buffer": 1,
+    "hit_points": 4,
+    "max_free_transfers": 5,
+    "max_transfers_per_gw": 5
+  },
+  "chips": {
+    "periods": [
+      [
+        1,
+        19
+      ],
+      [
+        20,
+        38
+      ]
+    ],
+    "max_per_gw": 1,
+    "free_hit": {
+      "locked": true,
+      "lambda": 10,
+      "source": "src/fpl_xpts/simple_chip_thresholds.py"
+    },
+    "wildcard": {
+      "locked": true,
+      "lambda": 20,
+      "source": "src/fpl_xpts/simple_chip_thresholds.py"
+    },
+    "bench_boost": {
+      "locked": true,
+      "lambda": 20,
+      "source": "src/fpl_xpts/bench_boost_policy.py",
+      "net_of_autosubs": true
+    },
+    "triple_captain": {
+      "locked": true,
+      "policy": "TCV2Config / decide_tc_v2_from_samples",
+      "source": "src/fpl_xpts/chip_planner.py",
+      "eligible_candidate": "on_team_starting_xi",
+      "cold_start_gw_end": 5
+    }
+  },
+  "integration": {
+    "source": "src/fpl_xpts/final_chip_coordinator.py",
+    "historical_replay": "scripts/run_final_fpl_chain_replay.py",
+    "documentation": "analysis/FINAL_FPL_MODEL_MANIFEST_20261009.md"
+  },
+  "benchmarks": {
+    "no_chips_2025_26": 2125,
+    "fh_wc_2025_26": 2209,
+    "fh_wc_bb_2025_26": 2242,
+    "fh_wc_bb_2024_25_gw6_38": 2060
+  },
+  "caveats": [
+    "2025-26 WC future horizon includes as-of proxies",
+    "2024-25 roster metadata cutoff is conditional",
+    "Archived TC future fixtures can reflect realized final calendar",
+    "Source GH Actions input artifacts expire after 90 days; rebuild workflows required"
+  ]
+}
