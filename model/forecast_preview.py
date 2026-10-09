@@ -82,7 +82,8 @@ def _optimize_candidate(base,all_players,bank,weeks,steps=3):
         "out":[p.get("player") for p in base if int(p["id"]) not in {int(x["id"]) for x in squad}],
         "incoming":[p.get("player") for p in squad if int(p["id"]) not in {int(x["id"]) for x in base}]}
 
-def forecast_preview(data:dict[str,Any], squad:dict[str,Any], *,now:datetime|None=None):
+def forecast_preview(data:dict[str,Any], squad:dict[str,Any], *,now:datetime|None=None,
+                     official:dict[str,Any]|None=None):
     meta=data.get("meta") or {};players=list(data.get("forecasts") or [])
     observed=_asof(meta.get("updated"))
     now=now or datetime.now(timezone.utc)
@@ -93,7 +94,13 @@ def forecast_preview(data:dict[str,Any], squad:dict[str,Any], *,now:datetime|Non
     indexed={int(p["id"]):p for p in players}
     selected=[indexed[x] for x in player_ids if x in indexed]
     gws=sorted({int(g.get("gw")) for p in players for g in (p.get("gws") or []) if g.get("gw") is not None})
-    gws=[gw for gw in gws if gw>=int(meta.get("next_gw") or 1)][:6]
+    bridge_next=int(meta.get("next_gw") or 1)
+    official=official or {}
+    official_next=official.get("official_next_gw")
+    try: official_next=int(official_next) if official_next is not None else None
+    except (TypeError,ValueError):official_next=None
+    today_next=max(bridge_next,official_next) if official_next else bridge_next
+    gws=[gw for gw in gws if gw>=today_next][:6]
     alerts=[]
     if len(selected)!=15 or len(set(player_ids))!=15:
         alerts.append("Ingen komplet, gyldig 15-mandstrup gemt i My Team.")
@@ -101,8 +108,12 @@ def forecast_preview(data:dict[str,Any], squad:dict[str,Any], *,now:datetime|Non
         alerts.append("Forecastdata er forældede: opdater data før du bruger dem til en FPL-deadline.")
     if source!="locked_mm_pm_vfinal":
         alerts.append("xP kommer fra den ældre live-bridge, ikke den låste MM/PM/vFinal.")
+    if official_next and official_next>bridge_next:
+        alerts.append("Officielle FPL-data angiver GW"+str(official_next)+" som næste GW, men bridge-prognosen begynder ved GW"+str(bridge_next)+". Ældre GW er derfor filtreret fra.")
+    if not official.get("observed_at_utc"):
+        alerts.append("Ingen officiel live-snapshot tilgængelig; Publisher skal hente aktuel spillerstatus og kampprogram.")
     if len(gws)<6:
-        alerts.append("Færre end seks forecast-GW er tilgængelige.")
+        alerts.append("Færre end seks fremtidige forecast-GW er tilgængelige.")
     for p in selected:
         if any(_gw_value(p,gw) is None for gw in gws):
             alerts.append("En eller flere spillere mangler forecast i GW-vinduet.")
@@ -113,7 +124,10 @@ def forecast_preview(data:dict[str,Any], squad:dict[str,Any], *,now:datetime|Non
                "next_gw":meta.get("next_gw"),"forecast_end_gw":meta.get("forecast_end_gw"),
                "player_count":len(players),"fixture_count":len(data.get("fixtures") or []),
                "actual_count":len(data.get("actuals") or []),"age_hours":age_hours,
-               "stale":is_stale,"available_gws":gws},
+               "stale":is_stale,"available_gws":gws,
+               "official_next_gw":official_next,"official_observed_at_utc":official.get("observed_at_utc"),
+               "official_player_count":len(official.get("players") or []),
+               "official_fixture_count":len(official.get("fixtures") or [])},
        "warning":"Illustrativ live-bridge-preview. Chipvinduer er IKKE output fra den låste fire-chip-model.",
        "alerts":list(dict.fromkeys(alerts)),"weeks":[],"chips":[],
     }
