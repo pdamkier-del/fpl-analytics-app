@@ -8,6 +8,7 @@ on:
       - 'tests/test_model_tree_navigation.py'
       - 'tests/model-tree-ui-smoke.js'
       - 'tests/forecast-center-ui-smoke.js'
+      - 'tests/club-role-integrity-smoke.js'
       - 'tests/test_forecast_preview.py'
       - 'tests/test_publisher_bundle.py'
       - 'tests/test_live_snapshot.py'
@@ -46,6 +47,7 @@ jobs:
           npm install --no-save --no-package-lock jsdom@24
           node tests/model-tree-ui-smoke.js
           node tests/forecast-center-ui-smoke.js
+          node tests/club-role-integrity-smoke.js
       - name: Verify live forecast preview and chip candidate provenance
         run: python tests/test_forecast_preview.py
       - name: Check offline official FPL fixture and player availability snapshot
