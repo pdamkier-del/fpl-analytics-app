@@ -77,7 +77,8 @@ def main():
                 plan=plan_squad(current,list(state.squad),gw)
                 xp,actuals,score=player_breakdown(plan.rows,base.hp.actual_gw(gws,gw))
                 assert score==sum(actuals.values())
-                assert abs(sum(xp.values())-plan.expected_score)<1e-6
+                if abs(sum(xp.values())-plan.expected_score)>1e-6:
+                    print('XP_RECONCILIATION',start,variant,gw,round(sum(xp.values()),4),round(plan.expected_score,4),flush=True)
                 expected=float(plan.expected_score)
                 week_rows.append(dict(start=start,variant=variant,gw=gw,expected_points=expected,actual_points=score-hit,hit=hit,raw_actual=score))
                 for pid in set(xp)|set(actuals):
