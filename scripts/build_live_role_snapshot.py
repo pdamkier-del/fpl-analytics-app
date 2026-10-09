@@ -121,8 +121,55 @@ def evidence_from_directory(history,raw_root,stats_root,code_by_historical_id,cu
         if len(players)<9:continue
         history.add_game(team,(ko+timedelta(hours=4)).isoformat(),mid,players,
                          importance=1.0,competition='PL')
+        # Observed shape is recorded as past-game evidence, never current XI.
+        game=history.games[int(team)][-1]
+        game['formation']=formation
+        game['season']=source
+        game['kickoff']=ko.isoformat()
     return {'source':source,'confirmed_teams_games':sum(len(v) for v in history.games.values()),
             'missing_actual_minutes':missing_min}
+
+def historical_formations(history, teams, *, current_season='2026/27', half_life=4.0, recent_limit=10):
+    """Latest observed formations from confirmed lineup evidence, per club.
+
+    This is a *prior*, not a current-formation forecast. It tracks changes of
+    shape with exponential recency, but cannot detect a coaching change in a
+    season for which confirmed lineups are unavailable.
+    """
+    result=[]
+    for team in teams:
+        code=team.get('code')
+        if code is None:continue
+        games=[g for g in history.games.get(int(code),[])
+               if g.get('formation') and g.get('kickoff')]
+        if not games:continue
+        games=sorted(games,key=lambda g:(g['kickoff'],g['fixture']))[-recent_limit:]
+        mass=defaultdict(float);season_mass=defaultdict(float)
+        for lag,g in enumerate(reversed(games)):
+            weight=2**(-lag/half_life)
+            mass[g['formation']]+=weight
+            if g.get('season')=='2026/27':season_mass[g['formation']]+=weight
+        total=sum(mass.values())
+        ordered=sorted(mass.items(),key=lambda x:(-x[1],x[0]))
+        latest=games[-1]
+        result.append({
+            'team_id':int(team['id']),'club':team.get('short_name'),
+            'observed_latest_formation':latest['formation'],
+            'observed_latest_at':latest['kickoff'],
+            'latest_observed_season':latest.get('season'),
+            'recent_observations':len(games),
+            'formations':[{'formation':formation,
+                           'weighted_share':round(value/total,5),
+                           'current_season_games':sum(
+                               int(x['formation']==formation and x.get('season')=='2026/27')
+                               for x in games),
+                           'observed_games':sum(int(x['formation']==formation) for x in games)}
+                          for formation,value in ordered],
+            'confidence':'current_observed' if latest.get('season')=='2026/27'
+                else 'historical_prior_only'
+        })
+    return result
+
 
 def generate_current_xi(role_data,official,bridge,*,asof,optimizer=None):
     """Use the FROZEN coherent role-slot optimizer only when live inputs certify it.
@@ -163,7 +210,20 @@ def generate_current_xi(role_data,official,bridge,*,asof,optimizer=None):
     lineups=[]
     for team_id,players in sorted(grouped.items()):
         if len(players)<11:continue
-        try:chosen=optimizer(players)
+        team_prior=next((x for x in role_data.get('team_formations',[])
+                         if x.get('team_id')==team_id),None)
+        if not team_prior or team_prior.get('confidence')!='current_observed':
+            # Cannot assign today's XI using historical seasons' manager shape.
+            continue
+        approved={f['formation']:f['weighted_share']
+                  for f in team_prior.get('formations',[])
+                  if f['current_season_games']>0}
+        if not approved:continue
+        from math import log
+        form_logs={f:log(max(.001,share)) for f,share in approved.items()}
+        try:
+            chosen=optimizer(players,formations=tuple(approved),
+                             formation_log_prior=form_logs)
         except (ValueError,RuntimeError,ImportError):continue
         choices=chosen.get('xi') or []
         if len(choices)!=11:continue
@@ -208,6 +268,8 @@ def build(official,bridge,raw_prior=RAW_PRIOR,stats_prior=STATS_PRIOR,
     if raw_current.is_dir():
         current_report=evidence_from_directory(hist,raw_current,current_stats,current_codes,cutoff,'2026/27')
     current_games=sum(len(x) for x in hist.games.values())-prior_games
+    formations=historical_formations(hist,official['teams'])
+    formation_by_team={int(x['team_id']):x for x in formations}
     history_state={};last_team={}
     for team in sorted(hist.games):
         state,caps,games=hist.state(team,cutoff.isoformat())
@@ -263,6 +325,7 @@ def build(official,bridge,raw_prior=RAW_PRIOR,stats_prior=STATS_PRIOR,
           'No current 2026/27 tactical XI is asserted without official current-season confirmed role evidence and fresh current P(start).'
         ],
         'source_report':{'prior':prior_report,'current':current_report},
+        'team_formations':formations,
         'players':output,'expected_lineups':[]
     }
     result['expected_lineups']=generate_current_xi(result,official,bridge,asof=cutoff)
