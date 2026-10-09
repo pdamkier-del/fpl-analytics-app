@@ -1,0 +1,49 @@
+name: BB cross season 2024-25
+on:
+  workflow_dispatch:
+  push:
+    branches: [audit-role-minutes-20261001]
+    paths:
+      - 'scripts/run_bb_2024_conditional.py'
+      - '.github/workflows/bb-2024-conditional.yml'
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 240
+    strategy:
+      fail-fast: false
+      matrix:
+        bb: [0, 10, 15, 20, 25]
+    permissions:
+      actions: read
+      contents: read
+    env:
+      PYTHONHASHSEED: '0'
+      OPENBLAS_NUM_THREADS: '1'
+      OMP_NUM_THREADS: '1'
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.sha }}
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: |
+          pip install -r requirements-model-checkpoint.txt
+          pip install pandas==2.2.3 numpy==2.3.5 scipy scikit-learn requests
+      - run: python scripts/restore_2024_25_data_checkpoint.py
+      - uses: actions/download-artifact@v4
+        with:
+          name: conditional-2024-25-per-origin-full-gw6-38
+          path: work/wc24
+          github-token: ${{ github.token }}
+          run-id: 37639946603
+      - run: |
+          VF=$(find work/wc24 -name rolling_vfinal_forecast.csv.gz | head -1)
+          test -n "$VF"
+          PYTHONPATH=src:scripts python scripts/run_bb_2024_conditional.py --derived data_v1_1/derived/season_2024_25_v1 --vfinal "$VF" --lambda-bb ${{ matrix.bb }} --out analysis/results/bb-2024/bb${{ matrix.bb }}
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: conditional-bb-2024-${{ matrix.bb }}
+          path: analysis/results/bb-2024
