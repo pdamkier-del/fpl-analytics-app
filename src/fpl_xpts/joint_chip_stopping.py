@@ -34,6 +34,9 @@ class ScenarioParameters:
     scenario_noise: float=1.5
     bgw_p: float=.025
     dgw_p: float=.035
+    persistent_shock_fraction: float=.40
+    temporary_fh_multiplier: float=1.15
+    persistent_wc_multiplier: float=1.40
 
 @dataclass
 class DecisionResult:
@@ -78,9 +81,10 @@ def _event_gains(health:np.ndarray,p:ScenarioParameters,
     short_loss=affected*p.replacement_xp*.72
     persistent_loss=(unresolved*p.replacement_xp*1.55+
                      (health==2)*p.replacement_xp*1.5)
+    persistent_loss*=p.persistent_shock_fraction*p.persistent_wc_multiplier
     # BGW is a one-week roster concentration risk; the WC rebuild should
     # not be rewarded as much for a one-week blank.
-    fh=np.maximum(0.,p.baseline_fh_gain+short_loss+
+    fh=np.maximum(0.,p.baseline_fh_gain+short_loss*p.temporary_fh_multiplier+
                   bgw*p.replacement_xp*2.6+
                   dgw*p.replacement_xp*1.4+noise)
     wc=np.maximum(0.,p.baseline_wc_gain+persistent_loss+
