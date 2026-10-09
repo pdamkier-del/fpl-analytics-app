@@ -163,3 +163,21 @@
     </div></div>`;
   anchor.insertAdjacentElement('afterend',panel);
 })();
+
+/* Keep forecast test page discoverable throughout the installed desktop app. */
+(()=>{
+  const file=(location.pathname.split('/').pop()||'overview.html').toLowerCase();
+  for(const navigation of document.querySelectorAll('.sidebar .nav')){
+    const links=[...navigation.querySelectorAll('a')];
+    if(!links.some(a=>(a.getAttribute('href')||'').toLowerCase()==='my-team.html'))continue;
+    let target=links.find(a=>(a.getAttribute('href')||'').toLowerCase()==='forecast-center.html');
+    if(!target){
+      target=document.createElement('a');
+      target.href='forecast-center.html';
+      target.textContent='Forecast & Chips';
+      const anchor=links.find(a=>(a.getAttribute('href')||'').toLowerCase()==='my-team.html');
+      anchor.insertAdjacentElement('afterend',target);
+    }
+    if(file==='forecast-center.html') target.classList.add('active');
+  }
+})();
