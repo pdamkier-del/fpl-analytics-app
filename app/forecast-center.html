@@ -1,0 +1,126 @@
+<!doctype html>
+<html lang="da">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Forecast & Chips · FPL Analytics</title><link rel="stylesheet" href="assets.css">
+<style>
+:root{--bg:#f4f5f7;--ink:#13212b;--muted:#6a7984;--border:#e0e6ea;--dark:#0b1720;--pink:#e90052;--pl:#37003c;--green:#087a52;--orange:#956322;--soft:#fbf2dd}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);font-family:Inter,ui-sans-serif,system-ui,-apple-system,Segoe UI,sans-serif;color:var(--ink)}
+a{color:inherit;text-decoration:none}.layout{display:grid;grid-template-columns:228px minmax(0,1fr);min-height:100vh}
+aside{background:var(--dark);color:white;padding:24px 16px}.brand{display:flex;align-items:center;gap:10px;font-size:17px;font-weight:900;margin:0 5px 28px}
+.logo{width:34px;height:34px;display:grid;place-items:center;border-radius:10px;background:linear-gradient(130deg,#67ddb3,#188560);color:#04231b;font-size:12px}
+nav a{display:block;border-radius:9px;padding:11px 12px;font-size:13px;color:#adc0cb;margin:3px 0}
+nav a.active,nav a:hover{color:white;background:#192936}
+nav p{font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:#708797;padding:14px 12px 4px;margin:0}
+main{padding:32px clamp(18px,3vw,46px) 64px;width:100%;max-width:1460px;margin:auto;min-width:0}
+.crumb{font-size:12px;color:var(--muted);margin-bottom:12px}.top{display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap;align-items:start}
+h1{font-size:clamp(25px,3vw,34px);letter-spacing:-.04em;margin:0 0 8px}
+.lead{font-size:13px;color:var(--muted);line-height:1.65;max-width:760px;margin:0}
+.meta-actions{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+button,.button{cursor:pointer;border:1px solid var(--border);background:#fff;border-radius:9px;font:700 12px inherit;padding:10px 12px;color:#324857}
+.button{display:inline-flex}.primary{color:#fff;background:var(--pl);border-color:var(--pl)}
+.state{display:inline-flex;gap:7px;align-items:center;border:1px solid #e5c98e;background:#fff9ec;color:#7e561e;font-size:11px;border-radius:999px;padding:9px 11px;font-weight:800;margin:20px 0}
+.panel{background:#fff;border:1px solid var(--border);border-radius:16px;overflow:hidden;margin:15px 0;box-shadow:0 4px 18px rgba(20,40,65,.025)}
+.panel-head{padding:17px 20px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;align-items:center}
+.panel-head h2{font-size:16px;margin:0}.panel-head small{color:var(--muted);font-size:11px}
+.panel-body{padding:18px 20px}
+.alert{background:#fff9ee;border:1px solid #ead9b6;border-radius:11px;color:#795a2c;font-size:12px;line-height:1.6;padding:12px 14px;margin-bottom:9px}
+.alert strong{color:#6b4e21}
+.grid4{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:11px}
+.chip-card{border:1px solid #e1e7ea;border-radius:13px;padding:15px;min-width:0;display:flex;flex-direction:column;gap:8px}
+.chip-label{font-size:12px;font-weight:850;display:flex;align-items:center;justify-content:space-between}
+.chip-sub{font-size:10px;color:#7e8a93}
+.chip-week{font-weight:950;font-size:28px;color:var(--pl)}
+.chip-week.not-ready{font-size:17px}
+.chip-detail{font-size:11px;color:#5c6870;line-height:1.55}
+.chip-caution{background:#f3f6f8;color:#6d7b83;padding:7px 9px;font-size:10px;border-radius:7px;margin-top:auto}
+.chip-card[data-chip="bb"] .chip-week{color:var(--green)}
+.chip-card[data-chip="tc"] .chip-week{color:#5d49a8}
+.chip-card[data-chip="wc"] .chip-week{color:#c45b4b}
+.table-wrap{overflow:auto}
+table{border-collapse:collapse;width:100%;min-width:660px;font-size:12px}
+th,td{padding:12px 14px;text-align:left;border-bottom:1px solid #eaf0f2}
+th{background:#f7f9fa;color:#687883;font-size:10px;text-transform:uppercase}
+td.num{text-align:right;font-variant-numeric:tabular-nums;font-weight:850}
+th.num{text-align:right}
+tr:last-child td{border-bottom:0}
+.positive{color:var(--green)}.source-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:9px}
+.source-item{background:#f7f9fa;border:1px solid #edf0f2;border-radius:10px;padding:12px;min-width:0}
+.source-item strong{font-size:13px;display:block;overflow-wrap:anywhere}
+.source-item span{font-size:10px;color:var(--muted);display:block;margin-top:5px}
+details summary{cursor:pointer;color:var(--pl);font-weight:800;font-size:11px}
+.playerlist{margin-top:9px;display:flex;flex-wrap:wrap;gap:6px}
+.playerlist span{padding:6px 7px;background:#f2f6f7;border-radius:6px;color:#3b5360;font-size:10px}
+.footnote{font-size:11px;line-height:1.7;color:#72818a;padding:7px 0}
+.hidden{display:none}
+@media(max-width:1050px){.grid4{grid-template-columns:repeat(2,1fr)}.source-grid{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:790px){.layout{grid-template-columns:1fr}aside{padding:12px 15px}.brand{margin:0 0 10px}nav{display:flex;gap:5px;overflow:auto;align-items:center}nav a{white-space:nowrap;padding:8px 11px;font-size:11px}nav p{display:none}main{padding:20px 13px 45px}}
+@media(max-width:490px){.grid4,.source-grid{grid-template-columns:1fr}.panel-body{padding:13px}.panel-head{padding:14px}h1{font-size:27px}}
+</style>
+</head>
+<body>
+<div class="layout">
+<aside><div class="brand"><div class="logo">xP</div> FPL Analytics</div>
+<nav aria-label="Sider">
+<p>Workspace</p><a href="overview.html">Overview</a><a href="rankings.html">Player Rankings</a><a href="my-team.html">My Team</a><a href="team-optimizer.html">Transfers</a><a href="forecast-center.html" class="active">Forecast &amp; chips</a>
+<p>Models</p><a href="models.html">Modelforklaring</a><a href="replay.html">Replay &amp; audit</a>
+</nav></aside>
+<main>
+<div class="crumb">Forecast / 6GW &amp; chipplan</div>
+<div class="top">
+ <div><h1>Forecast og chipplan</h1><p class="lead">Se forventede point for dit hold og hvilke GW'er de fire chips foreløbigt ser interessante ud i. Indtil de låste MM/PM/TC-prognoser er koblet på live-data, er denne side en <strong>test af appens eksisterende forecast-bridge</strong> – ikke en færdig anbefaling fra den låste model.</p></div>
+ <div class="meta-actions"><a class="button" href="my-team.html">Rediger hold</a><button id="recalc" class="primary" type="button">Genberegn preview</button></div>
+</div>
+<div class="state" id="mode-status" role="status">Indlæser datakvalitet…</div>
+<section id="alerts" aria-live="polite"></section>
+<section class="panel"><div class="panel-head"><h2>Hvilken GW forventes hver chip?</h2><small>Foreløbige muligheder · kun data i synligt forecastvindue</small></div>
+ <div class="panel-body"><div id="chip-grid" class="grid4" aria-live="polite"><p>Indlæser chips…</p></div></div></section>
+<section class="panel"><div class="panel-head"><h2>Dit holds forventede point</h2><small>Optimalt XI og kaptajn pr. GW ud fra bridge-xP, uden automatiske transfers</small></div>
+ <div id="weekly-table" class="table-wrap"><p class="panel-body">Indlæser xP…</p></div></section>
+<section class="panel"><div class="panel-head"><h2>Forecastdata og modelstatus</h2><small>Kontrollér altid GW og tidspunkt før du bruger prognoserne</small></div>
+ <div class="panel-body"><div id="source-data" class="source-grid"></div>
+ <p class="footnote">Den historiske 2.266-point-model er låst separat. For at få præcise live chipbeslutninger mangler appen fuld aktuel MM/vFinal, købsværdier til TS og samples til TC-v2. Her vises derfor testberegninger fra eksisterende data uden at skjule forskellen.</p></div></section>
+</main>
+</div>
+<script>
+(function(){
+ const $=id=>document.getElementById(id);
+ const esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+ const num=(x,n=1)=>x==null||!Number.isFinite(Number(x))?'—':Number(x).toFixed(n).replace('.',',');
+ async function load(){
+   $('mode-status').textContent='Beregner forecast fra de tilgængelige data…';
+   try{
+     const response=await fetch('/api/forecast/preview',{cache:'no-store'});
+     const data=await response.json();
+     if(!response.ok)throw new Error(data.error||'Fejl ved beregning');
+     render(data);
+   }catch(error){
+     $('mode-status').textContent='Forecast kunne ikke beregnes';
+     $('alerts').innerHTML='<div class="alert">'+esc(error.message)+'</div>';
+     $('chip-grid').textContent='Data eller modelberegning mangler.';
+     $('weekly-table').textContent='Ingen forecast tilgængelig.';
+   }
+ }
+ function chipView(chip){
+   const gw=chip.candidate_gw;
+   const gain=chip.expected_gain_proxy!=null?'Gevinstproxy +'+num(chip.expected_gain_proxy,1)+' xP':chip.bench_gross_xp!=null?num(chip.bench_gross_xp,1)+' bænk-xP før autosubs':chip.captain_xp!=null?'Kaptajn '+num(chip.captain_xp,1)+' xP':'Ikke beregnet';
+   const more=chip.player?' · '+esc(chip.player):'';
+   const moves=chip.incoming?.length?'<details><summary>Vis udskiftninger</summary><p class="chip-detail">Ud: '+esc((chip.out||[]).join(', '))+'<br>Ind: '+esc(chip.incoming.join(', '))+'</p></details>':'';
+   return '<article class="chip-card" data-chip="'+esc(chip.id)+'"><div class="chip-label">'+esc(chip.label)+'</div><div class="chip-week '+(gw==null?'not-ready':'')+'">'+(gw==null?'Ingen positiv mulighed':'GW '+gw)+'</div><div class="chip-sub">'+gain+more+'</div><div class="chip-detail">'+esc(chip.reason)+'</div>'+moves+'<div class="chip-caution">Indikativ · ikke låst chipforecast</div></article>';
+ }
+ function render(data){
+   const source=data.data||{},status=data.locked_forecast_active?'Låst model':'Ældre forecast-bridge – testtilstand';
+   $('mode-status').textContent=status+(source.stale?' · DATA ER FORÆLDEDE':' · data ikke verificeret som fuld låst prognose');
+   $('alerts').innerHTML=(data.alerts||[]).map(a=>'<div class="alert"><strong>Datakontrol:</strong> '+esc(a)+'</div>').join('');
+   $('chip-grid').innerHTML=(data.chips||[]).map(chipView).join('')||'<p>Chipvinduer kan ikke vurderes, før gyldige spiller- og holddata er tilgængelige.</p>';
+   const rows=(data.weeks||[]).map(w=>'<tr><td><strong>GW'+w.gw+'</strong></td><td>'+esc(w.formation)+'</td><td>'+esc(w.captain)+'</td><td class="num">'+num(w.captain_xp,2)+'</td><td class="num">'+num(w.bench_gross_xp,2)+'</td><td class="num positive">'+num(w.xi_xp,2)+'</td><td><details><summary>Spillere</summary><div class="playerlist">'+w.xi.map(x=>'<span>'+esc(x.name)+' · '+num(x.xpts,1)+'</span>').join('')+'</div></details></td></tr>').join('');
+   $('weekly-table').innerHTML=rows?'<table><thead><tr><th>GW</th><th>Formation</th><th>Kaptajn</th><th class="num">Kaptajn xP</th><th class="num">Bænk brutto</th><th class="num">XI + C xP</th><th>Detaljer</th></tr></thead><tbody>'+rows+'</tbody></table>':'<p class="panel-body">Kan ikke vise 6GW-xP, før den gemte trup og forecastdata er tilgængelige.</p>';
+   const items=[['Sæson',source.season||'Ukendt'],['Modellabel',source.model_version||'Ukendt'],['Kilde opdateret',source.updated||'Ukendt'],['Forecast GW',(source.available_gws||[]).join(', ')||'Ingen'],['Spillere',source.player_count],['Kampe',source.fixture_count],['Faktiske point-rækker',source.actual_count],['Datakvalitet',source.stale?'Forældet':'Nyere end 72 timer']];
+   $('source-data').innerHTML=items.map(([k,v])=>'<div class="source-item"><strong>'+esc(v)+'</strong><span>'+esc(k)+'</span></div>').join('');
+ }
+ $('recalc').addEventListener('click',load);
+ load();
+})();
+</script>
+</body>
+</html>
