@@ -6,10 +6,11 @@ This is NOT a player availability forecast; probabilities come from locked PM.
 """
 from dataclasses import dataclass
 from itertools import product
+from collections import Counter
 from math import prod
 import pandas as pd
 
-from .season_replay import _formation_ok
+from .optimize import START_MIN, START_MAX
 
 @dataclass(frozen=True)
 class BenchBoostEstimate:
@@ -68,7 +69,8 @@ def evaluate_bench_boost(plan_rows: pd.DataFrame) -> BenchBoostEstimate:
                 for pid in out_bench:
                     if pid not in active or pid in scoring: continue
                     candidate=[x for x in scoring if x!=absent]+[pid]
-                    if _formation_ok([str(df.at[x,'position']) for x in candidate]):
+                    counts=Counter(str(df.at[x,'position']) for x in candidate)
+                    if all(START_MIN[k]<=counts[k]<=START_MAX[k] for k in START_MIN):
                         scoring=candidate
                         reward+=xp[pid]/p[pid]
                         break
