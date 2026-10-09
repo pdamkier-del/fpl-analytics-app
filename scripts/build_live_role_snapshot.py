@@ -124,6 +124,69 @@ def evidence_from_directory(history,raw_root,stats_root,code_by_historical_id,cu
     return {'source':source,'confirmed_teams_games':sum(len(v) for v in history.games.values()),
             'missing_actual_minutes':missing_min}
 
+def generate_current_xi(role_data,official,bridge,*,asof,optimizer=None):
+    """Use the FROZEN coherent role-slot optimizer only when live inputs certify it.
+
+    Without an up-to-date locked P(start) and actual current-season confirmed
+    tactical role observations, returning [] is mandatory: no pseudo-XI.
+    """
+    meta=bridge.get('meta') or {}
+    observed=utc(meta.get('updated'))
+    gw=meta.get('next_gw')
+    try:gw=int(gw)
+    except (TypeError,ValueError):return []
+    if str(meta.get('model_version'))!='locked_mm_pm_vfinal':return []
+    if observed is None or abs((asof-observed).total_seconds())>72*3600:return []
+    if gw!=official.get('official_next_gw'):return []
+    if role_data.get('current_tactical_lineups_found',0)<1:return []
+    if optimizer is None:
+        # Use the frozen implementation, not a fallback that invents slots.
+        from fpl_v1_1_model.xi_assignment import optimize_best_formation
+        optimizer=optimize_best_formation
+    by_code={int(p['id']):p for p in role_data.get('players',[])}
+    club_short={int(t['id']):t.get('short_name') for t in official.get('teams',[])
+                if t.get('id') is not None}
+    grouped=defaultdict(list)
+    for p in bridge.get('forecasts') or []:
+        pid=int(p['id'])
+        evidence=by_code.get(pid)
+        if not evidence or evidence['role_source']!='current_season_confirmed':continue
+        q=evidence.get('q') or {}; H=evidence.get('H') or {}
+        if not q or not H:continue
+        forecast=next((row for row in p.get('gws',[]) if row.get('gw')==gw),None)
+        if forecast is None or not isinstance(forecast.get('pstart'),(int,float)):continue
+        if not evidence.get('team_id'):continue
+        grouped[int(evidence['team_id'])].append({
+            'player_uuid':str(pid),'base_p_start':forecast['pstart'],
+            'q':q,'H':H,'evidence':evidence.get('evidence',0),
+            'xmins':forecast.get('xmins'),'player':p.get('player')})
+    lineups=[]
+    for team_id,players in sorted(grouped.items()):
+        if len(players)<11:continue
+        try:chosen=optimizer(players)
+        except (ValueError,RuntimeError,ImportError):continue
+        choices=chosen.get('xi') or []
+        if len(choices)!=11:continue
+        if any(float(x.q_role)<.08 or float(x.hierarchy)<.01 for x in choices):
+            continue
+        if len(set(x.player_uuid for x in choices))!=11:continue
+        if sum(x.role=='GK' for x in choices)!=1:continue
+        club=club_short.get(team_id)
+        if not club:continue
+        lookup={p['player_uuid']:p for p in players}
+        lineups.append({
+            'club':club,'gw':gw,'formation':chosen['formation'],
+            'role_source':'current_cutoff_verified',
+            'players':[{'id':int(x.player_uuid),'role':x.role,
+                        'q_role':round(float(x.q_role),4),
+                        'hierarchy':round(float(x.hierarchy),4),
+                        'pstart':float(x.base_p_start),
+                        'xmins':lookup[x.player_uuid].get('xmins')}
+                       for x in choices]
+        })
+    return lineups
+
+
 def build(official,bridge,raw_prior=RAW_PRIOR,stats_prior=STATS_PRIOR,
           raw_current=RAW_CURRENT,*, cutoff=None):
     cutoff=cutoff or utc(official.get('observed_at_utc'))
@@ -187,7 +250,7 @@ def build(official,bridge,raw_prior=RAW_PRIOR,stats_prior=STATS_PRIOR,
             'evidence':round(float(evidence['evidence']),3) if evidence else 0,
             'role_source':status
         })
-    return {
+    result={
         'schema_version':1,'observed_at_utc':official.get('observed_at_utc'),
         'season':official.get('season'),'model':'locked_role_history_prior_bridge',
         'current_tactical_lineups_found':current_games,
@@ -202,6 +265,9 @@ def build(official,bridge,raw_prior=RAW_PRIOR,stats_prior=STATS_PRIOR,
         'source_report':{'prior':prior_report,'current':current_report},
         'players':output,'expected_lineups':[]
     }
+    result['expected_lineups']=generate_current_xi(result,official,bridge,asof=cutoff)
+    result['current_xi_certified']=bool(result['expected_lineups'])
+    return result
 
 def main():
     p=argparse.ArgumentParser()
