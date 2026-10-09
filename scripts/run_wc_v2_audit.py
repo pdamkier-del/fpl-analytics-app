@@ -102,6 +102,6 @@ def main():
         results[name]=z
     if results['baseline']['total_points']!=2125:
         raise AssertionError('Locked baseline drift: '+str(results['baseline']['total_points']))
-    (out/'summary.json').write_text(json.dumps(results,indent=2)+'\\n')
+    (out/'summary.json').write_text(json.dumps(results,indent=2))
     print(json.dumps(results,indent=2))
 if __name__=='__main__':main()
