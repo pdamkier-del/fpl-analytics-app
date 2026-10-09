@@ -155,11 +155,15 @@ def run(label,gws,names,forecast,use_chips=False,params=ScenarioParameters(),
             transfers=len(moves)+len(forced)
         if not valid_squad(meta,state.squad):
             raise AssertionError(f'GW{gw}: invalid team')
+        bb_realized_uplift=None
         if chip=='fh':
             score,_=actual_team_points(fh['plan_rows'],hp.actual_gw(gws,gw),'free_hit',0)
         else:
             lineup=plan_squad(current,list(state.squad),gw)
             score,_=actual_team_points(lineup.rows,hp.actual_gw(gws,gw),('bench_boost' if chip=='bb' else None),hit)
+            if chip=='bb':
+                unboosted,_=actual_team_points(lineup.rows,hp.actual_gw(gws,gw),None,hit)
+                bb_realized_uplift=int(score-unboosted)
         total+=int(score)
         logs.append(dict(gw=gw,score=int(score),cumulative=int(total),
                          chip=chip,assessed=assess,health=health,
@@ -170,6 +174,7 @@ def run(label,gws,names,forecast,use_chips=False,params=ScenarioParameters(),
                          q_fh=(decision.q_fh if decision else None),
                          q_wc=(decision.q_wc if decision else None),
                          bb_gain=bb_gain,bb_q=bb_q,
+                         bb_realized_uplift=bb_realized_uplift,
                          bb_bench_ids=';'.join(map(str,bb_bench_ids)),
                          bb_bench_names=';'.join(names.get(i,str(i)) for i in bb_bench_ids),
                          ft=int(state.free_transfers),bank=int(state.bank),
