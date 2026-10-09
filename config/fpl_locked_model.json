@@ -1,7 +1,7 @@
 {
   "version": "fpl-model-2026-10-09-assembled",
   "season_reference": "2025-26",
-  "status": "chip_parameters_locked_integration_validation_pending",
+  "status": "locked_historical_replay_verified_not_live_deployed",
   "minutes_model": {
     "status": "locked",
     "source": "scripts/run_locked_mm_gw6_38.py",
@@ -90,19 +90,35 @@
         0.745201742667648,
         0.6785355419273525,
         0.8894051176011658
+      ],
+      "historical_selected": [
+        {
+          "gw": 13,
+          "player_id": 136,
+          "player_name": "Thiago"
+        },
+        {
+          "gw": 36,
+          "player_id": 430,
+          "player_name": "Haaland"
+        }
       ]
     }
   },
   "integration": {
     "source": "src/fpl_xpts/final_chip_coordinator.py",
     "historical_replay": "scripts/run_final_fpl_chain_replay.py",
-    "documentation": "analysis/FINAL_FPL_MODEL_MANIFEST_20261009.md"
+    "documentation": "analysis/FINAL_FPL_MODEL_MANIFEST_20261009.md",
+    "verified_actions_run": 37934278566,
+    "validation_status": "success"
   },
   "benchmarks": {
     "no_chips_2025_26": 2125,
     "fh_wc_2025_26": 2209,
     "fh_wc_bb_2025_26": 2242,
-    "fh_wc_bb_2024_25_gw6_38": 2060
+    "fh_wc_bb_2024_25_gw6_38": 2060,
+    "all_chips_2025_26": 2266,
+    "delta_vs_no_chips_2025_26": 141
   },
   "caveats": [
     "2025-26 WC future horizon includes as-of proxies",
