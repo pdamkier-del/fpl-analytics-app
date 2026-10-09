@@ -111,8 +111,23 @@ def main():
     bootstrap = fetch_json(BOOTSTRAP_URL)
     season_start = now.year if now.month >= 7 else now.year - 1
     season = f"{season_start}-{str(season_start + 1)[-2:]}"
-    payload = {"schema_version": 1, "season": season, "observed_at_utc": observed_at,
+    upcoming = next((int(e["id"]) for e in bootstrap.get("events", [])
+                     if e.get("is_next")), None)
+    if upcoming is None:
+        upcoming = next((int(e["id"]) for e in bootstrap.get("events", [])
+                         if not e.get("finished")), None)
+    # Preserve the observable official statuses and timing separately from xP.
+    official_players = [
+        {"id": int(p["id"]), "name": p.get("web_name"),
+         "status": p.get("status"), "chance_next_round": p.get("chance_of_playing_next_round"),
+         "news": p.get("news"), "price_tenths": p.get("now_cost"),
+         "team_id": p.get("team"), "element_type": p.get("element_type")}
+        for p in bootstrap.get("elements", []) if p.get("id") is not None
+    ]
+    payload = {"schema_version": 2, "season": season, "observed_at_utc": observed_at,
+               "official_next_gw": upcoming,
                "sources": {"fixtures": FIXTURES_URL, "bootstrap": BOOTSTRAP_URL},
+               "players": official_players,
                **build_schedule(fixtures, bootstrap["teams"])}
     SNAPSHOTS.mkdir(parents=True, exist_ok=True)
     current = SNAPSHOTS / f"{stamp}.json"
