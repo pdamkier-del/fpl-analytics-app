@@ -121,7 +121,7 @@ def evidence_from_directory(history,raw_root,stats_root,code_by_historical_id,cu
         if len(players)<9:continue
         history.add_game(team,(ko+timedelta(hours=4)).isoformat(),mid,players,
                          importance=1.0,competition='PL')
-    return {'source':season,'confirmed_teams_games':sum(len(v) for v in history.games.values()),
+    return {'source':source,'confirmed_teams_games':sum(len(v) for v in history.games.values()),
             'missing_actual_minutes':missing_min}
 
 def build(official,bridge,raw_prior=RAW_PRIOR,stats_prior=STATS_PRIOR,
