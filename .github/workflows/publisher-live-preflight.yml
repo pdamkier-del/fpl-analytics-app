@@ -3,7 +3,7 @@ on:
   workflow_dispatch:
   push:
     branches: [audit-role-minutes-20261001]
-    paths: ['.github/workflows/publisher-live-preflight.yml']
+    paths: ['.github/workflows/publisher-live-preflight.yml','scripts/build_live_role_snapshot.py','scripts/publish_fpl_update.py']
 permissions:
   contents: read
 jobs:
@@ -28,11 +28,20 @@ jobs:
           f=Path('updates')/Path(m['app']['url']).name
           with zipfile.ZipFile(f) as z:
               files=set(z.namelist())
-              required={'app/forecast-center.html','start_app.py','model/forecast_preview.py',
+              required={'app/forecast-center.html','app/role-data.js','start_app.py','model/forecast_preview.py',
                         'config/fpl_locked_model.json','src/fpl_xpts/final_chip_coordinator.py',
                         'data_v1_1/derived/fpl_schedule_knowledge/live/latest.json'}
               assert required<=files, sorted(required-files)
               official=json.loads(z.read('data_v1_1/derived/fpl_schedule_knowledge/live/latest.json'))
+              role_js=z.read('app/role-data.js').decode('utf8')
+              assert role_js.startswith('window.FPL_ROLE_DATA=')
+              role=json.loads(role_js.split('=',1)[1].strip().rstrip(';'))
+              assert role['historical_tactical_lineups_found']>100
+              assert sum(bool(p['q']) for p in role['players'])>100
+              assert role['current_xi_certified'] is False
+              print('REAL_ROLE_PRIORS_OK',role['historical_tactical_lineups_found'],
+                sum(bool(p['q']) for p in role['players']),
+                sum(bool(p['H']) for p in role['players']))
               assert official['official_next_gw'] is not None
               assert official['players'] and official['fixtures']
               print('REAL_PUBLISH_PREFLIGHT_OK',official['official_next_gw'],len(official['players']),len(official['fixtures']))
