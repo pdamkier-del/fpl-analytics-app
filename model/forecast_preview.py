@@ -43,7 +43,7 @@ def _lineup(players, gw):
 def _squad_score(players,gws):
     return sum(w * _lineup(players,gw)["total"] for w,gw in zip(WEIGHTS,gws))
 
-def _candidate_pool(all_players, weeks, max_per_position=8):
+def _candidate_pool(all_players, weeks, max_per_position=5):
     chosen={}
     for pos in POS:
         options=[p for p in all_players if p.get("pos")==pos
@@ -54,7 +54,7 @@ def _candidate_pool(all_players, weeks, max_per_position=8):
         chosen[pos]=tuple({int(p["id"]):p for p in [*ranked[:max_per_position],*singles[:max_per_position]]}.values())
     return chosen
 
-def _optimize_candidate(base,all_players,bank,weeks,steps=4):
+def _optimize_candidate(base,all_players,bank,weeks,steps=3):
     """Small local-search *preview* using current prices, not purchase prices."""
     squad=list(base); budget=float(bank)
     pools=_candidate_pool(all_players,weeks)
@@ -137,8 +137,8 @@ def forecast_preview(data:dict[str,Any], squad:dict[str,Any], *,now:datetime|Non
             candidates={"fh":[],"wc":[]}
             for g in gws:
                 tail=[n for n in gws if n>=g]
-                fh=_optimize_candidate(selected,players,bank,[g],steps=4)
-                wc=_optimize_candidate(selected,players,bank,tail,steps=5)
+                fh=_optimize_candidate(selected,players,bank,[g],steps=2)
+                wc=_optimize_candidate(selected,players,bank,tail,steps=3)
                 first,end=(1,19) if g<=19 else (20,38)
                 decay=(end-g)/(end-first)
                 candidates["fh"].append({"gw":g,"gain":fh["gain"],"adjusted":round(fh["gain"]-10*decay,2),
