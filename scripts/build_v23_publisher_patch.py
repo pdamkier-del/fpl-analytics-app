@@ -19,6 +19,8 @@ if STAGE.exists():
 copy=[
  ("app/index.html","app/index.html"),
  ("app/models.html","app/models.html"),
+ ("app/model-tree-data.js","app/model-tree-data.js"),
+ ("app/model-tree-ui.js","app/model-tree-ui.js"),
  ("app/nav.js","app/nav.js"),
  ("scripts/publish_fpl_update.py","scripts/publish_fpl_update.py"),
  (".github/workflows/publish-fpl-update.yml",".github/workflows/publish-fpl-update.yml"),
@@ -30,7 +32,7 @@ for src,dst in copy:
 # Build the app update consumed by updater.py after the repo patch lands on main.
 appzip=STAGE/"updates"/f"app-{VERSION}.zip"
 with zipfile.ZipFile(appzip,"w",zipfile.ZIP_DEFLATED,compresslevel=9) as z:
-    for src in ("app/index.html","app/models.html","app/nav.js"):
+    for src in ("app/index.html","app/models.html","app/model-tree-data.js","app/model-tree-ui.js","app/nav.js"):
         z.write(ROOT/src,src)
 
 def sha(p): return hashlib.sha256(Path(p).read_bytes()).hexdigest()
