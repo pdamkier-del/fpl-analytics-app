@@ -26,9 +26,9 @@ repeating-linear-gradient(90deg,#14734f 0,#14734f 12.5%,#11704b 12.5%,#11704b 25
 <aside class="sidebar"><div class="brand"><div class="logo">xP</div><span>FPL Analytics</span></div><div class="nav-title">Workspace</div><div class="nav"><a href="overview.html"><span>Overview</span></a><a href="rankings.html"><span>Player Rankings</span></a><a href="index.html" class="active"><span>Clubs</span></a><a href="my-team.html"><span>My Team</span></a><a href="team-optimizer.html"><span>Transfer & Team Optimizer</span></a></div><div class="nav-title">Models</div><div class="nav"><a href="models.html"><span>Model Explorer</span></a><a href="replay.html"><span>Replay & Audit</span></a></div><div class="sidebar-foot">Published model data<br>Auto-update enabled.</div></aside>
 <main class="main"><div class="topbar"><div class="crumb" id="crumb">Clubs</div><div class="top-actions"><select id="clubSelect" class="select"></select><span class="badge">LIVE MODEL</span></div></div>
 <div class="club-head"><div class="crest" id="crest">CHE</div><div><h1 id="clubName">Chelsea</h1><div class="subtitle">Expected XI, player forecasts and recent performance</div><div class="head-meta"><span class="pill" id="nextFix">Next fixture —</span><span class="pill" id="modelStamp">Model —</span></div></div></div>
-<div class="tabs"><button class="tab active" data-view="lineup">Expected Lineup</button><button class="tab" data-view="forecast">Forecast</button><button class="tab" data-view="recent">Recent Stats</button><button class="tab" data-view="fixtures">Fixtures</button></div>
+<div class="tabs"><button class="tab active" data-view="lineup">Startchancer</button><button class="tab" data-view="forecast">Forecast</button><button class="tab" data-view="recent">Recent Stats</button><button class="tab" data-view="fixtures">Fixtures</button></div>
 
-<section id="lineup" class="view active"><div class="lineup-layout"><div class="panel"><div class="panel-head"><div><div class="panel-title">Most likely starting XI</div><div class="panel-sub" id="lineupSub">Next GW · lineup derived from current P(start) data</div></div><span class="badge" id="formationBadge">4-2-3-1</span></div><div class="panel-body" style="padding:12px"><div class="pitch" id="pitch"><div class="pitch-center"></div></div></div></div>
+<section id="lineup" class="view active"><div class="lineup-layout"><div class="panel"><div class="panel-head"><div><div class="panel-title">Startchancer og FPL-positioner</div><div class="panel-sub" id="lineupSub">Aktuelle rolledata mangler; viser ikke en taktisk formation.</div></div><span class="badge" id="formationBadge">Afventer rolledata</span></div><div class="panel-body" style="padding:12px"><div class="pitch" id="pitch"><div class="pitch-center"></div></div></div></div>
 <div class="xi-side"><div class="summary-card"><div class="summary-label">Expected XI minutes</div><div class="summary-value" id="xiMinutes">—</div><div class="summary-note">Sum of next-GW xMins for the displayed XI.</div></div><div class="summary-card"><div class="summary-label">Lineup uncertainty</div><div class="summary-value" id="uncertainty">—</div><div class="summary-note">Share of the XI with P(start) below 80%.</div></div><div class="summary-card"><div class="summary-label">Closest role battles</div><div class="why-list" id="roleBattles"></div></div></div></div></section>
 
 <section id="forecast" class="view"><div class="toolbar"><div class="segmented" id="forecastPeriods"><button data-h="1">Next GW</button><button data-h="3" class="active">Next 3 GW</button><button data-h="6">Next 6 GW</button></div><input id="forecastSearch" class="search" placeholder="Search player…"></div><div class="fixture-row" id="forecastFixtures"></div><div class="cards" id="forecastSummary"></div><div class="table-wrap"><table id="forecastTable"><thead><tr><th>Player</th><th>Pos</th><th>Price</th><th>Status</th><th>P(start)</th><th>xMins</th><th>xG</th><th>xA</th><th>xGI</th><th>xPts</th><th>xPts/£m</th></tr></thead><tbody></tbody></table></div></section>
@@ -47,27 +47,87 @@ const ci=()=>D.clubs.find(c=>c.code===club)||{code:club,name:club};const ps=()=>
 function statusHTML(p){const s=(p.status||'Available');let c=s.toLowerCase();if(!['injured','doubtful'].includes(c))c='';return `<span class="status ${c}">${esc(s)}</span>`}
 function nextG(p){return p?.gws?.[0]||{}}function hagg(p,h){const g=(p?.gws||[]).slice(0,h);return{xmins:sum(g,'xmins'),xg:sum(g,'xg'),xa:sum(g,'xa'),xpts:sum(g,'xpts')}}
 function attachSort(t){t.querySelectorAll('th').forEach((th,i)=>th.onclick=()=>{const b=t.tBodies[0],r=[...b.rows],asc=th.dataset.asc!=='1';th.dataset.asc=asc?'1':'0';r.sort((a,c)=>{const x=a.cells[i]?.innerText.replace(/[%£m]/g,''),y=c.cells[i]?.innerText.replace(/[%£m]/g,''),nx=parseFloat(x),ny=parseFloat(y);return !isNaN(nx)&&!isNaN(ny)?(asc?nx-ny:ny-nx):(asc?String(x).localeCompare(y):String(y).localeCompare(x))});r.forEach(x=>b.appendChild(x))})}
+/* Tactical role assignment is only valid when supplied by a real model
+   with 11 unique, known role slots. Never manufacture RB/CAM/ST from FPL MID/DEF. */
 function expectedLineup(){
-  const explicit=D.expected_lineups?.find?.(x=>x.club===club&&(!x.gw||x.gw===D.meta?.next_gw));
-  if(explicit?.players?.length===11)return {formation:explicit.formation||'Expected XI',players:explicit.players.map(z=>{const p=D.forecasts.find(x=>x.id===z.id)||z;return {...p,_role:z.role||z.assigned_role,_competitor:z.competitor,_xmins:z.xmins??nextG(p).xmins,_pstart:z.pstart??nextG(p).pstart}})};
-  const all=[...ps()].sort((a,b)=>(nextG(b).pstart||0)-(nextG(a).pstart||0));
-  const take=(pos,n)=>all.filter(p=>pos==='GK'?['GK','GKP'].includes(p.pos):p.pos===pos).slice(0,n);
-  let xi=[...take('GK',1),...take('DEF',4),...take('MID',5),...take('FWD',1)];
-  if(xi.length<11)xi=[...all.slice(0,11)];
-  const roles=['GK','RB','RCB','LCB','LB','RDM','LDM','RAM','CAM','LAM','ST'];
-  xi=xi.map((p,i)=>({...p,_role:p.assigned_role||nextG(p).role||roles[i],_xmins:nextG(p).xmins,_pstart:nextG(p).pstart}));
-  return {formation:'4-2-3-1',players:xi,fallback:true};
+ const targetGw=Number(D.meta?.next_gw);
+ const explicit=(D.expected_lineups||[]).find(x=>x.club===club&&Number(x.gw)===targetGw);
+ const valid=explicit?.players?.length===11 &&
+   new Set(explicit.players.map(p=>Number(p.id))).size===11 &&
+   explicit.players.every(p=>typeof (p.role||p.assigned_role)==='string' &&
+       (p.role||p.assigned_role).trim() &&
+       D.forecasts.some(f=>Number(f.id)===Number(p.id)&&f.club===club));
+ if(valid){
+   return {formation:explicit.formation||'XI med roller',
+     players:explicit.players.map(z=>{const p=D.forecasts.find(x=>Number(x.id)===Number(z.id));
+       return {...p,_role:z.role||z.assigned_role,_competitor:z.competitor||null,
+         _xmins:z.xmins??nextG(p).xmins,_pstart:z.pstart??nextG(p).pstart};
+     }),fallback:false};
+ }
+ const all=[...ps()].filter(p=>p?.id!=null).sort((a,b)=>
+       Number(nextG(b).pstart||0)-Number(nextG(a).pstart||0));
+ const keeper=all.find(p=>['GK','GKP'].includes(p.pos));
+ const outfield=all.filter(p=>!['GK','GKP'].includes(p.pos));
+ // A position-grouped P(start) shortlist is NOT a tactical predicted XI.
+ const xi=[...(keeper?[keeper]:[]),...outfield.slice(0,keeper?10:11)];
+ return {formation:'FPL-grupper · ingen formation',
+   players:xi.map(p=>({...p,_role:null,_competitor:null,
+     _xmins:nextG(p).xmins,_pstart:nextG(p).pstart})),
+   fallback:true};
 }
-function competitorFor(p,xi){if(p._competitor)return p._competitor;const chosen=new Set(xi.map(x=>x.id));const candidates=ps().filter(x=>!chosen.has(x.id)&&x.pos===p.pos).sort((a,b)=>(nextG(b).pstart||0)-(nextG(a).pstart||0));return candidates[0]?{name:candidates[0].player,xmins:nextG(candidates[0]).xmins,pstart:nextG(candidates[0]).pstart}:null}
+function competitorFor(p,L){
+ // Same FPL position is not evidence of competing for the same tactical slot.
+ if(L.fallback||!p._role||!p._competitor)return null;
+ return p._competitor;
+}
 function renderPitch(){
- const L=expectedLineup(),xi=L.players;document.getElementById('formationBadge').textContent=L.formation;document.getElementById('lineupSub').textContent=`GW${D.meta?.next_gw||'—'} · ${L.fallback?'preview from current P(start); MM-v2 slots will replace this automatically':'MM-v2 role-slot assignment'}`;
- const byRole=new Map(xi.map(p=>[p._role,p]));const groups=L.formation==='4-2-3-1'?[['ST'],['LAM','CAM','RAM'],['LDM','RDM'],['LB','LCB','RCB','RB'],['GK']]:[xi.slice(0,3).map(x=>x._role),xi.slice(3,6).map(x=>x._role),xi.slice(6,10).map(x=>x._role),[xi[10]?._role]];
- const used=new Set();const rowPlayers=groups.map(gr=>gr.map(r=>{let p=byRole.get(r);if(!p)p=xi.find(x=>!used.has(x.id));if(p)used.add(p.id);return p}).filter(Boolean));
- const pitch=document.getElementById('pitch');pitch.innerHTML='<div class="pitch-center"></div>'+rowPlayers.map((row,ri)=>`<div class="line-row ${ri===rowPlayers.length-1?'gk':''}">${row.map(p=>{const c=competitorFor(p,xi);return `<div class="player-node" onclick="location.href='player.html?id=${p.id}'">${window.FPL_ASSETS?window.FPL_ASSETS.faceHTML(p,'asset-face-pitch'):`<div class="shirt">${esc(p._role||p.pos)}</div>`}<div class="node-card"><div class="node-name">${esc(p.player)}</div><div class="node-min">${num(p._xmins,0)} xMins · ${pct(p._pstart)}</div><div class="node-role">${esc(p._role||p.pos)}</div>${c?`<div class="competitor">↳ ${esc(c.name||c.player)} · ${num(c.xmins,0)}m</div>`:''}</div></div>`}).join('')}</div>`).join('');
- document.getElementById('xiMinutes').textContent=num(xi.reduce((s,p)=>s+Number(p._xmins||0),0),0);
- const uncertain=xi.filter(p=>Number(p._pstart||0)<.8).length;document.getElementById('uncertainty').textContent=`${uncertain}/11`;
- const battles=xi.map(p=>{const c=competitorFor(p,xi);return {p,c,gap:Number(p._pstart||0)-Number(c?.pstart||0)}}).filter(x=>x.c).sort((a,b)=>a.gap-b.gap).slice(0,4);
- document.getElementById('roleBattles').innerHTML=battles.map(x=>`<div class="why"><span>${esc(x.p._role||x.p.pos)} · ${esc(x.p.player)}</span><strong>${esc(x.c.name||x.c.player)} ${num(x.c.xmins,0)}m</strong></div>`).join('')||'<div class="notice">Role competitors will appear when MM-v2 data is published.</div>';
+ const L=expectedLineup(),xi=L.players;
+ document.getElementById('formationBadge').textContent=L.fallback?'Ingen taktisk XI':L.formation;
+ document.getElementById('lineupSub').textContent=L.fallback?
+   `GW${D.meta?.next_gw||'—'} · højeste P(start) sorteret efter FPL-position (IKKE taktiske roller eller forudsagt formation). MM-rolledata mangler.`:
+   `GW${D.meta?.next_gw||'—'} · dokumenteret rolletildeling fra aktuel model.`;
+ const pitch=document.getElementById('pitch');
+ const rows=L.fallback?
+   ['FWD','MID','DEF','GK'].map(pos=>xi.filter(p=>p.pos===pos||(pos==='GK'&&p.pos==='GKP'))).filter(a=>a.length):
+   L.formation==='4-2-3-1'?
+      [['ST'],['LAM','CAM','RAM'],['LDM','RDM'],['LB','LCB','RCB','RB'],['GK']]
+        .map(roles=>roles.map(role=>xi.find(p=>p._role===role)).filter(Boolean))
+        .filter(row=>row.length):
+      ['FWD','MID','DEF','GK'].map(pos=>xi.filter(p=>p.pos===pos||(pos==='GK'&&p.pos==='GKP'))).filter(a=>a.length);
+ // Any explicit role not found in the formation template is rendered, never silently lost.
+ const used=new Set(rows.flat().map(p=>Number(p.id)));
+ const extras=xi.filter(p=>!used.has(Number(p.id)));
+ if(extras.length)rows.unshift(extras);
+ const showRole=p=>L.fallback?'FPL: '+(p.pos==='GKP'?'GK':p.pos):p._role;
+ pitch.innerHTML='<div class="pitch-center"></div>'+
+   rows.map((row,ri)=>`<div class="line-row ${ri===rows.length-1?'gk':''}">${row.map(p=>{
+     const c=competitorFor(p,L);
+     return `<div class="player-node" onclick="location.href='player.html?id=${Number(p.id)}'">
+     ${window.FPL_ASSETS?window.FPL_ASSETS.faceHTML(p,'asset-face-pitch'):
+       `<div class="shirt">${esc(L.fallback?p.pos:p._role)}</div>`}
+     <div class="node-card"><div class="node-name">${esc(p.player)}</div>
+     <div class="node-min">${num(p._xmins,0)} xMins · ${pct(p._pstart)}</div>
+     <div class="node-role">${esc(showRole(p))}</div>
+     ${c?`<div class="competitor">↳ ${esc(c.name||c.player)} · ${num(c.xmins,0)}m</div>`:''}
+     </div></div>`}).join('')}</div>`).join('');
+ document.getElementById('xiMinutes').textContent=num(
+   xi.reduce((acc,p)=>acc+Number(p._xmins||0),0),0);
+ const uncertain=xi.filter(p=>Number(p._pstart||0)<.8).length;
+ document.getElementById('uncertainty').textContent=`${uncertain}/${xi.length||11}`;
+ if(L.fallback){
+   document.getElementById('roleBattles').innerHTML=
+     '<div class="notice">Taktiske rollekampe kan endnu ikke vises: '+
+     '2026/27-prognosen har kun brede FPL-positioner. '+
+     'Ingen RB, CAM eller konkurrerende spiller udledes uden MM-rolledata.</div>';
+ }else{
+   const battles=xi.map(p=>{const c=competitorFor(p,L);
+     return {p,c,gap:Number(p._pstart||0)-Number(c?.pstart||0)};})
+     .filter(x=>x.c).sort((a,b)=>a.gap-b.gap).slice(0,4);
+   document.getElementById('roleBattles').innerHTML=battles.map(x=>
+     `<div class="why"><span>${esc(x.p._role)} · ${esc(x.p.player)}</span>
+     <strong>${esc(x.c.name||x.c.player)} ${num(x.c.xmins,0)}m</strong></div>`
+   ).join('')||'<div class="notice">Ingen verificerede rollekonkurrenter i de aktuelle data.</div>';
+ }
 }
 function renderHead(){const c=ci();document.getElementById('crest').innerHTML=window.FPL_ASSETS?window.FPL_ASSETS.badgeHTML(c.code,'asset-badge-lg'):c.code;document.getElementById('clubName').textContent=c.name;document.getElementById('crumb').textContent='Clubs / '+c.name;const nf=cfx().find(f=>!f.finished);document.getElementById('nextFix').textContent=nf?`GW${nf.gw} · ${nf.home===club?nf.away:nf.home} (${nf.home===club?'H':'A'})`:'No upcoming fixture';document.getElementById('modelStamp').textContent=D.meta?.model_version||'Current model'}
 function renderForecast(){let arr=ps(),q=document.getElementById('forecastSearch').value.toLowerCase();arr=arr.filter(p=>!q||p.player.toLowerCase().includes(q)).sort((a,b)=>hagg(b,H).xpts-hagg(a,H).xpts);const fx=(arr[0]?.gws||[]).slice(0,H);document.getElementById('forecastFixtures').innerHTML=fx.map((g,i)=>`<div class="fixture ${i===0?'next':''}"><div class="gw">GW${g.gw}</div><div class="opp">${esc(g.fixture||'—')}</div><div class="score">${num(g.xpts,1)} xPts reference</div></div>`).join('');document.querySelector('#forecastTable tbody').innerHTML=arr.map(p=>{const a=hagg(p,H),g=nextG(p);return `<tr onclick="location.href='player.html?id=${p.id}'" style="cursor:pointer"><td><div class="player">${window.FPL_ASSETS?window.FPL_ASSETS.faceHTML(p):`<div class="avatar">${initials(p.player)}</div>`}<span>${esc(p.player)}</span></div></td><td><span class="pos">${p.pos}</span></td><td>£${num(p.price,1)}</td><td>${statusHTML(p)}</td><td>${pct(g.pstart)}</td><td class="green">${num(a.xmins,1)}</td><td>${num(a.xg,2)}</td><td>${num(a.xa,2)}</td><td>${num(a.xg+a.xa,2)}</td><td class="green">${num(a.xpts,2)}</td><td>${p.price?num(a.xpts/p.price,2):'—'}</td></tr>`}).join('');const top=arr[0],ta=top?hagg(top,H):{};document.getElementById('forecastSummary').innerHTML=`<div class="card"><div class="card-label">Top projected</div><div class="card-value">${esc(top?.player||'—')}</div></div><div class="card"><div class="card-label">Top xPts</div><div class="card-value">${num(ta.xpts,1)}</div></div><div class="card"><div class="card-label">Top xMins</div><div class="card-value">${num(Math.max(...arr.map(p=>hagg(p,H).xmins),0),0)}</div></div><div class="card"><div class="card-label">Horizon</div><div class="card-value">${H} GW</div></div>`}
