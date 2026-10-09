@@ -158,6 +158,8 @@ def main():
     ap=argparse.ArgumentParser()
     ap.add_argument('--vfinal',required=True);ap.add_argument('--out',required=True)
     ap.add_argument('--structural')
+    ap.add_argument('--calibration',required=True)
+    ap.add_argument('--persistent-fraction',type=float,default=.35)
     a=ap.parse_args();out=Path(a.out);out.mkdir(parents=True,exist_ok=True)
     gws,names,forecast=load(a.vfinal)
     struct=pd.read_csv(a.structural) if a.structural else None
@@ -165,16 +167,23 @@ def main():
     pd.DataFrame(baseline.pop('logs')).to_csv(out/'baseline.csv',index=False)
     if baseline['total_points']!=2125:raise AssertionError('Locked TS baseline changed')
     results={'baseline':baseline}
-    params=ScenarioParameters()
+    historical=json.loads(Path(a.calibration).read_text())
+    params=ScenarioParameters(new_mild=float(historical['p_one_or_two_unexpected_zero']),
+        new_severe=float(historical['p_three_plus_unexpected_zero']),
+        mild_persistence=float(historical['p_zero_minutes_persists_one_gw']),
+        severe_persistence=float(historical['p_zero_minutes_persists_one_gw']),
+        persistent_shock_fraction=a.persistent_fraction)
     record=run('joint_stopping',gws,names,forecast,True,params,struct)
     pd.DataFrame(record.pop('logs')).to_csv(out/'joint_stopping.csv',index=False)
     results['joint_stopping']=record
+    results['risk_params']=dict(vars(params))
+    results['calibration_source']='2022-23 to 2024-25 regular GW conditional minute-unavailability proxy'
     # Fast and deterministic policy-only sensitivity analysis at GW6.
     # It varies future shocks, not the current observed 2025/26 result.
     sensitivity=[]
     from fpl_xpts.joint_chip_stopping import choose_joint_chip
-    for severe in (.015,.055,.12,.20):
-        p=ScenarioParameters(new_severe=severe)
+    for severe in (.015,.053,.12,.20):
+        p=replace(params,new_severe=severe)
         for gain_wc in (5.,10.,15.,20.):
             d=choose_joint_chip(gw=6,available_mask=3,g_fh_now=12.,
                  g_wc_now=gain_wc,current_disruption=0,ft=2,
