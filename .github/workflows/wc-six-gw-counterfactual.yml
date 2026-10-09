@@ -1,0 +1,42 @@
+name: WC six GW counterfactual
+on:
+  workflow_dispatch:
+  push:
+    branches: [audit-role-minutes-20261001]
+    paths:
+      - 'scripts/audit_wc_six_gw_counterfactual.py'
+      - '.github/workflows/wc-six-gw-counterfactual.yml'
+jobs:
+  replay:
+    runs-on: ubuntu-latest
+    timeout-minutes: 240
+    permissions:
+      actions: read
+      contents: read
+    env:
+      PYTHONHASHSEED: '0'
+      OPENBLAS_NUM_THREADS: '1'
+      OMP_NUM_THREADS: '1'
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.sha }}
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: pip install -r requirements-model-checkpoint.txt
+      - run: pip install pandas==2.2.3 numpy==2.3.5 scipy scikit-learn requests
+      - uses: actions/download-artifact@v4
+        with:
+          name: final-locked-chain-gw1-38
+          path: work/base
+          github-token: ${{ github.token }}
+          run-id: 37612845586
+      - run: |
+          VF=$(find work/base -name rolling_vfinal_forecast.csv.gz | head -1)
+          PYTHONPATH=src:scripts python scripts/audit_wc_six_gw_counterfactual.py --vfinal "$VF" --out analysis/results/wc-counterfactual
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: wc-six-gw-player-comparison
+          path: analysis/results/wc-counterfactual
