@@ -14,6 +14,7 @@ import sys
 sys.path.insert(0,str(ROOT/'model'))
 import engine
 import decision_optimizer
+import forecast_preview
 
 DEFAULT_SQUAD_IDS=[496,572,8,173,204,229,469,15,40,154,290,399,165,346,411]
 
@@ -52,6 +53,8 @@ class Handler(SimpleHTTPRequestHandler):
         if p=='/api/update/status':
             f=USER/'update_status.json'
             return self._json(json.loads(f.read_text(encoding='utf-8')) if f.exists() else {'ok':True,'app_version':(ROOT/'VERSION.txt').read_text(encoding='utf-8').strip() if (ROOT/'VERSION.txt').exists() else 'unknown','data_version':(ROOT/'DATA_VERSION.txt').read_text(encoding='utf-8').strip() if (ROOT/'DATA_VERSION.txt').exists() else 'unknown'})
+        if p=='/api/forecast/preview':
+            return self._json(forecast_preview.forecast_preview(load_base_data(),load_squad()))
         if p=='/api/user/squad':
             return self._json(load_squad())
         if p=='/api/model/versions': return self._json(engine.list_versions())
