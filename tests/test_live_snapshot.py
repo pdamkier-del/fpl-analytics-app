@@ -21,7 +21,7 @@ def test():
                            "news":"Uncertain","now_cost":70,"team":1,"element_type":3}]}
         def fake_fetch(url):
             return fixtures if "/fixtures/" in url else boot
-        with patch.object(snapshot,"OUT",out),patch.object(snapshot,"SNAPSHOTS",snaps),\
+        with patch.object(snapshot,"ROOT",out),patch.object(snapshot,"OUT",out),patch.object(snapshot,"SNAPSHOTS",snaps),\
              patch.object(snapshot,"fetch_json",side_effect=fake_fetch):
             snapshot.main()
         doc=json.loads((out/"latest.json").read_text(encoding="utf8"))
