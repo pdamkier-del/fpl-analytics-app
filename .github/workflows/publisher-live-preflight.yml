@@ -3,7 +3,7 @@ on:
   workflow_dispatch:
   push:
     branches: [audit-role-minutes-20261001]
-    paths: ['.github/workflows/publisher-live-preflight.yml','scripts/build_live_role_snapshot.py','scripts/publish_fpl_update.py']
+    paths: ['.github/workflows/publisher-live-preflight.yml','scripts/build_live_role_snapshot.py','scripts/publish_fpl_update.py','scripts/snapshot_predicted_lineups.py','app/index.html']
 permissions:
   contents: read
 jobs:
@@ -42,7 +42,7 @@ jobs:
               expert_js=z.read('app/expert-lineups.js').decode('utf8')
               assert expert_js.startswith('window.FPL_EXPERT_LINEUPS=')
               expert=json.loads(expert_js.split('=',1)[1].strip().rstrip(';'))
-              assert len(expert['lineups'])>=15,expert['rejected']
+              assert len(expert['lineups'])==20,expert['rejected']
               assert all(len(x['players'])==11 for x in expert['lineups'])
               assert all(x['gw']==official['official_next_gw'] for x in expert['lineups'])
               print('EXPERT_WEEKLY_LINEUPS_OK',len(expert['lineups']),'GW',official['official_next_gw'])
