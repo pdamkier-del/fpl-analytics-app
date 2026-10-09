@@ -1,0 +1,50 @@
+name: Validate simple FH WC on 2024-25
+on:
+  workflow_dispatch:
+  push:
+    branches: [audit-role-minutes-20261001]
+    paths:
+      - 'scripts/run_simple_chip_2024_conditional.py'
+      - '.github/workflows/simple-fh-wc-2024.yml'
+jobs:
+  validation:
+    runs-on: ubuntu-latest
+    timeout-minutes: 360
+    env:
+      PYTHONHASHSEED: '0'
+      OPENBLAS_NUM_THREADS: '1'
+      OMP_NUM_THREADS: '1'
+      MKL_NUM_THREADS: '1'
+    permissions:
+      actions: read
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.sha }}
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: |
+          pip install -r requirements-model-checkpoint.txt
+          pip install pandas==2.2.3 numpy==2.3.5 scipy scikit-learn requests pytest
+      - name: Restore historical data
+        run: python scripts/restore_2024_25_data_checkpoint.py
+      - name: Download historical as-of forecasts
+        uses: actions/download-artifact@v4
+        with:
+          name: conditional-2024-25-per-origin-full-gw6-38
+          path: work/wc24
+          github-token: ${{ github.token }}
+          run-id: 37639946603
+      - name: Run conditional cross-season validation
+        run: |
+          VF=$(find work/wc24 -name rolling_vfinal_forecast.csv.gz | head -1)
+          test -n "$VF"
+          PYTHONPATH=src:scripts python scripts/run_simple_chip_2024_conditional.py --derived data_v1_1/derived/season_2024_25_v1 --vfinal "$VF" --out analysis/results/simple-chip-2024
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: conditional-simple-fh-wc-2024
+          path: analysis/results/simple-chip-2024
+          retention-days: 90
