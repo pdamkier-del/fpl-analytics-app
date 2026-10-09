@@ -6,6 +6,7 @@ on:
     paths:
       - 'app/**'
       - 'tests/test_model_tree_navigation.py'
+      - 'tests/model-tree-ui-smoke.js'
       - 'scripts/publish_fpl_update.py'
       - '.github/workflows/publish-fpl-update.yml'
       - '.github/workflows/website-design-checks.yml'
@@ -33,6 +34,10 @@ jobs:
           node --check app/model-tree-ui.js
       - name: Verify locked model math, source links and tree structure
         run: python tests/test_model_tree_navigation.py
+      - name: Test model tree in a browser-like DOM
+        run: |
+          npm install --no-save --no-package-lock jsdom@24
+          node tests/model-tree-ui-smoke.js
       - name: Validate HTML links and required pages
         run: |
           python - <<'PY'
