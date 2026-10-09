@@ -6,6 +6,9 @@ on:
     branches: [audit-role-minutes-20261001]
     paths:
       - '.github/workflows/build-publisher-patch-v2.3.yml'
+      - 'app/models.html'
+      - 'app/model-tree-data.js'
+      - 'app/model-tree-ui.js'
 
 permissions:
   contents: write
@@ -31,6 +34,8 @@ jobs:
 
           cp app/index.html .patch_v23/app/index.html
           cp app/models.html .patch_v23/app/models.html
+          cp app/model-tree-data.js .patch_v23/app/model-tree-data.js
+          cp app/model-tree-ui.js .patch_v23/app/model-tree-ui.js
           cp app/nav.js .patch_v23/app/nav.js
           cp scripts/publish_fpl_update.py .patch_v23/scripts/publish_fpl_update.py
           cp .github/workflows/publish-fpl-update.yml .patch_v23/.github/workflows/publish-fpl-update.yml
@@ -47,7 +52,7 @@ jobs:
           appzip=updates/'app-2.3.zip'
 
           with zipfile.ZipFile(appzip,'w',compression=zipfile.ZIP_DEFLATED,compresslevel=9) as z:
-              for rel in ['app/index.html','app/models.html','app/nav.js']:
+              for rel in ['app/index.html','app/models.html','app/model-tree-data.js','app/model-tree-ui.js','app/nav.js']:
                   z.write(root/rel,rel)
 
           old=json.loads(Path('updates/manifest.json').read_text(encoding='utf-8'))
@@ -85,7 +90,7 @@ jobs:
           with zipfile.ZipFile(p) as z:
               names=set(z.namelist())
               required={
-                'VERSION.txt','app/index.html','app/models.html','app/nav.js',
+                'VERSION.txt','app/index.html','app/models.html','app/model-tree-data.js','app/model-tree-ui.js','app/nav.js',
                 'scripts/publish_fpl_update.py',
                 '.github/workflows/publish-fpl-update.yml',
                 'updates/app-2.3.zip','updates/manifest.json'
@@ -98,7 +103,7 @@ jobs:
               app=z.read('updates/app-2.3.zip')
               assert hashlib.sha256(app).hexdigest()==manifest['app']['sha256']
               with zipfile.ZipFile(__import__('io').BytesIO(app)) as az:
-                  assert {'app/index.html','app/models.html','app/nav.js'}<=set(az.namelist())
+                  assert {'app/index.html','app/models.html','app/model-tree-data.js','app/model-tree-ui.js','app/nav.js'}<=set(az.namelist())
           print('publisher patch valid')
           PY
 
