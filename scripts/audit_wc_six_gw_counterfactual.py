@@ -42,7 +42,7 @@ def main():
     def capture(state,meta,origin,gw,config,**kw):
         result=original(state,meta,origin,gw,config,**kw)
         if gw in (6,26):
-            saved[gw]=(clone_state(state),meta.copy(),result)
+            saved[gw]=(clone_state(state),meta.copy(),clone_state(result.state))
         return result
     base.compare_wc_as_ts_action=capture
     history=base.run('chip_history',gws,names,forecast,use_chips=True,simple_thresholds=(10,20))
@@ -51,9 +51,9 @@ def main():
     pcfg=base.cfg()
     rows=[]; week_rows=[]; moves=[]
     for start in (6,26):
-        initial,initial_meta,wc_candidate=saved[start]
+        initial,initial_meta,wc_snapshot=saved[start]
         for variant in ('normal_ts','wc_then_ts'):
-            state=clone_state(initial if variant=='normal_ts' else wc_candidate.state)
+            state=clone_state(initial if variant=='normal_ts' else wc_snapshot)
             known=initial_meta.copy()
             for gw in range(start,start+6):
                 if gw>start:
