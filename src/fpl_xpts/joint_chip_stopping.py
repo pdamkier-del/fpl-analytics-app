@@ -115,10 +115,10 @@ def future_option_table(*,gw:int,ft:int=1,params:ScenarioParameters=ScenarioPara
             fh,wc=_event_gains(health,params,bgw,dgw,noise,ft)
             for mask in range(4):
                 # Current week's disruption becomes next week's carried health
-                choices=[v[mask,health]]
-                if mask&FH:choices.append(fh+v[mask&~FH,health])
-                if mask&WC:choices.append(wc+v[mask&~WC,0])
-                after[mask,previous_h]=float(np.mean(np.maximum.reduce(choices)))
+                best=v[mask,health].copy()
+                if mask&FH:best=np.maximum(best,fh+v[mask&~FH,health])
+                if mask&WC:best=np.maximum(best,wc+v[mask&~WC,0])
+                after[mask,previous_h]=float(np.mean(best))
         v=after
     return v
 
