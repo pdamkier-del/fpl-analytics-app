@@ -56,6 +56,9 @@ def tc_captain_lineup(lineup: pd.DataFrame, candidate_id: int) -> pd.DataFrame:
 
 def tc_origin_provider(root: str | Path, *, prefix: str = "tc-origin-"):
     def provider(gw: int, state, lineup: pd.DataFrame) -> dict:
+        # Archived locked TC-v2 starts at GW6; GW1–5 are not calibrated.
+        if gw<6:
+            return dict(action='SAVE_TC',candidate_id=None,use_edge=float('-inf'),reason='GW1-5 cold start')
         samples=load_tc_origin(root,gw,prefix=prefix)
         eligible=lineup[lineup.role.isin(('C','VC','XI'))].id.astype(int).tolist()
         return tc_v2_opportunity(samples,gw,eligible_current_ids=eligible)
