@@ -1,0 +1,51 @@
+name: WC 2024-25 six-week robustness
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [audit-role-minutes-20261001]
+    paths:
+      - 'scripts/run_wc_2024_conditional.py'
+      - 'scripts/run_fh_exact_gap_reference.py'
+      - '.github/workflows/wc-2024-conditional.yml'
+
+jobs:
+  replay:
+    runs-on: ubuntu-latest
+    timeout-minutes: 360
+    permissions:
+      actions: read
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: audit-role-minutes-20261001
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install
+        run: |
+          pip install -r requirements-model-checkpoint.txt
+          pip install pandas==2.2.3 numpy==2.3.5 scipy scikit-learn requests
+      - name: Restore 2024-25 data
+        run: python scripts/restore_2024_25_data_checkpoint.py
+      - name: Download historical 2024-25 six-week forecasts
+        uses: actions/download-artifact@v4
+        with:
+          name: conditional-2024-25-per-origin-full-gw6-38
+          path: work/wc24
+          github-token: ${{ github.token }}
+          run-id: 37639946603
+      - name: Compare permanent WC with locked six-week TS
+        run: |
+          VF=$(find work/wc24 -name rolling_vfinal_forecast.csv.gz | head -1)
+          test -n "$VF"
+          PYTHONPATH=src:scripts python scripts/run_wc_2024_conditional.py --derived data_v1_1/derived/season_2024_25_v1 --vfinal "$VF" --out analysis/results/wc-2024-conditional
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: wc-2024-conditional
+          path: |
+            analysis/results/fh-exact-gap-reference
+            analysis/results/wc-2024-conditional
+          retention-days: 90
