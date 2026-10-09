@@ -51,8 +51,11 @@ def optimize_wildcard(state:ReplayState, meta:pd.DataFrame, origin:pd.DataFrame,
     after.free_transfers=int(state.free_transfers)
     after.chips_used['wildcard'].append(int(current_gw))
     normal=plan_transfer_path(clone_state(state),m,origin,int(current_gw),config)
-    future=plan_transfer_path(clone_state(after),m,origin,int(current_gw),config)
+    # WC week has no additional permanent transfers. Plan subsequent moves
+    # only from the NEXT GW; normal TS branch retains its ordinary search.
+    future=plan_transfer_path(clone_state(after),m,origin,int(current_gw)+1,config) if current_gw<38 else None
     return WildcardCandidate(after,tuple(sorted(ids)),budget,len(incoming),
                              float(result.get('objective',0.)),
-                             float(normal.objective),float(future.objective),
-                             float(future.objective-normal.objective))
+                             float(normal.objective),
+                             float(plan_squad(origin[origin.gw.eq(current_gw)],list(after.squad),current_gw).expected_score)+(float(future.objective)*0.60 if future else 0.),
+                             float(plan_squad(origin[origin.gw.eq(current_gw)],list(after.squad),current_gw).expected_score)+(float(future.objective)*0.60 if future else 0.)-float(normal.objective))
