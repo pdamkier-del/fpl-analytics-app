@@ -32,7 +32,7 @@ ALIASES={
  "man utd":"manchester united","brighton":"brighton and hove albion",
  "wolves":"wolverhampton wanderers","newcastle":"newcastle united",
  "west ham":"west ham united","nottingham forest":"nottingham forest",
- "forest":"nottingham forest","leeds":"leeds united",
+ "forest":"nottingham forest","nottm forest":"nottingham forest","leeds":"leeds united",
  "leicester":"leicester city","ipswich":"ipswich town",
  "hull":"hull city","coventry":"coventry city",
  "crystal palace":"crystal palace",
