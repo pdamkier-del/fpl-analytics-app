@@ -35,6 +35,10 @@ def main():
             assert not required-items, sorted(required-items)
             assert b"/api/forecast/preview" in z.read("app/forecast-center.html")
             assert b"forecast_preview.forecast_preview" in z.read("start_app.py")
+            club=z.read("app/index.html")
+            assert b"MM-rolledata mangler" in club
+            assert b"const roles=[\'GK\',\'RB\'" not in club
+            assert b"roleSet=new Set" in club
         print("PUBLISHER_BUNDLE_OK",len(items),"files",len(data),"bytes",flush=True)
 
 if __name__=="__main__": main()
