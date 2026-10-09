@@ -83,6 +83,9 @@ def main():
     if not role_builder.exists():
         raise FileNotFoundError(role_builder)
     subprocess.run([sys.executable,str(role_builder)],check=True,cwd=ROOT)
+    expert_builder=ROOT/'scripts'/'snapshot_predicted_lineups.py'
+    if expert_builder.exists():
+        subprocess.run([sys.executable,str(expert_builder)],check=True,cwd=ROOT)
 
     UPDATES.mkdir(exist_ok=True)
     bundle=UPDATES/f'app-{app_version}.zip'
