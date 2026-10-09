@@ -157,3 +157,36 @@ of unplayed FH/WC plus future catastrophes remains unmodelled.
   future FH baseline is not yet calibrated in six-GW TS units,
   and persistent injuries are not modelled player by player. DO NOT deploy
   or lock chip decisions based on this one-season +83.
+
+## Current provisional version: persistent-vs-temporary calibration revision
+
+Git commit a556dfcd76b478573ea49e1c33af2b2f0c3f7454 changed the
+three-state stochastic shock payoffs. This changed RESULTS; DO NOT confuse
+them with the prior +83 variant.
+
+- Independent replay runs 37914385670 and 37914460593 both returned
+  locked baseline 2125 and calibrated joint-chip result **2197** (+72).
+  FH GW6/GW36; WC GW8/GW34; 60 transfers and 16 hit points.
+- In the GW6 actual as-of forecast, incremental FH six-GW utility=17.89,
+  WC=23.93. Joint Bellman continuation q_normal=33.83,
+  q_FH=38.31, q_WC=37.90, so FH leads WC by just 0.41 xP.
+- In the controlled 3-starter outage stress, missing only GW6:
+  FH action; missing GW6–11: WC action. This is the desired
+  *directional* behavior but does not prove general optimality.
+- The point gain is dominated by realised GW8 +50, GW34 +43,
+  and GW6 +33 vs locked no-chip season (GW17 +29 without a chip
+  arose indirectly from the changed permanent squad/transfer history).
+  Point outcomes should not be interpreted as calibrated policy EV.
+- The +83 run 37914368681 used the *earlier* shadow-state
+  model, because another commit changed the branch between
+  simulation launches. Different model versions explain the distinct
+  scores; no identical-code replay discrepancy was demonstrated.
+- Workflow .github/workflows/joint-fh-wc-calibrated.yml now checks out
+  ${{ github.sha }} and sets fixed Python hash and BLAS thread
+  environment for explicit commit provenance. Maintain this practice.
+
+**NOT LOCKED**: future FH continuation baseline 4 xP and the
+2-observation WC prior remain weak. Snapshot-level 6GW player forecasts
+and conditional 15-player injury/discipline simulations are still
+missing. The current policy evaluates a screened set of GWs, not
+every possible deadline, and is not a production-optimal strategy.
