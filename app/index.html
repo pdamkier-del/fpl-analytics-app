@@ -21,6 +21,16 @@ repeating-linear-gradient(90deg,#14734f 0,#14734f 12.5%,#11704b 12.5%,#11704b 25
 .fixture-grid-v2{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}.fixture-card-v2{background:#fff;border:1px solid var(--line);border-radius:14px;padding:14px;box-shadow:var(--shadow);cursor:default}.fixture-card-v2.finished{cursor:pointer}.fixture-card-v2.finished:hover{transform:translateY(-1px);box-shadow:0 10px 28px rgba(17,31,44,.09)}.fixture-card-top{display:flex;justify-content:space-between;align-items:center;gap:8px}.fixture-date{font-size:10px;color:var(--muted);font-weight:750}.fdr{font-size:10px;font-weight:900;border-radius:999px;padding:5px 8px;color:#fff}.fdr1{background:#00a65a}.fdr2{background:#50b848}.fdr3{background:#7b7f86}.fdr4{background:#e67e22}.fdr5{background:#c0392b}.fixture-teams{display:grid;grid-template-columns:1fr auto 1fr;align-items:center;gap:10px;margin:12px 0}.fixture-team{display:flex;align-items:center;gap:8px;font-size:12px;font-weight:900}.fixture-team.away{justify-content:flex-end;text-align:right}.fixture-score-v2{font-size:22px;font-weight:950}.fixture-meta-v2{display:flex;justify-content:space-between;gap:8px;border-top:1px solid var(--line);padding-top:9px;font-size:10px;color:var(--muted)}.fixture-meta-v2 strong{color:var(--ink)}
 .notice{font-size:11px;color:var(--muted);line-height:1.5;margin-top:10px}
 @media(max-width:1150px){.lineup-layout{grid-template-columns:1fr}.cards{grid-template-columns:repeat(2,1fr)}}@media(max-width:820px){.app{grid-template-columns:78px 1fr}.sidebar{padding:20px 10px}.brand span,.nav a span,.nav-title,.sidebar-foot{display:none}.brand{margin-left:9px}.nav a{width:42px;text-align:center;margin:5px auto}.main{padding:20px 16px}.pitch{min-height:520px;padding:18px 8px}.player-node{width:90px}.fixture-row{grid-template-columns:repeat(2,1fr)}.fixture-grid-v2{grid-template-columns:1fr}.cards{grid-template-columns:1fr}}
+.expert-node{position:absolute;z-index:4;width:110px;max-width:23%;text-align:center;transform:translate(-50%,-50%);pointer-events:auto}
+.expert-node .expert-shirt{width:34px;height:36px;border-radius:9px 9px 6px 6px;background:#fff;margin:0 auto 4px;display:grid;place-items:center;font-size:13px;font-weight:850;color:#17432d;box-shadow:0 3px 9px rgba(0,0,0,.22)}
+.expert-node .expert-name{font-size:10px;font-weight:800;background:rgba(5,29,20,.90);border:1px solid rgba(255,255,255,.35);color:#fff;padding:5px 4px;border-radius:7px;line-height:1.2;overflow-wrap:anywhere}
+.expert-reference{background:#fff7e5;border:1px solid #e1cda0;border-radius:8px;padding:9px 11px;font-size:11px;color:#644d2c;line-height:1.5}
+.pitch.expert-formation{height:650px;min-height:650px}
+.pitch.no-fake-xi{background:#f0f5f4;border-color:#b6c6c3;color:#304941}
+.pitch.no-fake-xi:before,.pitch.no-fake-xi:after,.pitch.no-fake-xi .pitch-center{display:none}
+.pitch.no-fake-xi .line-row{display:none}
+.no-lineup-notice{background:#fff;border:1px solid #dce8e2;border-radius:13px;padding:26px;max-width:520px;line-height:1.8;margin:75px auto;color:#355248}
+@media(max-width:540px){.expert-node{width:84px}.expert-node .expert-name{font-size:9px}.pitch.expert-formation{min-height:640px}}
 </style></head>
 <body><div class="app">
 <aside class="sidebar"><div class="brand"><div class="logo">xP</div><span>FPL Analytics</span></div><div class="nav-title">Workspace</div><div class="nav"><a href="overview.html"><span>Overview</span></a><a href="rankings.html"><span>Player Rankings</span></a><a href="index.html" class="active"><span>Clubs</span></a><a href="my-team.html"><span>My Team</span></a><a href="team-optimizer.html"><span>Transfer & Team Optimizer</span></a></div><div class="nav-title">Models</div><div class="nav"><a href="models.html"><span>Model Explorer</span></a><a href="replay.html"><span>Replay & Audit</span></a></div><div class="sidebar-foot">Published model data<br>Auto-update enabled.</div></aside>
@@ -36,9 +46,10 @@ repeating-linear-gradient(90deg,#14734f 0,#14734f 12.5%,#11704b 12.5%,#11704b 25
 <section id="recent" class="view"><div class="toolbar"><div class="segmented" id="statsPeriods"><button data-n="3" class="active">Last 3 GW</button><button data-n="6">Last 6 GW</button><button data-n="all">Season</button></div><input id="statsSearch" class="search" placeholder="Search player…"></div><div class="fixture-row" id="statsFixtures"></div><div class="cards" id="statsSummary"></div><div class="table-wrap"><table id="statsTable" style="min-width:1450px"><thead><tr><th>Player</th><th>Pos</th><th>Min</th><th>Pts</th><th>Goals</th><th>xG</th><th>Assists</th><th>xA</th><th>xGI</th><th>CS</th><th>xGC</th><th>DefCon</th><th>Saves</th><th>Bonus</th><th>BPS</th></tr></thead><tbody></tbody></table></div></section>
 <section id="fixtures" class="view"><div class="fixture-grid-v2" id="fixtureBody"></div></section>
 </main></div>
-<script src="data.js"></script><script src="role-data.js"></script><script src="match-data.js"></script><script src="assets.js"></script><script>
+<script src="data.js"></script><script src="role-data.js"></script><script src="expert-lineups.js"></script><script src="match-data.js"></script><script src="assets.js"></script><script>
 const D=window.FPL_DATA||{clubs:[],forecasts:[],actuals:[],fixtures:[],meta:{}},M=window.FPL_MATCH_DATA||{matches:[]};
 const R=window.FPL_ROLE_DATA||{players:[],expected_lineups:[],current_xi_certified:false};
+const EXPERT=window.FPL_EXPERT_LINEUPS||{lineups:[],official_next_gw:null};
 const ROLE_MAP=new Map((R.players||[]).map(row=>[Number(row.id),row]));
 const roleEvidence=p=>ROLE_MAP.get(Number(p.id));
 function rolePrior(p){
@@ -97,8 +108,72 @@ function competitorFor(p,L){
  if(L.fallback||!p._role||!p._competitor)return null;
  return p._competitor;
 }
+function currentExpertLineup(){
+ const officialGw=Number(R.official_next_gw||EXPERT.official_next_gw);
+ const source=EXPERT.lineups?.find(x=>x.club===club&&Number(x.gw)===officialGw);
+ if(!source||source.players?.length!==11||
+   new Set(source.players.map(x=>x.name)).size!==11)return null;
+ const last=Date.parse(source.updated);
+ const observed=Date.parse(EXPERT.observed_at_utc);
+ if(!Number.isFinite(last)||!Number.isFinite(observed)||
+   observed-last>14*86400000||last>observed+3600000)return null;
+ return source;
+}
+function renderExpertLineup(x){
+ const pitch=document.getElementById('pitch');
+ pitch.classList.add('expert-formation');
+ pitch.classList.remove('no-fake-xi');
+ const rows=x.players.map((p,i)=>{
+   const left=Math.max(10,Math.min(90,Number(p.x)));
+   const top=Math.max(8,Math.min(92,Number(p.y)));
+   return `<div class="expert-node" style="left:${left}%;top:${top}%">
+       <div class="expert-shirt">${i===0?'GK':'⚽'}</div>
+       <div class="expert-name">${esc(p.name)}</div>
+     </div>`;
+ }).join('');
+ pitch.innerHTML='<div class="pitch-center"></div>'+rows;
+ document.getElementById('formationBadge').textContent='Ekstern forventet XI · GW'+x.gw;
+ const historic=(R.team_formations||[]).find(t=>t.club===club);
+ const prior=historic?' · 25/26 formationshistorik: '+historic.observed_latest_formation:'';
+ document.getElementById('lineupSub').textContent=
+   'Fantasy Football Pundit · opdateret '+x.updated+' · ikke MM-model'+prior;
+ document.getElementById('xiMinutes').textContent='—';
+ document.getElementById('uncertainty').textContent='—';
+ document.getElementById('roleBattles').innerHTML=
+   '<div class="expert-reference"><strong>Ekstern forventet XI:</strong> placeringerne er hentet fra '+
+   '<a target="_blank" rel="noopener noreferrer" href="'+
+   esc(EXPERT.source_url||'https://www.fantasyfootballpundit.com/fantasy-premier-league-team-news/')+
+   '">Fantasy Football Pundit</a> og er <strong>ikke</strong> vores MM-prognose. '+
+   'Dette vises, fordi aktuel taktisk rolle-XI og P(start) endnu ikke er verificeret. '+
+   (historic?'Seneste dokumenterede formationshistorik: '+esc(historic.observed_latest_formation)+
+      ' ('+esc(historic.latest_observed_season||'historisk')+').':'')+
+   '</div>';
+}
 function renderPitch(){
  const L=expectedLineup(),xi=L.players;
+ const outside=currentExpertLineup();
+ if(L.fallback&&outside){renderExpertLineup(outside);return;}
+ const pitch=document.getElementById('pitch');
+ pitch.classList.remove('expert-formation');
+ if(L.fallback){
+   pitch.classList.add('no-fake-xi');
+   const hist=(R.team_formations||[]).find(t=>t.club===club);
+   document.getElementById('formationBadge').textContent='Ingen verificeret forventet XI';
+   document.getElementById('lineupSub').textContent=
+     'Ingen opdateret taktisk start-XI for GW'+(R.official_next_gw||'—')+
+     (hist?' · sidste dokumenterede formation '+hist.observed_latest_formation+
+       ' ('+hist.latest_observed_season+')':'');
+   pitch.innerHTML='<div class="no-lineup-notice"><strong>Forventet XI ikke tilgængelig.</strong><p>Vi har ikke verificeret '+
+     'en aktuel formation og de 11 startere. Historiske roller vises i spillertabellen, '+
+     'men vi indsætter ikke vilkårlige spillere på en taktisk bane.</p></div>';
+   document.getElementById('xiMinutes').textContent='—';
+   document.getElementById('uncertainty').textContent='—';
+   document.getElementById('roleBattles').innerHTML=
+     '<div class="notice">Rollepriorer og senest observeret formation er historik, ikke en '+
+     'forventet aktuel start-XI. Ingen opstilling udledes fra bare FPL-positioner.</div>';
+   return;
+ }
+ pitch.classList.remove('no-fake-xi');
  document.getElementById('formationBadge').textContent=L.fallback?'Ingen taktisk XI':L.formation;
  document.getElementById('lineupSub').textContent=L.fallback?
    `GW${D.meta?.next_gw||'—'} · højeste P(start) sorteret efter FPL-position (IKKE taktiske roller eller forudsagt formation). MM-rolledata mangler.`:
