@@ -8,6 +8,9 @@ on:
       - 'tests/test_model_tree_navigation.py'
       - 'tests/model-tree-ui-smoke.js'
       - 'tests/test_forecast_preview.py'
+      - 'tests/test_publisher_bundle.py'
+      - 'tests/test_live_snapshot.py'
+      - 'scripts/snapshot_fpl_schedule.py'
       - 'model/forecast_preview.py'
       - 'start_app.py'
       - 'scripts/publish_fpl_update.py'
@@ -29,7 +32,7 @@ jobs:
         with:
           node-version: '22'
       - name: Validate Python
-        run: python -m py_compile scripts/publish_fpl_update.py start_app.py updater.py model/forecast_preview.py
+        run: python -m py_compile scripts/publish_fpl_update.py scripts/snapshot_fpl_schedule.py start_app.py updater.py model/forecast_preview.py
       - name: Validate all model tree scripts and existing navigation
         run: |
           node --check app/nav.js
@@ -43,6 +46,10 @@ jobs:
           node tests/model-tree-ui-smoke.js
       - name: Verify live forecast preview and chip candidate provenance
         run: python tests/test_forecast_preview.py
+      - name: Check offline official FPL fixture and player availability snapshot
+        run: python tests/test_live_snapshot.py
+      - name: Verify one-click publisher bundle includes locked code and dashboard
+        run: python tests/test_publisher_bundle.py
       - name: Validate HTML links and required pages
         run: |
           python - <<'PY'
