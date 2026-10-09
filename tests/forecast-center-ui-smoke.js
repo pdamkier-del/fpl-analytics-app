@@ -30,7 +30,7 @@ setTimeout(()=>{
   assert.equal(document.querySelectorAll('#chip-grid .chip-card').length,4);
   assert.ok(document.querySelector('#weekly-table').textContent.includes('57,30'));
   assert.ok(document.querySelector('#source-data').textContent.includes('667'));
-  assert.ok(document.querySelector('#mode-status').textContent.includes('forældede'));
+  assert.ok(document.querySelector('#mode-status').textContent.toLocaleLowerCase('da-DK').includes('forældede'));
   assert.ok(document.querySelector('#alerts').textContent.includes('Ældre forecast-bridge'));
   console.log('FORECAST_UI_SMOKE_OK',document.querySelectorAll('#chip-grid .chip-card').length);
  }catch(e){console.error(e);process.exitCode=1}
