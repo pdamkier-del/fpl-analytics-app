@@ -87,3 +87,42 @@ def bb_threshold(gw: int, lambda_bb: float) -> float:
     if gw<1 or gw>38 or lambda_bb<0:raise ValueError('Invalid BB GW/threshold')
     first,last=(1,19) if gw<=19 else (20,38)
     return float(lambda_bb)*(last-gw)/(last-first)
+
+def post_wildcard_bb_opportunities(
+    *,
+    wc_gw: int,
+    wc_squad_ids: list[int],
+    asof_projection: pd.DataFrame,
+    lookahead: int = 6,
+) -> pd.DataFrame:
+    """Show BB opportunities AFTER WC without modifying the locked WC choice.
+
+    Input must be the snapshot available at the WC deadline, never a later
+    forecast. The first BB opportunity is GW+1 because chips cannot stack.
+    Each future lineup uses the existing locked lineup optimizer; actual BB
+    selection must be recomputed at the corresponding GW deadline after TS.
+    """
+    from .optimize import plan_squad
+    if not 1 <= wc_gw <= 38:
+        raise ValueError('Invalid wildcard GW')
+    if len(wc_squad_ids) != 15 or len(set(wc_squad_ids)) != 15:
+        raise ValueError('A full 15-player WC squad is required')
+    if lookahead < 1:
+        raise ValueError('lookahead must be positive')
+    period_end = 19 if wc_gw <= 19 else 38
+    horizons = [g for g in range(wc_gw + 1, min(period_end, wc_gw + lookahead) + 1)]
+    rows = []
+    for gw in horizons:
+        if asof_projection[asof_projection.gw.eq(gw)].id.nunique() < 15:
+            continue
+        plan = plan_squad(asof_projection, wc_squad_ids, gw)
+        opportunity = evaluate_bench_boost(plan.rows)
+        rows.append({
+            'wc_gw': wc_gw,
+            'bb_gw': gw,
+            'bench_xp': opportunity.bench_xp,
+            'normal_autosub_xp': opportunity.expected_autosub_xp,
+            'bb_incremental_xp': opportunity.incremental_xp,
+            'bench_ids': opportunity.bench_player_ids,
+        })
+    return pd.DataFrame(rows)
