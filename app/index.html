@@ -179,13 +179,27 @@ function renderPitch(){
    `GW${D.meta?.next_gw||'—'} · højeste P(start) sorteret efter FPL-position (IKKE taktiske roller eller forudsagt formation). MM-rolledata mangler.`:
    `GW${D.meta?.next_gw||'—'} · dokumenteret rolletildeling fra aktuel model.`;
  const pitch=document.getElementById('pitch');
- const rows=L.fallback?
-   ['FWD','MID','DEF','GK'].map(pos=>xi.filter(p=>p.pos===pos||(pos==='GK'&&p.pos==='GKP'))).filter(a=>a.length):
-   L.formation==='4-2-3-1'?
-      [['ST'],['LAM','CAM','RAM'],['LDM','RDM'],['LB','LCB','RCB','RB'],['GK']]
-        .map(roles=>roles.map(role=>xi.find(p=>p._role===role)).filter(Boolean))
-        .filter(row=>row.length):
-      ['FWD','MID','DEF','GK'].map(pos=>xi.filter(p=>p.pos===pos||(pos==='GK'&&p.pos==='GKP'))).filter(a=>a.length);
+ // The locked XI optimizer returns one GK then formation slots in tactical
+ // back-to-front order. Honor that exact slot ordering for ANY legal shape.
+ const formationLayers=String(L.formation).split('-').map(Number);
+ const validShape=!L.fallback && formationLayers.length>=2 && formationLayers.length<=5 &&
+   formationLayers.every(n=>Number.isInteger(n)&&n>0) &&
+   formationLayers.reduce((sum,n)=>sum+n,0)===10 &&
+   xi.length===11 && xi[0]._role==='GK';
+ const rows=[];
+ if(validShape){
+   let start=1;
+   for(const n of formationLayers){
+     rows.push(xi.slice(start,start+n).reverse());
+     start+=n;
+   }
+   rows.reverse();
+   rows.push([xi[0]]);
+ }else{
+   // No spatial layout without all 11 valid expected slot assignments.
+   rows.push(...['FWD','MID','DEF','GK'].map(pos=>
+     xi.filter(p=>p.pos===pos||(pos==='GK'&&p.pos==='GKP'))).filter(x=>x.length));
+ }
  // Any explicit role not found in the formation template is rendered, never silently lost.
  const used=new Set(rows.flat().map(p=>Number(p.id)));
  const extras=xi.filter(p=>!used.has(Number(p.id)));
