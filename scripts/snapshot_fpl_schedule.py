@@ -121,13 +121,17 @@ def main():
         {"id": int(p["id"]), "name": p.get("web_name"),
          "status": p.get("status"), "chance_next_round": p.get("chance_of_playing_next_round"),
          "news": p.get("news"), "price_tenths": p.get("now_cost"),
-         "team_id": p.get("team"), "element_type": p.get("element_type")}
+         "team_id": p.get("team"), "element_type": p.get("element_type"),
+         "player_code": p.get("code")}
         for p in bootstrap.get("elements", []) if p.get("id") is not None
     ]
     payload = {"schema_version": 2, "season": season, "observed_at_utc": observed_at,
                "official_next_gw": upcoming,
                "sources": {"fixtures": FIXTURES_URL, "bootstrap": BOOTSTRAP_URL},
                "players": official_players,
+               "teams": [{"id": int(t["id"]), "code": t.get("code"),
+                          "name": t.get("name"), "short_name": t.get("short_name")}
+                         for t in bootstrap.get("teams", [])],
                **build_schedule(fixtures, bootstrap["teams"])}
     SNAPSHOTS.mkdir(parents=True, exist_ok=True)
     current = SNAPSHOTS / f"{stamp}.json"
