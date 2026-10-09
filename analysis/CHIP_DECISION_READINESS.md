@@ -135,3 +135,25 @@ of unplayed FH/WC plus future catastrophes remains unmodelled.
   Markov abstraction, not a full stochastic TS roster replay. Even after
   calibrating, do NOT lock automatic FH/WC until all-week cutoff-safe
   forward forecasts, stronger sample and cross-season validation exist.
+
+## Held-out 2025/26 calibrated joint-policy pilot (success)
+
+- Run 37914368681: locked baseline 2125; stochastic joint FH/WC
+  2208 actual points (+83), FH GW6+GW36 and WC GW19+GW34.
+  TS/MM/PM locked unchanged. Chip decisions use forecast expectations;
+  the +83 is realised single-season outcome, NOT estimated causal EV.
+- Same held-out GW6 state: healthy FH gain 17.89, WC gain 23.93
+  six-GW TS-objective points; q_save_both 37.30, q_FH 42.23,
+  q_WC 37.51: FH exercised.
+- Synthetic 3-starter disruption for only GW6:
+  q_save 39.57, q_FH 50.85, q_WC 43.59: still FH.
+- Synthetic 3-starter disruption for GW6-11:
+  q_save 39.57, q_FH 47.42, q_WC 44.19: still FH.
+- The WC early-use problem was mitigated, but FH still fires at GW6.
+  This could be consistent with the forecasted FH gain but MUST be
+  audited using independent forecasts and opportunity-value calibration.
+- Research constraints: stochastic future health is a 3-state
+  approximation; only a subset of deadlines has expensive WC/FH evaluations,
+  future FH baseline is not yet calibrated in six-GW TS units,
+  and persistent injuries are not modelled player by player. DO NOT deploy
+  or lock chip decisions based on this one-season +83.
