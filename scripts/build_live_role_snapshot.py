@@ -121,16 +121,17 @@ def build(official,bridge,raw_prior=RAW_PRIOR,stats_prior=STATS_PRIOR,
     prior_ids={str(p.get('player_id')):str(p.get('player_code')) for p in rows(IDENT_PRIOR)
                if p.get('player_id') and p.get('player_code')}
     if not prior_ids:raise ValueError('No 2025/26 stable player identity mapping')
-    current_codes={str(p.get('player_id')):str(p.get('player_code')) for p in official['players']
-                   if p.get('player_id') and p.get('player_code')}
+    current_codes={str(p.get('id')):str(p.get('player_code')) for p in official['players']
+                   if p.get('id') and p.get('player_code')}
     team_codes={int(t['id']):int(t['code']) for t in official['teams']
                 if t.get('id') is not None and t.get('code') is not None}
     hist=RoleHistory()
     prior_report=evidence_from_directory(hist,raw_prior,stats_prior,prior_ids,cutoff,'2025/26')
     prior_games=sum(len(x) for x in hist.games.values())
     current_report={'source':'2026/27','confirmed_teams_games':0}
+    current_stats=ROOT/'data_v1_1/raw/all-competitions-2026-27'
     if raw_current.is_dir():
-        current_report=evidence_from_directory(hist,raw_current,None,current_codes,cutoff,'2026/27')
+        current_report=evidence_from_directory(hist,raw_current,current_stats,current_codes,cutoff,'2026/27')
     current_games=sum(len(x) for x in hist.games.values())-prior_games
     history_state={};last_team={}
     for team in sorted(hist.games):
