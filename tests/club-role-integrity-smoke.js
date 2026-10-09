@@ -50,6 +50,14 @@ assert.equal(document.querySelectorAll('#pitch .player-node').length,11);
 assert.equal(document.querySelectorAll('#pitch .node-role').length,11);
 assert.ok(document.querySelector('#pitch').textContent.includes('CAM'));
 assert.ok(document.querySelector('#formationBadge').textContent.includes('4-2-3-1'));
+const roles3421=['GK','RCB','CB','LCB','RWB','RCM','LCM','LWB','RAM','LAM','ST'];
+roleData.expected_lineups=[{club:'CHE',gw:6,formation:'3-4-2-1',
+    players:roles3421.map((role,index)=>({id:players[index].id,role}))}];
+app.renderPitch();
+assert.equal(document.querySelectorAll('#pitch .line-row').length,5);
+assert.deepEqual([...document.querySelectorAll('#pitch .line-row')].map(row=>row.querySelectorAll('.player-node').length),[1,2,4,3,1]);
+assert.ok(document.querySelector('#formationBadge').textContent.includes('3-4-2-1'));
+
 roleData.expected_lineups=[{club:'CHE',gw:6,formation:'4-2-3-1',players:explicitPlayers.map(x=>({...x,role:'MID'}))}];
 assert.equal(app.expectedLineup().fallback,true,'FPL MID must not masquerade as tactical role');
 roleData.expected_lineups=[{club:'CHE',gw:6,formation:'4-2-3-1',players:explicitPlayers.slice(0,10)}];
