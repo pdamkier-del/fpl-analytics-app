@@ -46,7 +46,9 @@ from fpl_xpts.wildcard_planner_v2 import build_asof_wc_projection
 from fpl_xpts.wildcard_ts_action import compare_wc_as_ts_action
 from fpl_xpts.joint_chip_stopping import ScenarioParameters,choose_joint_chip,FH,WC
 from fpl_xpts.simple_chip_thresholds import choose_simple_chip
-from fpl_xpts.bench_boost_policy import evaluate_bench_boost, bb_threshold
+from fpl_xpts.bench_boost_policy import evaluate_bench_boost, bb_threshold, LOCKED_LAMBDA_BB
+from fpl_xpts.final_chip_coordinator import choose_final_chip
+from fpl_xpts.tc_chip_bridge import tc_candidate_eligible,tc_captain_lineup
 
 def _current_health(state,meta,origin,forecast,gw):
     """Observed at deadline: important owned players newly unavailable."""
@@ -68,12 +70,14 @@ def _current_health(state,meta,origin,forecast,gw):
     return (2 if len(adverse)>=3 else 1 if adverse else 0),adverse
 
 def run(label,gws,names,forecast,use_chips=False,params=ScenarioParameters(),
-        structural=None,seed=20261009,simple_thresholds=None,start_gw=1,bb_lambda=None):
+        structural=None,seed=20261009,simple_thresholds=None,start_gw=1,bb_lambda=None,tc_provider=None):
     meta1=hp.gw_meta(gws,names,start_gw)
     origin1=hp.complete_current_projection(forecast[forecast.origin_gw==start_gw-1],meta1,start_gw)
     state=initial_squad(origin1,meta1,[start_gw])
     known=meta1.copy();total=0;logs=[];pcfg=cfg()
-    used={'FH':set(),'WC':set(),'BB':set()}
+    used={'FH':set(),'WC':set(),'BB':set(),'TC':set()}
+    if tc_provider is not None and bb_lambda!=LOCKED_LAMBDA_BB:
+        raise ValueError('Four-chip assembly requires frozen BB=20')
     for gw in range(start_gw,39):
         obs=hp.gw_meta(gws,names,gw)
         known=pd.concat([known[~known.id.isin(obs.id)],obs],ignore_index=True).drop_duplicates('id',keep='last')
@@ -88,11 +92,12 @@ def run(label,gws,names,forecast,use_chips=False,params=ScenarioParameters(),
         health,unavailable=_current_health(state,meta,origin,forecast,gw)
         decision=None;fh=None;wc=None;chip='normal'
         bb_gain=None;bb_q=None;bb_bench_ids=[];normal_bb_path=None
+        tc_decision=None;tc_eligible=False;tc_id=None;tc_q=None
         # Screening is a COMPUTE budget, not a rule saying other GWs can never
         # use chips. Check all deadlines where severe lineup disruption is seen,
         # plus a dense set of ordinary candidate weeks and half expiration.
         checkpoints={5,6,8,10,12,14,16,18,19,20,22,24,26,28,30,32,34,36,38}
-        assess=bool(use_chips and (mask or (bb_lambda is not None and half not in used['BB'])) and (simple_thresholds is not None or gw in checkpoints or health>=2))
+        assess=bool(use_chips and (mask or (bb_lambda is not None and half not in used['BB']) or (tc_provider is not None and half not in used['TC'])) and (simple_thresholds is not None or gw in checkpoints or health>=2))
         if assess:
             proxy=build_asof_wc_projection(forecast,meta,origin,gw,pcfg)
             wc_cmp=compare_wc_as_ts_action(state,meta,proxy,gw,pcfg,
@@ -119,29 +124,58 @@ def run(label,gws,names,forecast,use_chips=False,params=ScenarioParameters(),
                 bgw_by_gw=({int(x.gw):float(x.p_bgw) for x in structural.itertuples()} if structural is not None else None),
                 dgw_by_gw=({int(x.gw):float(x.p_dgw) for x in structural.itertuples()} if structural is not None else None)) if simple_thresholds is None else choose_simple_chip(gw,mask,fh_gain,wc_gain,*simple_thresholds)
             if bb_lambda is not None and half not in used['BB']:
-                # FH/WC decision values are untouched. BB uses the normal *locked*
-                # TS transfer path and its actual deadline lineup, not the WC proxy.
+                # The normal TS path is identical with or without BB.
                 normal_bb_path=plan_transfer_path(state,meta,origin,gw,pcfg)
-                bb_state=clone_state(state)
-                execute_first_action(bb_state,normal_bb_path,meta)
-                bb_plan=plan_squad(current,list(bb_state.squad),gw)
-                bb_est=evaluate_bench_boost(bb_plan.rows)
-                bb_gain=float(bb_est.incremental_xp)
-                bb_bench_ids=list(bb_est.bench_player_ids)
+                trial=clone_state(state)
+                execute_first_action(trial,normal_bb_path,meta)
+                normal_lineup=plan_squad(current,list(trial.squad),gw).rows
+                estimate=evaluate_bench_boost(normal_lineup)
+                bb_gain=float(estimate.incremental_xp)
+                bb_bench_ids=list(estimate.bench_player_ids)
                 bb_q=bb_gain-bb_threshold(gw,float(bb_lambda))
-                best_other=max(0.,float(decision.q_fh),float(decision.q_wc))
-                if bb_q>best_other+1e-9:
-                    chip='bb'
-                    used['BB'].add(half)
-                    state.chips_used['bench_boost'].append(gw)
-                    moves=execute_first_action(state,normal_bb_path,meta)
-                    hit=sum(int(x.get('hit',0)) for x in moves)+sum(int(x.get('hit',0)) for x in forced)
-                    transfers=len(moves)+len(forced)
-            if chip=='normal' and decision.choice=='wc':
+            if tc_provider is not None and half not in used['TC']:
+                if normal_bb_path is None:
+                    normal_bb_path=plan_transfer_path(state,meta,origin,gw,pcfg)
+                    trial=clone_state(state)
+                    execute_first_action(trial,normal_bb_path,meta)
+                    normal_lineup=plan_squad(current,list(trial.squad),gw).rows
+                tc_decision=tc_provider(gw=gw,state=trial,lineup=normal_lineup.copy())
+                tc_eligible=tc_candidate_eligible(tc_decision,normal_lineup)
+                tc_id=int(tc_decision['candidate_id']) if tc_eligible else None
+                tc_q=float(tc_decision.get('use_edge',float('-inf'))) if tc_eligible else float('-inf')
+            if tc_provider is not None:
+                # Lock each single-chip value, only arbitrate competing weeks.
+                combined=choose_final_chip(
+                    gw=gw,fh_available=bool(mask&FH),wc_available=bool(mask&WC),
+                    bb_available=bool(bb_lambda is not None and half not in used['BB']),
+                    tc_available=bool(half not in used['TC']),
+                    fh_gain=float(fh_gain),wc_gain=float(wc_gain),
+                    bb_gain=float(bb_gain or 0.),tc_action=(tc_decision or {}).get('action','SAVE_TC'),
+                    tc_use_edge=float(tc_q if tc_q is not None else float('-inf')),
+                    tc_candidate_is_eligible=tc_eligible)
+                selected=combined.chip
+            else:
+                # Prior frozen FH/WC/BB branch, unchanged without TC.
+                selected=decision.choice
+                if bb_q is not None and bb_q>max(0.,float(decision.q_fh),float(decision.q_wc))+1e-9:
+                    selected='bb'
+            if selected=='bb':
+                chip='bb';used['BB'].add(half)
+                state.chips_used['bench_boost'].append(gw)
+                moves=execute_first_action(state,normal_bb_path,meta)
+                hit=sum(int(x.get('hit',0)) for x in moves)+sum(int(x.get('hit',0)) for x in forced)
+                transfers=len(moves)+len(forced)
+            elif selected=='tc':
+                chip='tc';used['TC'].add(half)
+                state.chips_used['triple_captain'].append(gw)
+                moves=execute_first_action(state,normal_bb_path,meta)
+                hit=sum(int(x.get('hit',0)) for x in moves)+sum(int(x.get('hit',0)) for x in forced)
+                transfers=len(moves)+len(forced)
+            elif selected=='wc':
                 chip='wc';wc=wc_cmp;state=wc.state;used['WC'].add(half)
                 if state.free_transfers!=pre_ft:raise AssertionError('WC FT changed')
                 hit=0;transfers=wc.transfers
-            elif chip=='normal' and decision.choice=='fh':
+            elif selected=='fh':
                 chip='fh';fh=fh_candidate;used['FH'].add(half)
                 moves=execute_first_action(state,bridge,meta)
                 if moves:raise AssertionError('FH permanently transferred')
@@ -160,7 +194,8 @@ def run(label,gws,names,forecast,use_chips=False,params=ScenarioParameters(),
             score,_=actual_team_points(fh['plan_rows'],hp.actual_gw(gws,gw),'free_hit',0)
         else:
             lineup=plan_squad(current,list(state.squad),gw)
-            score,_=actual_team_points(lineup.rows,hp.actual_gw(gws,gw),('bench_boost' if chip=='bb' else None),hit)
+            score_rows=(tc_captain_lineup(lineup.rows,tc_id) if chip=='tc' else lineup.rows)
+            score,_=actual_team_points(score_rows,hp.actual_gw(gws,gw),('bench_boost' if chip=='bb' else 'triple_captain' if chip=='tc' else None),hit)
             if chip=='bb':
                 unboosted,_=actual_team_points(lineup.rows,hp.actual_gw(gws,gw),None,hit)
                 bb_realized_uplift=int(score-unboosted)
@@ -175,6 +210,8 @@ def run(label,gws,names,forecast,use_chips=False,params=ScenarioParameters(),
                          q_wc=(decision.q_wc if decision else None),
                          bb_gain=bb_gain,bb_q=bb_q,
                          bb_realized_uplift=bb_realized_uplift,
+                         tc_candidate_id=tc_id,tc_eligible=tc_eligible,tc_q=tc_q,
+                         tc_action=(tc_decision or {}).get('action'),
                          bb_bench_ids=';'.join(map(str,bb_bench_ids)),
                          bb_bench_names=';'.join(names.get(i,str(i)) for i in bb_bench_ids),
                          ft=int(state.free_transfers),bank=int(state.bank),
@@ -187,6 +224,7 @@ def run(label,gws,names,forecast,use_chips=False,params=ScenarioParameters(),
                 fh_gws=[x['gw'] for x in logs if x['chip']=='fh'],
                 wc_gws=[x['gw'] for x in logs if x['chip']=='wc'],
                 bb_gws=[x['gw'] for x in logs if x['chip']=='bb'],
+                tc_gws=[x['gw'] for x in logs if x['chip']=='tc'],
                 transfers=sum(x['transfers'] for x in logs),
                 hit_points=sum(x['hit_cost'] for x in logs),logs=logs)
 
