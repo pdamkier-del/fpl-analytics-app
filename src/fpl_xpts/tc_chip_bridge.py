@@ -17,11 +17,22 @@ def load_tc_origin(root: str | Path, gw: int, *, prefix: str = "tc-origin-") -> 
     if not p.exists():raise FileNotFoundError(p)
     return pd.read_csv(p)
 
-def tc_v2_opportunity(samples: pd.DataFrame, gw: int) -> dict:
-    """Call existing TC-v2 without changing any of its calibrated parameters."""
+def tc_v2_opportunity(samples: pd.DataFrame, gw: int, *, eligible_current_ids=None) -> dict:
+    """Call unchanged TC-v2 on the legally eligible current-week candidates.
+
+    TC's future scenario candidate pool remains unchanged because a future
+    TS transfer may acquire those players. This avoids phantom TC captains.
+    """
     end=19 if gw<=19 else 38
+    current=samples.copy()
+    if eligible_current_ids is not None:
+        owned=set(map(int,eligible_current_ids))
+        current=current[(current.gw.ne(gw)) | (current.candidate_id.isin(owned))]
+        if not current.gw.eq(gw).any():
+            return dict(action='SAVE_TC', candidate_id=None, use_edge=float('-inf'),
+                        use_now_value=0.0, save_option_value=0.0, reason='no eligible sampled XI players')
     return decide_tc_v2_from_samples(
-        samples,current_gw=gw,period_end_gw=end,config=TCV2Config()
+        current,current_gw=gw,period_end_gw=end,config=TCV2Config()
     )
 
 def tc_candidate_eligible(decision: dict, lineup: pd.DataFrame) -> bool:
@@ -46,5 +57,6 @@ def tc_captain_lineup(lineup: pd.DataFrame, candidate_id: int) -> pd.DataFrame:
 def tc_origin_provider(root: str | Path, *, prefix: str = "tc-origin-"):
     def provider(gw: int, state, lineup: pd.DataFrame) -> dict:
         samples=load_tc_origin(root,gw,prefix=prefix)
-        return tc_v2_opportunity(samples,gw)
+        eligible=lineup[lineup.role.isin(('C','VC','XI'))].id.astype(int).tolist()
+        return tc_v2_opportunity(samples,gw,eligible_current_ids=eligible)
     return provider
