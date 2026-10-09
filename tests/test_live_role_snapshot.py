@@ -5,6 +5,7 @@ from datetime import datetime, timezone
 from pathlib import Path
 from tempfile import TemporaryDirectory
 from unittest.mock import patch
+from types import SimpleNamespace
 
 ROOT=Path(__file__).resolve().parents[1]
 SPEC=importlib.util.spec_from_file_location('role_live',ROOT/'scripts/build_live_role_snapshot.py')
@@ -68,6 +69,29 @@ def main():
                                 cutoff=datetime(2026,4,1,12,tzinfo=timezone.utc))
         assert early['historical_tactical_lineups_found']==0
         assert not any(x['q'] for x in early['players'])
+        future=[{
+           'id':i+200,'team_id':1,'role_source':'current_season_confirmed',
+           'q':{role:1.},'H':{role:.9},'evidence':3.}
+           for i,role in enumerate(['GK','RB','RCB','LCB','LB','RDM','LDM','RAM','CAM','LAM','ST'],1)]
+        recent={'current_tactical_lineups_found':20,'players':future}
+        b={'meta':{'updated':'2026-10-09T11:00:00Z','model_version':'locked_mm_pm_vfinal','next_gw':8},
+           'forecasts':[{'id':x['id'],'player':'P'+str(x['id']),
+                         'gws':[{'gw':8,'pstart':.95,'xmins':82}]} for x in future]}
+        official_xi={'official_next_gw':8,'teams':[{'id':1,'code':94,'short_name':'CHE'}]}
+        def dummy_optimizer(players):
+            slots=['GK','RB','RCB','LCB','LB','RDM','LDM','RAM','CAM','LAM','ST']
+            return {'formation':'4-2-3-1','xi':[
+                SimpleNamespace(player_uuid=p['player_uuid'],role=role,q_role=1.,
+                                hierarchy=.9,base_p_start=.95)
+                for p,role in zip(players,slots)]}
+        result_xi=module.generate_current_xi(recent,official_xi,b,
+            asof=datetime(2026,10,9,12,tzinfo=timezone.utc),optimizer=dummy_optimizer)
+        assert result_xi and len(result_xi[0]['players'])==11
+        assert result_xi[0]['club']=='CHE'
+        assert len({p['id'] for p in result_xi[0]['players']})==11
+        b['meta']['model_version']='live_simple_baseline_v0.1'
+        assert not module.generate_current_xi(recent,official_xi,b,
+            asof=datetime(2026,10,9,12,tzinfo=timezone.utc),optimizer=dummy_optimizer)
         print('LIVE_ROLE_EVIDENCE_OK',json.dumps({'prior':old['primary_role'],
            'q':old['q']['GK'],'H':old['H']['GK'],
            'transferred_H':moved['H'],'no_guess':new['role_source']}))
