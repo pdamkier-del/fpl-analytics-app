@@ -1,0 +1,23 @@
+name: BB incremental value unit tests
+on:
+  workflow_dispatch:
+  push:
+    branches: [audit-role-minutes-20261001]
+    paths:
+      - 'src/fpl_xpts/bench_boost_policy.py'
+      - 'tests/test_bench_boost_policy.py'
+      - '.github/workflows/bb-increment-tests.yml'
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.sha }}
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: pip install pandas==2.2.3 numpy==2.3.5 scipy pytest
+      - run: PYTHONPATH=src pytest -q tests/test_bench_boost_policy.py tests/test_simple_chip_thresholds.py
