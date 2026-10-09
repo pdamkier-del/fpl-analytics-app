@@ -24,12 +24,12 @@ repeating-linear-gradient(90deg,#14734f 0,#14734f 12.5%,#11704b 12.5%,#11704b 25
 </style></head>
 <body><div class="app">
 <aside class="sidebar"><div class="brand"><div class="logo">xP</div><span>FPL Analytics</span></div><div class="nav-title">Workspace</div><div class="nav"><a href="overview.html"><span>Overview</span></a><a href="rankings.html"><span>Player Rankings</span></a><a href="index.html" class="active"><span>Clubs</span></a><a href="my-team.html"><span>My Team</span></a><a href="team-optimizer.html"><span>Transfer & Team Optimizer</span></a></div><div class="nav-title">Models</div><div class="nav"><a href="models.html"><span>Model Explorer</span></a><a href="replay.html"><span>Replay & Audit</span></a></div><div class="sidebar-foot">Published model data<br>Auto-update enabled.</div></aside>
-<main class="main"><div class="topbar"><div class="crumb" id="crumb">Clubs</div><div class="top-actions"><select id="clubSelect" class="select"></select><span class="badge">LIVE MODEL</span></div></div>
-<div class="club-head"><div class="crest" id="crest">CHE</div><div><h1 id="clubName">Chelsea</h1><div class="subtitle">Expected XI, player forecasts and recent performance</div><div class="head-meta"><span class="pill" id="nextFix">Next fixture —</span><span class="pill" id="modelStamp">Model —</span></div></div></div>
+<main class="main"><div class="topbar"><div class="crumb" id="crumb">Clubs</div><div class="top-actions"><select id="clubSelect" class="select"></select><span class="badge">FORECAST-KILDE: se versionsmærke</span></div></div>
+<div class="club-head"><div class="crest" id="crest">CHE</div><div><h1 id="clubName">Chelsea</h1><div class="subtitle">P(start)-oversigt, spillerprognoser og historiske resultater</div><div class="head-meta"><span class="pill" id="nextFix">Next fixture —</span><span class="pill" id="modelStamp">Model —</span></div></div></div>
 <div class="tabs"><button class="tab active" data-view="lineup">Startchancer</button><button class="tab" data-view="forecast">Forecast</button><button class="tab" data-view="recent">Recent Stats</button><button class="tab" data-view="fixtures">Fixtures</button></div>
 
 <section id="lineup" class="view active"><div class="lineup-layout"><div class="panel"><div class="panel-head"><div><div class="panel-title">Startchancer og FPL-positioner</div><div class="panel-sub" id="lineupSub">Aktuelle rolledata mangler; viser ikke en taktisk formation.</div></div><span class="badge" id="formationBadge">Afventer rolledata</span></div><div class="panel-body" style="padding:12px"><div class="pitch" id="pitch"><div class="pitch-center"></div></div></div></div>
-<div class="xi-side"><div class="summary-card"><div class="summary-label">Expected XI minutes</div><div class="summary-value" id="xiMinutes">—</div><div class="summary-note">Sum of next-GW xMins for the displayed XI.</div></div><div class="summary-card"><div class="summary-label">Lineup uncertainty</div><div class="summary-value" id="uncertainty">—</div><div class="summary-note">Share of the XI with P(start) below 80%.</div></div><div class="summary-card"><div class="summary-label">Closest role battles</div><div class="why-list" id="roleBattles"></div></div></div></div></section>
+<div class="xi-side"><div class="summary-card"><div class="summary-label">Expected XI minutes</div><div class="summary-value" id="xiMinutes">—</div><div class="summary-note">Sum af xMins for de viste spillere; ikke en bekræftet start-XI.</div></div><div class="summary-card"><div class="summary-label">Lineup uncertainty</div><div class="summary-value" id="uncertainty">—</div><div class="summary-note">Andel af de viste spillere med P(start) under 80 %.</div></div><div class="summary-card"><div class="summary-label">Verificerede rollekampe</div><div class="why-list" id="roleBattles"></div></div></div></div></section>
 
 <section id="forecast" class="view"><div class="toolbar"><div class="segmented" id="forecastPeriods"><button data-h="1">Next GW</button><button data-h="3" class="active">Next 3 GW</button><button data-h="6">Next 6 GW</button></div><input id="forecastSearch" class="search" placeholder="Search player…"></div><div class="fixture-row" id="forecastFixtures"></div><div class="cards" id="forecastSummary"></div><div class="table-wrap"><table id="forecastTable"><thead><tr><th>Player</th><th>Pos</th><th>Price</th><th>Status</th><th>P(start)</th><th>xMins</th><th>xG</th><th>xA</th><th>xGI</th><th>xPts</th><th>xPts/£m</th></tr></thead><tbody></tbody></table></div></section>
 
@@ -52,11 +52,14 @@ function attachSort(t){t.querySelectorAll('th').forEach((th,i)=>th.onclick=()=>{
 function expectedLineup(){
  const targetGw=Number(D.meta?.next_gw);
  const explicit=(D.expected_lineups||[]).find(x=>x.club===club&&Number(x.gw)===targetGw);
+ const roleSet=new Set(['GK','RB','RWB','RCB','CB','LCB','LB','LWB',
+   'RDM','DM','LDM','RCM','CM','LCM','CAM','RAM','LAM','RW','LW','SS','ST']);
+ const assigned=explicit?.players?.map(p=>p.role||p.assigned_role)||[];
  const valid=explicit?.players?.length===11 &&
    new Set(explicit.players.map(p=>Number(p.id))).size===11 &&
-   explicit.players.every(p=>typeof (p.role||p.assigned_role)==='string' &&
-       (p.role||p.assigned_role).trim() &&
-       D.forecasts.some(f=>Number(f.id)===Number(p.id)&&f.club===club));
+   assigned.every(role=>roleSet.has(role)) &&
+   assigned.filter(role=>role==='GK').length===1 &&
+   explicit.players.every(p=>D.forecasts.some(f=>Number(f.id)===Number(p.id)&&f.club===club));
  if(valid){
    return {formation:explicit.formation||'XI med roller',
      players:explicit.players.map(z=>{const p=D.forecasts.find(x=>Number(x.id)===Number(z.id));
