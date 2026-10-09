@@ -12,6 +12,9 @@ import pandas as pd
 
 from .optimize import START_MIN, START_MAX
 
+# LOCKED by user after 2025/26 and conditional 2024/25 replay, 2026-10-09.
+LOCKED_LAMBDA_BB = 20.0
+
 @dataclass(frozen=True)
 class BenchBoostEstimate:
     bench_xp: float
@@ -140,3 +143,8 @@ def choose_bb_vs_locked_chips(gw: int, mask: int, fh_gain: float, wc_gain: float
     if bb_available and bb_surplus>max(existing.q_normal,existing.q_fh,existing.q_wc):
         return 'bb'
     return existing.choice
+
+
+def locked_bb_threshold(gw: int) -> float:
+    """Freeze BB exercise threshold; no tuning while assembling pipeline."""
+    return bb_threshold(gw, LOCKED_LAMBDA_BB)
