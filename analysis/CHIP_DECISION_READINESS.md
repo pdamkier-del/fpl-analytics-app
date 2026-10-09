@@ -102,3 +102,36 @@ Locked TS/MM/PM modules unchanged. Do not use these pilot outcomes as
 evidence for statistically calibrated chip timing: 2025/26 future
 horizon uses trailing as-of forecasts as proxies, and the optional value
 of unplayed FH/WC plus future catastrophes remains unmodelled.
+
+## Joint FH/WC stopping prototype, 2026-10-09
+
+- src/fpl_xpts/joint_chip_stopping.py: no-clairvoyance finite-horizon
+  Bellman approximation with four chip-right states and three abstract
+  squad-availability health states. FH is temporary, WC resets the health
+  state. One chip per GW.
+- scripts/run_joint_fh_wc_stopping_replay.py: 2025/26 held-out pilot using
+  previous locked TS baseline and historically derived BGW/DGW frequencies.
+  Pilot score 2115 versus locked 2125 (FH GW18,36; WC GW6,26).
+- GW6 controlled stress: initial prototype still chooses WC in GW6 for
+  healthy, three-starters-out-one-GW, and three-out-six-GWs. This IS a
+  model defect/shortcoming; do not infer the strategy is correct.
+- scripts/calibrate_joint_squad_shocks.py: 2022–2025 retrospective
+  appearance-based proxy over 45 regular 10-fixture GWs; in 13,500
+  bootstrap hypothetical XI draws 53.32% had 1–2 sudden nonappearances,
+  5.30% had >=3, and next-GW zero persisted for 47.29% of flagged players.
+  This is **not** injury-specific and samples are not independent.
+- Historical 2024/25 WC-as-TS same-metric candidate objective gains:
+  GW12 11.04 xP (6GW objective); GW20 18.50 xP. Only two points,
+  so baseline future WC value is highly uncertain.
+- The prototype's historical forward WC gain baseline was an arbitrary
+  4.0 xP, materially below both matched historical observations, thus
+  overly encouraging immediate WC. scripts/joint_chip_historical_priors.py
+  loads calibration in consistent WC/TS horizon units and avoids mixing
+  historical one-GW FH raw gaps as six-GW utility.
+- scripts/run_joint_fh_wc_calibrated.py and
+  scripts/run_joint_gw6_stress_calibrated.py are new held-out reruns.
+- Evaluation caveats: only preselected candidate checkpoints, extra
+  evaluation on severe availability drops; future squad is a three-state
+  Markov abstraction, not a full stochastic TS roster replay. Even after
+  calibrating, do NOT lock automatic FH/WC until all-week cutoff-safe
+  forward forecasts, stronger sample and cross-season validation exist.
