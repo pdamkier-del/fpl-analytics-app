@@ -45,6 +45,7 @@ def load(vfinal):
 from fpl_xpts.wildcard_planner_v2 import build_asof_wc_projection
 from fpl_xpts.wildcard_ts_action import compare_wc_as_ts_action
 from fpl_xpts.joint_chip_stopping import ScenarioParameters,choose_joint_chip,FH,WC
+from fpl_xpts.simple_chip_thresholds import choose_simple_chip
 
 def _current_health(state,meta,origin,forecast,gw):
     """Observed at deadline: important owned players newly unavailable."""
@@ -66,7 +67,7 @@ def _current_health(state,meta,origin,forecast,gw):
     return (2 if len(adverse)>=3 else 1 if adverse else 0),adverse
 
 def run(label,gws,names,forecast,use_chips=False,params=ScenarioParameters(),
-        structural=None,seed=20261009):
+        structural=None,seed=20261009,simple_thresholds=None):
     meta1=hp.gw_meta(gws,names,1)
     origin1=hp.complete_current_projection(forecast[forecast.origin_gw==0],meta1,1)
     state=initial_squad(origin1,meta1,[1])
@@ -89,7 +90,7 @@ def run(label,gws,names,forecast,use_chips=False,params=ScenarioParameters(),
         # use chips. Check all deadlines where severe lineup disruption is seen,
         # plus a dense set of ordinary candidate weeks and half expiration.
         checkpoints={5,6,8,10,12,14,16,18,19,20,22,24,26,28,30,32,34,36,38}
-        assess=bool(use_chips and mask and (gw in checkpoints or health>=2))
+        assess=bool(use_chips and mask and (simple_thresholds is not None or gw in checkpoints or health>=2))
         if assess:
             proxy=build_asof_wc_projection(forecast,meta,origin,gw,pcfg)
             wc_cmp=compare_wc_as_ts_action(state,meta,proxy,gw,pcfg,
@@ -101,6 +102,11 @@ def run(label,gws,names,forecast,use_chips=False,params=ScenarioParameters(),
                 fh_candidate=optimize_free_hit_squad(
                     state=state,meta=meta,forecast=proxy,gw=gw,normal_score=0.)
                 fh_gain=bridge.objective+fh_candidate['fh_score']-normal_proxy.objective
+                if simple_thresholds is not None:
+                    normal_state=clone_state(state)
+                    execute_first_action(normal_state,normal_proxy,meta)
+                    normal_week_score=plan_squad(current,list(normal_state.squad),gw).expected_score
+                    fh_gain=float(fh_candidate['fh_score'])-float(normal_week_score)
             else:
                 bridge=None;fh_candidate=None;fh_gain=-1.e6
             wc_gain=float(wc_cmp.gain) if wc_cmp else -1.e6
@@ -109,7 +115,7 @@ def run(label,gws,names,forecast,use_chips=False,params=ScenarioParameters(),
                 g_wc_now=wc_gain,current_disruption=health,ft=state.free_transfers,
                 params=params,draws=2500,seed=seed,
                 bgw_by_gw=({int(x.gw):float(x.p_bgw) for x in structural.itertuples()} if structural is not None else None),
-                dgw_by_gw=({int(x.gw):float(x.p_dgw) for x in structural.itertuples()} if structural is not None else None))
+                dgw_by_gw=({int(x.gw):float(x.p_dgw) for x in structural.itertuples()} if structural is not None else None)) if simple_thresholds is None else choose_simple_chip(gw,mask,fh_gain,wc_gain,*simple_thresholds)
             if decision.choice=='wc':
                 chip='wc';wc=wc_cmp;state=wc.state;used['WC'].add(half)
                 if state.free_transfers!=pre_ft:raise AssertionError('WC FT changed')
