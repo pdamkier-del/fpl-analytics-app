@@ -109,7 +109,9 @@ def main():
     stamp = now.strftime("%Y%m%dT%H%M%SZ")
     fixtures = fetch_json(FIXTURES_URL)
     bootstrap = fetch_json(BOOTSTRAP_URL)
-    season_start = now.year if now.month >= 7 else now.year - 1\n    season = f"{season_start}-{str(season_start + 1)[-2:]}"\n    payload = {"schema_version": 1, "season": season, "observed_at_utc": observed_at,
+    season_start = now.year if now.month >= 7 else now.year - 1
+    season = f"{season_start}-{str(season_start + 1)[-2:]}"
+    payload = {"schema_version": 1, "season": season, "observed_at_utc": observed_at,
                "sources": {"fixtures": FIXTURES_URL, "bootstrap": BOOTSTRAP_URL},
                **build_schedule(fixtures, bootstrap["teams"])}
     SNAPSHOTS.mkdir(parents=True, exist_ok=True)
