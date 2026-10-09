@@ -27,6 +27,7 @@ APP_DIRS=[
 MODEL_FILES=[
     ROOT/'model'/'engine.py',
     ROOT/'model'/'decision_optimizer.py',
+    ROOT/'model'/'forecast_preview.py',
 ]
 
 def sha_bytes(raw:bytes)->str:
@@ -65,7 +66,13 @@ def main():
     base=read_json(base_path)
     data_version=safe_version(args.data_version or derive_data_version(base,stamp))
 
-    # Capture the official FPL fixture schedule on every published update.\n    # This is the cutoff-safe source for when confirmed DGW/BGW information\n    # became visible to the model.\n    schedule_snapshot=ROOT/'scripts'/'snapshot_fpl_schedule.py'\n    if not schedule_snapshot.exists():\n        raise FileNotFoundError(schedule_snapshot)\n    subprocess.run([sys.executable,str(schedule_snapshot)],check=True,cwd=ROOT)\n\n    match_builder=ROOT/'scripts'/'build_match_centre_data.py'
+    # Capture the official schedule when an updated app is published.
+    # These records preserve the time at which fixture moves became known.
+    schedule_snapshot=ROOT/'scripts'/'snapshot_fpl_schedule.py'
+    if not schedule_snapshot.exists():
+        raise FileNotFoundError(schedule_snapshot)
+    subprocess.run([sys.executable,str(schedule_snapshot)],check=True,cwd=ROOT)
+    match_builder=ROOT/'scripts'/'build_match_centre_data.py'
     if match_builder.exists():
         subprocess.run([sys.executable,str(match_builder)],check=True,cwd=ROOT)
 
