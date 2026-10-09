@@ -53,3 +53,11 @@ def test_post_wc_options_start_next_week_and_end_at_half():
         lookahead=5)
     assert opportunity.bb_gw.tolist()==[18,19]
     assert (opportunity.bb_incremental_xp>=0).all()
+
+
+def test_bb_competes_without_changing_frozen_fh_wc():
+    from fpl_xpts.bench_boost_policy import choose_bb_vs_locked_chips as decide
+    assert decide(6,3,30,30,0,False,12)=='fh' or decide(6,3,30,30,0,False,12)=='wc'
+    assert decide(6,3,30,30,100,True,12)=='bb'
+    assert decide(19,0,0,0,5,True,12)=='bb'
+    assert decide(19,0,0,0,5,False,12)=='normal'
