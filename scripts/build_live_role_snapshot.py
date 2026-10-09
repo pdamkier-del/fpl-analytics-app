@@ -314,7 +314,8 @@ def build(official,bridge,raw_prior=RAW_PRIOR,stats_prior=STATS_PRIOR,
         })
     result={
         'schema_version':1,'observed_at_utc':official.get('observed_at_utc'),
-        'season':official.get('season'),'model':'locked_role_history_prior_bridge',
+        'season':official.get('season'),'official_next_gw':official.get('official_next_gw'),
+        'model':'locked_role_history_prior_bridge',
         'current_tactical_lineups_found':current_games,
         'historical_tactical_lineups_found':prior_games,
         'current_xi_certified':False,
