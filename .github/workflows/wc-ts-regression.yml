@@ -4,6 +4,7 @@ on:
   push:
     branches: [audit-role-minutes-20261001]
     paths:
+      - 'src/fpl_xpts/wildcard_ts_action.py'
       - 'tests/test_wildcard_ts_action.py'
       - '.github/workflows/wc-ts-regression.yml'
 jobs:
