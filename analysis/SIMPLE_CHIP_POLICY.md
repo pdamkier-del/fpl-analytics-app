@@ -20,3 +20,13 @@ Expiry caution = lambda * (end_gw - current_gw) / (end_gw - first_gw), separatel
 The 3x3 grid is exploratory. Rank by realised FPL points from the 2025/26 season, but call the maximum *in-sample*. Recheck on 2024/25 with genuine cutoff-safe data, and do not lock for live recommendations until multiweek forecast provenance is verified. The historical 2025/26 six-GW forecast relies on synthetic as-of proxy beyond its archived current GW, so expected margins are provisional.
 
 Previously verified no-chip 2025/26 baseline: 2125. Prior stochastic WC/FH pilot: 2197 (+72), different model and not a benchmark for fit quality.
+
+## Final decision/provenance audit (2026-10-09)
+
+- Decision-code unit tests in tests/test_simple_chip_thresholds.py cover both chip periods, expiry, ties, missing chips, and mutual exclusion.
+- 2025/26 fully replayed 21 parameter combinations. Best in-sample lambda_fh=10, lambda_wc=20, total 2209 vs 2125 locked no-chip baseline. Sensitivity is substantial: 10/25 gives 2186, 15/20 gives 2186; early WC decisions materially alter permanent squad trajectory.
+- The 2024/25 conditional check has only GW6–38. Four candidates tested: 10/20=2026, 15/20=2009, 5/20=2001, 10/25=1980. Baseline comparison must use this exact replay's GW6 squad/data and not automatically borrow 1880 from a distinct conditional replay.
+- Historical 2024/25 metadata capture clocks are not independently verified. The 2025/26 archived forward forecast usually contains only the next GW; synthetic six-GW as-of proxy estimates the rest. The 2024/25 archive often includes real multiweek forecasts. Hence parameter transfer is indicative, NOT independently cutoff-certified.
+- WC optimizer evaluates a bounded candidate list (2 optimized candidates), so 'optimal WC' means best sampled candidate, not globally optimal permanent roster.
+- Historical return maximization is in-sample and uses different forecast completeness across seasons. Do not lock or deploy FH/WC. Recheck forecast snapshots, the reconstructed team states, and cross-season expected-value calibration first.
+- The older stochastic joint policy is kept archived and unmodified for reproducibility; current simple policy is in an isolated decision module. Locked MM, PM, TS, TC code was not changed.
