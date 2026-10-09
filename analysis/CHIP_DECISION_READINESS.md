@@ -68,3 +68,37 @@ GitHub Actions 37908351533; regression 37907826561.
 The model is **not locked**. A positive predicted six-GW wildcard gain
 can coexist with a realised loss, and both intra-season timing and
 forecast uncertainty must be evaluated prospectively.
+
+## WC as expanded TS action — verified replay (2026-10-09)
+
+Experimental source: src/fpl_xpts/wildcard_ts_action.py. Reuses the locked
+TS v3 deadline candidate MILP (unrestricted change count for the WC first
+move) and the identical TS v3 continuation for later GWs, with official
+zero WC transfer hits, permanent squad/bank/purchase-price updates and
+retained FT. Candidate search is finite (top two MILP candidates plus
+incumbent and normal first action); it is not a global solution of all
+possible 15-man combinations.
+
+2025/26 complete GW1–38 replay, GitHub Actions 37911278371:
+- TS no chips: 2125 points (44 transfers, 28 hits).
+- WC only GW6: 2088 (-37).
+- WC only GW20: 2067 (-58).
+- WC GW6 and GW20: 2121 (-4), 62 total transfers, 24 hit points.
+- Greedy checkpoint selection (6,10,14,18,20,24,28,32,36), only if
+  WC Q > normal Q: 2121, selects GW6/GW20. This is NOT a full optimal
+  stopping policy and does NOT price the option of saving WC.
+- WC GW6: Q lift +23.93 six-GW xP; actual GW6 64 vs 29 no-chip points.
+  WC20 in dual run: Q lift +7.91; actual GW20 59 vs 88 no-chip points.
+
+2024/25 conditional GW6–38 with archived multi-GW xP,
+GitHub Actions 37911309255:
+- TS no chips 1880.
+- WC GW12 1992 (+112).
+- WC GW20 1899 (+19).
+- As-of metadata capture clocks are NOT independently verified.
+
+Regressions tests/test_wildcard_ts_action.py: PASSED, run 37911301232.
+Locked TS/MM/PM modules unchanged. Do not use these pilot outcomes as
+evidence for statistically calibrated chip timing: 2025/26 future
+horizon uses trailing as-of forecasts as proxies, and the optional value
+of unplayed FH/WC plus future catastrophes remains unmodelled.
