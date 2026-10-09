@@ -1,0 +1,41 @@
+name: Audit injury flagged player xP
+on:
+  workflow_dispatch:
+  push:
+    branches: [audit-role-minutes-20261001]
+    paths:
+      - '.github/workflows/audit-flagged-chip-xp.yml'
+jobs:
+  audit:
+    runs-on: ubuntu-latest
+    permissions:
+      actions: read
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.sha }}
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: pip install pandas==2.2.3 numpy
+      - uses: actions/download-artifact@v4
+        with:
+          name: final-locked-chain-gw1-38
+          path: work/locked2125
+          github-token: ${{ github.token }}
+          run-id: 37612845586
+      - name: Inspect deadline-available player expectations
+        run: |
+          python - <<'PY'
+          import glob,pandas as pd,json
+          path=glob.glob('work/locked2125/**/rolling_vfinal_forecast.csv.gz',recursive=True)[0]
+          d=pd.read_csv(path)
+          out=[]
+          for gw,pids in ((6,[267,474]),(26,[283])):
+              for pid in pids:
+                  row=d[(d.origin_gw==gw-1)&(d.gw==gw)&(d.id==pid)]
+                  hist=d[(d.id==pid)&(d.origin_gw<gw-1)&(d.origin_gw>=gw-7)&(d.gw==d.origin_gw+1)]
+                  out.append(dict(gw=gw,id=pid,current=row[['xpts_mean','p_play','fixtures']].to_dict('records'),previous=hist[['origin_gw','gw','xpts_mean','p_play','fixtures']].to_dict('records')))
+          print('INJURY_XP_AUDIT',json.dumps(out))
+          PY
