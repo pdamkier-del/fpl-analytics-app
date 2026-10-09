@@ -18,7 +18,7 @@ from pathlib import Path
 ROOT=Path(__file__).resolve().parents[1]
 sys.path.insert(0,str(ROOT/'src'))
 from fpl_v1_1_model.role_history import RoleHistory
-from fpl_v1_1_model.role_classifier import classify_lineup, ROLES
+from fpl_v1_1_model.role_classifier import classify_lineup, ROLES, template, valid_coordinate
 
 RAW_PRIOR=ROOT/'data_v1_1/raw/fpl-core-2025-26'
 RAW_CURRENT=ROOT/'data_v1_1/raw/fpl-core-2026-27'
@@ -92,7 +92,19 @@ def evidence_from_directory(history,raw_root,stats_root,code_by_historical_id,cu
     for ko,mid,team,formation,lineup,gw,season in sorted(games,key=lambda x:(x[0],x[1],x[2])):
         prior,_,_=history.state(team,ko)
         try:
-            classified=classify_lineup(formation,lineup,{},prior)
+            patterns=template(formation)
+            geometry={}
+            # Average-position coordinates become evidence only AFTER
+            # the match was completed. Never use these for future target matches.
+            if patterns and len(lineup)==11:
+                offset=1
+                for roles in patterns:
+                    line=lineup[offset:offset+len(roles)]
+                    if len(line)==len(roles) and all(valid_coordinate(p) for p in line):
+                        for p,role in zip(sorted(line,key=lambda x:(float(x['y']),x['player_uuid'])),roles):
+                            geometry[p['player_uuid']]=role
+                    offset+=len(roles)
+            classified=classify_lineup(formation,lineup,geometry,prior)
         except (ValueError,TypeError,IndexError,KeyError,AssertionError):
             continue
         players=[]
