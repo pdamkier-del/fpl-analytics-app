@@ -17,8 +17,9 @@ const dom=new JSDOM('<div id="formationBadge"></div><div id="lineupSub"></div><d
 const {window}=dom,document=window.document;
 const data={forecasts:players,meta:{next_gw:6}};
 const escape=s=>String(s??'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
-const make=new Function('D','club','ps','nextG','document','window','num','pct','esc',source+'; return {expectedLineup,renderPitch,competitorFor};');
-const app=make(data,'CHE',()=>players,p=>p.gws?.[0]||{},document,window,(v,d=1)=>Number(v||0).toFixed(d),
+const make=new Function('D','R','roleEvidence','club','ps','nextG','document','window','num','pct','esc',source+'; return {expectedLineup,renderPitch,competitorFor};');
+const roleData={current_xi_certified:false,expected_lineups:[],players:[]};
+const app=make(data,roleData,()=>null,'CHE',()=>players,p=>p.gws?.[0]||{},document,window,(v,d=1)=>Number(v||0).toFixed(d),
  v=>Math.round(Number(v||0)*100)+'%',escape);
 const result=app.expectedLineup();
 assert.equal(result.fallback,true);
@@ -35,17 +36,18 @@ assert.ok([...document.querySelectorAll('#pitch .node-role')].every(n=>n.textCon
 assert.ok(![...document.querySelectorAll('#pitch .node-role')].some(n=>/\b(?:CAM|RAM|LDM|RB|ST)\b/.test(n.textContent)));
 const sourceRoles=['GK','RB','RCB','LCB','LB','RDM','LDM','RAM','CAM','LAM','ST'];
 const explicitPlayers=sourceRoles.map((role,index)=>({id:players[index].id,role}));
-data.expected_lineups=[{club:'CHE',gw:6,formation:'4-2-3-1',players:explicitPlayers}];
+roleData.current_xi_certified=true;
+roleData.expected_lineups=[{club:'CHE',gw:6,formation:'4-2-3-1',players:explicitPlayers}];
 assert.equal(app.expectedLineup().fallback,false);
 app.renderPitch();
 assert.equal(document.querySelectorAll('#pitch .player-node').length,11);
 assert.equal(document.querySelectorAll('#pitch .node-role').length,11);
 assert.ok(document.querySelector('#pitch').textContent.includes('CAM'));
 assert.ok(document.querySelector('#formationBadge').textContent.includes('4-2-3-1'));
-data.expected_lineups=[{club:'CHE',gw:6,formation:'4-2-3-1',players:explicitPlayers.map(x=>({...x,role:'MID'}))}];
+roleData.expected_lineups=[{club:'CHE',gw:6,formation:'4-2-3-1',players:explicitPlayers.map(x=>({...x,role:'MID'}))}];
 assert.equal(app.expectedLineup().fallback,true,'FPL MID must not masquerade as tactical role');
-data.expected_lineups=[{club:'CHE',gw:6,formation:'4-2-3-1',players:explicitPlayers.slice(0,10)}];
+roleData.expected_lineups=[{club:'CHE',gw:6,formation:'4-2-3-1',players:explicitPlayers.slice(0,10)}];
 assert.equal(app.expectedLineup().fallback,true,'partial role data must not be used');
-data.expected_lineups=[{club:'CHE',gw:5,formation:'4-2-3-1',players:explicitPlayers}];
+roleData.expected_lineups=[{club:'CHE',gw:5,formation:'4-2-3-1',players:explicitPlayers}];
 assert.equal(app.expectedLineup().fallback,true,'old GW role data must not leak');
 console.log('CLUB_ROLE_INTEGRITY_OK: real XI roles respected; absent/invalid/stale roles not invented');
