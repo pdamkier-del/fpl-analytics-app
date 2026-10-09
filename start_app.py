@@ -38,6 +38,13 @@ def load_squad():
 def load_base_data():
     return json.loads((ROOT/'model/base_data.json').read_text(encoding='utf-8'))
 
+def load_official_reference():
+    path=ROOT/'data_v1_1'/'derived'/'fpl_schedule_knowledge'/'live'/'latest.json'
+    try:
+        return json.loads(path.read_text(encoding='utf-8'))
+    except (OSError, ValueError):
+        return {}
+
 class Handler(SimpleHTTPRequestHandler):
     def _json(self,obj,status=200):
         raw=json.dumps(obj,ensure_ascii=False).encode('utf-8')
@@ -54,7 +61,7 @@ class Handler(SimpleHTTPRequestHandler):
             f=USER/'update_status.json'
             return self._json(json.loads(f.read_text(encoding='utf-8')) if f.exists() else {'ok':True,'app_version':(ROOT/'VERSION.txt').read_text(encoding='utf-8').strip() if (ROOT/'VERSION.txt').exists() else 'unknown','data_version':(ROOT/'DATA_VERSION.txt').read_text(encoding='utf-8').strip() if (ROOT/'DATA_VERSION.txt').exists() else 'unknown'})
         if p=='/api/forecast/preview':
-            return self._json(forecast_preview.forecast_preview(load_base_data(),load_squad()))
+            return self._json(forecast_preview.forecast_preview(load_base_data(),load_squad(),official=load_official_reference()))
         if p=='/api/user/squad':
             return self._json(load_squad())
         if p=='/api/model/versions': return self._json(engine.list_versions())
