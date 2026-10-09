@@ -1,4 +1,4 @@
-name: Fit simple FH WC thresholds
+name: Refine simple FH WC thresholds
 on:
   workflow_dispatch:
   push:
@@ -15,8 +15,8 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        fh: [0, 10, 20]
-        wc: [0, 10, 20]
+        fh: [5, 10, 15]
+        wc: [15, 20, 25, 30]
     env:
       PYTHONHASHSEED: '0'
       OPENBLAS_NUM_THREADS: '1'
@@ -52,6 +52,6 @@ jobs:
       - uses: actions/upload-artifact@v4
         if: always()
         with:
-          name: simple-fh${{ matrix.fh }}-wc${{ matrix.wc }}
+          name: refined-fh${{ matrix.fh }}-wc${{ matrix.wc }}
           path: analysis/results/simple-fh-wc/
           retention-days: 90
