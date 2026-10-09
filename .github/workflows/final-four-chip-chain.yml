@@ -1,0 +1,61 @@
+name: Assemble final FPL MM PM TS and four chips
+on:
+  workflow_dispatch:
+  push:
+    branches: [audit-role-minutes-20261001]
+    paths:
+      - 'scripts/run_final_fpl_chain_replay.py'
+      - 'tests/test_final_fpl_chain.py'
+      - 'src/fpl_xpts/final_chip_coordinator.py'
+      - 'src/fpl_xpts/tc_chip_bridge.py'
+      - '.github/workflows/final-four-chip-chain.yml'
+jobs:
+  replay:
+    runs-on: ubuntu-latest
+    timeout-minutes: 240
+    permissions:
+      actions: read
+      contents: read
+    env:
+      PYTHONHASHSEED: '0'
+      OPENBLAS_NUM_THREADS: '1'
+      OMP_NUM_THREADS: '1'
+      MKL_NUM_THREADS: '1'
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.sha }}
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: |
+          pip install -r requirements-model-checkpoint.txt
+          pip install pandas==2.2.3 numpy==2.3.5 scipy scikit-learn requests pytest
+      - name: Immutable coordinator regression tests
+        run: |
+          PYTHONPATH=src pytest -q tests/test_final_fpl_chain.py tests/test_bench_boost_policy.py tests/test_simple_chip_thresholds.py
+          python -m compileall -q src/fpl_xpts/final_chip_coordinator.py src/fpl_xpts/tc_chip_bridge.py scripts/run_final_fpl_chain_replay.py scripts/run_joint_fh_wc_stopping_replay.py
+      - uses: actions/download-artifact@v4
+        with:
+          name: final-locked-chain-gw1-38
+          path: work/vfinal
+          github-token: ${{ github.token }}
+          run-id: 37612845586
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: tc-origin-*
+          path: work/tc
+          github-token: ${{ github.token }}
+          run-id: 37648731822
+      - name: End-to-end GW1-38 chip replay
+        run: |
+          VF=$(find work/vfinal -name rolling_vfinal_forecast.csv.gz | head -1)
+          test -n "$VF"
+          test -f work/tc/tc-origin-13/tc_samples.csv.gz
+          PYTHONPATH=src:scripts python scripts/run_final_fpl_chain_replay.py --vfinal "$VF" --tc-origins work/tc --out analysis/results/final-assembled
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: final-assembled-2025-26
+          path: analysis/results/final-assembled/
+          retention-days: 90
