@@ -1,0 +1,48 @@
+name: Mobile preview (GitHub Pages)
+on:
+  workflow_dispatch:
+  push:
+    branches: [audit-role-minutes-20261001]
+    paths:
+      - '.github/workflows/mobile-preview-pages.yml'
+      - 'app/**'
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+concurrency:
+  group: mobile-pages
+  cancel-in-progress: true
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: audit-role-minutes-20261001
+      - uses: actions/configure-pages@v5
+        with:
+          enablement: true
+      - name: Build read-only static mobile preview
+        run: |
+          mkdir -p .mobile-site
+          cp -R app/. .mobile-site/
+          cp app/index.html .mobile-site/home.html
+          cp app/index.html .mobile-site/index.html
+          python - <<'PY'
+          from pathlib import Path
+          p=Path('.mobile-site/forecast-center.html')
+          if p.exists():
+              text=p.read_text()
+              text=text.replace("fetch('/api/forecast/preview'","fetch('/api/forecast/preview'")
+              p.write_text(text)
+          PY
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: .mobile-site
+      - name: Publish mobile preview
+        id: deployment
+        uses: actions/deploy-pages@v4
