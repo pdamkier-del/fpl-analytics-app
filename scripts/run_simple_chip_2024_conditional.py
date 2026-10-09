@@ -19,12 +19,15 @@ def main():
     forecast.id=forecast.id.astype(int)
     forecast['web_name']=forecast.id.map(names).fillna(forecast.id.astype(str))
     if 'team' not in forecast:forecast['team']=pd.NA
+    baseline=replay.run('conditional_locked_baseline',gws,names,forecast,start_gw=6)
+    pd.DataFrame(baseline.pop('logs')).to_csv(out/'baseline.csv',index=False)
     results=[]
     for fh,wc in [(5,20),(10,20),(15,20),(10,25)]:
         result=replay.run(f'conditional_fh{fh}_wc{wc}',gws,names,forecast,
             use_chips=True,simple_thresholds=(fh,wc),start_gw=6)
         pd.DataFrame(result.pop('logs')).to_csv(out/f'fh{fh}_wc{wc}.csv',index=False)
         results.append(dict(lambda_fh=fh,lambda_wc=wc,**result))
-    (out/'summary.json').write_text(json.dumps(results,indent=2))
-    print('CONDITIONAL_2024_SIMPLE',json.dumps(results),flush=True)
+    summary=dict(baseline=baseline,policies=results)
+    (out/'summary.json').write_text(json.dumps(summary,indent=2))
+    print('CONDITIONAL_2024_SIMPLE',json.dumps(summary),flush=True)
 if __name__=='__main__':main()
