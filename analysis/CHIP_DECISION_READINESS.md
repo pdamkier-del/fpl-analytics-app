@@ -49,3 +49,22 @@ MM, PM/vFinal, TS v3 and its six-gameweek receding planner, weights
 
 **AUTO-RECOMMENDATION DISABLED**: no FH/WC v2 pilot can be locked or deployed
 until forecast provenance and cross-season performance pass the gates.
+
+## Completed full-season diagnostics
+
+- 2025/26 no chips 2125. Original one-week WC at GW20 1925.
+- 2025/26 v2 as-of proxy: forced WC GW6 2032; forced WC GW20
+  2050; 2025/26 still missing true as-of multi-GW forecasts.
+- 2024/25 conditional GW6–38 baseline 1880 (not GW1–38).
+  Using actual archived multi-GW projections: WC GW12 1976 (+96);
+  WC GW20 1844 (-36). No selection policy was optimised; the dates
+  were forced and cannot establish a general recommendation.
+- 2024/25 historical price/team metadata clocks remain unverified.
+- Independent WC unit regression workflow passed.
+
+Links: 2025 pilot GitHub Actions 37907326651; 2024 conditional
+GitHub Actions 37908351533; regression 37907826561.
+
+The model is **not locked**. A positive predicted six-GW wildcard gain
+can coexist with a realised loss, and both intra-season timing and
+forecast uncertainty must be evaluated prospectively.
