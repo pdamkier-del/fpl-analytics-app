@@ -126,3 +126,17 @@ def post_wildcard_bb_opportunities(
             'bench_ids': opportunity.bench_player_ids,
         })
     return pd.DataFrame(rows)
+
+
+def choose_bb_vs_locked_chips(gw: int, mask: int, fh_gain: float, wc_gain: float,
+                              bb_gain: float, bb_available: bool, lambda_bb: float) -> str:
+    """Compare BB with FROZEN FH/WC adjusted opportunities; one chip per GW.
+
+    Reserved TC GW must be excluded by the caller. FH/WC mechanics are unchanged.
+    """
+    from .simple_chip_thresholds import choose_locked_fh_wc
+    existing=choose_locked_fh_wc(gw,mask,fh_gain,wc_gain)
+    bb_surplus=float(bb_gain)-bb_threshold(gw,lambda_bb)
+    if bb_available and bb_surplus>max(existing.q_normal,existing.q_fh,existing.q_wc):
+        return 'bb'
+    return existing.choice
