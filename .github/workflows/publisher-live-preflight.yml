@@ -1,0 +1,39 @@
+name: Publisher preflight live data and complete app bundle
+on:
+  workflow_dispatch:
+  push:
+    branches: [audit-role-minutes-20261001]
+    paths: ['.github/workflows/publisher-live-preflight.yml']
+permissions:
+  contents: read
+jobs:
+  preflight:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: audit-role-minutes-20261001
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Create actual update without publishing
+        run: python scripts/publish_fpl_update.py --app-version preflight-20261009 --message "Unpublished live data preflight"
+      - name: Verify real official fixtures and full app ZIP
+        run: |
+          python - <<'PY'
+          import json,zipfile
+          from pathlib import Path
+          m=json.loads(Path('updates/manifest.json').read_text())
+          f=Path('updates')/Path(m['app']['url']).name
+          with zipfile.ZipFile(f) as z:
+              files=set(z.namelist())
+              required={'app/forecast-center.html','start_app.py','model/forecast_preview.py',
+                        'config/fpl_locked_model.json','src/fpl_xpts/final_chip_coordinator.py',
+                        'data_v1_1/derived/fpl_schedule_knowledge/live/latest.json'}
+              assert required<=files, sorted(required-files)
+              official=json.loads(z.read('data_v1_1/derived/fpl_schedule_knowledge/live/latest.json'))
+              assert official['official_next_gw'] is not None
+              assert official['players'] and official['fixtures']
+              print('REAL_PUBLISH_PREFLIGHT_OK',official['official_next_gw'],len(official['players']),len(official['fixtures']))
+          PY
