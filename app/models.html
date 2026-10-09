@@ -1,18 +1,181 @@
-<!doctype html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Model Explorer · FPL Analytics</title><style>
-:root{--bg:#f4f6f8;--panel:#fff;--ink:#101820;--muted:#6d7882;--line:#e4e9ed;--green:#087a52;--soft:#eaf7f1;--nav:#0b1720;--nav2:#172733;--blue:#3156d8;--purple:#7254c7;--shadow:0 10px 32px rgba(15,29,40,.06)}
-*{box-sizing:border-box}body{margin:0;font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;background:var(--bg);color:var(--ink)}a{text-decoration:none;color:inherit}.app{display:grid;grid-template-columns:228px 1fr;min-height:100vh}.sidebar{background:var(--nav);color:#fff;padding:24px 16px;position:sticky;top:0;height:100vh}.brand{display:flex;align-items:center;gap:12px;font-weight:850;font-size:18px;margin:0 8px 28px}.logo{width:36px;height:36px;border-radius:12px;background:linear-gradient(135deg,#61ddb0,#16845e);display:grid;place-items:center;color:#05251a;font-size:13px}.nav-title{font-size:10px;letter-spacing:.15em;text-transform:uppercase;color:#708797;margin:22px 12px 8px}.nav a{display:block;margin:3px 0;padding:11px 12px;border-radius:9px;color:#9cafbb;font-size:14px}.nav a.active,.nav a:hover{background:var(--nav2);color:#fff}.sidebar-foot{position:absolute;left:20px;right:20px;bottom:22px;color:#728998;font-size:11px;line-height:1.55}.main{padding:28px 34px 52px;min-width:0}.crumb{font-size:13px;color:var(--muted);margin-bottom:20px}.page-head{display:flex;justify-content:space-between;gap:20px;align-items:flex-start}.page-head h1{margin:0 0 5px;font-size:30px}.subtitle{color:var(--muted);max-width:770px;line-height:1.5}.badge{font-size:11px;padding:7px 10px;border-radius:999px;background:var(--soft);color:var(--green);border:1px solid #c5e8d8;font-weight:850}.pipeline{display:grid;grid-template-columns:1fr 48px 1fr 48px 1fr;gap:8px;align-items:center;margin:22px 0}.model-card{background:#fff;border:1px solid var(--line);border-radius:17px;padding:20px;box-shadow:var(--shadow);min-height:190px}.model-card h2{font-size:18px;margin:10px 0 5px}.model-card p{font-size:12px;line-height:1.55;color:var(--muted)}.model-icon{width:43px;height:43px;border-radius:13px;display:grid;place-items:center;font-weight:900}.mm{background:#eaf7f1;color:var(--green)}.pm{background:#edf1ff;color:var(--blue)}.ts{background:#f2edff;color:var(--purple)}.arrow{text-align:center;color:#9ba5ad;font-size:25px}.chips{display:flex;gap:6px;flex-wrap:wrap;margin-top:12px}.chip{font-size:10px;padding:5px 7px;border-radius:999px;background:#f3f5f6;color:#59646d;border:1px solid #e6eaed}.section{margin-top:18px;scroll-margin-top:20px}.panel{background:#fff;border:1px solid var(--line);border-radius:16px;box-shadow:var(--shadow)}.panel-head{padding:17px 19px;border-bottom:1px solid var(--line);display:flex;justify-content:space-between;align-items:center;gap:12px}.panel-title{font-weight:900;font-size:17px}.panel-sub{color:var(--muted);font-size:11px;margin-top:3px}.panel-body{padding:18px}.component-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:11px}.component{border:1px solid var(--line);border-radius:12px;padding:13px;cursor:pointer;transition:.15s}.component:hover{border-color:#a6d7c3;transform:translateY(-1px);box-shadow:0 7px 18px rgba(17,31,44,.06)}.component-title{font-size:12px;font-weight:850}.component-value{font-size:17px;font-weight:900;margin:5px 0}.component-text{font-size:10.5px;line-height:1.45;color:var(--muted)}details{border:1px solid var(--line);border-radius:12px;margin:9px 0;overflow:hidden}summary{list-style:none;cursor:pointer;padding:13px 15px;font-size:12px;font-weight:850;display:flex;justify-content:space-between;gap:12px}summary::-webkit-details-marker{display:none}.inside{padding:0 15px 15px;color:#52606a;font-size:12px;line-height:1.55}.formula{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;background:#f7f9fa;border:1px solid #e8ecef;border-radius:9px;padding:10px;white-space:pre-wrap;color:#29343c;margin:8px 0}.tag{font-size:9px;padding:4px 6px;border-radius:999px;background:#eef2f4;color:#67727a}.flow-list{display:grid;gap:9px}.flow-step{display:grid;grid-template-columns:30px 1fr auto;gap:10px;align-items:center;padding:11px 12px;border:1px solid var(--line);border-radius:11px}.step-n{width:28px;height:28px;border-radius:50%;display:grid;place-items:center;background:#eef2f4;font-size:11px;font-weight:900}.step-title{font-size:12px;font-weight:850}.step-note{font-size:10px;color:var(--muted);margin-top:2px}.status{font-size:9px;border-radius:999px;padding:4px 7px;background:var(--soft);color:var(--green);font-weight:850}.notice{font-size:11px;color:var(--muted);line-height:1.5}.jump{display:flex;gap:8px;flex-wrap:wrap;margin-top:15px}.jump a{background:#fff;border:1px solid var(--line);border-radius:10px;padding:8px 11px;font-size:11px;font-weight:800}
-@media(max-width:1050px){.pipeline{grid-template-columns:1fr}.arrow{transform:rotate(90deg)}.component-grid{grid-template-columns:repeat(2,1fr)}}@media(max-width:800px){.app{grid-template-columns:78px 1fr}.sidebar{padding:20px 10px}.brand span,.nav a span,.nav-title,.sidebar-foot{display:none}.brand{margin-left:9px}.nav a{width:42px;text-align:center;margin:5px auto}.main{padding:20px 16px}.component-grid{grid-template-columns:1fr}}
-</style></head><body><div class="app"><aside class="sidebar"><div class="brand"><div class="logo">xP</div><span>FPL Analytics</span></div><div class="nav-title">Workspace</div><div class="nav"><a href="overview.html"><span>Overview</span></a><a href="rankings.html"><span>Player Rankings</span></a><a href="index.html"><span>Clubs</span></a><a href="my-team.html"><span>My Team</span></a><a href="team-optimizer.html"><span>Transfer & Team Optimizer</span></a></div><div class="nav-title">Models</div><div class="nav"><a href="models.html" class="active"><span>Model Explorer</span></a><a href="replay.html"><span>Replay & Audit</span></a></div><div class="sidebar-foot">MM → PM → TS<br>One explainable pipeline.</div></aside><main class="main">
-<div class="crumb">Models / Explorer</div><div class="page-head"><div><h1>How the FPL model thinks</h1><div class="subtitle">Drill from expected minutes into event rates and xPts, then into the rolling transfer plan. Each layer is inspectable instead of hiding the decision behind one number.</div><div class="jump"><a href="#minutes">Minute Model</a><a href="#points">Point Model</a><a href="#transfers">Transfer Model</a></div></div><span class="badge">MODEL EXPLORER</span></div>
-<div class="pipeline"><a class="model-card" href="#minutes"><div class="model-icon mm">MM</div><h2>Minute Model</h2><p>Who starts, which tactical role they occupy and how many minutes they are expected to play.</p><div class="chips"><span class="chip">P(start)</span><span class="chip">xMins</span><span class="chip">Role hierarchy</span><span class="chip">Match importance</span></div></a><div class="arrow">→</div><a class="model-card" href="#points"><div class="model-icon pm">PM</div><h2>Point Model</h2><p>Turns minutes and event expectations into FPL points fixture by fixture.</p><div class="chips"><span class="chip">xG</span><span class="chip">xA</span><span class="chip">CS</span><span class="chip">Bonus/BPS</span></div></a><div class="arrow">→</div><a class="model-card" href="#transfers"><div class="model-icon ts">TS</div><h2>Transfer Model</h2><p>Uses future xPts to choose a rolling six-GW transfer path, executing only the first action.</p><div class="chips"><span class="chip">6GW plan</span><span class="chip">Hits</span><span class="chip">Captain</span><span class="chip">Uncertainty</span></div></a></div>
-<section id="minutes" class="section panel"><div class="panel-head"><div><div class="panel-title">Minute Model</div><div class="panel-sub">From squad state to P(start), role assignment and expected minutes</div></div><span class="badge">MM</span></div><div class="panel-body"><div class="component-grid">
-<div class="component"><div class="component-title">P(start)</div><div class="component-value">Start probability</div><div class="component-text">Probability the player is in the starting XI before deadline.</div></div><div class="component"><div class="component-title">Role distribution q</div><div class="component-value">Where can they play?</div><div class="component-text">Probability across tactical roles; only one slot can be occupied in a given XI.</div></div><div class="component"><div class="component-title">Role hierarchy H</div><div class="component-value">Who is first choice?</div><div class="component-text">Recency-weighted hierarchy inside each role, so direct competitors fight for the same slot.</div></div><div class="component"><div class="component-title">Global XI assignment</div><div class="component-value">11 unique players</div><div class="component-text">Highest-scoring legal formation + XI. Multi-role players cannot start twice.</div></div><div class="component"><div class="component-title">Match Importance</div><div class="component-value">Competition context</div><div class="component-text">Competition value, stage and opponent strength influence hierarchy/rotation context.</div></div><div class="component"><div class="component-title">Workload</div><div class="component-value">Official club matches</div><div class="component-text">Starts, minutes, rest and workload across league, Europe and domestic cups.</div></div><div class="component"><div class="component-title">Performance rating</div><div class="component-value">Recent form</div><div class="component-text">FotMob/SofaScore-ready, recency weighted and role-normalised; neutral when missing.</div></div><div class="component"><div class="component-title">Starter duration</div><div class="component-value">E[min | start]</div><div class="component-text">Conditional expected minutes after a start.</div></div><div class="component"><div class="component-title">Sub state</div><div class="component-value">P(sub) + cameo min</div><div class="component-text">Bench appearance probability and expected cameo duration.</div></div></div>
-<details open><summary><span>Expected minutes equation</span><span class="tag">core</span></summary><div class="inside"><div class="formula">xMins = P(start) · E[min | start]
-      + (1 − P(start)) · P(sub | not start) · E[min | sub]</div>The club page shows a coherent expected XI, while xMins stays probabilistic.</div></details></div></section>
-<section id="points" class="section panel"><div class="panel-head"><div><div class="panel-title">Point Model</div><div class="panel-sub">Open xPts and see which scoring channels create it</div></div><span class="badge" style="background:#edf1ff;color:#3156d8;border-color:#d5defd">PM</span></div><div class="panel-body"><div class="component-grid">
-<div class="component"><div class="component-title">Minutes</div><div class="component-value">Appearance EV</div><div class="component-text">MM exposure drives every downstream event.</div></div><div class="component"><div class="component-title">xG</div><div class="component-value">Goal EV</div><div class="component-text">Expected goals scaled to minutes and fixture context.</div></div><div class="component"><div class="component-title">xA</div><div class="component-value">Assist EV</div><div class="component-text">Expected assists scaled to minutes and fixture context.</div></div><div class="component"><div class="component-title">Clean sheets</div><div class="component-value">P(CS)</div><div class="component-text">Team defensive expectation and position-specific scoring.</div></div><div class="component"><div class="component-title">Saves</div><div class="component-value">GK EV</div><div class="component-text">Expected save volume and points.</div></div><div class="component"><div class="component-title">DefCon</div><div class="component-value">Defensive EV</div><div class="component-text">Expected defensive contribution scoring.</div></div><div class="component"><div class="component-title">Bonus / BPS</div><div class="component-value">Bonus EV</div><div class="component-text">Bonus contribution exposed separately.</div></div><div class="component"><div class="component-title">Deductions</div><div class="component-value">Negative EV</div><div class="component-text">Cards and goals-conceded deductions where applicable.</div></div><div class="component"><div class="component-title">xPts</div><div class="component-value">Total EV</div><div class="component-text">Sum of all expected FPL scoring channels.</div></div></div><details open><summary><span>Point decomposition</span><span class="tag">player view</span></summary><div class="inside"><div class="formula">xPts = appearance + goal EV + assist EV + clean-sheet EV
-     + save EV + DefCon EV + bonus EV − deductions</div>The player page can drill from total xPts into xG, xA, CS, BPS and the underlying rates.</div></details></div></section>
-<section id="transfers" class="section panel"><div class="panel-head"><div><div class="panel-title">Transfer Model</div><div class="panel-sub">Why the planner buys, sells, holds or banks</div></div><span class="badge" style="background:#f2edff;color:#7254c7;border-color:#dfd5ff">TS</span></div><div class="panel-body"><div class="flow-list">
-<div class="flow-step"><div class="step-n">1</div><div><div class="step-title">Read squad state</div><div class="step-note">Squad, bank, free transfers and purchase prices.</div></div><span class="status">STATE</span></div><div class="flow-step"><div class="step-n">2</div><div><div class="step-title">Forecast six Gameweeks</div><div class="step-note">PM supplies xPts; XI and captain optimized separately each GW.</div></div><span class="status">6GW</span></div><div class="flow-step"><div class="step-n">3</div><div><div class="step-title">Explore transfer paths</div><div class="step-note">0–5 transfers, including holds and benching through bad fixtures.</div></div><span class="status">SEARCH</span></div><div class="flow-step"><div class="step-n">4</div><div><div class="step-title">Charge hits + uncertainty</div><div class="step-note">4 points per paid transfer; buffer only on paid transfers.</div></div><span class="status">COST</span></div><div class="flow-step"><div class="step-n">5</div><div><div class="step-title">Choose highest-EV path</div><div class="step-note">Compare future XI/captain value after costs.</div></div><span class="status">EV</span></div><div class="flow-step"><div class="step-n">6</div><div><div class="step-title">Execute first action only</div><div class="step-note">Replan next GW from the new state.</div></div><span class="status">REPLAN</span></div></div><details open><summary><span>Decision objective</span><span class="tag">TS v3</span></summary><div class="inside"><div class="formula">plan value ≈ future XI points + captain effects + bench effects
-           − official hits − paid-transfer uncertainty buffer</div>The website should show the chosen path and next-best alternative, not just BUY/SELL.</div></details></div></section>
-<div class="notice" style="margin-top:15px">Live values are populated as MM/PM/TS outputs are published into the production data bridge.</div></main></div><script src="data.js"></script><script src="nav.js"></script></body></html>
+<!doctype html>
+<html lang="da">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="description" content="Forstå den låste FPL-model: minutmodel, pointmodel, transfers, Wildcard, Free Hit, Bench Boost og Triple Captain – med matematik og kildekode.">
+  <title>Modelforklaring · FPL Analytics</title>
+  <link rel="stylesheet" href="assets.css">
+  <style>
+    :root{--bg:#f4f6f8;--panel:#fff;--ink:#101820;--muted:#6d7882;--line:#e4e9ed;--green:#087a52;--soft:#eaf7f1;--nav:#0b1720;--nav2:#172733;--blue:#3156d8;--purple:#7254c7;--orange:#b56d27;--teal:#107d86;--shadow:0 10px 30px rgba(15,29,40,.045)}
+    *{box-sizing:border-box}
+    html{scroll-behavior:smooth}
+    body{margin:0;background:var(--bg);color:var(--ink);font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}
+    a{color:inherit;text-decoration:none} button,input{font:inherit}
+    button{cursor:pointer}button:focus-visible,a:focus-visible,input:focus-visible{outline:3px solid #60caa2;outline-offset:3px}
+    .app{display:grid;grid-template-columns:228px minmax(0,1fr);min-height:100vh}
+    .sidebar{background:var(--nav);color:#fff;padding:24px 16px;position:sticky;top:0;height:100vh}
+    .brand{display:flex;align-items:center;gap:12px;font-weight:850;font-size:18px;margin:0 8px 28px}
+    .logo{width:36px;height:36px;border-radius:12px;background:linear-gradient(135deg,#61ddb0,#16845e);display:grid;place-items:center;color:#05251a;font-size:13px}
+    .nav-title{font-size:10px;letter-spacing:.15em;text-transform:uppercase;color:#708797;margin:22px 12px 8px}
+    .nav a{display:block;margin:3px 0;padding:11px 12px;border-radius:9px;color:#9cafbb;font-size:14px}
+    .nav a.active,.nav a:hover{background:var(--nav2);color:#fff}
+    .sidebar-foot{position:absolute;left:20px;right:20px;bottom:22px;color:#728998;font-size:11px;line-height:1.55}
+    .main{min-width:0;padding:32px clamp(18px,3vw,48px) 70px;max-width:1700px;width:100%;margin:auto}
+    .breadcrumb-top{font-size:12px;font-weight:650;color:var(--muted);margin-bottom:18px}
+    .heading{display:flex;align-items:flex-start;gap:20px;justify-content:space-between}
+    h1{font-size:clamp(27px,3vw,38px);letter-spacing:-.045em;line-height:1.12;margin:0 0 10px}
+    .subheading{color:#5d6b74;max-width:770px;line-height:1.65;margin:0;font-size:14px}
+    .status-pill{border:1px solid #bddfd1;color:#076643;background:#eaf6ef;padding:9px 12px;border-radius:999px;font-size:11px;font-weight:800;white-space:nowrap}
+    .intro-metrics{display:flex;flex-wrap:wrap;gap:9px;margin:22px 0}
+    .intro-metrics .mini{border:1px solid var(--line);background:#fff;border-radius:9px;padding:9px 13px;color:#58656c;font-size:12px}
+    .intro-metrics strong{color:#15292b}
+    .roadmap-section{margin:26px 0 24px}
+    .section-eyebrow{font-weight:850;color:#6e7b83;letter-spacing:.1em;text-transform:uppercase;font-size:10px;margin:0 0 10px}
+    .roadmap-card{background:#fff;border:1px solid var(--line);border-radius:18px;padding:22px;box-shadow:var(--shadow);overflow:hidden}
+    .roadmap-top{display:flex;align-items:center;justify-content:center}
+    .root-node{border:1px solid #193c32;border-radius:13px;background:#12382d;color:#fff;font-weight:800;padding:12px 22px;min-width:230px}
+    .root-node small{display:block;font-size:10px;font-weight:600;color:#a8c6bc;margin-top:4px}
+    .tree-trunk{height:30px;width:1px;background:#bac8c1;margin:auto}
+    .roadmap-grid{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:12px;position:relative}
+    .roadmap-grid:before{content:"";position:absolute;top:-1px;left:10%;right:10%;border-top:1px solid #bdcbc3}
+    .roadmap-node{min-width:0;position:relative;text-align:left;border:1px solid var(--line);background:#fff;padding:16px 16px 14px;border-radius:13px;display:flex;flex-direction:column;min-height:162px;transition:box-shadow .16s,transform .16s,border-color .16s}
+    .roadmap-node:before{content:"";height:13px;width:1px;background:#bdcbc3;position:absolute;top:-13px;left:50%}
+    .roadmap-node:hover,.roadmap-node.is-branch-active{border-color:var(--accent);transform:translateY(-2px);box-shadow:0 9px 22px rgba(20,35,40,.08)}
+    .roadmap-index{font-size:11px;font-weight:900;color:var(--accent);margin-bottom:8px}
+    .roadmap-label{font-weight:850;font-size:15px;letter-spacing:-.02em;color:#233138}
+    .roadmap-sub{font-size:11px;color:#77828a;line-height:1.45;margin-top:8px;flex:1}
+    .roadmap-count{border-top:1px solid #eef0f1;padding-top:11px;margin-top:12px;font-size:10px;color:var(--accent);font-weight:800;display:flex;justify-content:space-between}
+    .category-overview{--accent:#087a52}.category-minutes{--accent:#087a52}.category-points{--accent:#3156d8}.category-strategy{--accent:#7254c7}.category-chips{--accent:#b56d27}.category-evidence{--accent:#107d86}
+    .roadmap-note{font-size:11px;color:#78868e;margin-top:12px;text-align:center}
+    .workspace{display:grid;grid-template-columns:minmax(240px,292px) minmax(0,1fr);gap:20px;align-items:start;scroll-margin-top:22px}
+    .tree-panel,.detail-panel{background:#fff;border:1px solid var(--line);border-radius:17px;box-shadow:var(--shadow);min-width:0}
+    .tree-panel{position:sticky;top:22px;max-height:calc(100vh - 44px);display:flex;flex-direction:column;overflow:hidden}
+    .tree-head{padding:18px;border-bottom:1px solid var(--line)}
+    .tree-head-title{display:flex;align-items:center;justify-content:space-between;gap:10px;font-weight:850;font-size:15px}
+    .tree-head-title span{font-size:10px;color:#77838b;font-weight:700}
+    .tree-search{position:relative;display:flex;align-items:center;margin-top:15px}
+    .tree-search label{position:absolute;left:12px;color:#82919b;font-size:14px;pointer-events:none}
+    .tree-search input{width:100%;background:#f9fbfb;border:1px solid #dde4e7;border-radius:9px;padding:11px 12px 11px 35px;font-size:12px;min-width:0}
+    .tree-actions{display:flex;gap:8px;margin-top:10px}
+    .tree-actions button{background:#f2f5f6;color:#52616a;border:none;border-radius:8px;padding:7px 9px;font-weight:800;font-size:10px}
+    .model-tree{padding:12px 11px 24px;overflow-y:auto;min-height:110px;scrollbar-color:#bdc9cf transparent}
+    .model-tree-row{display:flex;align-items:center;min-height:33px;border-radius:9px;position:relative}
+    .model-tree-row:hover{background:#f4f7f7}
+    .model-tree-children{margin-left:15px;padding-left:7px;border-left:1px solid #e1e8e8}
+    .tree-toggle{border:0;background:transparent;display:grid;place-items:center;width:24px;min-width:24px;height:27px;font-size:15px;color:#78868d;border-radius:6px}
+    .tree-toggle:hover{background:#edf2f1}
+    .tree-leaf{display:grid;place-items:center;width:24px;min-width:24px;color:#b9c2c7;font-weight:900}
+    .model-tree-label{border:0;background:transparent;min-width:0;text-align:left;padding:8px 7px;border-radius:7px;color:#52606a;font-size:11px;line-height:1.25;flex:1}
+    .model-tree-label.active{background:#eaf5ef;color:#076642;font-weight:850}
+    .model-tree-branch.depth-1>.model-tree-row .model-tree-label{font-weight:800}
+    .search-results{padding:11px 12px 12px;max-height:270px;overflow:auto;border-bottom:1px solid var(--line);background:#fafcfb}
+    .search-results[hidden]{display:none}
+    .result-title{font-size:10px;color:#63737a;font-weight:900;margin:4px 0 8px}
+    .search-hit{background:#fff;border:1px solid var(--line);border-radius:8px;padding:9px 10px;display:flex;width:100%;flex-direction:column;gap:2px;text-align:left;margin:5px 0}
+    .search-hit:hover{border-color:#8ac7ae}
+    .search-hit-title{font-size:11px;color:#213238;font-weight:850}
+    .search-hit-path{font-size:10px;color:#73818a}
+    .detail-panel{min-height:600px}
+    .detail-inner{padding:clamp(20px,3vw,36px);border-top:4px solid var(--accent);border-radius:17px}
+    .model-breadcrumb{display:flex;align-items:center;flex-wrap:wrap;gap:8px;font-size:11px;color:#82919a;margin-bottom:22px}
+    .model-breadcrumb button{border:0;padding:0;background:transparent;color:#5b6972;font-size:11px}
+    .model-breadcrumb button:hover{text-decoration:underline;color:var(--accent)}
+    .model-breadcrumb span[aria-current=page]{color:#20313a;font-weight:800}
+    .detail-eyebrow{display:flex;gap:7px;align-items:center;font-size:11px;text-transform:uppercase;letter-spacing:.09em;color:var(--accent);font-weight:850}
+    .group-indicator{display:inline-block;background:var(--accent);border-radius:50%;height:8px;width:8px}
+    .detail-depth{color:#9aa5aa;font-weight:700;letter-spacing:0;text-transform:none;margin-left:auto}
+    .detail-panel h2{font-size:clamp(24px,2.6vw,34px);letter-spacing:-.035em;line-height:1.2;margin:13px 0 9px;outline:none}
+    .detail-lead{font-size:14px;line-height:1.6;color:#5d6b73;margin:0 0 22px}
+    .detail-section{border-top:1px solid #edf0f1;padding-top:24px;margin-top:23px}
+    .detail-section h3{font-size:16px;margin:0 0 9px;letter-spacing:-.015em}
+    .detail-section p{font-size:13px;color:#59666d;line-height:1.7;margin:0}
+    .detail-idea{border-top:0;margin-top:6px;padding-top:0}
+    .detail-idea p{font-size:13.5px;color:#3d4b54}
+    .detail-hint{font-size:11px!important;color:#89959b!important;margin:0 0 14px!important}
+    .formula-list{display:grid;gap:11px}
+    .formula-block{border:1px solid #e2e8eb;border-radius:12px;background:#fafcfd;overflow:hidden}
+    .formula-head{display:flex;justify-content:space-between;align-items:center;gap:14px;padding:10px 14px;border-bottom:1px solid #edf1f2;color:#71818b;font-size:10px;font-weight:850}
+    .copy-formula{border:1px solid #dfe6e9;background:#fff;color:#62717a;border-radius:6px;font-size:10px;padding:5px 8px;font-weight:700}
+    .copy-formula:hover{color:var(--accent);border-color:#b8d7c9}
+    .formula-math{font-family:"Cambria Math","STIX Two Math","Noto Sans Math",Georgia,serif;font-size:clamp(14px,1.55vw,18px);letter-spacing:.01em;color:#1f3949;padding:18px 16px 9px;white-space:pre-wrap;overflow-wrap:anywhere;line-height:1.75;overflow-x:auto}
+    .formula-explanation{font-size:11.5px!important;padding:0 16px 15px!important;color:#697881!important}
+    .key-list{margin:10px 0 0;padding:0 0 0 19px;color:#52636c;line-height:1.75;font-size:12px}
+    .key-list li{padding-left:2px;margin-bottom:8px}
+    .detail-child-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin-top:15px}
+    .detail-child{border:1px solid #e2e8ea;border-radius:11px;background:#fff;min-width:0;text-align:left;position:relative;padding:14px 14px 16px;display:flex;flex-direction:column;gap:7px}
+    .detail-child:hover{border-color:var(--accent);box-shadow:0 5px 16px rgba(20,40,55,.05)}
+    .detail-child strong{font-size:12px;color:#1e3038;padding-right:18px}
+    .detail-child span{font-size:11px;color:#7b8790;line-height:1.45}
+    .detail-child b{position:absolute;right:12px;top:11px;color:var(--accent)}
+    .source-links{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px}
+    .source-link{border:1px solid #e0e7ea;background:#f9fbfc;border-radius:8px;color:#466277;padding:10px 12px;display:inline-flex;align-items:center;gap:7px;font:600 10.5px ui-monospace,SFMono-Regular,Menlo,monospace;max-width:100%;overflow-wrap:anywhere}
+    .source-link:hover{border-color:#87a9bb;background:#f1f7fa}
+    .source-link span{color:var(--accent);font-size:14px}
+    .detail-bottom-nav{border-top:1px solid #edf0f1;padding-top:22px;display:flex;justify-content:space-between;gap:12px;margin-top:30px}
+    .detail-bottom-nav button{border:1px solid var(--line);border-radius:9px;background:#fff;padding:10px 12px;color:#576971;font-size:11px;font-weight:750}
+    .detail-bottom-nav button:hover{border-color:var(--accent);color:var(--accent)}
+    .model-disclaimer{margin-top:20px;font-size:11.5px;color:#7d8b91;line-height:1.6;border-left:3px solid #d3dbde;padding:7px 0 7px 14px}
+    @media(max-width:1200px){.roadmap-grid{gap:8px}.roadmap-node{padding:13px;min-height:176px}}
+    @media(max-width:1000px){.roadmap-grid{grid-template-columns:repeat(3,minmax(0,1fr));row-gap:18px}.roadmap-grid:before,.roadmap-node:before{display:none}.workspace{grid-template-columns:230px minmax(0,1fr)}}
+    @media(max-width:800px){.app{grid-template-columns:78px minmax(0,1fr)}.sidebar{padding:20px 10px}.brand span,.nav a span,.nav-title,.sidebar-foot{display:none}.brand{margin-left:9px}.nav a{width:42px;text-align:center;margin:5px auto}.main{padding:22px 16px 54px}.heading{flex-direction:column;gap:14px}.roadmap-card{padding:16px}.roadmap-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.workspace{grid-template-columns:1fr}.tree-panel{position:static;max-height:420px}.detail-child-grid{grid-template-columns:1fr}}
+    @media(max-width:480px){.app{grid-template-columns:1fr}.sidebar{height:auto;position:static;display:flex;align-items:center;flex-wrap:wrap;gap:4px;padding:11px}.brand{margin:0 10px 0 0}.nav{display:flex;gap:3px}.nav a{width:auto;min-width:36px;padding:8px;font-size:11px}.nav-title,.sidebar-foot{display:none}.main{padding:18px 12px}.roadmap-grid{grid-template-columns:1fr}.roadmap-node{min-height:110px}.formula-math{font-size:15px}}
+    @media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}.roadmap-node{transition:none}}
+  </style>
+</head>
+<body>
+<div class="app">
+ <aside class="sidebar">
+   <div class="brand"><div class="logo">xP</div><span>FPL Analytics</span></div>
+   <div class="nav-title">Workspace</div>
+   <div class="nav"><a href="overview.html"><span>Overview</span></a><a href="rankings.html"><span>Player Rankings</span></a><a href="index.html"><span>Clubs</span></a><a href="my-team.html"><span>My Team</span></a><a href="team-optimizer.html"><span>Transfer &amp; Team Optimizer</span></a></div>
+   <div class="nav-title">Models</div>
+   <div class="nav"><a href="models.html" class="active"><span>Modelforklaring</span></a><a href="replay.html"><span>Replay &amp; Audit</span></a></div>
+   <div class="sidebar-foot">MM → PM → TS → chips<br>Alle regler kan udforskes.</div>
+ </aside>
+ <main class="main">
+  <div class="breadcrumb-top">Models / Modelforklaring</div>
+  <div class="heading">
+   <div><h1>Matematikken bag FPL-modellen</h1>
+     <p class="subheading">Et klikbart modeltræ. Start med hele modellen, vælg en gren, og gå ned til idéen, de præcise ligninger og den tilhørende kildekode. Modellen er frosset, så forklaringen følger de samme regler som sæsonsimuleringen.</p>
+   </div>
+   <span class="status-pill">✓ Model låst · 09.10.2026</span>
+  </div>
+  <div class="intro-metrics">
+   <span class="mini"><strong>6 GW</strong> transferhorisont</span>
+   <span class="mini"><strong>ρ = 0,60</strong> tidsvægt</span>
+   <span class="mini"><strong>FH 10 · WC 20 · BB 20</strong></span>
+   <span class="mini"><strong>TC v2</strong> bevaret</span>
+   <span class="mini"><strong>2.266</strong> historiske FPL-point</span>
+  </div>
+  <section class="roadmap-section" aria-labelledby="roadmap-title">
+    <p class="section-eyebrow" id="roadmap-title">01 / Hele modeltræet</p>
+    <div class="roadmap-card">
+      <div class="roadmap-top"><button type="button" class="root-node" data-open-node="root">FPL-modellen<small>MM → PM → TS → Chips</small></button></div>
+      <div class="tree-trunk" aria-hidden="true"></div>
+      <div class="roadmap-grid" id="model-roadmap" aria-label="Modellens fem hovedgrene"></div>
+      <div class="roadmap-note">Klik på en gren for at åbne dens beregninger · Data og validering understøtter alle fire modeller.</div>
+    </div>
+  </section>
+  <p class="section-eyebrow">02 / Udforsk matematik og metode</p>
+  <div class="workspace" id="model-workspace">
+    <aside class="tree-panel" aria-label="Navigér mellem modeller">
+      <div class="tree-head">
+        <div class="tree-head-title">Modeltræ <span id="model-node-count"></span></div>
+        <div class="tree-search"><label for="model-tree-search" aria-hidden="true">⌕</label><input id="model-tree-search" autocomplete="off" type="search" placeholder="Søg i formler og begreber…" aria-label="Søg i modeltræ"></div>
+        <div class="tree-actions"><button type="button" id="expand-model-tree">Åbn alle</button><button type="button" id="collapse-model-tree">Luk alle</button></div>
+      </div>
+      <div class="search-results" id="model-search-results" hidden role="region" aria-label="Søgeresultater"></div>
+      <nav class="model-tree" id="model-nav-tree" aria-label="Modellens hierarki"></nav>
+    </aside>
+    <article class="detail-panel" id="model-detail" aria-live="polite" aria-atomic="true"></article>
+  </div>
+  <p class="model-disclaimer">Matematikken er hentet fra den låste kildekode. En række forklaringsformler er markeret som skematiske, når den faktiske model er en indlært eller Monte Carlo-baseret beregning. Historiske WC- og TC-forecastdata har dokumenterede cutoff-forbehold; den tidligere sæsonscore er ikke et live-løfte.</p>
+ </main>
+</div>
+<script src="data.js"></script>
+<script src="nav.js"></script>
+<script src="model-tree-data.js"></script>
+<script src="model-tree-ui.js"></script>
+</body>
+</html>
