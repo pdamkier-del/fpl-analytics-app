@@ -1,0 +1,50 @@
+name: WC v2 cutoff-safe horizon audit
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [audit-role-minutes-20261001]
+    paths:
+      - 'scripts/run_wc_v2_audit.py'
+      - 'scripts/run_fh_exact_gap_reference.py'
+      - '.github/workflows/wc-v2-audit.yml'
+      - 'src/fpl_xpts/wildcard_planner_v2.py'
+
+jobs:
+  replay:
+    runs-on: ubuntu-latest
+    timeout-minutes: 360
+    permissions:
+      actions: read
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: audit-role-minutes-20261001
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install
+        run: |
+          pip install -r requirements-model-checkpoint.txt
+          pip install pandas==2.2.3 numpy==2.3.5 scipy scikit-learn requests
+      - name: Download locked 2125 chain
+        uses: actions/download-artifact@v4
+        with:
+          name: final-locked-chain-gw1-38
+          path: work/locked2125
+          github-token: ${{ github.token }}
+          run-id: 37612845586
+      - name: Run 2025-26 raw FH xP-gap replay
+        run: |
+          VF=$(find work/locked2125 -name rolling_vfinal_forecast.csv.gz | head -1)
+          test -n "$VF"
+          rm -rf analysis/results/wc-v2-audit
+          PYTHONPATH=src:scripts python scripts/run_wc_v2_audit.py --vfinal "$VF" --out analysis/results/wc-v2-audit
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: wc-v2-audit
+          path: |
+            analysis/results/wc-v2-audit
+          retention-days: 90
