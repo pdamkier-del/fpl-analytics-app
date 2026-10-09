@@ -24,7 +24,7 @@ jobs:
       - name: Install
         run: |
           pip install -r requirements-model-checkpoint.txt
-          pip install pandas==2.2.3 numpy==2.3.5 scipy scikit-learn requests
+          pip install pandas==2.2.3 numpy==2.3.5 scipy scikit-learn requests pytest
       - name: Fetch locked TS 2025-26
         uses: actions/download-artifact@v4
         with:
