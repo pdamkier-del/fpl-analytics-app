@@ -92,7 +92,7 @@ def run(label,gws,names,forecast,use_chips=False,params=ScenarioParameters(),
         # use chips. Check all deadlines where severe lineup disruption is seen,
         # plus a dense set of ordinary candidate weeks and half expiration.
         checkpoints={5,6,8,10,12,14,16,18,19,20,22,24,26,28,30,32,34,36,38}
-        assess=bool(use_chips and mask and (simple_thresholds is not None or gw in checkpoints or health>=2))
+        assess=bool(use_chips and (mask or (bb_lambda is not None and half not in used['BB'])) and (simple_thresholds is not None or gw in checkpoints or health>=2))
         if assess:
             proxy=build_asof_wc_projection(forecast,meta,origin,gw,pcfg)
             wc_cmp=compare_wc_as_ts_action(state,meta,proxy,gw,pcfg,
