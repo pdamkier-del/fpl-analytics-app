@@ -67,20 +67,20 @@ def _current_health(state,meta,origin,forecast,gw):
     return (2 if len(adverse)>=3 else 1 if adverse else 0),adverse
 
 def run(label,gws,names,forecast,use_chips=False,params=ScenarioParameters(),
-        structural=None,seed=20261009,simple_thresholds=None):
-    meta1=hp.gw_meta(gws,names,1)
-    origin1=hp.complete_current_projection(forecast[forecast.origin_gw==0],meta1,1)
-    state=initial_squad(origin1,meta1,[1])
+        structural=None,seed=20261009,simple_thresholds=None,start_gw=1):
+    meta1=hp.gw_meta(gws,names,start_gw)
+    origin1=hp.complete_current_projection(forecast[forecast.origin_gw==start_gw-1],meta1,start_gw)
+    state=initial_squad(origin1,meta1,[start_gw])
     known=meta1.copy();total=0;logs=[];pcfg=cfg()
     used={'FH':set(),'WC':set()}
-    for gw in range(1,39):
+    for gw in range(start_gw,39):
         obs=hp.gw_meta(gws,names,gw)
         known=pd.concat([known[~known.id.isin(obs.id)],obs],ignore_index=True).drop_duplicates('id',keep='last')
         meta=known.copy()
         origin_raw=forecast[forecast.origin_gw==gw-1].copy()
         current=hp.complete_current_projection(origin_raw,meta,gw)
         origin=ts.origin_with_meta(forecast,meta,gw)
-        forced=legalize_team_limit(state,meta,origin,gw) if gw>1 else []
+        forced=legalize_team_limit(state,meta,origin,gw) if gw>start_gw else []
         pre_bank=state.bank;pre_ft=state.free_transfers;pre_ids=set(state.squad)
         half=1 if gw<=19 else 2
         mask=(FH if half not in used['FH'] else 0)|(WC if half not in used['WC'] else 0)
