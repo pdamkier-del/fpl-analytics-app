@@ -23,11 +23,14 @@ APP_FILES=[
 ]
 APP_DIRS=[
     ROOT/'app',
+    ROOT/'src'/'fpl_xpts',
+    ROOT/'src'/'fpl_v1_1_model',
 ]
 MODEL_FILES=[
     ROOT/'model'/'engine.py',
     ROOT/'model'/'decision_optimizer.py',
     ROOT/'model'/'forecast_preview.py',
+    ROOT/'config'/'fpl_locked_model.json',
 ]
 
 def sha_bytes(raw:bytes)->str:
