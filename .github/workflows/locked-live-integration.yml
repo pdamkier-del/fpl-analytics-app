@@ -24,7 +24,7 @@ jobs:
       - run: python scripts/fetch_live_fixtures.py
       - run: python scripts/restore_core_checkpoint.py --out work/core.sqlite3
       - run: python scripts/collect_current_locked_inputs.py
-      - run: PYTHONPATH=src:scripts pytest -q tests/test_final_fpl_chain.py tests/test_bench_boost_policy.py tests/test_simple_chip_thresholds.py tests/test_mm_release.py tests/test_live_locked_inputs.py
+      - run: PYTHONPATH=src:scripts pytest -q tests/test_final_fpl_chain.py tests/test_bench_boost_policy.py tests/test_simple_chip_thresholds.py tests/test_mm_release.py tests/test_live_locked_inputs.py tests/test_xi_assignment.py tests/test_rating_history.py tests/test_workload.py tests/test_minutes_decomposition.py tests/test_v1_1_joint_simulator.py tests/test_deadline_components.py tests/test_transfer_planner_joint.py
       - run: python scripts/audit_current_locked_inputs.py
       - name: Export existing code and frozen JSON artifacts for integration audit
         if: always()

@@ -101,8 +101,8 @@ def main():
     for slot,p in enumerate(block.get(kind,[]),1):
      pid=str(p['id']);st=playerstats.get(pid,{});opta=st.get('optaId');code=int(opta) if str(opta).isdigit() else None
      current=players.get(code);uid=uuid_map.get(code)
-     if current is None or int(current['team'])!=int(team['id']):
-      unmapped.append(dict(match_id=match_id,provider_player_id=pid,opta_code=opta,player_name=p['name'],team=team['name'],reason='No exact Opta code + current team match'));continue
+     if current is None:
+      unmapped.append(dict(match_id=match_id,provider_player_id=pid,opta_code=opta,player_name=p['name'],team=team['name'],reason='No exact current FPL stable Opta code; preserve unresolved'));continue
      vals={v.get('key',k):v.get('stat',{}).get('value') for section in st.get('stats',[]) for k,v in section.get('stats',{}).items()}
      lines.append(dict(match_id=match_id,team_side=side,team_code=team['code'],formation=block.get('formation'),player_id=current['id'],player_uuid=uid,player_name=p['name'],is_starting=kind=='starters',position='GK' if slot==1 and kind=='starters' else p.get('positionId'),lineup_status='confirmed',lineup_slot=slot,provider_player_id=pid))
      stats.append(dict(match_id=match_id,player_id=current['id'],player_uuid=uid,team_id=team['id'],team_code=team['code'],minutes_played=vals.get('minutes_played'),started=kind=='starters',available_at=known,stats=vals,provider_player_id=pid,opta_code=opta))
