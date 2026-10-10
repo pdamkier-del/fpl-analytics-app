@@ -1,0 +1,79 @@
+name: Fresh original locked diagnostic forecast
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: '17 */6 * * *'
+  push:
+    branches: [main]
+    paths: [.github/workflows/current-diagnostic-forecast.yml]
+permissions:
+  contents: write
+  pages: write
+  id-token: write
+concurrency:
+  group: original-current-diagnostic
+  cancel-in-progress: false
+jobs:
+  forecast:
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: free-github-static-20261010
+          fetch-depth: 0
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: pip install -r requirements-model-checkpoint.txt -r requirements-model-tests.txt requests
+      - name: Restore verified historical inputs and latest diagnostic snapshot
+        run: |
+          python scripts/restore_live_input_checkpoint.py --out .
+          python scripts/restore_live_vfinal_checkpoint.py --checkpoint model/checkpoints/live_gw7_sources_20261010_v1
+          python scripts/current_diagnostic_checkpoint.py restore
+      - name: Capture fresh official sources and replay original chain twice
+        run: python scripts/locked_numerical_runtime.py scripts/run_current_diagnostic_pipeline.py
+      - name: Run original regression and presentation checks
+        run: |
+          PYTHONPATH=src python -m pytest -q
+          node tests/test_forecast_window.js
+          node --check app/manager-online.js
+          node --check app/manager-state.js
+          node --check app/plan-view.js
+      - name: Preserve immutable raw data, model outputs and checksums
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          python scripts/current_diagnostic_checkpoint.py package
+          tag=$(python -c "import json; print(json.load(open('model/checkpoints/current-diagnostic.json'))['tag'])")
+          gh release create "$tag" work/diagnostic-snapshot.zip --target free-github-static-20261010 --title "$tag" --notes 'Verified original diagnostic snapshot. Model remains uncertified. Checksums retained in model/checkpoints/releases.'
+      - name: Commit verified forecast without replacing concurrent manager or code changes
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add app/vfinal-diagnostic.json app/integration-validation.json model/checkpoints/current-diagnostic.json model/checkpoints/releases
+          git commit -m 'Publish freshly reproduced original diagnostic forecast'
+          for attempt in 1 2 3; do
+            git pull --rebase origin free-github-static-20261010
+            if git push origin HEAD:free-github-static-20261010; then break; fi
+            if [ "$attempt" = 3 ]; then exit 1; fi
+          done
+      - name: Refresh official display data from the same latest GW
+        run: python scripts/fetch_live_fixtures.py
+      - uses: actions/configure-pages@v5
+      - run: touch app/.nojekyll
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: app
+      - uses: actions/deploy-pages@v4
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: original-diagnostic-run-evidence
+          path: |
+            work/live-final-model/*audit.json
+            work/live-final-model/canonical_raw_rebuild.json
+            work/live-final-model/source_manifest.json
+            work/live-final-model/publication_provenance.json
+            work/live-manager-validation/tc_scenarios.json
+          retention-days: 30
