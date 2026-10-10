@@ -60,7 +60,7 @@ def collect(out=BASE):
         if len(fixture_ids) != len(set(fixture_ids)):
             raise ValueError(f"GW{gw}: duplicated fixture IDs")
         payload = {
-            "season": "2026-27", "gw": gw,
+            "season": "2026-27", "gw": gw, "observed_at_utc": now,
             "official_event": {"id":gw, "deadline_time":event["deadline_time"],
                                "finished":True,"data_checked":True},
             "official_fixtures": matches, "official_player_live": elements,
@@ -69,9 +69,14 @@ def collect(out=BASE):
         path = out / f"gw{gw:02d}.json"
         digest = hashlib.sha256(data).hexdigest()
         if path.exists():
-            previous = path.read_bytes()
-            if previous != data:
+            previous = json.loads(path.read_bytes())
+            # Only observation timestamp is transient. A completed GW must not
+            # silently change stats: any provider revision needs explicit review.
+            prior = {k:v for k,v in previous.items() if k != "observed_at_utc"}
+            current = {k:v for k,v in payload.items() if k != "observed_at_utc"}
+            if prior != current:
                 raise ValueError(f"GW{gw}: immutable snapshot changed; review source revision explicitly")
+            digest = hashlib.sha256(path.read_bytes()).hexdigest()
         else:
             path.write_bytes(data)
         collected.append({"gw": gw, "sha256": digest,
