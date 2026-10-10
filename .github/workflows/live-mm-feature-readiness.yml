@@ -98,6 +98,11 @@ jobs:
             echo "ready=false" >> "$GITHUB_OUTPUT"
             echo "::warning::Live PM remains blocked: certified 2026/27 penalty/BPS source ledgers missing"
           fi
+      - name: Fail closed when current-season PM source evidence is incomplete
+        if: steps.live_inputs.outputs.ready != 'true'
+        run: |
+          echo "::error::Current-season penalty and BPS ledgers are missing. Frozen vFinal xP cannot be certified."
+          exit 1
       - name: Apply original frozen penalty state
         if: steps.live_inputs.outputs.ready == 'true'
         run: |
