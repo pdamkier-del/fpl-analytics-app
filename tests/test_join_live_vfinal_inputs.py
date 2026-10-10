@@ -24,3 +24,12 @@ def test_missing_keeper_side_is_blocked():
 def test_missing_event_is_blocked():
     mm,e,t,s=sample()
     with pytest.raises(ValueError,match="fixture identities"):m.combine(mm,e.iloc[:1],t,s)
+
+def test_preserves_full_frozen_pm_event_inputs():
+    mm,events,teams,saves=sample()
+    events["p_yellow"]=[.1,.05]
+    events["p_red"]=[.01,.01]
+    events["dc_alpha"]=[1.1,1.2]
+    joined=m.combine(mm,events,teams,saves)
+    assert {"p_yellow","p_red","dc_alpha"}.issubset(joined.columns)
+    assert joined.p_yellow.tolist()==[.1,.05]
