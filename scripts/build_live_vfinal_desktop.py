@@ -42,6 +42,7 @@ def build(inputs,predictions,bootstrap,audit):
                     'price_tenths':int(p['now_cost']),'weeks':weeks})
     return {'model':'original_locked_vFinal_diagnostic','locked_model_active':False,
         'data_asof':str(x.cutoff.iloc[0]),'season':'2026-27','gws':sorted(x.gw.unique().astype(int).tolist()),
+        'origin_deadline':next(e['deadline_time'] for e in bootstrap['events'] if int(e['id'])==int(x.gw.min())) if 'events' in bootstrap else None,
         'fixtures':int(x.fixture_uuid.nunique()),'player_fixture_rows':len(x),'players':out,
         'source_workflow':'https://github.com/pdamkier-del/fpl-analytics-app/actions/runs/38056989718',
         'quality':{'verified_bps_player_matches':int(audit['verified_player_match_rows']),
@@ -72,3 +73,4 @@ def main():
     a.out.parent.mkdir(parents=True,exist_ok=True);a.out.write_text(json.dumps(result,ensure_ascii=False,allow_nan=False,separators=(',',':'))+'\n')
     print('Published diagnostic only:',result['fixtures'],result['player_fixture_rows'],len(result['players']))
 if __name__=='__main__':main()
+

@@ -19,9 +19,11 @@ BASE=ROOT/'data_v1_1/derived/live_locked_inputs/2026-27-v1'
 OUT=BASE/'future_team_goal_lambdas.csv.gz'
 AUDIT=WORK/'live_vfinal_team_latent.json'
 
-def run():
+def run(horizon_end=None):
     meta=json.loads((WORK/'source_manifest.json').read_text())
     origin=int(meta["target_gw"])
+    if horizon_end is None:horizon_end=min(38,origin+5)
+    if not origin<=horizon_end<=38:raise ValueError('Invalid forecast horizon')
     cutoff=pd.Timestamp(meta['observed_at'])
     games=json.loads((WORK/'fixtures.json').read_text())
     history=pd.read_csv(BASE/'observed_team_xg_history.csv.gz')
@@ -32,7 +34,7 @@ def run():
     future=[]
     for row in games:
         gw=row.get('event')
-        if gw is None or not origin<=int(gw)<=min(38,origin+5) or row.get('finished'):
+        if gw is None or not origin<=int(gw)<=horizon_end or row.get('finished'):
             continue
         kickoff=pd.Timestamp(row['kickoff_time'])
         if kickoff<cutoff:continue
@@ -40,7 +42,7 @@ def run():
              gw=int(gw),home_team_id=int(row['team_h']),away_team_id=int(row['team_a']),
              kickoff_at=kickoff.isoformat()))
     targets=pd.DataFrame(future)
-    if targets.empty or targets.fpl_fixture_id.duplicated().any() or targets.gw.nunique()!=6:
+    if targets.empty or targets.fpl_fixture_id.duplicated().any() or targets.gw.nunique()!=horizon_end-origin+1:
         raise ValueError('No complete six-GW official fixture horizon')
     strengths=fit_team_latent(history,targets[['match_id','home_team_id','away_team_id']],origin)
     if len(strengths)!=len(targets):raise ValueError('Original frozen team latent fitter omitted fixtures')
@@ -63,4 +65,7 @@ def run():
     AUDIT.write_text(json.dumps(audit,indent=2,allow_nan=False)+'\n')
     print('FROZEN VFINAL CURRENT TEAM STRENGTH:',json.dumps(audit))
     return targets
-if __name__=='__main__':run()
+if __name__=='__main__':
+    import argparse
+    p=argparse.ArgumentParser();p.add_argument('--horizon-end',type=int);a=p.parse_args();run(a.horizon_end)
+

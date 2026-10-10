@@ -23,7 +23,7 @@ WORK=ROOT/'work/live-final-model';OUT=ROOT/'data_v1_1/derived/live_locked_inputs
 def readjl(p):return [json.loads(r) for r in gzip.decompress(p.read_bytes()).splitlines()]
 def dump(p,v):p.parent.mkdir(parents=True,exist_ok=True);p.write_text(json.dumps(v,ensure_ascii=False,indent=2,allow_nan=False)+'\n')
 def csvgz(p,f):p.parent.mkdir(parents=True,exist_ok=True);p.write_bytes(gzip.compress(f.to_csv(index=False).encode(),mtime=0))
-def materialize():
+def materialize(horizon_end=None):
  OUT.mkdir(parents=True,exist_ok=True)
  bootstrap=json.loads((WORK/'bootstrap.json').read_text());fx=json.loads((WORK/'fixtures.json').read_text());ident=json.loads((WORK/'current_identity.json').read_text());asof=datetime.fromisoformat(json.loads((WORK/'source_manifest.json').read_text())['observed_at'].replace('Z','+00:00'));gw=next(e['id'] for e in bootstrap['events'] if e.get('is_next'));people={p['id']:p for p in bootstrap['elements'] if p['element_type']!=5};ids={p['fpl_element']:p for p in ident};teams={t['code']:t['id'] for t in bootstrap['teams']};team_names={t['id']:t['name'] for t in bootstrap['teams']}
  games=readjl(WORK/'match_actuals.jsonl.gz');events=readjl(WORK/'player_match_events.jsonl.gz');gmap={g['match_id']:g for g in games};emap={(r['match_id'],r['player_id']):r for r in events};line=pd.read_csv(ROOT/'data_v1_1/raw/all-competitions-2026-27/lineups.csv');rh=RoleHistory();wh=WorkloadHistory();classified=[];skipped=[];active=defaultdict(lambda:{'prem','fa-cup','efl-cup'})
@@ -53,10 +53,12 @@ def materialize():
     classified.append(dict(match_id=mid,team_id=tid,player_uuid=str(r.player_uuid),player=r.player_name,formation=formation,lineup_slot=int(r.lineup_slot),available_at=g['available_at'],importance=mi,**{k:v for k,v in z.items() if k!='prior_q'}))
    if len(players)==11:rh.add_game(tid,known,mid,players,importance=mi,competition=comp)
    else:skipped.append(dict(match_id=mid,team_id=tid,reason='Missing observed starter minutes'))
+ if horizon_end is None:horizon_end=min(38,gw+5)
+ if not gw<=horizon_end<=38:raise ValueError('Invalid forecast horizon')
  # One common forecast origin; future deadlines are not permission to read later outcomes.
  targets=[]
  for f in fx:
-  if not (f.get('event') and gw<=f['event']<=min(38,gw+5) and not f.get('finished') and f.get('kickoff_time')):continue
+  if not (f.get('event') and gw<=f['event']<=horizon_end and not f.get('finished') and f.get('kickoff_time')):continue
   for home in (True,False):
    tid=f['team_h'] if home else f['team_a'];opp=f['team_a'] if home else f['team_h'];rs={speed:rh.state(tid,pd.Timestamp(asof),half,q_importance_scale=.1,h_importance_scale=.4,importance_floor=.35) for speed,half in [('fast',3),('slow',10)]};ws,default,last=wh.state(tid,asof)
    for fid,p in people.items():
@@ -110,4 +112,6 @@ def materialize():
   if p.is_file():manifest.append(dict(path=str(p.relative_to(ROOT)),bytes=p.stat().st_size,sha256=hashlib.sha256(p.read_bytes()).hexdigest()))
  dump(OUT/'manifest.json',dict(season='2026-27',files=manifest,classification='CURRENT_SOURCE_INPUTS_NOT_CERTIFIED_LOCKED_FORECAST'))
  print('CURRENT INPUT AUDIT',len(frame),'six-GW rows',len(actual),'actual rows; locked availability contract conflict remains')
-if __name__=='__main__':materialize()
+if __name__=='__main__':
+ import argparse
+ ap=argparse.ArgumentParser();ap.add_argument('--horizon-end',type=int);a=ap.parse_args();materialize(a.horizon_end)

@@ -7,7 +7,7 @@ import pandas as pd
 ROOT=Path(__file__).resolve().parents[1]
 sys.path[:0]=[str(ROOT/'src'),str(ROOT/'scripts')]
 from fpl_xpts.season_replay import ReplayState,OwnedPlayer,valid_squad
-from fpl_xpts.transfer_planner import plan_transfer_path,execute_first_action,clone_state
+from fpl_xpts.transfer_planner import plan_transfer_path,execute_first_action,clone_state,projected_manager_score
 from fpl_xpts.optimize import plan_squad
 from run_joint_fh_wc_stopping_replay import cfg
 CHIPS={'wildcard','free_hit','bench_boost','triple_captain'}
@@ -22,7 +22,7 @@ def parse_state(raw,meta,gw,cutoff):
     observed=pd.Timestamp(raw['observed_at']);target=pd.Timestamp(cutoff)
     if observed.tzinfo is None or target.tzinfo is None or observed>target:raise ValueError('Manager state is after forecast cutoff')
     bank=integer(raw.get('bank_tenths'),'bank_tenths',0,1000)
-    ft=integer(raw.get('free_transfers'),'free_transfers',1,5)
+    ft=integer(raw.get('free_transfers'),'free_transfers',0,5)
     owned={}
     for p in raw.get('squad',[]):
         pid=integer(p.get('id'),'player ID',1,1000000)
@@ -51,15 +51,21 @@ def project(payload):
 def run(payload,raw,include_chips=False,tc_samples=None):
     meta,origin=project(payload);gw=min(payload['gws'])
     if sorted(payload['gws'])!=list(range(gw,gw+6)):raise ValueError('TS requires complete six-GW inputs')
+    deadline=payload.get('origin_deadline')
+    if deadline and pd.Timestamp.now(tz='UTC')>=pd.Timestamp(deadline):raise ValueError('Forecast deadline has passed; fetch a fresh forecast. Historical replay is separate.')
     state=parse_state(raw,meta,gw,payload['data_asof'])
     diagnostic=not payload.get('locked_model_active',False) or any(payload.get('parts',{}).get(k)!='verified' for k in ('mm','pm_vfinal'))
     planned=plan_transfer_path(state,meta,origin,gw,cfg());after=clone_state(state)
     transfers=execute_first_action(after,planned,meta);lineup=plan_squad(origin,list(after.squad),gw)
+    baseline=[{'gw':g,'expected_score':projected_manager_score(origin,meta,list(state.squad),g)} for g in payload['gws']]
+    baseline_value=sum(w*r['expected_score'] for w,r in zip(cfg().weights,baseline))
     result={'locked_model_active':False,'ts_status':'diagnostic' if diagnostic else 'verified',
         'chips_status':'Not Available','ts_ran':True,'chips_ran':False,'forecast_cutoff':payload['data_asof'],
-        'gw':gw,'manager_state_source':raw['source'],
+        'gw':gw,'origin_deadline':deadline,'manager_state_source':raw['source'],
         'manager_state_sha256':hashlib.sha256(json.dumps(raw,sort_keys=True,ensure_ascii=False,separators=(',',':')).encode()).hexdigest(),
         'plan':asdict(planned),'transfers':transfers,
+        'comparison':{'hold_squad_without_transfers':baseline,'hold_weighted_objective':baseline_value,'plan_gain_over_hold':planned.objective-baseline_value,'current_gw_gain_before_hits':lineup.expected_score-baseline[0]['expected_score'],'current_gw_official_hit_points':planned.first_action.official_hit_points if planned.first_action else 0},
+        'reason':'The original six-GW planner maximizes weighted XI plus captain points after official hits and the locked paid-transfer uncertainty buffer; compared below with keeping the same squad.',
         'lineup':json.loads(lineup.rows.to_json(orient='records')),
         'interpretation':'Hypothetical recommendations only. Only the first action would be executed; later actions require replanning. No FPL account is modified.',
         'blockers':list(payload.get('blockers',[]))}
@@ -97,8 +103,11 @@ def run(payload,raw,include_chips=False,tc_samples=None):
                     'q_wc':choice.q_wc if npfinite(choice.q_wc) else None,
                     'q_bb':choice.q_bb if npfinite(choice.q_bb) else None,
                     'availability':available,'tc':tc,'tc_status':'diagnostic_manual_confirmation_required' if tc else 'Not Available',
-                    'future_chip_gw':None,'future_chip_status':'Not Available: no complete cutoff-safe option ledger',
+                    'future_chip_gw':(tc.get('best_future_gw') if tc and tc.get('save_source')=='concrete_gw' else None),'future_chip_status':('TC concrete future option; replan at each deadline. Other chips: Not Available' if tc else 'Not Available: no complete cutoff-safe option ledger'),
                     'full_four_chip_decision_verified':False})
+            if tc is not None:
+                result['blockers']=[b for b in result['blockers'] if not b.startswith('Locked TC future-option')]
+                result['chip_assessment']['manual_decision_required']=True
             if tc is None and available['triple_captain']:result['blockers'].append('TC requires verified scenarios through the current half and its original manual decision gate; no replacement option value is invented.')
         except Exception as error:
             result.update(chips_ran=False, chips_status='Not Available')
@@ -111,12 +120,18 @@ def npfinite(x):
     return math.isfinite(x)
 
 def main():
-    p=argparse.ArgumentParser();p.add_argument('--forecast',type=Path,default=ROOT/'app/vfinal-diagnostic.json');p.add_argument('--state',type=Path);p.add_argument('--out',type=Path,default=ROOT/'work/live-final-model/live_ts_chip_audit.json');a=p.parse_args()
+    p=argparse.ArgumentParser();p.add_argument('--forecast',type=Path,default=ROOT/'app/vfinal-diagnostic.json');p.add_argument('--state',type=Path);p.add_argument('--tc-samples',type=Path);p.add_argument('--tc-receipt',type=Path);p.add_argument('--out',type=Path,default=ROOT/'work/live-final-model/live_ts_chip_audit.json');a=p.parse_args()
     # Diagnostic use was explicitly authorized; this never promotes the model.
     payload=json.loads(a.forecast.read_text());result={'locked_model_active':False,'ts_status':'Not Available','chips_status':'Not Available','ts_ran':False,'chips_ran':False}
     if not a.state or not a.state.exists():result['blockers']=['Missing verified manager squad, bank, FT, purchase prices and chip usage state.']
     else:
-        result=run(payload,json.loads(a.state.read_text()),include_chips=True)
+        tc=None
+        if a.tc_samples:
+            if not a.tc_receipt:raise ValueError('TC source receipt is required')
+            receipt=json.loads(a.tc_receipt.read_text())
+            if receipt['cutoff']!=payload['data_asof'] or receipt['samples_sha256']!=hashlib.sha256(a.tc_samples.read_bytes()).hexdigest() or receipt['future_schedule_source']!='OFFICIAL_FPL_SNAPSHOT_AT_ORIGIN_CUTOFF':raise ValueError('TC source/cutoff/checksum mismatch')
+            tc=pd.read_csv(a.tc_samples)
+        result=run(payload,json.loads(a.state.read_text()),include_chips=True,tc_samples=tc)
     a.out.parent.mkdir(parents=True,exist_ok=True);a.out.write_text(json.dumps(result,indent=2,allow_nan=False)+'\n');print(json.dumps(result))
 if __name__=='__main__':main()
 
