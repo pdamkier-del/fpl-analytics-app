@@ -4,7 +4,7 @@ body{margin:0;font:14px Inter,ui-sans-serif,system-ui,sans-serif;background:#f8f
 <header class="hero"><a href="live-model-status.html">← Modelstatus</a><h1>Minutmodellen · diagnostik</h1><p>En gennemregnet forhåndsvisning af vores oprindelige minutmodel — P(start), mulighed for indskiftning og forventede minutter. <strong>Ikke certificeret finalmodel eller xP.</strong></p></header>
 <main class="wrap"><div class="warning" role="status"><strong>Vigtigt: ikke live-certificeret.</strong> Beregningerne anvender den låste MM-kode, men GW1–5’s træningshistorik er delvist rekonstrueret. De er kun til gennemsyn, ikke officielle transfer- eller chipanbefalinger. Originale modelparametre er bevaret.</div>
 <div class="meta" aria-label="Datastatus"><div class="stat"><strong id="nplayers">—</strong><span>Spillere</span></div><div class="stat"><strong id="ngw">—</strong><span>Gameweek</span></div><div class="stat"><strong id="nfixtures">—</strong><span>Kampe</span></div><div class="stat"><strong id="nunavailable">—</strong><span>Not available</span></div></div>
-<section class="panel"><p class="hint" id="asof">Henter MM-diagnostik…</p><div class="tools"><input id="search" type="search" placeholder="Søg spiller…" aria-label="Søg spiller"><select id="club" aria-label="Vælg klub"><option value="">Alle klubber</option></select><select id="sort" aria-label="Sortering"><option value="xmins">Flest forventede minutter</option><option value="p_start">Højeste P(start)</option><option value="name">Spillernavn</option></select></div><div class="scroll"><table><thead><tr><th>Spiller</th><th>Klub</th><th>Forventet rolle</th><th class="num">P(start)</th><th class="num">P(indsk. | ikke start)</th><th class="num">xMins</th></tr></thead><tbody id="rows"><tr><td colspan="6">Indlæser…</td></tr></tbody></table></div><p class="hint" id="count"></p></section>
+<section class="panel"><p class="hint" id="asof">Henter MM-diagnostik…</p><div class="tools"><select id="week" aria-label="Vælg gameweek"></select><input id="search" type="search" placeholder="Søg spiller…" aria-label="Søg spiller"><select id="club" aria-label="Vælg klub"><option value="">Alle klubber</option></select><select id="sort" aria-label="Sortering"><option value="xmins">Flest forventede minutter</option><option value="p_start">Højeste P(start)</option><option value="name">Spillernavn</option></select></div><div class="scroll"><table><thead><tr><th>Spiller</th><th>Klub</th><th>Forventet rolle</th><th class="num">P(start)</th><th class="num">P(indsk. | ikke start)</th><th class="num">xMins</th></tr></thead><tbody id="rows"><tr><td colspan="6">Indlæser…</td></tr></tbody></table></div><p class="hint" id="count"></p></section>
 <div class="note"><strong>Matematik:</strong> xMins = P(start) × E[minutter | start] + (1 − P(start)) × P(indskiftning | ikke start) × E[minutter | indskiftning]. For bekræftet utilgængelige spillere anvendes den godkendte, separat dokumenterede nul-minuttersregel. <a href="locked-forecast.html">Den verificerede finalmodel</a> forbliver blokeret, indtil også PM/vFinal, TS v3 og alle chips er gennemtestet.</div>
 </main>
 <script>
@@ -16,20 +16,21 @@ let data;
 function render(){
 if(!data)return;
 const q=$('search').value.trim().toLocaleLowerCase('da'),team=$('club').value,sort=$('sort').value;
-let people=data.rows.filter(p=>(p.name+' '+p.team).toLocaleLowerCase('da').includes(q)&&(!team||p.team===team));
+let people=data.rows.filter(p=>p.gw===Number($('week').value)&&(p.name+' '+p.team).toLocaleLowerCase('da').includes(q)&&(!team||p.team===team));
 people.sort((a,b)=>sort==='name'?a.name.localeCompare(b.name,'da'):(a.not_available?1:b.not_available?-1:(b[sort]-a[sort])));
 $('rows').innerHTML=people.map(p=>'<tr><td class="name">'+esc(p.name)+(p.not_available?' <span class="label">Not available</span>':'')+'</td><td>'+esc(p.team)+'</td><td>'+esc(p.role)+'</td><td class="num">'+(p.not_available?'—':(100*p.p_start).toFixed(1)+'%')+'</td><td class="num">'+(p.not_available?'—':(100*p.p_sub_given_not_start).toFixed(1)+'%')+'</td><td class="num prob">'+(p.not_available?'<span class="label">Not available</span>':p.xmins.toFixed(1))+'</td></tr>').join('')||'<tr><td colspan="6">Ingen spillere matcher.</td></tr>';
 $('count').textContent=people.length+' spillere vises';
 }
-fetch('mm-diagnostic.json',{cache:'no-store'}).then(r=>{if(!r.ok)throw Error('Ingen diagnostisk minutmodel er publiceret');return r.json()}).then(p=>{
-if(p.classification!=='UNCERTIFIED_DIAGNOSTIC_FROZEN_MM_NOT_LIVE_FINAL'||p.locked_model_active!==false||p.full_final_chain_certified!==false||!Array.isArray(p.rows)||p.rows.length!==p.player_count)throw Error('Ugyldig diagnostisk modelstatus');
+fetch('mm-diagnostic-6gw.json',{cache:'no-store'}).then(r=>{if(!r.ok)throw Error('Ingen diagnostisk minutmodel er publiceret');return r.json()}).then(p=>{
+if(p.classification!=='UNCERTIFIED_DIAGNOSTIC_SIX_GW_MM_NOT_FINAL'||p.locked_model_active!==false||p.full_final_chain_certified!==false||!Array.isArray(p.rows)||p.rows.length!==p.player_week_rows)throw Error('Ugyldig diagnostisk modelstatus');
 data=p;
-$('nplayers').textContent=p.player_count;$('ngw').textContent='GW '+p.gw;$('nfixtures').textContent=p.fixture_count;$('nunavailable').textContent=p.not_available_count;
-$('asof').textContent='Kildecheckpunkt: '+new Date(p.source_observed_at).toLocaleString('da-DK',{dateStyle:'medium',timeStyle:'short'})+'. Træningsdata er rekonstrueret; denne visning opdateres kun, når den diagnostiske pipeline er gennemført.';
+$('nplayers').textContent=p.players_per_gw;$('ngw').textContent='GW '+p.origin_gw+'–'+p.gws[p.gws.length-1];$('nfixtures').textContent='60';$('nunavailable').textContent=p.origin_not_available_count;
+$('week').innerHTML=p.gws.map(gw=>'<option value="'+gw+'">GW '+gw+(gw===p.origin_gw?' · aktuell':' · fremtid')+'</option>').join('');
+$('asof').textContent='Kildecheckpunkt: '+new Date(p.source_observed_at).toLocaleString('da-DK',{dateStyle:'medium',timeStyle:'short'})+'. Træningsdata er rekonstrueret. I fremtidige GWs kender vi ikke endnu nye skader, suspensioner eller holdnyheder.';
 const names=[...new Set(p.rows.map(x=>x.team))].sort((a,b)=>a.localeCompare(b,'da'));
 $('club').innerHTML='<option value="">Alle klubber</option>'+names.map(n=>'<option value="'+esc(n)+'">'+esc(n)+'</option>').join('');
 render();
 }).catch(e=>{$('asof').textContent='Der er endnu ikke publiceret en brugbar diagnostisk MM-kørsel.';$('rows').innerHTML='<tr><td colspan="6">'+esc(e.message)+'</td></tr>'});
-for(const id of ['search','club','sort'])$(id).addEventListener(id==='search'?'input':'change',render);
+for(const id of ['week','search','club','sort'])$(id).addEventListener(id==='search'?'input':'change',render);
 })();
 </script><script src="design-v2.js?v=2"></script></body></html>
