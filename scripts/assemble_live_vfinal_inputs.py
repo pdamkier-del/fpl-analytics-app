@@ -21,7 +21,7 @@ REQUIRED_BASE={
   'assist_probability_per_goal','goal_rate90','assist_rate90','dc_alpha',
   'p_yellow','p_red','cutoff','target_gw','pos','team_id','lambda_saves'
 }
-def assemble(base,pen,bps):
+def assemble(base,pen,bps,horizon_end=None):
     if missing:=REQUIRED_BASE-set(base):
         raise ValueError('Missing upstream frozen live features: '+', '.join(sorted(missing)))
     result=base.copy()
@@ -53,7 +53,13 @@ def assemble(base,pen,bps):
     # boundary. These two original functions normalize team scoring shares.
     if 'goal_mu' not in result: result['goal_mu']=normalized_mu(result,result.goal_rate90.to_numpy(float),assist=False)
     if 'assist_mu' not in result: result['assist_mu']=normalized_mu(result,result.assist_rate90.to_numpy(float),assist=True)
-    validate(result)
+    if horizon_end is None:
+        validate(result)
+    else:
+        origin=int(result.target_gw.min())
+        if horizon_end!=(19 if origin<=19 else 38) or result.cutoff.nunique()!=1 or set(result.target_gw.astype(int))!=set(range(origin,horizon_end+1)):
+            raise ValueError('Incomplete TC current-half input horizon')
+        for _,week in result.groupby('target_gw'):validate(week)
     return result
 
 def main():
@@ -62,8 +68,9 @@ def main():
     p.add_argument('--penalty',type=Path,default=BASE/'vfinal_live_penalty_inputs.csv.gz')
     p.add_argument('--bps',type=Path,default=BASE/'vfinal_live_bps_components.csv.gz')
     p.add_argument('--out',type=Path,default=BASE/'vfinal_live_full_simulator_input.csv.gz')
+    p.add_argument('--horizon-end',type=int)
     a=p.parse_args()
-    joined=assemble(pd.read_csv(a.base),pd.read_csv(a.penalty),pd.read_csv(a.bps))
+    joined=assemble(pd.read_csv(a.base),pd.read_csv(a.penalty),pd.read_csv(a.bps),horizon_end=a.horizon_end)
     a.out.parent.mkdir(parents=True,exist_ok=True)
     joined.to_csv(a.out,index=False,compression='gzip')
     WORK.mkdir(parents=True,exist_ok=True)

@@ -62,7 +62,7 @@ def main():
         execute('run_live_vfinal_penalty_state',['--origin',origin,'--roster',BASE/'vfinal_live_full_event_inputs.csv.gz',
             '--attempts',BASE/'verified_penalty_attempts.csv.gz','--sides',BASE/'verified_penalty_team_sides.csv.gz','--teams',BASE/'verified_penalty_team_ids.csv.gz'])
         execute('run_live_vfinal_bps',['--target',BASE/'vfinal_live_full_event_inputs.csv.gz','--ledger',BASE/'verified_bps_action_ledger.csv.gz'])
-        execute('assemble_live_vfinal_inputs',['--base',BASE/'vfinal_live_full_event_inputs.csv.gz'])
+        execute('assemble_live_vfinal_inputs',['--base',BASE/'vfinal_live_full_event_inputs.csv.gz','--horizon-end',end])
         source=BASE/'vfinal_live_full_simulator_input.csv.gz'
         frame=pd.read_csv(source,low_memory=False)
         if str(frame.cutoff.iloc[0])!=forecast['data_asof']:raise ValueError('TC and TS cutoff differ')
