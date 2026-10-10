@@ -33,12 +33,13 @@ jobs:
           import json
           from pathlib import Path
           a=Path("app")
-          files=["overview.html","my-team.html","team-optimizer.html","fixtures-live.html","current-players.html","forecast-center.html","live-model-status.html","forecast-history.html"]
+          files=["overview.html","my-team.html","team-optimizer.html","fixtures-live.html","current-players.html","forecast-center.html","live-model-status.html","forecast-history.html","forecast-live.html"]
           for f in files: assert (a/f).stat().st_size>1000,f
           fixtures=json.loads((a/"live-fixtures.json").read_text())
           people=json.loads((a/"current-players.json").read_text())
           assert len(fixtures["fixtures"])>=200
           assert len(people["players"])>=300
+          assert all("ep_next" in p for p in people["players"])
           assert fixtures["fetched_at"]==people["fetched_at"]
           assert any(m["finished"] for m in fixtures["fixtures"])
           assert any(not m["finished"] for m in fixtures["fixtures"])
@@ -49,7 +50,7 @@ jobs:
           python - <<'PY'
           from pathlib import Path
           import re,subprocess,tempfile
-          for file in ['forecast-history.html','forecast-center.html','current-players.html','fixtures-live.html','my-team.html','team-optimizer.html']:
+          for file in ['forecast-history.html','forecast-live.html','forecast-center.html','current-players.html','fixtures-live.html','my-team.html','team-optimizer.html']:
               s=(Path('app')/file).read_text()
               scripts=re.findall(r'<script(?:\\s[^>]*)?>(.*?)</script>',s,flags=re.S|re.I)
               for i,script in enumerate(scripts):
