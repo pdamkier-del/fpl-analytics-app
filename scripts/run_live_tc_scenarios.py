@@ -53,6 +53,7 @@ def main():
     forecast=json.loads((ROOT/'app/vfinal-diagnostic.json').read_text())
     origin=min(forecast['gws']);end=19 if origin<=19 else 38
     receipt=json.loads((WORK/'publication_provenance.json').read_text())
+    reference=pd.read_csv(BASE/'vfinal_live_full_simulator_input.csv.gz',low_memory=False)
     original={p:hashlib.sha256((BASE/p).read_bytes()).hexdigest() for p in receipt['checksums']}
     try:
         execute('audit_current_locked_inputs',['--horizon-end',end])
@@ -66,6 +67,9 @@ def main():
         source=BASE/'vfinal_live_full_simulator_input.csv.gz'
         frame=pd.read_csv(source,low_memory=False)
         if str(frame.cutoff.iloc[0])!=forecast['data_asof']:raise ValueError('TC and TS cutoff differ')
+        keys=['fixture_uuid','player_uuid']
+        subset=frame[frame.target_gw.isin(reference.target_gw.unique())][reference.columns].sort_values(keys).reset_index(drop=True)
+        pd.testing.assert_frame_equal(reference.sort_values(keys).reset_index(drop=True),subset,check_exact=True,check_dtype=False)
         out,selected=samples(frame,origin)
         repeated,_=samples(frame,origin)
         if not out.equals(repeated):raise ValueError('TC scenarios are not reproducible')
@@ -79,7 +83,7 @@ def main():
             'fixtures_snapshot_sha256':hashlib.sha256(fixture_source.read_bytes()).hexdigest(),
             'source_checkpoint':'model/checkpoints/live_gw7_sources_20261010_v1',
             'fixtures':int(frame.fixture_uuid.nunique()),'input_rows':len(frame),'samples':len(out),
-            'draws':400,'top_k_per_gw':20,'two_sample_replays_exact':True,
+            'same_six_gw_inputs_exact':True,'draws':400,'top_k_per_gw':20,'two_sample_replays_exact':True,
             'samples_sha256':hashlib.sha256((OUT/'tc_samples.csv.gz').read_bytes()).hexdigest(),
             'simulator_inputs_sha256':hashlib.sha256(source.read_bytes()).hexdigest(),
             'model_math_changed':False,'manual_decision_required':True,'locked_model_active':False,

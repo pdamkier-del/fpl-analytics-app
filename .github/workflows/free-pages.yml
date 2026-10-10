@@ -71,7 +71,11 @@ jobs:
           from pathlib import Path
           a=Path("app")
           files=["locked-forecast.html","overview.html","my-team.html","team-optimizer.html","fixtures-live.html","current-players.html","forecast-center.html","live-model-status.html","forecast-history.html","forecast-live.html","my-team-live.html","own-forecast.html","clubs-live.html","mm-diagnostic.html"]
-          for f in files: assert (a/f).stat().st_size>1000,f
+          for f in files:
+              if f in ('my-team.html','team-optimizer.html'):
+                  assert 'url=manager-state.html' in (a/f).read_text(),f
+                  assert (a/'manager-state.html').stat().st_size>1000
+              else: assert (a/f).stat().st_size>1000,f
           fixtures=json.loads((a/"live-fixtures.json").read_text())
           people=json.loads((a/"current-players.json").read_text())
           assert len(fixtures["fixtures"])>=200
