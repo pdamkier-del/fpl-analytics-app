@@ -230,3 +230,5 @@
 
 /* Verified current-season directory and match results are separate from old model snapshots. */
 (()=>{for(const n of document.querySelectorAll('.sidebar .nav')){const target=n.querySelector('a[href="overview.html"]');if(!target)continue;for(const [href,label] of [['current-players.html','Aktuelle spillere'],['fixtures-live.html','Seneste kampe']]){if(n.querySelector('a[href="'+href+'"]'))continue;const a=document.createElement('a');a.href=href;a.textContent=label;target.insertAdjacentElement('afterend',a)}}})();
+
+(()=>{for(const n of document.querySelectorAll('.sidebar .nav')){if(n.querySelector('a[href="live-model-status.html"]'))continue;const anchor=n.querySelector('a[href="overview.html"]');if(anchor){let a=document.createElement('a');a.href='live-model-status.html';a.textContent='Datakvalitet & Modelstatus';anchor.insertAdjacentElement('afterend',a)}}})();
