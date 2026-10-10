@@ -37,14 +37,17 @@ def rows_for_gameweek(payload, available_at):
             unique.add(key)
             stats=match.get("stats",[])
             metric={str(e["identifier"]):e["value"] for e in stats}
-            minutes=int(metric.get("minutes",0))
-            if not 0<=minutes<=120: raise ValueError(f"Invalid minutes for {key}")
-            # Official event/live data often lacks authoritative XI flags.
-            # Keep nullable and require a separate verified starting-XI feed.
+            # FPL explain.stats are *point explanations*, not guaranteed
+            # per-fixture minutes or even complete player-match statistics.
+            # Never convert their absence to zero observed minutes.
+            minutes=metric.get("minutes")
+            if minutes is not None and not 0<=int(minutes)<=120:
+                raise ValueError(f"Invalid minutes for {key}")
+            # Keep nullable and require a separate verified starter/minutes feed.
             rows.append(dict(season="2026-27",gw=gw,fixture_id=fid,
-                             player_id=pid,minutes=minutes,started=None,
-                             total_points=metric.get("total_points"),
-                             stats=metric,available_at=available_at))
+                             player_id=pid,minutes=int(minutes) if minutes is not None else None,
+                             started=None,total_points=metric.get("total_points"),
+                             point_explanations=metric,available_at=available_at))
     return rows
 
 def build(source=RAW, destination=OUT, asof=None):
