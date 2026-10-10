@@ -6,6 +6,7 @@ on:
       - 'scripts/audit_live_inference_readiness.py'
       - 'scripts/audit_live_penalty_bps_sources.py'
       - 'scripts/audit_frozen_live_component_preflight.py'
+      - 'scripts/build_live_penalty_fpl_team_ids.py'
       - 'scripts/restore_frozen_live_assist_prior.py'
       - 'tests/test_restore_frozen_live_assist_prior.py'
       - 'tests/test_audit_frozen_live_component_preflight.py'
@@ -101,6 +102,8 @@ jobs:
         run: python scripts/restore_frozen_live_assist_prior.py
       - name: Report all exact frozen vFinal source and feature gaps
         run: python scripts/audit_frozen_live_component_preflight.py
+      - name: Verify official 2026 team IDs for frozen penalty input namespace
+        run: python scripts/build_live_penalty_fpl_team_ids.py
       - name: Audit exact source coverage for frozen penalty and BPS adapters
         run: python scripts/audit_live_penalty_bps_sources.py
       - name: Apply original frozen penalty state
