@@ -9,6 +9,8 @@ on:
       - 'scripts/build_locked_live_v2_baseline.py'
       - 'scripts/live_provider_stat_evidence.py'
       - 'scripts/build_live_mm_training_features.py'
+      - 'scripts/collect_archived_fpl_gw1_5.py'
+      - 'src/fpl_v1_1_model/archived_current_season_cohorts.py'
       - 'scripts/run_locked_live_mm_inference.py'
       - 'scripts/audit_live_vfinal_sources.py'
       - 'scripts/build_live_pm_observed_team_xg.py'
@@ -36,6 +38,10 @@ jobs:
         run: PYTHONPATH=src python -m pytest tests/test_live_provider_stat_evidence.py tests/test_live_availability_boundary.py tests/test_mm_live_release_export.py tests/test_final_publish_availability_gate.py -q
       - name: Restore verified live source checkpoint
         run: python scripts/restore_live_input_checkpoint.py --out .
+      - name: Recover actual predeadline player rosters and team news GW1-5
+        env:
+          GH_READ_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: python scripts/collect_archived_fpl_gw1_5.py
       - name: Derive the exact frozen sequence features from completed FPL matches
         run: python scripts/build_locked_live_sequence_features.py
       - name: Derive exact frozen performance signals from cutoff-safe observed provider events
@@ -73,6 +79,7 @@ jobs:
             work/live-final-model/live_passing_evidence.json
             work/live-final-model/live_training_provenance.json
             work/live-final-model/live_vfinal_readiness.json
+            work/live-final-model/predeadline_2026_archives/*.json
             work/live-final-model/live_team_xg_provenance.json
             work/live-final-model/live_vfinal_team_latent.json
             work/live-final-model/live_vfinal_keeper_saves.json
