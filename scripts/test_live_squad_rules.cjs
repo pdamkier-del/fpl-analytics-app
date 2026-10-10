@@ -1,7 +1,7 @@
 // Exercise the real rules embedded in the current-squad page, without DOM/network.
 const fs=require('node:fs'),vm=require('node:vm'),assert=require('node:assert/strict');
 const src=fs.readFileSync('app/my-team-live.html','utf8');
-const script=[...src.matchAll(/<script(?:\\s[^>]*)?>([\\s\\S]*?)<\\/script>/gi)].map(x=>x[1]).find(x=>x.includes('function legalXI'));
+const script=[...src.matchAll(/<script(?:\s[^>]*)?>([\s\S]*?)<\/script>/gi)].map(x=>x[1]).find(x=>x.includes('function legalXI'));
 assert.ok(script,'Current squad source missing');
 const start=script.indexOf('const KEY='),end=script.indexOf("$('auto').addEventListener");
 assert.ok(start>0 && end>start,'Cannot isolate squad rules');
