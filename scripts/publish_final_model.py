@@ -8,6 +8,7 @@ from __future__ import annotations
 import hashlib,json,os
 from datetime import datetime,timezone,timedelta
 from pathlib import Path
+from live_forecast_contract import validate_forecast_rows
 
 ROOT=Path(__file__).resolve().parents[1]
 APP=ROOT/"app"
@@ -85,24 +86,18 @@ def construct():
     parts=m.get("components") or {}
     for part in LOCKED_PARTS:
         row=parts.get(part) or {}
-        file=ROOT/str(row.get("path",""))
-        if not row.get("locked") or not file.is_file() or not file.is_relative_to(ROOT):
+        file=(ROOT/str(row.get("path",""))).resolve()
+        if not row.get("locked") or not file.is_file() or not file.is_relative_to(ROOT.resolve()):
             raise RuntimeError("Unverified component: "+part)
         if digest(file)!=row.get("sha256"):raise RuntimeError("Artifact digest mismatch: "+part)
         if row.get("data_asof")!=official["fetched_at"]:raise RuntimeError("Component timestamp mismatch: "+part)
         result["parts"][part]="verified"
     availability=verify_approved_live_availability(m,parts,cfg["version"],official.get("next_gw"))
-    pred=ROOT/str(m.get("forecast_path",""))
-    if not pred.is_file() or not pred.is_relative_to(ROOT):raise RuntimeError("Missing final forecast")
+    pred=(ROOT/str(m.get("forecast_path",""))).resolve()
+    if not pred.is_file() or not pred.is_relative_to(ROOT.resolve()):raise RuntimeError("Missing final forecast")
     if digest(pred)!=m.get("forecast_sha256"):raise RuntimeError("Forecast integrity failure")
     rows=json.loads(pred.read_text(encoding="utf-8"))
-    if not isinstance(rows,list) or len(rows)<250:raise RuntimeError("Incomplete player forecast")
-    valid_ids={p["id"] for p in official["players"]}
-    for row in rows:
-        if row.get("id") not in valid_ids:raise RuntimeError("Player not in current FPL season")
-        if not isinstance(row.get("weeks"),list) or not row["weeks"]:raise RuntimeError("Missing forecast weeks")
-        for w in row["weeks"]:
-            if not isinstance(w.get("xpts"),(int,float)) or not 0<=w["xpts"]<=50:raise RuntimeError("Invalid xP")
+    validate_forecast_rows(rows,official["players"],official["next_gw"],cfg["transfer_strategy"]["horizon_gw"])
     result.update(status="verified_locked_live",locked_model_active=True,players=rows,
                   recommendations=m.get("recommendations") or [],blockers=[],
                   verified_at=datetime.now(timezone.utc).isoformat(),
@@ -116,3 +111,4 @@ def main():
           "source players",result["current_players"],
           "verified modules",sum(x=="verified" for x in result["parts"].values()))
 if __name__=="__main__":main()
+

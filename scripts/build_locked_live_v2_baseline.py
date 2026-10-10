@@ -56,7 +56,7 @@ def build(target=None, past=None, persist=True):
         raise FileNotFoundError("Build restored live sequence and performance first")
     target=pd.read_csv(INPUT,low_memory=False) if target is None else target.copy()
     past=pd.read_csv(HISTORY,low_memory=False) if past is None else past.copy()
-    if target.empty:
+    if target.empty or (persist and past.empty):
         raise ValueError("No live targets or historical observations")
     source=json.loads(COEFS.read_text())
     if source.get("train_seasons")!=["2023-24","2024-25"] or source.get("holdout")!="2025-26":

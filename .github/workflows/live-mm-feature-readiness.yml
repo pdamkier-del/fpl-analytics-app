@@ -27,7 +27,7 @@ jobs:
       - name: Install frozen numerical dependencies
         run: pip install -r requirements-model-checkpoint.txt -r requirements-model-tests.txt requests
       - name: Test existing approved availability and exact provider conversion
-        run: python -m pytest tests/test_live_provider_stat_evidence.py tests/test_live_availability_boundary.py tests/test_mm_live_release_export.py tests/test_final_publish_availability_gate.py -q
+        run: PYTHONPATH=src python -m pytest tests/test_live_provider_stat_evidence.py tests/test_live_availability_boundary.py tests/test_mm_live_release_export.py tests/test_final_publish_availability_gate.py -q
       - name: Restore verified live source checkpoint
         run: python scripts/restore_live_input_checkpoint.py --out .
       - name: Derive the exact frozen sequence features from completed FPL matches
