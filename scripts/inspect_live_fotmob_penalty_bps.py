@@ -15,6 +15,21 @@ BPS_KEYS=('accurate_crosses','blocks','clearances','interceptions','recoveries',
  'tackles_won','chances_created','successful_dribbles','was_fouled',
  'shots_on_target','accurate_passes','accurate_passes_percent',
  'big_chances_missed','fouls_committed','offsides','total_shots','dispossessed')
+def shotmap_evidence(section):
+    """Inventory provider-declared event keys without interpreting them."""
+    rows=section if isinstance(section,list) else (section.get('shots',[]) if isinstance(section,dict) else [])
+    fields=collections.Counter();explicit=collections.Counter();examples={}
+    for item in rows:
+        if not isinstance(item,dict):continue
+        for key,value in item.items():
+            fields[str(key)]+=1
+            if 'penalt' in str(key).lower() or (
+                isinstance(value,str) and 'penalt' in value.lower()):
+                tag=str(key)+'='+str(value)
+                explicit[tag]+=1
+                examples.setdefault(tag,{k:item.get(k) for k in ('id','playerId','teamId','eventType','shotType','situation','isPenalty') if k in item})
+    return fields,explicit,examples
+
 def inspect(root=SOURCE):
     paths=sorted(root.glob('*/fotmob/details/*.json'))
     if not paths:raise FileNotFoundError('Restore live input checkpoint first')
@@ -23,6 +38,7 @@ def inspect(root=SOURCE):
     events=collections.Counter()
     raw_labels=collections.Counter()
     matches=0;players=0
+    shot_fields=collections.Counter();penalty_markers=collections.Counter();penalty_examples={}
     for path in paths:
         d=json.loads(path.read_text())
         content=d.get('content') or {}
@@ -35,6 +51,9 @@ def inspect(root=SOURCE):
                     appearances[key]+=1
                     examples.setdefault(key,{'file':str(path.relative_to(root)),
                                              'player_id':str(player_id),'label':str(label)})
+        sf,pm,pe=shotmap_evidence(content.get('shotmap'))
+        shot_fields.update(sf);penalty_markers.update(pm)
+        for key,val in pe.items():penalty_examples.setdefault(key,dict(val,source_path=str(path.relative_to(root))))
         for key in ('shotmap','shots','events','incidents'):
             if key in content:
                 raw=content[key]
@@ -51,6 +70,9 @@ def inspect(root=SOURCE):
       'event_sections':dict(events),
       'event_section_labels':dict(raw_labels),
       'field_examples':{k:examples.get(k) for k in BPS_KEYS if k in examples},
+      'shotmap_raw_fields':dict(shot_fields),
+      'explicit_penalty_shot_markers':dict(penalty_markers),
+      'explicit_penalty_examples':penalty_examples,
       'penalty_attempts_verified':False,
       'penalty_taker_identity_verified':False,
       'bps_complete':False if missing else None,
