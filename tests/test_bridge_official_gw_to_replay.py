@@ -44,3 +44,28 @@ def test_refuses_unfinished_event():
     try: mod.rows_for_gameweek(p,None)
     except ValueError: pass
     else: raise AssertionError("Accepted unfinished GW")
+
+def test_staging_rejects_post_cutoff_observation(tmp_path):
+    import json
+    from pathlib import Path
+    src=tmp_path/"src";dst=tmp_path/"out";src.mkdir()
+    p=fixture()
+    p["season"]="2026-27"
+    p["observed_at_utc"]="2026-09-02T10:00:00+00:00"
+    (src/"gw01.json").write_text(json.dumps(p))
+    try:
+        mod.build(src,dst,asof="2026-09-01T12:00:00Z")
+    except ValueError as e:
+        assert "not available before forecast cutoff" in str(e)
+    else:
+        raise AssertionError("Post-cutoff snapshot was accepted")
+
+def test_staging_preserves_first_observed_timestamp(tmp_path):
+    import json
+    src=tmp_path/"src";dst=tmp_path/"out";src.mkdir()
+    p=fixture();p["season"]="2026-27"
+    p["observed_at_utc"]="2026-08-15T12:00:00Z"
+    (src/"gw01.json").write_text(json.dumps(p))
+    result=mod.build(src,dst,asof="2026-09-01T12:00:00Z")
+    assert result["rows"][0]["available_at"]=="2026-08-15T12:00:00+00:00"
+    assert not result["locked_model_active"]
