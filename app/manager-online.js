@@ -18,7 +18,7 @@
    const requestId=crypto.randomUUID(),publicKey=await crypto.subtle.exportKey('jwk',pair.publicKey);
    const api=async(path,options={})=>fetch('https://api.github.com/repos/'+repo+'/'+path,{...options,cache:'no-store',headers:{Authorization:'Bearer '+token,Accept:'application/vnd.github+json','X-GitHub-Api-Version':'2026-03-10','Content-Type':'application/json'}});
    status.textContent='Sender hold-state til original Python-beregning…';
-   const response=await api('actions/workflows/live-manager-plan.yml/dispatches',{method:'POST',body:JSON.stringify({ref:'main',inputs:{manager_state_json:JSON.stringify(raw),request_id:requestId,public_key_json:JSON.stringify(publicKey)}})});
+   const response=await api('actions/workflows/live-manager-plan.yml/dispatches',{method:'POST',body:JSON.stringify({ref:'main',inputs:{forecast_cutoff:FplManagerOnline.getForecast().data_asof,manager_state_json:JSON.stringify(raw),request_id:requestId,public_key_json:JSON.stringify(publicKey)}})});
    if(!response.ok)throw Error('GitHub afviste beregningen ('+response.status+'). Kontrollér repo-adgang og Actions-rettighed.');
    let run=null;if(response.status!==204)run=await response.json();
    const link=document.createElement('a');link.href=run?.html_url||'https://github.com/'+repo+'/actions/workflows/live-manager-plan.yml';link.target='_blank';link.rel='noopener noreferrer';link.textContent='Åbn kørsel';
