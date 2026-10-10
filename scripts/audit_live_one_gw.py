@@ -18,8 +18,12 @@ def main():
       "current_2026_27_pm_fixture_features":ROOT/"work/live-final-model/pm_features.csv.gz",
       "current_2026_27_licensed_inputs":ROOT/"work/live-final-model/manifest.json"}
     checks={k:p.exists() for k,p in required.items()}
+    official_base_path=APP/"gw-source-features.json"
+    source_base=json.loads(official_base_path.read_text()) if official_base_path.is_file() else {}
+    source_ready=(source_base.get("observed_at")==people["fetched_at"] and source_base.get("gw")==gw and source_base.get("fixture_count")==len(target) and source_base.get("player_fixture_count",0)>=250)
     report={"gw":gw,"source_asof":people["fetched_at"],"fixture_count":len(target),
-      "player_count":len(people["players"]),"required_input_checks":checks,
+      "player_count":len(people["players"]),"official_fixture_feature_base_ready":source_ready,
+      "official_fixture_feature_rows":source_base.get("player_fixture_count",0),"required_input_checks":checks,
       "locked_model_ready":all(checks.values()) and bool(target),
       "note":"Existence audit only, NOT validation of completeness, as-of timestamps or model inference.",
       "locked_mm_script":"scripts/run_locked_mm_gw6_38.py",
