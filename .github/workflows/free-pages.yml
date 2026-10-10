@@ -23,6 +23,8 @@ jobs:
         run: python scripts/build_static_preview.py
       - name: Fetch recent official FPL fixtures
         run: python scripts/fetch_live_fixtures.py
+      - name: Calculate independent experimental 6GW xP (not locked PM)
+        run: python scripts/build_own_forecast.py
       - name: Build verified position and availability layer
         run: python scripts/build_current_role_status.py
       - name: Apply frozen historical role model to stable current player IDs
@@ -33,13 +35,18 @@ jobs:
           import json
           from pathlib import Path
           a=Path("app")
-          files=["overview.html","my-team.html","team-optimizer.html","fixtures-live.html","current-players.html","forecast-center.html","live-model-status.html","forecast-history.html","forecast-live.html","my-team-live.html"]
+          files=["overview.html","my-team.html","team-optimizer.html","fixtures-live.html","current-players.html","forecast-center.html","live-model-status.html","forecast-history.html","forecast-live.html","my-team-live.html","own-forecast.html"]
           for f in files: assert (a/f).stat().st_size>1000,f
           fixtures=json.loads((a/"live-fixtures.json").read_text())
           people=json.loads((a/"current-players.json").read_text())
           assert len(fixtures["fixtures"])>=200
           assert len(people["players"])>=300
           assert all("ep_next" in p for p in people["players"])
+          own=json.loads((a/"own-forecast.json").read_text())
+          assert own["model"]=="experimental_owned_xp_v0" and own["locked_model_active"] is False
+          assert own["data_asof"]==people["fetched_at"]
+          assert len(own["players"])>=250
+          assert any(w["xpts"]>0 for p in own["players"] for w in p["weeks"])
           assert fixtures["fetched_at"]==people["fetched_at"]
           assert fixtures["next_gw"]==people["next_gw"]
           from datetime import datetime,timezone
@@ -54,7 +61,7 @@ jobs:
           python - <<'PY'
           from pathlib import Path
           import re,subprocess,tempfile
-          for file in ['forecast-history.html','forecast-live.html','forecast-center.html','current-players.html','fixtures-live.html','my-team.html','my-team-live.html','team-optimizer.html']:
+          for file in ['forecast-history.html','forecast-live.html','own-forecast.html','forecast-center.html','current-players.html','fixtures-live.html','my-team.html','my-team-live.html','team-optimizer.html']:
               s=(Path('app')/file).read_text()
               scripts=re.findall(r'<script(?:\\s[^>]*)?>(.*?)</script>',s,flags=re.S|re.I)
               for i,script in enumerate(scripts):
