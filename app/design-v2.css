@@ -124,4 +124,20 @@ html.fpl-v2 body.page-transfers .pitch{min-height:480px}
 html.fpl-v2 body .table{max-width:100%;overflow-x:auto}
 html.fpl-v2 body .grid2{grid-template-columns:1fr}
 }
+
+/* Search relocated from the historical sidebar: keep the existing action usable. */
+.fpl-appbar-search{position:relative;width:200px;flex:0 1 200px;margin:0!important}
+.fpl-appbar-search .jump-label{font-size:10px;letter-spacing:.04em;color:#c4b2cc;margin-bottom:4px}
+.fpl-appbar-search input{min-height:32px!important;height:32px;padding:6px 9px!important;background:#371342!important;border:1px solid #6a4272!important;color:#fff!important;border-radius:8px!important;font-size:12px!important}
+.fpl-appbar-search .global-results{top:55px!important;z-index:300!important}
+.fpl-search-toggle{display:none;align-items:center;justify-content:center;width:36px;height:36px;flex:0 0 36px;border:1px solid rgba(255,255,255,.17);background:rgba(255,255,255,.08);color:white;border-radius:9px;font-size:24px}
+@media(max-width:1200px){.fpl-appbar-search{width:160px;flex-basis:160px}}
+@media(max-width:1060px){
+.fpl-appbar-search{display:none;position:absolute;left:12px;right:12px;top:calc(100% + 4px);width:auto;flex-basis:auto;background:#31003a;border:1px solid #734779;border-radius:13px;padding:12px 14px;box-shadow:0 12px 32px rgba(30,0,38,.24)}
+.fpl-appbar.search-active .fpl-appbar-search{display:block}
+.fpl-search-toggle{display:flex;margin-left:2px}
+.fpl-appbar-search .global-results{top:65px!important}
+}
+@media(max-width:720px){.fpl-search-toggle{margin-left:auto}}
+
 @media(prefers-reduced-motion:reduce){html.fpl-v2 *,html.fpl-v2 *::before,html.fpl-v2 *::after{transition:none!important;scroll-behavior:auto!important}}
