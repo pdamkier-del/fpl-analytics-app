@@ -23,3 +23,13 @@ def test_shootout_and_ambiguous_penalty_markers_excluded(tmp_path):
     assert r['candidate_count']==1
     assert r['shootout_excluded']==2
     assert r['candidates'][0]['player_id']==13
+
+def test_raw_penalty_outcome_and_identity_coverage(tmp_path):
+    p=tmp_path/'GW3/fotmob/details/f.json';p.parent.mkdir(parents=True)
+    p.write_text(json.dumps({'general':{'matchId':900},'content':{'shotmap':{'shots':[
+      {'playerId':42,'teamId':7,'situation':'Penalty','period':'FirstHalf','eventType':'Goal'},
+      {'playerId':43,'teamId':7,'situation':'Penalty','period':'SecondHalf','eventType':'Miss'}]}}}))
+    r=m.candidates(tmp_path)
+    assert r['event_type_counts']=={'Goal':1,'Miss':1}
+    assert r['missing_raw_identities']=={'match_id':0,'player_id':0,'team_id':0}
+    assert r['duplicate_source_shots']==0
