@@ -17,6 +17,8 @@ from fpl_v1_1_model.rating_history import validate_rating_ledger,build_rating_fe
 from fpl_v1_1_model.team_news_history import build_strict_team_news_features
 from run_mm_v2_team_news_availability_experiment import policy_caps
 from run_mm_unified_official_roles import compose
+from fpl_v1_1_model.archived_current_season_cohorts import load_archived_rosters
+from live_historical_membership import recover_zero_club
 WORK=ROOT/'work/live-final-model';OUT=ROOT/'data_v1_1/derived/live_locked_inputs/2026-27-v1'
 def readjl(p):return [json.loads(r) for r in gzip.decompress(p.read_bytes()).splitlines()]
 def dump(p,v):p.parent.mkdir(parents=True,exist_ok=True);p.write_text(json.dumps(v,ensure_ascii=False,indent=2,allow_nan=False)+'\n')
@@ -76,7 +78,8 @@ def materialize():
  assert all(pd.Timestamp(g['available_at'])<pd.Timestamp(asof) for g in games)
  csvgz(OUT/'source_feature_matrix.csv.gz',frame);csvgz(OUT/'classified_starters.csv.gz',pd.DataFrame(classified));dump(OUT/'current_identity.json',ident)
  # Event data for PM preserves observed values, including true zero outcomes.
- base=max((ROOT/'data_v1_1/raw/live-captures').iterdir());flookup={f['id']:f for f in fx};actual=[];unresolved=[]
+ base=max((ROOT/'data_v1_1/raw/live-captures').iterdir());flookup={f['id']:f for f in fx};actual=[];unresolved=[];recovered=[]
+ archive_dir=WORK/'predeadline_2026_archives';archived=load_archived_rosters(archive_dir)[0] if (archive_dir/'archive_manifest.json').exists() else {}
  for p in sorted((base/'fpl').glob('gw*.json')):
   n=int(p.stem[2:]);j=json.loads(p.read_text())
   for row in j['elements']:
@@ -86,10 +89,15 @@ def materialize():
    f=flookup[matchids[0]];tid=people[fid]['team']
    historical_team={r['team_id'] for r in events if r['player_id']==fid and gmap[r['match_id']]['gameweek']==n and gmap[r['match_id']]['kickoff_time']==pd.Timestamp(f['kickoff_time']).isoformat()}
    if len(historical_team)==1:tid=next(iter(historical_team))
+   elif not historical_team:
+    snapshot=archived.get(n,{}).get(fid);recovered_team=recover_zero_club(snapshot,who,row['stats'],f)
+    if recovered_team is not None and recovered_team!=tid:
+     recovered.append(dict(gw=n,fpl_element=fid,player_uuid=who['player_uuid'],fixture=f['id'],current_team=tid,historical_team=recovered_team,source=str(p.relative_to(ROOT)),minutes=row['stats']['minutes'],starts=row['stats']['starts']))
+     tid=recovered_team
    if tid not in (f['team_h'],f['team_a']):unresolved.append(dict(gw=n,fpl_element=fid,reason='Historical club differs from current roster'));continue
    st=row['stats'];known=pd.Timestamp(f['kickoff_time'])+pd.Timedelta(hours=4)
    actual.append(dict(season='2026-27',gw=n,fixture_uuid=f"historical-2026-27-fpl-{f['id']}",player_uuid=who['player_uuid'],fpl_element=fid,team_id=tid,opponent_team_id=f['team_a'] if tid==f['team_h'] else f['team_h'],was_home=tid==f['team_h'],kickoff_at=f['kickoff_time'],available_at=known.isoformat(),fpl_position={1:'GK',2:'DEF',3:'MID',4:'FWD'}[people[fid]['element_type']],minutes=st.get('minutes'),started=st.get('starts'),xg=st.get('expected_goals'),xa=st.get('expected_assists'),defcon_count=st.get('defensive_contribution'),yellow_cards=st.get('yellow_cards'),fpl_red_cards=st.get('red_cards'),own_goals=st.get('own_goals'),goals=st.get('goals_scored'),fpl_assists=st.get('assists'),saves=st.get('saves'),bps=st.get('bps'),total_points=st.get('total_points'),penalties_saved=st.get('penalties_saved'),penalties_missed=st.get('penalties_missed'),timing_quality='PROXY_CUTOFF_SAFE',membership_quality='RECONSTRUCTED_CUTOFF_SAFE'))
- csvgz(OUT/'player_fixture_observations.csv.gz',pd.DataFrame(actual))
+ csvgz(OUT/'player_fixture_observations.csv.gz',pd.DataFrame(actual));dump(WORK/'historical_zero_membership_recovery.json',dict(rows=len(recovered),records=recovered,zero_values_are_explicit_official_observations=True,no_model_changes=True))
  counts=frame.groupby('target_gw').agg(players=('fpl_element','nunique'),fixture_rows=('fpl_element','size'),unknown_role=('expected_role',lambda s:int((s=='UNKNOWN').sum())),known_news_at_origin=('team_news_known','sum')).reset_index()
  dump(OUT/'coverage_audit.json',dict(forecast_cutoff=asof.isoformat(),source_capture=json.loads((WORK/'source_manifest.json').read_text())['observed_at'],per_gw=counts.to_dict('records'),classified_starters=len(classified),role_sides_skipped=skipped,actual_player_fixture_rows=len(actual),actual_rows_by_gw=dict(Counter(r['gw'] for r in actual)),unresolved_historical_records=unresolved,average_position_quality='UNAVAILABLE; structural confirmed slots retained',future_news_scope='chance applies to origin GW only; no future-GW availability certification',ratings=len(ratings),duplicate_rating_rows=0,ratings_outside_scale=0,target_match_rating_rows=0,future_outcomes=0,model_math_changed=False))
  # An existing frozen contract conflict, proved through the existing functions.

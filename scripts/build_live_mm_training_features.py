@@ -137,17 +137,24 @@ def build():
     if (pd.to_datetime(frame.cutoff,utc=True)>=pd.to_datetime(frame.outcome_known_at,utc=True)).any():
         raise ValueError('Training observation occurs before its forecast cutoff')
     csvgz(BASE/'reconstructed_training_features.csv.gz',frame)
+    cohort_coverage=[]
+    for gw in sorted(map(int,frame.gw.unique())):
+        have=set(frame.loc[frame.gw.eq(gw),'fpl_element'].astype(int))
+        registered={fid for fid,r in archive[gw].items() if r['position'] in (1,2,3,4)}
+        cohort_coverage.append(dict(gw=gw,registered=len(registered),training_players=len(have),
+                                    unresolved_registered_ids=sorted(registered-have)))
     report=dict(classification='ARCHIVED_PREDEADLINE_SNAPSHOT_TRAINING_WITH_VERIFIED_PARTIAL_COHORT_NOT_CERTIFIED',
                 rows=len(frame),gws=sorted(map(int,frame.gw.unique())),
                 source_capture=str(source.roster_observed_at.iloc[0]),
                 historical_news_known=int(frame.team_news_known.sum()),
                 archived_roster_snapshot_gws=sorted(archive),
+                registered_cohort_coverage=cohort_coverage,
                 historical_postmatch_rows_before_archived_validation=int(len(audited)),
                 historical_rows_rejected_not_registered_or_wrong_club=int(len(rejected)),
                 historical_rejected_reasons=rejected._archive_reason.value_counts().to_dict(),
                 verified_predeadline_source_rows=int(len(frame)),
                 blockers=['Archived snapshots are taken between 76 and 387 minutes before each deadline and may miss late changes',
-                          'Historical training roster includes only postmatch FPL observations matched to archived registration, not every predeadline unused player',
+                          f"{sum(len(r['unresolved_registered_ids']) for r in cohort_coverage)} archived registrations lack a compatible observed fixture/club; they remain excluded",
                           'tackles_won FotMob provider semantics remain unverified'],
                 historical_covariates_use_only_pre_cutoff_outcomes=True,
                 live_certified=False)
@@ -155,3 +162,4 @@ def build():
     print(json.dumps(report),flush=True)
     return frame
 if __name__=='__main__':build()
+
