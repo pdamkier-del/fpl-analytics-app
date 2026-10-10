@@ -1,0 +1,41 @@
+{
+  "status": "BLOCKED_LOCKED_AVAILABILITY_CONTRACT_CONFLICT",
+  "existing_functions": [
+    "run_mm_v2_team_news_availability_experiment.policy_caps",
+    "run_mm_unified_official_roles.compose"
+  ],
+  "states": [
+    "OUT",
+    "SUSPENDED"
+  ],
+  "p_start": [
+    0.0,
+    0.0
+  ],
+  "q_sub_given_not_start": [
+    0.2,
+    0.2
+  ],
+  "sub_minutes": [
+    20.0,
+    20.0
+  ],
+  "existing_formula_xmins": [
+    4.0,
+    4.0
+  ],
+  "release_requires_xmins": [
+    0.0,
+    0.0
+  ],
+  "explanation": "The locked runner caps start probability but leaves the substitute branch nonzero. MM release rejects OUT/SUSPENDED with positive xMins. No mathematical change was made.",
+  "live_forecast_certified": false,
+  "checkpoint": "20261010-v1",
+  "tests_passed": 61,
+  "source_capture": "2026-10-10T07:34:58.649875+00:00",
+  "source_matrix_rows": 4002,
+  "ratings": 2011,
+  "completed_matches": 83,
+  "one_gw_model_test_complete": false,
+  "six_gw_model_test_complete": false
+}
