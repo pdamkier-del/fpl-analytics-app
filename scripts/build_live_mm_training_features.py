@@ -16,7 +16,8 @@ from fpl_v1_1_model.role_history import RoleHistory,summarize_state
 from fpl_v1_1_model.role_classifier import ROLES
 from fpl_v1_1_model.workload import WorkloadHistory
 from fpl_v1_1_model.rating_history import build_rating_features
-from fpl_v1_1_model.team_news_history import build_strict_team_news_features
+from fpl_v1_1_model.team_news_history import build_strict_team_news_features,normalize_team_news
+from fpl_v1_1_model.archived_current_season_cohorts import load_archived_rosters,filter_observed_against_snapshots
 from run_v4_three_state_sequence_experiment import add_sequence_features
 from build_locked_live_performance_features import build as performance
 from build_locked_live_v2_baseline import build as baseline
@@ -26,6 +27,12 @@ WORK=ROOT/'work/live-final-model'
 
 def build():
     actual=pd.read_csv(BASE/'player_fixture_observations.csv.gz')
+    archive,archive_evidence=load_archived_rosters(WORK/'predeadline_2026_archives')
+    audited=filter_observed_against_snapshots(actual,archive)
+    rejected=audited.loc[~audited._archive_eligibility].copy()
+    actual=audited.loc[audited._archive_eligibility].drop(columns=['_archive_eligibility','_archive_reason']).copy()
+    if actual.empty or actual.gw.nunique()!=5:
+        raise ValueError('Archived predeadline historical roster rejects full GW1-5 training source')
     source=pd.read_csv(BASE/'source_feature_matrix.csv.gz',low_memory=False)
     origin=int(source.gw.iloc[0]); current_cut=pd.Timestamp(source.cutoff.iloc[0])
     bootstrap=json.loads((WORK/'bootstrap.json').read_text())
@@ -63,9 +70,11 @@ def build():
                 for speed,half in [('fast',3),('slow',10)]}
         ws,default,_=wh.state(tid,cut)
         for o in group.itertuples():
+            historical=archive[int(gw)][int(o.fpl_element)]
             name=roster.loc[o.player_uuid]
+            if int(historical['team'])!=int(tid):raise ValueError('Historical team mismatched archived official snapshot')
             row=dict(season='2026-27',gw=int(gw),target_gw=int(gw),team_id=int(tid),
-                     fixture_uuid=o.fixture_uuid,player_uuid=o.player_uuid,player=name.player,
+                     fixture_uuid=o.fixture_uuid,player_uuid=o.player_uuid,player=str(historical['name']),
                      team=next(t['name'] for t in bootstrap['teams'] if t['id']==int(tid)),pos=o.fpl_position,fpl_element=o.fpl_element,
                      cutoff=cut.isoformat(),outcome_known_at=o.outcome_known_at,
                      y=int(o.started),minutes=float(o.minutes))
@@ -89,21 +98,54 @@ def build():
     frame=pd.concat(parts,ignore_index=True)
     ratings=pd.read_csv(ROOT/'data_v1_1/derived/mm_v2_ratings/player_match_ratings_2026_27.csv.gz')
     frame=build_rating_features(frame,ratings)
-    # No historical news captured: original builder's UNKNOWN/neutral policy.
-    strict=pd.DataFrame(readjl(ROOT/'data_v1_1/derived/team_news_audit/2026-27-v2/predeadline_strict.jsonl.gz'))
+    # Archived 2026 official snapshots supply VERIFIED SOURCE-TIMED Team News
+    # for GW1-5. Do not carry origin GW6 news backward.
+    identities=actual[['gw','fpl_element','player_uuid','team_id']].drop_duplicates()
+    archived_news=[]
+    for r in identities.itertuples(index=False):
+        gw=int(r.gw);snapshot=archive[gw][int(r.fpl_element)]
+        observed=archive_evidence[gw]['snapshot_at_utc']
+        if pd.Timestamp(observed)>=cuts[gw]:
+            raise ValueError('Post-cutoff archived Team News observation')
+        prob=snapshot.get('chance_next')
+        archived_news.append(dict(
+            season='2026-27',gw=gw,cutoff=cuts[gw].isoformat(),
+            player_uuid=str(r.player_uuid),fpl_element=int(r.fpl_element),
+            effective_at=observed,observed_at=observed,
+            identity_status='mapped',timing_verified=True,tier='strict',
+            normalized_availability_state=normalize_team_news(
+                snapshot.get('status'),snapshot.get('news'),prob),
+            scoped_chance=prob,raw_status=snapshot.get('status'),
+            raw_news=snapshot.get('news'),news_added=snapshot.get('news_added'),
+            source='Official FPL bootstrap-static archived by Randdalf/fplcache',
+            source_id=archive_evidence[gw]['source_sha256'],
+            carried_from_earlier_gw=False,unchanged_news_since_previous_gw=False))
+    if len(archived_news)!=len(frame):
+        raise ValueError('Historical archive Team News row count differs from training cohort')
+    official_now=readjl(ROOT/'data_v1_1/derived/team_news_audit/2026-27-v2/predeadline_strict.jsonl.gz')
+    strict=pd.DataFrame(archived_news+official_now)
     frame=build_strict_team_news_features(frame,strict)
-    if frame.team_news_known.sum()!=0:raise ValueError('Current news leaked into historical training')
+    if frame.team_news_known.sum()<len(frame)*.7:
+        raise ValueError('Predeadline archive historical Team News coverage unexpectedly low')
+    if frame.loc[frame.gw.lt(origin),'team_news_source'].isna().any():
+        raise ValueError('Missing archived scoped historical source evidence')
     if (pd.to_datetime(frame.cutoff,utc=True)>=pd.to_datetime(frame.outcome_known_at,utc=True)).any():
         raise ValueError('Training observation occurs before its forecast cutoff')
     csvgz(BASE/'reconstructed_training_features.csv.gz',frame)
-    report=dict(classification='DIAGNOSTIC_TRAINING_INPUT_NOT_CERTIFIED_PREDEADLINE_ROSTER',
+    report=dict(classification='ARCHIVED_PREDEADLINE_SNAPSHOT_TRAINING_WITH_VERIFIED_PARTIAL_COHORT_NOT_CERTIFIED',
                 rows=len(frame),gws=sorted(map(int,frame.gw.unique())),
                 source_capture=str(source.roster_observed_at.iloc[0]),
                 historical_news_known=int(frame.team_news_known.sum()),
-                blockers=['GW1-5 roster reconstructed from postmatch player-GW observations; archived predeadline registration cohorts unavailable',
-                          'GW1-5 official predeadline news missing; original UNKNOWN policy used',
-                          'tackles_won provider semantics still unverified'],
-                historical_covariates_use_only_pre_cutoff_outcomes=True,live_certified=False)
+                archived_roster_snapshot_gws=sorted(archive),
+                historical_postmatch_rows_before_archived_validation=int(len(audited)),
+                historical_rows_rejected_not_registered_or_wrong_club=int(len(rejected)),
+                historical_rejected_reasons=rejected._archive_reason.value_counts().to_dict(),
+                verified_predeadline_source_rows=int(len(frame)),
+                blockers=['Archived snapshots are taken between 76 and 387 minutes before each deadline and may miss late changes',
+                          'Historical training roster includes only postmatch FPL observations matched to archived registration, not every predeadline unused player',
+                          'tackles_won FotMob provider semantics remain unverified'],
+                historical_covariates_use_only_pre_cutoff_outcomes=True,
+                live_certified=False)
     dump(WORK/'live_training_provenance.json',report)
     print(json.dumps(report),flush=True)
     return frame
