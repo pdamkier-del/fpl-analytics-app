@@ -1,0 +1,35 @@
+name: Replay immutable original-vFinal live checkpoint
+on:
+  push:
+    branches: [free-github-static-20261010]
+    paths:
+      - '.github/workflows/live-vfinal-checkpoint-replay.yml'
+      - 'scripts/verify_live_vfinal_checkpoint_replay.py'
+      - 'model/checkpoints/live_vfinal_20261010_v1/**'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    env:
+      PYTHONHASHSEED: '0'
+      OPENBLAS_NUM_THREADS: '1'
+      OMP_NUM_THREADS: '1'
+      MKL_NUM_THREADS: '1'
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: pip install -r requirements-model-checkpoint.txt -r requirements-model-tests.txt requests
+      - run: python scripts/restore_live_vfinal_checkpoint.py
+      - run: python scripts/verify_live_vfinal_checkpoint_replay.py
+      - name: Existing TS and chip regression tests plus live data/state contracts
+        run: PYTHONPATH=src python -m pytest -q tests/test_transfer_planner.py tests/test_bench_boost_policy.py tests/test_joint_chip_stopping.py tests/test_simple_chip_thresholds.py tests/test_wildcard_ts_action.py tests/test_wildcard_v2.py tests/test_live_vfinal_desktop.py tests/test_live_locked_ts_bridge.py tests/test_run_live_vfinal_joint_simulation.py
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: immutable-vfinal-replay-audit
+          path: work/live-final-model/immutable_input_replay_audit.json

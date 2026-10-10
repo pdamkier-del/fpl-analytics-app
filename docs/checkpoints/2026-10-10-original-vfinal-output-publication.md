@@ -85,3 +85,22 @@ PYTHONPATH=src python scripts/run_live_vfinal_joint_simulation.py --input data_v
 ```
 
 Published actual-output viewer: <https://pdamkier-del.github.io/fpl-analytics-app/vfinal-diagnostic.html>. The original main forecast remains release-gated and links to this clearly labelled diagnostic. It does not use FPL ep_next or the experimental model as vFinal.
+
+## Post-publication validation and reproducibility limitation
+
+Publication commit: `02a2d45a3a7a73fbce01b15632e0d1fa152950ec`. Complete source/MM/vFinal workflow and Pages deployment passed:
+
+- <https://github.com/pdamkier-del/fpl-analytics-app/actions/runs/38058236183>
+- <https://github.com/pdamkier-del/fpl-analytics-app/actions/runs/38058236056>
+- Simulator input contracts: <https://github.com/pdamkier-del/fpl-analytics-app/actions/runs/38058236078>
+- Live integration contracts: <https://github.com/pdamkier-del/fpl-analytics-app/actions/runs/38058236092>
+
+29 targeted source/adapter/state/publication tests and 33 existing TS/chip regression tests passed locally. Browser verified the deployed desktop, Mbeumo GW6 6.63 xP, Saliba GW6 Not Available with zero minutes/points, and no blind carry-forward exclusion to GW7.
+
+**Additional release blocker: rebuilding every numerical fit from raw sources is not bitwise stable.** Downloaded the new successful workflow artifact: all player identities and training feature values match, but q_sub differs by up to 0.0038111 and analytic xMins by up to 0.068633 minutes. Team goal lambdas differ by about 0.00003016. Conditional RNG draw consumption can then diverge: 3,675 simulated xP rows differ, maximum 0.8975 point. The underlying numerical/environment cause is not fully isolated. This is not interpreted as model improvement, and no coefficients, solver settings or durations have been tuned to match the earlier numbers. Evidence is retained in `analysis/results/live-original-vfinal-20261010-v1/validation.json`.
+
+A separate `live-vfinal-checkpoint-replay.yml` workflow restores the immutable full simulator input and replays the original 400 draws with pinned numerical dependencies, seed and single-thread runtime. This verifies the saved forecast independently of the upstream learning-stage reproducibility issue. A complete production release still requires a versioned frozen estimator/fit receipt and repeatable upstream inference before activation.
+
+Official FPL total BPS cannot substitute for the missing action fields without changing the frozen background definition: that builder uses a particular available-action proxy target. Residual official BPS would fold in other unavailable components and define a different regression target. It is not used to fill the 334 quarantined rows.
+
+Official app now shows next GW7; these diagnostics deliberately retain their earlier GW6 forecast origin. No refreshed GW7-origin forecast certification is implied.
