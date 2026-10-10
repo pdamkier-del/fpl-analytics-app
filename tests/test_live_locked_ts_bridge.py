@@ -52,3 +52,19 @@ def test_diagnostic_bridge_runs_original_planner_without_promoting_or_mutating_m
 def test_chip_usage_cannot_be_duplicated_in_one_half():
     raw,meta=state();raw['chips_used']['free_hit']=[1,2]
     with pytest.raises(ValueError,match='same half'):m.parse_state(raw,meta,6,'2026-10-10T07:35:11Z')
+
+
+def test_chip_failure_preserves_completed_original_transfer_plan(monkeypatch):
+    from fpl_xpts import wildcard_planner_v2
+    raw,meta=state()
+    positions={'GKP':1,'DEF':2,'MID':3,'FWD':4}
+    payload={'season':'2026-27','gws':list(range(6,12)),'data_asof':'2026-10-10T07:35:11Z','locked_model_active':False,'blockers':[],
+        'players':[{'id':int(r.id),'name':str(r.id),'team_id':int(r.team),'position':positions[r.position],'price_tenths':int(r.price_tenths),
+            'weeks':[{'gw':g,'xpts':4.,'p_play':1.,'fixtures':[{}]} for g in range(6,12)]} for r in meta.itertuples()]}
+    def fail(*args,**kwargs):raise ValueError('missing verified chip scenario')
+    monkeypatch.setattr(wildcard_planner_v2,'build_asof_wc_projection',fail)
+    result=m.run(payload,raw,include_chips=True)
+    assert result['ts_ran'] and len(result['plan']['path'])==6
+    assert len(result['lineup'])==15 and result['chips_status']=='Not Available'
+    assert not result['chips_ran'] and result['chip_error']['type']=='ValueError'
+    assert result['locked_model_active'] is False

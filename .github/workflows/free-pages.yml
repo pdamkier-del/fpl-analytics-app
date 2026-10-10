@@ -45,7 +45,7 @@ jobs:
         run: pip install -r requirements-model-checkpoint.txt -r requirements-model-tests.txt requests
       - name: Restore and publish real original-vFinal diagnostic checkpoint
         run: |
-          python scripts/restore_live_vfinal_checkpoint.py --checkpoint model/checkpoints/live_vfinal_gw7_20261010_v1
+          python scripts/restore_live_vfinal_checkpoint.py --checkpoint model/checkpoints/live_vfinal_gw7_20261010_v2
           python scripts/audit_live_vfinal_outputs.py
           python scripts/build_live_vfinal_desktop.py
           python scripts/run_live_locked_ts.py
@@ -163,3 +163,4 @@ jobs:
         with:
           path: app
       - uses: actions/deploy-pages@v4
+

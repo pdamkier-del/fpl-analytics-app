@@ -1,0 +1,17 @@
+{
+  "cutoff": "2026-10-10T14:39:56.350918+00:00",
+  "source_workflow": "https://github.com/pdamkier-del/fpl-analytics-app/actions/runs/38062591951",
+  "reproducibility": {
+    "two_raw_rebuilds_exact": true,
+    "audit": "analysis/results/live-gw7-original-vfinal-20261010-v2/canonical_raw_rebuild.json"
+  },
+  "source_limitations": [
+    "Partial BPS coverage: 1204 verified rows; 334 incomplete rows quarantined.",
+    "Historical MM cohort remains partial; provider publication uses kickoff + 4 hours, with retrospective revisions.",
+    "TC current-half cutoff-safe scenario ledger and actual manager state are missing."
+  ],
+  "checksums": {
+    "vfinal_live_full_simulator_input.csv.gz": "ae41629827751bf862913b4448c28f4bffbe239b77b3e167e408e83f0f4ad7e0",
+    "live_vfinal_fixture_xp.csv.gz": "d5d5b459c16f4421986a4b64a10823d2c824518e7f8e6df1b3f78c617c57a94f"
+  }
+}
