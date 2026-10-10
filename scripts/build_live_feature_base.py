@@ -20,6 +20,14 @@ def main():
     assert isinstance(gw,int) and 1<=gw<=38
     upcoming=sorted([f for f in games["fixtures"] if f["gw"]==gw and not f["finished"]],key=lambda f:f["id"])
     assert upcoming,"No unplayed fixtures for official next GW"
+    history=json.loads((APP/"historical-gw-stats.json").read_text())
+    assert history["observed_at"]==people["fetched_at"]
+    assert all(hgw<gw for hgw in history["completed_gws"])
+    by_player_history={}
+    for h in history["rows"]:
+        if h["gw"]>=gw:raise ValueError("Future historical stats detected")
+        by_player_history.setdefault(int(h["player_id"]),[]).append(h)
+    for group in by_player_history.values():group.sort(key=lambda x:x["gw"])
     members={}
     for p in people["players"]:
         members.setdefault(int(p["team"]),[]).append(p)
@@ -41,6 +49,8 @@ def main():
                     "chance_next":p.get("chance_of_playing_next_round"),
                     "price":p.get("price"),"starts_to_cutoff":p.get("starts"),
                     "minutes_to_cutoff":p.get("minutes"),
+                    "recent_finished_gws":by_player_history.get(int(p["id"]),[]),
+                    "history_gws":len(by_player_history.get(int(p["id"]),[])),
                     "xg_to_cutoff":p.get("expected_goals"),
                     "xa_to_cutoff":p.get("expected_assists"),
                     "team_fixture_difficulty":f.get("difficulty_home" if home else "difficulty_away"),
@@ -48,12 +58,15 @@ def main():
                     "rating_current_certified":False
                 })
     assert len(observations)>=250
+    assert sum(bool(r["recent_finished_gws"]) for r in observations)>=250
     # A snapshot is inherently as-of: no future match results are present.
     assert all("score" not in k and "ep_next" not in k for row in observations for k in row)
     output={
         "schema_version":1,"classification":"official_asof_fixture_source_not_locked_MM_or_PM",
         "observed_at":people["fetched_at"],"gw":gw,"fixture_count":len(upcoming),
         "player_fixture_count":len(observations),
+        "completed_history_gws":history["completed_gws"],
+        "history_player_gw_rows":len(history["rows"]),
         "sha256":{"official_players":hashlib.sha256(raw_players).hexdigest(),
                   "official_fixtures":hashlib.sha256(raw_fixtures).hexdigest()},
         "certification":{"official_ids":True,"current_fixture_links":True,
