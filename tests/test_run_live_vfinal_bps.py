@@ -29,3 +29,15 @@ def test_frozen_regression_used_without_refit(monkeypatch):
     out=m.calculate(t,l,{'cols':['x']},{'position_sd90':{'MID':2.5},'global_sd90':3.})
     assert out.bg_mean_rate90.iloc[0]==4.25
     assert out.bg_sd90.iloc[0]==2.5
+
+def test_frozen_bps_history_uses_utc_timestamps(monkeypatch):
+    t,l=sample()
+    def verify(target,half,ledger):
+        assert pd.api.types.is_datetime64_any_dtype(target.cutoff)
+        assert pd.api.types.is_datetime64_any_dtype(ledger.available_at)
+        assert ledger.available_at.iloc[0] < target.cutoff.iloc[0]
+        return target.assign(x=1.)
+    monkeypatch.setattr(m,'feature_frame',verify)
+    monkeypatch.setattr(m,'apply_model',lambda frame,model:np.array([3.]))
+    out=m.calculate(t,l,{'cols':['x']},{'position_sd90':{'MID':2.},'global_sd90':3.})
+    assert out.bg_mean_rate90.iloc[0]==3.
