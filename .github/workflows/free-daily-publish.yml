@@ -1,0 +1,33 @@
+name: Publish free FPL webapp daily
+on:
+  schedule:
+    - cron: '17 7 * * *'
+  workflow_dispatch:
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+concurrency:
+  group: fpl-free-pages
+  cancel-in-progress: true
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: free-github-static-20261010
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Publish existing bridge preview, never mark it live
+        run: python scripts/build_static_preview.py
+      - run: touch app/.nojekyll
+      - uses: actions/configure-pages@v5
+        with:
+          enablement: true
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: app
+      - uses: actions/deploy-pages@v4
