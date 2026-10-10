@@ -69,3 +69,11 @@ PYTHONPATH=src:scripts pytest -q tests/test_live_locked_inputs.py tests/test_mm_
 ```
 
 Do not promote the staged source matrix to `work/live-final-model/manifest.json`: it is missing verified MM/PM/TS/chip execution artifacts. `publish_final_model.py` must continue to report a blocked final release.
+
+## Deployment and UI verification
+
+Pages deployment [38035377967](https://github.com/pdamkier-del/fpl-analytics-app/actions/runs/38035377967) succeeded and restored all 131 source checkpoint files with matching checksums. Frontend syntax checks and existing FPL squad-rule checks passed. Browser verification showed the final-only page's blocked status and explicit availability counterexample; My Team displayed unavailable xP rather than experimental/ep_next values and disabled xP optimization. The transfer planner displayed its blocked live-chain state without producing a recommendation. Its visible hit uncertainty buffer was aligned to locked value 1.0 and made read-only; shorter TS horizons are disabled.
+
+Primary finalmodel view: https://pdamkier-del.github.io/fpl-analytics-app/locked-forecast.html
+
+This is a verified blocked presentation and reproducible data checkpoint, **not** completion of the requested functional finalmodel app.
