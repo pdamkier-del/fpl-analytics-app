@@ -4,6 +4,8 @@ on:
     branches: [free-github-static-20261010]
     paths:
       - 'scripts/audit_live_inference_readiness.py'
+      - 'scripts/audit_completed_gw_history.py'
+      - 'tests/test_audit_completed_gw_history.py'
       - 'scripts/build_locked_live_sequence_features.py'
       - 'scripts/build_locked_live_performance_features.py'
       - 'scripts/build_locked_live_v2_baseline.py'
@@ -38,6 +40,10 @@ jobs:
         run: PYTHONPATH=src python -m pytest tests/test_live_provider_stat_evidence.py tests/test_live_availability_boundary.py tests/test_mm_live_release_export.py tests/test_final_publish_availability_gate.py -q
       - name: Restore verified live source checkpoint
         run: python scripts/restore_live_input_checkpoint.py --out .
+      - name: Assert GW1-5 observation coverage and pre-cutoff timestamps
+        run: python scripts/audit_completed_gw_history.py
+      - name: Test complete cutoff-safe GW history guard
+        run: python -m pytest -q tests/test_audit_completed_gw_history.py tests/test_bridge_official_gw_to_replay.py
       - name: Recover actual predeadline player rosters and team news GW1-5
         env:
           GH_READ_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -73,6 +79,7 @@ jobs:
         with:
           name: live-mm-feature-readiness-evidence
           path: |
+            work/live-final-model/current_season_history_gate.json
             work/live-final-model/live_inference_readiness.json
             work/live-final-model/live_performance_provenance.json
             work/live-final-model/live_baseline_provenance.json
