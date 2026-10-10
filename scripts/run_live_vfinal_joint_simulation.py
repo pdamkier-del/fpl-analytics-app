@@ -61,7 +61,18 @@ def validate(frame):
             if not g[real].between(0,1).all():raise ValueError('Invalid probability '+c)
     return {'fixtures':frame.fixture_uuid.nunique(),'players':len(frame),'gws':gws}
 
-def simulate(frame,draws=400,seed=93000000):
+POINT_COMPONENTS=('appearance_points','goal_points','assist_points','cs_points',
+                  'save_points','dc_points','negative_points','gc_points',
+                  'penalty_save_points','expected_bonus')
+
+def select_scope(frame,scope):
+    if scope=='one-gw':return frame[frame.target_gw.eq(frame.target_gw.min())].copy()
+    if scope=='one-match':
+        first=frame[frame.target_gw.eq(frame.target_gw.min())].sort_values(['target_kickoff','fixture_uuid']).fixture_uuid.iloc[0]
+        return frame[frame.fixture_uuid.eq(first)].copy()
+    return frame.copy()
+
+def simulate(frame,draws=400,seed=93000000,fixture_seed_offsets=None):
     audit=validate(frame)
     rows=[]
     for i,(fx,g) in enumerate(frame.groupby('fixture_uuid',sort=True)):
@@ -69,7 +80,7 @@ def simulate(frame,draws=400,seed=93000000):
         inp,_=make_vfinal_input(g.copy())
         # Live 2026/27 scoring rules must supersede historical backtest rules.
         inp=replace(inp,bps_rules='2026-27')
-        sim=simulate_many(inp,n=draws,seed=seed+i)
+        sim=simulate_many(inp,n=draws,seed=seed+(fixture_seed_offsets[fx] if fixture_seed_offsets is not None else i))
         expected=set(g.player_uuid.astype(str))
         if set(sim)!=expected:raise ValueError('Simulator missed player identities')
         gw=int(g.target_gw.iloc[0])
@@ -77,12 +88,16 @@ def simulate(frame,draws=400,seed=93000000):
             s=sim[pid]
             x=float(s['xPts'])
             if not np.isfinite(x):raise ValueError('Nonfinite simulated xPts')
+            total=sum(float(s[c]) for c in POINT_COMPONENTS)
+            if not np.isclose(total,x,rtol=0,atol=1e-8):raise ValueError('FPL point component reconciliation failed')
             rows.append({'fixture_uuid':fx,'player_uuid':pid,'gw':gw,
                          'xpts_fixture':x,'expected_minutes':float(s['expected_minutes']),
-                         'expected_bonus':float(s['expected_bonus'])})
+                         **{c:float(s[c]) for c in POINT_COMPONENTS},
+                         'penalty_miss_points':float(s['penalty_miss_points'])})
     audit.update({'classification':'LOCKED_VFINAL_SIMULATED_DIAGNOSTIC_NOT_CHAIN_CERTIFIED',
                   'draws_per_fixture':draws,'xpts_calculated':True,
                   'locked_model_active':False,'ts_and_chips_ran':False})
+    audit['point_components_reconciled']=True
     return pd.DataFrame(rows),audit
 
 def main():
@@ -94,9 +109,9 @@ def main():
     a=p.parse_args()
     if a.draws!=400:raise ValueError('Locked Monte Carlo draws are exactly 400')
     frame=pd.read_csv(a.input,low_memory=False)
-    if a.scope=="one-match":frame=frame[frame.fixture_uuid.eq(sorted(frame.fixture_uuid.unique())[0])].copy()
-    if a.scope=="one-gw":frame=frame[frame.target_gw.eq(frame.target_gw.min())].copy()
-    predicted,audit=simulate(frame,draws=a.draws)
+    fixture_seeds={fx:i for i,fx in enumerate(sorted(frame.fixture_uuid.unique()))}
+    frame=select_scope(frame,a.scope)
+    predicted,audit=simulate(frame,draws=a.draws,fixture_seed_offsets=fixture_seeds)
     audit["scope"]=a.scope
     audit["hard_unavailable_positive_minutes"]=0
     hard=frame.get("live_eligibility_applied",pd.Series(False,index=frame.index)).fillna(False).astype(bool)

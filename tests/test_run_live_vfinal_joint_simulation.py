@@ -14,3 +14,11 @@ def test_duplicate_players_rejected_after_field_coverage():
     frame=pd.DataFrame([data,data])
     with pytest.raises(ValueError,match='duplicate fixture players'):
         m.validate(frame)
+
+
+def test_first_match_is_earliest_in_current_gw_not_lexical_gw10():
+    frame=pd.DataFrame([{'fixture_uuid':'gw10-a','target_gw':10,'target_kickoff':'2026-11-01T10:00:00Z'},
+                        {'fixture_uuid':'gw6-z','target_gw':6,'target_kickoff':'2026-10-10T10:00:00Z'},
+                        {'fixture_uuid':'gw6-a','target_gw':6,'target_kickoff':'2026-10-11T10:00:00Z'}])
+    assert m.select_scope(frame,'one-match').fixture_uuid.tolist()==['gw6-z']
+    assert len(m.select_scope(frame,'one-gw'))==2
