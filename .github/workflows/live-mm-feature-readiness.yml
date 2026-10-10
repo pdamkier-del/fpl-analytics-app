@@ -93,7 +93,7 @@ jobs:
         run: python scripts/audit_live_penalty_bps_sources.py
       - name: Apply original frozen penalty state
         run: |
-          GW=$(python -c "import json;print(json.load(open('work/live-final-model/source_manifest.json'))['target_gw'])")
+          GW=$(python -c "import pandas as pd; p='data_v1_1/derived/live_locked_inputs/2026-27-v1/vfinal_live_joined_inputs.csv.gz'; x=pd.read_csv(p,usecols=['target_gw']); print(int(x.target_gw.min()))")
           python scripts/run_live_vfinal_penalty_state.py --origin "$GW" \
             --attempts data_v1_1/derived/live_locked_inputs/2026-27-v1/verified_penalty_attempts.csv.gz \
             --sides data_v1_1/derived/live_locked_inputs/2026-27-v1/verified_penalty_team_sides.csv.gz \
