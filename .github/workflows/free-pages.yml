@@ -23,6 +23,8 @@ jobs:
         run: python scripts/build_static_preview.py
       - name: Fetch recent official FPL fixtures
         run: python scripts/fetch_live_fixtures.py
+      - name: Build verified position and availability layer
+        run: python scripts/build_current_role_status.py
       - name: Verify official data and app entrypoints
         run: |
           python - <<'PY'
