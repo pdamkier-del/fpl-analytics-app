@@ -25,5 +25,19 @@ def main():
          "teams":teams,"fixtures":clean}
     path=ROOT/"app"/"live-fixtures.json"
     path.write_text(json.dumps(obj,ensure_ascii=False,separators=(",",":")),encoding="utf-8")
+    # Official current-season player identities. Tactical sub-roles are not in this feed.
+    players=[{"id":x["id"],"web_name":x["web_name"],"first_name":x.get("first_name"),
+       "second_name":x.get("second_name"),"team":x["team"],"position":x["element_type"],
+       "code":x.get("code"),"photo":x.get("photo"),"status":x.get("status"),
+       "chance_of_playing_next_round":x.get("chance_of_playing_next_round"),
+       "price":x.get("now_cost",0)/10,"form":x.get("form"),"total_points":x.get("total_points")}
+       for x in bootstrap["elements"]]
+    positions={str(x["id"]):x["singular_name_short"] for x in bootstrap["element_types"]}
+    directory={"source":obj["source"],"fetched_at":obj["fetched_at"],"teams":teams,
+       "positions":positions,"players":players,
+       "note":"FPL position GK/DEF/MID/FWD is official; detailed tactical roles and projected XI not verified."}
+    (ROOT/"app"/"current-players.json").write_text(
+        json.dumps(directory,ensure_ascii=False,separators=(",",":")),encoding="utf-8")
+    print("Official player identities:",len(players))
     print("Official fixtures fetched:",len(clean))
 if __name__=="__main__":main()
