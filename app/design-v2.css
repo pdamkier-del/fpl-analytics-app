@@ -142,3 +142,6 @@ html.fpl-v2 body .grid2{grid-template-columns:1fr}
 @media(max-width:720px){.fpl-search-toggle{margin-left:auto}}
 
 @media(prefers-reduced-motion:reduce){html.fpl-v2 *,html.fpl-v2 *::before,html.fpl-v2 *::after{transition:none!important;scroll-behavior:auto!important}}
+
+@media(min-width:721px) and (max-width:1040px){.fpl-desktop-nav a[href="fixtures-live.html"],.fpl-desktop-nav a[href="models.html"]{display:none}}
+@media(min-width:721px) and (max-width:840px){.fpl-nav-model{display:none}.fpl-desktop-nav a{padding:0 7px!important;font-size:11px!important}}
