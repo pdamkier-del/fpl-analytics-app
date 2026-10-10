@@ -36,11 +36,14 @@ def package():
     if not audit['passed'] or audit['cutoff']!=forecast['data_asof'] or forecast['locked_model_active'] is not False:raise ValueError('Invalid reproducibility gate')
     tag='diagnostic-'+os.environ['GITHUB_RUN_ID']+'-'+os.environ['GITHUB_RUN_ATTEMPT']
     path=ROOT/'work/diagnostic-snapshot.zip';files={}
+    current_sources={s['path'] for s in json.loads((ROOT/'work/live-final-model/source_manifest.json').read_text())['sources']}
     with zipfile.ZipFile(path,'w',zipfile.ZIP_DEFLATED,compresslevel=6) as z:
         for prefix in PREFIXES:
             for p in sorted((ROOT/prefix).rglob('*')):
                 if p.is_file() and p.suffix not in ('.log',):
-                    name=str(p.relative_to(ROOT));data=p.read_bytes();files[name]=digest(data);z.writestr(name,data)
+                    name=str(p.relative_to(ROOT))
+                    if name.startswith('data_v1_1/raw/live-captures/') and name not in current_sources:continue
+                    data=p.read_bytes();files[name]=digest(data);z.writestr(name,data)
     result=dict(classification='ORIGINAL_LOCKED_CHAIN_DIAGNOSTIC',locked_model_active=False,cutoff=forecast['data_asof'],origin_gw=forecast['gws'][0],source_workflow='https://github.com/'+os.environ['GITHUB_REPOSITORY']+'/actions/runs/'+os.environ['GITHUB_RUN_ID'],tag=tag,archive_url='https://github.com/pdamkier-del/fpl-analytics-app/releases/download/'+tag+'/diagnostic-snapshot.zip',archive_sha256=digest(path.read_bytes()),files=files)
     SELECTOR.parent.mkdir(parents=True,exist_ok=True);SELECTOR.write_text(json.dumps(result,indent=2)+'\n')
     out=ROOT/'model/checkpoints/releases'/tag/'manifest.json';out.parent.mkdir(parents=True,exist_ok=False);out.write_bytes(SELECTOR.read_bytes())

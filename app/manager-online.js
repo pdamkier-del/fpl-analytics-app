@@ -10,6 +10,25 @@
   return JSON.parse(new TextDecoder().decode(await crypto.subtle.decrypt({name:'AES-GCM',iv:from64(envelope.nonce),additionalData:new TextEncoder().encode('fpl-manager-result-v1')},key,from64(envelope.ciphertext))));
  }
  window.FplEncryptedManagerResult={open};
+ $('refreshForecast').onclick=async()=>{
+  const button=$('refreshForecast'),status=$('onlineStatus'),token=$('githubToken').value.trim();button.disabled=true;
+  try{
+   if(!token)throw Error('Angiv et afgrænset GitHub-token med Actions: Read and write');
+   const api=async(path,options={})=>fetch('https://api.github.com/repos/'+repo+'/'+path,{...options,cache:'no-store',headers:{Authorization:'Bearer '+token,Accept:'application/vnd.github+json','X-GitHub-Api-Version':'2026-03-10','Content-Type':'application/json'}});
+   const response=await api('actions/workflows/current-diagnostic-forecast.yml/dispatches',{method:'POST',body:JSON.stringify({ref:'main'})});
+   if(!response.ok)throw Error('GitHub afviste forecast-opdateringen ('+response.status+')');
+   const run=response.status===204?null:await response.json();
+   status.textContent='Friske kilder og original kæde genberegnes. Dit hold-state bevares. ';
+   const link=document.createElement('a');link.href=run?.html_url||'https://github.com/'+repo+'/actions/workflows/current-diagnostic-forecast.yml';link.textContent='Se kørsel';link.target='_blank';link.rel='noopener noreferrer';status.append(link);
+   if(!run?.workflow_run_id){status.append(document.createTextNode(' Genindlæs siden, når den nye kørsel har bestået og publiceret.'));return}
+   for(let i=0;i<240;i++){
+    await new Promise(resolve=>setTimeout(resolve,15000));const r=await api('actions/runs/'+run.workflow_run_id);
+    if(!r.ok)throw Error('Opdateringsstatus kunne ikke hentes');const current=await r.json();
+    if(current.status==='completed'){if(current.conclusion!=='success')throw Error('Nye data bestod ikke kontrollerne. Sidste verificerede forecast bevares; se kørslens log.');location.reload();return}
+   }
+   throw Error('Kørslen er endnu ikke færdig. Se kørsel og genindlæs efter bestået publicering.');
+  }catch(e){status.textContent='Not Available: '+e.message}finally{button.disabled=false;$('githubToken').value=''}
+ };
  $('calculateOnline').onclick=async()=>{
   const button=$('calculateOnline'),status=$('onlineStatus');button.disabled=true;
   try{
