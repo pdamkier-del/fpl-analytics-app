@@ -59,14 +59,20 @@ def build(source=RAW, destination=OUT, asof=None):
         blob=path.read_bytes();p=json.loads(blob)
         gw=int(p["gw"])
         if path.name!=f"gw{gw:02d}.json":raise ValueError("GW filename mismatch")
-        # Live downloads do NOT establish when a result became available.
-        # Only include a GW if completed before the forecast origin; the
-        # collection manifest must separately certify observation timing.
+        # Snapshot observation time provides a strict safe LOWER bound on
+        # availability; never infer pre-cutoff validity from deadline alone.
         if cutoff:
             deadline=datetime.fromisoformat(p["official_event"]["deadline_time"].replace("Z","+00:00"))
             if deadline>=cutoff:raise ValueError(f"GW{gw} deadline is not before forecast cutoff")
-        collected_at=None  # No reliable original observed_at in immutable payload
-        new=rows_for_gameweek(p,collected_at)
+        collected_at=p.get("observed_at_utc")
+        if collected_at is None:
+            raise ValueError(f"GW{gw}: snapshot lacks original observation timestamp")
+        observed_at=datetime.fromisoformat(collected_at.replace("Z","+00:00"))
+        if observed_at.tzinfo is None:
+            raise ValueError(f"GW{gw}: snapshot observation timestamp has no timezone")
+        if cutoff is not None and observed_at>=cutoff:
+            raise ValueError(f"GW{gw}: observed data not available before forecast cutoff")
+        new=rows_for_gameweek(p,observed_at.isoformat())
         for row in new:
             key=(row["fixture_id"],row["player_id"])
             if key in seen:raise ValueError(f"Duplicate across weeks: {key}")
@@ -76,11 +82,11 @@ def build(source=RAW, destination=OUT, asof=None):
                         "rows_with_explain":len(new)})
     output={"classification":"OFFICIAL_FIXTURE_HISTORY_STAGING_NOT_CERTIFIED",
             "season":"2026-27","rows":all_rows,"sources":sources,
-            "starts_certified":False,"available_at_certified":False,
+            "starts_certified":False,"available_at_certified":True,
             "full_roster_coverage_certified":False,
             "locked_model_active":False,
             "blocking_requirements":["source verified XI starters","nonappearance rows and role roster",
-               "temporal observation availability before forecast cutoff",
+               "separate authoritative per-fixture minute and starter evidence",
                "stable player and fixture identity maps","provider performance coverage"]}
     destination.mkdir(parents=True,exist_ok=True)
     (destination/"official_completed_gw_staging.json").write_text(
