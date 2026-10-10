@@ -6,6 +6,7 @@ on:
       - 'scripts/audit_live_inference_readiness.py'
       - 'scripts/build_locked_live_sequence_features.py'
       - 'scripts/build_locked_live_performance_features.py'
+      - 'scripts/build_locked_live_v2_baseline.py'
       - '.github/workflows/live-mm-feature-readiness.yml'
   workflow_dispatch:
 permissions:
@@ -27,6 +28,8 @@ jobs:
         run: python scripts/build_locked_live_sequence_features.py
       - name: Derive exact frozen performance signals from cutoff-safe observed provider events
         run: python scripts/build_locked_live_performance_features.py
+      - name: Reproduce stored frozen v2 baseline and Phase 3A conditional-minute priors
+        run: python scripts/build_locked_live_v2_baseline.py
       - name: Audit exact frozen MM feature requirements for six upcoming GWs
         run: python scripts/audit_live_inference_readiness.py
       - uses: actions/upload-artifact@v4
@@ -36,4 +39,5 @@ jobs:
           path: |
             work/live-final-model/live_inference_readiness.json
             work/live-final-model/live_performance_provenance.json
+            work/live-final-model/live_baseline_provenance.json
           retention-days: 90
