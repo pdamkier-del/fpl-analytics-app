@@ -21,6 +21,15 @@ SEQ=BASE/"sequence_feature_matrix.csv.gz"
 EVENTS=ROOT/"work/live-final-model/player_match_events.jsonl.gz"
 OUT=BASE/"performance_feature_matrix.csv.gz"
 AUDIT=ROOT/"work/live-final-model/live_performance_provenance.json"
+PROVIDER_ALIASES={
+  "xg":"expected_goals",
+  "xa":"expected_assists",
+  "shots_on_target":"ShotsOnTarget",
+  "successful_dribbles":"dribbles_succeeded",
+  "blocks":"shot_blocks",
+}
+# We intentionally do not map mixed or ambiguous fields such as accurate_passes
+# (raw value can be completions/attempts rather than a percent).
 NUM=["minutes_played","goals","assists","xg","xa","shots_on_target",
      "chances_created","successful_dribbles","tackles_won","interceptions",
      "recoveries","blocks","clearances","accurate_passes_percent",
@@ -45,6 +54,8 @@ def build():
         for k in NUM:
             # Same old-model numeric missing-stat fallback as build_perf_ledger.
             v=val.get(k)
+            if v is None and k in PROVIDER_ALIASES:
+                v=val.get(PROVIDER_ALIASES[k])
             if k=="minutes_played":
                 v=row.get("minutes_played",v)
             if v is not None and str(v).strip():
@@ -102,6 +113,7 @@ def build():
         "target_player_fixture_rows":len(result),
         "targets_with_prior_perf_history":int((result.perf_hist_n>0).sum()),
         "provider_fields_observed_counts":nonempty,
+        "explicit_same_semantics_provider_aliases":PROVIDER_ALIASES,
         "raw_provider_stat_keys_top50":stats_keys.most_common(50),
         "missing_stat_policy":"Exact historical frozen build_perf_ledger: missing numeric fields -> 0",
         "target_or_future_outcomes_used":0,
