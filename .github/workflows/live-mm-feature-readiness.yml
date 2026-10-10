@@ -5,6 +5,7 @@ on:
     paths:
       - 'scripts/audit_live_inference_readiness.py'
       - 'scripts/build_locked_live_sequence_features.py'
+      - 'scripts/build_locked_live_performance_features.py'
       - '.github/workflows/live-mm-feature-readiness.yml'
   workflow_dispatch:
 permissions:
@@ -24,11 +25,15 @@ jobs:
         run: python scripts/restore_live_input_checkpoint.py --out .
       - name: Derive the exact frozen sequence features from completed FPL matches
         run: python scripts/build_locked_live_sequence_features.py
+      - name: Derive exact frozen performance signals from cutoff-safe observed provider events
+        run: python scripts/build_locked_live_performance_features.py
       - name: Audit exact frozen MM feature requirements for six upcoming GWs
         run: python scripts/audit_live_inference_readiness.py
       - uses: actions/upload-artifact@v4
         if: always()
         with:
           name: live-mm-feature-readiness-evidence
-          path: work/live-final-model/live_inference_readiness.json
+          path: |
+            work/live-final-model/live_inference_readiness.json
+            work/live-final-model/live_performance_provenance.json
           retention-days: 90
