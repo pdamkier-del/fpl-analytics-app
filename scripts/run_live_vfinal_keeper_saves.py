@@ -12,6 +12,7 @@ import numpy as np,pandas as pd
 ROOT=Path(__file__).resolve().parents[1]
 sys.path.insert(0,str(ROOT/'src'))
 from fpl_v1_1_model.deadline_keeper import keeper_saves_at_deadline
+from live_provider_stat_evidence import manifest_details
 
 WORK=ROOT/'work/live-final-model'
 BASE=ROOT/'data_v1_1/derived/live_locked_inputs/2026-27-v1'
@@ -41,15 +42,7 @@ def build():
     cutoff=pd.Timestamp(manifest['observed_at'])
     bootstrap=json.loads((WORK/'bootstrap.json').read_text())
     code_to_id={int(t['code']):int(t['id']) for t in bootstrap['teams']}
-    by_file={}
-    for f in sorted((ROOT/'data_v1_1/raw/live-captures').glob('*/fotmob/details/*.json')):
-        mid=f.stem
-        if mid in by_file:
-            # Append-only capture folders can contain the same immutable
-            # payload. A conflicting revision still needs explicit review.
-            if f.read_bytes()!=by_file[mid].read_bytes():raise ValueError('Conflicting provider match evidence '+mid)
-            continue
-        by_file[mid]=f
+    by_file={mid:path for mid,(_,path) in manifest_details(ROOT,manifest).items()}
     sides=[];captured=[]
     for g in read_games():
         if g.get('tournament')!='prem' or g.get('gameweek') is None or int(g['gameweek'])>=origin:

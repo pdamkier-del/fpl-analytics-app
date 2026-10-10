@@ -11,7 +11,7 @@ import numpy as np,pandas as pd
 ROOT=Path(__file__).resolve().parents[1];sys.path[:0]=[str(ROOT/'src'),str(ROOT/'scripts')]
 from collect_current_locked_inputs import club
 from audit_current_locked_inputs import readjl,csvgz,dump
-from live_provider_stat_evidence import passing_percentage
+from live_provider_stat_evidence import passing_percentage,manifest_details
 import run_bps_background_experiment as frozen_bps
 WORK=ROOT/'work/live-final-model';BASE=ROOT/'data_v1_1/derived/live_locked_inputs/2026-27-v1'
 CORE_SHA='561bd00f699ec25ce095a0245e6ad52300ebdc01'
@@ -41,12 +41,7 @@ def verified_sparse_zeros(values,total):
 
 
 def archive_details():
-    details={}
-    for path in sorted((ROOT/'data_v1_1/raw/live-captures').glob('*/fotmob/details/*.json')):
-        d=json.loads(path.read_text());mid=str(d['general']['matchId'])
-        if mid in details and details[mid][0]!=d:raise ValueError('Conflicting immutable match archive '+mid)
-        details[mid]=(d,path)
-    return details
+    return manifest_details(ROOT,json.loads((WORK/'source_manifest.json').read_text()))
 
 
 def build():

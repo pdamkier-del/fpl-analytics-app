@@ -15,7 +15,7 @@ import numpy as np,pandas as pd
 ROOT=Path(__file__).resolve().parents[1]
 sys.path[:0]=[str(ROOT/'src'),str(ROOT/'scripts')]
 from run_v4_performance_rating_experiment import add_features,RECENT_FEATURES
-from live_provider_stat_evidence import raw_evidence
+from live_provider_stat_evidence import raw_evidence,manifest_details
 
 BASE=ROOT/"data_v1_1/derived/live_locked_inputs/2026-27-v1"
 SEQ=BASE/"sequence_feature_matrix.csv.gz"
@@ -42,7 +42,8 @@ def build(target=None, persist=True):
     target=pd.read_csv(SEQ,low_memory=False) if target is None else target.copy()
     observations=[json.loads(row) for row in gzip.decompress(EVENTS.read_bytes()).splitlines()]
     if not observations:raise ValueError("No observed provider player match statistics")
-    passing=raw_evidence(ROOT/"data_v1_1/raw/live-captures")
+    manifest=json.loads((ROOT/"work/live-final-model/source_manifest.json").read_text())
+    passing=raw_evidence(ROOT/"data_v1_1/raw/live-captures",paths=[p for _,p in manifest_details(ROOT,manifest).values()])
     passing_used=[]
     past=[];nonempty={k:0 for k in NUM};stats_keys=Counter()
     for row in observations:

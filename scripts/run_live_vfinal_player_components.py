@@ -20,7 +20,7 @@ BASE=ROOT/'data_v1_1/derived/live_locked_inputs/2026-27-v1'
 OUT=BASE/'vfinal_player_event_components_6gw.csv.gz'
 AUDIT=WORK/'live_vfinal_player_component_audit.json'
 
-def run():
+def run(horizon_end=None):
     frozen=load_models()
     meta=json.loads((WORK/'source_manifest.json').read_text())
     gw=int(meta['target_gw']);source_capture=pd.Timestamp(meta['observed_at'])
@@ -40,8 +40,14 @@ def run():
         raise ValueError('Future eligibility contaminated by current news')
     horizon['live_eligibility_applied']=False
     mm=pd.concat([gated,horizon],ignore_index=True)
-    if len(mm)!=4002 or mm.fixture_uuid.nunique()!=60:
-        raise ValueError('Incomplete six-GW frozen minute predictions')
+    if horizon_end is None:
+        if len(mm)!=4002 or mm.fixture_uuid.nunique()!=60:
+            raise ValueError('Incomplete six-GW frozen minute predictions')
+    else:
+        target=pd.read_csv(BASE/'source_feature_matrix.csv.gz')
+        keys=['fixture_uuid','player_uuid']
+        if set(mm.target_gw.astype(int))!=set(range(gw,int(horizon_end)+1)) or mm.duplicated(keys).any() or set(map(tuple,mm[keys].to_numpy()))!=set(map(tuple,target[keys].to_numpy())):
+            raise ValueError('Incomplete current-half frozen minute predictions')
     ph['available_at']=pd.to_datetime(ph.available_at,utc=True,errors='raise')
     ph['kickoff_at']=pd.to_datetime(ph.kickoff_at,utc=True,errors='raise')
     if (ph.available_at>=cut).any():
@@ -81,4 +87,8 @@ def run():
     AUDIT.write_text(json.dumps(audit,indent=2)+'\n')
     print('FROZEN VFINAL CURRENT PLAYER COMPONENTS',json.dumps(audit))
     return result
-if __name__=='__main__':run()
+if __name__=='__main__':
+    import argparse
+    parser=argparse.ArgumentParser();parser.add_argument('--horizon-end',type=int)
+    run(parser.parse_args().horizon_end)
+

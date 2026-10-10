@@ -1,5 +1,5 @@
 """Lossless provider-schema evidence; no inferred tackle alias or model math."""
-import json
+import hashlib,json
 from pathlib import Path
 
 
@@ -16,9 +16,25 @@ def passing_percentage(stat):
     return 100.0*a/n if n > 0 else None
 
 
-def raw_evidence(root):
+def manifest_details(repo, manifest):
+    """Select only checksummed captures belonging to this immutable cutoff."""
+    repo=Path(repo);cutoff=manifest['observed_at'];found={}
+    for source in manifest['sources']:
+        if '/fotmob/details/' not in source['path']:continue
+        if source['observed_at']>cutoff:raise ValueError('Post-cutoff provider capture')
+        path=repo/source['path']
+        if hashlib.sha256(path.read_bytes()).hexdigest()!=source['sha256']:
+            raise ValueError('Provider capture checksum mismatch')
+        match=json.loads(path.read_text());mid=str(match['general']['matchId'])
+        if mid in found:raise ValueError('Duplicate manifest provider identity '+mid)
+        found[mid]=(match,path)
+    if not found:raise ValueError('No manifest provider details')
+    return found
+
+
+def raw_evidence(root, paths=None):
     evidence = {}
-    for path in sorted(Path(root).glob('*/fotmob/details/*.json')):
+    for path in (paths if paths is not None else sorted(Path(root).glob('*/fotmob/details/*.json'))):
         match = json.loads(path.read_text())
         mid = str(match['general']['matchId'])
         for pid, player in (match.get('content', {}).get('playerStats') or {}).items():
