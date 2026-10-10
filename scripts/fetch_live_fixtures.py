@@ -20,7 +20,11 @@ def main():
           "started":f.get("started",False),"finished":f.get("finished",False),
           "home":f["team_h"],"away":f["team_a"],"home_score":f.get("team_h_score"),
           "away_score":f.get("team_a_score"),"stats":f.get("stats") or []})
+    next_event=next((e for e in bootstrap.get("events",[]) if e.get("is_next")),None)
+    current_event=next((e for e in bootstrap.get("events",[]) if e.get("is_current")),None)
     obj={"source":"Official Fantasy Premier League public API","fetched_at":datetime.now(timezone.utc).isoformat(),
+         "next_gw":next_event.get("id") if next_event else None,
+         "current_gw":current_event.get("id") if current_event else None,
          "season":bootstrap.get("events",[{}])[0].get("deadline_time","")[:4],
          "teams":teams,"fixtures":clean}
     path=ROOT/"app"/"live-fixtures.json"
@@ -33,7 +37,7 @@ def main():
        "price":x.get("now_cost",0)/10,"form":x.get("form"),"total_points":x.get("total_points"),"ep_this":x.get("ep_this"),"ep_next":x.get("ep_next"),"minutes":x.get("minutes"),"selected_by_percent":x.get("selected_by_percent")}
        for x in bootstrap["elements"]]
     positions={str(x["id"]):x["singular_name_short"] for x in bootstrap["element_types"]}
-    directory={"source":obj["source"],"fetched_at":obj["fetched_at"],"teams":teams,
+    directory={"source":obj["source"],"fetched_at":obj["fetched_at"],"next_gw":obj["next_gw"],"current_gw":obj["current_gw"],"teams":teams,
        "positions":positions,"players":players,
        "note":"FPL position GK/DEF/MID/FWD is official; detailed tactical roles and projected XI not verified."}
     (ROOT/"app"/"current-players.json").write_text(
