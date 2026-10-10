@@ -50,7 +50,24 @@ def collect(out=BASE):
         # Official FPL gameweek live endpoint carries per-player historical
         # minutes, starts (where supplied), points and gameweek event statistics.
         live = get_json(session, f"/event/{gw}/live/")
-        elements = live.get("elements", [])
+        raw_elements = live.get("elements", [])
+        # FPL may return keyed player IDs instead of a list of player objects.
+        # Normalize without dropping the original player identity.
+        if isinstance(raw_elements, dict):
+            elements = []
+            for player_id, info in raw_elements.items():
+                if not isinstance(info, dict):
+                    raise ValueError(f"GW{gw}: invalid player {player_id}")
+                item = dict(info)
+                if "id" in item and int(item["id"]) != int(player_id):
+                    raise ValueError(f"GW{gw}: conflicting player ID {player_id}")
+                item["id"] = int(player_id)
+                elements.append(item)
+            elements.sort(key=lambda x: int(x["id"]))
+        elif isinstance(raw_elements, list):
+            elements = raw_elements
+        else:
+            raise ValueError(f"GW{gw}: unexpected FPL player payload")
         if not elements:
             raise ValueError(f"GW{gw}: no official player observations")
         ids = [int(e["id"]) for e in elements]
