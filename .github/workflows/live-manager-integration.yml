@@ -2,7 +2,7 @@ name: Current vFinal to original TS and all chip adapters
 on:
   push:
     branches: [free-github-static-20261010]
-    paths: ['scripts/run_live_tc_scenarios.py', 'scripts/run_live_locked_ts.py', 'scripts/validate_live_manager_chain.py', '.github/workflows/live-manager-integration.yml']
+    paths: ['scripts/run_live_tc_scenarios.py', 'scripts/run_live_locked_ts.py', 'scripts/validate_live_manager_chain.py', 'scripts/live_provider_stat_evidence.py', 'scripts/run_live_vfinal_player_components.py', '.github/workflows/live-manager-integration.yml']
   workflow_dispatch:
 permissions:
   contents: read
@@ -22,7 +22,10 @@ jobs:
       - run: python scripts/locked_numerical_runtime.py scripts/run_live_tc_scenarios.py
       - run: python scripts/locked_numerical_runtime.py scripts/validate_live_manager_chain.py
       - name: Run all repository regression tests
+        if: always()
         run: PYTHONPATH=src python -m pytest -q tests
+      - run: node tests/test_forecast_window.js
+        if: always()
       - uses: actions/upload-artifact@v4
         if: always()
         with:

@@ -18,6 +18,7 @@ jobs:
         with:
           python-version: '3.12'
       - run: pip install -r requirements-model-checkpoint.txt -r requirements-model-tests.txt requests
+      - run: python scripts/restore_live_vfinal_checkpoint.py --checkpoint model/checkpoints/live_gw7_sources_20261010_v1
       - run: python scripts/restore_live_vfinal_checkpoint.py --checkpoint model/checkpoints/live_vfinal_gw7_20261010_v2
       - run: python scripts/build_live_vfinal_desktop.py
       - name: Parse manager input as data, never shell code
@@ -30,7 +31,8 @@ jobs:
           raw=json.loads(os.environ['MANAGER_STATE_JSON'])
           Path('work/manager-state.json').write_text(json.dumps(raw))
           PY
-      - run: python scripts/locked_numerical_runtime.py scripts/run_live_locked_ts.py --state work/manager-state.json --out work/manager-plan.json
+      - run: python scripts/locked_numerical_runtime.py scripts/run_live_tc_scenarios.py
+      - run: python scripts/locked_numerical_runtime.py scripts/run_live_locked_ts.py --state work/manager-state.json --out work/manager-plan.json --tc-samples work/live-manager-validation/tc_samples.csv.gz --tc-receipt work/live-manager-validation/tc_scenarios.json
       - uses: actions/upload-artifact@v4
         with:
           name: original-manager-plan-diagnostic

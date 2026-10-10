@@ -102,7 +102,7 @@ def run(payload,raw,include_chips=False,tc_samples=None):
                     'q_fh':choice.q_fh if npfinite(choice.q_fh) else None,
                     'q_wc':choice.q_wc if npfinite(choice.q_wc) else None,
                     'q_bb':choice.q_bb if npfinite(choice.q_bb) else None,
-                    'availability':available,'tc':tc,'tc_status':'diagnostic_manual_confirmation_required' if tc else 'Not Available',
+                    'availability':available,'tc':({k:(None if isinstance(v,float) and not npfinite(v) else v) for k,v in tc.items()} if tc else None),'tc_status':'diagnostic_manual_confirmation_required' if tc else 'Not Available',
                     'future_chip_gw':(tc.get('best_future_gw') if tc and tc.get('save_source')=='concrete_gw' else None),'future_chip_status':('TC concrete future option; replan at each deadline. Other chips: Not Available' if tc else 'Not Available: no complete cutoff-safe option ledger'),
                     'full_four_chip_decision_verified':False})
             if tc is not None:
@@ -131,6 +131,7 @@ def main():
             receipt=json.loads(a.tc_receipt.read_text())
             if receipt['cutoff']!=payload['data_asof'] or receipt['samples_sha256']!=hashlib.sha256(a.tc_samples.read_bytes()).hexdigest() or receipt['future_schedule_source']!='OFFICIAL_FPL_SNAPSHOT_AT_ORIGIN_CUTOFF':raise ValueError('TC source/cutoff/checksum mismatch')
             tc=pd.read_csv(a.tc_samples)
+        if not payload.get('origin_deadline'):raise ValueError('Current manager planning requires a verified forecast deadline')
         result=run(payload,json.loads(a.state.read_text()),include_chips=True,tc_samples=tc)
     a.out.parent.mkdir(parents=True,exist_ok=True);a.out.write_text(json.dumps(result,indent=2,allow_nan=False)+'\n');print(json.dumps(result))
 if __name__=='__main__':main()

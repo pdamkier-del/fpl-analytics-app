@@ -57,6 +57,7 @@ def main():
     try:
         execute('audit_current_locked_inputs',['--horizon-end',end])
         for step in STEPS:
+            if step=='restore_original_bps_bounds':continue  # immutable development parameters already restored and verified
             execute(step,['--horizon-end',end] if step in ('run_live_vfinal_team_latent','run_live_vfinal_player_components') else [])
         execute('run_live_vfinal_penalty_state',['--origin',origin,'--roster',BASE/'vfinal_live_full_event_inputs.csv.gz',
             '--attempts',BASE/'verified_penalty_attempts.csv.gz','--sides',BASE/'verified_penalty_team_sides.csv.gz','--teams',BASE/'verified_penalty_team_ids.csv.gz'])

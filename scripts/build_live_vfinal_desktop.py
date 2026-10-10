@@ -51,7 +51,7 @@ def build(inputs,predictions,bootstrap,audit):
         'blockers':['BPS history is partial: incomplete rows are quarantined, never imputed.',
                     'MM/source coverage still requires a complete release quality audit.',
                     'Upstream numerical refits are not yet stable; immutable inputs are retained for a separate reproducibility check.',
-                    'No verified manager bank, free transfers, purchase prices or chip usage state.',
+                    'Actual manager state is required for personalized TS and chip output.',
                     'Locked TC future-option scenario coverage is not yet available.'],
         'recommendations':{'transfers':{'status':'Not Available'},'chips':{'status':'Not Available'}}}
 
