@@ -127,6 +127,10 @@ jobs:
               assert s.index('design-v2.js?v=2')<s.index('</body>'),page
           print('DESIGN VERIFIED:',len(pages),'responsive app pages')
           PY
+      - name: Verify hard availability presentation by GW
+        run: |
+          node --check app/availability-ui.js
+          node scripts/test_availability_ui.cjs
       - name: Test real FPL squad and formation rules
         run: node scripts/test_live_squad_rules.cjs
       - name: Mark GitHub Pages static directory
