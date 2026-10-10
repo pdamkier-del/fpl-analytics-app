@@ -60,6 +60,8 @@ jobs:
                       subprocess.run(['node','--check',t.name],check=True)
               print('JS syntax OK:',file)
           PY
+      - name: Test real FPL squad and formation rules
+        run: node scripts/test_live_squad_rules.cjs
       - name: Mark GitHub Pages static directory
         run: touch app/.nojekyll
       - uses: actions/configure-pages@v5
