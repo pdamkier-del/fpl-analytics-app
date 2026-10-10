@@ -1,0 +1,33 @@
+name: Test current-season replay adapter
+on:
+  push:
+    branches: [free-github-static-20261010]
+    paths:
+      - 'scripts/bridge_official_gw_to_replay.py'
+      - 'scripts/collect_completed_2026_gws.py'
+      - 'tests/test_bridge_official_gw_to_replay.py'
+      - '.github/workflows/test-live-replay-adapter.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Run adapter tests
+        run: python -m pytest -q tests/test_bridge_official_gw_to_replay.py
+      - name: Verify no frozen model files modified
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          source=Path('scripts/bridge_official_gw_to_replay.py').read_text()
+          assert 'locked_model_active":False' in source
+          assert 'starts_certified":False' in source
+          assert 'available_at_certified":False' in source
+          print('Staging remains non-certified')
+          PY
