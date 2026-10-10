@@ -205,3 +205,22 @@
     document.body.appendChild(nav);
   }
 })();
+
+/* Mobile ergonomics: respect iPhone safe areas and keep wide FPL tables scrollable. */
+(()=>{
+ const s=document.createElement('style');
+ s.textContent=`@media(max-width:790px){
+ html{max-width:100%;overflow-x:hidden;-webkit-text-size-adjust:100%}
+ body{max-width:100%;overflow-x:hidden}
+ .app,.layout,.main,main,.content,.page,.panel,.card{min-width:0;max-width:100%}
+ .main,main{padding-left:max(12px,env(safe-area-inset-left))!important;padding-right:max(12px,env(safe-area-inset-right))!important}
+ .table-wrap,[class*="table-wrap"]{max-width:100%;overflow-x:auto!important;-webkit-overflow-scrolling:touch}
+ img{max-width:100%}
+ input,select,textarea{max-width:100%;font-size:max(16px,1em)}
+ button,a,select{touch-action:manipulation}
+ .fpl-bottomnav a{min-width:0}
+ .fpl-bottomnav a span{white-space:nowrap}
+ }
+ @media(max-width:380px){.fpl-bottomnav a{font-size:9px}.fpl-bottomnav a strong{font-size:19px}}`;
+ document.head.appendChild(s);
+})();
