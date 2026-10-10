@@ -8,6 +8,7 @@ complete. No future stats or forecast label may enter this derivation.
 """
 from __future__ import annotations
 import gzip,json,sys
+from collections import Counter
 from pathlib import Path
 import numpy as np,pandas as pd
 
@@ -31,12 +32,13 @@ def build():
     target=pd.read_csv(SEQ,low_memory=False)
     observations=[json.loads(row) for row in gzip.decompress(EVENTS.read_bytes()).splitlines()]
     if not observations:raise ValueError("No observed provider player match statistics")
-    past=[];nonempty={k:0 for k in NUM}
+    past=[];nonempty={k:0 for k in NUM};stats_keys=Counter()
     for row in observations:
         if not row.get("player_uuid") or not row.get("match_id"):
             continue
         val=row.get("stats") or {}
         if not isinstance(val,dict):raise ValueError("Invalid raw provider statistics")
+        stats_keys.update(k for k,v in val.items() if v is not None and str(v).strip())
         p={"player_uuid":str(row["player_uuid"]),
            "match_id":str(row["match_id"]),
            "available_at":row.get("available_at")}
@@ -100,6 +102,7 @@ def build():
         "target_player_fixture_rows":len(result),
         "targets_with_prior_perf_history":int((result.perf_hist_n>0).sum()),
         "provider_fields_observed_counts":nonempty,
+        "raw_provider_stat_keys_top50":stats_keys.most_common(50),
         "missing_stat_policy":"Exact historical frozen build_perf_ledger: missing numeric fields -> 0",
         "target_or_future_outcomes_used":0,
     }
