@@ -1,0 +1,23 @@
+name: Test locked vFinal live joint simulator input
+on:
+  push:
+    branches:
+      - free-github-static-20261010
+    paths:
+      - scripts/run_live_vfinal_joint_simulation.py
+      - tests/test_run_live_vfinal_joint_simulation.py
+      - .github/workflows/test-live-vfinal-simulator.yml
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: python -m pip install -r requirements-model-checkpoint.txt -r requirements-model-tests.txt
+      - run: PYTHONPATH=src:scripts python -m pytest tests/test_run_live_vfinal_joint_simulation.py -q
