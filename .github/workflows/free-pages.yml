@@ -99,6 +99,30 @@ jobs:
                       subprocess.run(['node','--check',t.name],check=True)
               print('JS syntax OK:',file)
           PY
+      - name: Verify redesigned pages and shared navigation
+        run: |
+          node --check app/design-v2.js
+          python - <<'PY'
+          from pathlib import Path
+          css=Path('app/design-v2.css').read_text()
+          js=Path('app/design-v2.js').read_text()
+          assert '.fpl-bottom-nav' in css and '.fpl-appbar' in css
+          assert 'aria-current' in js and 'fpl-appbar-search' in js
+          pages=[
+            'overview.html','my-team-live.html','own-forecast.html',
+            'forecast-live.html','team-optimizer.html','fixtures-live.html',
+            'current-players.html','forecast-history.html','mobile.html',
+            'live-model-status.html','forecast-center.html','models.html',
+            'rankings.html','replay.html','index.html','my-team.html'
+          ]
+          for page in pages:
+              s=(Path('app')/page).read_text(encoding='utf-8')
+              assert s.count('design-v2.css?v=2')==1,page
+              assert s.count('design-v2.js?v=2')==1,page
+              assert s.index('design-v2.css?v=2')<s.index('</head>'),page
+              assert s.index('design-v2.js?v=2')<s.index('</body>'),page
+          print('DESIGN VERIFIED:',len(pages),'responsive app pages')
+          PY
       - name: Test real FPL squad and formation rules
         run: node scripts/test_live_squad_rules.cjs
       - name: Mark GitHub Pages static directory
