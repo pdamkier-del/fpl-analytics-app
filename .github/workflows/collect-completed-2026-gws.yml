@@ -1,0 +1,48 @@
+name: Collect completed 2026-27 FPL GW observations
+on:
+  schedule:
+    - cron: '17 6 * * *'
+  workflow_dispatch:
+permissions:
+  contents: write
+concurrency:
+  group: fpl-completed-gw-ingestion
+  cancel-in-progress: false
+jobs:
+  ingest:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: free-github-static-20261010
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install transport dependency
+        run: pip install requests
+      - name: Ingest checked and finished official GW data
+        run: python scripts/collect_completed_2026_gws.py
+      - name: Validate each immutable GW against manifest
+        run: |
+          python - <<'PY'
+          import hashlib,json
+          from pathlib import Path
+          p=Path('data_v1_1/raw/fpl_2026_27_official_gw')
+          m=json.loads((p/'ingestion_manifest.json').read_text())
+          assert m['locked_model_active'] is False
+          for row in m['completed_gws']:
+              data=(p/f"gw{row['gw']:02d}.json").read_bytes()
+              assert hashlib.sha256(data).hexdigest()==row['sha256']
+              obj=json.loads(data)
+              assert obj['official_event']['finished'] and obj['official_event']['data_checked']
+          PY
+      - name: Commit only observation evidence (not a certified forecast)
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add data_v1_1/raw/fpl_2026_27_official_gw/
+          if ! git diff --cached --quiet; then
+            git commit -m "data: append completed official 2026-27 gameweek observations"
+            git push origin HEAD:free-github-static-20261010
+          fi
