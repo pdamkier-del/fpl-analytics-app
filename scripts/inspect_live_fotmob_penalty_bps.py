@@ -85,5 +85,5 @@ def main():
     args=p.parse_args();result=inspect(args.raw)
     args.out.parent.mkdir(parents=True,exist_ok=True)
     args.out.write_text(json.dumps(result,ensure_ascii=False,indent=2)+'\n')
-    print(json.dumps({k:result[k] for k in ('matches','bps_missing_exact_fields','event_sections','penalty_attempts_verified','model_certified')}))
+    print(json.dumps({k:result[k] for k in ('matches','bps_missing_exact_fields','event_sections','shotmap_raw_fields','explicit_penalty_shot_markers','penalty_attempts_verified','model_certified')}))
 if __name__=='__main__':main()
