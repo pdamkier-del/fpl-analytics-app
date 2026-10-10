@@ -94,6 +94,12 @@ details summary{cursor:pointer;color:var(--pl);font-weight:800;font-size:11px}
      const data=await response.json();
      if(!response.ok)throw new Error(data.error||'Fejl ved beregning');
      render(data);
+     if(location.hostname.endsWith('github.io') && !data?.publication?.locked_forecast_run){
+       const stamp=data?.publication?.generated_at?new Date(data.publication.generated_at).toLocaleString('da-DK'):'ukendt';
+       $('mode-status').textContent='HISTORISK PREVIEW · Ikke låst live MM/PM/TS · Genereret '+stamp;
+       const a=$('alerts');
+       a.insertAdjacentHTML('afterbegin','<div class="alert">⚠️ Dette er et historisk bridge-snapshot. Ingen verificeret aktuel P(start), xMins, xP, transfer- eller chipanbefaling. Brug ikke disse tal til at beslutte transfers.</div>');
+     }
    }catch(error){
      $('mode-status').textContent='Forecast kunne ikke beregnes';
      $('alerts').innerHTML='<div class="alert">'+esc(error.message)+'</div>';
