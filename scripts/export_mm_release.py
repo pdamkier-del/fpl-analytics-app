@@ -28,6 +28,10 @@ from fpl_v1_1_model.live_availability_boundary import (
 def read_frame(path:Path):
     if path.suffix==".parquet":
         return pd.read_parquet(path)
+    if path.name.endswith((".jsonl.gz",".jsonl")):
+        return pd.read_json(path,lines=True,compression="infer")
+    if path.suffix==".json":
+        return pd.read_json(path)
     return pd.read_csv(path)
 
 
