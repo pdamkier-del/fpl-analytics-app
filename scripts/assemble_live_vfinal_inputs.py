@@ -17,7 +17,7 @@ BASE=ROOT/'data_v1_1/derived/live_locked_inputs/2026-27-v1'
 WORK=ROOT/'work/live-final-model'
 KEY=['fixture_uuid','player_uuid']
 REQUIRED_BASE={
-  'p_start','xmins','mm_q_sub','mm_sub_minutes','start_minutes_mean',
+  'p_start','xmins','mm_q_sub','mm_sub_minutes',
   'assist_probability_per_goal','goal_rate90','assist_rate90','dc_alpha',
   'p_yellow','p_red','cutoff','target_gw','pos','team_id','lambda_saves'
 }
@@ -33,6 +33,11 @@ def assemble(base,pen,bps):
             raise ValueError(name+' player-fixture identities differ')
         if any(x in result for x in cols):raise ValueError('Component name collision '+name)
         result=result.merge(extra[KEY+cols],on=KEY,how='inner',validate='one_to_one')
+    # Recover exactly the locked conditional-starter identity rather than
+    # inventing an unobserved starter duration. At p_start=0, this is
+    # mathematically unidentified and must be explicit source evidence.
+    if 'start_minutes_mean' not in result:
+        raise ValueError('Missing locked conditional starter minutes: cannot infer from xmins alone for zero-start players')
     # No approximation: the original Phase 4B candidate requires the
     # minute identity and explicit start/cameo conditional durations.
     result['control_p_start']=result.p_start
