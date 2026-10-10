@@ -159,7 +159,7 @@ def test_accepts_original_collector_gzipped_jsonl_ledger(tmp_path):
     native=tmp_path/"predeadline_strict.jsonl.gz"
     with gzip.open(native,"wt",encoding="utf-8") as out:
         for row in ledger.to_dict("records"):
-            out.write(json.dumps(row)+"\\n")
+            out.write(json.dumps(row)+"\n")
     proc,out=run_export(tmp_path,src,native)
     assert proc.returncode==0,proc.stderr
     pol=json.loads((out/"live_availability_policy.json").read_text())
