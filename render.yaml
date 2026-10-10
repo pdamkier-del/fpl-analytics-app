@@ -1,0 +1,18 @@
+services:
+  - type: web
+    name: fpl-analytics-cloud
+    runtime: docker
+    plan: starter
+    region: frankfurt
+    healthCheckPath: /api/health
+    envVars:
+      - key: FPL_APP_USER
+        sync: false
+      - key: FPL_APP_PASSWORD
+        sync: false
+      - key: FPL_DATA_DIR
+        value: /data
+    disk:
+      name: fpl-state
+      mountPath: /data
+      sizeGB: 1
