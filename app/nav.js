@@ -224,3 +224,6 @@
  @media(max-width:380px){.fpl-bottomnav a{font-size:9px}.fpl-bottomnav a strong{font-size:19px}}`;
  document.head.appendChild(s);
 })();
+
+/* Official current fixtures independent of archived model season. */
+(()=>{for(const nav of document.querySelectorAll('.sidebar .nav')){if(nav.querySelector('a[href="fixtures-live.html"]'))continue;let a=document.createElement('a');a.href='fixtures-live.html';a.textContent='Fixtures & Results (Live)';let target=nav.querySelector('a[href="overview.html"]');if(target)target.insertAdjacentElement('afterend',a);else if(nav.querySelector('a[href="index.html"]'))nav.appendChild(a)}})();
