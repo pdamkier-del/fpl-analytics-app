@@ -17,3 +17,12 @@ def test_missing_conditional_minutes_and_assist_prior_are_flagged(tmp_path):
     assert not r['ready']
     assert any('start_minutes_mean' in s for s in r['blockers'])
     assert any('assist_probability_per_goal' in s for s in r['blockers'])
+
+def test_preflight_uses_restored_joined_assist_prior(tmp_path):
+    sources={name:tmp_path/(name+'.csv') for name in m.SOURCES}
+    for name,path in sources.items():
+        data={field:1 for field in m.FIELDS[name]}
+        pd.DataFrame([data]).to_csv(path,index=False)
+    report=m.inspect(sources)
+    assert report['ready']
+    assert report['blockers']==[]
