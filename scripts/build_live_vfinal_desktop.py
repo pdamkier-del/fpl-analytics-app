@@ -70,6 +70,13 @@ def main():
         if evidence['reproducibility']['two_raw_rebuilds_exact']:
             result['blockers']=[b for b in result['blockers'] if not b.startswith('Upstream numerical refits')]
         result['source_limitations']=evidence['source_limitations']
+    tc=ROOT/'work/live-manager-validation/tc_scenarios.json'
+    if tc.exists():
+        evidence=json.loads(tc.read_text());sample=ROOT/'work/live-manager-validation/tc_samples.csv.gz'
+        if evidence['cutoff']!=result['data_asof'] or evidence['ordinary_six_gw_checksums']!=result['checksums'] or hashlib.sha256(sample.read_bytes()).hexdigest()!=evidence['samples_sha256']:
+            raise ValueError('TC scenario publication differs from current forecast')
+        result['tc_scenarios']=evidence
+        result['blockers']=[b for b in result['blockers'] if not b.startswith('Locked TC future-option')]
     a.out.parent.mkdir(parents=True,exist_ok=True);a.out.write_text(json.dumps(result,ensure_ascii=False,allow_nan=False,separators=(',',':'))+'\n')
     print('Published diagnostic only:',result['fixtures'],result['player_fixture_rows'],len(result['players']))
 if __name__=='__main__':main()

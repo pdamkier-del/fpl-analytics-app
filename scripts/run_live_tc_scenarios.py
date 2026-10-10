@@ -82,12 +82,12 @@ def main():
             'future_schedule_source':'OFFICIAL_FPL_SNAPSHOT_AT_ORIGIN_CUTOFF',
             'fixtures_snapshot_sha256':hashlib.sha256(fixture_source.read_bytes()).hexdigest(),
             'source_checkpoint':'model/checkpoints/live_gw7_sources_20261010_v1',
-            'fixtures':int(frame.fixture_uuid.nunique()),'input_rows':len(frame),'samples':len(out),
+            'ordinary_six_gw_checksums':original,'fixtures':int(frame.fixture_uuid.nunique()),'input_rows':len(frame),'samples':len(out),
             'same_six_gw_inputs_exact':True,'draws':400,'top_k_per_gw':20,'two_sample_replays_exact':True,
             'samples_sha256':hashlib.sha256((OUT/'tc_samples.csv.gz').read_bytes()).hexdigest(),
             'simulator_inputs_sha256':hashlib.sha256(source.read_bytes()).hexdigest(),
             'model_math_changed':False,'manual_decision_required':True,'locked_model_active':False,
-            'limitations':forecast['blockers']}
+            'limitations':[b for b in forecast['blockers'] if not b.startswith('Locked TC future-option')]}
         (OUT/'tc_scenarios.json').write_text(json.dumps(audit,indent=2)+'\n')
         print(json.dumps(audit),flush=True)
     finally:

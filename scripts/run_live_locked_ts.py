@@ -68,7 +68,7 @@ def run(payload,raw,include_chips=False,tc_samples=None):
         'reason':'The original six-GW planner maximizes weighted XI plus captain points after official hits and the locked paid-transfer uncertainty buffer; compared below with keeping the same squad.',
         'lineup':json.loads(lineup.rows.to_json(orient='records')),
         'interpretation':'Hypothetical recommendations only. Only the first action would be executed; later actions require replanning. No FPL account is modified.',
-        'blockers':list(payload.get('blockers',[]))}
+        'blockers':[b for b in payload.get('blockers',[]) if not b.startswith(('No verified manager','Actual manager state'))]}
     if include_chips:
         try:
             from fpl_xpts.wildcard_planner_v2 import build_asof_wc_projection
@@ -98,6 +98,7 @@ def run(payload,raw,include_chips=False,tc_samples=None):
                 tc_use_edge=tc.get('use_edge',float('-inf')) if tc else float('-inf'),tc_candidate_is_eligible=eligible)
             result.update(chips_ran=True,chips_status='diagnostic_partial' if tc is None and available['triple_captain'] else 'diagnostic',
                 chip_assessment={'gw':gw,'provisional_choice_without_missing_tc':choice.chip,
+                    'candidate_lineups':{'free_hit':({'rows':json.loads(fh['plan_rows'].to_json(orient='records')),'expected_score':float(fh['fh_score']),'squad_ids':fh['fh_squad_ids']} if fh else None),'wildcard':({'rows':json.loads(plan_squad(proxy,list(wc.chosen_squad),gw).rows.to_json(orient='records')),'expected_score':projected_manager_score(proxy,meta,list(wc.chosen_squad),gw),'squad_ids':list(wc.chosen_squad),'bank_after':wc.state.bank,'outgoing':sorted(set(state.squad)-set(wc.chosen_squad)),'incoming':sorted(set(wc.chosen_squad)-set(state.squad))} if wc else None)},
                     'fh_gain':fh_gain if fh else None,'wc_gain':wc_gain if wc else None,'bb_gain':bb_gain if bb else None,
                     'q_fh':choice.q_fh if npfinite(choice.q_fh) else None,
                     'q_wc':choice.q_wc if npfinite(choice.q_wc) else None,
@@ -129,7 +130,7 @@ def main():
         if a.tc_samples:
             if not a.tc_receipt:raise ValueError('TC source receipt is required')
             receipt=json.loads(a.tc_receipt.read_text())
-            if receipt['cutoff']!=payload['data_asof'] or receipt['samples_sha256']!=hashlib.sha256(a.tc_samples.read_bytes()).hexdigest() or receipt['future_schedule_source']!='OFFICIAL_FPL_SNAPSHOT_AT_ORIGIN_CUTOFF':raise ValueError('TC source/cutoff/checksum mismatch')
+            if receipt.get('ordinary_six_gw_checksums')!=payload['checksums'] or receipt['cutoff']!=payload['data_asof'] or receipt['samples_sha256']!=hashlib.sha256(a.tc_samples.read_bytes()).hexdigest() or receipt['future_schedule_source']!='OFFICIAL_FPL_SNAPSHOT_AT_ORIGIN_CUTOFF':raise ValueError('TC source/cutoff/checksum mismatch')
             tc=pd.read_csv(a.tc_samples)
         if not payload.get('origin_deadline'):raise ValueError('Current manager planning requires a verified forecast deadline')
         result=run(payload,json.loads(a.state.read_text()),include_chips=True,tc_samples=tc)

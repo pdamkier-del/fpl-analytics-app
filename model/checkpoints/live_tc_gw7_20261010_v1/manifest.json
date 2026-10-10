@@ -1,0 +1,78 @@
+{
+  "classification": "ORIGINAL_TC_V2_CUTOFF_SAFE_GW7_19_DIAGNOSTIC_MANUAL",
+  "archive_sha256": "e2a9d2997fe43ecdf2284a4bfb447f3f772751213851429dc7269b5d5358dc62",
+  "parts": [
+    {
+      "file": "archive.part-0000.b64",
+      "sha256": "e12f2af7ab11b59bd2ebcb765b5049bbabe70bc8665e66d2c8a93b734e0dfd4e"
+    },
+    {
+      "file": "archive.part-0001.b64",
+      "sha256": "e3dfea3f4c07b30ab1020dbadbf86aa77f21ba5b2b0414638e8432f77b1171d2"
+    },
+    {
+      "file": "archive.part-0002.b64",
+      "sha256": "1c9519d256a099e8c15ec193fc9152b25c3c8dd68dbb9386b3f5fd88414e78ee"
+    },
+    {
+      "file": "archive.part-0003.b64",
+      "sha256": "fa9672fee727445936db13afe064a55aeaf3f4f5a9021ad2ebc9a498a7ceadd8"
+    },
+    {
+      "file": "archive.part-0004.b64",
+      "sha256": "25f7d4fdd5c9f33bf734e8a3db9162d75046a9dce5858bd79844177e51f84e6e"
+    },
+    {
+      "file": "archive.part-0005.b64",
+      "sha256": "8f9021a43345df4218f6a355634d53e3de48a703d1ab0678898b57fbf35bdd62"
+    },
+    {
+      "file": "archive.part-0006.b64",
+      "sha256": "25eae37b6753b134bd5f209bf2901fdaac16bfb15b2c8907b9c749f45543274d"
+    },
+    {
+      "file": "archive.part-0007.b64",
+      "sha256": "8efa6d6f9e3f880f4fa4822e2612f8c3499265e7d04c81275b54baba507c50b9"
+    },
+    {
+      "file": "archive.part-0008.b64",
+      "sha256": "eef56f6e9b60b761753af4202b416eca45b74d82cc4ae5b5ad8a420e7bb1555b"
+    },
+    {
+      "file": "archive.part-0009.b64",
+      "sha256": "19f7215f866d8f8c0dddbd10e6245bbbec1c261f2d6a1c8ff1743962fb4b7857"
+    },
+    {
+      "file": "archive.part-0010.b64",
+      "sha256": "c9efeb1f2f6e2e302eb8fac49e0c7799ca35ac9c79b085f81ea6ebfd88f19af2"
+    },
+    {
+      "file": "archive.part-0011.b64",
+      "sha256": "a8829d88ba4a4ebfb31261dfbda6ee767f92f596f526f5840c2f0374c3c91fd0"
+    },
+    {
+      "file": "archive.part-0012.b64",
+      "sha256": "224beaa97a36ebad01b375be04c2070994e16afc82d022479b345256ee56fa4a"
+    },
+    {
+      "file": "archive.part-0013.b64",
+      "sha256": "d3d59a65d4e5657feef6f07ca3f8f34e9472141dfde0a8886e5e614b6de2cff6"
+    },
+    {
+      "file": "archive.part-0014.b64",
+      "sha256": "5ac78ae25f6a9d2f4f461cf767ebf0e12690f065ba0a41813cb050ae0b288262"
+    },
+    {
+      "file": "archive.part-0015.b64",
+      "sha256": "198dde15fa9ddedde5ba5cca11ccfa4b555df2f46736f2a67c543127a5c617a5"
+    }
+  ],
+  "files": {
+    "work/live-manager-validation/tc_samples.csv.gz": "504a0ee34a95d40609592319f842d527e469a0a7390861bc904bc1b98bd2a608",
+    "work/live-manager-validation/tc_candidates.csv": "b6c2d538595c6343a9b2a02374d48b1252a39d0c3730dae3a83a15210dcd210b",
+    "work/live-manager-validation/tc_scenarios.json": "1d6cda231b020586dfbd79efe64bcb3f05520cd01bacfd350b0e98c5d8ada04d"
+  },
+  "model_math_changed": false,
+  "locked_model_active": false,
+  "recipe": "scripts/run_live_tc_scenarios.py; immutable GW7 v2 plus current-source checkpoint; full simulator input hash in tc_scenarios.json"
+}
