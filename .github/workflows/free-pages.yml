@@ -23,6 +23,23 @@ jobs:
         run: python scripts/build_static_preview.py
       - name: Fetch recent official FPL fixtures
         run: python scripts/fetch_live_fixtures.py
+      - name: Verify official data and app entrypoints
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          a=Path("app")
+          files=["overview.html","my-team.html","team-optimizer.html","fixtures-live.html","current-players.html","forecast-center.html"]
+          for f in files: assert (a/f).stat().st_size>1000,f
+          fixtures=json.loads((a/"live-fixtures.json").read_text())
+          people=json.loads((a/"current-players.json").read_text())
+          assert len(fixtures["fixtures"])>=200
+          assert len(people["players"])>=300
+          assert fixtures["fetched_at"]==people["fetched_at"]
+          assert any(m["finished"] for m in fixtures["fixtures"])
+          assert any(not m["finished"] for m in fixtures["fixtures"])
+          print("VERIFIED FPL DATA: games",len(fixtures["fixtures"]),"players",len(people["players"]))
+          PY
       - name: Mark GitHub Pages static directory
         run: touch app/.nojekyll
       - uses: actions/configure-pages@v5
