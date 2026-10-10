@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Run frozen keeper-save model on archived FotMob source-defined team SOT.
 
-Requires all 50 completed league match SOT pairs. No approximated shots,
+Requires every completed, cutoff-eligible official league match SOT pair. No approximated shots,
 fallback to FPL player saves, or model refits. Target output is source
 feature evidence, not a completed PM/vFinal player xP prediction.
 """
@@ -43,7 +43,7 @@ def build():
     bootstrap=json.loads((WORK/'bootstrap.json').read_text())
     code_to_id={int(t['code']):int(t['id']) for t in bootstrap['teams']}
     by_file={mid:path for mid,(_,path) in manifest_details(ROOT,manifest).items()}
-    sides=[];captured=[]
+    sides=[];captured=[];fixture_keys=set()
     for g in read_games():
         if g.get('tournament')!='prem' or g.get('gameweek') is None or int(g['gameweek'])>=origin:
             continue
@@ -65,9 +65,15 @@ def build():
                 kickoff_at=g['kickoff_time'],available_at=g['available_at'],
                 shots_on_target=for_shots,shots_on_target_conceded=against))
         captured.append(match_id)
+        fixture_keys.add((ht,at,pd.Timestamp(g['kickoff_time'])))
     h=pd.DataFrame(sides)
-    if len(set(captured))!=50 or len(h)!=100 or h.groupby('team_id').size().min()<5:
-        raise ValueError(f'Missing complete 5-match per-team observed SOT history: {len(captured)} games')
+    official=json.loads((WORK/'fixtures.json').read_text())
+    expected={(int(f['team_h']),int(f['team_a']),pd.Timestamp(f['kickoff_time']))
+              for f in official if f.get('finished') and f.get('event') is not None
+              and int(f['event'])<origin and f.get('kickoff_time')
+              and pd.Timestamp(f['kickoff_time'])+pd.Timedelta(hours=4)<cutoff}
+    if fixture_keys!=expected or len(set(captured))!=len(expected) or len(h)!=2*len(expected) or h.groupby('team_id').size().min()<5 or h.team_id.nunique()!=20:
+        raise ValueError(f'Missing complete cutoff-eligible official SOT history: {len(captured)} of {len(expected)} games')
     if h[['fixture_uuid','team_id']].duplicated().any():
         raise ValueError('Duplicate provider SOT team side')
     t=pd.read_csv(BASE/'future_team_goal_lambdas.csv.gz')
