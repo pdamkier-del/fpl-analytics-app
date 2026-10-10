@@ -15,7 +15,7 @@ CACHE=ROOT/'.cache/current-locked-inputs';CACHE.mkdir(parents=True,exist_ok=True
 SOURCES=[];ERRORS=[]
 def utc(s):return datetime.fromisoformat(str(s).replace('Z','+00:00')).astimezone(timezone.utc)
 def norm(s):return ''.join(c for c in unicodedata.normalize('NFKD',str(s)).casefold() if c.isalnum())
-ALIASES={'manchestercity':'mancity','manchesterunited':'manutd','nottinghamforest':'nottmforest','tottenhamhotspur':'spurs','tottenham':'spurs','brightonhovealbion':'brighton','brightonandhovealbion':'brighton','wolverhamptonwanderers':'wolves','newcastleunited':'newcastle','westhamunited':'westham','ipswichtown':'ipswich','leicestercity':'leicester','afcbournemouth':'bournemouth'}
+ALIASES={'manchestercity':'mancity','manchesterunited':'manutd','nottinghamforest':'nottmforest','tottenhamhotspur':'spurs','tottenham':'spurs','brightonhovealbion':'brighton','brightonandhovealbion':'brighton','wolverhamptonwanderers':'wolves','newcastleunited':'newcastle','westhamunited':'westham','ipswichtown':'ipswich','leicestercity':'leicester','afcbournemouth':'bournemouth','leedsunited':'leeds'}
 def club(s):return ALIASES.get(norm(s),norm(s))
 def dump(p,v):p.parent.mkdir(parents=True,exist_ok=True);p.write_text(json.dumps(v,ensure_ascii=False,indent=2,allow_nan=False)+'\n')
 def gz(p,v):p.parent.mkdir(parents=True,exist_ok=True);p.write_bytes(gzip.compress((''.join(json.dumps(r,ensure_ascii=False,allow_nan=False)+'\n' for r in v)).encode(),mtime=0))
@@ -54,6 +54,9 @@ def main():
  unresolved=[dict(fpl_element=p['id'],fpl_code=c,name=p['web_name'],reason='No unique existing stable-code UUID') for c,p in players.items() if c not in uuid_map]
  ident=[dict(fpl_element=p['id'],fpl_code=c,player_uuid=uuid_map.get(c),team_id=p['team'],team_code=teams[p['team']]['code'],name=p['first_name']+' '+p['second_name']) for c,p in players.items()]
  dump(WORK/'current_identity.json',ident);dump(WORK/'bootstrap.json',bootstrap);dump(WORK/'fixtures.json',fixtures)
+ for e in bootstrap['events']:
+  if e['id']<gw and e.get('finished'):
+   capture(f"https://fantasy.premierleague.com/api/event/{e['id']}/live/",base/f"fpl/gw{e['id']}.json")
  news=[]
  for code,p in players.items():
   if code not in uuid_map:continue
@@ -66,7 +69,7 @@ def main():
  for comp,lid in [('prem',47),('cl',42),('el',73),('conf',10216),('conf_qual',10615),('fa',132),('efl',133)]:
   try:
    j,_=capture(f'https://www.fotmob.com/api/data/leagues?id={lid}&season={provider_season}',base/f'fotmob/{comp}.json',False)
-   assert j['details']['name']==expected[comp] and j['details']['selectedSeason']==f'{year}/{year+1}'
+   assert j['details']['name']==expected[comp] and j['details']['selectedSeason']==f'{year}/{year+1}', f"Requested {year}/{year+1}, provider returned {j['details']['selectedSeason']}"
    for f in j.get('fixtures',{}).get('allMatches',[]):
     s=f.get('status') or {};ko=s.get('utcTime')
     if not ko or utc(ko)>now or not s.get('finished'):continue

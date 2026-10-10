@@ -33,6 +33,7 @@ jobs:
           files=[]
           for folder in ['src','scripts','app','tests','config','docs','analysis','model']:
               files += [p for p in Path(folder).rglob('*') if p.is_file() and p.suffix in {'.py','.js','.cjs','.html','.css','.json','.md','.txt','.yml'} and 'checkpoints' not in p.parts and p.stat().st_size<3000000]
+          files += [Path('analysis/results/fa-match-importance-20261006-v1/all_features_fa_mi.csv.gz')]
           files += list(Path('.github/workflows').glob('*.yml')) + list(Path('.').glob('requirements*.txt'))
           with tarfile.open('work/code-audit.tar.gz','w:gz') as t:
               for p in sorted(set(files)):t.add(p,arcname=str(p))
