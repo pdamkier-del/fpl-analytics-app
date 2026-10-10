@@ -27,6 +27,8 @@ jobs:
         run: python scripts/fetch_live_fixtures.py
       - name: Calculate provisional own six-GW xP
         run: python scripts/build_own_forecast.py
+      - name: Publish locked final-model release contract
+        run: python scripts/publish_final_model.py
       - name: Build verified availability
         run: python scripts/build_current_role_status.py
       - name: Rebuild frozen historical role evidence for current player IDs
