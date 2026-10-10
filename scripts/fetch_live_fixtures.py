@@ -30,7 +30,7 @@ def main():
        "second_name":x.get("second_name"),"team":x["team"],"position":x["element_type"],
        "code":x.get("code"),"photo":x.get("photo"),"status":x.get("status"),
        "chance_of_playing_next_round":x.get("chance_of_playing_next_round"),
-       "price":x.get("now_cost",0)/10,"form":x.get("form"),"total_points":x.get("total_points")}
+       "price":x.get("now_cost",0)/10,"form":x.get("form"),"total_points":x.get("total_points"),"ep_this":x.get("ep_this"),"ep_next":x.get("ep_next"),"minutes":x.get("minutes"),"selected_by_percent":x.get("selected_by_percent")}
        for x in bootstrap["elements"]]
     positions={str(x["id"]):x["singular_name_short"] for x in bootstrap["element_types"]}
     directory={"source":obj["source"],"fetched_at":obj["fetched_at"],"teams":teams,
