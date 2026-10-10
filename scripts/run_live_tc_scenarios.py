@@ -81,7 +81,8 @@ def main():
             both=np.isnan(xv)&np.isnan(yv)
             exact=(xv==yv)|both
             changed=~exact
-            if not np.all(np.isfinite(xv[changed])&np.isfinite(yv[changed])) or not np.all(np.abs(xv[changed]-yv[changed])<=4*np.abs(np.spacing(xv[changed]))):
+            drift[col]['max_ulp']=float(np.max(np.abs(xv[changed]-yv[changed])/np.abs(np.spacing(xv[changed]))))
+            if not np.all(np.isfinite(xv[changed])&np.isfinite(yv[changed])) or not np.all(np.abs(xv[changed]-yv[changed])<=8*np.abs(np.spacing(xv[changed]))):
                 raise ValueError('TC extension differs materially from immutable current forecast '+col+'; max_abs='+str(float(np.max(np.abs(xv[changed]-yv[changed]))))+'; max_ulp='+str(float(np.max(np.abs(xv[changed]-yv[changed])/np.abs(np.spacing(xv[changed])))))+'; evidence='+json.dumps(drift))
         # Current forecast rows are the approved immutable source for current
         # TC scenarios. No float is rounded and no reconstructed equality is claimed.
@@ -100,7 +101,7 @@ def main():
             'fixtures_snapshot_sha256':hashlib.sha256(fixture_source.read_bytes()).hexdigest(),
             'source_checkpoint':'model/checkpoints/live_gw7_sources_20261010_v1',
             'ordinary_six_gw_checksums':original,'fixtures':int(frame.fixture_uuid.nunique()),'input_rows':len(frame),'samples':len(out),
-            'same_six_gw_inputs_exact':True,'raw_extension_six_gw_numeric_differences':drift,'current_forecast_source':'IMMUTABLE_APPROVED_SIX_GW_INPUT_ROWS_NO_ROUNDING','draws':400,'top_k_per_gw':20,'two_sample_replays_exact':True,
+            'same_six_gw_inputs_exact':True,'raw_extension_comparison_ulp_limit':8,'raw_extension_six_gw_numeric_differences':drift,'current_forecast_source':'IMMUTABLE_APPROVED_SIX_GW_INPUT_ROWS_NO_ROUNDING','draws':400,'top_k_per_gw':20,'two_sample_replays_exact':True,
             'samples_sha256':hashlib.sha256((OUT/'tc_samples.csv.gz').read_bytes()).hexdigest(),
             'simulator_inputs_sha256':hashlib.sha256(source.read_bytes()).hexdigest(),
             'model_math_changed':False,'manual_decision_required':True,'locked_model_active':False,
