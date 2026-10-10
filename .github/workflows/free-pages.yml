@@ -25,6 +25,8 @@ jobs:
         run: python scripts/fetch_live_fixtures.py
       - name: Calculate independent experimental 6GW xP (not locked PM)
         run: python scripts/build_own_forecast.py
+      - name: Prepare verified official GW player-fixture source features
+        run: python scripts/build_live_feature_base.py
       - name: Audit frozen final model for one actual upcoming gameweek
         run: python scripts/audit_live_one_gw.py
       - name: Publish locked final-model release contract
@@ -55,6 +57,10 @@ jobs:
           assert final["data_asof"]==people["fetched_at"]
           audit=json.loads((a/"one-gw-readiness.json").read_text())
           assert audit["source_asof"]==people["fetched_at"] and audit["gw"]==people["next_gw"]
+          assert audit["official_fixture_feature_base_ready"]
+          source=json.loads((a/"gw-source-features.json").read_text())
+          assert source["fixture_count"]==audit["fixture_count"]
+          assert source["certification"]["frozen_MM_feature_complete"] is False
           assert final["locked_model_active"] is False or (len(final["players"])>=250 and all(v=="verified" for v in final["parts"].values()))
           assert any(w["xpts"]>0 for p in own["players"] for w in p["weeks"])
           assert fixtures["fetched_at"]==people["fetched_at"]
