@@ -21,4 +21,10 @@ for f in files:
           matches.append({k:item.get(k) for k in ('title','stats','type')})
     if matches and len(examples)<3:examples.append({'match_id':o.get('general',{}).get('matchId'),'path':str(f.relative_to(ROOT)),
         'labels':matches[:14]})
+first=json.loads(files[0].read_text())
+stat=first.get("content",{}).get("stats",{})
+print("STAT ROOT DETAIL",json.dumps({
+    "type":str(type(stat)),"keys":list(stat)[:16] if isinstance(stat,dict) else [],
+    "preview":json.dumps(stat,ensure_ascii=False)[:2800]
+},ensure_ascii=False))
 print('FOTMOB TEAM MATCH FACTS FIELD AUDIT',json.dumps({'files':len(files),'content_keys':counts,'examples':examples},ensure_ascii=False))
