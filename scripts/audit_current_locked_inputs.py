@@ -81,7 +81,7 @@ def materialize(horizon_end=None):
  csvgz(OUT/'source_feature_matrix.csv.gz',frame);csvgz(OUT/'classified_starters.csv.gz',pd.DataFrame(classified));dump(OUT/'current_identity.json',ident)
  # Event data for PM preserves observed values, including true zero outcomes.
  base=max((ROOT/'data_v1_1/raw/live-captures').iterdir());flookup={f['id']:f for f in fx};actual=[];unresolved=[];recovered=[]
- archive_dir=WORK/'predeadline_2026_archives';archived=load_archived_rosters(archive_dir)[0] if (archive_dir/'archive_manifest.json').exists() else {}
+ archive_dir=WORK/'predeadline_2026_archives';archived=load_archived_rosters(archive_dir,expected_gws=sorted(int(p.stem[2:]) for p in archive_dir.glob('gw*.json')))[0] if (archive_dir/'archive_manifest.json').exists() else {}
  for p in sorted((base/'fpl').glob('gw*.json')):
   n=int(p.stem[2:]);j=json.loads(p.read_text())
   for row in j['elements']:
