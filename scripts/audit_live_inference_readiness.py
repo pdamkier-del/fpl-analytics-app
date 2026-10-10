@@ -87,6 +87,21 @@ def audit():
         past=pd.read_csv(actual)
         result['actual_completed_player_fixture_rows']=len(past)
         result['actual_completed_gws']=sorted(int(x) for x in past.gw.dropna().unique())
+    performance=ROOT/'work/live-final-model/live_performance_provenance.json'
+    if performance.is_file():
+        provenance=json.loads(performance.read_text())
+        coverage=provenance.get("provider_fields_observed_counts") or {}
+        # Zero-filled provider fields are not certified equivalent to the historical
+        # source distribution even if the frozen formula accepts zero inputs.
+        missing_provenance=[k for k in ('xg','xa','shots_on_target',
+            'tackles_won','accurate_passes_percent')
+            if int(coverage.get(k,0))==0]
+        result['provider_fields_without_verified_raw_coverage']=missing_provenance
+        result['provider_coverage']={k:int(coverage.get(k,0)) for k in
+            ('xg','xa','shots_on_target','tackles_won','accurate_passes_percent')}
+        if missing_provenance:
+            result['issues'].append('Unverified provider-performance semantics: '+
+                ', '.join(missing_provenance)+' absent in current raw statistics')
     # Classification is truthful: even complete source features would still need
     # a fitted MM inference run and the downstream frozen PM/TS/chip adapters.
     result['feature_inputs_complete']=not result['issues']
