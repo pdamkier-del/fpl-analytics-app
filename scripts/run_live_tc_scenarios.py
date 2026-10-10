@@ -82,7 +82,7 @@ def main():
             exact=(xv==yv)|both
             changed=~exact
             if not np.all(np.isfinite(xv[changed])&np.isfinite(yv[changed])) or not np.all(np.abs(xv[changed]-yv[changed])<=4*np.abs(np.spacing(xv[changed]))):
-                raise ValueError('TC extension differs materially from immutable current forecast '+col)
+                raise ValueError('TC extension differs materially from immutable current forecast '+col+'; max_abs='+str(float(np.max(np.abs(xv[changed]-yv[changed]))))+'; max_ulp='+str(float(np.max(np.abs(xv[changed]-yv[changed])/np.abs(np.spacing(xv[changed])))))+'; evidence='+json.dumps(drift))
         # Current forecast rows are the approved immutable source for current
         # TC scenarios. No float is rounded and no reconstructed equality is claimed.
         frame=pd.concat([reference,frame[~frame.target_gw.isin(reference.target_gw.unique())][reference.columns]],ignore_index=True)

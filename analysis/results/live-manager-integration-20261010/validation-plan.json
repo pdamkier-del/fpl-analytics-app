@@ -843,5 +843,51 @@
     "full_four_chip_decision_verified": false,
     "manual_decision_required": true
   },
+  "chip_plan": {
+    "status": "diagnostic_rolling_policy_not_fixed_future_calendar",
+    "period_end_gw": 19,
+    "original_policy_only": true,
+    "full_future_calendar_status": "Not Available",
+    "rows": [
+      {
+        "chip": "free_hit",
+        "decision": "SAVE",
+        "expected_use_gw": null,
+        "expected_gain": 22.5325,
+        "net_value": 15.865833333333333,
+        "reason": "Keep this chip: another action has the highest locked net value; reassess at the next deadline.",
+        "manual_decision_required": false
+      },
+      {
+        "chip": "wildcard",
+        "decision": "USE_NOW_DIAGNOSTIC",
+        "expected_use_gw": 7,
+        "expected_gain": 56.37414479999998,
+        "net_value": 43.04081146666665,
+        "reason": "Original coordinator prefers this current chip over normal transfers and competing chips.",
+        "manual_decision_required": false
+      },
+      {
+        "chip": "bench_boost",
+        "decision": "SAVE",
+        "expected_use_gw": null,
+        "expected_gain": 0.00023646416105788104,
+        "net_value": -13.333096869172277,
+        "reason": "Keep this chip: another action has the highest locked net value; reassess at the next deadline.",
+        "manual_decision_required": false
+      },
+      {
+        "chip": "triple_captain",
+        "decision": "SAVE_TC",
+        "expected_use_gw": null,
+        "expected_gain": 6.26,
+        "save_value": 10.419375,
+        "concrete_future_option_gw": 16,
+        "concrete_future_option_value": 7.797903115524355,
+        "reason": "Original TC stopping policy compares use now with concrete future options and its anonymous DGW prior. TC requires a manual choice; no fixed future use GW is inferred.",
+        "manual_decision_required": true
+      }
+    ]
+  },
   "validation_only": true
 }

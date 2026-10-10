@@ -106,6 +106,23 @@ def run(payload,raw,include_chips=False,tc_samples=None):
                     'availability':available,'tc':({k:(None if isinstance(v,float) and not npfinite(v) else v) for k,v in tc.items()} if tc else None),'tc_status':'diagnostic_manual_confirmation_required' if tc else 'Not Available',
                     'future_chip_gw':(tc.get('best_future_gw') if tc and tc.get('save_source')=='concrete_gw' else None),'future_chip_status':('TC concrete future option; replan at each deadline. Other chips: Not Available' if tc else 'Not Available: no complete cutoff-safe option ledger'),
                     'full_four_chip_decision_verified':False})
+            result['chip_plan']={'status':'diagnostic_rolling_policy_not_fixed_future_calendar','period_end_gw':half_end,
+                'original_policy_only':True,'full_future_calendar_status':'Not Available','rows':[]}
+            for key,code,gain,q in [('free_hit','fh',fh_gain,choice.q_fh),('wildcard','wc',wc_gain,choice.q_wc),('bench_boost','bb',bb_gain,choice.q_bb)]:
+                selected=choice.chip==code
+                reason=('Already used in this chip half.' if not available[key] else
+                    ('Original coordinator prefers this current chip over normal transfers and competing chips.' if selected else
+                     'Keep this chip: another action has the highest locked net value; reassess at the next deadline.'))
+                result['chip_plan']['rows'].append({'chip':key,'decision':('USE_NOW_DIAGNOSTIC' if selected else 'SAVE') if available[key] else 'UNAVAILABLE',
+                    'expected_use_gw':gw if selected else None,'expected_gain':gain if available[key] else None,
+                    'net_value':q if npfinite(q) else None,'reason':reason,'manual_decision_required':False})
+            result['chip_plan']['rows'].append({'chip':'triple_captain','decision':tc['action'] if tc else 'Not Available',
+                'expected_use_gw':gw if tc and tc['action']=='USE_TC' and choice.chip=='tc' else None,
+                'expected_gain':tc.get('use_now_value') if tc else None,'save_value':tc.get('save_option_value') if tc else None,
+                'concrete_future_option_gw':tc.get('best_future_gw') if tc else None,
+                'concrete_future_option_value':tc.get('concrete_save_option_value') if tc else None,
+                'reason':('Original TC stopping policy compares use now with concrete future options and its anonymous DGW prior. TC requires a manual choice; no fixed future use GW is inferred.' if tc else 'Verified eligible TC scenarios are required.'),
+                'manual_decision_required':True})
             if tc is not None:
                 result['blockers']=[b for b in result['blockers'] if not b.startswith('Locked TC future-option')]
                 result['chip_assessment']['manual_decision_required']=True
