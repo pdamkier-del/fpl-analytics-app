@@ -78,3 +78,9 @@ jobs:
             work/live-final-model/publication_provenance.json
             work/live-manager-validation/tc_scenarios.json
           retention-days: 30
+      - name: Report attempt without replacing the last verified forecast
+        if: always()
+        env:
+          FORECAST_JOB_STATUS: ${{ job.status }}
+          GITHUB_TOKEN: ${{ github.token }}
+        run: python scripts/publish_pipeline_status.py
