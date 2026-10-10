@@ -102,6 +102,7 @@ def build(target=None, persist=True):
           "gk_actions","goals_prevented","goals_conceded",
           "dispossessed","rating_proxy"]
     ledger=ledger[keep].sort_values(["player_uuid","available_at","match_id"])
+    if persist: ledger.to_csv(ROOT/"work/live-final-model/current_performance_ledger.csv.gz",index=False,compression="gzip")
     result=add_features(target,ledger)
     if not set(RECENT_FEATURES).issubset(result):
         raise ValueError("Frozen performance output incomplete")

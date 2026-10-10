@@ -116,19 +116,31 @@ jobs:
         run: python -m pytest -q tests/test_build_live_penalty_fpl_team_ids.py
       - name: Verify official 2026 team IDs for frozen penalty input namespace
         run: python scripts/build_live_penalty_fpl_team_ids.py
+      - name: Test verified sparse-zero evidence and penalty bridges
+        run: PYTHONPATH=src:scripts python -m pytest -q tests/test_verified_live_penalty_bps.py
+      - name: Verify historical penalty events and BPS actions without fabricated zeros
+        run: python scripts/build_verified_live_penalty_bps.py
+      - name: Restore original frozen historical BPS clipping bounds
+        run: python scripts/restore_original_bps_bounds.py
+      - name: Build original role performance DefCon and own-goal vFinal components
+        run: python scripts/build_live_vfinal_full_event_components.py
       - name: Audit exact source coverage for frozen penalty and BPS adapters
         run: python scripts/audit_live_penalty_bps_sources.py
       - name: Apply original frozen penalty state
         run: |
           GW=$(python -c "import pandas as pd; p='data_v1_1/derived/live_locked_inputs/2026-27-v1/vfinal_live_joined_inputs.csv.gz'; x=pd.read_csv(p,usecols=['target_gw']); print(int(x.target_gw.min()))")
-          python scripts/run_live_vfinal_penalty_state.py --origin "$GW" \
+          python scripts/run_live_vfinal_penalty_state.py --origin "$GW" --roster data_v1_1/derived/live_locked_inputs/2026-27-v1/vfinal_live_full_event_inputs.csv.gz \
             --attempts data_v1_1/derived/live_locked_inputs/2026-27-v1/verified_penalty_attempts.csv.gz \
             --sides data_v1_1/derived/live_locked_inputs/2026-27-v1/verified_penalty_team_sides.csv.gz \
             --teams data_v1_1/derived/live_locked_inputs/2026-27-v1/verified_penalty_team_ids.csv.gz
       - name: Apply original frozen BPS regression
-        run: python scripts/run_live_vfinal_bps.py --ledger data_v1_1/derived/live_locked_inputs/2026-27-v1/verified_bps_action_ledger.csv.gz
+        run: python scripts/run_live_vfinal_bps.py --target data_v1_1/derived/live_locked_inputs/2026-27-v1/vfinal_live_full_event_inputs.csv.gz --ledger data_v1_1/derived/live_locked_inputs/2026-27-v1/verified_bps_action_ledger.csv.gz
       - name: Assemble complete live simulator inputs
-        run: python scripts/assemble_live_vfinal_inputs.py
+        run: python scripts/assemble_live_vfinal_inputs.py --base data_v1_1/derived/live_locked_inputs/2026-27-v1/vfinal_live_full_event_inputs.csv.gz
+      - name: Test one real upcoming match with original vFinal
+        run: python scripts/run_live_vfinal_joint_simulation.py --scope one-match --input data_v1_1/derived/live_locked_inputs/2026-27-v1/vfinal_live_full_simulator_input.csv.gz --out data_v1_1/derived/live_locked_inputs/2026-27-v1/one_match_xp.csv.gz
+      - name: Test one whole GW with original vFinal
+        run: python scripts/run_live_vfinal_joint_simulation.py --scope one-gw --input data_v1_1/derived/live_locked_inputs/2026-27-v1/vfinal_live_full_simulator_input.csv.gz --out data_v1_1/derived/live_locked_inputs/2026-27-v1/one_gw_xp.csv.gz
       - name: Run original locked vFinal simulator for six upcoming GWs
         run: python scripts/run_live_vfinal_joint_simulation.py --input data_v1_1/derived/live_locked_inputs/2026-27-v1/vfinal_live_full_simulator_input.csv.gz
       - uses: actions/upload-artifact@v4
@@ -136,6 +148,16 @@ jobs:
         with:
           name: live-mm-feature-readiness-evidence
           path: |
+            work/live-final-model/live_penalty_identity_audit.json
+            work/live-final-model/live_bps_source_audit.json
+            work/live-final-model/live_bps_zero_evidence.json
+            work/live-final-model/original_bps_development_bounds.json
+            work/live-final-model/live_full_event_component_audit.json
+            work/live-final-model/live_vfinal_simulation_*.json
+            data_v1_1/derived/live_locked_inputs/2026-27-v1/verified_*.csv.gz
+            data_v1_1/derived/live_locked_inputs/2026-27-v1/one_*xp.csv.gz
+            data_v1_1/derived/live_locked_inputs/2026-27-v1/vfinal_live_joined_inputs.csv.gz
+            work/live-final-model/current_performance_ledger.csv.gz
             work/live-final-model/provider_penalty_bps_evidence.json
             work/live-final-model/explicit_penalty_shot_evidence.json
             work/live-final-model/live_assist_prior_provenance.json
@@ -165,4 +187,5 @@ jobs:
             work/live-final-model/mm_frozen_diagnostic_*.csv.gz
             data_v1_1/derived/live_locked_inputs/2026-27-v1/reconstructed_training_features.csv.gz
           retention-days: 90
+
 

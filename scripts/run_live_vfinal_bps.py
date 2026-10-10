@@ -19,7 +19,7 @@ WORK=ROOT/'work/live-final-model'
 LEDGER_FIELDS=['player_uuid','available_at','minutes_played','bg_rate90','cross_rate90','cbi_rate90',
   'recovery_rate90','tackle_rate90','keypass_rate90','dribble_rate90','foulwon_rate90',
   'sot_rate90','passbps_rate90','negative_rate90']
-def calculate(target,ledger,bps,bpsvar):
+def calculate(target,ledger,bps,bpsvar,bounds=None):
     required={'fixture_uuid','player_uuid','target_gw','cutoff','pos'}
     if missing:=required-set(target):raise ValueError('Missing BPS target fields '+str(sorted(missing)))
     if missing:=set(LEDGER_FIELDS)-set(ledger):
@@ -44,6 +44,9 @@ def calculate(target,ledger,bps,bpsvar):
     if missing:=set(bps['cols'])-set(frame):
         raise ValueError('Frozen BPS covariates missing '+str(sorted(missing)))
     means=apply_model(frame,bps)
+    if bounds is not None:
+        if bounds.get("current_season_used") is not False or bounds.get("new_parameters") is not False: raise ValueError("Not original frozen BPS bounds")
+        means=np.clip(means,float(bounds["lower"]),float(bounds["upper"]))
     if not np.isfinite(means).all():raise ValueError('Invalid frozen BPS result')
     pos=target.pos.replace({'G':'GK','GKP':'GK'}).astype(str)
     sigma=bpsvar['position_sd90']
@@ -60,8 +63,9 @@ def main():
     p.add_argument('--ledger',type=Path,required=True)
     p.add_argument('--out',type=Path,default=BASE/'vfinal_live_bps_components.csv.gz')
     a=p.parse_args()
+    bounds=json.loads((WORK/"original_bps_development_bounds.json").read_text())
     models=load_models()
-    out=calculate(pd.read_csv(a.target),pd.read_csv(a.ledger),models['bps'],models['bpsvar'])
+    out=calculate(pd.read_csv(a.target),pd.read_csv(a.ledger),models['bps'],models['bpsvar'],bounds)
     a.out.parent.mkdir(parents=True,exist_ok=True)
     out.to_csv(a.out,index=False,compression='gzip')
     WORK.mkdir(parents=True,exist_ok=True)
@@ -72,3 +76,4 @@ def main():
     (WORK/'live_bps_component_audit.json').write_text(json.dumps(report,indent=2)+'\n')
     print(json.dumps(report))
 if __name__=='__main__':main()
+

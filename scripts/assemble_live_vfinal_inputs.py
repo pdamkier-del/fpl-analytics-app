@@ -51,8 +51,8 @@ def assemble(base,pen,bps):
     result['v4_cameo_minutes_mean']=result.mm_sub_minutes
     # Existing penalty/BPS components are only applied at their exact model
     # boundary. These two original functions normalize team scoring shares.
-    result['goal_mu']=normalized_mu(result,result.goal_rate90.to_numpy(float),assist=False)
-    result['assist_mu']=normalized_mu(result,result.assist_rate90.to_numpy(float),assist=True)
+    if 'goal_mu' not in result: result['goal_mu']=normalized_mu(result,result.goal_rate90.to_numpy(float),assist=False)
+    if 'assist_mu' not in result: result['assist_mu']=normalized_mu(result,result.assist_rate90.to_numpy(float),assist=True)
     validate(result)
     return result
 
@@ -73,3 +73,4 @@ def main():
     (WORK/'live_vfinal_full_input_audit.json').write_text(json.dumps(report,indent=2)+'\n')
     print(json.dumps(report))
 if __name__=='__main__':main()
+

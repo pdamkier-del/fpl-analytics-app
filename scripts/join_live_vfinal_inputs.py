@@ -7,6 +7,9 @@ missing player, penalty, bonus-background or team-level parameters.
 from pathlib import Path
 import argparse, hashlib, json
 import pandas as pd
+import sys
+sys.path[:0]=[str(Path(__file__).resolve().parents[1]/"src"),str(Path(__file__).resolve().parents[1]/"scripts")]
+from fpl_v1_1_model.live_availability_boundary import prepare_live_mm_release_candidate
 
 ROOT=Path(__file__).resolve().parents[1]
 BASE=ROOT/"data_v1_1/derived/live_locked_inputs/2026-27-v1"
@@ -72,6 +75,13 @@ def main():
         teams=BASE/"future_team_goal_lambdas.csv.gz",
         saves=BASE/"keeper_lambda_saves_by_fixture_team.csv.gz")
     inputs={k:pd.read_csv(p,low_memory=False) for k,p in paths.items()}
+    mm=inputs["mm"];origin=int(mm.gw.iloc[0]);part=mm[mm.target_gw.eq(origin)].copy()
+    gated=prepare_live_mm_release_candidate(part,p_start=part.p_start.to_numpy(float),
+        q_sub=part.mm_q_sub.to_numpy(float),sub_minutes=part.mm_sub_minutes.to_numpy(float),
+        origin_gw=origin,news_scoped_gw=origin)
+    gated["mm_q_sub"]=gated.live_effective_q_sub
+    future=mm[mm.target_gw.ne(origin)].copy();future["live_eligibility_applied"]=False
+    inputs["mm"]=pd.concat([gated,future],ignore_index=True)
     joined=combine(**inputs)
     args.out.parent.mkdir(parents=True,exist_ok=True)
     joined.to_csv(args.out,index=False,compression="gzip")
@@ -87,3 +97,4 @@ def main():
     print(json.dumps(evidence))
 
 if __name__=="__main__":main()
+
