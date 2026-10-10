@@ -1,5 +1,8 @@
 name: Original TS v3 and chip assessment on explicit manager state
 on:
+  push:
+    branches: [main]
+    paths: [.github/workflows/live-manager-plan.yml]
   workflow_dispatch:
     inputs:
       manager_state_json:
@@ -22,6 +25,7 @@ permissions:
   contents: write
 jobs:
   plan:
+    if: github.event_name == 'workflow_dispatch'
     runs-on: ubuntu-latest
     timeout-minutes: 45
     steps:
@@ -63,3 +67,26 @@ jobs:
           path: work/manager-plan.json
           retention-days: 30
 
+  validate-online-runtime:
+    if: github.event_name == 'push'
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: free-github-static-20261010
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: pip install -r requirements-model-checkpoint.txt -r requirements-model-tests.txt requests
+      - run: python scripts/current_diagnostic_checkpoint.py restore
+      - run: python scripts/build_live_vfinal_desktop.py
+      - name: Validate original manager runtime on explicit synthetic state only
+        run: python scripts/locked_numerical_runtime.py scripts/validate_live_manager_chain.py
+      - run: PYTHONPATH=src python -m pytest -q tests/test_encrypted_manager_result.py tests/test_live_locked_ts_bridge.py
+      - run: node --check app/manager-online.js
+      - uses: actions/upload-artifact@v4
+        with:
+          name: original-manager-runtime-validation-not-personal
+          path: app/integration-validation.json
+          retention-days: 30
