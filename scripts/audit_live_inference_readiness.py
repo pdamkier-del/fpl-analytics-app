@@ -17,7 +17,6 @@ from fpl_v1_1_model.minutes_decomposition import FEATURES as MINUTE_COMPONENT_FE
 from run_v4_three_state_sequence_experiment import BASE_Q_FEATURES,SEQ_FEATURES
 from run_v4_performance_rating_experiment import FAMILIES as PERF_FAMILIES
 from run_mm_v2_xi_rating_experiment import ASSIGN_FEATURES
-from fpl_v1_1_model.rating_history import RATING_FEATURES
 from fpl_v1_1_model.role_classifier import ROLES
 FILE=ROOT/'data_v1_1/derived/live_locked_inputs/2026-27-v1/source_feature_matrix.csv.gz'
 OUT=ROOT/'work/live-final-model/live_inference_readiness.json'
