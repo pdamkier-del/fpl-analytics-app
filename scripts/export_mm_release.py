@@ -38,6 +38,8 @@ def sha256(path:Path):
 def export(args):
     original=read_frame(Path(args.input))
     if not args.live_hard_availability:
+        if args.season!="2025-26":
+            raise ValueError("Current-season MM exports require approved --live-hard-availability")
         if any(x is not None for x in (args.origin_gw,args.news_ledger)):
             raise ValueError("--origin-gw/--news-ledger require --live-hard-availability")
         return write_mm_release(
