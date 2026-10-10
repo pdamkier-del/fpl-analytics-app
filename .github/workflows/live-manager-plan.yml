@@ -28,7 +28,7 @@ jobs:
         with:
           python-version: '3.12'
       - run: pip install -r requirements-model-checkpoint.txt -r requirements-model-tests.txt requests cryptography==46.0.3
-      - run: python scripts/restore_live_vfinal_checkpoint.py --checkpoint model/checkpoints/live_vfinal_gw7_20261010_v2
+      - run: python scripts/current_diagnostic_checkpoint.py restore
       - run: python scripts/build_live_vfinal_desktop.py
       - name: Parse manager input as data, never shell code
         env:
@@ -40,7 +40,6 @@ jobs:
           raw=json.loads(os.environ['MANAGER_STATE_JSON'])
           Path('work/manager-state.json').write_text(json.dumps(raw))
           PY
-      - run: python scripts/restore_live_vfinal_checkpoint.py --checkpoint model/checkpoints/live_tc_gw7_20261010_v1
       - run: python scripts/locked_numerical_runtime.py scripts/run_live_locked_ts.py --state work/manager-state.json --out work/manager-plan.json --tc-samples work/live-manager-validation/tc_samples.csv.gz --tc-receipt work/live-manager-validation/tc_scenarios.json > work/manager-calculation.log
       - name: Return encrypted result to requesting browser
         if: inputs.request_id != '' && inputs.public_key_json != ''

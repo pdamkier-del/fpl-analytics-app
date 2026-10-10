@@ -4,7 +4,7 @@
 The ordinary six-GW checkpoint is restored in finally. No model formula,
 fit parameter, original TC seed, sample count or candidate limit is changed.
 """
-import hashlib,json,subprocess,sys
+import hashlib,json,subprocess,sys,shutil,tempfile
 from dataclasses import replace
 from pathlib import Path
 import numpy as np
@@ -56,6 +56,11 @@ def main():
     receipt=json.loads((WORK/'publication_provenance.json').read_text())
     reference=pd.read_csv(BASE/'vfinal_live_full_simulator_input.csv.gz',low_memory=False)
     original={p:hashlib.sha256((BASE/p).read_bytes()).hexdigest() for p in receipt['checksums']}
+    # Preserve this run's ordinary forecast, including fresh source covariates.
+    # Restoring a fixed GW7 checkpoint here would silently replace new data.
+    backup=Path(tempfile.mkdtemp(prefix='fpl-six-gw-'))
+    preserved=[BASE,WORK]
+    for index,folder in enumerate(preserved):shutil.copytree(folder,backup/str(index))
     try:
         execute('audit_current_locked_inputs',['--horizon-end',end])
         for step in STEPS:
@@ -109,7 +114,10 @@ def main():
         (OUT/'tc_scenarios.json').write_text(json.dumps(audit,indent=2)+'\n')
         print(json.dumps(audit),flush=True)
     finally:
-        restore(ROOT/'model/checkpoints/live_vfinal_gw7_20261010_v2')
+        for index,folder in enumerate(preserved):
+            shutil.rmtree(folder)
+            shutil.copytree(backup/str(index),folder)
+        shutil.rmtree(backup)
         for p,digest in original.items():
             if hashlib.sha256((BASE/p).read_bytes()).hexdigest()!=digest:
                 raise ValueError('Ordinary six-GW checkpoint was not restored')

@@ -27,11 +27,19 @@ WORK=ROOT/'work/live-final-model'
 
 def build():
     actual=pd.read_csv(BASE/'player_fixture_observations.csv.gz')
-    archive,archive_evidence=load_archived_rosters(WORK/'predeadline_2026_archives')
+    folder=WORK/'predeadline_2026_archives'
+    gws=sorted(int(p.stem[2:]) for p in folder.glob('gw*.json'))
+    archive,archive_evidence=load_archived_rosters(folder,expected_gws=gws)
+    # Unarchived historical outcomes cannot enter original historical training.
+    missing=actual.loc[~actual.gw.isin(archive)].copy()
+    dump(WORK/'unarchived_training_outcomes.json',dict(
+        rows=len(missing),gws=sorted(map(int,missing.gw.unique())),
+        reason='No verifiable predeadline roster; excluded, never backfilled'))
+    actual=actual.loc[actual.gw.isin(archive)].copy()
     audited=filter_observed_against_snapshots(actual,archive)
     rejected=audited.loc[~audited._archive_eligibility].copy()
     actual=audited.loc[audited._archive_eligibility].drop(columns=['_archive_eligibility','_archive_reason']).copy()
-    if actual.empty or actual.gw.nunique()!=5:
+    if actual.empty or not {1,2,3,4,5}.issubset(set(actual.gw.astype(int))):
         raise ValueError('Archived predeadline historical roster rejects full GW1-5 training source')
     source=pd.read_csv(BASE/'source_feature_matrix.csv.gz',low_memory=False)
     origin=int(source.gw.iloc[0]); current_cut=pd.Timestamp(source.cutoff.iloc[0])
