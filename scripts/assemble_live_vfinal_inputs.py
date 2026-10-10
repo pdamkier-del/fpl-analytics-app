@@ -51,8 +51,8 @@ def assemble(base,pen,bps):
     result['v4_cameo_minutes_mean']=result.mm_sub_minutes
     # Existing penalty/BPS components are only applied at their exact model
     # boundary. These two original functions normalize team scoring shares.
-    result['goal_mu']=normalized_mu(result,'goal_rate90',assist=False)
-    result['assist_mu']=normalized_mu(result,'assist_rate90',assist=True)
+    result['goal_mu']=normalized_mu(result,result.goal_rate90.to_numpy(float),assist=False)
+    result['assist_mu']=normalized_mu(result,result.assist_rate90.to_numpy(float),assist=True)
     validate(result)
     return result
 
