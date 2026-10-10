@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """Strict live state bridge to the existing frozen TS v3; no synthetic manager."""
-import argparse, json, sys
+import argparse, json, sys, hashlib
 from dataclasses import asdict
 from pathlib import Path
 import pandas as pd
@@ -35,6 +35,7 @@ def parse_state(raw,meta,gw,cutoff):
     for chip,gws in used.items():
         if not isinstance(gws,list) or len(set(gws))!=len(gws):raise ValueError('Invalid chip history '+chip)
         for g in gws:integer(g,'chip GW',1,gw-1)
+        if sum(g<=19 for g in gws)>1 or sum(g>=20 for g in gws)>1:raise ValueError('Chip used twice in the same half: '+chip)
     return ReplayState(owned,bank,ft,used)
 
 def project(payload):
@@ -56,7 +57,9 @@ def run(payload,raw,include_chips=False,tc_samples=None):
     transfers=execute_first_action(after,planned,meta);lineup=plan_squad(origin,list(after.squad),gw)
     result={'locked_model_active':False,'ts_status':'diagnostic' if diagnostic else 'verified',
         'chips_status':'Not Available','ts_ran':True,'chips_ran':False,'forecast_cutoff':payload['data_asof'],
-        'gw':gw,'manager_state_source':raw['source'],'plan':asdict(planned),'transfers':transfers,
+        'gw':gw,'manager_state_source':raw['source'],
+        'manager_state_sha256':hashlib.sha256(json.dumps(raw,sort_keys=True,ensure_ascii=False,separators=(',',':')).encode()).hexdigest(),
+        'plan':asdict(planned),'transfers':transfers,
         'lineup':json.loads(lineup.rows.to_json(orient='records')),
         'interpretation':'Hypothetical recommendations only. Only the first action would be executed; later actions require replanning. No FPL account is modified.',
         'blockers':list(payload.get('blockers',[]))}

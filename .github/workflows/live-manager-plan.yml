@@ -18,7 +18,7 @@ jobs:
         with:
           python-version: '3.12'
       - run: pip install -r requirements-model-checkpoint.txt -r requirements-model-tests.txt requests
-      - run: python scripts/restore_live_vfinal_checkpoint.py
+      - run: python scripts/restore_live_vfinal_checkpoint.py --checkpoint model/checkpoints/live_vfinal_gw7_20261010_v1
       - run: python scripts/build_live_vfinal_desktop.py
       - name: Parse manager input as data, never shell code
         env:

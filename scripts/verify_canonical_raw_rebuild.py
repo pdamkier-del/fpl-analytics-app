@@ -33,7 +33,8 @@ def rebuild():
 def main():
     rebuild();first={p:pd.read_csv(p,low_memory=False) for p in WATCH}
     rebuild();report={'classification':'CANONICAL_RUNTIME_TWO_RAW_REBUILDS','locked_model_active':False,
-        'cutoff':json.loads((WORK/'source_manifest.json').read_text())['observed_at'],'comparisons':{}}
+        'cutoff':str(first[BASE/'vfinal_live_full_simulator_input.csv.gz'].cutoff.iloc[0]),
+        'source_capture':json.loads((WORK/'source_manifest.json').read_text())['observed_at'],'comparisons':{}}
     for path,a in first.items():
         b=pd.read_csv(path,low_memory=False);delta=numeric_diff(a,b)
         equal=a.equals(b);report['comparisons'][path.name]={'exact_equal':equal,'numeric_differences':delta,

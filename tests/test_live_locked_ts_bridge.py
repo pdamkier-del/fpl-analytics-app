@@ -46,3 +46,9 @@ def test_diagnostic_bridge_runs_original_planner_without_promoting_or_mutating_m
     assert result['chips_status']=='diagnostic_partial'
     assert result['chip_assessment']['tc_status']=='Not Available'
     assert result['chip_assessment']['future_chip_gw'] is None
+    import hashlib,json
+    assert result['manager_state_sha256']==hashlib.sha256(json.dumps(raw,sort_keys=True,ensure_ascii=False,separators=(',',':')).encode()).hexdigest()
+
+def test_chip_usage_cannot_be_duplicated_in_one_half():
+    raw,meta=state();raw['chips_used']['free_hit']=[1,2]
+    with pytest.raises(ValueError,match='same half'):m.parse_state(raw,meta,6,'2026-10-10T07:35:11Z')

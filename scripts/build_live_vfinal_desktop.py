@@ -59,6 +59,16 @@ def main():
     inp=BASE/'vfinal_live_full_simulator_input.csv.gz';pred=BASE/'live_vfinal_fixture_xp.csv.gz'
     result=build(pd.read_csv(inp,low_memory=False),pd.read_csv(pred),json.loads((ROOT/'work/live-final-model/bootstrap.json').read_text()),json.loads((ROOT/'work/live-final-model/live_bps_source_audit.json').read_text()))
     result['checksums']={p.name:hashlib.sha256(p.read_bytes()).hexdigest() for p in (inp,pred)}
+    provenance=ROOT/'work/live-final-model/publication_provenance.json'
+    if provenance.exists():
+        evidence=json.loads(provenance.read_text())
+        if evidence['cutoff']!=result['data_asof'] or evidence['checksums']!=result['checksums']:
+            raise ValueError('Publication provenance does not match actual simulator inputs/output')
+        result['source_workflow']=evidence['source_workflow']
+        result['reproducibility']=evidence['reproducibility']
+        if evidence['reproducibility']['two_raw_rebuilds_exact']:
+            result['blockers']=[b for b in result['blockers'] if not b.startswith('Upstream numerical refits')]
+        result['source_limitations']=evidence['source_limitations']
     a.out.parent.mkdir(parents=True,exist_ok=True);a.out.write_text(json.dumps(result,ensure_ascii=False,allow_nan=False,separators=(',',':'))+'\n')
     print('Published diagnostic only:',result['fixtures'],result['player_fixture_rows'],len(result['players']))
 if __name__=='__main__':main()

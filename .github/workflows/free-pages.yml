@@ -45,11 +45,12 @@ jobs:
         run: pip install -r requirements-model-checkpoint.txt -r requirements-model-tests.txt requests
       - name: Restore and publish real original-vFinal diagnostic checkpoint
         run: |
-          python scripts/restore_live_vfinal_checkpoint.py
+          python scripts/restore_live_vfinal_checkpoint.py --checkpoint model/checkpoints/live_vfinal_gw7_20261010_v1
           python scripts/audit_live_vfinal_outputs.py
           python scripts/build_live_vfinal_desktop.py
           python scripts/run_live_locked_ts.py
           PYTHONPATH=src python -m pytest -q tests/test_live_vfinal_desktop.py tests/test_live_locked_ts_bridge.py tests/test_run_live_vfinal_joint_simulation.py
+          node --check app/manager-state.js
       - name: Keep locked model unavailable until separately certified
         run: |
           python - <<'PY'

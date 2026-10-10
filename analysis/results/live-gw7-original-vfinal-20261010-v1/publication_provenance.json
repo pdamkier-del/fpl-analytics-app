@@ -1,0 +1,22 @@
+{
+  "cutoff": "2026-10-10T14:39:56.350918+00:00",
+  "source_workflow": "https://github.com/pdamkier-del/fpl-analytics-app/actions/runs/38060960735",
+  "checksums": {
+    "vfinal_live_full_simulator_input.csv.gz": "e5462b5d90ed41b213d750c520e06d6180f77afd3fb02cce5042c8194eab4c62",
+    "live_vfinal_fixture_xp.csv.gz": "78faf203afadad14053be6661bd49d203f51765077ea58d767e0816acb0196a0"
+  },
+  "reproducibility": {
+    "two_raw_rebuilds_exact": true,
+    "workflow": "https://github.com/pdamkier-del/fpl-analytics-app/actions/runs/38060960735",
+    "evidence": "canonical_raw_rebuild.json"
+  },
+  "source_limitations": [
+    "GW1-5 postmatch training is observed; missing unused-player cohorts are not fabricated.",
+    "83 completed provider matches at this cutoff; match publication uses documented kickoff+4h proxy.",
+    "242 players have no verified starting-role history; measured average positions are unavailable.",
+    "FA Cup inventory returned 2025/26 and was rejected for this season.",
+    "Historical provider-stat revisions are not exact archived predeadline feature captures.",
+    "BPS: 1204 verified rows, 334 incomplete rows quarantined.",
+    "TC generator remains historical 2025/26 with realized-calendar proxy; it is not used for live chip decisions."
+  ]
+}
