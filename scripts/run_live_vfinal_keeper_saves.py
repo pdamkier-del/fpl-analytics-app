@@ -43,7 +43,9 @@ def build():
     bootstrap=json.loads((WORK/'bootstrap.json').read_text())
     code_to_id={int(t['code']):int(t['id']) for t in bootstrap['teams']}
     by_file={mid:path for mid,(_,path) in manifest_details(ROOT,manifest).items()}
-    sides=[];captured=[];fixture_keys=set()
+    official=json.loads((WORK/'fixtures.json').read_text())
+    lookup={(int(f['team_h']),int(f['team_a']),pd.Timestamp(f['kickoff_time'])):f for f in official if f.get('kickoff_time')}
+    sides=[];captured=[];fixture_keys=set();provisional=[]
     for g in read_games():
         if g.get('tournament')!='prem' or g.get('gameweek') is None or int(g['gameweek'])>=origin:
             continue
@@ -57,6 +59,12 @@ def build():
         home,away=sot_pair(provider)
         ht=code_to_id[int(g['home_team'])];at=code_to_id[int(g['away_team'])]
         if ht==at:raise ValueError('Invalid fixture team identities')
+        f=lookup.get((ht,at,pd.Timestamp(g['kickoff_time'])))
+        if not f or not (f.get('finished') or (f.get('finished_provisional') and f.get('started') and f.get('minutes')==90)):
+            raise ValueError('Provider match lacks official completed/provisional evidence')
+        if (f.get('team_h_score'),f.get('team_a_score'))!=(g['home_score'],g['away_score']):
+            raise ValueError('Official and provider scores differ')
+        if not f.get('finished'):provisional.append(int(f['id']))
         for team,opp,for_shots,against,is_home in [
             (ht,at,home,away,True),(at,ht,away,home,False)]:
             sides.append(dict(season='2026-27',
@@ -67,13 +75,12 @@ def build():
         captured.append(match_id)
         fixture_keys.add((ht,at,pd.Timestamp(g['kickoff_time'])))
     h=pd.DataFrame(sides)
-    official=json.loads((WORK/'fixtures.json').read_text())
     expected={(int(f['team_h']),int(f['team_a']),pd.Timestamp(f['kickoff_time']))
-              for f in official if f.get('finished') and f.get('event') is not None
+              for f in official if (f.get('finished') or (f.get('finished_provisional') and f.get('started') and f.get('minutes')==90)) and f.get('event') is not None
               and int(f['event'])<origin and f.get('kickoff_time')
               and pd.Timestamp(f['kickoff_time'])+pd.Timedelta(hours=4)<cutoff}
     if fixture_keys!=expected or len(set(captured))!=len(expected) or len(h)!=2*len(expected) or h.groupby('team_id').size().min()<5 or h.team_id.nunique()!=20:
-        raise ValueError(f'Missing complete cutoff-eligible official SOT history: {len(captured)} of {len(expected)} games; missing={expected-fixture_keys}; extra={fixture_keys-expected}; official_extra='+json.dumps([f for f in official if f.get('kickoff_time') and (int(f['team_h']),int(f['team_a']),pd.Timestamp(f['kickoff_time'])) in fixture_keys-expected]))
+        raise ValueError(f'Missing complete cutoff-eligible official SOT history: {len(captured)} of {len(expected)} games; missing={expected-fixture_keys}; extra={fixture_keys-expected}')
     if h[['fixture_uuid','team_id']].duplicated().any():
         raise ValueError('Duplicate provider SOT team side')
     t=pd.read_csv(BASE/'future_team_goal_lambdas.csv.gz')
@@ -94,7 +101,7 @@ def build():
         raise ValueError('Invalid predicted saves')
     pred.to_csv(OUT,index=False,compression='gzip')
     report={'classification':'FROZEN_KEEPER_SAVE_COMPONENT_ON_ARCHIVED_2026_SOT_NOT_FULL_PM',
-       'origin_gw':origin,'archived_pl_matches':len(captured),
+       'official_provisionally_finished_fixture_ids':provisional,'provisional_source_not_final_fpl_certification':True,'origin_gw':origin,'archived_pl_matches':len(captured),
        'training_team_fixture_sides':len(h),'team_ids':int(h.team_id.nunique()),
        'future_fixture_sides':len(pred),'future_fixtures':int(pred.fixture_uuid.nunique()),
        'frozen_model_source':'analysis/results/joint-team-keeper-recovery-v1/keeper_fit.json',
