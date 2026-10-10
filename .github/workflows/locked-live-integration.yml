@@ -1,0 +1,53 @@
+name: Locked live chain data and integration
+on:
+  push:
+    branches: [free-github-static-20261010]
+    paths: ['scripts/collect_current_locked_inputs.py', '.github/workflows/locked-live-integration.yml']
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  prepare:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - uses: actions/cache@v4
+        with:
+          path: .cache/current-locked-inputs
+          key: locked-current-inputs-${{ github.run_id }}
+          restore-keys: locked-current-inputs-
+      - run: python scripts/fetch_live_fixtures.py
+      - run: python scripts/restore_core_checkpoint.py --out work/core.sqlite3
+      - run: python scripts/collect_current_locked_inputs.py
+      - name: Export existing code and frozen JSON artifacts for integration audit
+        if: always()
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          import tarfile
+          files=[]
+          for folder in ['src','scripts','app','tests','config','docs','analysis','model']:
+              files += [p for p in Path(folder).rglob('*') if p.is_file() and p.suffix in {'.py','.js','.cjs','.html','.css','.json','.md','.txt','.yml'} and 'checkpoints' not in p.parts and p.stat().st_size<3000000]
+          files += list(Path('.github/workflows').glob('*.yml')) + list(Path('.').glob('requirements*.txt'))
+          with tarfile.open('work/code-audit.tar.gz','w:gz') as t:
+              for p in sorted(set(files)):t.add(p,arcname=str(p))
+          PY
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: locked-live-inputs-and-code
+          path: |
+            work/code-audit.tar.gz
+            work/live-final-model/
+            data_v1_1/raw/live-captures/
+            data_v1_1/raw/fpl-core-2026-27/
+            data_v1_1/raw/all-competitions-2026-27/
+            data_v1_1/derived/team_news_audit/2026-27-v2/
+            data_v1_1/derived/mm_v2_ratings/player_match_ratings_2026_27.csv.gz
+            app/current-players.json
+            app/live-fixtures.json
+          retention-days: 90
