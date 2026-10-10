@@ -238,3 +238,5 @@
 (()=>{for(const n of document.querySelectorAll('.sidebar .nav')){if(n.querySelector('a[href="forecast-live.html"]'))continue;const anchor=n.querySelector('a[href="overview.html"]');if(anchor){const a=document.createElement('a');a.href='forecast-live.html';a.textContent='Aktuel FPL xP';anchor.insertAdjacentElement('afterend',a)}}})();
 
 (()=>{for(const n of document.querySelectorAll('.sidebar .nav')){if(n.querySelector('a[href="my-team-live.html"]'))continue;const anchor=n.querySelector('a[href="my-team.html"]')||n.querySelector('a[href="overview.html"]');if(anchor){const a=document.createElement('a');a.href='my-team-live.html';a.textContent='Aktuelt My Team · FPL';anchor.insertAdjacentElement('afterend',a)}}})();
+
+(()=>{for(const n of document.querySelectorAll('.sidebar .nav')){if(n.querySelector('a[href="own-forecast.html"]'))continue;const anchor=n.querySelector('a[href="forecast-live.html"]')||n.querySelector('a[href="overview.html"]');if(anchor){const a=document.createElement('a');a.href='own-forecast.html';a.textContent='Vores egne xP · 6 GW';anchor.insertAdjacentElement('afterend',a)}}})();
