@@ -36,6 +36,10 @@ def calculate(target,ledger,bps,bpsvar):
         if not np.isfinite(val.to_numpy(float)).all():
             raise ValueError('Unverified BPS event data '+field)
     if (ledger.minutes_played<=0).any():raise ValueError('Invalid BPS played minute evidence')
+    # Frozen add_history compares provider available_at with timezone-aware
+    # cutoffs, so retain the parsed timestamps instead of raw CSV strings.
+    target=target.copy();target['cutoff']=cutoff
+    ledger=ledger.copy();ledger['available_at']=seen
     frame=feature_frame(target,3.,ledger)
     if missing:=set(bps['cols'])-set(frame):
         raise ValueError('Frozen BPS covariates missing '+str(sorted(missing)))
