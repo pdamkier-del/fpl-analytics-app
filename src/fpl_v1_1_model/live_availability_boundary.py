@@ -14,7 +14,7 @@ import pandas as pd
 from .mm_release import validate_mm_release
 
 HARD_STATES=frozenset(("OUT","SUSPENDED"))
-BOUNDARY_VERSION="live-hard-eligibility-v1-candidate"
+BOUNDARY_VERSION="live-hard-eligibility-v1"
 
 
 def prepare_live_mm_release_candidate(
@@ -84,3 +84,56 @@ def prepare_live_mm_release_candidate(
     x["xmins"]=minutes
     validate_mm_release(x)  # still enforce exact XI and hard-ineligible rules
     return x
+
+
+def validate_scoped_official_news(frame: pd.DataFrame, ledger: pd.DataFrame, *, origin_gw: int) -> dict:
+    """Require real player-level cutoff-safe Team News before any *live* release.
+
+    Ledger schema is the collector's official season/GW player snapshot.
+    All MM players must be present in that same origin GW, not merely
+    assumed from a command-line flag. No inferred later-GW OUT decisions.
+    """
+    required={"player_uuid","gw","team_news_state","cutoff"}
+    needed_ledger={"player_uuid","gw","normalized_availability_state",
+                   "observed_at","cutoff","source","source_id","timing_verified"}
+    if missing:=required-set(frame.columns):
+        raise ValueError(f"MM table missing scoped news columns: {sorted(missing)}")
+    if missing:=needed_ledger-set(ledger.columns):
+        raise ValueError(f"Team News ledger missing columns: {sorted(missing)}")
+    if frame.empty or not frame.gw.eq(origin_gw).all():
+        raise ValueError("MM target GW mismatches official news origin GW")
+    if ledger.empty:
+        raise ValueError("Team News ledger is empty")
+    ledger=ledger.copy(deep=True)
+    ledger["gw"]=pd.to_numeric(ledger.gw,errors="coerce")
+    if ledger.gw.isna().any():
+        raise ValueError("Team News GW is invalid")
+    ledger=ledger.loc[ledger.gw.eq(origin_gw)].copy()
+    if ledger.empty or ledger.player_uuid.isna().any():
+        raise ValueError("No valid official Team News scoped to origin GW")
+    if ledger.player_uuid.duplicated().any():
+        raise ValueError("Ambiguous duplicate Team News for a player/GW")
+    news=ledger.set_index("player_uuid")
+    players=frame.player_uuid.astype(str)
+    if not players.isin(news.index).all():
+        raise ValueError("MM player missing official scoped Team News observation")
+    aligned=news.reindex(players).reset_index(drop=True)
+    if not aligned.normalized_availability_state.astype(str).eq(frame.team_news_state.astype(str).reset_index(drop=True)).all():
+        raise ValueError("MM availability differs from official scoped Team News ledger")
+    if not aligned.timing_verified.eq(True).all():
+        raise ValueError("Unverified Team News timing")
+    if not aligned.source.astype(str).eq("Official FPL bootstrap-static").all():
+        raise ValueError("Expected captured official FPL Team News source")
+    if aligned.source_id.isna().any() or aligned.source_id.astype(str).str.strip().eq("").any():
+        raise ValueError("Missing Team News source ID")
+    origin_cut=pd.to_datetime(frame.cutoff,errors="coerce",utc=True)
+    observed=pd.to_datetime(aligned.observed_at,errors="coerce",utc=True)
+    official_deadline=pd.to_datetime(aligned.cutoff,errors="coerce",utc=True)
+    if origin_cut.isna().any() or observed.isna().any() or official_deadline.isna().any():
+        raise ValueError("Invalid Team News timestamp")
+    if (observed.to_numpy()>origin_cut.to_numpy()).any() or (observed>official_deadline).any():
+        raise ValueError("Post-cutoff Team News is not allowed")
+    return {"official_news_gw":int(origin_gw),
+            "players_with_verified_news":int(len(set(players))),
+            "official_news_rows":int(len(ledger)),
+            "official_news_capture_max":observed.max().isoformat()}
