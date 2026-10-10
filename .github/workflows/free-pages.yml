@@ -43,43 +43,16 @@ jobs:
         run: python scripts/build_static_role_snapshot.py
       - name: Install locked MM diagnostic requirements (no final-model promotion)
         run: pip install -r requirements-model-checkpoint.txt -r requirements-model-tests.txt requests
-      - name: Restore checksum-verified 2026-27 historical sources for MM diagnostic
-        run: python scripts/restore_live_input_checkpoint.py --out .
-      - name: Rebuild unchanged locked MM feature inputs at recorded cutoff
-        run: |
-          python scripts/build_locked_live_sequence_features.py
-          python scripts/build_locked_live_performance_features.py
-          python scripts/build_locked_live_v2_baseline.py
-          python scripts/build_live_mm_training_features.py
-      - name: Run real frozen MM one-GW diagnostic, never certify final chain
-        run: |
-          python scripts/run_locked_live_mm_inference.py --one-gw
-          python scripts/publish_mm_diagnostic_preview.py
-          python scripts/run_locked_live_mm_inference.py
-          python scripts/publish_mm_six_gw_preview.py
-      - name: Validate preview scope and no accidental final-model certification
+      - name: Keep locked model unavailable until separately certified
         run: |
           python - <<'PY'
           import json
           from pathlib import Path
-          p=json.loads(Path('app/mm-diagnostic.json').read_text())
-          assert p['classification']=='UNCERTIFIED_DIAGNOSTIC_FROZEN_MM_NOT_LIVE_FINAL'
-          assert p['locked_model_active'] is False and p['full_final_chain_certified'] is False
-          assert p['player_count']==len(p['rows'])==667 and p['fixture_count']==10
-          assert p['team_count']==20 and p['model_math_changed'] is False
-          h=json.loads(Path('app/mm-diagnostic-6gw.json').read_text())
-          assert h['classification']=='UNCERTIFIED_DIAGNOSTIC_SIX_GW_MM_NOT_FINAL'
-          assert h['locked_model_active'] is False and h['full_final_chain_certified'] is False
-          assert h['gws']==list(range(p['gw'],p['gw']+6))
-          assert h['player_week_rows']==667*6 and len(h['rows'])==667*6
-          assert h['origin_not_available_count']==p['not_available_count']
-          assert all(row['gw']==p['gw'] for row in h['rows'] if row['not_available'])
-          assert all(row['future_team_news_unknown'] for row in h['rows'] if row['gw']!=p['gw'])
-          assert h['max_expected_starters_error']<1e-6
-          assert all(x['xmins']==0 and x['p_start']==0 and x['p_sub_given_not_start']==0
-                     for x in p['rows'] if x['not_available'])
-          assert all(x['xmins']>=0 and 0<=x['p_start']<=1 for x in p['rows'])
-          print('VALID 667-PLAYER UNCERTIFIED MM DIAGNOSTIC GW',p['gw'])
+          p=Path("app/final-forecast.json")
+          x=json.loads(p.read_text())
+          if x.get("locked_model_active"):
+              raise ValueError("Do not publish uncertified model in desktop release")
+          print("Desktop deploy independent of MM replay reconstruction")
           PY
       - name: Verify official data and app entrypoints
         run: |
@@ -116,7 +89,6 @@ jobs:
           assert all(gw<people["next_gw"] for gw in history["completed_gws"])
           assert len(history["rows"])>=250*len(history["completed_gws"])
           assert source["certification"]["frozen_MM_feature_complete"] is False
-          assert (a/"mm-diagnostic.json").is_file() and (a/"mm-diagnostic-6gw.json").is_file()
           assert final["locked_model_active"] is False or (len(final["players"])>=250 and all(v=="verified" for v in final["parts"].values()))
           assert any(w["xpts"]>0 for p in own["players"] for w in p["weeks"])
           assert fixtures["fetched_at"]==people["fetched_at"]
