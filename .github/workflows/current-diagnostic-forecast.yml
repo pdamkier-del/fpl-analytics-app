@@ -31,7 +31,7 @@ jobs:
           python scripts/restore_live_input_checkpoint.py --out .
           python scripts/restore_live_vfinal_checkpoint.py --checkpoint model/checkpoints/live_gw7_sources_20261010_v1
           python scripts/current_diagnostic_checkpoint.py restore
-      - name: Capture fresh official sources and replay original chain twice
+      - name: Capture fresh sources, replay original chain twice and verify subset parity
         run: python scripts/locked_numerical_runtime.py scripts/run_current_diagnostic_pipeline.py
       - name: Run original regression and presentation checks
         run: |
