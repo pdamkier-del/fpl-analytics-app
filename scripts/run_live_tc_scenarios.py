@@ -55,6 +55,7 @@ def main():
     origin=min(forecast['gws']);end=19 if origin<=19 else 38
     receipt=json.loads((WORK/'publication_provenance.json').read_text())
     reference=pd.read_csv(BASE/'vfinal_live_full_simulator_input.csv.gz',low_memory=False)
+    reference=reference.loc[reference.target_gw.astype(int)<=end].copy()
     original={p:hashlib.sha256((BASE/p).read_bytes()).hexdigest() for p in receipt['checksums']}
     # Preserve this run's ordinary forecast, including fresh source covariates.
     # Restoring a fixed GW7 checkpoint here would silently replace new data.
@@ -106,7 +107,7 @@ def main():
             'fixtures_snapshot_sha256':hashlib.sha256(fixture_source.read_bytes()).hexdigest(),
             'source_checkpoint':'model/checkpoints/live_gw7_sources_20261010_v1',
             'ordinary_six_gw_checksums':original,'fixtures':int(frame.fixture_uuid.nunique()),'input_rows':len(frame),'samples':len(out),
-            'same_six_gw_inputs_exact':True,'raw_extension_comparison_ulp_limit':8,'raw_extension_six_gw_numeric_differences':drift,'current_forecast_source':'IMMUTABLE_APPROVED_SIX_GW_INPUT_ROWS_NO_ROUNDING','draws':400,'top_k_per_gw':20,'two_sample_replays_exact':True,
+            'same_six_gw_inputs_exact':True,'ordinary_gws_used_in_current_chip_period':sorted(map(int,reference.target_gw.unique())),'raw_extension_comparison_ulp_limit':8,'raw_extension_six_gw_numeric_differences':drift,'current_forecast_source':'IMMUTABLE_APPROVED_SIX_GW_INPUT_ROWS_NO_ROUNDING','draws':400,'top_k_per_gw':20,'two_sample_replays_exact':True,
             'samples_sha256':hashlib.sha256((OUT/'tc_samples.csv.gz').read_bytes()).hexdigest(),
             'simulator_inputs_sha256':hashlib.sha256(source.read_bytes()).hexdigest(),
             'model_math_changed':False,'manual_decision_required':True,'locked_model_active':False,

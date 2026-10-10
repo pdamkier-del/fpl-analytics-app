@@ -20,9 +20,15 @@ def main():
     at=m['bootstrap_observed_at'];deadline=m['deadline']
     if datetime.fromisoformat(at)>=datetime.fromisoformat(deadline):raise ValueError('Roster observed after deadline')
     f=W/'predeadline_2026_archives'/f'gw{gw}.json';f.parent.mkdir(parents=True,exist_ok=True)
-    if not f.exists():
+    previous=json.loads(f.read_text()) if f.exists() else None
+    if previous is None or datetime.fromisoformat(at)>datetime.fromisoformat(previous['evidence']['snapshot_at_utc']):
+        if previous is not None:
+            old=f.parent/'snapshots'/f'gw{gw}'/(hashlib.sha256(f.read_bytes()).hexdigest()+'.json')
+            old.parent.mkdir(parents=True,exist_ok=True);old.write_bytes(f.read_bytes())
         obj=dict(evidence=dict(gw=gw,snapshot_at_utc=at,official_deadline=deadline,players=len(b['elements']),source_sha256=hashlib.sha256((W/'bootstrap.json').read_bytes()).hexdigest(),source='Official FPL captured by this workflow; exact capture time, not publication time'),players=[dict(id=p['id'],team=p['team'],position=p['element_type'],name=p['web_name'],status=p['status'],news=p.get('news'),news_added=p.get('news_added'),chance_next=p.get('chance_of_playing_next_round')) for p in b['elements']])
         f.write_text(json.dumps(obj,indent=2)+'\n')
+        saved=f.parent/'snapshots'/f'gw{gw}'/(hashlib.sha256(f.read_bytes()).hexdigest()+'.json')
+        saved.parent.mkdir(parents=True,exist_ok=True);saved.write_bytes(f.read_bytes())
     for p in [W/'publication_provenance.json',ROOT/'work/live-manager-validation/tc_scenarios.json']:
         p.unlink(missing_ok=True)
     execute('audit_current_locked_inputs')

@@ -41,7 +41,7 @@ def build(inputs,predictions,bootstrap,audit):
                     'team':teams[int(p['team'])],'team_id':int(p['team']),'position':int(p['element_type']),
                     'price_tenths':int(p['now_cost']),'weeks':weeks})
     return {'model':'original_locked_vFinal_diagnostic','locked_model_active':False,
-        'data_asof':str(x.cutoff.iloc[0]),'season':'2026-27','gws':sorted(x.gw.unique().astype(int).tolist()),
+        'freshness_limit_hours':24,'data_asof':str(x.cutoff.iloc[0]),'season':'2026-27','gws':sorted(x.gw.unique().astype(int).tolist()),
         'origin_deadline':next(e['deadline_time'] for e in bootstrap['events'] if int(e['id'])==int(x.gw.min())) if 'events' in bootstrap else None,
         'fixtures':int(x.fixture_uuid.nunique()),'player_fixture_rows':len(x),'players':out,
         'source_workflow':'https://github.com/pdamkier-del/fpl-analytics-app/actions/runs/38056989718',
