@@ -26,6 +26,10 @@ def calculate(target,ledger,bps,bpsvar,bounds=None):
         raise ValueError('Missing verified 2026/27 BPS history fields '+str(sorted(missing)))
     if target.duplicated(['fixture_uuid','player_uuid']).any():
         raise ValueError('Duplicate BPS target player fixture')
+    if ledger.empty:
+        raise ValueError('Empty verified BPS history')
+    if ledger.duplicated(['player_uuid','available_at']).any():
+        raise ValueError('Duplicate BPS historical player observation')
     cutoff=pd.to_datetime(target.cutoff,utc=True,errors='raise')
     seen=pd.to_datetime(ledger.available_at,utc=True,errors='raise')
     if cutoff.nunique()!=1 or not (seen<cutoff.min()).all():
