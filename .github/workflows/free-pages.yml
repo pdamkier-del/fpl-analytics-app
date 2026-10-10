@@ -29,6 +29,8 @@ jobs:
         run: python scripts/build_own_forecast.py
       - name: Prepare verified official GW player-fixture source features
         run: python scripts/build_live_feature_base.py
+      - name: Derive recent minutes and starts for official upcoming GW
+        run: python scripts/build_gw_recency_features.py
       - name: Audit frozen final model for one actual upcoming gameweek
         run: python scripts/audit_live_one_gw.py
       - name: Publish locked final-model release contract
@@ -62,6 +64,10 @@ jobs:
           assert audit["official_fixture_feature_base_ready"]
           source=json.loads((a/"gw-source-features.json").read_text())
           assert source["fixture_count"]==audit["fixture_count"]
+          recency=json.loads((a/"gw-recency-features.json").read_text())
+          assert recency["observed_at"]==people["fetched_at"] and recency["gw"]==people["next_gw"]
+          assert recency["count"]==source["player_fixture_count"]
+          assert recency["locked_mm_feature_complete"] is False
           history=json.loads((a/"historical-gw-stats.json").read_text())
           assert history["observed_at"]==people["fetched_at"]
           assert all(gw<people["next_gw"] for gw in history["completed_gws"])
