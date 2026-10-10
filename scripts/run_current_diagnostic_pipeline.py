@@ -9,7 +9,11 @@ W=ROOT/'work/live-final-model';B=ROOT/'data_v1_1/derived/live_locked_inputs/2026
 def main():
     execute('collect_current_locked_inputs')
     m=json.loads((W/'source_manifest.json').read_text())
-    if m['errors']:raise ValueError('Source collection errors: publication blocked')
+    # An explicitly wrong-season FA inventory already blocked that source in
+    # the accepted diagnostic snapshot. Keep it excluded and disclosed; fail
+    # all other collection errors, especially missing current-season matches.
+    permitted=[e for e in m['errors'] if e.get('source')=='FotMob inventory' and e.get('competition')=='fa' and e.get('error')=='Requested 2026/2027, provider returned 2025/2026']
+    if len(permitted)!=len(m['errors']):raise ValueError('Source collection errors: publication blocked')
     if int(m['target_gw'])>33:raise ValueError('Original six-GW TS horizon exceeds season; no shortened strategy substituted')
     # Capture authentic roster/news evidence now for subsequent historical training.
     b=json.loads((W/'bootstrap.json').read_text());gw=int(m['target_gw'])
@@ -24,7 +28,7 @@ def main():
     execute('audit_current_locked_inputs')
     execute('verify_canonical_raw_rebuild')
     audit=json.loads((W/'canonical_raw_rebuild.json').read_text())
-    receipt=dict(cutoff=m['observed_at'],source_workflow='https://github.com/'+os.environ['GITHUB_REPOSITORY']+'/actions/runs/'+os.environ['GITHUB_RUN_ID'],checksums={name:hashlib.sha256((B/name).read_bytes()).hexdigest() for name in ['vfinal_live_full_simulator_input.csv.gz','live_vfinal_fixture_xp.csv.gz']},reproducibility=dict(two_raw_rebuilds_exact=audit['passed']),source_limitations=['Historical availability times remain unverified kickoff + 4h proxies.','Partial BPS and historical MM coverage prevent full certification.'])
+    receipt=dict(cutoff=m['observed_at'],source_workflow='https://github.com/'+os.environ['GITHUB_REPOSITORY']+'/actions/runs/'+os.environ['GITHUB_RUN_ID'],checksums={name:hashlib.sha256((B/name).read_bytes()).hexdigest() for name in ['vfinal_live_full_simulator_input.csv.gz','live_vfinal_fixture_xp.csv.gz']},reproducibility=dict(two_raw_rebuilds_exact=audit['passed']),source_limitations=['Historical availability times remain unverified kickoff + 4h proxies.','Partial BPS and historical MM coverage prevent full certification.']+['Excluded source: '+str(e) for e in permitted])
     (W/'publication_provenance.json').write_text(json.dumps(receipt,indent=2)+'\n')
     execute('build_live_vfinal_desktop');execute('run_live_tc_scenarios');execute('build_live_vfinal_desktop')
     execute('validate_live_manager_chain')
