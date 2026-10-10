@@ -1,6 +1,7 @@
 'use strict';
 (()=>{
  const $=id=>document.getElementById(id),repo='pdamkier-del/fpl-analytics-app',branch='free-github-static-20261010';
+ fetch('https://api.github.com/repos/'+repo+'/contents/app/diagnostic-pipeline-status.json?ref='+branch,{cache:'no-store',headers:{Accept:'application/vnd.github+json'}}).then(r=>r.ok?r.json():null).then(file=>{if(!file)return;const info=JSON.parse(new TextDecoder().decode(Uint8Array.from(atob(file.content.replace(/\s/g,'')),c=>c.charCodeAt(0))));const p=$('pipelineStatus');p.textContent='Seneste automatiske forecastforsøg: '+info.status+' · '+info.observed_at+'. ';const link=document.createElement('a');link.href=info.workflow;link.textContent='Se kørsel';link.target='_blank';link.rel='noopener noreferrer';p.append(link);if(info.status!=='success')p.append(document.createTextNode(' Sidste verificerede forecast bevares og kontrolleres for alder og GW.'))}).catch(()=>{});
  const from64=s=>Uint8Array.from(atob(s),c=>c.charCodeAt(0));
  async function open(envelope,privateKey){
   if(envelope.version!==1||envelope.algorithm!=='RSA-OAEP-256+A256GCM')throw Error('Ugyldigt krypteret svar');
