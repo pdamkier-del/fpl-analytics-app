@@ -90,7 +90,7 @@ details summary{cursor:pointer;color:var(--pl);font-weight:800;font-size:11px}
  async function load(){
    $('mode-status').textContent='Beregner forecast fra de tilgængelige data…';
    try{
-     const response=await fetch('/api/forecast/preview',{cache:'no-store'});
+     const response=await fetch(location.hostname.endsWith('github.io')?'./forecast-snapshot.json':'/api/forecast/preview',{cache:'no-store'});
      const data=await response.json();
      if(!response.ok)throw new Error(data.error||'Fejl ved beregning');
      render(data);
