@@ -122,8 +122,13 @@ def build():
             carried_from_earlier_gw=False,unchanged_news_since_previous_gw=False))
     if len(archived_news)!=len(frame):
         raise ValueError('Historical archive Team News row count differs from training cohort')
-    official_now=readjl(ROOT/'data_v1_1/derived/team_news_audit/2026-27-v2/predeadline_strict.jsonl.gz')
-    strict=pd.DataFrame(archived_news+official_now)
+    # Historical GW1-5 training must use only the independently archived
+    # strictly predeadline snapshots above. The separate origin-GW6 strict
+    # file contains live/nullable publication timestamps and belongs to
+    # CURRENT forecast features, never to past training rows.
+    strict=pd.DataFrame(archived_news)
+    if set(strict.gw.astype(int)) != set(frame.gw.astype(int)):
+        raise ValueError('Archived Team News GW coverage differs from historical training')
     frame=build_strict_team_news_features(frame,strict)
     if frame.team_news_known.sum()<len(frame)*.7:
         raise ValueError('Predeadline archive historical Team News coverage unexpectedly low')
