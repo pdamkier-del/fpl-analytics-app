@@ -66,7 +66,15 @@ const mobileNav=element('nav','fpl-bottom-nav',{'aria-label':'Mobil navigation'}
 for(const item of links.slice(0,5)){
  const a=element('a',item.key===section?'active':'',{href:item.href});
  if(item.key===section)a.setAttribute('aria-current','page');
- const glyph=element('span','fpl-nav-icon',{'aria-hidden':'true'});glyph.textContent=item.glyph;
+ const glyph=element('span','fpl-nav-icon',{'aria-hidden':'true'});
+ const drawings={
+  overview:'<path d="m3 10 9-7 9 7"/><path d="M5 9v12h14V9"/><path d="M9 21v-8h6v8"/>',
+  squad:'<circle cx="9" cy="7.5" r="3"/><path d="M2.5 20v-2.5A5.5 5.5 0 0 1 8 12h2a5.5 5.5 0 0 1 5.5 5.5V20"/><path d="M16 5a3 3 0 0 1 0 6M16.5 13a5 5 0 0 1 5 5v2"/>',
+  forecast:'<path d="M3 3v18h18"/><path d="m6 16 4-5 4 3 5-8"/>',
+  transfers:'<path d="M4 8h15l-4-4"/><path d="m19 8-4 4"/><path d="M20 16H5l4-4"/><path d="m5 16 4 4"/>',
+  fixtures:'<rect x="3" y="5" width="18" height="16" rx="2"/><path d="M7 3v4M17 3v4M3 10h18"/><path d="m10 15 2 2 4-4"/>'
+ };
+ glyph.innerHTML='<svg viewBox="0 0 24 24" aria-hidden="true">'+(drawings[item.key]||'')+'</svg>';
  const label=element('span','');label.textContent=item.short;
  a.append(glyph,label);mobileNav.appendChild(a);
 }
