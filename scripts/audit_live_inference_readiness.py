@@ -18,7 +18,9 @@ from run_v4_three_state_sequence_experiment import BASE_Q_FEATURES,SEQ_FEATURES
 from run_v4_performance_rating_experiment import FAMILIES as PERF_FAMILIES
 from run_mm_v2_xi_rating_experiment import ASSIGN_FEATURES
 from fpl_v1_1_model.role_classifier import ROLES
-FILE=ROOT/'data_v1_1/derived/live_locked_inputs/2026-27-v1/source_feature_matrix.csv.gz'
+RAW=ROOT/'data_v1_1/derived/live_locked_inputs/2026-27-v1/source_feature_matrix.csv.gz'
+SEQUENCE=ROOT/'data_v1_1/derived/live_locked_inputs/2026-27-v1/sequence_feature_matrix.csv.gz'
+FILE=SEQUENCE if SEQUENCE.is_file() else RAW
 OUT=ROOT/'work/live-final-model/live_inference_readiness.json'
 def audit():
     if not FILE.exists():raise FileNotFoundError('Restore checksum-verified source checkpoint first')
