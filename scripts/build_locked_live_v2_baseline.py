@@ -145,8 +145,10 @@ def build():
     if not np.isfinite(result[["base_logit","start_minutes_mean",
         "cameo_minutes_mean","p_cameo_given_bench"]].to_numpy(float)).all():
         raise ValueError("Invalid minutes component")
-    if not result.start_minutes_mean.between(0,90).all() or not result.cameo_minutes_mean.between(0,90).all():
-        raise ValueError("Duration out of range")
+    durations_range=(float(result.start_minutes_mean.min()),float(result.start_minutes_mean.max()),
+                     float(result.cameo_minutes_mean.min()),float(result.cameo_minutes_mean.max()))
+    if durations_range[0]<-1e-8 or durations_range[1]>90+1e-8 or durations_range[2]<-1e-8 or durations_range[3]>90+1e-8:
+        raise ValueError(f"Duration out of range: {durations_range}")
     if not result.p_cameo_given_bench.between(0,1).all():
         raise ValueError("Cameo probability out of range")
     if len(result)!=len(target) or result.duplicated(["fixture_uuid","player_uuid"]).any():
