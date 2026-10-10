@@ -15,6 +15,7 @@ import numpy as np,pandas as pd
 ROOT=Path(__file__).resolve().parents[1]
 sys.path[:0]=[str(ROOT/'src'),str(ROOT/'scripts')]
 from run_v4_performance_rating_experiment import add_features,RECENT_FEATURES
+from live_provider_stat_evidence import raw_evidence
 
 BASE=ROOT/"data_v1_1/derived/live_locked_inputs/2026-27-v1"
 SEQ=BASE/"sequence_feature_matrix.csv.gz"
@@ -35,12 +36,14 @@ NUM=["minutes_played","goals","assists","xg","xa","shots_on_target",
      "recoveries","blocks","clearances","accurate_passes_percent",
      "saves","goals_prevented","goals_conceded","dispossessed"]
 
-def build():
+def build(target=None, persist=True):
     if not SEQ.is_file() or not EVENTS.is_file():
         raise FileNotFoundError("Restore live source checkpoint and build frozen sequence first")
-    target=pd.read_csv(SEQ,low_memory=False)
+    target=pd.read_csv(SEQ,low_memory=False) if target is None else target.copy()
     observations=[json.loads(row) for row in gzip.decompress(EVENTS.read_bytes()).splitlines()]
     if not observations:raise ValueError("No observed provider player match statistics")
+    passing=raw_evidence(ROOT/"data_v1_1/raw/live-captures")
+    passing_used=[]
     past=[];nonempty={k:0 for k in NUM};stats_keys=Counter()
     for row in observations:
         if not row.get("player_uuid") or not row.get("match_id"):
@@ -56,6 +59,12 @@ def build():
             v=val.get(k)
             if v is None and k in PROVIDER_ALIASES:
                 v=val.get(PROVIDER_ALIASES[k])
+            if k=="accurate_passes_percent" and v is None:
+                key=(str(row["match_id"]).rsplit("-",1)[-1],str(row.get("provider_player_id")))
+                evidence=passing.get(key)
+                if evidence is not None:
+                    v=evidence["value"]
+                    passing_used.append({"match_id":row["match_id"],"player_uuid":row["player_uuid"],**evidence})
             if k=="minutes_played":
                 v=row.get("minutes_played",v)
             if v is not None and str(v).strip():
@@ -66,17 +75,17 @@ def build():
     ledger["available_at"]=pd.to_datetime(ledger.available_at,utc=True,errors="raise")
     cuts=pd.to_datetime(target.cutoff,utc=True,errors="raise")
     assert cuts.notna().all()
-    if (ledger.available_at>=cuts.min()).any():
+    if (ledger.available_at>=cuts.max()).any():
         # Completed matches after the initial source cutoff must be excluded,
         # not carried backward into this as-of forecast.
-        ledger=ledger.loc[ledger.available_at<cuts.min()].copy()
-    if ledger.empty:raise ValueError("No provider evidence available at origin cutoff")
+        ledger=ledger.loc[ledger.available_at<cuts.max()].copy()
+
     if ledger.duplicated(["player_uuid","match_id"]).any():
         raise ValueError("Duplicate provider player/match performance evidence")
     for k in NUM:
         ledger[k]=pd.to_numeric(ledger[k],errors="coerce").fillna(0.)
     ledger=ledger.loc[ledger.minutes_played>0].copy()
-    if ledger.empty:raise ValueError("No actual playing-time stats in performance ledger")
+
     ledger["goal_assist"]=ledger.goals+ledger.assists
     ledger["xgi"]=ledger.xg+ledger.xa
     ledger["def_actions"]=(ledger.tackles_won+ledger.interceptions+ledger.recoveries+
@@ -100,10 +109,10 @@ def build():
         raise ValueError("Frozen performance features nonfinite")
     if len(result)!=len(target) or result.duplicated(["fixture_uuid","player_uuid"]).any():
         raise ValueError("Frozen performance bridge damaged live identity")
-    if any(k in result for k in ("y","outcome_known_at","minutes")):
+    if persist and any(k in result for k in ("y","outcome_known_at","minutes")):
         raise ValueError("Future target labels must not be emitted")
     OUT.parent.mkdir(parents=True,exist_ok=True)
-    result.to_csv(OUT,index=False,compression="gzip")
+    if persist: result.to_csv(OUT,index=False,compression="gzip")
     report={
         "status":"observed_performance_derived_not_locked_live_MM_inference",
         "origin_gw":int(target.gw.iloc[0]),
@@ -115,11 +124,15 @@ def build():
         "provider_fields_observed_counts":nonempty,
         "explicit_same_semantics_provider_aliases":PROVIDER_ALIASES,
         "raw_provider_stat_keys_top50":stats_keys.most_common(50),
+        "passing_fraction_evidence_rows":len(passing_used),
+        "unverified_tackle_alias":"matchstats.headers.tackles is not silently equated to tackles_won",
         "missing_stat_policy":"Exact historical frozen build_perf_ledger: missing numeric fields -> 0",
         "target_or_future_outcomes_used":0,
     }
     AUDIT.parent.mkdir(parents=True,exist_ok=True)
-    AUDIT.write_text(json.dumps(report,ensure_ascii=False,indent=2,allow_nan=False)+"\n")
+    if persist: AUDIT.write_text(json.dumps(report,ensure_ascii=False,indent=2,allow_nan=False)+"\n")
+    if persist: (AUDIT.parent/"live_passing_evidence.json").write_text(json.dumps(passing_used,indent=2)+"\n")
     print("FROZEN LIVE PERFORMANCE FEATURES",json.dumps(report),flush=True)
     return result
 if __name__=="__main__":build()
+

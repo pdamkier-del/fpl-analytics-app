@@ -7,6 +7,10 @@ on:
       - 'scripts/build_locked_live_sequence_features.py'
       - 'scripts/build_locked_live_performance_features.py'
       - 'scripts/build_locked_live_v2_baseline.py'
+      - 'scripts/live_provider_stat_evidence.py'
+      - 'scripts/build_live_mm_training_features.py'
+      - 'scripts/run_locked_live_mm_inference.py'
+      - 'tests/test_live_provider_stat_evidence.py'
       - '.github/workflows/live-mm-feature-readiness.yml'
   workflow_dispatch:
 permissions:
@@ -21,7 +25,9 @@ jobs:
         with:
           python-version: '3.12'
       - name: Install frozen numerical dependencies
-        run: pip install -r requirements-model-checkpoint.txt requests
+        run: pip install -r requirements-model-checkpoint.txt -r requirements-model-tests.txt requests
+      - name: Test existing approved availability and exact provider conversion
+        run: python -m pytest tests/test_live_provider_stat_evidence.py tests/test_live_availability_boundary.py tests/test_mm_live_release_export.py tests/test_final_publish_availability_gate.py -q
       - name: Restore verified live source checkpoint
         run: python scripts/restore_live_input_checkpoint.py --out .
       - name: Derive the exact frozen sequence features from completed FPL matches
@@ -32,6 +38,12 @@ jobs:
         run: python scripts/build_locked_live_v2_baseline.py
       - name: Audit exact frozen MM feature requirements for six upcoming GWs
         run: python scripts/audit_live_inference_readiness.py
+      - name: Reconstruct cutoff-filtered GW1-5 covariates with explicit roster/news limitations
+        run: python scripts/build_live_mm_training_features.py
+      - name: Execute original locked MM on one GW, diagnostic quality only
+        run: python scripts/run_locked_live_mm_inference.py --one-gw
+      - name: Execute original locked MM on six GWs, diagnostic quality only
+        run: python scripts/run_locked_live_mm_inference.py
       - uses: actions/upload-artifact@v4
         if: always()
         with:
@@ -40,4 +52,10 @@ jobs:
             work/live-final-model/live_inference_readiness.json
             work/live-final-model/live_performance_provenance.json
             work/live-final-model/live_baseline_provenance.json
+            work/live-final-model/live_passing_evidence.json
+            work/live-final-model/live_training_provenance.json
+            work/live-final-model/mm_inference_*.json
+            work/live-final-model/mm_frozen_diagnostic_*.csv.gz
+            data_v1_1/derived/live_locked_inputs/2026-27-v1/reconstructed_training_features.csv.gz
           retention-days: 90
+

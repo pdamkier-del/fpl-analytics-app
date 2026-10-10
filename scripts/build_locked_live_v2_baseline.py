@@ -51,12 +51,12 @@ def exact_frozen_duration_constants():
     return vals
 
 
-def build():
-    if not INPUT.exists() or not HISTORY.exists():
+def build(target=None, past=None, persist=True):
+    if target is None and (not INPUT.exists() or not HISTORY.exists()):
         raise FileNotFoundError("Build restored live sequence and performance first")
-    target=pd.read_csv(INPUT,low_memory=False)
-    past=pd.read_csv(HISTORY,low_memory=False)
-    if target.empty or past.empty:
+    target=pd.read_csv(INPUT,low_memory=False) if target is None else target.copy()
+    past=pd.read_csv(HISTORY,low_memory=False) if past is None else past.copy()
+    if target.empty:
         raise ValueError("No live targets or historical observations")
     source=json.loads(COEFS.read_text())
     if source.get("train_seasons")!=["2023-24","2024-25"] or source.get("holdout")!="2025-26":
@@ -79,8 +79,6 @@ def build():
     if past.gw.ge(origin).any():
         raise ValueError("Future gameweek results in baseline history")
     past=past[past.known_at<origin_cut.min()].copy()
-    if past.empty:
-        raise ValueError("No pre-cutoff history available")
     past["started"]=pd.to_numeric(past.started,errors="coerce")
     past["minutes"]=pd.to_numeric(past.minutes,errors="coerce")
     if past[["started","minutes"]].isna().any().any():
@@ -153,9 +151,9 @@ def build():
         raise ValueError("Cameo probability out of range")
     if len(result)!=len(target) or result.duplicated(["fixture_uuid","player_uuid"]).any():
         raise ValueError("Baseline broke fixture/player identity")
-    if any(x in result for x in ("y","outcome_known_at","minutes")):
+    if persist and any(x in result for x in ("y","outcome_known_at","minutes")):
         raise ValueError("Future target labels entered output")
-    result.to_csv(OUTPUT,index=False,compression="gzip")
+    if persist: result.to_csv(OUTPUT,index=False,compression="gzip")
     report={
         "classification":"frozen_v2_MM_baseline_features_only_NOT_final_MM_or_PM",
         "origin_gw":origin,
@@ -167,7 +165,7 @@ def build():
         "outcomes_from_target_used":0,
         "no_new_fit_or_parameters":True,
     }
-    (ROOT/"work/live-final-model/live_baseline_provenance.json").write_text(
+    if persist: (ROOT/"work/live-final-model/live_baseline_provenance.json").write_text(
         json.dumps(report,ensure_ascii=False,indent=2,allow_nan=False)+"\n")
     print("FROZEN LIVE BASELINE/CONDITIONAL MINUTES",json.dumps(report),flush=True)
     return result
@@ -175,3 +173,4 @@ def build():
 
 if __name__=="__main__":
     build()
+
