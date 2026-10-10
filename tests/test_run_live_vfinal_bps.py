@@ -41,3 +41,13 @@ def test_frozen_bps_history_uses_utc_timestamps(monkeypatch):
     monkeypatch.setattr(m,'apply_model',lambda frame,model:np.array([3.]))
     out=m.calculate(t,l,{'cols':['x']},{'position_sd90':{'MID':2.},'global_sd90':3.})
     assert out.bg_mean_rate90.iloc[0]==3.
+
+def test_repeated_bps_source_observation_is_rejected():
+    t,l=sample()
+    with pytest.raises(ValueError,match='Duplicate BPS historical'):
+        m.calculate(t,pd.concat([l,l],ignore_index=True),{},{})
+
+def test_empty_bps_source_history_is_rejected():
+    t,l=sample()
+    with pytest.raises(ValueError,match='Empty verified BPS'):
+        m.calculate(t,l.iloc[:0].copy(),{},{})
