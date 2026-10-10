@@ -1,0 +1,25 @@
+name: Test locked live vFinal inputs
+on:
+  push:
+    branches:
+      - free-github-static-20261010
+    paths:
+      - scripts/join_live_vfinal_inputs.py
+      - tests/test_join_live_vfinal_inputs.py
+      - .github/workflows/test-live-vfinal-join.yml
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install integration test dependencies
+        run: python -m pip install pandas pytest
+      - name: Verify real fixture ID and coverage joins
+        run: python -m pytest -q tests/test_join_live_vfinal_inputs.py
