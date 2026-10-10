@@ -17,10 +17,9 @@ jobs:
           python-version: '3.12'
       - run: pip install -r requirements-model-checkpoint.txt -r requirements-model-tests.txt requests
       - run: python scripts/restore_live_input_checkpoint.py --out .
-      - name: Restore real archived predeadline cohorts
-        env:
-          GH_READ_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: python scripts/collect_archived_fpl_gw1_5.py
+      - run: python scripts/restore_live_vfinal_checkpoint.py --checkpoint model/checkpoints/live_gw7_sources_20261010_v1
+      - run: python scripts/restore_live_vfinal_checkpoint.py --checkpoint model/checkpoints/live_vfinal_gw7_20261010_v2
+      - run: python scripts/locked_numerical_runtime.py scripts/audit_current_locked_inputs.py
       - run: PYTHONPATH=src python -m pytest -q tests/test_live_raw_reproduction.py tests/test_live_locked_ts_bridge.py
       - run: python scripts/locked_numerical_runtime.py scripts/verify_canonical_raw_rebuild.py
       - uses: actions/upload-artifact@v4

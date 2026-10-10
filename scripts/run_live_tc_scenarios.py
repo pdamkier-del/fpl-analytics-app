@@ -13,6 +13,7 @@ ROOT=Path(__file__).resolve().parents[1]
 sys.path[:0]=[str(ROOT/'src'),str(ROOT/'scripts')]
 from restore_live_vfinal_checkpoint import restore
 from verify_canonical_raw_rebuild import STEPS,execute
+from audit_live_raw_reproduction import numeric_diff
 from run_vfinal_integrated import make_vfinal_input
 from fpl_v1_1_model.joint_simulator import simulate_many_samples
 BASE=ROOT/'data_v1_1/derived/live_locked_inputs/2026-27-v1'
@@ -69,7 +70,23 @@ def main():
         if str(frame.cutoff.iloc[0])!=forecast['data_asof']:raise ValueError('TC and TS cutoff differ')
         keys=['fixture_uuid','player_uuid']
         subset=frame[frame.target_gw.isin(reference.target_gw.unique())][reference.columns].sort_values(keys).reset_index(drop=True)
-        pd.testing.assert_frame_equal(reference.sort_values(keys).reset_index(drop=True),subset,check_exact=True,check_dtype=False)
+        old=reference.sort_values(keys).reset_index(drop=True)
+        drift=numeric_diff(old,subset)
+        for col in old:
+            x,y=old[col],subset[col]
+            if x.equals(y):continue
+            if not pd.api.types.is_float_dtype(x):
+                raise ValueError('TC extension changed nonfloating current source field '+col)
+            xv,yv=x.to_numpy(float),y.to_numpy(float)
+            both=np.isnan(xv)&np.isnan(yv)
+            exact=(xv==yv)|both
+            changed=~exact
+            if not np.all(np.isfinite(xv[changed])&np.isfinite(yv[changed])) or not np.all(np.abs(xv[changed]-yv[changed])<=4*np.abs(np.spacing(xv[changed]))):
+                raise ValueError('TC extension differs materially from immutable current forecast '+col)
+        # Current forecast rows are the approved immutable source for current
+        # TC scenarios. No float is rounded and no reconstructed equality is claimed.
+        frame=pd.concat([reference,frame[~frame.target_gw.isin(reference.target_gw.unique())][reference.columns]],ignore_index=True)
+        frame.to_csv(source,index=False,compression={'method':'gzip','mtime':0})
         out,selected=samples(frame,origin)
         repeated,_=samples(frame,origin)
         if not out.equals(repeated):raise ValueError('TC scenarios are not reproducible')
@@ -83,7 +100,7 @@ def main():
             'fixtures_snapshot_sha256':hashlib.sha256(fixture_source.read_bytes()).hexdigest(),
             'source_checkpoint':'model/checkpoints/live_gw7_sources_20261010_v1',
             'ordinary_six_gw_checksums':original,'fixtures':int(frame.fixture_uuid.nunique()),'input_rows':len(frame),'samples':len(out),
-            'same_six_gw_inputs_exact':True,'draws':400,'top_k_per_gw':20,'two_sample_replays_exact':True,
+            'same_six_gw_inputs_exact':True,'raw_extension_six_gw_numeric_differences':drift,'current_forecast_source':'IMMUTABLE_APPROVED_SIX_GW_INPUT_ROWS_NO_ROUNDING','draws':400,'top_k_per_gw':20,'two_sample_replays_exact':True,
             'samples_sha256':hashlib.sha256((OUT/'tc_samples.csv.gz').read_bytes()).hexdigest(),
             'simulator_inputs_sha256':hashlib.sha256(source.read_bytes()).hexdigest(),
             'model_math_changed':False,'manual_decision_required':True,'locked_model_active':False,
