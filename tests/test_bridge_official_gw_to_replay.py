@@ -31,3 +31,16 @@ def test_rejects_missing_explain():
     try: mod.rows_for_gameweek(p,None)
     except ValueError: pass
     else: raise AssertionError("Missing per-fixture provenance accepted")
+
+def test_missing_minutes_remains_unknown_not_zero():
+    p=fixture()
+    p["official_player_live"][0]["explain"][0]["stats"]=[{"identifier":"goals_scored","value":1}]
+    row=mod.rows_for_gameweek(p,None)[0]
+    assert row["minutes"] is None
+    assert row["started"] is None
+
+def test_refuses_unfinished_event():
+    p=fixture();p["official_event"]["finished"]=False
+    try: mod.rows_for_gameweek(p,None)
+    except ValueError: pass
+    else: raise AssertionError("Accepted unfinished GW")
