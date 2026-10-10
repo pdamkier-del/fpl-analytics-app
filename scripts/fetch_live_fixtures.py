@@ -18,7 +18,7 @@ def main():
     for f in fixtures:
         clean.append({"id":f["id"],"gw":f.get("event"),"kickoff":f.get("kickoff_time"),
           "started":f.get("started",False),"finished":f.get("finished",False),
-          "home":f["team_h"],"away":f["team_a"],"home_score":f.get("team_h_score"),
+          "home":f["team_h"],"away":f["team_a"],"difficulty_home":f.get("team_h_difficulty"),"difficulty_away":f.get("team_a_difficulty"),"home_score":f.get("team_h_score"),
           "away_score":f.get("team_a_score"),"stats":f.get("stats") or []})
     next_event=next((e for e in bootstrap.get("events",[]) if e.get("is_next")),None)
     current_event=next((e for e in bootstrap.get("events",[]) if e.get("is_current")),None)
@@ -34,7 +34,7 @@ def main():
        "second_name":x.get("second_name"),"team":x["team"],"position":x["element_type"],
        "code":x.get("code"),"photo":x.get("photo"),"status":x.get("status"),
        "chance_of_playing_next_round":x.get("chance_of_playing_next_round"),
-       "price":x.get("now_cost",0)/10,"form":x.get("form"),"total_points":x.get("total_points"),"ep_this":x.get("ep_this"),"ep_next":x.get("ep_next"),"minutes":x.get("minutes"),"selected_by_percent":x.get("selected_by_percent")}
+       "price":x.get("now_cost",0)/10,"form":x.get("form"),"total_points":x.get("total_points"),"starts":x.get("starts"),"goals_scored":x.get("goals_scored"),"assists":x.get("assists"),"expected_goals":x.get("expected_goals"),"expected_assists":x.get("expected_assists"),"expected_goals_conceded":x.get("expected_goals_conceded"),"clean_sheets":x.get("clean_sheets"),"saves":x.get("saves"),"bonus":x.get("bonus"),"yellow_cards":x.get("yellow_cards"),"red_cards":x.get("red_cards"),"own_goals":x.get("own_goals"),"penalties_missed":x.get("penalties_missed"),"ep_this":x.get("ep_this"),"ep_next":x.get("ep_next"),"minutes":x.get("minutes"),"selected_by_percent":x.get("selected_by_percent")}
        for x in bootstrap["elements"]]
     positions={str(x["id"]):x["singular_name_short"] for x in bootstrap["element_types"]}
     directory={"source":obj["source"],"fetched_at":obj["fetched_at"],"next_gw":obj["next_gw"],"current_gw":obj["current_gw"],"teams":teams,
