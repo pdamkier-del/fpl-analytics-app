@@ -45,12 +45,13 @@ jobs:
           import json
           from pathlib import Path
           a=Path("app")
-          files=["overview.html","my-team.html","team-optimizer.html","fixtures-live.html","current-players.html","forecast-center.html","live-model-status.html","forecast-history.html","forecast-live.html","my-team-live.html","own-forecast.html"]
+          files=["overview.html","my-team.html","team-optimizer.html","fixtures-live.html","current-players.html","forecast-center.html","live-model-status.html","forecast-history.html","forecast-live.html","my-team-live.html","own-forecast.html","clubs-live.html"]
           for f in files: assert (a/f).stat().st_size>1000,f
           fixtures=json.loads((a/"live-fixtures.json").read_text())
           people=json.loads((a/"current-players.json").read_text())
           assert len(fixtures["fixtures"])>=200
           assert len(people["players"])>=300
+          assert len(people["teams"])==20, 'Expected 20 current Premier League clubs'
           assert all("ep_next" in p for p in people["players"])
           own=json.loads((a/"own-forecast.json").read_text())
           assert own["model"]=="experimental_owned_xp_v0" and own["locked_model_active"] is False
@@ -89,7 +90,7 @@ jobs:
           python - <<'PY'
           from pathlib import Path
           import re,subprocess,tempfile
-          for file in ['forecast-history.html','forecast-live.html','own-forecast.html','forecast-center.html','current-players.html','fixtures-live.html','my-team.html','my-team-live.html','team-optimizer.html']:
+          for file in ['forecast-history.html','forecast-live.html','own-forecast.html','forecast-center.html','current-players.html','fixtures-live.html','my-team.html','my-team-live.html','team-optimizer.html','clubs-live.html']:
               s=(Path('app')/file).read_text()
               scripts=re.findall(r'<script(?:\\s[^>]*)?>(.*?)</script>',s,flags=re.S|re.I)
               for i,script in enumerate(scripts):
@@ -108,12 +109,13 @@ jobs:
           js=Path('app/design-v2.js').read_text()
           assert '.fpl-bottom-nav' in css and '.fpl-appbar' in css
           assert 'aria-current' in js and 'fpl-appbar-search' in js
+          assert "href:'clubs-live.html'" in js
           pages=[
             'overview.html','my-team-live.html','own-forecast.html',
             'forecast-live.html','team-optimizer.html','fixtures-live.html',
             'current-players.html','forecast-history.html','mobile.html',
             'live-model-status.html','forecast-center.html','models.html',
-            'rankings.html','replay.html','index.html','my-team.html'
+            'rankings.html','replay.html','index.html','my-team.html','clubs-live.html'
           ]
           for page in pages:
               s=(Path('app')/page).read_text(encoding='utf-8')
