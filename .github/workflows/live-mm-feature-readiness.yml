@@ -6,6 +6,8 @@ on:
       - 'scripts/audit_live_inference_readiness.py'
       - 'scripts/audit_live_penalty_bps_sources.py'
       - 'scripts/audit_frozen_live_component_preflight.py'
+      - 'scripts/restore_frozen_live_assist_prior.py'
+      - 'tests/test_restore_frozen_live_assist_prior.py'
       - 'tests/test_audit_frozen_live_component_preflight.py'
       - 'scripts/inspect_live_fotmob_penalty_bps.py'
       - 'scripts/join_live_vfinal_inputs.py'
@@ -93,6 +95,10 @@ jobs:
         run: PYTHONPATH=src:scripts python -m pytest -q tests/test_join_live_vfinal_inputs.py tests/test_run_live_vfinal_penalty_state.py tests/test_run_live_vfinal_bps.py tests/test_assemble_live_vfinal_inputs.py tests/test_run_live_vfinal_joint_simulation.py
       - name: Join current six-GW MM and PM ingredients
         run: python scripts/join_live_vfinal_inputs.py
+      - name: Test original historical assist prior restoration
+        run: PYTHONPATH=src:scripts python -m pytest -q tests/test_restore_frozen_live_assist_prior.py
+      - name: Restore original vFinal historic assist-per-goal prior
+        run: python scripts/restore_frozen_live_assist_prior.py
       - name: Report all exact frozen vFinal source and feature gaps
         run: python scripts/audit_frozen_live_component_preflight.py
       - name: Audit exact source coverage for frozen penalty and BPS adapters
@@ -116,6 +122,7 @@ jobs:
           name: live-mm-feature-readiness-evidence
           path: |
             work/live-final-model/provider_penalty_bps_evidence.json
+            work/live-final-model/live_assist_prior_provenance.json
             work/live-final-model/frozen_vfinal_component_preflight.json
             work/live-final-model/live_penalty_bps_source_coverage.json
             work/live-final-model/live_vfinal_full_input_audit.json
