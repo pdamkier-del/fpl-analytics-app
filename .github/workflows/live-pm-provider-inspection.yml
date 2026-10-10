@@ -1,0 +1,23 @@
+name: PM archived provider evidence (inspection only)
+on:
+  push:
+    branches: [free-github-static-20261010]
+    paths:
+      - 'scripts/inspect_live_pm_team_shots.py'
+      - '.github/workflows/live-pm-provider-inspection.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  inspect:
+    runs-on: ubuntu-latest
+    timeout-minutes: 7
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Restore hashed current-season public match evidence
+        run: python scripts/restore_live_input_checkpoint.py --out .
+      - name: Inspect team SOT provider keys only
+        run: python scripts/inspect_live_pm_team_shots.py
