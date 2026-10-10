@@ -6,7 +6,7 @@ const file=(location.pathname.split('/').pop()||'overview.html').toLowerCase();
 const section=({
 'overview.html':'overview','mobile.html':'overview','index.html':'fixtures',
 'my-team-live.html':'squad','my-team.html':'squad',
-'own-forecast.html':'forecast','forecast-live.html':'forecast','forecast-history.html':'forecast','forecast-center.html':'forecast',
+'locked-forecast.html':'forecast','own-forecast.html':'forecast','forecast-live.html':'forecast','forecast-history.html':'forecast','forecast-center.html':'forecast',
 'team-optimizer.html':'transfers',
 'fixtures-live.html':'fixtures','current-players.html':'forecast','rankings.html':'forecast',
 'models.html':'models','live-model-status.html':'models','replay.html':'models'
@@ -16,7 +16,7 @@ if(file==='mobile.html')document.body.classList.add('page-mobile');
 const links=[
 {key:'overview',href:'overview.html',label:'Overblik',short:'Overblik',glyph:'⌂'},
 {key:'squad',href:'my-team-live.html',label:'Mit hold',short:'Mit hold',glyph:'♟'},
-{key:'forecast',href:'own-forecast.html',label:'Forecast',short:'Forecast',glyph:'⌁'},
+{key:'forecast',href:'locked-forecast.html',label:'Forecast',short:'Forecast',glyph:'⌁'},
 {key:'transfers',href:'team-optimizer.html',label:'Transfers',short:'Transfers',glyph:'⇄'},
 {key:'fixtures',href:'fixtures-live.html',label:'Kampe',short:'Kampe',glyph:'⚽'},
 {key:'models',href:'models.html',label:'Modellen',short:'Model',glyph:'◇'}
