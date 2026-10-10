@@ -181,3 +181,46 @@
     if(file==='forecast-center.html') target.classList.add('active');
   }
 })();
+
+/* Shared iPhone PWA installation and FPL-style bottom navigation. */
+(()=>{
+  if(!document.querySelector('link[rel="manifest"]')){
+    const m=document.createElement('link');m.rel='manifest';m.href='manifest.webmanifest';document.head.appendChild(m);
+  }
+  if(!document.querySelector('meta[name="theme-color"]')){
+    const m=document.createElement('meta');m.name='theme-color';m.content='#37003c';document.head.appendChild(m);
+  }
+  if(!document.querySelector('meta[name="apple-mobile-web-app-capable"]')){
+    const m=document.createElement('meta');m.name='apple-mobile-web-app-capable';m.content='yes';document.head.appendChild(m);
+  }
+  if(location.protocol==='https:'&&'serviceWorker'in navigator) navigator.serviceWorker.register('./sw.js').catch(()=>{});
+  const current=(location.pathname.split('/').pop()||'overview.html').toLowerCase();
+  const tabs=[['my-team.html','⚽','My Team'],['team-optimizer.html','⇄','Transfers'],['forecast-center.html','◴','Forecast'],['rankings.html','★','Rankings'],['mobile.html','☰','Menu']];
+  const style=document.createElement('style');
+  style.textContent='@media(max-width:790px){body{padding-bottom:calc(68px + env(safe-area-inset-bottom))!important}.fpl-bottomnav{position:fixed;bottom:0;left:0;right:0;z-index:99999;display:grid;grid-template-columns:repeat(5,minmax(0,1fr));background:#37003c;color:#fff;box-shadow:0 -4px 18px #0002;padding-bottom:env(safe-area-inset-bottom)}.fpl-bottomnav a{min-height:62px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;color:#e9ddec;text-decoration:none;font:600 10px system-ui,sans-serif}.fpl-bottomnav a strong{font-size:21px;font-weight:600}.fpl-bottomnav a[aria-current=page]{color:#00ff87;background:#ffffff13}}@media(min-width:791px){.fpl-bottomnav{display:none}}';
+  document.head.appendChild(style);
+  if(!document.querySelector('.fpl-bottomnav')){
+    const nav=document.createElement('nav');nav.className='fpl-bottomnav';nav.setAttribute('aria-label','Mobil navigation');
+    for(const [href,icon,label] of tabs){const a=document.createElement('a');a.href=href;if(href===current)a.setAttribute('aria-current','page');const s=document.createElement('strong');s.textContent=icon;const t=document.createElement('span');t.textContent=label;a.append(s,t);nav.appendChild(a)}
+    document.body.appendChild(nav);
+  }
+})();
+
+/* Mobile ergonomics: respect iPhone safe areas and keep wide FPL tables scrollable. */
+(()=>{
+ const s=document.createElement('style');
+ s.textContent=`@media(max-width:790px){
+ html{max-width:100%;overflow-x:hidden;-webkit-text-size-adjust:100%}
+ body{max-width:100%;overflow-x:hidden}
+ .app,.layout,.main,main,.content,.page,.panel,.card{min-width:0;max-width:100%}
+ .main,main{padding-left:max(12px,env(safe-area-inset-left))!important;padding-right:max(12px,env(safe-area-inset-right))!important}
+ .table-wrap,[class*="table-wrap"]{max-width:100%;overflow-x:auto!important;-webkit-overflow-scrolling:touch}
+ img{max-width:100%}
+ input,select,textarea{max-width:100%;font-size:max(16px,1em)}
+ button,a,select{touch-action:manipulation}
+ .fpl-bottomnav a{min-width:0}
+ .fpl-bottomnav a span{white-space:nowrap}
+ }
+ @media(max-width:380px){.fpl-bottomnav a{font-size:9px}.fpl-bottomnav a strong{font-size:19px}}`;
+ document.head.appendChild(s);
+})();
