@@ -53,6 +53,7 @@ jobs:
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
           git add app/vfinal-diagnostic.json app/integration-validation.json model/checkpoints/current-diagnostic.json model/checkpoints/releases
           git commit -m 'Publish freshly reproduced original diagnostic forecast'
+          git restore .
           for attempt in 1 2 3; do
             git pull --rebase origin free-github-static-20261010
             if git push origin HEAD:free-github-static-20261010; then break; fi
