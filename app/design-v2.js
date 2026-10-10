@@ -44,6 +44,24 @@ header.appendChild(nav);
 const status=element('a','fpl-nav-model',{href:'live-model-status.html'});
 status.textContent='Modelstatus';
 header.appendChild(status);
+// Keep the existing player-jump search functional even when the old sidebar is hidden.
+const oldSearch=document.querySelector('.sidebar .global-player-jump');
+if(oldSearch){
+ oldSearch.classList.add('fpl-appbar-search');
+ const heading=oldSearch.querySelector('.jump-label');
+ if(heading)heading.textContent='Historisk søgning';
+ const input=oldSearch.querySelector('input');
+ if(input)input.placeholder='Søg historiske spillere…';
+ header.insertBefore(oldSearch,nav);
+ const trigger=element('button','fpl-search-toggle',{'type':'button','aria-label':'Søg i historiske spillere','aria-expanded':'false'});
+ trigger.textContent='⌕';
+ trigger.addEventListener('click',()=>{
+  const opened=header.classList.toggle('search-active');
+  trigger.setAttribute('aria-expanded',String(opened));
+  if(opened)input?.focus();
+ });
+ header.appendChild(trigger);
+}
 const mobileNav=element('nav','fpl-bottom-nav',{'aria-label':'Mobil navigation'});
 for(const item of links.slice(0,5)){
  const a=element('a',item.key===section?'active':'',{href:item.href});
