@@ -227,3 +227,6 @@
 
 /* Official current fixtures independent of archived model season. */
 (()=>{for(const nav of document.querySelectorAll('.sidebar .nav')){if(nav.querySelector('a[href="fixtures-live.html"]'))continue;let a=document.createElement('a');a.href='fixtures-live.html';a.textContent='Fixtures & Results (Live)';let target=nav.querySelector('a[href="overview.html"]');if(target)target.insertAdjacentElement('afterend',a);else if(nav.querySelector('a[href="index.html"]'))nav.appendChild(a)}})();
+
+/* Verified current-season directory and match results are separate from old model snapshots. */
+(()=>{for(const n of document.querySelectorAll('.sidebar .nav')){const target=n.querySelector('a[href="overview.html"]');if(!target)continue;for(const [href,label] of [['current-players.html','Aktuelle spillere'],['fixtures-live.html','Seneste kampe']]){if(n.querySelector('a[href="'+href+'"]'))continue;const a=document.createElement('a');a.href=href;a.textContent=label;target.insertAdjacentElement('afterend',a)}}})();
