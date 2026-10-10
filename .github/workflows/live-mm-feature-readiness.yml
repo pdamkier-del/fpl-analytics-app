@@ -1,0 +1,31 @@
+name: Live MM frozen input readiness audit (no certification)
+on:
+  push:
+    branches: [free-github-static-20261010]
+    paths:
+      - 'scripts/audit_live_inference_readiness.py'
+      - '.github/workflows/live-mm-feature-readiness.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  audit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install frozen numerical dependencies
+        run: pip install -r requirements-model-checkpoint.txt requests
+      - name: Restore verified live source checkpoint
+        run: python scripts/restore_live_input_checkpoint.py --out .
+      - name: Audit exact frozen MM feature requirements for six upcoming GWs
+        run: python scripts/audit_live_inference_readiness.py
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: live-mm-feature-readiness-evidence
+          path: work/live-final-model/live_inference_readiness.json
+          retention-days: 90
