@@ -150,3 +150,29 @@ def test_historical_export_path_remains_unchanged(tmp_path):
     assert proc.returncode==0,proc.stderr
     assert (out/"manifest.json").exists()
     assert not (out/"live_availability_policy.json").exists()
+
+
+def test_accepts_original_collector_gzipped_jsonl_ledger(tmp_path):
+    import gzip
+    src,news_csv=setup_rows(tmp_path)
+    ledger=pd.read_csv(news_csv)
+    native=tmp_path/"predeadline_strict.jsonl.gz"
+    with gzip.open(native,"wt",encoding="utf-8") as out:
+        for row in ledger.to_dict("records"):
+            out.write(json.dumps(row)+"\\n")
+    proc,out=run_export(tmp_path,src,native)
+    assert proc.returncode==0,proc.stderr
+    pol=json.loads((out/"live_availability_policy.json").read_text())
+    assert pol["source_news"]["official_news_gw"]==6
+    assert pol["source_news"]["players_with_verified_news"]==12
+
+
+def test_rejects_unverified_official_news_snapshot(tmp_path):
+    src,news=setup_rows(tmp_path)
+    ledger=pd.read_csv(news)
+    ledger.loc[11,"timing_verified"]=False
+    ledger.to_csv(news,index=False)
+    proc,out=run_export(tmp_path,src,news)
+    assert proc.returncode!=0
+    assert "Unverified Team News" in proc.stderr
+    assert not (out/"manifest.json").exists()
