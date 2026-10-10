@@ -21,7 +21,8 @@ from fpl_v1_1_model.role_classifier import ROLES
 RAW=ROOT/'data_v1_1/derived/live_locked_inputs/2026-27-v1/source_feature_matrix.csv.gz'
 SEQUENCE=ROOT/'data_v1_1/derived/live_locked_inputs/2026-27-v1/sequence_feature_matrix.csv.gz'
 PERFORMANCE=ROOT/'data_v1_1/derived/live_locked_inputs/2026-27-v1/performance_feature_matrix.csv.gz'
-FILE=PERFORMANCE if PERFORMANCE.is_file() else SEQUENCE if SEQUENCE.is_file() else RAW
+BASELINE=ROOT/'data_v1_1/derived/live_locked_inputs/2026-27-v1/v2_baseline_feature_matrix.csv.gz'
+FILE=BASELINE if BASELINE.is_file() else PERFORMANCE if PERFORMANCE.is_file() else SEQUENCE if SEQUENCE.is_file() else RAW
 OUT=ROOT/'work/live-final-model/live_inference_readiness.json'
 def audit():
     if not FILE.exists():raise FileNotFoundError('Restore checksum-verified source checkpoint first')
