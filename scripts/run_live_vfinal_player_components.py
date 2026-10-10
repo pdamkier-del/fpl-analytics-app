@@ -23,9 +23,12 @@ AUDIT=WORK/'live_vfinal_player_component_audit.json'
 def run():
     frozen=load_models()
     meta=json.loads((WORK/'source_manifest.json').read_text())
-    gw=int(meta['target_gw']);cut=pd.Timestamp(meta['observed_at'])
+    gw=int(meta['target_gw']);source_capture=pd.Timestamp(meta['observed_at'])
     mm=pd.read_csv(WORK/'mm_frozen_diagnostic_six_gw.csv.gz',low_memory=False)
     ph=pd.read_csv(BASE/'player_fixture_observations.csv.gz',low_memory=False)
+    cut=pd.to_datetime(mm.cutoff,utc=True,errors='raise').min()
+    if cut<source_capture:raise ValueError('Inferred cutoff predates official source snapshot')
+    if pd.to_datetime(mm.cutoff,utc=True).nunique()!=1:raise ValueError('Not one model cutoff')
     origin=mm[mm.target_gw.eq(gw)].copy()
     gated=prepare_live_mm_release_candidate(origin,
        p_start=origin.p_start.to_numpy(float),
