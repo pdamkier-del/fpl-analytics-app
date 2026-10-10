@@ -6,6 +6,10 @@ on:
         description: 'Validated manager-state JSON exported from the desktop page'
         required: true
         type: string
+      forecast_cutoff:
+        description: 'Optional expected forecast cutoff from the requesting browser'
+        required: false
+        type: string
       request_id:
         description: 'Optional browser request UUID'
         required: false
@@ -32,11 +36,16 @@ jobs:
       - run: python scripts/build_live_vfinal_desktop.py
       - name: Parse manager input as data, never shell code
         env:
+          EXPECTED_FORECAST_CUTOFF: ${{ inputs.forecast_cutoff }}
           MANAGER_STATE_JSON: ${{ inputs.manager_state_json }}
         run: |
           python - <<'PY'
           import os,json
           from pathlib import Path
+          expected=os.environ.get('EXPECTED_FORECAST_CUTOFF')
+          forecast=json.loads(Path('app/vfinal-diagnostic.json').read_text())
+          if expected and expected != forecast['data_asof']:
+              raise ValueError('Forecast changed; reload app before requesting another plan')
           raw=json.loads(os.environ['MANAGER_STATE_JSON'])
           Path('work/manager-state.json').write_text(json.dumps(raw))
           PY
