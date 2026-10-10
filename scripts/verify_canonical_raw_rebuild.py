@@ -29,7 +29,7 @@ def rebuild():
         '--attempts',BASE/'verified_penalty_attempts.csv.gz','--sides',BASE/'verified_penalty_team_sides.csv.gz','--teams',BASE/'verified_penalty_team_ids.csv.gz'])
     execute('run_live_vfinal_bps',['--target',BASE/'vfinal_live_full_event_inputs.csv.gz','--ledger',BASE/'verified_bps_action_ledger.csv.gz'])
     execute('assemble_live_vfinal_inputs',['--base',BASE/'vfinal_live_full_event_inputs.csv.gz'])
-    execute('run_live_vfinal_joint_simulation')
+    execute('run_live_vfinal_joint_simulation',['--input',BASE/'vfinal_live_full_simulator_input.csv.gz'])
 def main():
     rebuild();first={p:pd.read_csv(p,low_memory=False) for p in WATCH}
     rebuild();report={'classification':'CANONICAL_RUNTIME_TWO_RAW_REBUILDS','locked_model_active':False,
