@@ -12,6 +12,7 @@ on:
       - 'scripts/run_locked_live_mm_inference.py'
       - 'scripts/audit_live_vfinal_sources.py'
       - 'scripts/build_live_pm_observed_team_xg.py'
+      - 'scripts/run_live_vfinal_team_latent.py'
       - 'tests/test_live_provider_stat_evidence.py'
       - '.github/workflows/live-mm-feature-readiness.yml'
   workflow_dispatch:
@@ -48,6 +49,8 @@ jobs:
         run: python scripts/run_locked_live_mm_inference.py
       - name: Build observed team xG with full player source coverage for PM
         run: python scripts/build_live_pm_observed_team_xg.py
+      - name: Run unchanged vFinal team goal strength inference for six-GW fixtures
+        run: python scripts/run_live_vfinal_team_latent.py
       - name: Audit frozen vFinal source coverage without inventing xP
         run: python scripts/audit_live_vfinal_sources.py
       - uses: actions/upload-artifact@v4
@@ -62,6 +65,8 @@ jobs:
             work/live-final-model/live_training_provenance.json
             work/live-final-model/live_vfinal_readiness.json
             work/live-final-model/live_team_xg_provenance.json
+            work/live-final-model/live_vfinal_team_latent.json
+            data_v1_1/derived/live_locked_inputs/2026-27-v1/future_team_goal_lambdas.csv.gz
             data_v1_1/derived/live_locked_inputs/2026-27-v1/observed_team_xg_history.csv.gz
             work/live-final-model/mm_inference_*.json
             work/live-final-model/mm_frozen_diagnostic_*.csv.gz
