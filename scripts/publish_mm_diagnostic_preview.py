@@ -47,7 +47,7 @@ def publish():
         hard=bool(r.live_eligibility_applied)
         summaries.append({
           "id":int(r.fpl_element),"name":str(r.player),
-          "team_id":int(r.team_id),"role":str(r.expected_role),
+          "team_id":int(r.team_id),"team":str(r.team),"role":str(r.expected_role),
           "xi_role":str(r.xi_assigned_role),"xi_formation":str(r.xi_formation),
           "p_start":round(float(r.p_start),6),
           "p_sub_given_not_start":round(float(r.live_effective_q_sub),6),
