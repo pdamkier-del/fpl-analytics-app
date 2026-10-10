@@ -1,0 +1,69 @@
+{
+  "classification": "ORIGINAL_TC_V2_CURRENT_SNAPSHOT_DIAGNOSTIC_MANUAL",
+  "cutoff": "2026-10-10T14:39:56.350918+00:00",
+  "origin_gw": 7,
+  "period_end_gw": 19,
+  "future_schedule_source": "OFFICIAL_FPL_SNAPSHOT_AT_ORIGIN_CUTOFF",
+  "fixtures_snapshot_sha256": "068583d9ed6a85f70f198289a37e09e8dcda49532b952310581eb02e14a7914e",
+  "source_checkpoint": "model/checkpoints/live_gw7_sources_20261010_v1",
+  "ordinary_six_gw_checksums": {
+    "vfinal_live_full_simulator_input.csv.gz": "ae41629827751bf862913b4448c28f4bffbe239b77b3e167e408e83f0f4ad7e0",
+    "live_vfinal_fixture_xp.csv.gz": "d5d5b459c16f4421986a4b64a10823d2c824518e7f8e6df1b3f78c617c57a94f"
+  },
+  "fixtures": 130,
+  "input_rows": 8671,
+  "samples": 104000,
+  "same_six_gw_inputs_exact": true,
+  "raw_extension_comparison_ulp_limit": 8,
+  "raw_extension_six_gw_numeric_differences": {
+    "p_start": {
+      "rows": 1,
+      "max_abs": 9.71445146547012e-17,
+      "max_ulp": 7
+    },
+    "xmins": {
+      "rows": 1,
+      "max_abs": 3.552713678800501e-15,
+      "max_ulp": 4
+    },
+    "expected_minutes": {
+      "rows": 1,
+      "max_abs": 3.552713678800501e-15,
+      "max_ulp": 4
+    },
+    "control_xmins": {
+      "rows": 1,
+      "max_abs": 3.552713678800501e-15,
+      "max_ulp": 4
+    },
+    "control_p_start": {
+      "rows": 1,
+      "max_abs": 9.71445146547012e-17,
+      "max_ulp": 7
+    },
+    "v4_workload_start_p_start": {
+      "rows": 1,
+      "max_abs": 9.71445146547012e-17,
+      "max_ulp": 7
+    },
+    "v4_workload_start_xmins": {
+      "rows": 1,
+      "max_abs": 3.552713678800501e-15,
+      "max_ulp": 4
+    }
+  },
+  "current_forecast_source": "IMMUTABLE_APPROVED_SIX_GW_INPUT_ROWS_NO_ROUNDING",
+  "draws": 400,
+  "top_k_per_gw": 20,
+  "two_sample_replays_exact": true,
+  "samples_sha256": "504a0ee34a95d40609592319f842d527e469a0a7390861bc904bc1b98bd2a608",
+  "simulator_inputs_sha256": "6bd4cc5d96260e47d1c4c0755cec6b3267d34c1e94e39f0895e369c1c58a144c",
+  "model_math_changed": false,
+  "manual_decision_required": true,
+  "locked_model_active": false,
+  "limitations": [
+    "BPS history is partial: incomplete rows are quarantined, never imputed.",
+    "MM/source coverage still requires a complete release quality audit.",
+    "Actual manager state is required for personalized TS and chip output."
+  ]
+}

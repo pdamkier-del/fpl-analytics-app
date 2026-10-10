@@ -43,3 +43,25 @@ The desktop and manager result expose a four-row rolling chip plan. Only a curre
 Online manual manager execution is also blocked by the workflow missing from default branch `main` (verified through the repository API). The working-branch workflow is committed, but an unavailable Run workflow button is not presented as usable. The manager page exposes the original local Python commands as the working route; current GW is explicitly entered and must match the forecast. No change to `main` is made.
 
 GitHub raw rebuild run `38078252584` completed successfully: both newly computed outputs are exactly equal for all five watched artifacts (3,179 training rows; 4,002 MM rows; 60 team-lambda rows; 4,002 full simulator inputs; 4,002 forecast rows). The full numeric receipt is preserved beside this report. Immutable replay run `38078619799` passed for both checkpoints. Full repository regression steps in `38078619792` passed 387 tests; that run failed its then-four-ULP comparison guard, so it is not claimed as a green TC chain. The guard compares only numerical evidence and is not a model formula, fit parameter or simulator tolerance. Current TC uses the literally identical approved six-GW rows; the reported seven-ULP raw extension drift is retained in the receipt, never rounded away or claimed exact.
+
+## Final validated results
+
+- `38078965296`: current vFinal → original TS and every chip adapter, **success** at code commit `e73e48e288372e6034038ee2d91ae895687b5614`; **387 repository tests** and **4 deadline/official-GW checks** passed.
+- The full TC rebuild restored the ordinary six-GW checkpoint and its checksums. Both 104,000-sample runs were exactly equal. Sample SHA-256 `504a0ee34a95d40609592319f842d527e469a0a7390861bc904bc1b98bd2a608` also exactly matches the permanently stored TC checkpoint. The full extended-input gzip SHA differs across local/GitHub builds; that artifact is not claimed cross-runtime identical. Numeric differences are retained in `tc-scenarios-github.json`.
+- `38078252584`: two complete raw numerical rebuilds, **success**, all five watched artifacts exactly equal with no replacement of freshly computed values.
+- `38078619799`: immutable original checkpoint replay, **success**, both GW6 and GW7 checkpoints.
+- `38079195577`: current desktop build/deploy, **success** at UI commit `0c72e71d36500fbca1c3b98ea6255f79e9798fdc`. Browser inspection confirmed 15 input fields, current GW input, deadline and state provenance, empty personal plan, the four chip rows, XI/captain/bench, all six transfer actions and FH/WC alternative teams.
+- Original `src/` blob hashes remain unchanged compared with the repository tree read before this continuation. No locked formula, model coefficient, fitted parameter, transfer setting or chip strategy has been edited.
+
+The final browser input fix requires FT to be explicitly entered, including zero: an empty input is not converted into a claim of zero available free transfers.
+
+### Remaining blockers
+
+1. All 334 incomplete BPS observations still have unresolved required fields after 223 historical source revisions were checked; ambiguous tackles are not mapped to tackles won.
+2. Historical MM registration coverage still has three unresolved club conflicts and incomplete archived roster coverage; untrained current players remain explicitly unavailable. Rejected identities are not reconstructed by guessing registrations or club membership.
+3. Exact historical provider publication/revision times remain unknown; kickoff+4h remains an unverified proxy. Repository commits and final-whistle times do not prove availability of every final field.
+4. Actual user manager state has not been supplied. The synthetic squad and its WC/TC outputs are validation examples only.
+5. A fixed jointly optimized future four-chip calendar is not supplied by the original stopping policies. Current coordinator decisions and concrete/anonymous TC options are displayed; saved chips require replanning. TC remains manual.
+6. Manual online manager execution and a reliable scheduled original-model forecast release remain unavailable while the relevant workflows are absent from default branch `main`. The working local original-planner commands are exposed. Later deadlines require fresh source capture, original inference and validation; stale GW7 manager planning is rejected, never relabelled as a later GW.
+
+`locked_model_active` remains **false**. These integration/regression successes do not certify the missing historical data or authorize promotion of the entire forecast chain.
