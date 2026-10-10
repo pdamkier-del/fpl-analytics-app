@@ -29,8 +29,18 @@ def combine(mm, events, teams, saves):
         if df.duplicated(ukey).any():raise ValueError(f"Duplicate {name} keys")
     if set(map(tuple,mm[keys].astype(str).to_numpy()))!=set(map(tuple,events[keys].astype(str).to_numpy())):
         raise ValueError("Missing or additional player event fixture identities")
-    merged=mm.merge(events[keys+["goal_rate90","assist_rate90","mu_dc"]],
-                    on=keys,validate="one_to_one",how="inner")
+    # Preserve all frozen PM event signals, including disciplinary and DefCon
+    # fields. Earlier code silently discarded these and prevented vFinal input
+    # assembly. Shared columns must agree instead of being overwritten.
+    overlaps=sorted((set(events.columns)&set(mm.columns))-set(keys))
+    for col in overlaps:
+        compare=mm[keys+[col]].merge(events[keys+[col]],on=keys,
+                      how="inner",validate="one_to_one",suffixes=("_mm","_pm"))
+        left=compare[col+"_mm"];right=compare[col+"_pm"]
+        if not left.equals(right):
+            raise ValueError("MM/PM conflicting shared field "+col)
+    event_fields=[col for col in events.columns if col not in mm.columns or col in keys]
+    merged=mm.merge(events[event_fields],on=keys,validate="one_to_one",how="inner")
     t=teams.copy()
     t["fixture_uuid"]="live-2026-27-fpl-"+t.fpl_fixture_id.astype(int).astype(str)
     required_fixtures=set(merged.fixture_uuid.astype(str))
