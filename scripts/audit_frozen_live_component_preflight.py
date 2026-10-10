@@ -12,6 +12,7 @@ ROOT=Path(__file__).resolve().parents[1]
 BASE=ROOT/'data_v1_1/derived/live_locked_inputs/2026-27-v1'
 WORK=ROOT/'work/live-final-model'
 SOURCES={
+ 'joined':BASE/'vfinal_live_joined_inputs.csv.gz',
  'mm':WORK/'mm_frozen_diagnostic_six_gw.csv.gz',
  'player_events':BASE/'vfinal_player_event_components_6gw.csv.gz',
  'team_goals':BASE/'future_team_goal_lambdas.csv.gz',
@@ -19,6 +20,7 @@ SOURCES={
  'penalty':BASE/'vfinal_live_penalty_inputs.csv.gz',
  'bps':BASE/'vfinal_live_bps_components.csv.gz'}
 FIELDS={
+ 'joined':['fixture_uuid','player_uuid','assist_probability_per_goal'],
  'mm':['fixture_uuid','player_uuid','team_id','target_gw','cutoff','pos',
        'p_start','xmins','mm_q_sub','mm_sub_minutes','start_minutes_mean'],
  'player_events':['fixture_uuid','player_uuid','goal_rate90','assist_rate90',
@@ -49,7 +51,7 @@ def inspect(sources=SOURCES):
             blockers.append(name+': unreadable')
     # Other immutable vFinal inputs may be stored in one of the base CSVs,
     # but must not be synthesized from guessed mean rates.
-    base_names=['mm','player_events','team_goals','keeper_saves']
+    base_names=['joined','mm','player_events','team_goals','keeper_saves']
     if all(Path(sources[x]).is_file() for x in base_names):
         cols=set()
         for name in base_names:
