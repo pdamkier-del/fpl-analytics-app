@@ -15,6 +15,7 @@ on:
       - 'scripts/run_live_vfinal_team_latent.py'
       - 'scripts/inspect_live_pm_team_shots.py'
       - 'scripts/run_live_vfinal_keeper_saves.py'
+      - 'scripts/run_live_vfinal_player_components.py'
       - 'tests/test_live_provider_stat_evidence.py'
       - '.github/workflows/live-mm-feature-readiness.yml'
   workflow_dispatch:
@@ -57,6 +58,8 @@ jobs:
         run: python scripts/inspect_live_pm_team_shots.py
       - name: Run frozen keeper-save expected value model on archived team shot counts
         run: python scripts/run_live_vfinal_keeper_saves.py
+      - name: Run original six-GW player event rates for attack assists cards and DefCon
+        run: python scripts/run_live_vfinal_player_components.py
       - name: Audit frozen vFinal source coverage without inventing xP
         run: python scripts/audit_live_vfinal_sources.py
       - uses: actions/upload-artifact@v4
@@ -73,6 +76,8 @@ jobs:
             work/live-final-model/live_team_xg_provenance.json
             work/live-final-model/live_vfinal_team_latent.json
             work/live-final-model/live_vfinal_keeper_saves.json
+            work/live-final-model/live_vfinal_player_component_audit.json
+            data_v1_1/derived/live_locked_inputs/2026-27-v1/vfinal_player_event_components_6gw.csv.gz
             data_v1_1/derived/live_locked_inputs/2026-27-v1/keeper_lambda_saves_by_fixture_team.csv.gz
             data_v1_1/derived/live_locked_inputs/2026-27-v1/future_team_goal_lambdas.csv.gz
             data_v1_1/derived/live_locked_inputs/2026-27-v1/observed_team_xg_history.csv.gz
