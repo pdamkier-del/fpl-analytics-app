@@ -23,6 +23,8 @@ jobs:
           python-version: '3.12'
       - name: Publish existing bridge preview, never mark it live
         run: python scripts/build_static_preview.py
+      - name: Fetch official fixtures
+        run: python scripts/fetch_live_fixtures.py
       - run: touch app/.nojekyll
       - uses: actions/configure-pages@v5
         with:
