@@ -33,7 +33,7 @@ jobs:
           import json
           from pathlib import Path
           a=Path("app")
-          files=["overview.html","my-team.html","team-optimizer.html","fixtures-live.html","current-players.html","forecast-center.html","live-model-status.html"]
+          files=["overview.html","my-team.html","team-optimizer.html","fixtures-live.html","current-players.html","forecast-center.html","live-model-status.html","forecast-history.html"]
           for f in files: assert (a/f).stat().st_size>1000,f
           fixtures=json.loads((a/"live-fixtures.json").read_text())
           people=json.loads((a/"current-players.json").read_text())
@@ -43,6 +43,21 @@ jobs:
           assert any(m["finished"] for m in fixtures["fixtures"])
           assert any(not m["finished"] for m in fixtures["fixtures"])
           print("VERIFIED FPL DATA: games",len(fixtures["fixtures"]),"players",len(people["players"]))
+          PY
+      - name: Syntax-check frontend scripts
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          import re,subprocess,tempfile
+          for file in ['forecast-history.html','forecast-center.html','current-players.html','fixtures-live.html','my-team.html','team-optimizer.html']:
+              s=(Path('app')/file).read_text()
+              scripts=re.findall(r'<script(?:\\s[^>]*)?>(.*?)</script>',s,flags=re.S|re.I)
+              for i,script in enumerate(scripts):
+                  if not script.strip(): continue
+                  with tempfile.NamedTemporaryFile(suffix='.js',mode='w',encoding='utf8') as t:
+                      t.write(script);t.flush()
+                      subprocess.run(['node','--check',t.name],check=True)
+              print('JS syntax OK:',file)
           PY
       - name: Mark GitHub Pages static directory
         run: touch app/.nojekyll
