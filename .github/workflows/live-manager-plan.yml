@@ -1,0 +1,38 @@
+name: Original TS v3 and chip assessment on explicit manager state
+on:
+  workflow_dispatch:
+    inputs:
+      manager_state_json:
+        description: 'Validated manager-state JSON exported from the desktop page'
+        required: true
+        type: string
+permissions:
+  contents: read
+jobs:
+  plan:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: pip install -r requirements-model-checkpoint.txt -r requirements-model-tests.txt requests
+      - run: python scripts/restore_live_vfinal_checkpoint.py
+      - run: python scripts/build_live_vfinal_desktop.py
+      - name: Parse manager input as data, never shell code
+        env:
+          MANAGER_STATE_JSON: ${{ inputs.manager_state_json }}
+        run: |
+          python - <<'PY'
+          import os,json
+          from pathlib import Path
+          raw=json.loads(os.environ['MANAGER_STATE_JSON'])
+          Path('work/manager-state.json').write_text(json.dumps(raw))
+          PY
+      - run: python scripts/locked_numerical_runtime.py scripts/run_live_locked_ts.py --state work/manager-state.json --out work/manager-plan.json
+      - uses: actions/upload-artifact@v4
+        with:
+          name: original-manager-plan-diagnostic
+          path: work/manager-plan.json
+          retention-days: 30

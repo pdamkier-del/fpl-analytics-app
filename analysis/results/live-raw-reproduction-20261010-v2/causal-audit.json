@@ -1,0 +1,80 @@
+{
+  "classification": "EXACT_UPSTREAM_DRIFT_AUDIT_NOT_RELEASE_CERTIFICATION",
+  "archives": {
+    "before": "a60d0cea27264837fbb5bfaa2049fe60a5f9f459e4de1c24b8894dc1f8576ca5",
+    "after": "c53dc694f8b36c9bde612751a9374258c414da0048b15ace83d633261d7fc482"
+  },
+  "training_identity_and_order_identical": true,
+  "training_numeric_differences": {
+    "seq_minutes_slope5": {
+      "rows": 473,
+      "max_abs": 4.263256414560601e-14
+    },
+    "performance_score": {
+      "rows": 25,
+      "max_abs": 2.220446049250313e-16
+    }
+  },
+  "q_causal_replay": {
+    "changed_q_features": [
+      "seq_minutes_slope5"
+    ],
+    "unadjusted_q_max_abs": 0.0038346693529844322,
+    "restored_one_feature_q_max_abs": 0.0,
+    "restored_fit_receipt_identical": true,
+    "parameters_changed": false,
+    "intervention_for_audit_only": true,
+    "explanation": "Tiny polyfit slope differences change the unchanged standardized logistic L-BFGS fit. Restoring this sole changed q input restores every fitted coefficient and probability exactly."
+  },
+  "team_xg_history_exact": true,
+  "team_lambda_differences": {
+    "lambda_home_goals": {
+      "rows": 60,
+      "max_abs": 2.5340709405519135e-05
+    },
+    "lambda_away_goals": {
+      "rows": 60,
+      "max_abs": 3.015595619970668e-05
+    }
+  },
+  "mm_differences": {
+    "seq_minutes_slope5": {
+      "rows": 576,
+      "max_abs": 1.887379141862766e-14
+    },
+    "xi_assignment_score": {
+      "rows": 1308,
+      "max_abs": 4.512930917854874e-09
+    },
+    "xi_score_margin": {
+      "rows": 1302,
+      "max_abs": 5.539265934828563e-09
+    },
+    "xi_formation_score_gap": {
+      "rows": 1188,
+      "max_abs": 1.1315643533293951e-08
+    },
+    "p_start": {
+      "rows": 3813,
+      "max_abs": 9.032829484389993e-10
+    },
+    "mm_q_sub": {
+      "rows": 4002,
+      "max_abs": 0.003811061575236918
+    },
+    "mm_sub_minutes": {
+      "rows": 1289,
+      "max_abs": 1.4210854715202004e-14
+    },
+    "xmins": {
+      "rows": 4002,
+      "max_abs": 0.09025846393824466
+    },
+    "p_appearance_from_bench": {
+      "rows": 4002,
+      "max_abs": 0.0029767373888127113
+    }
+  },
+  "locked_model_active": false,
+  "remaining": "Cross-runtime team latent numerical drift and two complete canonical-runtime raw rebuilds must still be validated. No source values are overwritten with archived predictions."
+}

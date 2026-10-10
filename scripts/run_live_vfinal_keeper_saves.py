@@ -44,7 +44,11 @@ def build():
     by_file={}
     for f in sorted((ROOT/'data_v1_1/raw/live-captures').glob('*/fotmob/details/*.json')):
         mid=f.stem
-        if mid in by_file:raise ValueError('Duplicate provider match evidence')
+        if mid in by_file:
+            # Append-only capture folders can contain the same immutable
+            # payload. A conflicting revision still needs explicit review.
+            if f.read_bytes()!=by_file[mid].read_bytes():raise ValueError('Conflicting provider match evidence '+mid)
+            continue
         by_file[mid]=f
     sides=[];captured=[]
     for g in read_games():
@@ -102,3 +106,4 @@ def build():
     print('FROZEN VFINAL CURRENT KEEPER SAVES:',json.dumps(report))
     return pred
 if __name__=='__main__':build()
+

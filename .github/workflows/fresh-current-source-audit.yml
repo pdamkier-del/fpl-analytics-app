@@ -1,0 +1,35 @@
+name: Fresh official current-season source capture (no false certification)
+on:
+  push:
+    branches: [free-github-static-20261010]
+    paths: ['scripts/collect_current_locked_inputs.py', '.github/workflows/fresh-current-source-audit.yml']
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  capture:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: pip install -r requirements-model-checkpoint.txt requests
+      - run: python scripts/restore_live_input_checkpoint.py --out .
+      - name: Fetch new immutable official FPL and provider captures
+        run: python scripts/collect_current_locked_inputs.py
+      - name: Build cutoff-fixed raw role and workload inputs without claiming a forecast
+        run: python scripts/locked_numerical_runtime.py scripts/audit_current_locked_inputs.py
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: fresh-current-official-inputs
+          path: |
+            data_v1_1/raw/live-captures/
+            data_v1_1/raw/all-competitions-2026-27/
+            data_v1_1/derived/team_news_audit/2026-27-v2/
+            data_v1_1/derived/mm_v2_ratings/player_match_ratings_2026_27.csv.gz
+            data_v1_1/derived/live_locked_inputs/2026-27-v1/
+            work/live-final-model/
+          retention-days: 90

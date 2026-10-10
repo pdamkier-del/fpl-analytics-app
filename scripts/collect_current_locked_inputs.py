@@ -47,10 +47,18 @@ def main():
  event=next(e for e in bootstrap['events'] if e.get('is_next'));gw=int(event['id']);now=utc(asof);deadline=utc(event['deadline_time']);assert now<deadline
  teams={int(t['id']):t for t in bootstrap['teams']};byclub={club(t['name']):t for t in bootstrap['teams']}
  players={int(p['code']):p for p in bootstrap['elements'] if p['element_type']!=5}
- con=sqlite3.connect((ROOT/'work/core.sqlite3').as_uri()+'?mode=ro',uri=True)
  ids=defaultdict(set)
- for code,uid in con.execute("SELECT external_id,player_uuid FROM player_id_mapping WHERE id_namespace='fpl_code'"):ids[str(code)].add(uid)
- con.close();uuid_map={c:next(iter(ids[str(c)])) for c in players if len(ids[str(c)])==1}
+ core=ROOT/'work/core.sqlite3'
+ if core.exists():
+  con=sqlite3.connect(core.as_uri()+'?mode=ro',uri=True)
+  for code,uid in con.execute("SELECT external_id,player_uuid FROM player_id_mapping WHERE id_namespace='fpl_code'"):ids[str(code)].add(uid)
+  con.close()
+ else:
+  previous=WORK/'current_identity.json'
+  if not previous.exists():raise ValueError('No original Historical Core or verified stable-code identity checkpoint')
+  for row in json.loads(previous.read_text()):
+   if row.get('fpl_code') and row.get('player_uuid'):ids[str(row['fpl_code'])].add(row['player_uuid'])
+ uuid_map={c:next(iter(ids[str(c)])) for c in players if len(ids[str(c)])==1}
  new_codes={c for c in players if not ids[str(c)]}
  for c in new_codes:uuid_map[c]=str(uuid.uuid5(uuid.NAMESPACE_URL,'fpl-analytics-app:official-fpl-code:'+str(c)))
  unresolved=[dict(fpl_element=p['id'],fpl_code=c,name=p['web_name'],reason='No unique existing stable-code UUID') for c,p in players.items() if c not in uuid_map]
@@ -125,7 +133,11 @@ def main():
  (ROOT/'data_v1_1/derived/mm_v2_ratings').mkdir(parents=True,exist_ok=True)
  (ROOT/'data_v1_1/derived/mm_v2_ratings/player_match_ratings_2026_27.csv.gz').write_bytes(gzip.compress((WORK/'ratings.csv').read_bytes(),mtime=0))
  assert len({(r['provider'],r['player_uuid'],r['match_id']) for r in ratings})==len(ratings)
- dump(WORK/'source_manifest.json',dict(season=season,observed_at=asof,target_gw=gw,deadline=deadline.isoformat(),sources=SOURCES,errors=ERRORS))
+ # Common inference cutoff must follow ALL actual source captures, not just
+ # the first bootstrap response. The original timestamps remain in each row.
+ forecast_cutoff=datetime.now(timezone.utc).isoformat()
+ if utc(forecast_cutoff)>=deadline:raise ValueError('Collection crossed the target deadline; no predeadline forecast may be published')
+ dump(WORK/'source_manifest.json',dict(season=season,observed_at=forecast_cutoff,bootstrap_observed_at=asof,target_gw=gw,deadline=deadline.isoformat(),sources=SOURCES,errors=ERRORS))
  dump(WORK/'collection_audit.json',dict(season=season,target_gw=gw,observed_at=asof,current_players=len(players),mapped_current_uuid=len(uuid_map),unresolved_current_identity=unresolved,new_official_stable_code_registrations=sorted(new_codes),completed_matches=dict(Counter(g['tournament'] for g in games)),lineup_rows=len(lines),player_event_rows=len(stats),ratings=len(ratings),strict_next_gw_news_rows=len(news),unmapped_provider_rows=unmapped,measured_average_position_rows=0,errors=ERRORS,publication_time_proxy='kickoff + 4h; preserve observed_at and do not relabel as exact publication',models_changed=False))
  print('CURRENT LOCKED INPUT COLLECTION',season,'GW',gw,'matches',len(games),'ratings',len(ratings),'news',len(news),'errors',len(ERRORS),flush=True)
 if __name__=='__main__':main()

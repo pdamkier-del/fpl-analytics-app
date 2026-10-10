@@ -47,20 +47,67 @@ def project(payload):
                 'gw':w['gw'],'origin_gw':first-1,'xpts_mean':w['xpts'],'p_play':w['p_play'],'fixtures':len(w['fixtures'])})
     return pd.DataFrame(meta),pd.DataFrame(rows)
 
+def run(payload,raw,include_chips=False,tc_samples=None):
+    meta,origin=project(payload);gw=min(payload['gws'])
+    if sorted(payload['gws'])!=list(range(gw,gw+6)):raise ValueError('TS requires complete six-GW inputs')
+    state=parse_state(raw,meta,gw,payload['data_asof'])
+    diagnostic=not payload.get('locked_model_active',False) or any(payload.get('parts',{}).get(k)!='verified' for k in ('mm','pm_vfinal'))
+    planned=plan_transfer_path(state,meta,origin,gw,cfg());after=clone_state(state)
+    transfers=execute_first_action(after,planned,meta);lineup=plan_squad(origin,list(after.squad),gw)
+    result={'locked_model_active':False,'ts_status':'diagnostic' if diagnostic else 'verified',
+        'chips_status':'Not Available','ts_ran':True,'chips_ran':False,'forecast_cutoff':payload['data_asof'],
+        'gw':gw,'manager_state_source':raw['source'],'plan':asdict(planned),'transfers':transfers,
+        'lineup':json.loads(lineup.rows.to_json(orient='records')),
+        'interpretation':'Hypothetical recommendations only. Only the first action would be executed; later actions require replanning. No FPL account is modified.',
+        'blockers':list(payload.get('blockers',[]))}
+    if include_chips:
+        from fpl_xpts.wildcard_planner_v2 import build_asof_wc_projection
+        from fpl_xpts.wildcard_ts_action import compare_wc_as_ts_action
+        from fpl_xpts.chip_planner import optimize_free_hit_squad
+        from fpl_xpts.bench_boost_policy import evaluate_bench_boost
+        from fpl_xpts.final_chip_coordinator import choose_final_chip
+        from fpl_xpts.tc_chip_bridge import tc_v2_opportunity,tc_candidate_eligible
+        half_start,half_end=(1,19) if gw<=19 else (20,38)
+        available={k:not any(half_start<=g<=half_end for g in raw['chips_used'][k]) for k in CHIPS}
+        proxy=build_asof_wc_projection(origin,meta,origin,gw,cfg())
+        wc=compare_wc_as_ts_action(state,meta,proxy,gw,cfg(),max_candidates=2,milp_seconds=8.) if available['wildcard'] else None
+        fh=optimize_free_hit_squad(state=state,meta=meta,forecast=proxy,gw=gw,normal_score=0.) if available['free_hit'] else None
+        bb=evaluate_bench_boost(lineup.rows) if available['bench_boost'] else None
+        # Same locked SIMPLE_FH_WC branch used in the historical final replay.
+        fh_gain=float(fh['fh_score'])-float(lineup.expected_score) if fh else 0.
+        wc_gain=float(wc.gain) if wc else 0.;bb_gain=float(bb.incremental_xp) if bb else 0.
+        tc=None;eligible=False
+        if tc_samples is not None and available['triple_captain']:
+            if set(map(int,tc_samples.gw.unique()))!=set(range(gw,half_end+1)):
+                raise ValueError('TC needs complete current-half future-option scenarios; six GWs alone are insufficient')
+            tc=tc_v2_opportunity(tc_samples,gw,eligible_current_ids=lineup.rows.loc[lineup.rows.role.isin(('C','VC','XI')),'id'])
+            eligible=tc_candidate_eligible(tc,lineup.rows)
+        choice=choose_final_chip(gw=gw,fh_available=available['free_hit'],wc_available=available['wildcard'],
+            bb_available=available['bench_boost'],tc_available=tc is not None and available['triple_captain'],
+            fh_gain=fh_gain,wc_gain=wc_gain,bb_gain=bb_gain,tc_action=tc['action'] if tc else 'SAVE_TC',
+            tc_use_edge=tc.get('use_edge',float('-inf')) if tc else float('-inf'),tc_candidate_is_eligible=eligible)
+        result.update(chips_ran=True,chips_status='diagnostic_partial' if tc is None and available['triple_captain'] else 'diagnostic',
+            chip_assessment={'gw':gw,'provisional_choice_without_missing_tc':choice.chip,
+                'fh_gain':fh_gain if fh else None,'wc_gain':wc_gain if wc else None,'bb_gain':bb_gain if bb else None,
+                'q_fh':choice.q_fh if npfinite(choice.q_fh) else None,
+                'q_wc':choice.q_wc if npfinite(choice.q_wc) else None,
+                'q_bb':choice.q_bb if npfinite(choice.q_bb) else None,
+                'availability':available,'tc':tc,'tc_status':'diagnostic_manual_confirmation_required' if tc else 'Not Available',
+                'future_chip_gw':None,'future_chip_status':'Not Available: no complete cutoff-safe option ledger',
+                'full_four_chip_decision_verified':False})
+        if tc is None and available['triple_captain']:result['blockers'].append('TC requires verified scenarios through the current half and its original manual decision gate; no replacement option value is invented.')
+    return result
+
+def npfinite(x):
+    import math
+    return math.isfinite(x)
+
 def main():
     p=argparse.ArgumentParser();p.add_argument('--forecast',type=Path,default=ROOT/'app/vfinal-diagnostic.json');p.add_argument('--state',type=Path);p.add_argument('--out',type=Path,default=ROOT/'work/live-final-model/live_ts_chip_audit.json');a=p.parse_args()
+    # Diagnostic use was explicitly authorized; this never promotes the model.
     payload=json.loads(a.forecast.read_text());result={'locked_model_active':False,'ts_status':'Not Available','chips_status':'Not Available','ts_ran':False,'chips_ran':False}
     if not a.state or not a.state.exists():result['blockers']=['Missing verified manager squad, bank, FT, purchase prices and chip usage state.']
-    elif any(payload.get('parts',{}).get(k)!='verified' for k in ('mm','pm_vfinal')):
-        # Diagnostic PM outputs must not silently drive a certified recommendation.
-        meta,origin=project(payload);parse_state(json.loads(a.state.read_text()),meta,min(payload['gws']),payload['data_asof'])
-        result['blockers']=['Model source-quality release gate is not verified.','Locked TC future-option scenarios are unavailable.']
     else:
-        meta,origin=project(payload);gw=min(payload['gws'])
-        state=parse_state(json.loads(a.state.read_text()),meta,gw,payload['data_asof'])
-        planned=plan_transfer_path(state,meta,origin,gw,cfg());after=clone_state(state)
-        transfers=execute_first_action(after,planned,meta);lineup=plan_squad(origin,list(after.squad),gw)
-        result.update(ts_status='verified',ts_ran=True,plan=asdict(planned),transfers=transfers,lineup=json.loads(lineup.rows.to_json(orient='records')),
-            chips_status='Not Available',blockers=['All four locked chip decisions require verified stopping-policy inputs and TC future-option scenarios.'])
+        result=run(payload,json.loads(a.state.read_text()),include_chips=True)
     a.out.parent.mkdir(parents=True,exist_ok=True);a.out.write_text(json.dumps(result,indent=2,allow_nan=False)+'\n');print(json.dumps(result))
 if __name__=='__main__':main()
