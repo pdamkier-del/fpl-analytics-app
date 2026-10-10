@@ -27,7 +27,7 @@ const byId=new Map(),pred=new Map();
 function brand(team,big=false){
  const code=Number(team.code);
  const initials=esc(team.short_name||team.name.slice(0,3)).toUpperCase();
- return '<span class="crest'+(big?' large':'')+'">'+(Number.isInteger(code)&&code>0?'<img alt="" loading="lazy" src="https://resources.premierleague.com/premierleague/badges/70/t'+code+'.png" onerror="this.remove();this.parentElement.textContent=\''+initials+'\'">':initials)+'</span>';
+ return '<span class="crest'+(big?' large':'')+'">'+(Number.isInteger(code)&&code>0?'<img alt="" loading="lazy" src="https://resources.premierleague.com/premierleague/badges/70/t'+code+'.png" onerror="this.parentElement.textContent=\''+initials+'\'">':initials)+'</span>';
 }
 function weekValue(p,gw){return (pred.get(p.id)?.weeks||[]).filter(w=>w.gw===gw).reduce((v,w)=>v+Number(w.xpts||0),0)}
 function allXp(p){return (pred.get(p.id)?.weeks||[]).reduce((v,w)=>v+Number(w.xpts||0),0)}
