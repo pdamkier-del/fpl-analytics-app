@@ -41,9 +41,13 @@ jobs:
           assert len(people["players"])>=300
           assert all("ep_next" in p for p in people["players"])
           assert fixtures["fetched_at"]==people["fetched_at"]
+          assert fixtures["next_gw"]==people["next_gw"]
+          from datetime import datetime,timezone
+          observed=datetime.fromisoformat(people["fetched_at"])
+          assert 0 <= (datetime.now(timezone.utc)-observed).total_seconds()<600, "Live data older than 10 minutes"
           assert any(m["finished"] for m in fixtures["fixtures"])
           assert any(not m["finished"] for m in fixtures["fixtures"])
-          print("VERIFIED FPL DATA: games",len(fixtures["fixtures"]),"players",len(people["players"]))
+          print("VERIFIED CURRENT FPL:", "next GW",people["next_gw"],"games",len(fixtures["fixtures"]),"players",len(people["players"]),"fetched_at",people["fetched_at"])
           PY
       - name: Syntax-check frontend scripts
         run: |
