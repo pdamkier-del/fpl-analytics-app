@@ -22,6 +22,42 @@ def digest(path):
 def iso(value):
     return datetime.fromisoformat(str(value).replace("Z","+00:00")).astimezone(timezone.utc)
 
+def verify_approved_live_availability(manifest,components,model_version,next_gw):
+    """Require traceable approved hard-out rule on a real frozen MM release."""
+    root=ROOT.resolve()
+    rel=manifest.get("availability_policy_path")
+    if not isinstance(rel,str) or not rel:
+        raise RuntimeError("Missing approved MM live availability policy manifest")
+    policy_file=(ROOT/rel).resolve()
+    if not policy_file.is_relative_to(root) or not policy_file.is_file():
+        raise RuntimeError("MM availability policy file missing or outside repository")
+    if digest(policy_file)!=manifest.get("availability_policy_sha256"):
+        raise RuntimeError("MM availability policy checksum mismatch")
+    pol=json.loads(policy_file.read_text(encoding="utf-8"))
+    expected="live-hard-eligibility-v1"
+    if pol.get("availability_policy")!=expected:
+        raise RuntimeError("MM live availability policy has not been approved")
+    if pol.get("source_model_version")!=model_version:
+        raise RuntimeError("MM availability rule references another frozen model")
+    if pol.get("origin_gw")!=next_gw:
+        raise RuntimeError("MM availability evidence is not scoped to current GW")
+    if pol.get("frozen_mm_unchanged") is not True:
+        raise RuntimeError("MM availability provenance does not preserve frozen MM")
+    if pol.get("full_final_chain_live_certified") is not False:
+        raise RuntimeError("Availability sidecar must not certify the final chain")
+    mm=components.get("mm") or {}
+    if pol.get("published_mm_sha256")!=mm.get("sha256"):
+        raise RuntimeError("MM live eligibility export differs from checked MM artifact")
+    news=pol.get("source_news") or {}
+    if news.get("official_news_gw")!=next_gw or not isinstance(news.get("players_with_verified_news"),int) or news["players_with_verified_news"]<250:
+        raise RuntimeError("MM eligibility lacks verified current GW official Team News coverage")
+    for k in ("raw_input_sha256","official_team_news_sha256"):
+        if not isinstance(pol.get(k),str) or len(pol[k])!=64:
+            raise RuntimeError("Missing original MM / official Team News provenance checksum")
+    return {"policy":expected,"official_news_gw":next_gw,
+            "hard_unavailable_rows":pol.get("hard_unavailable_player_fixture_rows",0)}
+
+
 def construct():
     official=json.loads((APP/"current-players.json").read_text(encoding="utf-8"))
     cfg=json.loads(CONFIG.read_text(encoding="utf-8"))
@@ -55,6 +91,7 @@ def construct():
         if digest(file)!=row.get("sha256"):raise RuntimeError("Artifact digest mismatch: "+part)
         if row.get("data_asof")!=official["fetched_at"]:raise RuntimeError("Component timestamp mismatch: "+part)
         result["parts"][part]="verified"
+    availability=verify_approved_live_availability(m,parts,cfg["version"],official.get("next_gw"))
     pred=ROOT/str(m.get("forecast_path",""))
     if not pred.is_file() or not pred.is_relative_to(ROOT):raise RuntimeError("Missing final forecast")
     if digest(pred)!=m.get("forecast_sha256"):raise RuntimeError("Forecast integrity failure")
@@ -68,7 +105,8 @@ def construct():
             if not isinstance(w.get("xpts"),(int,float)) or not 0<=w["xpts"]<=50:raise RuntimeError("Invalid xP")
     result.update(status="verified_locked_live",locked_model_active=True,players=rows,
                   recommendations=m.get("recommendations") or [],blockers=[],
-                  verified_at=datetime.now(timezone.utc).isoformat())
+                  verified_at=datetime.now(timezone.utc).isoformat(),
+                  live_availability=availability)
     return result
 
 def main():
