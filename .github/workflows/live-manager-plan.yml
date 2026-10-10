@@ -1,0 +1,57 @@
+name: Original TS v3 and chip assessment on explicit manager state
+on:
+  workflow_dispatch:
+    inputs:
+      manager_state_json:
+        description: 'Validated manager-state JSON exported from the desktop page'
+        required: true
+        type: string
+      request_id:
+        description: 'Optional browser request UUID'
+        required: false
+        type: string
+      public_key_json:
+        description: 'Optional browser RSA public key; never a private key'
+        required: false
+        type: string
+permissions:
+  contents: write
+jobs:
+  plan:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: free-github-static-20261010
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: pip install -r requirements-model-checkpoint.txt -r requirements-model-tests.txt requests cryptography==46.0.3
+      - run: python scripts/restore_live_vfinal_checkpoint.py --checkpoint model/checkpoints/live_vfinal_gw7_20261010_v2
+      - run: python scripts/build_live_vfinal_desktop.py
+      - name: Parse manager input as data, never shell code
+        env:
+          MANAGER_STATE_JSON: ${{ inputs.manager_state_json }}
+        run: |
+          python - <<'PY'
+          import os,json
+          from pathlib import Path
+          raw=json.loads(os.environ['MANAGER_STATE_JSON'])
+          Path('work/manager-state.json').write_text(json.dumps(raw))
+          PY
+      - run: python scripts/restore_live_vfinal_checkpoint.py --checkpoint model/checkpoints/live_tc_gw7_20261010_v1
+      - run: python scripts/locked_numerical_runtime.py scripts/run_live_locked_ts.py --state work/manager-state.json --out work/manager-plan.json --tc-samples work/live-manager-validation/tc_samples.csv.gz --tc-receipt work/live-manager-validation/tc_scenarios.json > work/manager-calculation.log
+      - name: Return encrypted result to requesting browser
+        if: inputs.request_id != '' && inputs.public_key_json != ''
+        env:
+          MANAGER_REQUEST_ID: ${{ inputs.request_id }}
+          MANAGER_PUBLIC_KEY: ${{ inputs.public_key_json }}
+          GITHUB_TOKEN: ${{ github.token }}
+        run: python scripts/publish_encrypted_manager_result.py
+      - uses: actions/upload-artifact@v4
+        with:
+          name: original-manager-plan-diagnostic
+          path: work/manager-plan.json
+          retention-days: 30
+
