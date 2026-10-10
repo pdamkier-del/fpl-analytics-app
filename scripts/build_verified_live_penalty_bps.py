@@ -178,5 +178,11 @@ def build():
     dump(WORK/'live_bps_zero_evidence.json',proof)
     print(json.dumps(dict(penalties=len(attempts),all_competition_penalties=len(all_attempts),sides=len(sides),bps_rows=len(rawbps),quarantined=len(quarantine),missing_fields=dict(Counter(k for r in quarantine for k in r['missing'])))),flush=True)
     if unresolved:raise ValueError('Unresolved explicit penalty events: '+str(unresolved))
-    if len(sides)!=100:raise ValueError('Incomplete pre-cutoff PL penalty side coverage')
+    eligible=[f for f in fixtures if f.get('event') is not None and int(f['event'])<origin and f.get('kickoff_time')
+              and (f.get('finished') or (f.get('finished_provisional') and f.get('started') and f.get('minutes')==90))
+              and pd.Timestamp(f['kickoff_time'])+pd.Timedelta(hours=4)<cut]
+    expected={(int(f['event']),f"historical-2026-27-fpl-{f['id']}",int(team)) for f in eligible for team in (f['team_h'],f['team_a'])}
+    observed={(int(s['gw']),s['fixture_uuid'],int(s['team_code'])) for s in sides}
+    if observed!=expected or len(sides)!=len(expected):
+        raise ValueError('Incomplete pre-cutoff PL penalty side coverage; missing='+str(expected-observed)+'; extra='+str(observed-expected))
 if __name__=='__main__':build()

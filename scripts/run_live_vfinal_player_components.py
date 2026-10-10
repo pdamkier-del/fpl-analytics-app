@@ -40,14 +40,11 @@ def run(horizon_end=None):
         raise ValueError('Future eligibility contaminated by current news')
     horizon['live_eligibility_applied']=False
     mm=pd.concat([gated,horizon],ignore_index=True)
-    if horizon_end is None:
-        if len(mm)!=4002 or mm.fixture_uuid.nunique()!=60:
-            raise ValueError('Incomplete six-GW frozen minute predictions')
-    else:
-        target=pd.read_csv(BASE/'source_feature_matrix.csv.gz')
-        keys=['fixture_uuid','player_uuid']
-        if set(mm.target_gw.astype(int))!=set(range(gw,int(horizon_end)+1)) or mm.duplicated(keys).any() or set(map(tuple,mm[keys].to_numpy()))!=set(map(tuple,target[keys].to_numpy())):
-            raise ValueError('Incomplete current-half frozen minute predictions')
+    target=pd.read_csv(BASE/'source_feature_matrix.csv.gz')
+    keys=['fixture_uuid','player_uuid']
+    end=gw+5 if horizon_end is None else int(horizon_end)
+    if set(mm.target_gw.astype(int))!=set(range(gw,end+1)) or mm.duplicated(keys).any() or set(map(tuple,mm[keys].to_numpy()))!=set(map(tuple,target[keys].to_numpy())):
+        raise ValueError('Incomplete frozen minute predictions for actual source fixture/player identities')
     ph['available_at']=pd.to_datetime(ph.available_at,utc=True,errors='raise')
     ph['kickoff_at']=pd.to_datetime(ph.kickoff_at,utc=True,errors='raise')
     if (ph.available_at>=cut).any():
