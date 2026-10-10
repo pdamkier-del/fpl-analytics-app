@@ -54,7 +54,7 @@ def audit():
         missing=sorted(set(feats)-available)
         numeric=[x for x in feats if x in available and x not in {
             'team_news_state','cutoff','team_news_source_cutoff',
-            'fixture_uuid','player_uuid','expected_role','pos'}]
+            'fixture_uuid','player_uuid','expected_role','pos','team_news_scoped_chance'}]
         nonfinite={}
         for k in numeric:
             col=pd.to_numeric(data[k],errors='coerce')
@@ -72,6 +72,9 @@ def audit():
     if len(weak):result['issues'].append(f'Insufficient XI cohort sizes: {len(weak)}')
     if 'expected_role' in data:
         result['unknown_expected_role_rows']=int(data.expected_role.astype(str).eq('UNKNOWN').sum())
+    if 'team_news_scoped_chance' in data:
+        result['nullable_official_scoped_chance_rows']=int(data.team_news_scoped_chance.isna().sum())
+        result['nullable_scoped_chance_is_valid']=True
     if 'team_news_state' in data:
         result['hard_unavailable_rows']=int(data.team_news_state.isin(['OUT','SUSPENDED']).sum())
     # Never confuse target (future, unknown) outcome labels with available historical outcomes.
