@@ -19,7 +19,9 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: '3.12'
-      - name: Verify permanent current-season source checkpoint\n        run: python scripts/restore_live_input_checkpoint.py --out work/restored-live-inputs\n      - name: Generate honest static bridge preview
+      - name: Verify permanent current-season source checkpoint
+        run: python scripts/restore_live_input_checkpoint.py --out work/restored-live-inputs
+      - name: Generate honest static bridge preview
         run: python scripts/build_static_preview.py
       - name: Fetch recent official FPL fixtures
         run: python scripts/fetch_live_fixtures.py
