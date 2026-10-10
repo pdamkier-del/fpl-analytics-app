@@ -44,12 +44,23 @@ New primary documentation checked:
 
 No new source above justified inventing a BPS value or converting a match/capture/update timestamp into exact historical publication time. Kickoff + 4h remains an explicitly unverified historical proxy. Historical cohort/registration and provider semantic gaps, the excluded FA inventory, missing BPS actions and publication-time evidence continue to block full certification. `locked_model_active=false` is preserved.
 
-## Verification so far
+## Verified publication and remaining limits
 
 - Main online original manager runtime: https://github.com/pdamkier-del/fpl-analytics-app/actions/runs/38081406102 — passed, synthetic validation only.
 - Original full integration: https://github.com/pdamkier-del/fpl-analytics-app/actions/runs/38081514243 — 389 repository tests + seven forecast deadline/GW/freshness checks passed, original TC exact replay passed.
 - Python-to-browser WebCrypto response round trip and malformed/tampered encryption checks passed locally; recovered GW6 archive verification passed locally. Local broad test restoration is partial; CI is authoritative for the full historical fixture suite.
-- Fresh forecast publication is being exercised at https://github.com/pdamkier-del/fpl-analytics-app/actions/runs/38081916486. Earlier attempts correctly rejected incomplete source coverage; read the newest attempt, not the first failure.
+- Fresh forecast publication passed attempt 2: https://github.com/pdamkier-del/fpl-analytics-app/actions/runs/38081916486. Capture cutoff `2026-10-10T20:02:27.638256+00:00`; GW7–12, 60 fixtures, 4,002 rows. Two raw rebuilds exact; 104,000 TC samples reproduced exactly. 390 Python tests and seven deadline/GW/freshness checks passed. Earlier attempts correctly rejected incomplete source coverage.
+- Immutable snapshot: https://github.com/pdamkier-del/fpl-analytics-app/releases/tag/diagnostic-38081916486-2. Archive SHA-256 `b9657d9237779578b4f739d8749f582e8e7b405cfa06a4e0e96bfd52d240062d`; 814 checksummed files. Publication commit `00b81b5`, successful attempt status commit `567e9349`.
+- Pages deployment passed: https://github.com/pdamkier-del/fpl-analytics-app/actions/runs/38082686140. The fresh pipeline also deployed its new forecast successfully. Browser confirms the actual My Team forecast cutoff above on both 390- and 1080-pixel frames.
+- A final publication guard now requires the synthetic public manager example to match the current forecast cutoff/GW; the validator exports that labelled example after every fresh original-manager calculation.
 - Responsive review uses the actual manager page at 390 and 1080 pixels: `app/ui-review.html`.
 
 Personal optimization remains Not Available until actual FT, all purchase prices and a verified observation timestamp are provided. A saved future FH/WC/BB calendar is not fabricated: original policies replan at each deadline; TC exposes concrete/anonymous future options as manual provisional support.
+
+## Concrete original-chain example (synthetic only, never this user’s team)
+
+At cutoff 20:02:27 UTC, the validation squad with two FT used five transfers in GW7: out IDs 107, 134, 189, 270, 272; in 106 (Thiago), 124 (Groß), 411 (Haaland), 427 (Mbeumo), 542 (E.Le Fée). Original score 37.633864, gain before hits 31.938740, official hit 12, original uncertainty penalty 3. FT 2 → 1; bank 370 → 163 tenths. Six-GW weighted improvement over hold: 73.262529. These large gains belong to a deliberately cheap legal validation squad and are not recommendations for the real user.
+
+Original chip outputs for that same validation state: FH gain 24.9175; WC weighted gain 60.588277; BB gain 0.006179. Original TC decision support says SAVE_TC: use-now value 6.3725, concrete future option 7.343596 (E.Le Fée, provisional GW12), latent DGW option 10.419375. TC remains manual. FH/WC/BB gains use their original different horizons and must not be compared as interchangeable one-GW gains. The user’s TC was already used in GW5, so this unused-TC synthetic example does not apply to their state.
+
+Browser-authenticated workflow dispatch and receipt polling have not been exercised with this user’s credentials. The original online Python runtime, encryption interoperability and source/hash acceptance are verified; a full personalized request still needs complete actual state and the user’s Actions-authorized GitHub access. No credentials were saved or fabricated.

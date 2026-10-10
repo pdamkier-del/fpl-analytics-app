@@ -34,6 +34,9 @@ def package():
     forecast=json.loads((ROOT/'app/vfinal-diagnostic.json').read_text())
     audit=json.loads((ROOT/'work/live-final-model/canonical_raw_rebuild.json').read_text())
     if not audit['passed'] or audit['cutoff']!=forecast['data_asof'] or forecast['locked_model_active'] is not False:raise ValueError('Invalid reproducibility gate')
+    plan=json.loads((ROOT/'app/integration-validation.json').read_text())
+    if plan.get('validation_only') is not True or plan.get('forecast_cutoff')!=forecast['data_asof'] or plan.get('gw')!=min(forecast['gws']) or plan.get('locked_model_active') is not False:
+        raise ValueError('Synthetic manager example does not match the current forecast')
     tag='diagnostic-'+os.environ['GITHUB_RUN_ID']+'-'+os.environ['GITHUB_RUN_ATTEMPT']
     path=ROOT/'work/diagnostic-snapshot.zip';files={}
     current_sources={s['path'] for s in json.loads((ROOT/'work/live-final-model/source_manifest.json').read_text())['sources']}

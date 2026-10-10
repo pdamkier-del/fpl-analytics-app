@@ -37,6 +37,8 @@ def main():
     OUT.mkdir(parents=True,exist_ok=True)
     (OUT/'validation-state.json').write_text(json.dumps(raw,indent=2)+'\n')
     (OUT/'validation-plan.json').write_text(json.dumps(result,indent=2,allow_nan=False)+'\n')
+    # The public example is synthetic and must belong to this exact forecast.
+    (ROOT/'app/integration-validation.json').write_text(json.dumps(result,indent=2,allow_nan=False)+'\n')
     print(json.dumps({'validation_only':True,'gw':raw['gw'],'path_gws':len(result['plan']['path']),
         'first_action':result['plan']['path'][0],'chips':result['chip_assessment'],'comparison':result['comparison']},default=str),flush=True)
 if __name__=='__main__':main()
