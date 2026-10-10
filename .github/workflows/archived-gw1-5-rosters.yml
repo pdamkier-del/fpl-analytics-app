@@ -1,0 +1,32 @@
+name: Archived predeadline FPL roster recovery
+on:
+  push:
+    branches: [free-github-static-20261010]
+    paths:
+      - 'scripts/collect_archived_fpl_gw1_5.py'
+      - '.github/workflows/archived-gw1-5-rosters.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  recover:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install downloader
+        run: pip install requests
+      - name: Restore original verified current-season baseline checkpoint
+        run: python scripts/restore_live_input_checkpoint.py --out .
+      - name: Recover official archived GW1-5 FPL snapshots and verify timestamps
+        env:
+          GH_READ_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: python scripts/collect_archived_fpl_gw1_5.py
+      - uses: actions/upload-artifact@v4
+        with:
+          name: verified-predeadline-2026-27-gw1-5-official-rosters
+          path: work/live-final-model/predeadline_2026_archives/
+          retention-days: 90
