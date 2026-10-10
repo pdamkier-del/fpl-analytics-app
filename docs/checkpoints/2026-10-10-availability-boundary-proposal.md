@@ -40,12 +40,32 @@ is not applied to GW7–11 by assumption.
 existing release validation and the unchanged compose source assertion.
 Tests do not constitute live MM/PM/TS/chip integration.
 
+## User decision — approved for live integration
+
+**Approved 2026-10-10.** The user explicitly accepted the isolated hard
+availability release-level gate and requested that the user interface display
+**"Not available"** for affected players. Use this decision in the remaining
+live MM → vFinal → TS → chips integration. No additional approval is required
+for this exact documented availability policy.
+
+This authorization does **not** permit changing frozen model coefficients,
+replacing actual locked-model forecasts with experimental/FPL estimates,
+asserting that the live chain has run, or propagating a next-GW unavailability
+observation automatically into later gameweeks.
+
+The isolated adapter should be integrated only after the original MM inference
+has produced model-derived p/q/duration and passes all release tests. A verified
+final release remains blocked until then.
+
+The shared UI helper `app/availability-ui.js` labels official hard statuses
+(`i`, `s`, `u`) **Not available** for the next GW, and does not mark
+doubtful (`d`) as unavailable. The UI label never constitutes a substitute
+for enforcing zero minutes in the real MM release pipeline.
+
 ## Activation requirements
 
-1. Confirm policy choice: release-level hard ineligibility boundary is
-   acceptable, with documented non-identical raw vs release xMins on
-   impossible-player rows. Alternatively require strict historical
-   numerical identity and keep the existing release blocked.
+1. **Policy approved** for a separately versioned live release boundary. Keep
+   raw and adjusted predictions explicit, and never rewrite historical replay.
 2. Finish the cutoff-safe live MM inference adapter, with actual
    model-generated q/sub/duration and exact-11 validation; do not use
    synthetic q/sub as production inputs.
