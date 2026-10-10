@@ -5,7 +5,9 @@ on:
       - free-github-static-20261010
     paths:
       - scripts/join_live_vfinal_inputs.py
+      - scripts/run_live_vfinal_penalty_state.py
       - tests/test_join_live_vfinal_inputs.py
+      - tests/test_run_live_vfinal_penalty_state.py
       - .github/workflows/test-live-vfinal-join.yml
   workflow_dispatch:
 permissions:
@@ -20,6 +22,6 @@ jobs:
         with:
           python-version: '3.12'
       - name: Install integration test dependencies
-        run: python -m pip install pandas pytest
+        run: python -m pip install pandas pytest numpy scipy
       - name: Verify real fixture ID and coverage joins
-        run: python -m pytest -q tests/test_join_live_vfinal_inputs.py
+        run: python -m pytest -q tests/test_join_live_vfinal_inputs.py tests/test_run_live_vfinal_penalty_state.py
