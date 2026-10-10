@@ -40,7 +40,7 @@ jobs:
           node --check app/manager-online.js
           node --check app/manager-state.js
           node --check app/plan-view.js
-      - name: Preserve immutable raw data, model outputs and checksums
+      - name: Preserve cutoff-matched examples, immutable raw data and checksums
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
