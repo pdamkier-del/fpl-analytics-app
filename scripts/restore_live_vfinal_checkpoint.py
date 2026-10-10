@@ -23,5 +23,5 @@ def restore(folder=CHECKPOINT,out=ROOT):
             path.write_bytes(data)
     print('Verified simulator checkpoint:',len(manifest['files']),'files')
 def main():
-    p=argparse.ArgumentParser();p.add_argument('--out',type=Path,default=ROOT);a=p.parse_args();restore(out=a.out)
+    p=argparse.ArgumentParser();p.add_argument('--out',type=Path,default=ROOT);p.add_argument('--checkpoint',type=Path,default=CHECKPOINT);a=p.parse_args();restore(folder=a.checkpoint,out=a.out)
 if __name__=='__main__':main()
