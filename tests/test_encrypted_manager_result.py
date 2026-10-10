@@ -1,8 +1,8 @@
-import importlib.util,json
+import importlib.util,json,subprocess
 from pathlib import Path
 import pytest
 from cryptography.hazmat.primitives.asymmetric import rsa,padding
-from cryptography.hazmat.primitives import hashes
+from cryptography.hazmat.primitives import hashes,serialization
 from cryptography.hazmat.primitives.ciphers.aead import AESGCM
 import base64
 path=Path(__file__).resolve().parents[1]/'scripts/publish_encrypted_manager_result.py'
@@ -24,3 +24,11 @@ def test_only_requesting_browser_can_decrypt_exact_plan():
 def test_reject_small_or_wrong_public_keys():
     with pytest.raises(ValueError,match='RSA'):m.seal({},dict(kty='EC'))
     with pytest.raises(ValueError,match='size'):m.seal({},jwk(rsa.generate_private_key(public_exponent=65537,key_size=1024)))
+
+def test_browser_webcrypto_opens_python_result():
+    private=rsa.generate_private_key(public_exponent=65537,key_size=2048)
+    plan=dict(manager_state_sha256='cutoff-bound-state',locked_model_active=False,player='Ødegaard')
+    envelope=m.seal(plan,jwk(private))
+    key=private.private_bytes(serialization.Encoding.DER,serialization.PrivateFormat.PKCS8,serialization.NoEncryption())
+    result=subprocess.run(['node',str(path.parents[1]/'tests/test_manager_webcrypto.cjs')],input=json.dumps(dict(envelope=envelope,private_key=base64.b64encode(key).decode())),text=True,capture_output=True,check=True)
+    assert json.loads(result.stdout)==plan

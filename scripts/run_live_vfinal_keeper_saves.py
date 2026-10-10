@@ -73,7 +73,7 @@ def build():
               and int(f['event'])<origin and f.get('kickoff_time')
               and pd.Timestamp(f['kickoff_time'])+pd.Timedelta(hours=4)<cutoff}
     if fixture_keys!=expected or len(set(captured))!=len(expected) or len(h)!=2*len(expected) or h.groupby('team_id').size().min()<5 or h.team_id.nunique()!=20:
-        raise ValueError(f'Missing complete cutoff-eligible official SOT history: {len(captured)} of {len(expected)} games')
+        raise ValueError(f'Missing complete cutoff-eligible official SOT history: {len(captured)} of {len(expected)} games; missing={expected-fixture_keys}; extra={fixture_keys-expected}; official_extra='+json.dumps([f for f in official if f.get('kickoff_time') and (int(f['team_h']),int(f['team_a']),pd.Timestamp(f['kickoff_time'])) in fixture_keys-expected]))
     if h[['fixture_uuid','team_id']].duplicated().any():
         raise ValueError('Duplicate provider SOT team side')
     t=pd.read_csv(BASE/'future_team_goal_lambdas.csv.gz')

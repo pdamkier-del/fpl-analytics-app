@@ -8,6 +8,7 @@
   const key=await crypto.subtle.importKey('raw',raw,'AES-GCM',false,['decrypt']);
   return JSON.parse(new TextDecoder().decode(await crypto.subtle.decrypt({name:'AES-GCM',iv:from64(envelope.nonce),additionalData:new TextEncoder().encode('fpl-manager-result-v1')},key,from64(envelope.ciphertext))));
  }
+ window.FplEncryptedManagerResult={open};
  $('calculateOnline').onclick=async()=>{
   const button=$('calculateOnline'),status=$('onlineStatus');button.disabled=true;
   try{
