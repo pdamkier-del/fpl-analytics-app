@@ -7,8 +7,10 @@ Not a complete PM/vFinal player-xP run; no model refitting/tuning.
 """
 from __future__ import annotations
 from pathlib import Path
-import json
+import sys,json
 import numpy as np,pandas as pd
+ROOT=Path(__file__).resolve().parents[1]
+sys.path.insert(0,str(ROOT/'src'))
 from fpl_v1_1_model.vfinal_replay_state import fit_team_latent
 
 ROOT=Path(__file__).resolve().parents[1]
