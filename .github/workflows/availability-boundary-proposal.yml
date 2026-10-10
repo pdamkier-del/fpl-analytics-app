@@ -7,6 +7,8 @@ on:
       - 'tests/test_live_availability_boundary.py'
       - 'scripts/export_mm_release.py'
       - 'tests/test_mm_live_release_export.py'
+      - 'scripts/publish_final_model.py'
+      - 'tests/test_final_publish_availability_gate.py'
       - '.github/workflows/availability-boundary-proposal.yml'
   workflow_dispatch:
 permissions:
@@ -23,7 +25,7 @@ jobs:
       - name: Install pinned numerical environment and pytest
         run: pip install -r requirements-model-checkpoint.txt -r requirements-model-tests.txt requests
       - name: Test full MM release export CLI and preserve frozen historical model
-        run: PYTHONPATH=src:scripts python -m pytest -q tests/test_mm_live_release_export.py tests/test_live_availability_boundary.py tests/test_live_locked_inputs.py tests/test_mm_release.py
+        run: PYTHONPATH=src:scripts python -m pytest -q tests/test_mm_live_release_export.py tests/test_final_publish_availability_gate.py tests/test_live_availability_boundary.py tests/test_live_locked_inputs.py tests/test_mm_release.py
       - name: Confirm frozen runner functions unchanged
         run: |
           python - <<'PY'
