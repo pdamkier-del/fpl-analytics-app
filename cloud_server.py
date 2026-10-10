@@ -112,9 +112,9 @@ class Handler(SimpleHTTPRequestHandler):
         self.end_headers()
         self.wfile.write(body)
     def do_GET(self):
-        if not self.guard(): return
         path=urlsplit(self.path).path
         if path=="/api/health": return self.json({"ok":True,"mode":"cloud_preview_only"})
+        if not self.guard(): return
         if path=="/api/user/squad": return self.json(read_squad())
         if path=="/api/forecast/preview":
             return self.json(forecast_preview.forecast_preview(data(),read_squad(),official=official()))
@@ -133,6 +133,10 @@ class Handler(SimpleHTTPRequestHandler):
     def do_POST(self):
         if not self.guard(): return
         path=urlsplit(self.path).path
+        origin=self.headers.get("Origin")
+        forwarded_host=self.headers.get("X-Forwarded-Host") or self.headers.get("Host","")
+        if origin and urlsplit(origin).netloc != forwarded_host:
+            return self.json({"error":"Origin rejected"},403)
         n=int(self.headers.get("Content-Length","0"))
         if n>32768: return self.json({"error":"Payload too large"},413)
         try:
