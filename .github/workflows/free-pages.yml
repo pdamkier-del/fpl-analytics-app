@@ -46,8 +46,11 @@ jobs:
       - name: Restore and publish real original-vFinal diagnostic checkpoint
         run: |
           python scripts/current_diagnostic_checkpoint.py restore
+          python scripts/locked_numerical_runtime.py scripts/run_live_vfinal_joint_simulation.py --input data_v1_1/derived/live_locked_inputs/2026-27-v1/vfinal_live_full_simulator_input.csv.gz --scope one-match --out data_v1_1/derived/live_locked_inputs/2026-27-v1/one_match_xp.csv.gz
+          python scripts/locked_numerical_runtime.py scripts/run_live_vfinal_joint_simulation.py --input data_v1_1/derived/live_locked_inputs/2026-27-v1/vfinal_live_full_simulator_input.csv.gz --scope one-gw --out data_v1_1/derived/live_locked_inputs/2026-27-v1/one_gw_xp.csv.gz
           python scripts/audit_live_vfinal_outputs.py
           python scripts/build_live_vfinal_desktop.py
+          python scripts/locked_numerical_runtime.py scripts/validate_live_manager_chain.py
           python scripts/run_live_locked_ts.py
           PYTHONPATH=src python -m pytest -q tests/test_live_vfinal_desktop.py tests/test_live_locked_ts_bridge.py tests/test_run_live_vfinal_joint_simulation.py
           node --check app/manager-state.js

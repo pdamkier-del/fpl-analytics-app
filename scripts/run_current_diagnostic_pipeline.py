@@ -33,6 +33,10 @@ def main():
         p.unlink(missing_ok=True)
     execute('audit_current_locked_inputs')
     execute('verify_canonical_raw_rebuild')
+    # Subset files from a restored snapshot cannot certify a new capture.
+    for scope, filename in [('one-match','one_match_xp.csv.gz'),('one-gw','one_gw_xp.csv.gz')]:
+        execute('run_live_vfinal_joint_simulation',['--input',B/'vfinal_live_full_simulator_input.csv.gz','--scope',scope,'--out',B/filename])
+    execute('audit_live_vfinal_outputs')
     audit=json.loads((W/'canonical_raw_rebuild.json').read_text())
     receipt=dict(cutoff=m['observed_at'],source_workflow='https://github.com/'+os.environ['GITHUB_REPOSITORY']+'/actions/runs/'+os.environ['GITHUB_RUN_ID'],checksums={name:hashlib.sha256((B/name).read_bytes()).hexdigest() for name in ['vfinal_live_full_simulator_input.csv.gz','live_vfinal_fixture_xp.csv.gz']},reproducibility=dict(two_raw_rebuilds_exact=audit['passed']),source_limitations=['Historical availability times remain unverified kickoff + 4h proxies.','Partial BPS and historical MM coverage prevent full certification.']+['Excluded source: '+str(e) for e in permitted])
     (W/'publication_provenance.json').write_text(json.dumps(receipt,indent=2)+'\n')
