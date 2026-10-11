@@ -22,3 +22,13 @@
 .squad-display .bench-row .player-name{box-shadow:0 2px 4px #0001}.squad-display .bench-row .player-card small{color:#6d6173;text-shadow:none}
 .squad-display .squad-caption{margin:0;padding:12px 16px;color:#65586d;font-size:12px}
 @media(max-width:600px){.squad-display .fpl-pitch{padding:14px 4px 18px}.squad-display .pitch-row{min-height:112px;gap:3px;margin:0}.squad-display .player-card{min-width:0;max-width:20%;padding:3px 1px}.squad-display .kit-wrap{width:40px;height:46px;margin-bottom:4px}.squad-display .kit-shirt{width:37px;height:43px;font-size:8px}.squad-display .role-pin{right:-2px;width:18px;height:18px;font-size:10px}.squad-display .player-name{font-size:10px;padding:5px 1px 3px}.squad-display .player-points{font-size:10px}.squad-display .player-card small{font-size:9px}.squad-display .bench-row{padding:12px 5px;gap:4px}.squad-heading h2{font-size:16px}.squad-heading strong{font-size:16px}}
+
+/* Editable actual team — independent of locked optimiser */
+.squad-display .lineup-click{cursor:pointer;font:inherit;appearance:none}
+.squad-display .lineup-click:hover .player-name,.squad-display .lineup-click[aria-pressed="true"] .player-name{background:#00ff87;color:#37003c}
+.squad-display .lineup-click:focus-visible{outline:3px solid #00ff87;outline-offset:3px}
+.lineup-controls{padding:14px;background:#f5f1f6;display:flex;gap:10px;flex-wrap:wrap;align-items:end}
+.lineup-controls label{display:flex;flex-direction:column;gap:5px;font-size:12px;font-weight:700;flex:1 1 160px;color:#37003c}
+.lineup-controls select{width:100%;background:white}
+.lineup-controls button{flex:1 1 auto}
+@media(max-width:600px){.lineup-controls{padding:10px;gap:8px}.lineup-controls label{flex-basis:42%}.lineup-controls button{flex-basis:40%;padding:10px 5px;font-size:12px}}
