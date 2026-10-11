@@ -26,13 +26,13 @@ const esc=x=>String(x??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&
 try{
  const saved=JSON.parse(localStorage.getItem('fpl-manager-plan-v1')||'null');
  const state=JSON.parse(localStorage.getItem('fpl-manager-state-v1')||'null');
- if(!state?.squad?.length){status.innerHTML='Dit faktiske hold mangler i denne browser. <a href="overview.html#team">Indlæs privat hold</a>.';return}
- if(!saved?.plan?.path?.length){status.innerHTML='Der er endnu ikke en personlig TS v3-beregning. <a href="overview.html#team">Beregn mit hold</a>.';return}
+ if(!state?.squad?.length){status.innerHTML='<strong>Ingen privat trup i denne browser.</strong><p>Indlæs først dit faktiske hold fra din private backup.</p><p><a class="save-btn" href="overview.html#team">Åbn import af mit hold →</a></p>';return}
  const [fr,or]=await Promise.all([fetch('vfinal-diagnostic.json',{cache:'no-store'}),fetch('current-players.json',{cache:'no-store'})]);
  if(!fr.ok||!or.ok)throw Error('Aktuelle data kunne ikke hentes');
  const [f,o]=await Promise.all([fr.json(),or.json()]);
- if(saved.forecast_cutoff!==f.data_asof||saved.gw!==f.gws[0]){status.innerHTML='Den gemte transferplan er forældet. <a href="overview.html#team">Genberegn med nyt forecast</a>.';return}
- if(saved.validation_only){status.textContent='Planen er kun en validering og kan ikke bruges som dit eget hold.';return}
+ if(!saved?.plan?.path?.length){status.innerHTML='<strong>Der er ikke beregnet en personlig TS v3-plan i denne browser.</strong><p>My Team har dine '+state.squad.length+' spillere, men et forecast alene kan ikke afgøre dine transfers. Beregningen kræver også bank, købspriser, FT og chips.</p><p><a class="save-btn" href="overview.html#team">Beregn original TS v3 for mit hold →</a></p>';return}
+ if(saved.validation_only||saved.ts_ran!==true){status.textContent='Den gemte plan er kun en test eller er ikke en gennemført TS v3-beregning. Åbn My Team for at genberegne.';return}
+ if(saved.forecast_cutoff!==f.data_asof||saved.gw!==f.gws[0]){status.innerHTML='<strong>Din gemte transferplan er fra et tidligere forecast.</strong><p>Seneste beregning: GW '+esc(saved.gw)+' · '+esc(saved.forecast_cutoff)+'. Aktuelt forecast: GW '+esc(f.gws[0])+' · '+esc(f.data_asof)+'.</p><p><a class="save-btn" href="overview.html#team">Genberegn med aktuelle data →</a></p><p>En gammel plan vises ikke som en aktuel anbefaling.</p>';return}
  const people=new Map(f.players.map(p=>[p.id,p]));
  const temp=document.createElement('div');FplPlanView.render(saved,people,temp);
  const transfer=temp.querySelector('#transferResult');
