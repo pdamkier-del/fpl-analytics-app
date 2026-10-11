@@ -1,0 +1,10 @@
+'use strict';
+(async()=>{const target=document.getElementById('transfer-content'),status=document.getElementById('transfer-status');
+function draw(){const c=FplManagerClient.snapshot();target.replaceChildren();document.querySelector('[data-compute]').disabled=c.busy;document.getElementById('appState').textContent='Diagnostisk · cutoff '+c.forecast.data_asof;
+if(!c.state){status.innerHTML='<strong>Dit faktiske hold mangler i denne browser.</strong><p><a href="overview.html#team">Genindlæs din private backup én gang</a></p>';return}
+if(!c.usable){status.textContent=c.reason;return}if(!c.stateValid){status.innerHTML='<strong>Dit private hold er bevaret, men oplysningerne kræver en opdatering.</strong><p><a href="manager-state.html">Redigér hold, priser, GW og observationstidspunkt</a></p>';return}
+if(!c.plan){status.textContent='Dit hold er gemt. Der mangler en gyldig plan til dette forecast og præcis dette hold. Tryk Genberegn ovenfor.';return}
+status.textContent='GW '+c.plan.gw+' · cutoff '+c.plan.forecast_cutoff+' · personlig diagnostisk TS v3';const temp=document.createElement('div');FplPlanView.render(c.plan,c.people,temp);target.append(temp.querySelector('#transferResult'));const path=c.plan.plan.path,hold=c.plan.comparison.hold_squad_without_transfers;const summary=document.createElement('p');summary.textContent='Normal TS: '+(path[0].projected_manager_score-path[0].official_hit_points).toFixed(2)+' xP næste GW · '+path.reduce((s,a)=>s+a.projected_manager_score-a.official_hit_points,0).toFixed(2)+' xP over seks GW efter hits. Behold holdet: '+hold.reduce((s,a)=>s+a.expected_score,0).toFixed(2)+' xP over seks GW.';target.prepend(summary);
+}
+try{await FplManagerClient.load();draw();FplManagerClient.bind(draw);setInterval(async()=>{try{await FplManagerClient.load();draw()}catch(e){status.textContent=e.message}},300000)}catch(e){status.textContent='Not Available: '+e.message}
+})();

@@ -8,8 +8,9 @@ ROOT=Path(__file__).resolve().parents[1]
 def version_frontend_assets(app):
     # Each published HTML references the exact deployed asset bytes. This avoids
     # a normal reload retaining an older planner UI in the Pages CDN/browser cache.
-    for page in ('overview.html','manager-state.html'):
+    for page in ('overview.html','manager-state.html','my-team-classic.html','transfers-classic.html','player.html'):
         path=app/page
+        if not path.is_file():continue
         html=path.read_text()
         def version(match):
             asset=app/match.group(2)

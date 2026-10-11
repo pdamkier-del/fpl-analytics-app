@@ -11,7 +11,7 @@
 .form-row{display:grid;grid-template-columns:52px 1fr 50px 55px 55px 55px 55px 55px;gap:8px;align-items:center;padding:9px 0;border-bottom:1px solid #eef0f2;font-size:10px}.form-row.head{font-size:8px;text-transform:uppercase;color:var(--muted);font-weight:850}.form-player{font-weight:900}.form-pts{font-weight:950}.form-bar{height:5px;background:#e8ecef;border-radius:999px;overflow:hidden}.form-bar span{display:block;height:100%;background:#3156d8}
 .back{border:1px solid rgba(255,255,255,.25);background:rgba(255,255,255,.08);color:#fff;padding:8px 11px;border-radius:8px;font-size:11px;font-weight:850}
 @media(max-width:1050px){.summary{grid-template-columns:repeat(3,1fr)}.grid2{grid-template-columns:1fr}.gw-strip{grid-template-columns:repeat(3,1fr)}}@media(max-width:800px){.app{grid-template-columns:78px 1fr}.sidebar{padding:20px 10px}.brand span,.nav a span,.nav-title,.sidebar-foot{display:none}.brand{margin-left:9px}.nav a{width:42px;text-align:center;margin:5px auto}.main{padding:14px 9px 40px}.hero{grid-template-columns:auto 1fr}.hero-price{grid-column:1/-1;text-align:left}.summary{grid-template-columns:repeat(2,1fr)}.gw-strip{grid-template-columns:repeat(2,1fr)}.compare-grid{grid-template-columns:1fr}.form-row{grid-template-columns:42px 1fr 42px 48px 48px}.form-row>*:nth-child(n+6){display:none}}
-</style></head><body><div class="app">
+</style><link rel="stylesheet" href="classic-common.css"></head><body><div class="app">
 <aside class="sidebar"><div class="brand"><div class="logo">xP</div><span>FPL Analytics</span></div><div class="nav-title">Workspace</div><div class="nav"><a href="overview.html#dashboard"><span>Dashboard</span></a><a class="active" href="overview.html#players"><span>Players</span></a><a href="overview.html#fixtures"><span>Fixtures</span></a><a href="my-team-classic.html"><span>My Team</span></a><a href="transfers-classic.html"><span>Transfers</span></a><a href="overview.html#chips"><span>Chips</span></a></div><div class="nav-title">Models</div><div class="nav"><a href="overview.html#model"><span>Model Explorer</span></a></div><div class="sidebar-foot">Player forecast profile<br>Current model data.</div></aside>
 <main class="main"><div class="wrap"><div class="crumb" id="crumb">Player Rankings / Player</div>
 <section class="hero"><div class="hero-face" id="heroFace"></div><div class="hero-main"><h1 id="name">Player</h1><div class="hero-meta"><span id="clubBadge"></span><span id="meta"></span><span id="status"></span></div></div><div class="hero-price"><div class="price" id="price">—</div><a class="back" href="overview.html#players">← Rankings</a></div></section>
@@ -21,31 +21,31 @@
 <section class="panel"><div class="panel-head"><div><div class="panel-title">Compare player</div><div class="panel-sub">Side-by-side current model view</div></div><div class="compare-control"><select id="compareSelect" class="select"></select></div></div><div class="panel-body"><div class="compare-grid" id="compareGrid"></div></div></section>
 <section class="panel"><div class="panel-head"><div><div class="panel-title">Recent form</div><div class="panel-sub">Actual FPL performance</div></div></div><div class="panel-body"><div class="form-row head"><div>GW</div><div>Fixture</div><div>Min</div><div>Pts</div><div>xG</div><div>xA</div><div>DefCon</div><div>Bonus</div></div><div id="recent"></div></div></section>
 </div></main></div>
-<script src="assets.js"></script><script>
+<script src="forecast-window.js"></script><script src="assets.js"></script><script>
 (async()=>{
-const $=id=>document.getElementById(id),esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])),n=(x,d=2)=>Number.isFinite(x)?x.toFixed(d):'—',pct=x=>Number.isFinite(x)?Math.round(x*100)+'%':'—';
+const $=id=>document.getElementById(id),esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])),n=(x,d=2)=>Number.isFinite(x)?x.toFixed(d):'Not Available',pct=x=>Number.isFinite(x)?Math.round(x*100)+'%':'Not Available';
 try{
 const rs=await Promise.all([fetch('vfinal-diagnostic.json',{cache:'no-store'}),fetch('current-players.json',{cache:'no-store'})]);if(rs.some(r=>!r.ok))throw Error('Forecast kan ikke indlæses');
-const [f,o]=await Promise.all(rs.map(r=>r.json()));if(f.model!=='original_locked_vFinal_diagnostic')throw Error('Ugyldig prognosekilde');
+const [f,o]=await Promise.all(rs.map(r=>r.json()));const valid=FplForecastWindow.check(f,o);if(!valid.usable)throw Error(valid.reason);const fixtures=await(await fetch('live-fixtures.json',{cache:'no-store'})).json(),teams=new Map(o.teams.map(t=>[t.id,t])),matches=new Map(fixtures.fixtures.map(t=>[t.id,t]));if(f.model!=='original_locked_vFinal_diagnostic')throw Error('Ugyldig prognosekilde');
 const id=Number(new URLSearchParams(location.search).get('id'));const p=f.players.find(x=>x.id===id);
 if(!p)throw Error('Spilleren findes ikke i den aktuelle prognose');
 const official=new Map(o.players.map(x=>[x.id,x]));const op=official.get(id);const label=x=>x?.name||'Ukendt';
 const club=p.team,position=['','GK','DEF','MID','FWD'][p.position],w=p.weeks[0];
 document.title=p.name+' · FPL Analytics';$('crumb').textContent='My Team / '+p.name;$('name').textContent=p.name;$('meta').textContent=club+' · '+position;$('clubBadge').textContent=club;
-$('heroFace').innerHTML=window.FPL_ASSETS?window.FPL_ASSETS.faceHTML({id:p.id,code:op?.code,player:p.name,club} ,'asset-face-lg'):'';
-$('price').textContent='£'+n(p.price_tenths/10,1)+'m';$('status').textContent='Diagnostisk prognose';
+$('heroFace').innerHTML=window.FPL_ASSETS?window.FPL_ASSETS.faceHTML({id:p.id,player_code:op?.code,player:p.name,club} ,'asset-face-lg'):'';
+$('price').textContent='£'+n(p.price_tenths/10,1)+'m';$('status').textContent='Officiel status: '+(op?.status||'Not Available')+' · Diagnostisk · cutoff '+f.data_asof;
 const start=w.fixtures.length===1?w.fixtures[0].p_start:null;
 const six=p.weeks.reduce((v,x)=>v+x.xpts,0);
 const card=(title,value,note)=>'<div class="card"><div class="label">'+title+'</div><div class="value">'+value+'</div><div class="note">'+note+'</div></div>';
 $('summary').innerHTML=card('Næste GW xP',n(w.xpts),'GW '+w.gw)+card('6 GW xP',n(six),'Original vFinal')+card('Forventede minutter',n(w.xmins,0),'Næste GW')+card('Startchance',pct(start),'Kun enkeltkamp')+card('Pris','£'+n(p.price_tenths/10,1),'Officiel FPL-pris');
 $('gwStrip').innerHTML=p.weeks.map(x=>'<div class="gw"><div class="gw-top">GW '+x.gw+'</div><div class="gw-xp">'+n(x.xpts)+' xP</div><div class="gw-mini">'+n(x.xmins,0)+' min · '+(x.fixtures.length===1?pct(x.fixtures[0].p_start):'–')+' start</div></div>').join('');
 const mx=Math.max(1,...p.weeks.map(x=>x.xpts));$('chart').innerHTML=p.weeks.map(x=>'<div class="bar-col"><div class="bar-val">'+n(x.xpts,1)+'</div><div class="bar" style="height:'+Math.max(4,x.xpts/mx*165)+'px"></div><div class="bar-label">GW '+x.gw+'</div></div>').join('');
-$('drivers').innerHTML='<p>Viser kun de prognoser, der findes i den originale model. Andre detaljer er Not Available, indtil de er kildeverificeret.</p>';
+$('drivers').innerHTML='<h3>Kampe og prognosekomponenter</h3><div class="scroll"><table><tr><th>GW</th><th>Modstander</th><th>FDR</th><th>xP</th><th>xMin</th><th>P(start)</th></tr>'+p.weeks.flatMap(w=>w.fixtures.map(q=>{const match=matches.get(Number(q.fixture_uuid.split('-').pop())),home=match?.home===p.team_id,op=teams.get(home?match?.away:match?.home);return '<tr><td>'+w.gw+'</td><td>'+esc(op?.name||'Not Available')+(match?(home?' (H)':' (A)'):'')+'</td><td>'+esc(match?(home?match.difficulty_home:match.difficulty_away):'Not Available')+'</td><td>'+n(q.xpts)+'</td><td>'+n(q.xmins,0)+'</td><td>'+pct(q.p_start)+'</td></tr>'})).join('')+'</table></div><h3>Originale pointkomponenter · næste GW</h3>'+Object.entries(w.fixtures.reduce((sum,q)=>{for(const [key,v] of Object.entries(q.components||{}))sum[key]=(sum[key]||0)+v;return sum},{})).map(([key,value])=>'<p>'+esc(key)+': <strong>'+n(value)+'</strong></p>').join('');
 const choices=f.players.filter(x=>x.id!==id&&x.position===p.position).sort((a,b)=>b.weeks.reduce((v,w)=>v+w.xpts,0)-a.weeks.reduce((v,w)=>v+w.xpts,0));
 $('compareSelect').innerHTML=choices.map(x=>'<option value="'+x.id+'">'+esc(x.name)+' · '+esc(x.team)+'</option>').join('');
 function compare(x){const q=x.weeks[0];return '<div class="compare-card"><div class="compare-head">'+esc(x.name)+'</div><div class="metric">Pris <strong>£'+n(x.price_tenths/10,1)+'</strong></div><div class="metric">GW xP <strong>'+n(q.xpts)+'</strong></div><div class="metric">6 GW xP <strong>'+n(x.weeks.reduce((v,w)=>v+w.xpts,0))+'</strong></div><div class="metric">Minutter <strong>'+n(q.xmins,0)+'</strong></div></div>'}
 const renderCompare=()=>{$('compareGrid').innerHTML=compare(p)+(choices.length?compare(choices.find(x=>String(x.id)===$('compareSelect').value)||choices[0]):'')};$('compareSelect').onchange=renderCompare;renderCompare();
-$('recent').innerHTML='<div class="note">Historiske kampstatistikker vises ikke, fordi de ikke er verificeret til denne prognose.</div>';
+$('recent').innerHTML='<p>Officiel FPL-sæsonoversigt · hentet '+esc(o.fetched_at)+'. Ikke en historisk kampserie.</p><div class="scroll"><table>'+['minutes','starts','total_points','goals_scored','assists','expected_goals','expected_assists','clean_sheets','saves','bonus','yellow_cards','red_cards'].map(key=>'<tr><th>'+esc(key)+'</th><td>'+esc(op?.[key]??'Not Available')+'</td></tr>').join('')+'</table></div>';
 }catch(e){$('name').textContent='Spillerdata ikke tilgængelige';$('crumb').textContent=e.message;}
 })();
-</script><script src="nav.js"></script></body></html>
+</script><script src="classic-nav.js"></script></body></html>
