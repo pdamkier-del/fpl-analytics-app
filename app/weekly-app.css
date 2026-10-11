@@ -53,3 +53,16 @@
 .player-week-grid>div{background:#f5f0f7;padding:8px 3px;text-align:center;border-radius:7px;display:flex;flex-direction:column;gap:3px}
 .player-week-grid span{color:#087849;font-weight:800;font-variant-numeric:tabular-nums}.player-week-grid small{font-size:10px}
 @media(max-width:600px){.lineup-score strong{font-size:18px}.lineup-score>div{padding:10px}.selected-player-details{padding:12px 9px}.player-week-grid{gap:3px}.player-week-grid>div{padding:6px 1px;font-size:10px}.player-week-grid small{font-size:9px}.selected-player-heading a{font-size:12px}}
+
+/* Original My Team layout: formation on the left, player inspector and controls on the right. */
+.classic-squad .classic-team-layout{display:grid;grid-template-columns:minmax(0,1.45fr) minmax(300px,.75fr);align-items:start;gap:12px;padding:12px;background:#f6f4f8}
+.classic-squad .classic-field{min-width:0;border-radius:13px;overflow:hidden;background:#fff;border:1px solid #e5dce8}
+.classic-squad .classic-side{position:sticky;top:72px;min-width:0;background:#fff;border:1px solid #e5dce8;border-radius:13px;overflow:hidden}
+.classic-side-title{background:#37003c;color:#fff;padding:13px 15px;font-weight:800}
+.classic-squad .selected-player-details{border-bottom:1px solid #e6ddea}
+.classic-squad .lineup-controls{flex-direction:column;align-items:stretch;background:#fff}
+.classic-squad .lineup-controls label,.classic-squad .lineup-controls button{width:100%;flex:0 0 auto}
+.classic-squad .lineup-score{grid-template-columns:1fr 1fr}
+.classic-squad .fpl-pitch{min-height:495px;display:flex;flex-direction:column;justify-content:space-around}
+.classic-squad .pitch-row{min-height:95px}
+@media(max-width:800px){.classic-squad .classic-team-layout{grid-template-columns:minmax(0,1fr);padding:6px;gap:8px}.classic-squad .classic-side{position:static}.classic-squad .lineup-controls{flex-direction:row}.classic-squad .lineup-controls label,.classic-squad .lineup-controls button{flex:1 1 42%;width:auto}.classic-squad .fpl-pitch{min-height:455px}.classic-squad .pitch-row{min-height:90px}}
