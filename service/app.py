@@ -16,6 +16,12 @@ def cleanup():
         for key,job in list(jobs.items()):
             if time.time()-job['created']>TTL and job['status']!='running':
                 shutil.rmtree(job['directory'],ignore_errors=True);del jobs[key]
+def janitor():
+    while True:
+        time.sleep(60)
+        cleanup()
+threading.Thread(target=janitor,daemon=True).start()
+
 @app.after_request
 def headers(response):
     response.headers['Cache-Control']='no-store'
