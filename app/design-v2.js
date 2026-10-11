@@ -14,13 +14,13 @@ const section=({
 document.body.classList.add('page-'+section);
 if(file==='mobile.html')document.body.classList.add('page-mobile');
 const links=[
-{key:'overview',href:'overview.html',label:'Overblik',short:'Overblik',glyph:'⌂'},
-{key:'squad',href:'manager-state.html',label:'Mit hold',short:'Mit hold',glyph:'♟'},
-{key:'forecast',href:'vfinal-diagnostic.html',label:'Forecast',short:'Forecast',glyph:'⌁'},
-{key:'transfers',href:'team-optimizer.html',label:'Transfers',short:'Transfers',glyph:'⇄'},
+{key:'overview',href:'overview.html#dashboard',label:'Overblik',short:'Overblik',glyph:'⌂'},
+{key:'squad',href:'overview.html#team',label:'Mit hold',short:'Mit hold',glyph:'♟'},
+{key:'forecast',href:'overview.html#players',label:'Forecast',short:'Forecast',glyph:'⌁'},
+{key:'transfers',href:'overview.html#transfers',label:'Transfers',short:'Transfers',glyph:'⇄'},
 {key:'clubs',href:'clubs-live.html',label:'Klubber',short:'Klubber',glyph:'◉'},
-{key:'fixtures',href:'fixtures-live.html',label:'Kampe',short:'Kampe',glyph:'⚽'},
-{key:'models',href:'models.html',label:'Modellen',short:'Model',glyph:'◇'}
+{key:'fixtures',href:'overview.html#fixtures',label:'Kampe',short:'Kampe',glyph:'⚽'},
+{key:'models',href:'overview.html#model',label:'Modellen',short:'Model',glyph:'◇'}
 ];
 const element=(tag,klass,attrs={})=>{
  const e=document.createElement(tag);
@@ -31,7 +31,7 @@ const element=(tag,klass,attrs={})=>{
 const skip=element('a','fpl-skip',{href:'#fpl-main'});
 skip.textContent='Spring til indhold';
 const header=element('header','fpl-appbar');
-const brand=element('a','fpl-brand',{href:'overview.html','aria-label':'FPL Analytics – overblik'});
+const brand=element('a','fpl-brand',{href:'overview.html#dashboard','aria-label':'FPL Analytics – overblik'});
 const mark=element('span','fpl-brand-symbol');mark.textContent='xP';
 const brandText=element('span','fpl-brand-text');brandText.innerHTML='FPL <em>Analytics</em>';
 brand.append(mark,brandText);header.appendChild(brand);

@@ -2,7 +2,7 @@ name: Fresh original locked diagnostic forecast
 on:
   workflow_dispatch:
   schedule:
-    - cron: '17 */6 * * *'
+    - cron: '17 * * * *'
   push:
     branches: [main]
     paths: [.github/workflows/current-diagnostic-forecast.yml]
@@ -25,7 +25,7 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: '3.12'
-      - run: pip install -r requirements-model-checkpoint.txt -r requirements-model-tests.txt requests
+      - run: pip install -r requirements-model-checkpoint.txt -r requirements-model-tests.txt requests Flask==3.1.2
       - name: Restore verified historical inputs and latest diagnostic snapshot
         run: |
           python scripts/restore_live_input_checkpoint.py --out .
@@ -38,6 +38,7 @@ jobs:
           PYTHONPATH=src python -m pytest -q tests
           node tests/test_forecast_window.js
           node --check app/manager-online.js
+          node --check app/weekly-app.js
           node --check app/manager-state.js
           node --check app/plan-view.js
       - name: Preserve cutoff-matched examples, immutable raw data and checksums
@@ -61,6 +62,8 @@ jobs:
           done
       - name: Refresh official display data from the same latest GW
         run: python scripts/fetch_live_fixtures.py
+      - name: Publish cutoff-matched weekly display and TC assets
+        run: python scripts/publish_weekly_assets.py
       - uses: actions/configure-pages@v5
       - run: touch app/.nojekyll
       - uses: actions/upload-pages-artifact@v3

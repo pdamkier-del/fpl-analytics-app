@@ -42,7 +42,7 @@ jobs:
       - name: Apply frozen historical role model to stable current player IDs
         run: python scripts/build_static_role_snapshot.py
       - name: Install locked MM diagnostic requirements (no final-model promotion)
-        run: pip install -r requirements-model-checkpoint.txt -r requirements-model-tests.txt requests
+        run: pip install -r requirements-model-checkpoint.txt -r requirements-model-tests.txt requests Flask==3.1.2
       - name: Restore and publish real original-vFinal diagnostic checkpoint
         run: |
           python scripts/current_diagnostic_checkpoint.py restore
@@ -53,6 +53,7 @@ jobs:
           python scripts/locked_numerical_runtime.py scripts/validate_live_manager_chain.py
           python scripts/run_live_locked_ts.py
           PYTHONPATH=src python -m pytest -q tests/test_live_vfinal_desktop.py tests/test_live_locked_ts_bridge.py tests/test_run_live_vfinal_joint_simulation.py
+          node --check app/weekly-app.js
           node --check app/manager-state.js
           node --check app/plan-view.js
           node tests/test_forecast_window.js
@@ -165,6 +166,8 @@ jobs:
         run: node scripts/test_live_squad_rules.cjs
       - name: Mark GitHub Pages static directory
         run: touch app/.nojekyll
+      - name: Publish cutoff-matched weekly display and TC assets
+        run: python scripts/publish_weekly_assets.py
       - uses: actions/configure-pages@v5
         with:
           enablement: true
