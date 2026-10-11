@@ -79,6 +79,10 @@ jobs:
               if f in ('my-team.html','team-optimizer.html'):
                   assert 'url=manager-state.html' in (a/f).read_text(),f
                   assert (a/'manager-state.html').stat().st_size>1000
+              elif f == 'overview.html':
+                  shell=(a/f).read_text(encoding='utf-8')
+                  assert (a/f).stat().st_size>500, f
+                  assert 'id="weekly-main"' in shell and 'weekly-app.js' in shell and 'weekly-app.css' in shell, f
               else: assert (a/f).stat().st_size>1000,f
           fixtures=json.loads((a/"live-fixtures.json").read_text())
           people=json.loads((a/"current-players.json").read_text())
