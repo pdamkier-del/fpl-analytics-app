@@ -1,5 +1,5 @@
 """Ephemeral private manager API: no account credentials, payload logging or public plans."""
-import json,os,secrets,subprocess,threading,time,tempfile,shutil,sys,hashlib
+import json,os,secrets,subprocess,threading,time,tempfile,shutil,sys,hashlib,re
 from datetime import datetime,timezone,timedelta
 from functools import lru_cache
 from pathlib import Path
@@ -59,6 +59,7 @@ def health():
     ready=original_runtime_ready()
     return jsonify(status='ready' if ready else 'unavailable',
                    runtime='original_locked_python',locked_model_active=False,
+                   supports_idempotent_submit=True,
                    adapter_sha256=hashlib.sha256((ROOT/'service/app.py').read_bytes()+(ROOT/'service/manager_job.py').read_bytes()).hexdigest()), (200 if ready else 503)
 @app.route('/plans',methods=['POST','OPTIONS'])
 def create():
@@ -68,11 +69,20 @@ def create():
     cleanup()
     body=request.get_json(silent=True)
     if not isinstance(body,dict) or not isinstance(body.get('state'),dict) or not isinstance(body.get('forecast_cutoff'),str):return jsonify(error='Ugyldigt manager-state'),400
+    identifier=body.get('request_id');key=body.get('request_key')
+    if identifier is not None or key is not None:
+        if not isinstance(identifier,str) or not re.fullmatch('[a-f0-9]{32}',identifier) or not isinstance(key,str) or not re.fullmatch('[A-Za-z0-9_-]{43}',key):return jsonify(error='Ugyldig privat jobkvittering'),400
+    else:identifier=secrets.token_hex(16);key=secrets.token_urlsafe(32)
+    signature=hashlib.sha256(json.dumps({'state':body['state'],'forecast_cutoff':body['forecast_cutoff']},sort_keys=True,ensure_ascii=False,separators=(',',':')).encode()).hexdigest()
     with lock:
+        existing=jobs.get(identifier)
+        if existing:
+            if not secrets.compare_digest(existing['key'],key) or existing.get('signature')!=signature:return jsonify(error='Privat jobkvittering passer ikke til hold og forecast'),409
+            return jsonify(id=identifier,key=key),202
         if any(j['status']=='running' for j in jobs.values()):return jsonify(error='Beregningstjenesten er optaget. Prøv igen om lidt.'),429
         if len(jobs)>=12:return jsonify(error='Midlertidig kapacitetsgrænse. Prøv igen senere.'),429
-        key=secrets.token_urlsafe(32);identifier=secrets.token_hex(16);directory=Path(tempfile.mkdtemp(prefix='fpl-private-'))
-        jobs[identifier]={'key':key,'directory':directory,'created':time.time(),'status':'running'}
+        directory=Path(tempfile.mkdtemp(prefix='fpl-private-'))
+        jobs[identifier]={'key':key,'signature':signature,'directory':directory,'created':time.time(),'status':'running'}
     def work():
         try:
             forecast=json.loads(get_public('vfinal-diagnostic.json'))

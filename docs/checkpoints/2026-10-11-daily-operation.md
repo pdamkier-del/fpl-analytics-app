@@ -8,6 +8,7 @@ The private original Python manager and the public diagnostic forecast remain se
 - Main’s legacy daily publisher was discovered deploying a bridge without generated fixture expectations/TC assets and cancelling the proper Pages workflow. Its automatic schedule has been retired. Manual legacy invocation delegates to the canonical original forecast workflow.
 - Canonical forecast and working-branch Pages deployments share one publication lock. A queued build must match the current branch’s verified cutoff, GWs and checksums before it may deploy. Artifact names include both run ID and attempt.
 - Forecast failure and missed updates are visible in the weekly app and state editor. Independent raw attempt receipts remain available even when Pages publication fails. Deadline/GW and maximum forecast age remain hard guards. New-cutoff results invalidate old private plans without deleting owned players or purchase prices.
+- Private submissions are idempotent: browser-generated random capabilities are stored before POST, so a lost response can resume the same state/cutoff-bound job without spawning another worker. Portable links cannot overwrite newer local state or an already-valid private plan.
 - Network timeouts/disconnects retain the private resumable job. A completed result is rejected when the forecast/state changes or the forecast expires. A corrupt saved plan no longer hides the independently saved state.
 - At GW rollover the editor restores old verified inputs as an unconfirmed draft, preserving GW/time/FT rather than inventing updated values. Saving clears the older draft.
 - Private backend verifies fresh official GW/deadline before and after original computation, and rejects a changed public cutoff before returning the result. Health exposes an adapter digest. Worker timeouts and unavailable official sources return safe distinct messages; personal subprocess output remains suppressed and temporary inputs are removed.
@@ -15,7 +16,7 @@ The private original Python manager and the public diagnostic forecast remain se
 
 ## Evidence
 
-415 Python regression tests passed locally after the publication guard. JavaScript checks cover overdue/failed attempts, :17 scheduling display, disconnects, timeout, stale results, corrupt plans, private backup integrity and honest GW rollover. Fresh source pipeline 38144490282 passed the original chain, exact raw reproduction and Pages publication. It was a push-triggered run, not a verified :17 schedule.
+417 Python regression tests passed locally after the publication guard. JavaScript checks cover overdue/failed attempts, :17 scheduling display, disconnects, timeout, stale results, corrupt plans, private backup integrity and honest GW rollover. Fresh source pipeline 38144490282 passed the original chain, exact raw reproduction and Pages publication. It was a push-triggered run, not a verified :17 schedule.
 
 ## Certification limits
 

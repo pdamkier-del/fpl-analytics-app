@@ -5,6 +5,9 @@ on:
   schedule:
     # Explicit hour range preserves :17 hourly and re-registers the cron actor.
     - cron: '17 0-23 * * *'
+  push:
+    branches: [main]
+    paths: [.github/workflows/current-diagnostic-forecast.yml]
 permissions:
   contents: write
   pages: write

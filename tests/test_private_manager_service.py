@@ -109,3 +109,33 @@ def test_worker_timeout_removes_private_input_and_returns_safe_failure(monkeypat
             assert 'timeout' in result.get_json()['error']
             assert 'test-only' not in result.get_data(as_text=True)
         finally:del jobs[identifier]
+
+def test_lost_submission_receipt_resumes_same_private_job(monkeypatch,tmp_path):
+    import service.app as api
+    starts=[]
+    class DeferredThread:
+        def __init__(self,target,**kwargs):self.target=target
+        def start(self):starts.append(self.target)
+    monkeypatch.setattr(api.threading,'Thread',DeferredThread)
+    monkeypatch.setattr(api,'original_runtime_ready',lambda:True)
+    monkeypatch.setattr(api.tempfile,'mkdtemp',lambda **kwargs:str(tmp_path))
+    body={'state':{'synthetic':'privacy test only'},'forecast_cutoff':'cutoff','request_id':'a'*32,'request_key':'b'*43}
+    with app.test_client() as c:
+        try:
+            first=c.post('/plans',json=body,headers={'Origin':ORIGIN})
+            retry=c.post('/plans',json=body,headers={'Origin':ORIGIN})
+            assert first.status_code==retry.status_code==202
+            assert first.get_json()==retry.get_json()
+            assert len(starts)==1
+            changed=c.post('/plans',json={**body,'state':{'synthetic':'different'}},headers={'Origin':ORIGIN})
+            assert changed.status_code==409
+            wrong_key=c.post('/plans',json={**body,'request_key':'c'*43},headers={'Origin':ORIGIN})
+            assert wrong_key.status_code==409
+        finally:jobs.pop(body['request_id'],None)
+
+def test_malformed_private_submission_capability_is_rejected(monkeypatch):
+    import service.app as api
+    monkeypatch.setattr(api,'original_runtime_ready',lambda:True)
+    with app.test_client() as c:
+        response=c.post('/plans',json={'state':{},'forecast_cutoff':'test','request_id':'too-short','request_key':'guess'},headers={'Origin':ORIGIN})
+        assert response.status_code==400
