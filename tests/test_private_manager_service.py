@@ -65,3 +65,11 @@ def test_service_health_reports_original_runtime_when_available(monkeypatch):
         r=c.get('/health')
         assert r.status_code==200
         assert r.get_json()['runtime']=='original_locked_python'
+
+def test_private_compute_rejects_unavailable_original_runtime(monkeypatch):
+    import service.app as api
+    monkeypatch.setattr(api,'original_runtime_ready',lambda:False)
+    with app.test_client() as c:
+        r=c.post('/plans',json={'state':{},'forecast_cutoff':'2026-10-11T08:00:00Z'},headers={'Origin':ORIGIN})
+        assert r.status_code==503
+        assert 'ikke klar' in r.get_json()['error']
