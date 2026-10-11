@@ -4,6 +4,7 @@ const o={teams:{1:{name:'Alpha',code:1},2:{name:'Beta',code:2}},players:[{id:1,w
 const f={data_asof:'cutoff',gws:[7,8,9,10,11,12],players:[{id:1,weeks:[7,8,9,10,11,12].map(gw=>({gw,xpts:0,xmins:0,fixtures:[{p_start:0,components:{goal_points:0,assist_points:0,expected_bonus:0}}]}))}]};
 let p=D.players(o,f,true);assert.equal(p[0].xp,0);assert.equal(p[0].xg,0);assert.equal(p[0].xa,null);assert.equal(p[0].xgi,null);assert.equal(p[1].xp,null);assert.equal(p[0].pstart,0);
 assert.equal(D.players(o,f,false)[0].xp,null,'Expired forecast must hide even saved model values');
+delete f.players[0].weeks[0].fixtures[0].p_start;assert.equal(D.players(o,f,true,1)[0].pstart,null,'Absent start probability must never become zero');
 f.players[0].weeks[0].fixtures.push({p_start:.8,components:{goal_points:1}});assert.equal(D.players(o,f,true,1)[0].pstart,null,'Do not invent a combined DGW start probability');
 assert.equal(D.sum([0,null]),null);for(const dir of [-1,1])assert.deepEqual([{name:'missing',v:null},{name:'low',v:0},{name:'high',v:2}].sort((a,b)=>D.compare(a,b,'v',dir)).map(x=>x.name),dir===1?['low','high','missing']:['high','low','missing']);
 const fixtures={fixtures:[{id:1,gw:6,finished:true,home:1,away:2,home_score:2,away_score:0},{id:2,gw:7,finished:false,home:2,away:1}]},ex={cutoff:'cutoff',fixtures:[{id:2,home:2,away:1,home_xg:1,away_xg:2}]};
