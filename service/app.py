@@ -69,5 +69,11 @@ def status(identifier):
     if not job or not secrets.compare_digest(job['key'],request.headers.get('X-Plan-Key','')):return jsonify(error='Beregningen findes ikke længere. Beregn igen.'),404
     if time.time()-job['created']>TTL:return jsonify(error='Beregningen er udløbet. Beregn igen.'),410
     if job['status']=='failed':return jsonify(status='failed',error='Beregningen bestod ikke kontrollerne. Kontrollér hold, tidspunkt og forecast, og prøv igen.'),422
-    if job['status']=='completed':return jsonify(status='completed',plan=json.loads((job['directory']/'result.json').read_text()))
+    if job['status']=='completed':
+        try:
+            result=json.loads((job['directory']/'result.json').read_text())
+            if not isinstance(result,dict):raise ValueError('Invalid private result')
+        except (OSError,ValueError,TypeError):
+            return jsonify(status='failed',error='Det private resultat kunne ikke valideres. Beregn igen.'),422
+        return jsonify(status='completed',plan=result)
     return jsonify(status='running')
