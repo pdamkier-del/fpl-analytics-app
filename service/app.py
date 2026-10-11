@@ -4,6 +4,7 @@ from datetime import datetime,timezone,timedelta
 from functools import lru_cache
 from pathlib import Path
 from urllib.request import Request,urlopen
+from urllib.error import URLError
 from flask import Flask,request,jsonify
 ROOT=Path(__file__).resolve().parents[1]
 ORIGIN='https://pdamkier-del.github.io'
@@ -85,6 +86,10 @@ def create():
             verify_official_now(forecast)
             if json.loads(get_public('vfinal-diagnostic.json'))['data_asof']!=forecast['data_asof']:raise ValueError('Forecast changed during calculation')
             jobs[identifier]['status']='completed'
+        except subprocess.TimeoutExpired:
+            jobs[identifier]['status']='failed';jobs[identifier]['failure']='timeout'
+        except (TimeoutError,URLError):
+            jobs[identifier]['status']='failed';jobs[identifier]['failure']='source_unavailable'
         except Exception:
             jobs[identifier]['status']='failed'
         finally:
@@ -97,7 +102,10 @@ def status(identifier):
     job=jobs.get(identifier)
     if not job or not secrets.compare_digest(job['key'],request.headers.get('X-Plan-Key','')):return jsonify(error='Beregningen findes ikke længere. Beregn igen.'),404
     if time.time()-job['created']>TTL:return jsonify(error='Beregningen er udløbet. Beregn igen.'),410
-    if job['status']=='failed':return jsonify(status='failed',error='Beregningen bestod ikke kontrollerne. Kontrollér hold, tidspunkt og forecast, og prøv igen.'),422
+    if job['status']=='failed':
+        errors={'timeout':'Beregningen fik timeout. Dit hold er bevaret; prøv igen.',
+                'source_unavailable':'Officielle kilder kunne ikke verificeres. Dit hold er bevaret; prøv igen senere.'}
+        return jsonify(status='failed',error=errors.get(job.get('failure'),'Beregningen bestod ikke kontrollerne. Kontrollér hold, tidspunkt og forecast, og prøv igen.')),422
     if job['status']=='completed':
         try:
             result=json.loads((job['directory']/'result.json').read_text())

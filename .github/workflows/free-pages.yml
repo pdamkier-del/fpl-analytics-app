@@ -14,6 +14,8 @@ jobs:
   build-and-deploy:
     runs-on: ubuntu-latest
     timeout-minutes: 20
+    outputs:
+      snapshot: ${{ steps.publication.outputs.snapshot }}
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
@@ -186,8 +188,29 @@ jobs:
       - uses: actions/configure-pages@v5
         with:
           enablement: true
+      - name: Record verified publication identity
+        id: publication
+        run: python scripts/verify_pages_publication.py --record
       - uses: actions/upload-pages-artifact@v3
         with:
           path: app
+          name: github-pages-${{ github.run_id }}-${{ github.run_attempt }}
+  deploy:
+    needs: build-and-deploy
+    runs-on: ubuntu-latest
+    concurrency:
+      group: fpl-pages-publication
+      cancel-in-progress: false
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: free-github-static-20261010
+      - name: Refuse an older forecast after waiting for publication
+        env:
+          PAGES_SNAPSHOT: ${{ needs.build-and-deploy.outputs.snapshot }}
+          GITHUB_TOKEN: ${{ github.token }}
+        run: python scripts/verify_pages_publication.py
       - uses: actions/deploy-pages@v4
+        with:
+          artifact_name: github-pages-${{ github.run_id }}-${{ github.run_attempt }}
 

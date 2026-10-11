@@ -106,5 +106,6 @@ def test_worker_timeout_removes_private_input_and_returns_safe_failure(monkeypat
             assert not (tmp_path/'input.json').exists()
             result=c.get('/plans/'+identifier,headers={'X-Plan-Key':receipt['key']})
             assert result.status_code==422
+            assert 'timeout' in result.get_json()['error']
             assert 'test-only' not in result.get_data(as_text=True)
         finally:del jobs[identifier]
