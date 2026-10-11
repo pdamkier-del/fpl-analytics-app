@@ -31,3 +31,20 @@ def test_busy_job_refuses_second_compute(tmp_path):
         response=c.post('/plans',json={'state':{},'forecast_cutoff':'test'},headers={'Origin':ORIGIN})
         assert response.status_code==429
     del jobs['running-example']
+
+def test_corrupt_private_result_fails_closed(tmp_path):
+    key='bad-result'
+    jobs[key]={'key':'k','created':time.time(),'status':'completed','directory':tmp_path}
+    try:
+        with app.test_client() as c:
+            missing=c.get('/plans/'+key,headers={'X-Plan-Key':'k'})
+            assert missing.status_code==422
+            assert missing.get_json()['status']=='failed'
+            (tmp_path/'result.json').write_text('{not json')
+            corrupt=c.get('/plans/'+key,headers={'X-Plan-Key':'k'})
+            assert corrupt.status_code==422
+            (tmp_path/'result.json').write_text('[]')
+            wrong_shape=c.get('/plans/'+key,headers={'X-Plan-Key':'k'})
+            assert wrong_shape.status_code==422
+    finally:
+        del jobs[key]
