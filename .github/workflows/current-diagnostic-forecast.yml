@@ -2,7 +2,8 @@ name: Fresh original locked diagnostic forecast
 on:
   workflow_dispatch:
   schedule:
-    - cron: '17 * * * *'
+    # Explicit hour range preserves :17 hourly and re-registers the cron actor.
+    - cron: '17 0-23 * * *'
   push:
     branches: [main]
     paths: [.github/workflows/current-diagnostic-forecast.yml]
@@ -88,5 +89,7 @@ jobs:
         if: always()
         env:
           FORECAST_JOB_STATUS: ${{ job.status }}
+          FORECAST_TRIGGER: ${{ github.event_name }}
+          FORECAST_SCHEDULE: ${{ github.event.schedule }}
           GITHUB_TOKEN: ${{ github.token }}
         run: python scripts/publish_pipeline_status.py

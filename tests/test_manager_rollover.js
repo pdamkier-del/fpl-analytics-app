@@ -1,0 +1,11 @@
+const assert=require('node:assert/strict'),fs=require('node:fs'),vm=require('node:vm');
+const source=fs.readFileSync('app/manager-state.js','utf8');
+const fields=Object.fromEntries(['gw','bank','ft','source','observed','wildcard','free_hit','bench_boost','triple_captain','confirmed'].map(k=>[k,{value:''}]));
+const rows=Array.from({length:15},()=>{const select={value:''},input={value:''};return {querySelector:s=>s==='select'?select:input}});fields.squad={children:rows};
+const saved={gw:7,source:'Verified synthetic fixture, not the user',observed_at:'2026-10-11T08:23:14Z',bank_tenths:7,free_transfers:2,squad:rows.map((_,i)=>({id:i+1,purchase_price_tenths:45+i})),chips_used:{wildcard:[],free_hit:[],bench_boost:[],triple_captain:[5]}};
+const storage=new Map(),ctx={$:k=>fields[k],people:new Map(saved.squad.map(p=>[p.id,{}])),forecast:{gws:[8]},chips:['wildcard','free_hit','bench_boost','triple_captain'],localStorage:{setItem:(k,v)=>storage.set(k,v)},renderSquadForecast:()=>{}};
+vm.createContext(ctx);vm.runInContext(source.slice(source.indexOf('function importDraft('),source.indexOf('function apply(')),ctx);ctx.importDraft(saved);
+assert.equal(fields.gw.value,7);assert.equal(fields.bank.value,'0.7');assert.equal(fields.ft.value,2);assert.equal(fields.observed.value,'2026-10-11T08:23:14');assert.equal(fields.triple_captain.value,'5');assert.equal(fields.confirmed.checked,false);
+assert.deepEqual(JSON.parse(storage.get('fpl-manager-draft-v1')).squad,saved.squad);
+assert.equal(storage.has('fpl-manager-state-v1'),false);
+console.log('PASS: new-GW editor retains old actual prices/FT/chips/time as an unconfirmed draft, never inventing a new state.');
