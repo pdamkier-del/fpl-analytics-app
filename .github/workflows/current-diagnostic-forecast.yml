@@ -1,6 +1,7 @@
 name: Fresh original locked diagnostic forecast
 on:
   workflow_dispatch:
+  workflow_call:
   schedule:
     # Explicit hour range preserves :17 hourly and re-registers the cron actor.
     - cron: '17 0-23 * * *'
