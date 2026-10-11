@@ -1,5 +1,6 @@
 """Ephemeral private manager API: no account credentials, payload logging or public plans."""
 import json,os,secrets,subprocess,threading,time,tempfile,shutil,sys
+from functools import lru_cache
 from pathlib import Path
 from urllib.request import Request,urlopen
 from flask import Flask,request,jsonify
@@ -32,8 +33,19 @@ def headers(response):
         response.headers['Access-Control-Allow-Headers']='Content-Type, X-Plan-Key'
         response.headers['Access-Control-Allow-Methods']='GET, POST, OPTIONS'
     return response
+@lru_cache(maxsize=1)
+def original_runtime_ready():
+    try:
+        from service.manager_job import calculate
+        return callable(calculate)
+    except (ImportError, OSError, ValueError):
+        return False
+
 @app.route('/health')
-def health():return jsonify(status='ready',runtime='original_locked_python',locked_model_active=False)
+def health():
+    ready=original_runtime_ready()
+    return jsonify(status='ready' if ready else 'unavailable',
+                   runtime='original_locked_python',locked_model_active=False), (200 if ready else 503)
 @app.route('/plans',methods=['POST','OPTIONS'])
 def create():
     if request.method=='OPTIONS':return ('',204)
