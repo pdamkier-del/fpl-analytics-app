@@ -46,3 +46,12 @@ The public example's cutoff/GW must match the current forecast or release packag
 
 Season-end compatibility is verified with explicit synthetic GW34 and GW38 regressions: the original source chooses five and one remaining GW respectively with its unchanged weight prefix. A missing GW in the middle of the season is rejected. No season-end strategy or coefficient was invented. Current GW7 inputs/calculations are unchanged by these adapter bounds.
 
+
+## Final validation at publication
+
+- [Original MM → vFinal → TS/chip integration, 403 Python regressions and seven deadline/GW checks](https://github.com/pdamkier-del/fpl-analytics-app/actions/runs/38121508462): passed on `563970cfc7a86fb143df6c3d13e89eb111c4f5b8`. Its fixed historical input is regression-only, not the current forecast.
+- [Immutable original-vFinal replay](https://github.com/pdamkier-del/fpl-analytics-app/actions/runs/38121508509): passed on the same code HEAD.
+- [MM readiness audit](https://github.com/pdamkier-del/fpl-analytics-app/actions/runs/38121508463): passed; this audit does not confer live certification.
+- [Pages deployment](https://github.com/pdamkier-del/fpl-analytics-app/actions/runs/38121508478): passed on the same code HEAD.
+- [Fresh automatic pipeline, attempt 2](https://github.com/pdamkier-del/fpl-analytics-app/actions/runs/38116328855/attempts/2): passed with cutoff 2026-10-11T07:08:34.014305+00:00, exact raw rebuilds and TC sample replays, 397 regressions and seven freshness checks; release diagnostic-38116328855-2 deployed.
+- [Main online original-Python runtime](https://github.com/pdamkier-del/fpl-analytics-app/actions/runs/38120904078): passed with 13 runtime/encryption/official-window tests. Actual authenticated browser dispatch is not claimed: no user token and no complete actual manager state were supplied.
