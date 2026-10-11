@@ -14,12 +14,12 @@ on:
         required: false
         type: string
       request_id:
-        description: 'Optional browser request UUID'
-        required: false
+        description: 'Browser request UUID for encrypted result delivery'
+        required: true
         type: string
       public_key_json:
-        description: 'Optional browser RSA public key; never a private key'
-        required: false
+        description: 'Browser RSA public key; never a private key'
+        required: true
         type: string
 permissions:
   contents: write
@@ -42,7 +42,6 @@ jobs:
       - name: Parse manager input as data, never shell code
         env:
           EXPECTED_FORECAST_CUTOFF: ${{ inputs.forecast_cutoff }}
-          MANAGER_STATE_JSON: ${{ inputs.manager_state_json }}
         run: |
           python - <<'PY'
           import os,json
@@ -51,10 +50,20 @@ jobs:
           forecast=json.loads(Path('app/vfinal-diagnostic.json').read_text())
           if expected and expected != forecast['data_asof']:
               raise ValueError('Forecast changed; reload app before requesting another plan')
-          raw=json.loads(os.environ['MANAGER_STATE_JSON'])
+          # GitHub prints step environment values in public run logs. Read
+          # private state from the runner event file instead; never echo it.
+          request=json.loads(Path(os.environ['GITHUB_EVENT_PATH']).read_text())['inputs']
+          if not request.get('request_id') or not request.get('public_key_json'):
+              raise ValueError('Encrypted browser delivery is required')
+          raw=json.loads(request['manager_state_json'])
           Path('work/manager-state.json').write_text(json.dumps(raw))
           PY
-      - run: python scripts/locked_numerical_runtime.py scripts/run_live_locked_ts.py --state work/manager-state.json --out work/manager-plan.json --tc-samples work/live-manager-validation/tc_samples.csv.gz --tc-receipt work/live-manager-validation/tc_scenarios.json > work/manager-calculation.log
+      - name: Calculate original plan without logging personal input or output
+        run: |
+          if ! python scripts/locked_numerical_runtime.py scripts/run_live_locked_ts.py --state work/manager-state.json --out work/manager-plan.json --tc-samples work/live-manager-validation/tc_samples.csv.gz --tc-receipt work/live-manager-validation/tc_scenarios.json > work/manager-calculation.log 2>&1; then
+            echo 'Personal calculation failed; private inputs and diagnostics were not published.'
+            exit 1
+          fi
       - run: python scripts/verify_official_forecast_window.py
       - name: Return encrypted result to requesting browser
         if: inputs.request_id != '' && inputs.public_key_json != ''
@@ -65,8 +74,8 @@ jobs:
         run: python scripts/publish_encrypted_manager_result.py
       - uses: actions/upload-artifact@v4
         with:
-          name: original-manager-plan-diagnostic
-          path: work/manager-plan.json
+          name: encrypted-original-manager-plan-diagnostic
+          path: work/encrypted-manager-plan.json
           retention-days: 30
 
   validate-online-runtime:
