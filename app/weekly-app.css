@@ -42,3 +42,14 @@
 .squad-display .player-points{white-space:nowrap;font-variant-numeric:tabular-nums}
 .squad-display .bench-row .player-card{flex:0 1 150px}
 @media(max-width:600px){.pitch-settings{justify-content:stretch;padding:8px}.pitch-metric-label{width:100%;justify-content:space-between}.pitch-metric-label select{min-width:0;max-width:58%;font-size:12px}.squad-display .bench-row .player-card{max-width:24%}}
+
+/* Existing forecast model powers the detailed pitch; no separate calculations */
+.lineup-score{display:grid;grid-template-columns:1fr 1fr;gap:1px;background:#d7cadd;border-top:1px solid #ded4e2}
+.lineup-score>div{background:#fff;padding:13px 16px;display:flex;flex-direction:column;gap:3px}
+.lineup-score small{font-size:11px}.lineup-score strong{color:#37003c;font-size:24px;font-variant-numeric:tabular-nums}
+.selected-player-details{padding:15px 16px;border-bottom:1px solid #e5dce8;background:#fff}
+.selected-player-heading{display:flex;justify-content:space-between;gap:8px;align-items:center}.selected-player-heading h3{margin:0;font-size:18px}
+.player-week-grid{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:6px}
+.player-week-grid>div{background:#f5f0f7;padding:8px 3px;text-align:center;border-radius:7px;display:flex;flex-direction:column;gap:3px}
+.player-week-grid span{color:#087849;font-weight:800;font-variant-numeric:tabular-nums}.player-week-grid small{font-size:10px}
+@media(max-width:600px){.lineup-score strong{font-size:18px}.lineup-score>div{padding:10px}.selected-player-details{padding:12px 9px}.player-week-grid{gap:3px}.player-week-grid>div{padding:6px 1px;font-size:10px}.player-week-grid small{font-size:9px}.selected-player-heading a{font-size:12px}}
