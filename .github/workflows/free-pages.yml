@@ -136,7 +136,7 @@ jobs:
           python - <<'PY'
           from pathlib import Path
           import re,subprocess,tempfile
-          for file in ['locked-forecast.html','forecast-history.html','forecast-live.html','own-forecast.html','forecast-center.html','current-players.html','fixtures-live.html','my-team.html','my-team-live.html','team-optimizer.html','clubs-live.html','mm-diagnostic.html','vfinal-diagnostic.html','my-team-classic.html']:
+          for file in ['locked-forecast.html','forecast-history.html','forecast-live.html','own-forecast.html','forecast-center.html','current-players.html','fixtures-live.html','my-team.html','my-team-live.html','team-optimizer.html','clubs-live.html','mm-diagnostic.html','vfinal-diagnostic.html','my-team-classic.html','player.html']:
               s=(Path('app')/file).read_text()
               scripts=re.findall(r'<script(?:\\s[^>]*)?>(.*?)</script>',s,flags=re.S|re.I)
               for i,script in enumerate(scripts):
