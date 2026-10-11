@@ -50,6 +50,7 @@ def health():
 def create():
     if request.method=='OPTIONS':return ('',204)
     if request.headers.get('Origin')!=ORIGIN:return jsonify(error='Invalid app origin'),403
+    if not original_runtime_ready():return jsonify(error='Original Python-beregningstjeneste er ikke klar. Prøv igen senere.'),503
     cleanup()
     body=request.get_json(silent=True)
     if not isinstance(body,dict) or not isinstance(body.get('state'),dict) or not isinstance(body.get('forecast_cutoff'),str):return jsonify(error='Ugyldigt manager-state'),400
