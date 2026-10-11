@@ -1,0 +1,55 @@
+name: Public private-manager HTTP smoke
+on:
+  push:
+    branches: [free-github-static-20261010]
+    paths:
+      - service/**
+      - app/weekly-app.js
+      - app/manager-service.json
+      - .github/workflows/manager-service-smoke.yml
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  external-http:
+    runs-on: ubuntu-latest
+    timeout-minutes: 7
+    steps:
+      - name: Verify deployed service contract, CORS and private endpoints
+        env:
+          API: https://fpl-analytics-private-manager.onrender.com
+          ORIGIN: https://pdamkier-del.github.io
+        run: |
+          python - <<'PY'
+          import json,os,time,urllib.request,urllib.error
+          base=os.environ['API'];origin=os.environ['ORIGIN']
+          def request(path,method='GET',body=None,headers=None,timeout=110):
+              data=json.dumps(body).encode() if body is not None else None
+              h={'User-Agent':'FPLAnalyticsSmoke/1',**(headers or {})}
+              if body is not None:h['Content-Type']='application/json'
+              req=urllib.request.Request(base+path,data=data,headers=h,method=method)
+              try:
+                  with urllib.request.urlopen(req,timeout=timeout) as res:return res.status,dict(res.headers),res.read()
+              except urllib.error.HTTPError as e:return e.code,dict(e.headers),e.read()
+          # Render free instances can sleep. Retry the health probe before failing.
+          for attempt in range(3):
+              try:
+                  status,headers,payload=request('/health')
+                  break
+              except (TimeoutError,OSError):
+                  if attempt==2:raise
+                  time.sleep(10)
+          data=json.loads(payload)
+          assert status==200,(status,data)
+          assert data['status']=='ready' and data['runtime']=='original_locked_python' and data['locked_model_active'] is False,data
+          print('Public HTTP health: ready; original runtime reported.')
+          status,h,p=request('/plans',method='OPTIONS',headers={'Origin':origin,'Access-Control-Request-Method':'POST'})
+          assert status==204 and h.get('Access-Control-Allow-Origin')==origin,(status,h)
+          status,h,p=request('/plans',method='POST',body={},headers={'Origin':origin})
+          assert status==400,(status,p[:300])
+          status,h,p=request('/plans',method='POST',body={})
+          assert status==403,(status,p[:300])
+          status,h,p=request('/plans/unpublished-smoke-identifier',headers={'X-Plan-Key':'invalid'})
+          assert status==404,(status,p[:300])
+          print('Public HTTP smoke passed: CORS, input rejection and plan capability controls.')
+          PY
