@@ -59,6 +59,8 @@ jobs:
           node --check app/plan-view.js
           node tests/test_forecast_window.js
           node tests/test_weekly_compute.js
+          node tests/test_private_import.js
+          node tests/test_private_backup_restore.js
       - name: Keep locked model unavailable until separately certified
         run: |
           python - <<'PY'
