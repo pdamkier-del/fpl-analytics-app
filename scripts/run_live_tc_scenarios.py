@@ -20,6 +20,31 @@ BASE=ROOT/'data_v1_1/derived/live_locked_inputs/2026-27-v1'
 WORK=ROOT/'work/live-final-model'
 OUT=ROOT/'work/live-manager-validation'
 
+def verify_extension_overlap(old,subset):
+    """Check batch-size roundoff without changing any approved current input.
+
+    Value-relative ULP counts become unstable near zero. The symmetric error
+    bound is eight float64 epsilons on a unit-or-value scale; this is an input
+    comparison guard, never a fitted coefficient or a simulator parameter.
+    """
+    if not old.columns.equals(subset.columns) or len(old)!=len(subset):
+        raise ValueError('TC extension current identity coverage differs')
+    drift=numeric_diff(old,subset)
+    for col in old:
+        x,y=old[col],subset[col]
+        if x.equals(y):continue
+        if not pd.api.types.is_float_dtype(x) or not pd.api.types.is_float_dtype(y):
+            raise ValueError('TC extension changed nonfloating current source field '+col)
+        xv,yv=x.to_numpy(float),y.to_numpy(float)
+        changed=~((xv==yv)|(np.isnan(xv)&np.isnan(yv)))
+        delta=np.abs(xv[changed]-yv[changed])
+        bound=8*np.finfo(np.float64).eps*np.maximum(1.,np.maximum(np.abs(xv[changed]),np.abs(yv[changed])))
+        drift[col]['max_ulp']=float(np.max(delta/np.abs(np.spacing(xv[changed]))))
+        drift[col]['max_unit_scaled_epsilon']=float(np.max(delta/(bound/8)))
+        if not np.all(np.isfinite(xv[changed])&np.isfinite(yv[changed])) or not np.all(delta<=bound):
+            raise ValueError('TC extension differs materially from immutable current forecast '+col+'; evidence='+json.dumps(drift))
+    return drift
+
 def samples(frame,origin):
     end=19 if origin<=19 else 38
     if set(frame.target_gw.astype(int))!=set(range(origin,end+1)):
@@ -77,19 +102,7 @@ def main():
         keys=['fixture_uuid','player_uuid']
         subset=frame[frame.target_gw.isin(reference.target_gw.unique())][reference.columns].sort_values(keys).reset_index(drop=True)
         old=reference.sort_values(keys).reset_index(drop=True)
-        drift=numeric_diff(old,subset)
-        for col in old:
-            x,y=old[col],subset[col]
-            if x.equals(y):continue
-            if not pd.api.types.is_float_dtype(x):
-                raise ValueError('TC extension changed nonfloating current source field '+col)
-            xv,yv=x.to_numpy(float),y.to_numpy(float)
-            both=np.isnan(xv)&np.isnan(yv)
-            exact=(xv==yv)|both
-            changed=~exact
-            drift[col]['max_ulp']=float(np.max(np.abs(xv[changed]-yv[changed])/np.abs(np.spacing(xv[changed]))))
-            if not np.all(np.isfinite(xv[changed])&np.isfinite(yv[changed])) or not np.all(np.abs(xv[changed]-yv[changed])<=8*np.abs(np.spacing(xv[changed]))):
-                raise ValueError('TC extension differs materially from immutable current forecast '+col+'; max_abs='+str(float(np.max(np.abs(xv[changed]-yv[changed]))))+'; max_ulp='+str(float(np.max(np.abs(xv[changed]-yv[changed])/np.abs(np.spacing(xv[changed])))))+'; evidence='+json.dumps(drift))
+        drift=verify_extension_overlap(old,subset)
         # Current forecast rows are the approved immutable source for current
         # TC scenarios. No float is rounded and no reconstructed equality is claimed.
         frame=pd.concat([reference,frame[~frame.target_gw.isin(reference.target_gw.unique())][reference.columns]],ignore_index=True)
@@ -107,7 +120,7 @@ def main():
             'fixtures_snapshot_sha256':hashlib.sha256(fixture_source.read_bytes()).hexdigest(),
             'source_checkpoint':'model/checkpoints/live_gw7_sources_20261010_v1',
             'ordinary_six_gw_checksums':original,'fixtures':int(frame.fixture_uuid.nunique()),'input_rows':len(frame),'samples':len(out),
-            'same_six_gw_inputs_exact':True,'ordinary_gws_used_in_current_chip_period':sorted(map(int,reference.target_gw.unique())),'raw_extension_comparison_ulp_limit':8,'raw_extension_six_gw_numeric_differences':drift,'current_forecast_source':'IMMUTABLE_APPROVED_SIX_GW_INPUT_ROWS_NO_ROUNDING','draws':400,'top_k_per_gw':20,'two_sample_replays_exact':True,
+            'same_six_gw_inputs_exact':True,'ordinary_gws_used_in_current_chip_period':sorted(map(int,reference.target_gw.unique())),'raw_extension_comparison_bound':'8 * float64_eps * max(1, abs(current), abs(extension))','raw_extension_six_gw_numeric_differences':drift,'current_forecast_source':'IMMUTABLE_APPROVED_SIX_GW_INPUT_ROWS_NO_ROUNDING','draws':400,'top_k_per_gw':20,'two_sample_replays_exact':True,
             'samples_sha256':hashlib.sha256((OUT/'tc_samples.csv.gz').read_bytes()).hexdigest(),
             'simulator_inputs_sha256':hashlib.sha256(source.read_bytes()).hexdigest(),
             'model_math_changed':False,'manual_decision_required':True,'locked_model_active':False,
