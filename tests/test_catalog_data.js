@@ -10,3 +10,12 @@ assert.equal(D.sum([0,null]),null);for(const dir of [-1,1])assert.deepEqual([{na
 const fixtures={fixtures:[{id:1,gw:6,finished:true,home:1,away:2,home_score:2,away_score:0},{id:2,gw:7,finished:false,home:2,away:1}]},ex={cutoff:'cutoff',fixtures:[{id:2,home:2,away:1,home_xg:1,away_xg:2}]};
 const cs=D.clubs(o,fixtures,f,ex,true);assert.equal(cs[0].points,3);assert.equal(cs[1].gf,0);assert.equal(cs[0].xg,2);assert.equal(D.clubs(o,fixtures,f,{...ex,cutoff:'old'},true)[0].xg,null);assert.equal(D.clubs(o,fixtures,f,ex,false)[0].xg,null);
 console.log('PASS classic catalogs: official ID joins, genuine zero vs absent data, bidirectional missing-last sorting, cutoff-safe expectations and DGW handling');
+// Frozen MM selection is a display input; never choose the top 11 by probability.
+const squad=Array.from({length:13},(_,i)=>({id:i+1,web_name:'P'+i,team:1,position:3}));
+const official={teams:{1:{name:'A'}},players:squad};
+const forecast={data_asof:'now',gws:[7],checksums:{input:'hash'},players:squad.map(p=>({id:p.id,weeks:[{gw:7,fixtures:[{fixture_uuid:'match',p_start:p.id===12?.99:.5,xpts:1,xmins:45}]}]}))};
+const source={cutoff:'now',checksums:forecast.checksums,source:'original_locked_MM_assignment',locked_model_active:false,fixtures:[{team_id:1,gw:7,fixture_uuid:'match',kickoff:'2026-10-17',formation:'fixture',layers:[['GK'],Array(10).fill('CM')],players:squad.map(p=>({id:p.id,selected:p.id<=11,role:p.id===1?'GK':p.id<=11?'CM':'UNKNOWN',unavailable:p.id===13}))}]};
+const xi=D.clubLineup(official,forecast,source,true,1);assert.equal(xi.layers.flat().length,11);assert.deepEqual(xi.bench.map(p=>p.id),[12]);assert.deepEqual(xi.unavailable.map(p=>p.id),[13]);assert.equal(xi.layers.flat().some(p=>p.id===12),false,'High start probability does not replace original MM selection');
+assert.equal(D.clubLineup(official,forecast,source,false,1),null);assert.equal(D.clubLineup(official,forecast,{...source,cutoff:'old'},true,1),null);assert.equal(D.clubLineup(official,forecast,{...source,checksums:{input:'wrong'}},true,1),null);
+source.fixtures[0].players[0].unavailable=true;assert.equal(D.clubLineup(official,forecast,source,true,1),null,'Never display an unavailable selected starter');
+console.log('PASS original MM XI display: exact selected identities, original role layers, bench, unavailable and freshness/checksum gates');

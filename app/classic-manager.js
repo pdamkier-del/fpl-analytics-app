@@ -20,7 +20,7 @@ async function compute(){if(busy)return;const button=document.getElementById('co
  if(!stateLegal(state,false))throw Error('Registrér et lovligt faktisk hold og det korrekte observationstidspunkt.');
  if(!usable||!stateLegal(state)){sessionStorage.setItem('fpl-wait-for-forecast','1');setComputeStatus('Dit hold er gemt. Beregningen afventer et nyt verificeret forecast efter observationen. Den starter automatisk, når forecast er klar, hvis denne side er åben.');return}
  if(!service.url)throw Error('Original beregningstjeneste afventer aktivering. Dit gemte hold og importerede plan er bevaret.');
- busy=true;if(button)button.disabled=true;document.querySelectorAll('[data-compute]').forEach(b=>b.disabled=true);
+ busy=true;if(button)button.disabled=true;document.querySelectorAll('[data-compute]').forEach(b=>b.disabled=true);render();
  setComputeStatus('Kontrollerer den private Python-tjeneste. Første opstart kan tage op til 90 sekunder…');
  const healthAbort=new AbortController();const healthTimeout=setTimeout(()=>healthAbort.abort(),90000);
  try{const check=await fetch(service.url+'/health',{signal:healthAbort.signal,cache:'no-store'});if(!check.ok)throw Error('HTTP '+check.status);const report=await check.json();if(report.runtime!=='original_locked_python'||report.locked_model_active!==false||report.supports_idempotent_submit!==true)throw Error('Forkert beregningsruntime')}catch(e){throw Error('Privat beregningstjeneste er ikke tilgængelig eller godkendt ('+e.message+'). Dit hold er gemt. Prøv igen senere.')}finally{clearTimeout(healthTimeout)}
