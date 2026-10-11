@@ -1,12 +1,12 @@
 # Classic app recovery checkpoint — 2026-10-11
 
-Application code: `a4df4661fdb23439c7c924c063c52fd356f36898`, branch `free-github-static-20261010`.
+Initial verified application code: `a4df4661fdb23439c7c924c063c52fd356f36898`, branch `free-github-static-20261010`.
 Pages: https://github.com/pdamkier-del/fpl-analytics-app/actions/runs/38161078504 — success.
 Private service HTTP checks: https://github.com/pdamkier-del/fpl-analytics-app/actions/runs/38161078467 — success.
 
 ## Delivered flow
 
-The original technical My Team and Player layouts are retained. Classic Transfers now calls the original private Python runtime directly, resumes private jobs, and displays the saved result without redirecting users into a different optimizer. Manager-state identity, forecast cutoff, deadline, official next GW, diagnostic status and validation-only rejection are checked before recommendations are shown.
+The original technical My Team and Player layouts are retained. Classic Transfers now calls the original private Python runtime directly, resumes private jobs, and displays the saved result without redirecting users into a different optimizer. Manager-state identity, forecast cutoff, deadline, official next GW, diagnostic status and validation-only rejection are checked before recommendations are shown. A requested computation waiting for a cutoff after the state observation resumes automatically when a valid new forecast is loaded; existing private jobs also resume. This transport-only behavior is regression-tested and does not change any decision rule.
 
 The actual squad and purchase prices remain in browser storage. A real private manager computation was completed through the Classic button, and the input was compared with the existing private backup after UI tests: unchanged. No actual roster, purchase prices, manager hash, recommendations, private URLs or job capabilities are recorded in this repository.
 
@@ -35,3 +35,4 @@ A private one-click opening file and the existing private backup were updated ou
 - Ordinary user browser storage cannot be inspected from the separate cloud session. The private one-click file is the explicit one-time bridge; later manual updates and persistence use the same local storage keys.
 
 Resume from latest HEAD; preserve any newer user edits. Do not publish private files or retest historical source versions without new evidence.
+
