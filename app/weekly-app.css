@@ -66,3 +66,30 @@
 .classic-squad .fpl-pitch{min-height:495px;display:flex;flex-direction:column;justify-content:space-around}
 .classic-squad .pitch-row{min-height:95px}
 @media(max-width:800px){.classic-squad .classic-team-layout{grid-template-columns:minmax(0,1fr);padding:6px;gap:8px}.classic-squad .classic-side{position:static}.classic-squad .lineup-controls{flex-direction:row}.classic-squad .lineup-controls label,.classic-squad .lineup-controls button{flex:1 1 42%;width:auto}.classic-squad .fpl-pitch{min-height:455px}.classic-squad .pitch-row{min-height:90px}}
+
+/* Faithful CSS rules copied from original my-team-live.html, scoped to My Team. */
+.legacy-team .layout{display:grid;grid-template-columns:minmax(0,1.3fr) minmax(290px,.7fr);gap:14px}
+.legacy-team .pitch{background:repeating-linear-gradient(0deg,#087a49 0,#087a49 90px,#0a8550 90px,#0a8550 180px);padding:20px 8px;border-radius:16px;min-height:530px;display:flex;flex-direction:column;justify-content:space-around;gap:13px}
+.legacy-team .line{display:flex;gap:5px;justify-content:center;align-items:center;min-height:90px}
+.legacy-team .player{background:#fff;border-radius:10px;padding:7px 5px;width:105px;max-width:22%;text-align:center;border:2px solid transparent;color:#24152a;cursor:pointer;min-height:73px;overflow:hidden}
+.legacy-team .player.selected{border-color:#fecd29;box-shadow:0 0 0 2px #402b41}
+.legacy-team .player small{display:block;font-size:10px;color:#685c6d}
+.legacy-team .player .xp{font-weight:800;color:#087849}
+.legacy-team .panel{background:white;border:1px solid #e6ddea;border-radius:15px;padding:14px;margin-bottom:14px}
+.legacy-team .panel h2{font-size:17px;margin:0 0 12px}
+.legacy-team .bench{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:7px}
+.legacy-team .bench .player{max-width:none;width:100%}
+.legacy-team .details{font-size:12px;color:#6c5d73;line-height:1.5}
+.legacy-team .controls{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin:10px 0}
+.legacy-team .controls button{cursor:pointer}
+.legacy-team .controls button.primary{background:#37003c;color:#fff}
+.legacy-team .choices{max-height:360px;overflow:auto;border:1px solid #eee;border-radius:9px}
+.legacy-team .choice{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:10px;border-bottom:1px solid #eee;cursor:pointer}
+.legacy-team .choice:hover{background:#f4f0f6}
+.legacy-team .choice small{font-size:11px;color:#746778}
+.legacy-team .row{display:flex;gap:10px;justify-content:space-between;flex-wrap:wrap}
+.legacy-team .pill{border-radius:8px;padding:6px 9px;background:#efebf1;font-size:12px;font-weight:750}
+.legacy-team .tiny{font-size:12px;color:#766b79}
+.legacy-team .legacy-sidebar{align-self:stretch}
+@media(max-width:800px){.legacy-team .layout{grid-template-columns:1fr}.legacy-team .pitch{min-height:480px}.legacy-team .player{width:92px;font-size:12px}.legacy-team .bench{gap:4px}}
+@media(max-width:430px){.legacy-team .player{font-size:10px;padding:5px 1px;min-height:66px}.legacy-team .player small{font-size:9px}.legacy-team .pitch{padding:14px 3px}.legacy-team .line{gap:3px}}
