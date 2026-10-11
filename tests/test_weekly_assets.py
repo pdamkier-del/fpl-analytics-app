@@ -19,3 +19,16 @@ def test_published_asset_version_tracks_bytes_and_is_idempotent(tmp_path):
     asset.write_text('second');version_frontend_assets(tmp_path)
     assert hashlib.sha256(b'second').hexdigest()[:16] in page.read_text()
     assert editor.read_text()=='<a href="overview.html">team</a>'
+
+def test_classic_html_navigation_version_tracks_inline_fixes(tmp_path):
+    (tmp_path/'classic-nav.js').write_text('navigation')
+    page=tmp_path/'my-team-classic.html'
+    page.write_text('<html><head></head><body><script>first inline</script><script src="classic-nav.js"></script></body></html>')
+    version_frontend_assets(tmp_path)
+    first=page.read_text()
+    assert 'name="fpl-ui-version"' in first
+    version_frontend_assets(tmp_path)
+    assert page.read_text()==first
+    page.write_text(page.read_text().replace('first inline','fixed inline'))
+    version_frontend_assets(tmp_path)
+    assert page.read_text().split('fpl-ui-version')[1]!=first.split('fpl-ui-version')[1]

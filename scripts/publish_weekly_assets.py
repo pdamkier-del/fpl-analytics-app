@@ -6,6 +6,16 @@ from pathlib import Path
 import pandas as pd
 ROOT=Path(__file__).resolve().parents[1]
 def version_frontend_assets(app):
+    # Version HTML navigation as well: Pages caches documents independently of JS.
+    ui_hash=hashlib.sha256()
+    for source in sorted(app.glob('*')):
+        if source.suffix not in ('.html','.js','.css'):continue
+        text=source.read_text()
+        if source.suffix=='.html':
+            text=re.sub(r'<meta name="fpl-ui-version" content="[^"]*">','',text)
+            text=re.sub(r'((?:src|href)="[^"?]+\.(?:js|css))(?:\?[^" ]*)?("\s*)',r'\1\2',text)
+        ui_hash.update(source.name.encode());ui_hash.update(text.encode())
+    ui_version=ui_hash.hexdigest()[:16]
     # Each published HTML references the exact deployed asset bytes. This avoids
     # a normal reload retaining an older planner UI in the Pages CDN/browser cache.
     for page in ('overview.html','manager-state.html','my-team-classic.html','transfers-classic.html','player.html'):
@@ -18,6 +28,8 @@ def version_frontend_assets(app):
             digest=hashlib.sha256(asset.read_bytes()).hexdigest()[:16]
             return match.group(1)+match.group(2)+'?v='+digest+match.group(3)
         html=re.sub(r'((?:src|href)=")([^"?]+\.(?:js|css))(?:\?[^" ]*)?(")',version,html)
+        html=re.sub(r'<meta name="fpl-ui-version" content="[^"]*">','',html)
+        html=html.replace('</head>','<meta name="fpl-ui-version" content="'+ui_version+'"></head>')
         path.write_text(html)
 
 def main():
