@@ -18,7 +18,7 @@ Continue from newest HEAD on `free-github-static-20261010`. Read this checkpoint
 
 My Team runs original Python through GitHub Actions on main, checks manager hash/cutoff/GW, and decrypts an ephemeral RSA-OAEP/AES-GCM reply. Token is tab-memory only. Manager input is sent to Actions; plan can also be downloaded as a 30-day Actions artifact. No personal manager state is committed as plaintext. A user-authorized Actions token and complete real state are still needed to exercise an actual personal browser request; that authenticated end-to-end request has not been claimed tested.
 
-Automatic forecasts run every six hours and on demand. They capture sources, retain predeadline roster versions, reproduce original outputs and TC scenarios, validate, append an immutable release and publish. Failure status is recorded without replacing the last verified release. Forecasts expire at their official deadline, official-next-GW mismatch or 24-hour cutoff age. The original full six-GW horizon is retained; GW34+ remains unavailable without an already locked season-end contract.
+Automatic forecasts run every six hours and on demand. They capture sources, retain predeadline roster versions, reproduce original outputs and TC scenarios, validate, append an immutable release and publish. Failure status is recorded without replacing the last verified release. Forecasts expire at their official deadline, official-next-GW mismatch or 24-hour cutoff age. The original maximum six-GW horizon is retained. At GW34–38 the original planner already uses available season GWs and the original weight prefix; adapter/frontend guards follow that existing source behavior. Missing mid-season horizon rows still block publication.
 
 TC overlap comparison guards numerical batch-size drift using eight float64 epsilons on a symmetric unit-or-value scale. It rejects material changes and all changed identities/NaNs. This is an adapter comparison guard; current values are not rounded/replaced. Exact raw-rebuild and exact TC-replay claims refer to their two same-input rebuilds, not raw long-horizon batch overlap.
 
@@ -43,3 +43,6 @@ The public example's cutoff/GW must match the current forecast or release packag
 - New alternative primary source documentation did not supply verifiable current-season missing BPS actions/publication times. No repeat scan of the same 223 provider revisions.
 - Original policies replan FH/WC/BB at each deadline; there is no invented fixed future four-chip calendar. TC options are provisional and remain manual.
 - Full live certification remains blocked; `locked_model_active=false` is preserved.
+
+Season-end compatibility is verified with explicit synthetic GW34 and GW38 regressions: the original source chooses five and one remaining GW respectively with its unchanged weight prefix. A missing GW in the middle of the season is rejected. No season-end strategy or coefficient was invented. Current GW7 inputs/calculations are unchanged by these adapter bounds.
+

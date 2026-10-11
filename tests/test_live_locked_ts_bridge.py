@@ -68,3 +68,22 @@ def test_chip_failure_preserves_completed_original_transfer_plan(monkeypatch):
     assert len(result['lineup'])==15 and result['chips_status']=='Not Available'
     assert not result['chips_ran'] and result['chip_error']['type']=='ValueError'
     assert result['locked_model_active'] is False
+
+@pytest.mark.parametrize('gw',[34,38])
+def test_original_season_end_horizon_is_preserved(gw):
+    # Synthetic future contract regression, never a live personal forecast.
+    raw,meta=state();raw['gw']=gw
+    positions={'GKP':1,'DEF':2,'MID':3,'FWD':4}
+    gws=list(range(gw,39))
+    payload={'season':'2026-27','gws':gws,'data_asof':'2026-10-10T07:35:11Z','locked_model_active':False,'blockers':[],
+        'players':[{'id':int(r.id),'name':str(r.id),'team_id':int(r.team),'position':positions[r.position],'price_tenths':int(r.price_tenths),
+            'weeks':[{'gw':g,'xpts':4.,'p_play':1.,'fixtures':[{}]} for g in gws]} for r in meta.itertuples()]}
+    result=m.run(payload,raw)
+    assert result['plan']['horizon_gws']==tuple(gws)
+    assert result['plan']['weights']==m.cfg().weights[:len(gws)]
+    assert len(result['plan']['path'])==len(gws)
+    assert result['locked_model_active'] is False
+
+def test_missing_midseason_horizon_is_rejected():
+    with pytest.raises(ValueError,match='complete original horizon'):
+        m.run({'gws':[7,8,9,10,11],'players':[]}, {})

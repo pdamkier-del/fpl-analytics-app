@@ -14,7 +14,7 @@ def main():
     # all other collection errors, especially missing current-season matches.
     permitted=[e for e in m['errors'] if e.get('source')=='FotMob inventory' and e.get('competition')=='fa' and e.get('error')=='Requested 2026/2027, provider returned 2025/2026']
     if len(permitted)!=len(m['errors']):raise ValueError('Source collection errors: publication blocked')
-    if int(m['target_gw'])>33:raise ValueError('Original six-GW TS horizon exceeds season; no shortened strategy substituted')
+    if not 1<=int(m['target_gw'])<=38:raise ValueError('Invalid official season gameweek')
     # Capture authentic roster/news evidence now for subsequent historical training.
     b=json.loads((W/'bootstrap.json').read_text());gw=int(m['target_gw'])
     at=m['bootstrap_observed_at'];deadline=m['deadline']

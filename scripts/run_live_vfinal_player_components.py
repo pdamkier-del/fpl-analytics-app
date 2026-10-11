@@ -42,7 +42,7 @@ def run(horizon_end=None):
     mm=pd.concat([gated,horizon],ignore_index=True)
     target=pd.read_csv(BASE/'source_feature_matrix.csv.gz')
     keys=['fixture_uuid','player_uuid']
-    end=gw+5 if horizon_end is None else int(horizon_end)
+    end=min(38,gw+5) if horizon_end is None else int(horizon_end)
     if set(mm.target_gw.astype(int))!=set(range(gw,end+1)) or mm.duplicated(keys).any() or set(map(tuple,mm[keys].to_numpy()))!=set(map(tuple,target[keys].to_numpy())):
         raise ValueError('Incomplete frozen minute predictions for actual source fixture/player identities')
     ph['available_at']=pd.to_datetime(ph.available_at,utc=True,errors='raise')

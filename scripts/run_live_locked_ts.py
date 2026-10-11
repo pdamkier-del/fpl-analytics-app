@@ -57,7 +57,7 @@ def run(payload,raw,include_chips=False,tc_samples=None):
         if not 0<limit<=24 or cutoff>now or now-cutoff>timedelta(hours=limit):
             raise ValueError('Forecast freshness expired; a new verified run is required')
     meta,origin=project(payload);gw=min(payload['gws'])
-    if sorted(payload['gws'])!=list(range(gw,gw+6)):raise ValueError('TS requires complete six-GW inputs')
+    if not 1<=gw<=38 or sorted(payload['gws'])!=list(range(gw,min(39,gw+6))):raise ValueError('TS requires the complete original horizon through season end')
     deadline=payload.get('origin_deadline')
     if deadline and pd.Timestamp.now(tz='UTC')>=pd.Timestamp(deadline):raise ValueError('Forecast deadline has passed; fetch a fresh forecast. Historical replay is separate.')
     state=parse_state(raw,meta,gw,payload['data_asof'])
