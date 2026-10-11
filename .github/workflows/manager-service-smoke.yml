@@ -29,8 +29,8 @@ jobs:
               if body is not None:h['Content-Type']='application/json'
               req=urllib.request.Request(base+path,data=data,headers=h,method=method)
               try:
-                  with urllib.request.urlopen(req,timeout=timeout) as res:return res.status,dict(res.headers),res.read()
-              except urllib.error.HTTPError as e:return e.code,dict(e.headers),e.read()
+                  with urllib.request.urlopen(req,timeout=timeout) as res:return res.status,{k.lower():v for k,v in res.headers.items()},res.read()
+              except urllib.error.HTTPError as e:return e.code,{k.lower():v for k,v in e.headers.items()},e.read()
           # Render free instances can sleep. Retry the health probe before failing.
           for attempt in range(3):
               try:
@@ -44,7 +44,7 @@ jobs:
           assert data['status']=='ready' and data['runtime']=='original_locked_python' and data['locked_model_active'] is False,data
           print('Public HTTP health: ready; original runtime reported.')
           status,h,p=request('/plans',method='OPTIONS',headers={'Origin':origin,'Access-Control-Request-Method':'POST'})
-          assert status==204 and h.get('Access-Control-Allow-Origin')==origin,(status,h)
+          assert status==204 and h.get('access-control-allow-origin')==origin,(status,h)
           status,h,p=request('/plans',method='POST',body={},headers={'Origin':origin})
           assert status==400,(status,p[:300])
           status,h,p=request('/plans',method='POST',body={})
