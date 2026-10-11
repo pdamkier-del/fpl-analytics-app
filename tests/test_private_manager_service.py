@@ -48,3 +48,20 @@ def test_corrupt_private_result_fails_closed(tmp_path):
             assert wrong_shape.status_code==422
     finally:
         del jobs[key]
+
+def test_service_health_never_claims_ready_when_original_runtime_unavailable(monkeypatch):
+    import service.app as api
+    monkeypatch.setattr(api,'original_runtime_ready',lambda:False)
+    with app.test_client() as c:
+        r=c.get('/health')
+        assert r.status_code==503
+        assert r.get_json()['status']=='unavailable'
+        assert r.get_json()['locked_model_active'] is False
+
+def test_service_health_reports_original_runtime_when_available(monkeypatch):
+    import service.app as api
+    monkeypatch.setattr(api,'original_runtime_ready',lambda:True)
+    with app.test_client() as c:
+        r=c.get('/health')
+        assert r.status_code==200
+        assert r.get_json()['runtime']=='original_locked_python'
