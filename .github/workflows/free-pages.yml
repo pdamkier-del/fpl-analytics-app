@@ -67,6 +67,7 @@ jobs:
           node tests/test_weekly_network.js
           node tests/test_classic_manager.js
           node tests/test_classic_profile.js
+          node tests/test_classic_pitch_import.js
           node --check app/classic-manager.js
           node --check app/classic-transfers.js
           node tests/test_manager_rollover.js
