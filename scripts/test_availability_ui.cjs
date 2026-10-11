@@ -16,7 +16,7 @@ for(const status of ['a','d','n',undefined,'']){
 assert.strictEqual(a.isUnavailable(null),false);
 assert.strictEqual(a.isUnavailableForGW({status:'s'},6,null),false);
 assert.strictEqual(a.isUnavailableForGW({status:'s'},'6',6),true);
-const pages=['my-team-live.html','locked-forecast.html','clubs-live.html','own-forecast.html','forecast-live.html'];
+const pages=['my-team-live.html','locked-forecast.html','own-forecast.html','forecast-live.html'];
 for(const page of pages){
   const html=fs.readFileSync('app/'+page,'utf8');
   assert(html.includes('availability-ui.js'),page+': missing common helper');
@@ -24,4 +24,5 @@ for(const page of pages){
   const idx=html.indexOf('availability-ui.js'),inline=html.indexOf('<script>',idx);
   assert(idx>0&&inline>idx,page+': helper must load before inline render');
 }
-console.log('Availability UI: hard statuses labelled, doubtful excluded, future GW not inferred, 5 pages wired');
+assert(fs.readFileSync('app/clubs-live.html','utf8').includes('clubs-classic.html'),'Club bookmark must use the current cutoff-safe catalog');
+console.log('Availability UI: hard statuses labelled, doubtful excluded, future GW not inferred, 4 legacy pages wired; club bookmark uses current catalog');

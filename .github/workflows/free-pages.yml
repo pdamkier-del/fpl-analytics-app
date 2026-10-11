@@ -67,6 +67,8 @@ jobs:
           node tests/test_weekly_network.js
           node tests/test_classic_manager.js
           node tests/test_classic_profile.js
+          node tests/test_catalog_data.js
+          node --check app/classic-catalog.js
           node tests/test_classic_pitch_import.js
           node --check app/classic-manager.js
           node --check app/classic-transfers.js
@@ -94,6 +96,10 @@ jobs:
                   target='my-team-classic.html' if f=='my-team.html' else 'transfers-classic.html'
                   assert 'url='+target in (a/f).read_text(),f
                   assert (a/'manager-state.html').stat().st_size>1000
+              elif f in ('current-players.html','clubs-live.html'):
+                  target='players-classic.html' if f=='current-players.html' else 'clubs-classic.html'
+                  assert target in (a/f).read_text(),f
+                  assert (a/target).stat().st_size>1000
               elif f == 'overview.html':
                   shell=(a/f).read_text(encoding='utf-8')
                   assert (a/f).stat().st_size>500, f
@@ -176,6 +182,12 @@ jobs:
                   assert all('#'+route in s for route in ['dashboard','fixtures','players','chips','model'])
                   assert 'my-team-classic.html' in s and 'transfers-classic.html' in s
                   assert 'classic-nav.js' in s
+                  continue
+              if page in ('rankings.html','current-players.html','clubs-live.html'):
+                  target='clubs-classic.html' if page=='clubs-live.html' else 'players-classic.html'
+                  assert target in s and 'location.replace' in s,page
+                  classic=(Path('app')/target).read_text()
+                  assert 'classic-nav.js' in classic and 'classic-catalog.js' in classic
                   continue
               assert s.count('design-v2.css?v=2')==1,page
               assert s.count('design-v2.js?v=2')==1,page

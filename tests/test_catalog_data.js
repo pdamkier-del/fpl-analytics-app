@@ -1,0 +1,11 @@
+'use strict';
+const assert=require('node:assert/strict'),D=require('../app/catalog-data.js');
+const o={teams:{1:{name:'Alpha',code:1},2:{name:'Beta',code:2}},players:[{id:1,web_name:'A',team:1,position:3,price:5,minutes:0,expected_goals:'0.00',expected_assists:null},{id:2,web_name:'B',team:2,position:4,price:6}]};
+const f={data_asof:'cutoff',gws:[7,8,9,10,11,12],players:[{id:1,weeks:[7,8,9,10,11,12].map(gw=>({gw,xpts:0,xmins:0,fixtures:[{p_start:0,components:{goal_points:0,assist_points:0,expected_bonus:0}}]}))}]};
+let p=D.players(o,f,true);assert.equal(p[0].xp,0);assert.equal(p[0].xg,0);assert.equal(p[0].xa,null);assert.equal(p[0].xgi,null);assert.equal(p[1].xp,null);assert.equal(p[0].pstart,0);
+assert.equal(D.players(o,f,false)[0].xp,null,'Expired forecast must hide even saved model values');
+f.players[0].weeks[0].fixtures.push({p_start:.8,components:{goal_points:1}});assert.equal(D.players(o,f,true,1)[0].pstart,null,'Do not invent a combined DGW start probability');
+assert.equal(D.sum([0,null]),null);for(const dir of [-1,1])assert.deepEqual([{name:'missing',v:null},{name:'low',v:0},{name:'high',v:2}].sort((a,b)=>D.compare(a,b,'v',dir)).map(x=>x.name),dir===1?['low','high','missing']:['high','low','missing']);
+const fixtures={fixtures:[{id:1,gw:6,finished:true,home:1,away:2,home_score:2,away_score:0},{id:2,gw:7,finished:false,home:2,away:1}]},ex={cutoff:'cutoff',fixtures:[{id:2,home:2,away:1,home_xg:1,away_xg:2}]};
+const cs=D.clubs(o,fixtures,f,ex,true);assert.equal(cs[0].points,3);assert.equal(cs[1].gf,0);assert.equal(cs[0].xg,2);assert.equal(D.clubs(o,fixtures,f,{...ex,cutoff:'old'},true)[0].xg,null);assert.equal(D.clubs(o,fixtures,f,ex,false)[0].xg,null);
+console.log('PASS classic catalogs: official ID joins, genuine zero vs absent data, bidirectional missing-last sorting, cutoff-safe expectations and DGW handling');
