@@ -73,3 +73,38 @@ def test_private_compute_rejects_unavailable_original_runtime(monkeypatch):
         r=c.post('/plans',json={'state':{},'forecast_cutoff':'2026-10-11T08:00:00Z'},headers={'Origin':ORIGIN})
         assert r.status_code==503
         assert 'ikke klar' in r.get_json()['error']
+
+def test_service_checks_fresh_official_window_without_changing_model():
+    from datetime import datetime,timezone
+    import pytest
+    from service.app import verify_current_window
+    f=dict(model='original_locked_vFinal_diagnostic',locked_model_active=False,gws=list(range(7,13)),origin_deadline='2026-10-17T10:00:00Z',data_asof='2026-10-11T09:00:00Z',freshness_limit_hours=24)
+    b={'events':[dict(id=7,is_next=True,deadline_time=f['origin_deadline'])]}
+    assert verify_current_window(f,b,datetime(2026,10,11,10,tzinfo=timezone.utc))==7
+    with pytest.raises(ValueError,match='freshness'):verify_current_window(f,b,datetime(2026,10,12,10,tzinfo=timezone.utc))
+    b['events'][0]['id']=8
+    with pytest.raises(ValueError,match='changed'):verify_current_window(f,b,datetime(2026,10,11,10,tzinfo=timezone.utc))
+
+def test_worker_timeout_removes_private_input_and_returns_safe_failure(monkeypatch,tmp_path):
+    import json,subprocess
+    import service.app as api
+    class ImmediateThread:
+        def __init__(self,target,**kwargs):self.target=target
+        def start(self):self.target()
+    monkeypatch.setattr(api.threading,'Thread',ImmediateThread)
+    monkeypatch.setattr(api,'original_runtime_ready',lambda:True)
+    monkeypatch.setattr(api.tempfile,'mkdtemp',lambda **kwargs:str(tmp_path))
+    monkeypatch.setattr(api,'get_public',lambda name:json.dumps({'data_asof':'cutoff','gws':[7]} if name=='vfinal-diagnostic.json' else {'next_gw':7}).encode())
+    monkeypatch.setattr(api,'verify_official_now',lambda forecast:7)
+    def timeout(*args,**kwargs):raise subprocess.TimeoutExpired('private worker',1800)
+    monkeypatch.setattr(api.subprocess,'run',timeout)
+    with app.test_client() as c:
+        response=c.post('/plans',json={'state':{'private':'test-only'},'forecast_cutoff':'cutoff'},headers={'Origin':ORIGIN})
+        receipt=response.get_json();identifier=receipt['id']
+        try:
+            assert response.status_code==202
+            assert not (tmp_path/'input.json').exists()
+            result=c.get('/plans/'+identifier,headers={'X-Plan-Key':receipt['key']})
+            assert result.status_code==422
+            assert 'test-only' not in result.get_data(as_text=True)
+        finally:del jobs[identifier]

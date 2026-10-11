@@ -1,0 +1,10 @@
+const assert=require('node:assert/strict'),{describe}=require('../app/pipeline-status.js');
+const now=Date.parse('2026-10-11T13:43:00Z');
+assert.equal(describe(null,now).warning,true);
+assert.equal(describe({status:'success',observed_at:'2026-10-11T09:41:12Z'},now).warning,true);
+assert.equal(describe({status:'failure',observed_at:'2026-10-11T13:30:00Z',trigger:'schedule'},now).warning,true);
+const fresh=describe({status:'success',observed_at:'2026-10-11T13:30:00Z',trigger:'schedule'},now);
+assert.equal(fresh.warning,false);assert.match(fresh.message,/tidsstyret/);
+assert.equal(fresh.next,'2026-10-11T14:17:00.000Z');
+assert.equal(describe(null,Date.parse('2026-10-11T13:16:00Z')).next,'2026-10-11T13:17:00.000Z');
+console.log('PASS: missing, failed and overdue forecast attempts are visible; next hourly :17 is correct.');

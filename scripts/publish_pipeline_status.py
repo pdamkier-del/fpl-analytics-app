@@ -7,7 +7,7 @@ BRANCH='free-github-static-20261010'
 def main():
     status=os.environ['FORECAST_JOB_STATUS']
     if status not in ('success','failure','cancelled'):raise ValueError('Unknown job status')
-    payload=dict(status=status,observed_at=datetime.now(timezone.utc).isoformat(),workflow='https://github.com/'+os.environ['GITHUB_REPOSITORY']+'/actions/runs/'+os.environ['GITHUB_RUN_ID'],locked_model_active=False)
+    payload=dict(status=status,observed_at=datetime.now(timezone.utc).isoformat(),workflow='https://github.com/'+os.environ['GITHUB_REPOSITORY']+'/actions/runs/'+os.environ['GITHUB_RUN_ID'],trigger=os.environ.get('FORECAST_TRIGGER','unknown'),schedule=os.environ.get('FORECAST_SCHEDULE',''),locked_model_active=False)
     headers={'Authorization':'Bearer '+os.environ['GITHUB_TOKEN'],'Accept':'application/vnd.github+json','X-GitHub-Api-Version':'2026-03-10','Content-Type':'application/json'}
     for attempt in range(3):
         body=dict(message='Record diagnostic forecast attempt '+status,branch=BRANCH,content=base64.b64encode((json.dumps(payload)+'\n').encode()).decode())

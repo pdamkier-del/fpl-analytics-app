@@ -1,5 +1,6 @@
 """Ephemeral private manager API: no account credentials, payload logging or public plans."""
-import json,os,secrets,subprocess,threading,time,tempfile,shutil,sys
+import json,os,secrets,subprocess,threading,time,tempfile,shutil,sys,hashlib
+from datetime import datetime,timezone,timedelta
 from functools import lru_cache
 from pathlib import Path
 from urllib.request import Request,urlopen
@@ -12,6 +13,17 @@ jobs={};lock=threading.Lock();TTL=3600
 
 def get_public(name):
     with urlopen(Request(PUBLIC+name,headers={'Cache-Control':'no-cache','User-Agent':'FPLAnalyticsPrivateCompute/1'}),timeout=30) as r:return r.read()
+def verify_current_window(forecast,bootstrap,now=None):
+    from scripts.verify_official_forecast_window import verify
+    now=now or datetime.now(timezone.utc)
+    if forecast.get('locked_model_active') is not False or forecast.get('model')!='original_locked_vFinal_diagnostic':raise ValueError('Invalid original forecast contract')
+    cutoff=datetime.fromisoformat(forecast['data_asof'].replace('Z','+00:00'))
+    limit=forecast.get('freshness_limit_hours')
+    if not isinstance(limit,(int,float)) or not 0<limit<=24 or not cutoff<=now<=cutoff+timedelta(hours=limit):raise ValueError('Forecast freshness expired')
+    return verify(forecast,bootstrap,now)
+def verify_official_now(forecast):
+    with urlopen(Request('https://fantasy.premierleague.com/api/bootstrap-static/',headers={'Cache-Control':'no-cache'}),timeout=30) as r:bootstrap=json.load(r)
+    return verify_current_window(forecast,bootstrap)
 def cleanup():
     with lock:
         for key,job in list(jobs.items()):
@@ -45,7 +57,8 @@ def original_runtime_ready():
 def health():
     ready=original_runtime_ready()
     return jsonify(status='ready' if ready else 'unavailable',
-                   runtime='original_locked_python',locked_model_active=False), (200 if ready else 503)
+                   runtime='original_locked_python',locked_model_active=False,
+                   adapter_sha256=hashlib.sha256((ROOT/'service/app.py').read_bytes()+(ROOT/'service/manager_job.py').read_bytes()).hexdigest()), (200 if ready else 503)
 @app.route('/plans',methods=['POST','OPTIONS'])
 def create():
     if request.method=='OPTIONS':return ('',204)
@@ -64,10 +77,13 @@ def create():
             forecast=json.loads(get_public('vfinal-diagnostic.json'))
             official=json.loads(get_public('current-players.json'))
             if forecast['data_asof']!=body['forecast_cutoff'] or forecast['gws'][0]!=official['next_gw']:raise ValueError('Forecast changed')
+            verify_official_now(forecast)
             (directory/'input.json').write_text(json.dumps(dict(forecast=forecast,state=body['state'])))
             if forecast.get('tc_scenarios'):(directory/'tc.csv.gz').write_bytes(get_public('tc-samples.csv.gz'))
             completed=subprocess.run([sys.executable,str(ROOT/'scripts/locked_numerical_runtime.py'),str(ROOT/'service/manager_job.py'),str(directory)],stdout=subprocess.DEVNULL,stderr=subprocess.DEVNULL,timeout=1800)
             if completed.returncode!=0:raise ValueError('Original computation rejected input')
+            verify_official_now(forecast)
+            if json.loads(get_public('vfinal-diagnostic.json'))['data_asof']!=forecast['data_asof']:raise ValueError('Forecast changed during calculation')
             jobs[identifier]['status']='completed'
         except Exception:
             jobs[identifier]['status']='failed'

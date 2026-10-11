@@ -61,6 +61,8 @@ jobs:
           node tests/test_weekly_compute.js
           node tests/test_private_import.js
           node tests/test_private_backup_restore.js
+          node tests/test_pipeline_status.js
+          node tests/test_weekly_network.js
       - name: Keep locked model unavailable until separately certified
         run: |
           python - <<'PY'
