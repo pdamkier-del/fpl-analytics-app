@@ -1,0 +1,21 @@
+name: External original manager synthetic end-to-end
+on:
+  workflow_dispatch:
+  push:
+    branches: [free-github-static-20261010]
+    paths:
+      - scripts/smoke_private_manager_http.py
+      - .github/workflows/private-manager-e2e.yml
+permissions:
+  contents: read
+concurrency:
+  group: fpl-private-manager-external-e2e
+  cancel-in-progress: true
+jobs:
+  synthetic-test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 36
+    steps:
+      - uses: actions/checkout@v4
+      - name: External API full manager TS and chip computation with synthetic squad only
+        run: python scripts/smoke_private_manager_http.py
