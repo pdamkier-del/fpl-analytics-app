@@ -53,6 +53,7 @@ jobs:
           python scripts/locked_numerical_runtime.py scripts/validate_live_manager_chain.py
           python scripts/run_live_locked_ts.py
           PYTHONPATH=src python -m pytest -q tests/test_live_vfinal_desktop.py tests/test_live_locked_ts_bridge.py tests/test_run_live_vfinal_joint_simulation.py tests/test_private_manager_service.py
+          python -c "from service.app import original_runtime_ready; assert original_runtime_ready(), 'Private original-Python worker imports failed'"
           node --check app/weekly-app.js
           node --check app/manager-state.js
           node --check app/plan-view.js
