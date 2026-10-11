@@ -152,6 +152,10 @@ jobs:
           ]
           for page in pages:
               s=(Path('app')/page).read_text(encoding='utf-8')
+              if page=='overview.html':
+                  assert 'weekly-app.css' in s and 'weekly-app.js' in s
+                  assert all('#'+route in s for route in ['dashboard','fixtures','players','team','transfers','chips','model'])
+                  continue
               assert s.count('design-v2.css?v=2')==1,page
               assert s.count('design-v2.js?v=2')==1,page
               assert s.index('design-v2.css?v=2')<s.index('</head>'),page
