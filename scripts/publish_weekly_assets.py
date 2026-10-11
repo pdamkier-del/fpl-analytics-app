@@ -1,10 +1,24 @@
 """Publish display-only fixture expectations and verified public TC scenarios.
 No model input or mathematical operation is changed.
 """
-import hashlib,json,shutil
+import hashlib,json,shutil,re
 from pathlib import Path
 import pandas as pd
 ROOT=Path(__file__).resolve().parents[1]
+def version_frontend_assets(app):
+    # Each published HTML references the exact deployed asset bytes. This avoids
+    # a normal reload retaining an older planner UI in the Pages CDN/browser cache.
+    for page in ('overview.html','manager-state.html'):
+        path=app/page
+        html=path.read_text()
+        def version(match):
+            asset=app/match.group(2)
+            if not asset.is_file():return match.group(0)
+            digest=hashlib.sha256(asset.read_bytes()).hexdigest()[:16]
+            return match.group(1)+match.group(2)+'?v='+digest+match.group(3)
+        html=re.sub(r'((?:src|href)=")([^"?]+\.(?:js|css))(?:\?[^" ]*)?(")',version,html)
+        path.write_text(html)
+
 def main():
     forecast=json.loads((ROOT/'app/vfinal-diagnostic.json').read_text())
     base=ROOT/'data_v1_1/derived/live_locked_inputs/2026-27-v1'
@@ -19,4 +33,5 @@ def main():
     if forecast.get('tc_scenarios') and tc.exists():
         if hashlib.sha256(tc.read_bytes()).hexdigest()!=forecast['tc_scenarios']['samples_sha256']:raise ValueError('TC checksum mismatch')
         shutil.copyfile(tc,ROOT/'app/tc-samples.csv.gz')
+    version_frontend_assets(ROOT/'app')
 if __name__=='__main__':main()
