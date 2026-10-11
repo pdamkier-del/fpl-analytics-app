@@ -27,6 +27,9 @@ def main():
     if not re.fullmatch(r"[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}", request_id):
         raise ValueError("Invalid request ID")
     envelope = seal(json.loads(Path("work/manager-plan.json").read_text()), json.loads(os.environ["MANAGER_PUBLIC_KEY"]))
+    # Only ciphertext is retained as an Actions artifact. The plaintext plan
+    # and calculation log stay on the ephemeral runner.
+    Path("work/encrypted-manager-plan.json").write_text(json.dumps(envelope) + "\n")
     repo = os.environ["GITHUB_REPOSITORY"]
     if repo != "pdamkier-del/fpl-analytics-app":
         raise ValueError("Unexpected repository")

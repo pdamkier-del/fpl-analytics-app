@@ -32,3 +32,31 @@ def test_browser_webcrypto_opens_python_result():
     key=private.private_bytes(serialization.Encoding.DER,serialization.PrivateFormat.PKCS8,serialization.NoEncryption())
     result=subprocess.run(['node',str(path.parents[1]/'tests/test_manager_webcrypto.cjs')],input=json.dumps(dict(envelope=envelope,private_key=base64.b64encode(key).decode())),text=True,capture_output=True,check=True)
     assert json.loads(result.stdout)==plan
+
+def test_online_publication_retains_ciphertext_only(tmp_path,monkeypatch,capsys):
+    private=rsa.generate_private_key(public_exponent=65537,key_size=2048)
+    plan={'manager_state_source':'PRIVATE_SOURCE_SENTINEL','bank_tenths':7}
+    monkeypatch.chdir(tmp_path)
+    (tmp_path/'work').mkdir()
+    (tmp_path/'work/manager-plan.json').write_text(json.dumps(plan))
+    for k,v in {'MANAGER_REQUEST_ID':'00000000-0000-4000-8000-000000000000',
+                'MANAGER_PUBLIC_KEY':json.dumps(jwk(private)),
+                'GITHUB_REPOSITORY':'pdamkier-del/fpl-analytics-app',
+                'GITHUB_TOKEN':'TEST_ONLY'}.items():monkeypatch.setenv(k,v)
+    requests=[]
+    class Response:
+        status=201
+        def __enter__(self):return self
+        def __exit__(self,*args):return False
+    def send(request,timeout):
+        requests.append(json.loads(request.data))
+        return Response()
+    monkeypatch.setattr(m.urllib.request,'urlopen',send)
+    m.main()
+    stored=json.loads((tmp_path/'work/encrypted-manager-plan.json').read_text())
+    published=json.loads(base64.b64decode(requests[0]['content']))
+    assert stored==published
+    assert 'PRIVATE_SOURCE_SENTINEL' not in json.dumps(stored)
+    assert 'PRIVATE_SOURCE_SENTINEL' not in capsys.readouterr().out
+    key=private.decrypt(base64.b64decode(stored['key']),padding.OAEP(mgf=padding.MGF1(hashes.SHA256()),algorithm=hashes.SHA256(),label=None))
+    assert json.loads(AESGCM(key).decrypt(base64.b64decode(stored['nonce']),base64.b64decode(stored['ciphertext']),b'fpl-manager-result-v1'))==plan
