@@ -9,9 +9,11 @@ def test_published_asset_version_tracks_bytes_and_is_idempotent(tmp_path):
     asset=tmp_path/'weekly-app.js';asset.write_text('first')
     page=tmp_path/'overview.html';page.write_text('<script src="weekly-app.js?v=old"></script>')
     editor=tmp_path/'manager-state.html';editor.write_text('<a href="overview.html">team</a>')
+    classic=tmp_path/'my-team-classic.html';classic.write_text('<script src="weekly-app.js"></script>')
     version_frontend_assets(tmp_path)
     first=page.read_text()
     assert hashlib.sha256(b'first').hexdigest()[:16] in first
+    assert hashlib.sha256(b'first').hexdigest()[:16] in classic.read_text()
     version_frontend_assets(tmp_path)
     assert page.read_text()==first
     asset.write_text('second');version_frontend_assets(tmp_path)

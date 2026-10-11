@@ -89,7 +89,8 @@ jobs:
           files=["locked-forecast.html","overview.html","my-team.html","team-optimizer.html","fixtures-live.html","current-players.html","forecast-center.html","live-model-status.html","forecast-history.html","forecast-live.html","my-team-live.html","own-forecast.html","clubs-live.html","mm-diagnostic.html"]
           for f in files:
               if f in ('my-team.html','team-optimizer.html'):
-                  assert 'url=manager-state.html' in (a/f).read_text(),f
+                  target='my-team-classic.html' if f=='my-team.html' else 'transfers-classic.html'
+                  assert 'url='+target in (a/f).read_text(),f
                   assert (a/'manager-state.html').stat().st_size>1000
               elif f == 'overview.html':
                   shell=(a/f).read_text(encoding='utf-8')
