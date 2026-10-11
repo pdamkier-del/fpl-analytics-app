@@ -32,3 +32,13 @@
 .lineup-controls select{width:100%;background:white}
 .lineup-controls button{flex:1 1 auto}
 @media(max-width:600px){.lineup-controls{padding:10px;gap:8px}.lineup-controls label{flex-basis:42%}.lineup-controls button{flex-basis:40%;padding:10px 5px;font-size:12px}}
+
+/* FPL pitch metric selector and refined compact player cards */
+.pitch-settings{display:flex;justify-content:flex-end;align-items:center;gap:12px;padding:10px 15px;background:#f5f1f6;border-bottom:1px solid #e0d8e3}
+.pitch-metric-label{display:flex;align-items:center;gap:10px;font-size:12px;font-weight:750;color:#37003c}
+.pitch-metric-label select{padding:8px 12px;background:#fff;border-radius:8px;font-weight:650;min-width:170px}
+.squad-display .player-card{min-width:0;transition:transform .12s ease}
+.squad-display .lineup-click:active{transform:scale(.97)}
+.squad-display .player-points{white-space:nowrap;font-variant-numeric:tabular-nums}
+.squad-display .bench-row .player-card{flex:0 1 150px}
+@media(max-width:600px){.pitch-settings{justify-content:stretch;padding:8px}.pitch-metric-label{width:100%;justify-content:space-between}.pitch-metric-label select{min-width:0;max-width:58%;font-size:12px}.squad-display .bench-row .player-card{max-width:24%}}
