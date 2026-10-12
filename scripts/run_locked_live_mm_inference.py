@@ -20,7 +20,31 @@ BASE=ROOT/'data_v1_1/derived/live_locked_inputs/2026-27-v1'
 WORK=ROOT/'work/live-final-model'
 
 
-def infer(history,target):
+def medical_return_mask(history,target,origin):
+    """Strict known-before-deadline medical return after one verified missed GW."""
+    states={'OUT','DOUBT','MAJOR_DOUBT'}
+    eligible={'AVAILABLE','RETURNED_AVAILABLE'}
+    if not {'gw','player_uuid','started','minutes','team_news_state'}.issubset(history.columns):
+        raise ValueError('Unavailable historical medical state for vNext')
+    past=history[history.gw.between(origin-6,origin-1)]
+    counts=past.groupby(['player_uuid','gw']).size()
+    ambiguous=set(counts[counts>1].index)
+    facts={(str(r.player_uuid),int(r.gw)):(int(r.started),float(r.minutes),str(r.team_news_state))
+           for r in past.itertuples(index=False) if (r.player_uuid,r.gw) not in ambiguous}
+    current=target[target.target_gw.eq(origin)]
+    if current.player_uuid.duplicated().any():raise ValueError('Duplicate player in target')
+    positives=set()
+    for r in current.itertuples(index=False):
+        pid=str(r.player_uuid)
+        if str(r.team_news_state) not in eligible:continue
+        last=facts.get((pid,origin-1))
+        missed=facts.get((pid,origin-2))
+        earlier=sum(facts.get((pid,k),(0,0,'UNKNOWN'))[0] for k in range(origin-6,origin-2))
+        if last and missed and last[0]==1 and last[1]>0 and missed[1]==0 and missed[2] in states and earlier>=2:
+            positives.add(pid)
+    return target.player_uuid.astype(str).isin(positives).to_numpy(bool),positives
+
+def infer(history,target,medical_return_logit=0.0):
     history=history.copy();target=target.copy()
     if target.empty or history.empty:raise ValueError('Missing real training or target rows')
     if any(c in target and target[c].notna().any() for c in ['y','minutes','outcome_known_at']):
@@ -32,6 +56,13 @@ def infer(history,target):
     if not (pd.to_datetime(history.outcome_known_at,utc=True)<cut).all():
         raise ValueError('Training outcome unavailable at forecast origin')
     if set(history.fixture_uuid)&set(target.fixture_uuid):raise ValueError('Overlapping training/target fixtures')
+    medical_return_logit=float(medical_return_logit)
+    if medical_return_logit not in (0.0,0.4):
+        raise ValueError('Only development-selected +0.4 experimental MM permitted')
+    if medical_return_logit:
+        selected,identified=medical_return_mask(history,target,origin)
+    else:
+        selected=np.zeros(len(target),dtype=bool);identified=set()
     # Target sentinels are necessary for old functions that cast the whole array.
     # Every fitting function receives the explicit immutable training-only mask.
     target['y']=0;target['minutes']=0.;target['outcome_known_at']='2100-01-01T00:00:00Z'
@@ -45,12 +76,20 @@ def infer(history,target):
     p,q,sub,raw,models=full_mm(f.copy(),train)
     caps=policy_caps(f,POLICY)
     pre=project_exact_starters_with_caps(f,p,caps)
+    if medical_return_logit:
+        from scipy.special import expit,logit
+        delta=np.zeros(len(f),float)
+        delta[len(history):]=selected.astype(float)*medical_return_logit
+        pre=project_exact_starters_with_caps(
+            f,expit(logit(np.clip(pre,1e-8,1-1e-8))+delta),caps)
     feat=add_relative_xi_features(f,pre,RATING_CFG)
     residual,_=fit_residual(feat,pre,train,ASSIGN_FEATURES,L2)
     final=project_exact_starters_with_caps(feat,residual,caps)
     xm=compose(feat,final,q,sub)
     result=feat.iloc[len(history):].copy().reset_index(drop=True)
     result['p_start']=final[~train];result['mm_q_sub']=q[~train]
+    if medical_return_logit:
+        result['medical_return_vnext']=selected
     result['mm_sub_minutes']=sub[~train];result['xmins']=xm[~train]
     result['team_news_availability_cap']=caps[~train]
     result['p_appearance_from_bench']=(1-result.p_start)*result.mm_q_sub
@@ -64,19 +103,29 @@ def infer(history,target):
     audit=dict(train_rows=len(history),target_rows=len(target),train_gws=sorted(map(int,history.gw.unique())),
                xi_features=ASSIGN_FEATURES,exact11_max_error=err,
                target_outcomes_used=0,future_news_neutralized_rows=int(future.sum()),
-               model_math_changed=False,live_certified=False)
+               model_math_changed=bool(medical_return_logit),live_certified=False,
+               medical_return_logit=medical_return_logit,
+               medically_documented_returner_count=len(identified),
+               medically_documented_returner_fpl_ids=sorted(set(map(int,target.loc[selected,'fpl_element']))))
     return result,audit
 
 
 def main():
-    ap=argparse.ArgumentParser();ap.add_argument('--one-gw',action='store_true');a=ap.parse_args()
+    ap=argparse.ArgumentParser();ap.add_argument('--one-gw',action='store_true')
+    ap.add_argument('--vnext-medical-preview',action='store_true')
+    a=ap.parse_args()
+    if a.vnext_medical_preview and a.one_gw:raise ValueError('vNext preview requires six GW')
     history=pd.read_csv(BASE/'reconstructed_training_features.csv.gz',low_memory=False)
     target=pd.read_csv(BASE/'v2_baseline_feature_matrix.csv.gz',low_memory=False)
     if a.one_gw:target=target[target.target_gw.eq(target.gw)].reset_index(drop=True)
-    result,audit=infer(history,target)
-    label='one_gw' if a.one_gw else 'six_gw'
-    path=WORK/f'mm_frozen_diagnostic_{label}.csv.gz';csvgz(path,result)
-    audit['classification']='UNCHANGED_LOCKED_MM_ON_RECONSTRUCTED_TRAINING_NOT_LIVE_CERTIFIED'
+    result,audit=infer(history,target,medical_return_logit=.4 if a.vnext_medical_preview else 0.)
+    label=('vnext_experimental_six_gw' if a.vnext_medical_preview else
+           ('one_gw' if a.one_gw else 'six_gw'))
+    path=(WORK/f'mm_{label}.csv.gz' if a.vnext_medical_preview else
+          WORK/f'mm_frozen_diagnostic_{label}.csv.gz')
+    csvgz(path,result)
+    audit['classification']=('EXPERIMENTAL_MEDICAL_RETURN_MM_VNEXT_NOT_FINAL'
+        if a.vnext_medical_preview else 'UNCHANGED_LOCKED_MM_ON_RECONSTRUCTED_TRAINING_NOT_LIVE_CERTIFIED')
     audit['training_quality']=json.loads((WORK/'live_training_provenance.json').read_text())
     audit['sha256']=hashlib.sha256(path.read_bytes()).hexdigest()
     dump(WORK/f'mm_inference_{label}.json',audit)
