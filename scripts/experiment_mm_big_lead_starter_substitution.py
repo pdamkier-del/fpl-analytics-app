@@ -180,7 +180,7 @@ def main():
                 rec=dict(gw=int(r.gw),teamid=tid,pid=pid,name=str(r.name),
                     kickoff=str(ko),actual_minutes=float(r.minutes),
                     was_early_sub=bool(r.substituted and 55<=r.minutes<=83),
-                    current_lead=None if r.lead_at_sub is None else int(r.lead_at_sub),
+                    current_lead=None if pd.isna(r.lead_at_sub) else int(r.lead_at_sub),
                     previous_game_ended_by_lead_sub=bool(paststarts[-1]['substituted'] and
                            paststarts[-1]['lead_at_sub'] is not None and paststarts[-1]['lead_at_sub']>=3 and
                            55<=paststarts[-1]['minutes']<=83 and not paststarts[-1]['injured_sub']),
