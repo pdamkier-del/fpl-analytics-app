@@ -4,3 +4,10 @@ const o={fetched_at:'now',teams:{1:{name:'Alpha'},2:{name:'Beta'}},players:[{id:
 assert.equal(D.recent(s,o,1,1).totals.total_points,null,'Absent latest GW never becomes zero');assert.equal(D.recent(s,o,1,3).totals.total_points,null);assert.match(D.recent(s,o,1,3).lastPoints,/GW2: Not Available.*GW1: 0/);
 assert.match(D.view(s,o,fx).playerHistory(1),/Alpha 1–0 Beta/);assert.match(D.view(s,o,fx).fixtureDetails(fx.fixtures[0]),/&lt;One&gt;/);assert.match(D.view(s,o,fx).fixtureDetails(fx.fixtures[0]),/Not Available/);assert.equal(D.recent({...s,observed_at:'old'},o,1),null);
 console.log('PASS public match data: fixture identities, true zero, missing latest matches, snapshot gating, safe names and honest absent statistics');
+const portrait=D.identity({id:999,code:12345,web_name:'<Name>'});
+assert.match(portrait,/p12345\.png/);assert.match(portrait,/player.html\?id=999/);assert.match(portrait,/&lt;Name&gt;/);
+assert.doesNotMatch(D.identity({id:1,web_name:'Unknown'}),/photos\/players/,'Missing official photo code cannot use a guessed legacy photo');
+assert.doesNotMatch(D.identity({id:1,code:12,web_name:'One'},false),/<a /,'Fixture cards must not contain nested links');
+assert.match(D.teamStats(fx.fixtures[0],o),/<td>0<\/td>/,'Explicit empty official events mean zero');
+assert.match(D.teamStats({...fx.fixtures[0],stats:[]},o),/Not Available/,'Absent statistic is not zero');
+assert.match(D.highlights(fx.fixtures[0],o),/&lt;One&gt;/);assert.doesNotMatch(D.highlights(fx.fixtures[0],o),/<a /);
