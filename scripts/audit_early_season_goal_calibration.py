@@ -81,6 +81,8 @@ def current_rows():
     ph=ph[ph.available_at<cutoff].copy()
     player_goals=ph.groupby(['fixture_uuid','team_id'],as_index=False).goals.sum()
     h=h.merge(player_goals,on=['fixture_uuid','team_id'],how='inner',validate='one_to_one')
+    complete_xg_history=h.copy()
+    complete_xg_history['match_id']=complete_xg_history.fixture_uuid
     official=json.loads((WORK/'fixtures.json').read_text())
     lookup={int(f['id']):f for f in official}
     facts=[];verified=set();excluded=[]
@@ -110,16 +112,27 @@ def current_rows():
     print('EARLY_CAL_LIVE_VERIFIED_COVERAGE',json.dumps(dict(matches=len(m),scored_week_min=int(m.gw.min()),
                      scored_week_max=int(m.gw.max()),excluded_unfinished=len(excluded),
                      scored_season_2026_gws=sorted(map(int,r.gw.unique())))))
-    return h,variants(r),cutoff
+    return h,complete_xg_history,variants(r),cutoff
 
-def prospective(h):
+def prospective(complete_xg_history,verified_scorelines):
     forecast=pd.read_csv(BASE/'future_team_goal_lambdas.csv.gz')
     assert forecast.gw.nunique()==6
     origin=int(forecast.gw.min())
     targets=forecast[['fpl_fixture_id','home_team_id','away_team_id']].copy()
     targets['match_id']='fpl-2026-27-'+targets.fpl_fixture_id.astype(int).astype(str)
-    fit_goals=fit_team_latent(h.assign(xg=h.actual),targets[['match_id','home_team_id','away_team_id']],origin)
-    fit_xg=fit_team_latent(h,targets[['match_id','home_team_id','away_team_id']],origin)
+    # Apply actual-goal labels ONLY for those teams whose official match score is
+    # verified. For unfinished games use the *observed pre-cutoff xG as neutral*,
+    # not a fabricated actual-goal label. Both fits see IDENTICAL teams and games.
+    side_actual=verified_scorelines[['fixture_uuid','team_id','actual']].copy()
+    side_actual['team_id']=side_actual.team_id.astype(int)
+    full=complete_xg_history.merge(side_actual,on=['fixture_uuid','team_id'],
+                how='left',validate='one_to_one',suffixes=('_unverified','_verified'))
+    rawxg=full.xg.to_numpy(float)
+    known=np.isfinite(full.actual.to_numpy(float))
+    transformed=full.copy()
+    transformed['xg']=np.where(known,full.actual.to_numpy(float),rawxg)
+    fit_goals=fit_team_latent(transformed,targets[['match_id','home_team_id','away_team_id']],origin)
+    fit_xg=fit_team_latent(complete_xg_history,targets[['match_id','home_team_id','away_team_id']],origin)
     report=[]
     for fr in forecast.itertuples(index=False):
         key='fpl-2026-27-'+str(int(fr.fpl_fixture_id))
@@ -137,6 +150,10 @@ def prospective(h):
     top=a.groupby('team',as_index=False).agg(
          original=('pred','mean'),goal_fit=('goal_fit','mean'))
     return a,dict(verified_baseline_max_abs_diff=diff,
+            team_sides_used_for_both_fits=len(complete_xg_history),
+            scoreline_verified_training_sides=int(known.sum()),
+            xg_only_without_verified_scoreline_training_sides=int((~known).sum()),
+            comparison_note='Same frozen historical xG rows for both fits; actual goals replace xG only where official match score is fully verified',
             baseline_avg_lam=round(float(a.pred.mean()),5),
             by_model={name:round(float(a[name].mean()),5) for name in CONFIGS},
             projected_at_least_2_by_model={name:int((a[name]>=2).sum()) for name in CONFIGS},
@@ -161,13 +178,13 @@ def main():
     hold=window_scores(holdout)
     val=window_scores(validation)
     early2025=window_scores(historical[historical.gw.between(3,5)])
-    h2,live,_=current_rows()
+    h2,full_live_xg,live,_=current_rows()
     # Independent fixed GW3-5 comparison, regardless of a newer rolling checkpoint.
     current_early=live[live.gw.between(3,5)].copy()
     assert len(current_early)==60
     live_scores=window_scores(current_early)
     live_high=window_scores(current_early[current_early.pred>=2])
-    _,projection=prospective(h2)
+    _,projection=prospective(full_live_xg,h2)
     results=dict(classification='READ_ONLY_TIME_DECAYING_TEAM_GOALS_EXPERIMENT_NO_PRODUCTION_PROMOTION',
         original_model='unchanged fit_team_latent fitted to xG + separate refit to scored goals',
         goal_defense_handling='actual-goal refit learns opponent conceded goals and team goal scoring jointly',
