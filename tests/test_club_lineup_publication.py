@@ -25,3 +25,14 @@ def test_reject_invalid_assignment(fault):
     if fault=='missing': frame.loc[0,'xi_selected_map']=0
     if fault=='unavailable': frame.loc[0,'live_eligibility_applied']=True
     with pytest.raises(ValueError):module.club_lineups(frame,dict(data_asof='now',checksums={}))
+
+def test_role_shares_are_copied_without_changing_assignment_or_inputs():
+    frame=sample();frame['q_ST_slow']=0.;frame.loc[11,'q_ST_slow']=.75
+    frame['q_RW_slow']=0.;frame.loc[11,'q_RW_slow']=.25
+    before=frame.copy(deep=True)
+    output=module.club_lineups(frame,dict(data_asof='now',checksums={}))
+    pd.testing.assert_frame_equal(frame,before)
+    p=output['fixtures'][0]['players'][11]
+    assert not p['selected'] and p['role']=='UNKNOWN'
+    assert p['observed_roles']==[{'role':'RW','share':.25},{'role':'ST','share':.75}]
+    assert p['role_evidence'] is None

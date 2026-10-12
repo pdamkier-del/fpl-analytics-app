@@ -17,5 +17,6 @@ function clubLineup(official,forecast,source,usable,team,fixtureId=null){
  if(remaining.length||layers.flat().some(p=>!p)||layers.flat().length!==11)return null;
  return {...fixture,layers,bench:rows.filter(p=>!p.selected&&!p.unavailable).sort((a,b)=>compare(a,b,'nextStart',-1)),unavailable:rows.filter(p=>p.unavailable).sort((a,b)=>compare(a,b,'name',1))};
 }
-const api={number,sum,compare,players,clubs,clubLineup};root.FplCatalogData=api;if(typeof module!=='undefined')module.exports=api;
+function roleBattles(xi){if(!xi)return [];const starters=xi.layers.flat(),squad=[...starters,...xi.bench,...xi.unavailable];return [...new Set(starters.map(p=>p.role))].map(role=>({role,selected:starters.filter(p=>p.role===role),candidates:squad.filter(p=>p.role===role||(p.observed_roles||[]).some(r=>r.role===role&&number(r.share)>0)).sort((a,b)=>compare(a,b,'nextStart',-1))}));}
+const api={number,sum,compare,players,clubs,clubLineup,roleBattles};root.FplCatalogData=api;if(typeof module!=='undefined')module.exports=api;
 })(typeof window!=='undefined'?window:globalThis);

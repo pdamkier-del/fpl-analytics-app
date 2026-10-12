@@ -7,7 +7,7 @@ import pandas as pd
 from collections import Counter
 import sys
 sys.path.insert(0,str(Path(__file__).resolve().parents[1]/'src'))
-from fpl_v1_1_model.role_classifier import template, canonical
+from fpl_v1_1_model.role_classifier import template, canonical, ROLES
 ROOT=Path(__file__).resolve().parents[1]
 def version_frontend_assets(app):
     # Version HTML navigation as well: Pages caches documents independently of JS.
@@ -53,7 +53,7 @@ def club_lineups(df, forecast):
         rows.append(dict(fixture_uuid=str(fixture),team_id=int(team),gw=int(group.target_gw.iloc[0]),
             kickoff=str(group.target_kickoff.iloc[0]),formation=formation,layers=layers,
             players=[dict(id=int(r.fpl_element),selected=bool(r.xi_selected_map==1),role=str(r.xi_assigned_role),
-                unavailable=bool(r.live_eligibility_applied)) for r in group.itertuples()]))
+                unavailable=bool(r.live_eligibility_applied),observed_roles=[dict(role=role,share=float(getattr(r,'q_'+role+'_slow'))) for role in ROLES if hasattr(r,'q_'+role+'_slow') and pd.notna(getattr(r,'q_'+role+'_slow')) and float(getattr(r,'q_'+role+'_slow'))>0],role_evidence=float(r.role_evidence_slow) if hasattr(r,'role_evidence_slow') and pd.notna(r.role_evidence_slow) else None) for r in group.itertuples()]))
     return dict(cutoff=forecast['data_asof'],checksums=forecast['checksums'],
         source='original_locked_MM_assignment',locked_model_active=False,fixtures=rows)
 
@@ -62,7 +62,7 @@ def main():
     base=ROOT/'data_v1_1/derived/live_locked_inputs/2026-27-v1'
     source=base/'vfinal_live_full_simulator_input.csv.gz'
     if hashlib.sha256(source.read_bytes()).hexdigest()!=forecast['checksums'][source.name]:raise ValueError('Fixture source checksum mismatch')
-    df=pd.read_csv(source, usecols=['fpl_fixture_id','target_gw','home_team_id','away_team_id','lambda_home_goals','lambda_away_goals','fixture_uuid','team_id','fpl_element','xi_selected_map','xi_assigned_role','xi_formation','live_eligibility_applied','cutoff','target_kickoff'])
+    df=pd.read_csv(source, usecols=lambda c:c in ['fpl_fixture_id','target_gw','home_team_id','away_team_id','lambda_home_goals','lambda_away_goals','fixture_uuid','team_id','fpl_element','xi_selected_map','xi_assigned_role','xi_formation','live_eligibility_applied','cutoff','target_kickoff','role_evidence_slow'] or c.startswith('q_') and c.endswith('_slow'))
     (ROOT/'app/club-lineups.json').write_text(json.dumps(club_lineups(df,forecast),allow_nan=False)+'\n')
     keys=['fpl_fixture_id','target_gw','home_team_id','away_team_id']
     if df.groupby(keys)[['lambda_home_goals','lambda_away_goals']].nunique().gt(1).any().any():raise ValueError('Inconsistent match goal expectations')
@@ -72,5 +72,15 @@ def main():
     if forecast.get('tc_scenarios') and tc.exists():
         if hashlib.sha256(tc.read_bytes()).hexdigest()!=forecast['tc_scenarios']['samples_sha256']:raise ValueError('TC checksum mismatch')
         shutil.copyfile(tc,ROOT/'app/tc-samples.csv.gz')
+    official_path=ROOT/'app/current-players.json'
+    if official_path.exists():
+        official=json.loads(official_path.read_text())
+        history_path=ROOT/'app/match-results.json'
+        history=json.loads(history_path.read_text()) if history_path.exists() else {}
+        if history.get('observed_at')!=official['fetched_at']:
+            from fetch_current_gw_history import main as refresh_history
+            refresh_history()
+            history=json.loads(history_path.read_text())
+        if history.get('observed_at')!=official['fetched_at']:raise ValueError('Official match display snapshot mismatch')
     version_frontend_assets(ROOT/'app')
 if __name__=='__main__':main()
