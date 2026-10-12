@@ -194,6 +194,11 @@ def main():
     f=pl_calendar()
     a,coverage=attach(a,f)
     if coverage['available_rows']<len(a)*.80:
+        print('CALENDAR_MM_MAPPING_DIAGNOSTIC',
+              json.dumps(dict(model_teams=a[['team_id','team']].drop_duplicates().to_dict('records'),
+                 fixtures_teams=sorted(map(int,f.team_id.unique())),
+                 missing_by_model_team=a.groupby(['team_id','team']).gap_since_team_last_pl_days.apply(lambda z:round(float(z.notna().mean()),3)).reset_index(name='mapped_fraction').to_dict('records'))),
+              flush=True)
         raise AssertionError(f'Team fixture mapping weak: {coverage}')
     slices=news_summaries(a)
     scores=compare(a)
