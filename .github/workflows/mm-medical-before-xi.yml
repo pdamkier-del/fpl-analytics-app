@@ -1,0 +1,30 @@
+name: MM medical recovery before XI experiment
+on:
+  push:
+    branches: [free-github-static-20261010]
+    paths:
+      - scripts/experiment_mm_recovery_before_xi.py
+      - .github/workflows/mm-medical-before-xi.yml
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  recovery:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install MM requirements
+        run: pip install -r requirements-model-checkpoint.txt requests scikit-learn
+      - name: A/B medical recovery intervention before XI, selection on GW16-21
+        run: python scripts/experiment_mm_recovery_before_xi.py
+      - name: Upload audit report
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: mm-medical-before-xi
+          path: work/live-final-model/mm_full_medical_return_xi_ab.json
+          retention-days: 30
