@@ -4,6 +4,7 @@ on:
     branches: [free-github-static-20261010]
     paths:
       - scripts/audit_joao_pedro_mm.py
+      - scripts/experiment_mm_deadline_workload.py
       - .github/workflows/joao-pedro-mm-forensic.yml
   workflow_dispatch:
 permissions:
@@ -23,9 +24,13 @@ jobs:
         run: python scripts/current_diagnostic_checkpoint.py restore
       - name: Explain João Pedro 58 xM without modifying predictions
         run: python scripts/audit_joao_pedro_mm.py
+      - name: Compare existing MM with workload features projected to each upcoming deadline
+        run: python scripts/experiment_mm_deadline_workload.py
       - uses: actions/upload-artifact@v4
         if: always()
         with:
           name: joao-pedro-mm-forensic
-          path: work/live-final-model/joao_pedro_mm_forensic.json
+          path: |
+            work/live-final-model/joao_pedro_mm_forensic.json
+            work/live-final-model/joao_mm_workload_deadline_ab.json
           retention-days: 30
