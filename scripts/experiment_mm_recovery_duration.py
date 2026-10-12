@@ -39,7 +39,10 @@ for v in p.itertuples(index=False):
 p['returner']=mask;p['healthy_starter_mean']=healthy;p['old_starter_mean']=current
 cohort=p[p.returner]
 assert 60<=len(cohort)<=300,len(cohort)
-assert cohort.old_starter_mean.between(0,90).all()
+bad=cohort[~cohort.old_starter_mean.between(-.001,90.001)]
+if len(bad):
+    print('DURATION_INPUT_DIAGNOSTIC_OUT_OF_RANGE',bad[['player','gw','mm_p_start','mm_xmins','mm_q_sub','mm_sub_minutes','old_starter_mean']].head(15).to_json(orient='records'),flush=True)
+if len(bad)>0:raise AssertionError('Historical MM minutes decomposition is not coherent with saved component columns')
 BETAS=[0.,.25,.5,.75,1.]
 for beta in BETAS:
     key='smoothed_'+str(beta)
