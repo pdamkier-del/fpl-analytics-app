@@ -239,12 +239,49 @@ def main():
     test=f.gw.between(22,38).to_numpy()
     tr2=(f.gw.between(6,21)&known.lt(pd.to_datetime(f.loc[test,'cutoff'],utc=True).min())).to_numpy()
     base2,q2,sub2,_,_=full_mm(f.copy(),tr2)
-    tests={}
+    tests={}; held_predictions={}
+    # The selected arm remains fixed solely by development GW16-21.
+    # These additional two checks are POST-HOC DIAGNOSTICS, never used to
+    # reselect/promote a model on previously reused GW22-38 outcomes.
+    diagnostics=set(('original',selected,'lead_1.0','combined_0.4_1.0'))
     for name,medical,lead in configs:
-        if name not in ('original',selected):continue
+        if name not in diagnostics:continue
         p,d,x=run_arm(f,tr2,base2,q2,sub2,caps,medical,lead)
         tests[name]=metrics_slices(f,test,p,q2,sub2,d)
-        print('FULL_MM_COMBINED_TEST',json.dumps(dict(variant=name,results=tests[name]),ensure_ascii=False),flush=True)
+        held_predictions[name]=x[test]
+        print('FULL_MM_COMBINED_TEST',json.dumps(dict(variant=name,development_selected=name==selected,
+                  posthoc_only=name not in ('original',selected),results=tests[name]),ensure_ascii=False),flush=True)
+    def paired_ci(mask_for_test,name):
+        # Cluster by fixture to respect opposite teams in the same match.
+        target=f.loc[test].reset_index(drop=True).copy()
+        use=np.asarray(mask_for_test,bool)
+        y=target.minutes.to_numpy(float)[use]
+        a=np.asarray(held_predictions['original'])[use]
+        v=np.asarray(held_predictions[name])[use]
+        if len(y)<10:return None
+        group=target.loc[use,['fixture_uuid']].reset_index(drop=True)
+        group['d_abs']=abs(v-y)-abs(a-y)
+        group['base_sq']=(a-y)**2
+        group['new_sq']=(v-y)**2
+        group['n']=1
+        sums=group.groupby('fixture_uuid')[['n','d_abs','base_sq','new_sq']].sum().to_numpy(float)
+        rng=np.random.default_rng(20261012)
+        draws=rng.integers(0,len(sums),size=(2000,len(sums)))
+        sampled=sums[draws].sum(axis=1)
+        counts=sampled[:,0]
+        abs_delta=sampled[:,1]/counts
+        rmse_delta=np.sqrt(sampled[:,3]/counts)-np.sqrt(sampled[:,2]/counts)
+        return dict(player_cases=int(len(y)),fixture_clusters=int(len(sums)),
+            delta_mae_ci95=[round(float(z),5) for z in np.quantile(abs_delta,[.025,.975])],
+            delta_rmse_ci95=[round(float(z),5) for z in np.quantile(rmse_delta,[.025,.975])],
+            negative_is_improvement=True)
+    frame_test=f.loc[test].reset_index(drop=True)
+    selected_bootstrap={}
+    for name in (selected,):
+        selected_bootstrap[name]=dict(
+            all=paired_ci(np.ones(len(frame_test),dtype=bool),name),
+            documented_medical=paired_ci(frame_test.cal_medical_return_starter.ge(.5),name),
+            prior_three_goal_sub=paired_ci(frame_test.prior_blowout_eligible,name))
     report=dict(classification='READ_ONLY_FULL_MM_MEDICAL_AND_SCORE_STATE_COMBINED_AB',
       underlying_model='exact original full_mm performance, qsub, sub duration and XI role competition',
       data_sources=dict(calendars=cal,event_provider=evt,affected=features),
@@ -252,7 +289,8 @@ def main():
       validation='GW6-21 fit, GW22-38 reused diagnostic not independent',
       candidates={n:dict(medical_logit=m,early_blowout_duration_scale=l) for n,m,l in configs},
       dev=scores,selected_on_dev=selected,
-      test_reused=tests,qualification='Reused 2025/26 historical diagnostic, not an independent season. No model or app change.',
+      test_reused=tests,posthoc_variants_not_eligible_for_reselection=['lead_1.0','combined_0.4_1.0'],
+      paired_fixture_bootstrap_ci95=selected_bootstrap,qualification='Reused 2025/26 historical diagnostic, not an independent season. No model or app change.',
       exact_expected_11=True,production_changed=False,app_changed=False)
     OUT.parent.mkdir(parents=True,exist_ok=True)
     OUT.write_text(json.dumps(report,indent=2,ensure_ascii=False)+'\n')
