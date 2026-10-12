@@ -207,6 +207,26 @@ jobs:
         run: touch app/.nojekyll
       - name: Publish cutoff-matched weekly display and TC assets
         run: python scripts/publish_weekly_assets.py
+      - name: Audit Le Fée six-GW forecast inputs (read-only)
+        run: |
+          python - <<'PY'
+          import json,unicodedata,statistics
+          from pathlib import Path
+          p=Path('app/vfinal-diagnostic.json')
+          d=json.loads(p.read_text())
+          print('AUDIT_CUTOFF',d.get('data_asof'),'MODEL',d.get('model'),'PLAYER_COUNT',len(d.get('players',[])))
+          def normalized(n):
+              return ''.join(ch for ch in unicodedata.normalize('NFKD',str(n)) if not unicodedata.combining(ch)).casefold()
+          terms=['fee','palmer','rogers','joao pedro','odegaard','saka','gross','brobbey','mbeumo','slater']
+          matches=[x for x in d['players'] if any(t in normalized(x.get('name','')) for t in terms)]
+          for x in matches:
+              print('AUDIT_PLAYER',json.dumps({k:v for k,v in x.items() if k!='weeks'},ensure_ascii=False))
+              for w in x.get('weeks',[]):
+                  print('AUDIT_WEEK',x.get('name'),json.dumps(w,ensure_ascii=False))
+          mid=[x for x in d['players'] if x.get('position')==3 and len(x.get('weeks',[]))>=6]
+          rankings=sorted(((sum(w.get('xpts',0) for w in x['weeks'][:6]),x.get('name'),x.get('team')) for x in mid),reverse=True)
+          print('AUDIT_TOP_MIDFIELDERS',json.dumps(rankings[:25],ensure_ascii=False))
+          PY
       - uses: actions/configure-pages@v5
         with:
           enablement: true
