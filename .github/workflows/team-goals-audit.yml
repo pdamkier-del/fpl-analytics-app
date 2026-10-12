@@ -1,0 +1,25 @@
+name: Team-goal model calibration audit
+on:
+  push:
+    branches: [free-github-static-20261010]
+    paths:
+      - scripts/audit_frozen_team_goal_bias.py
+      - .github/workflows/team-goals-audit.yml
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  historical-goal-bias:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install model numerical requirements
+        run: pip install -r requirements-model-checkpoint.txt
+      - name: Restore checksum verified current diagnostic history (read only)
+        run: python scripts/current_diagnostic_checkpoint.py restore
+      - name: Audit original frozen team goal model versus historical actual scores
+        run: python scripts/audit_frozen_team_goal_bias.py
