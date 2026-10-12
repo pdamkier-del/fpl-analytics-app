@@ -83,25 +83,33 @@ def current_rows():
     h=h.merge(player_goals,on=['fixture_uuid','team_id'],how='inner',validate='one_to_one')
     official=json.loads((WORK/'fixtures.json').read_text())
     lookup={int(f['id']):f for f in official}
-    facts=[]
+    facts=[];verified=set();excluded=[]
     for f,sub in h.groupby('fixture_uuid'):
-        if len(sub)!=2:raise AssertionError('Missing one historic team side for '+str(f))
-        fixture=lookup[int(str(f).split('-')[-1])]
-        assert fixture.get('finished') and fixture.get('team_h_score') is not None and fixture.get('team_a_score') is not None
+        if len(sub)!=2:
+            excluded.append(str(f));continue
+        fixture=lookup.get(int(str(f).split('-')[-1]))
+        if (fixture is None or not fixture.get('finished') or
+            fixture.get('team_h_score') is None or fixture.get('team_a_score') is None):
+            excluded.append(str(f));continue
         home=sub[sub.was_home==True];away=sub[sub.was_home==False]
         if len(home)!=1 or len(away)!=1:raise ValueError('Misidentified home/away')
         assert int(home.team_id.iloc[0])==int(fixture['team_h'])
         assert int(away.team_id.iloc[0])==int(fixture['team_a'])
         facts.append(dict(match_id=f,gw=int(sub.gw.iloc[0]),
                           home_team=int(home.team_id.iloc[0]),away_team=int(away.team_id.iloc[0])))
+        verified.add(str(f))
         for key,side in [('home',home),('away',away)]:
             p=float(fixture['team_h_score'] if key=='home' else fixture['team_a_score'])
             h.loc[side.index,'actual']=p
+    h=h[h.fixture_uuid.isin(verified)].copy()
     m=pd.DataFrame(facts)
-    assert len(h)==100 and m.match_id.nunique()==50,('Unexpected 2026 historical checkpoint',len(h))
+    assert len(h)>=100 and m.match_id.nunique()>=50,('Unexpected 2026 historical coverage',len(h),excluded[:5])
     h['match_id']=h.fixture_uuid
     r=compute_gws(m,h,min_gw=3)
-    assert len(r)==60 and r.gw.between(3,5).all(),(len(r),sorted(r.gw.unique()))
+    assert len(r)>=60 and r.gw.min()==3,(len(r),sorted(r.gw.unique()))
+    print('EARLY_CAL_LIVE_VERIFIED_COVERAGE',json.dumps(dict(matches=len(m),scored_week_min=int(m.gw.min()),
+                     scored_week_max=int(m.gw.max()),excluded_unfinished=len(excluded),
+                     scored_season_2026_gws=sorted(map(int,r.gw.unique())))))
     return h,variants(r),cutoff
 
 def prospective(h):
@@ -154,8 +162,11 @@ def main():
     val=window_scores(validation)
     early2025=window_scores(historical[historical.gw.between(3,5)])
     h2,live,_=current_rows()
-    live_scores=window_scores(live)
-    live_high=window_scores(live[live.pred>=2])
+    # Independent fixed GW3-5 comparison, regardless of a newer rolling checkpoint.
+    current_early=live[live.gw.between(3,5)].copy()
+    assert len(current_early)==60
+    live_scores=window_scores(current_early)
+    live_high=window_scores(current_early[current_early.pred>=2])
     _,projection=prospective(h2)
     results=dict(classification='READ_ONLY_TIME_DECAYING_TEAM_GOALS_EXPERIMENT_NO_PRODUCTION_PROMOTION',
         original_model='unchanged fit_team_latent fitted to xG + separate refit to scored goals',
@@ -167,7 +178,9 @@ def main():
         current_early_high_original_ge2=live_high,
         validation_bootstrap=paired_boot(validation,choice),
         holdout_bootstrap=paired_boot(holdout,choice),
-        current_early_bootstrap=paired_boot(live,choice),
+        current_early_bootstrap=paired_boot(current_early,choice),
+        additional_verified_2026_gws=sorted(map(int,live.gw.unique())),
+        full_2026_walkforward=window_scores(live),
         future_2026_27=projection,
         data_notes=['2025 season uses same FotMob team xG for all historic models',
                     '2026 season uses FPL player-xG team sums and independently verified official team scores',
