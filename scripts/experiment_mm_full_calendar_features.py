@@ -162,25 +162,23 @@ def run():
     te_train,test=split(range(22,39),21)
     assert tr.sum()>3000 and dev.sum()>2500 and test.sum()>12000
     results={}
-    diagnostics={}
+    def evaluate(train,mask,features):
+        feat,locked,locked_x,pre,ps,xm,q,sub,met=evaluate_news_variant(
+            frame,train,mask,POLICY,extra_base_features=features)
+        grouped={}
+        for name,band in [('medical_returner',frame.cal_medical_return_starter.gt(.5).to_numpy()),
+                          ('long_gap14',frame.cal_team_since_pl_days.ge(14).to_numpy()),
+                          ('standard_gap',frame.cal_team_since_pl_days.lt(14).to_numpy())]:
+            select=mask&band
+            if select.sum()>=10:
+                grouped[name]=metrics(feat,select,ps,q,xm)
+        return dict(n=int(mask.sum()),overall=met,groups=grouped,
+            mean_calendar_pl_break_days=float(frame.loc[mask,'cal_team_since_pl_days'].mean()))
     for label,features in CANDIDATES.items():
-        stats={}
-        for fold,train,mask in [('dev',tr,dev),('reused_test',te_train,test)]:
-            pred=evaluate_news_variant(frame,train,mask,POLICY,extra_base_features=features)
-            feat,locked,locked_x,pre,ps,xm,q,sub,met=pred
-            grouped={}
-            for name,band in [('medical_returner',frame.cal_medical_return_starter.gt(.5).to_numpy()),
-                              ('long_gap14',frame.cal_team_since_pl_days.ge(14).to_numpy()),
-                              ('standard_gap',frame.cal_team_since_pl_days.lt(14).to_numpy())]:
-                select=mask&band
-                if select.sum()>=10:
-                    grouped[name]=metrics(feat,select,ps,q,xm)
-            stats[fold]=dict(n=int(mask.sum()),overall=met,groups=grouped,
-                 mean_calendar_pl_break_days=float(frame.loc[mask,'cal_team_since_pl_days'].mean()))
-        results[label]=stats
+        results[label]=dict(dev=evaluate(tr,dev,features))
+        stats=results[label]
         print('CAL_MM_FULL_CANDIDATE',json.dumps({'variant':label,
-            'dev':{k:stats['dev']['overall'][k] for k in ['state_log_loss','xmins_mae','xmins_rmse']},
-            'reused_test':{k:stats['reused_test']['overall'][k] for k in ['state_log_loss','xmins_mae','xmins_rmse']}},ensure_ascii=False),flush=True)
+           'dev':{k:stats['dev']['overall'][k] for k in ['state_log_loss','xmins_mae','xmins_rmse']}},ensure_ascii=False),flush=True)
     base=results['original']['dev']['overall']
     keys=['state_log_loss','xmins_mae','xmins_rmse']
     accepted=[]
@@ -193,6 +191,13 @@ def run():
             accepted.append(label)
     selected=min(accepted,key=lambda k:(results[k]['dev']['overall']['xmins_rmse'],
           results[k]['dev']['overall']['state_log_loss'])) if accepted else 'original'
+    # Reused diagnostic is evaluated AFTER development-only selection.
+    # Other exploratory variants are never cherry-picked from this stage.
+    for label in ['original']+([selected] if selected!='original' else []):
+        results[label]['reused_test']=evaluate(te_train,test,CANDIDATES[label])
+        q=results[label]['reused_test']['overall']
+        print('CAL_MM_FULL_REUSED',json.dumps(dict(variant=label,n=results[label]['reused_test']['n'],
+            state_log_loss=q['state_log_loss'],xmins_mae=q['xmins_mae'],xmins_rmse=q['xmins_rmse']),flush=True))
     report=dict(classification='RESEARCH_REFIT_OF_FULL_2025_26_MM_WITH_CALENDAR_TIME_FEATURES',
         coverage=coverage,features=CANDIDATES,results=results,
         selected_development_only=selected,
