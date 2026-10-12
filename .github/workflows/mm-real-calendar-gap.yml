@@ -1,0 +1,31 @@
+name: MM real calendar-gap validation
+on:
+  push:
+    branches: [free-github-static-20261010]
+    paths:
+      - scripts/audit_mm_real_calendar_gaps.py
+      - .github/workflows/mm-real-calendar-gap.yml
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  gap-diagnostic:
+    runs-on: ubuntu-latest
+    timeout-minutes: 14
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install numerical dependencies
+        run: pip install -r requirements-model-checkpoint.txt requests
+      - name: Restore exactly published live checkpoint
+        run: python scripts/current_diagnostic_checkpoint.py restore
+      - name: Historical calendar gap and conditional medical recovery experiment
+        run: python scripts/audit_mm_real_calendar_gaps.py
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: mm-real-calendar-gap
+          path: work/live-final-model/mm_actual_calendar_gap_ab.json
+          retention-days: 30
