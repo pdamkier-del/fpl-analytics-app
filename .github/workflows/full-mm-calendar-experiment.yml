@@ -1,0 +1,30 @@
+name: Full MM calendar-aware experiment
+on:
+  push:
+    branches: [free-github-static-20261010]
+    paths:
+      - scripts/experiment_mm_full_calendar_features.py
+      - .github/workflows/full-mm-calendar-experiment.yml
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  historical-refit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install frozen MM numerical requirements
+        run: pip install -r requirements-model-checkpoint.txt requests scikit-learn
+      - name: Test original XI/availability MM versus real calendar histories and recovery state
+        run: python scripts/experiment_mm_full_calendar_features.py
+      - name: Save all results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: full-calendar-mm-research
+          path: work/live-final-model/mm_full_calendar_feature_ab.json
+          retention-days: 30
