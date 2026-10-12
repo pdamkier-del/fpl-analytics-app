@@ -79,6 +79,22 @@ jobs:
           node --check app/classic-manager.js
           node --check app/classic-transfers.js
           node tests/test_manager_rollover.js
+      - name: Recalculate experimental medical-return MM vNext beside original (no xP mutation)
+        run: |
+          python scripts/run_locked_live_mm_inference.py --vnext-medical-preview
+          python scripts/publish_mm_vnext_compare.py
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          x=json.loads(Path('app/mm-vnext-6gw.json').read_text())
+          orig=json.loads(Path('app/vfinal-diagnostic.json').read_text())
+          assert x['source_observed_at']==orig['data_asof']
+          assert x['locked_model_active'] is False and x['production_xp_unchanged'] is True
+          assert x['player_week_rows']==667*6
+          assert x['medical_return_logit']==0.4
+          assert Path('app/mm-vnext.html').stat().st_size>2500
+          print('MM_VNEXT_PAGES_READY',x['medically_returned_ids'],x['impacted_player_weeks_at_least_1_min'])
+          PY
       - name: Keep locked model unavailable until separately certified
         run: |
           python - <<'PY'
