@@ -38,11 +38,14 @@ jobs:
         run: |
           PYTHONPATH=src:scripts python scripts/locked_numerical_runtime.py scripts/audit_historical_sampler.py
           python scripts/audit_finishing_cutoff_walkforward.py
+          python scripts/audit_sampler_subgroups.py
           PYTHONPATH=src:scripts python scripts/audit_duration_walkforward.py
       - name: Shared duration through original PM and repeated-seed precision
         run: |
           PYTHONPATH=src:scripts python scripts/locked_numerical_runtime.py scripts/audit_duration_pm_shadow.py
           PYTHONPATH=src:scripts python scripts/locked_numerical_runtime.py scripts/audit_duration_pm_precision.py
+      - name: Audit event semantics without changing locked scoring
+        run: PYTHONPATH=src:scripts python scripts/locked_numerical_runtime.py scripts/audit_joint_event_semantics.py
       - name: Read authoritative benchmark artifact
         uses: actions/download-artifact@v4
         with:

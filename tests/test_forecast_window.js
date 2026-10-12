@@ -10,3 +10,10 @@ assert.equal(check(timed,official,Date.parse('2026-10-10T20:00:00Z')).usable,tru
 assert.equal(check(timed,official,Date.parse('2026-10-11T14:00:01Z')).usable,false);
 assert.equal(check(timed,official,Date.parse('2026-10-10T13:59:59Z')).usable,false);
 console.log('7 forecast deadline and official-GW checks passed');
+
+const catalogForecast={...forecast,model:'original_locked_vFinal_diagnostic',players:[{id:1,price_tenths:50,team_id:1,position:4}]};
+const catalogOfficial={next_gw:7,players:[{id:1,price:5,team:1,position:4}]};
+assert.equal(check(catalogForecast,catalogOfficial,Date.parse('2026-10-10T20:00:00Z')).usable,true);
+catalogOfficial.players[0].price=5.1;
+assert.equal(check(catalogForecast,catalogOfficial,Date.parse('2026-10-10T20:00:00Z')).usable,false,'Same GW and cutoff do not validate stale prices');
+console.log('PASS: changed current prices invalidate cached recommendations without repricing the locked model');

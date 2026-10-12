@@ -184,3 +184,32 @@ The original Core was restored read-only and SHA-256 verified: `a4742428fb0c9943
 Reproduce with `python scripts/restore_core_checkpoint.py --out work/core.sqlite3` and `PYTHONPATH=src:scripts python scripts/audit_regular_starter_calibration.py` after the pinned benchmark artifact has been restored. Tests explicitly exclude delayed prior-GW outcomes and targets already known at cutoff.
 
 Validation at commit `7c5fce6`: 464 local regression tests, client/profile/deadline JavaScript tests, and successful complete isolated CI https://github.com/pdamkier-del/fpl-analytics-app/actions/runs/38299089926, including original-PM propagation and repeated-seed tests. Additional calibration tests are included in the next commit. GitHub comparison against the frozen base confirms no existing `src/` model file and no `model/` checkpoint/parameter file has changed.
+
+
+## Further confirmed scoring and catalogue findings
+
+**P1: own goals do not update the shared scoreline.** The locked simulator samples own goals after calculating goals conceded and clean sheets. A controlled forensic fixture produces own_goals=1, goals_conceded=0, clean_sheet=1 for its own-goal scorer. This is an internal scoring contradiction, not a source-data assumption. The existing baseline is preserved and the test explicitly documents the defect. A correction must put each own goal on the opposing team's goal timeline during the scorer's on-pitch interval, update conceded goals / clean sheets and recalculate known BPS/bonus consistently. The scope of the team goal intensity must be checked to avoid adding an event already counted in a total-goal mean. No correction is silently installed in the locked simulator.
+
+**P1: stale market data could pass a valid GW/cutoff check.** Planning previously checked the official GW/deadline but not current official prices, clubs or positions. The candidate browser gate and backend now require a matching official catalogue, before/after backend calculation; a changed price, club, position or roster requires a fresh forecast, without repricing the locked model in JavaScript or deleting actual manager-state. All 667 cutoff-matched current players passed the new backend catalogue check. Same-GW changed-price/identity cases are covered by tests.
+
+Saka's GW7 goal component is now traced further: 1.7875 ordinary-goal points plus 0.25 penalty-goal points = 2.0375, within total 5.74 xP. Haaland has 2.98 ordinary-goal points and 0.07 penalty-goal points within 5.92 xP. This instrumentation reproduces the saved point outputs exactly. Penalties are not the main contributor to Saka's GW7 total.
+
+A likely early-season weakness is the penalty-taker fallback: Haaland's roster-normalized weight is 0.1474, versus Saka's 0.9097. The original model learns current-season attempts and otherwise falls back to goal-rate weights; these are not verified primary-taker probabilities. Historical role priors could be a general research candidate, but no manual Haaland assignment is inserted. Ordinary scoring weights also retain inclusive goal/xG rates; the penalty redistribution needs explicit non-penalty data and calibration before claiming a player-level fix.
+
+Discipline has a possible exposure inconsistency: a probability derived from 45 expected minutes is then applied only if the player appears. With P(play)=0.5 and yellow hazard=0.2/90, the input probability 0.09516 becomes unconditional simulator probability 0.04758. This requires a conditional-hazard backtest; it is not declared a proved point-accuracy improvement.
+
+## Active-player metrics and historical source reconstruction
+
+The mean-preserving sampler improves minute MAE in the reused archived PM cohort, 11.8432→11.4832, while total point MAE slightly worsens. Crucially, all-row point MAE 0.9191 includes many inactive-player zeroes: among the 4,350 played rows it is 2.0135→2.0189, and among 3,168 actual starts 2.3369→2.3404. These are subgroup diagnostics, not training selection or independent promotion evidence. Detailed position metrics are retained in sampler_subgroup_report.json.
+
+The frozen Core has no duplicate or missing started/minutes records among its 29,747 2025/26 observations. All 26,159 archived locked conditional starter durations were independently reconstructed from strict pre-cutoff history and the original half-life; maximum rounding difference was 5.7e-14. This supports historical duration propagation without guessed histories.
+
+A further point-replay smoke test exposed a provenance issue: the 2,125 workflow regenerates GW1–38 base/role/workload/FA features and temporarily overwrites cached input paths. Those exact fresh feature files are not included in its uploaded prediction artifact. Replaying its first fixture using the repository's cached feature files matched 72 identities but differed by up to 0.7025 xP. This is not evidence that a mathematical candidate improves the baseline. Its original-source recipe was therefore being reconstructed in a separate detached checkout of 952b809, preserving the audit branch and immutable benchmark.
+
+The original min-GW1 P(start) and full role/workload generation completed, but the local execution environment disconnected before the warmed-input point smoke or full candidate replay could complete. No historical whole-chain candidate point total is claimed. This continuation is explicitly blocked locally, not marked as a completed exact reproduction of 2,125.
+
+## Latest checkpoint
+
+The latest locally completed suite before the environment disconnected had **468 passing tests**, plus the classic-manager, profile and forecast-window JavaScript checks. The 667-player catalogue check, exact current 4,002-row forecast reconstruction and event decomposition also passed. Public source/results were saved on the separate audit branch; no private manager-state, purchases or tokens were included.
+
+Complete expanded CI at a4e7e0: https://github.com/pdamkier-del/fpl-analytics-app/actions/runs/38300513270. The next commit adds the tested catalogue/event audits and their cloud reproduction. Production stays unchanged and locked_model_active=false.

@@ -26,7 +26,11 @@ def verify_current_window(forecast,bootstrap,now=None):
     cutoff=datetime.fromisoformat(forecast['data_asof'].replace('Z','+00:00'))
     limit=forecast.get('freshness_limit_hours')
     if not isinstance(limit,(int,float)) or not 0<limit<=24 or not cutoff<=now<=cutoff+timedelta(hours=limit):raise ValueError('Forecast freshness expired')
-    return verify(forecast,bootstrap,now)
+    gw=verify(forecast,bootstrap,now)
+    sys.path.insert(0,str(ROOT/'src'))
+    from fpl_v1_1_model.forecast_snapshot import require_official_catalog
+    require_official_catalog(forecast,bootstrap.get('elements'))
+    return gw
 def verify_official_now(forecast):
     with urlopen(Request('https://fantasy.premierleague.com/api/bootstrap-static/',headers={'Cache-Control':'no-cache'}),timeout=30) as r:bootstrap=json.load(r)
     return verify_current_window(forecast,bootstrap)

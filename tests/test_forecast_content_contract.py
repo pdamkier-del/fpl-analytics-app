@@ -37,3 +37,13 @@ def test_live_adapter_does_not_silently_pad_missing_player_week():
     assert len(forecast)==6 # An explicit blank GW is valid; an absent row is not.
     player['weeks'].pop(1)
     with pytest.raises(ValueError,match='player forecast horizon'):project(payload)
+
+
+def test_official_price_or_identity_change_invalidates_same_gw():
+    from fpl_v1_1_model.forecast_snapshot import require_official_catalog
+    payload={'players':[dict(id=1,price_tenths=50,team_id=1,position=4)]}
+    current=[dict(id=1,now_cost=50,team=1,element_type=4)]
+    assert require_official_catalog(payload,current)
+    for field,value in [('now_cost',51),('team',2),('element_type',3)]:
+        with pytest.raises(ValueError,match='changed'):require_official_catalog(payload,[{**current[0],field:value}])
+    with pytest.raises(ValueError,match='roster changed'):require_official_catalog(payload,[*current,dict(id=2,now_cost=40,team=2,element_type=1)])
