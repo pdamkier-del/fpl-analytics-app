@@ -27,12 +27,17 @@ def test_reject_invalid_assignment(fault):
     with pytest.raises(ValueError):module.club_lineups(frame,dict(data_asof='now',checksums={}))
 
 def test_role_shares_are_copied_without_changing_assignment_or_inputs():
-    frame=sample();frame['q_ST_slow']=0.;frame.loc[11,'q_ST_slow']=.75
+    frame=sample();frame['player_uuid']=[str(i) for i in range(12)];frame['q_ST_slow']=0.;frame.loc[11,'q_ST_slow']=.75
     frame['q_RW_slow']=0.;frame.loc[11,'q_RW_slow']=.25
     before=frame.copy(deep=True)
-    output=module.club_lineups(frame,dict(data_asof='now',checksums={}))
+    output=module.club_lineups(frame,dict(data_asof='now',checksums={}),{'11':{'ST':3}})
     pd.testing.assert_frame_equal(frame,before)
     p=output['fixtures'][0]['players'][11]
     assert not p['selected'] and p['role']=='UNKNOWN'
-    assert p['observed_roles']==[{'role':'RW','share':.25},{'role':'ST','share':.75}]
+    assert p['observed_roles']==[{'role':'ST','matches':3,'share':.75}]
     assert p['role_evidence'] is None
+
+
+def test_role_priors_cannot_be_reported_as_observed_positions():
+    history=pd.DataFrame([dict(player_uuid='p',match_id='past',final_role='ST',available_at='2026-10-10T16:00:00Z'),dict(player_uuid='p',match_id='future',final_role='CB',available_at='2026-10-12T16:00:00Z')])
+    assert module.observed_role_counts(history,'2026-10-12T10:00:00Z')=={'p':{'ST':1}}
