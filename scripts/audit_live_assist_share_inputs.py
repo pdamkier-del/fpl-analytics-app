@@ -28,7 +28,13 @@ assert np.allclose(ref.inferred_apg,ref.apg,rtol=0,atol=1e-8)
 current_apg=ref[['apg']].describe(percentiles=[.1,.5,.9]).round(5).to_dict()['apg']
 sun=hist[hist.team_id.eq(20)]
 le=ph[ph.fpl_element.eq(542)]
-assert len(le)==5 and sun.fixture_uuid.nunique()==5
+# New completed gameweeks must not break this read-only audit: the 5-GW
+# baseline can now contain GW6, provided player/team identities remain unique.
+# Missing Le Fee history is not interpreted as an observed zero.
+assert sun.fixture_uuid.nunique()>=5, 'Insufficient verified Sunderland history'
+assert len(le)>=5, 'Insufficient observed Le Fee history'
+assert le.fixture_uuid.nunique()==len(le), 'Duplicate Le Fee fixture observations'
+assert set(le.fixture_uuid)==set(sun.fixture_uuid), 'Le Fee/Sunderland history inconsistent'
 st=sun[['xg','xa','goals','fpl_assists']].sum()
 l=le[['xg','xa','goals','fpl_assists']].sum()
 sund=dict(team={k:round(float(v),4) for k,v in st.items()},
@@ -45,7 +51,9 @@ for r in future.itertuples(index=False):
                      team_expected_goals=round(float(team.goal_mu.sum()),5),
                      team_expected_assists=round(float(team.assist_mu.sum()),5)))
 report=dict(classification='READ_ONLY_LIVE_ALLOCATION_SOURCE_AUDIT_NOT_MODEL_UPDATE',
-            sample={'team_fixture_sides':len(hist),'player_fixture_rows':len(ph)},
+            sample={'team_fixture_sides':len(hist),'player_fixture_rows':len(ph),
+                    'sunderland_matches':int(sun.fixture_uuid.nunique()),'lefee_matches':len(le),
+                    'history_gws':sorted(map(int,ph.gw.unique()))},
             source_totals=totals,model_assist_probability_per_goal=current_apg,
             sunderland=sund,lefee_upcoming=rows,
             warning='Actual FPL assists per goal is short-season, not prospective estimator; xA is not directly FPL assists',
@@ -53,5 +61,6 @@ report=dict(classification='READ_ONLY_LIVE_ALLOCATION_SOURCE_AUDIT_NOT_MODEL_UPD
 out=ROOT/'work/live-final-model/live_assist_share_audit.json'
 out.parent.mkdir(parents=True,exist_ok=True)
 out.write_text(json.dumps(report,indent=2,ensure_ascii=False)+'\n',encoding='utf-8')
+print('ALLOCATION_AUDIT_SAMPLE',json.dumps(report['sample']))
 for k in ['source_totals','model_assist_probability_per_goal','sunderland','lefee_upcoming']:
     print('ALLOCATION_AUDIT_'+k.upper(),json.dumps(report[k],ensure_ascii=False))
