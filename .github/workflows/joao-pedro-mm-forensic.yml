@@ -19,7 +19,7 @@ jobs:
         with:
           python-version: '3.12'
       - name: Install checkpoint numerical dependencies
-        run: pip install -r requirements-model-checkpoint.txt
+        run: pip install -r requirements-model-checkpoint.txt requests
       - name: Restore exact released diagnostic inputs
         run: python scripts/current_diagnostic_checkpoint.py restore
       - name: Explain João Pedro 58 xM without modifying predictions
