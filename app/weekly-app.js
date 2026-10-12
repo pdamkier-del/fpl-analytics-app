@@ -1,5 +1,6 @@
 'use strict';
 (()=>{
+const publicRoutes={players:'players-classic.html',clubs:'clubs-classic.html',fixtures:'fixtures-classic.html'};const publicPage=publicRoutes[location.hash.slice(1)];if(publicPage){const url=new URL(publicPage,location.href);url.search=location.search;location.replace(url.href);return}
 const privateImport=FplPrivateImport.consume(location,history).then(value=>({value}),error=>({error}));
 const root=document.getElementById('weekly-main'),pos=['','GK','DEF','MID','FWD'];let forecast,official,fixtures,expectations,people,plan=null,state=null,usable=false,busy=false,service={},computeMessage='',computeError=false,pipelineInfo=null,matchHistory=null;
 const esc=x=>String(x??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
