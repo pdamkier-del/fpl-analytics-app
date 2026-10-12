@@ -234,6 +234,32 @@ jobs:
                       cols=[c for c in ['fpl_element','target_gw','gw','team_id','opponent_team_id','expected_minutes','control_xmins','goal_rate90','assist_rate90','goal_role_prior90','assist_role_prior90','goal_mu','assist_mu','lambda_home_goals','lambda_away_goals','assist_probability_per_goal','perf_last_xgi','perf_last_sot','perf_last_chances'] if c in df]
                       print('TRACE_SELECTED',name,sub[cols].head(6).to_json(orient='records') if cols else 'none')
           PY
+      - name: Deep Le Fee and Sunderland source attribution (read-only)
+        run: |
+          python - <<'PY'
+          import pandas as pd, json
+          from pathlib import Path
+          b=Path('data_v1_1/derived/live_locked_inputs/2026-27-v1')
+          f=pd.read_csv(b/'vfinal_live_full_simulator_input.csv.gz')
+          p=f[(f.fpl_element==542)].sort_values('target_gw')
+          print('DEEP_LEFEE',p[['target_gw','player','expected_minutes','goal_rate90','assist_rate90','goal_role_prior90','assist_role_prior90','goal_mu','assist_mu','lambda_home_goals','lambda_away_goals','home_team_id','away_team_id','perf_last_xgi','perf_last_chances','history_rows']].to_json(orient='records'))
+          for _,r in p.iterrows():
+              team=f[(f.fixture_uuid==r.fixture_uuid)&(f.team_id==r.team_id)]
+              team_lambda=float(r.lambda_home_goals if r.team_id==r.home_team_id else r.lambda_away_goals)
+              leaders=team.sort_values('goal_mu',ascending=False)[['player','goal_mu','assist_mu','expected_minutes']].head(8)
+              print('DEEP_ALLOCATION',json.dumps(dict(gw=int(r.target_gw),team_goal_lambda=round(team_lambda,4),goal_mu_sum=round(float(team.goal_mu.sum()),4),assist_mu_sum=round(float(team.assist_mu.sum()),4),lefee_goal_share=round(float(r.goal_mu/team_lambda),4),lefee_assist_share=round(float(r.assist_mu/team.assist_mu.sum()),4),top_players=leaders.to_dict(orient='records'))))
+          for name in ['player_fixture_observations.csv.gz','observed_team_xg_history.csv.gz']:
+              q=pd.read_csv(b/name,low_memory=False)
+              print('DEEP_SOURCE_COLUMNS',name,list(q.columns))
+              if 'player_uuid' in q:
+                  h=q[q.player_uuid.astype(str)==str(p.player_uuid.iloc[0])]
+                  cols=[x for x in ['season','gw','minutes','xg','xa','goals','assists','kickoff_at','available_at','fixture_uuid','player_uuid'] if x in h]
+                  print('DEEP_HIST',h[cols].to_json(orient='records',date_format='iso'))
+                  print('DEEP_HIST_SUM',json.dumps(dict(rows=len(h),minutes=float(h.minutes.sum()),xg=float(h.xg.sum()),xa=float(h.xa.sum()))))
+              elif 'team_id' in q:
+                  h=q[q.team_id.eq(20)]
+                  print('DEEP_TEAM',h.head(8).to_json(orient='records',date_format='iso'))
+          PY
       - name: Audit Le Fée six-GW forecast inputs (read-only)
         run: |
           python - <<'PY'
