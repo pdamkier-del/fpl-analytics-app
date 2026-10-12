@@ -185,10 +185,19 @@ def live():
         if abs(outcome-float(v.actual))>1e-10:
             discrepancies.append(dict(fixture_id=fixture_id,team=int(v.team_id),
                                       scoreline=outcome,player_credited_goals=float(v.actual)))
-    if not np.isfinite(actual_scores).all():
-        raise ValueError('Incomplete official historical scorelines; no result substitution')
+    # Archived player-xG sides can precede final FPL fixture status. Exclude,
+    # rather than fabricate results for, any still-incomplete pair.
     h['actual']=actual_scores
-    reconciliation=dict(official_fixture_sides=len(actual_scores),
+    unavailable=h[h.actual.isna()].fixture_uuid.astype(str).unique().tolist()
+    verified=h.dropna(subset=['actual']).copy()
+    sizes=verified.groupby('fixture_uuid').size()
+    complete=set(sizes[sizes.eq(2)].index)
+    h=verified[verified.fixture_uuid.isin(complete)].copy()
+    if len(h)<100:
+        raise ValueError(f'Fewer than 50 fully verified fixtures: {len(h)//2}')
+    reconciliation=dict(official_fixture_sides=len(h),
+                        excluded_without_final_score=len(unavailable),
+                        excluded_examples=unavailable[:5],
                         player_credited_goal_total=original_player_goals,
                         official_scoreline_goal_total=float(h.actual.sum()),
                         side_mismatches=len(discrepancies),
