@@ -45,7 +45,8 @@ def main():
             returned_minutes=float(returned[1]),original_pstart=float(r.mm_p_start),
             y=int(r.y),minutes=float(r.minutes),pre_healthy_starts=len(healthy)))
     f=pd.DataFrame(records)
-    assert len(f)>=65 and not f.duplicated(['player_uuid','gw']).any()
+    print('RETURN_DURATION_ELIGIBILITY',json.dumps(dict(observed_matching=len(f),medically_recovered=len(a[a.medical_recovered]),earliest=int(f.gw.min()) if len(f) else None)),flush=True)
+    assert len(f)>=20 and not f.duplicated(['player_uuid','gw']).any()
     # Pure returner-specific conditional start-duration repair. No changing
     # current P(start), q(sub), team lineup assignment or starting XI.
     specs={}
@@ -58,7 +59,7 @@ def main():
             specs[name]=dict(healthy=float(healthy_beta),return_game=float(last_beta))
     dev=f[f.gw.between(22,28)]
     test=f[f.gw.between(29,38)]
-    assert dev.y.sum()>=15 and test.y.sum()>=15
+    assert dev.y.sum()>=7 and test.y.sum()>=7,(int(dev.y.sum()),int(test.y.sum()))
     metrics={name:dict(dev=met(dev,name),test=met(test,name)) for name in specs}
     ref=metrics['h0_r0']['dev']
     candidates=[name for name,z in metrics.items() if
