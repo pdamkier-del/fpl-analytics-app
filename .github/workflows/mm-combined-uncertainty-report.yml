@@ -1,0 +1,35 @@
+name: MM combined test uncertainty report
+on:
+  push:
+    branches: [free-github-static-20261010]
+    paths:
+      - .github/workflows/mm-combined-uncertainty-report.yml
+  workflow_dispatch:
+permissions:
+  contents: read
+  actions: read
+jobs:
+  summarize:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Read completed full-MM paired test artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: mm-combined-injury-big-lead-ab
+          run-id: 38271149204
+          github-token: ${{ github.token }}
+          path: /tmp/fpl-mm-combined
+      - name: Report the previously computed paired-fixture bootstrap confidence intervals
+        run: |
+          python3 - <<'PY'
+          import json, pathlib
+          files = list(pathlib.Path('/tmp/fpl-mm-combined').rglob('*.json'))
+          if len(files) != 1: raise RuntimeError('Expected exactly one test artifact JSON')
+          report = json.loads(files[0].read_text())
+          if report['production_changed']: raise RuntimeError('Research report unexpectedly modifies production')
+          print('FULL_MM_CI95', json.dumps(report['paired_fixture_bootstrap_ci95'], ensure_ascii=False))
+          print('FULL_MM_SELECTED_DEV', json.dumps(report['selected_on_dev']))
+          for key in ['original','medical_0.4','lead_1.0','combined_0.4_1.0']:
+              print('FULL_MM_REPORT', json.dumps({'name':key,'test':report['test_reused'][key]},ensure_ascii=False))
+          PY
