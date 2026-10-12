@@ -19,3 +19,5 @@ const ambiguous=D.sideIds({stats:[{h:[{element:1}],a:[{element:1}]}]});assert.eq
 assert.equal(D.played({finished:false,finished_provisional:true,started:true,minutes:90}),true);
 assert.equal(D.played({finished:false,finished_provisional:true,started:true,minutes:89}),false);
 const recovered=D.sideIds({id:10,stats:[]},[{fixture_id:10,player_id:3,was_home:false},{fixture_id:11,player_id:4,was_home:true}]);assert.deepEqual([...recovered.away],[3]);assert.equal(recovered.home.size,0,'Unrelated fixture evidence never adds a player');
+
+const longHistory={...s,match_rows:Array.from({length:12},(_,i)=>({...s.match_rows[0],fixture_id:fx.fixtures[0].id,gw:i+1}))};assert.equal((D.view(longHistory,o,fx).playerHistory(1).match(/Alpha 1–0 Beta/g)||[]).length,12,'All available matches remain visible beyond ten');assert.equal(D.recent(s,o,1,0).gws.length,(s.available_gws||s.completed_gws).length,'All recent GWs can be selected');

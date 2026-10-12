@@ -4,3 +4,9 @@
 #pitch .catalog-position{margin:18px 0}.club-reserves{justify-content:flex-start;background:#edf0f5;padding:12px;border-radius:10px}.club-reserves .catalog-node{background:white}.catalog-node span{margin-top:4px;font-weight:700}
 
 #recentControls[hidden]{display:none}
+
+/* Keep player identity visible while browsing wide statistics. */
+#statsTable,#forecastTable{border-collapse:separate;border-spacing:0}
+#statsTable th:first-child,#statsTable td:first-child,#forecastTable th:first-child,#forecastTable td:first-child{position:sticky;left:0;z-index:2;background:#fff;min-width:170px;box-shadow:2px 0 4px #14243418}
+#statsTable th:first-child,#forecastTable th:first-child{z-index:3;background:#f3f6f8}
+#statsTable td:first-child .player,#forecastTable td:first-child .player{display:flex;align-items:center;gap:8px;white-space:nowrap}
