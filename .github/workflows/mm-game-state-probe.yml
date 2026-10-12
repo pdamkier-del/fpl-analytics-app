@@ -1,0 +1,22 @@
+name: MM game-state provider probe
+on:
+  push:
+    branches: [free-github-static-20261010]
+    paths:
+      - scripts/probe_historical_score_at_substitution.py
+      - .github/workflows/mm-game-state-probe.yml
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  probe:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: pip install pandas requests
+      - name: Validate availability of historical goal-event timeline and final-score reconciliation
+        run: python scripts/probe_historical_score_at_substitution.py
