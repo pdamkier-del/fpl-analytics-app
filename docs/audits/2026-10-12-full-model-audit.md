@@ -4,7 +4,7 @@ Branch `model-audit-optimization-20261012`, reference commit `2b1983accd89163334
 
 ## Decision
 
-Neither mathematical experiment qualifies for promotion. The supported fixes are forecast-content identity and consistent display of original MM/PM inputs. The minute sampler is an isolated experiment; finishing shrinkage fails cross-period validation. The original 2,125-point ledger remains unchanged, but does not demonstrate six-GW historical planning.
+No mathematical experiment yet qualifies for promotion. The supported fixes are forecast-content identity and consistent display of original MM/PM inputs. The minute sampler is an isolated experiment; finishing shrinkage fails cross-period validation. A shared starter-duration half-life candidate improves that component in two chronological checks, but has not passed full PM/TS validation. The original 2,125-point ledger remains unchanged, but does not demonstrate six-GW historical planning.
 
 ## Prioritized findings
 
@@ -52,7 +52,7 @@ The selected method worsens the first later period and lacks a robust improvemen
 
 ## Locked baseline / source integrity
 
-Current original cutoff: `2026-10-12T10:45:27.093744+00:00`, workflow https://github.com/pdamkier-del/fpl-analytics-app/actions/runs/38238230716. Checksummed source restore gives 3,775 training rows GW1–6, 60 future fixtures and 4,002 player-fixture forecasts GW7–12. A fresh original inference reproduced all watched outputs/components within 1e-10; saved forecasts were not substituted into fresh inference. Fixture/player identities are unique and historical availability is before cutoff.
+Current original cutoff: `2026-10-12T10:45:27.093744+00:00`, workflow https://github.com/pdamkier-del/fpl-analytics-app/actions/runs/38238230716. Checksummed source restore gives 3,775 training rows GW1–6, 60 future fixtures and 4,002 player-fixture forecasts GW7–12. A fresh original inference reproduced all watched outputs/components exactly (maximum absolute delta 0.0); saved forecasts were not substituted into fresh inference. Fixture/player identities are unique and historical availability is before cutoff.
 
 Authoritative 2,125 artifact: workflow https://github.com/pdamkier-del/fpl-analytics-app/actions/runs/37612845586, artifact 11480605718. Downloaded ZIP SHA-256 verified as `78127ec480c119d95a60fabab7d3575e7690f304defef1b365831204f6e5cea6`. Ledger accounting preserves 2,125 points, 44 transfers and 28 hit points. Its 33 decision origins each contain only that decision's GW: 150 required future horizon cells are missing. Archived locked MM has 26,159 rows: start Brier 0.069635, log loss 0.227819, minute MAE 10.5331 / RMSE 20.4945. These audit metrics do not establish a new model improvement.
 
@@ -120,3 +120,25 @@ Verdict: diagnostic use with explicit freshness/state gates only; not certified 
 | 12 | 1.2832 | 1.4256 |
 
 Tau=50 is illustrative, not the selected cross-season candidate. At the selected tau=20 the current Chelsea posterior factor would be 35/28.51; its deployment is rejected.
+
+## Shared starter-duration candidate
+
+A third experiment changes only the shared duration half-life on covered histories. The original half-life formula is evaluated unchanged at 0.321926; the candidate value 3.0 is selected from the 2024/25 GW6–21 development slice. No player ID enters fitting. This is a conditional-duration experiment, not an exact re-run of full locked MM with its complete registered-player ledger.
+
+| Later period | Reference half-life duration MAE | Candidate half-life=3 MAE | Paired delta 95% CI |
+|---|---:|---:|---|
+| 2024-25_GW22-38 | 8.303487 | 7.619870 | [-0.9390922387086343, -0.4366331184636552] |
+| 2025-26_GW6-38 | 8.042755 | 7.635071 | [-0.5680212152044046, -0.25575968621767203] |
+
+| Current GW7 player | Original conditional minutes | Candidate conditional minutes | Original xMin | Component-only xMin with P(start) fixed |
+|---|---:|---:|---:|---:|
+| Haaland | 80.277 | 86.974 | 68.302 | 73.915 |
+| Saka | 88.972 | 85.687 | 85.255 | 82.119 |
+
+The duration improvement holds in these chronological component checks, making it the best mathematical research candidate so far. Missing 2025 playerstats are excluded, not converted to zero; its observed squad history differs from the full registered-roster MM ledger. Frozen training already overlaps 2024, publication clocks are proxies, and full vFinal / six-GW TS acceptance remains unavailable. It is therefore not enabled in production. Reproduce with `PYTHONPATH=src:scripts python scripts/audit_duration_walkforward.py`.
+
+Browser audit of the published profiles confirmed Haaland GW7 5.92 xP / 68 min / 84%, Saka 5.74 xP / 85 min / 95%, both labelled MM vNext for minutes while xP remains Original PM. Profile source mixing is observable, not only inferred from code. Candidate primary-profile rendering is exercised against an explicit synthetic transport fixture. No private team was used.
+
+## Joint start-count weakness
+
+The live 120 team/fixture distributions have mean probability 0.2591 of exactly 11 independently sampled starters, and 0.3724 of more than 11, despite marginal P(start) summing to 11 within 1.2e-12. A research candidate is a conditional joint distribution P(z) proportional to exp(sum_i a_i z_i), restricted to sum_i z_i=11 and legal role assignments. The a_i would be calibrated to preserve the intended marginal probabilities, rather than simply renormalizing an independent draw. This would require an original-input historical point backtest; no such sampler is promoted or substituted here.

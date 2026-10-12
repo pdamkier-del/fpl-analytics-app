@@ -41,6 +41,11 @@ def main():
  cameo_seconds=np.array([clipped_rounded_mean(v,7.,1,45) for v in f.v4_cameo_minutes_mean])
  intended=f.v4_workload_start_xmins.to_numpy()
  actual=f.v4_workload_start_p_start.to_numpy()*base_seconds+(1-f.v4_workload_start_p_start.to_numpy())*f.v4_p_cameo_given_bench.to_numpy()*cameo_seconds
+ start_counts=[]
+ for _,group in f.groupby(['fixture_uuid','team_id']):
+  distribution=np.array([1.])
+  for p in group.control_p_start:distribution=np.convolve(distribution,[1-p,p])
+  start_counts.append((float(distribution[11]),float(distribution[12:].sum())))
  focus={}
  for name in ['Haaland','Saka']:
   rows=f[f.player.eq(name)].sort_values('target_gw');pid=rows.player_uuid.iloc[0];observed=history[history.player_uuid.eq(pid)]
@@ -53,7 +58,7 @@ def main():
  che=f[f.team_id.eq(6)].groupby(['target_gw','fixture_uuid']).first().reset_index()
  che['team_lambda']=np.where(che.home_team_id.eq(6),che.lambda_home_goals,che.lambda_away_goals)
  focus['Chelsea']=dict(sh.loc[6].to_dict(),forecast=[dict(gw=int(r.target_gw),original_lambda=float(r.team_lambda),tau50_shadow_lambda=float(r.team_lambda*sh.loc[6,'tau50_factor'])) for r in che.itertuples()])
- report=dict(classification='READ_ONLY_FULL_CHAIN_AUDIT',base_commit='2b1983a',source_cutoff=receipt['cutoff'],source_workflow=receipt['source_workflow'],input_checksums={n:digest(B/n) for n in names},locked_model_active=False,focus=focus,training_rows=len(training),training_gws=sorted(map(int,training.gw.unique())),baseline_duration_constants=exact_frozen_duration_constants(),structural_checks=dict(expected_starters_max_error=float((f.groupby(['fixture_uuid','team_id']).p_start.sum()-11).abs().max()),minute_mean_bias=float(np.mean(actual-intended)),worst_minute_mean_bias=float(np.min(actual-intended)),player_fixture_rows_with_cameo_mean_above_old_sampler_support=int(f.v4_cameo_minutes_mean.gt(45).sum()),independent_starts_not_exact_realized_xi=True),restrictions=['Historical availability uses documented kickoff proxies, not recovered publication clocks','2025/26 GW22-38 has been reused for previous model decisions','MM vNext is a shadow minute model, not the minute source of original PM/TS','2125-point benchmark reproduces its ledger but archived GW6-38 forecasts contain only current-GW targets, not a six-GW horizon'])
+ report=dict(classification='READ_ONLY_FULL_CHAIN_AUDIT',base_commit='2b1983a',source_cutoff=receipt['cutoff'],source_workflow=receipt['source_workflow'],input_checksums={n:digest(B/n) for n in names},locked_model_active=False,focus=focus,training_rows=len(training),training_gws=sorted(map(int,training.gw.unique())),baseline_duration_constants=exact_frozen_duration_constants(),structural_checks=dict(expected_starters_max_error=float((f.groupby(['fixture_uuid','team_id']).p_start.sum()-11).abs().max()),minute_mean_bias=float(np.mean(actual-intended)),worst_minute_mean_bias=float(np.min(actual-intended)),player_fixture_rows_with_cameo_mean_above_old_sampler_support=int(f.v4_cameo_minutes_mean.gt(45).sum()),independent_starts_not_exact_realized_xi=True,mean_p_exact_realized_11_starts=float(np.mean([r[0] for r in start_counts])),mean_p_more_than_11_starts=float(np.mean([r[1] for r in start_counts]))),restrictions=['Historical availability uses documented kickoff proxies, not recovered publication clocks','2025/26 GW22-38 has been reused for previous model decisions','MM vNext is a shadow minute model, not the minute source of original PM/TS','2125-point benchmark reproduces its ledger but archived GW6-38 forecasts contain only current-GW targets, not a six-GW horizon'])
  write('audit.json',report);sh.reset_index().to_csv(OUT/'team_finishing_source.csv',index=False)
  print('AUDIT_FOCUS',json.dumps({k:{a:b for a,b in v.items() if a!='forecast'} for k,v in focus.items()}),flush=True)
  if a.simulate:
@@ -61,11 +66,12 @@ def main():
   original,oa=simulate(f,draws=400,fixture_seed_offsets=seeds)
   check=original.merge(xp,on=['fixture_uuid','player_uuid'],suffixes=('_rerun','_saved'),validate='one_to_one')
   cols=['xpts_fixture','expected_minutes',*POINT_COMPONENTS]
-  if any(not np.allclose(check[c+'_rerun'],check[c+'_saved'],rtol=0,atol=1e-10) for c in cols):raise ValueError('Original baseline numerical reproduction failed')
+  max_deltas={c:float(np.max(np.abs(check[c+'_rerun']-check[c+'_saved']))) for c in cols}
+  if any(delta!=0 for delta in max_deltas.values()):raise ValueError('Original baseline exact numerical reproduction failed')
   with shadow_sampler():candidate,ca=simulate(f,draws=400,fixture_seed_offsets=seeds)
   original.to_csv(OUT/'live_original_reproduced.csv.gz',index=False,compression='gzip');candidate.to_csv(OUT/'live_mean_preserved.csv.gz',index=False,compression='gzip')
   paired=original.merge(candidate,on=['fixture_uuid','player_uuid'],suffixes=('_original','_candidate'),validate='one_to_one').merge(f[['fixture_uuid','player_uuid','player','fpl_element','target_gw']],on=['fixture_uuid','player_uuid'],validate='one_to_one')
   paired.to_csv(OUT/'live_paired_sampler.csv.gz',index=False,compression='gzip')
-  write('live_experiment.json',dict(classification='EXPERIMENTAL_SHADOW_NOT_PROMOTED',source_cutoff=receipt['cutoff'],original_reproduction_passed=True,locked_coefficients_untouched=True,promotion_allowed=False,draws=400,player_fixture_rows=len(paired),focus=paired[paired.player.isin(['Haaland','Saka'])][['player','target_gw','expected_minutes_original','expected_minutes_candidate','xpts_fixture_original','xpts_fixture_candidate']].to_dict('records')))
+  write('live_experiment.json',dict(classification='EXPERIMENTAL_SHADOW_NOT_PROMOTED',source_cutoff=receipt['cutoff'],original_reproduction_passed=True,original_reproduction_max_abs_deltas=max_deltas,locked_coefficients_untouched=True,promotion_allowed=False,draws=400,player_fixture_rows=len(paired),focus=paired[paired.player.isin(['Haaland','Saka'])][['player','target_gw','expected_minutes_original','expected_minutes_candidate','xpts_fixture_original','xpts_fixture_candidate']].to_dict('records')))
   print('PAIRED_LIVE_SAMPLER_COMPLETE',len(paired),flush=True)
 if __name__=='__main__':main()

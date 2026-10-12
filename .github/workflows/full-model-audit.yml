@@ -23,6 +23,7 @@ jobs:
         run: |
           PYTHONPATH=src:scripts python -m pytest tests -q
           node tests/test_classic_manager.js
+          node tests/test_player_profile_snapshot.js
           node tests/test_forecast_window.js
           node --check app/classic-manager.js
           node --check app/weekly-app.js
@@ -36,6 +37,7 @@ jobs:
         run: |
           PYTHONPATH=src:scripts python scripts/locked_numerical_runtime.py scripts/audit_historical_sampler.py
           python scripts/audit_finishing_cutoff_walkforward.py
+          PYTHONPATH=src:scripts python scripts/audit_duration_walkforward.py
       - name: Read authoritative benchmark artifact
         uses: actions/download-artifact@v4
         with:
