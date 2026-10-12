@@ -4,6 +4,7 @@ on:
     branches: [free-github-static-20261010]
     paths:
       - scripts/audit_mm_real_calendar_gaps.py
+      - scripts/experiment_mm_elapsed_days_duration.py
       - .github/workflows/mm-real-calendar-gap.yml
   workflow_dispatch:
 permissions:
@@ -23,9 +24,13 @@ jobs:
         run: python scripts/current_diagnostic_checkpoint.py restore
       - name: Historical calendar gap and conditional medical recovery experiment
         run: python scripts/audit_mm_real_calendar_gaps.py
+      - name: Test elapsed-days-decayed historical starter minutes against locked duration
+        run: python scripts/experiment_mm_elapsed_days_duration.py
       - uses: actions/upload-artifact@v4
         if: always()
         with:
           name: mm-real-calendar-gap
-          path: work/live-final-model/mm_actual_calendar_gap_ab.json
+          path: |
+            work/live-final-model/mm_actual_calendar_gap_ab.json
+            work/live-final-model/mm_time_decayed_conditional_starts_ab.json
           retention-days: 30
