@@ -1,0 +1,6 @@
+'use strict';
+const assert=require('node:assert/strict'),D=require('../app/match-data.js');
+const o={fetched_at:'now',teams:{1:{name:'Alpha'},2:{name:'Beta'}},players:[{id:1,web_name:'<One>'}]},fx={fixtures:[{id:10,gw:1,home:1,away:2,home_score:1,away_score:0,kickoff:'2026-10-01',finished:true,stats:[{identifier:'goals_scored',h:[{element:1,value:1}],a:[]}]}]},s={observed_at:'now',available_gws:[1,2],completed_gws:[1],gw_rows:[{player_id:1,gw:1,stats:{total_points:0,minutes:0}}],match_rows:[{player_id:1,fixture_id:10,gw:1,total_points:0,stats:{minutes:0},point_breakdown:[]}]};
+assert.equal(D.recent(s,o,1,1).totals.total_points,null,'Absent latest GW never becomes zero');assert.equal(D.recent(s,o,1,3).totals.total_points,null);assert.match(D.recent(s,o,1,3).lastPoints,/GW2: Not Available.*GW1: 0/);
+assert.match(D.view(s,o,fx).playerHistory(1),/Alpha 1–0 Beta/);assert.match(D.view(s,o,fx).fixtureDetails(fx.fixtures[0]),/&lt;One&gt;/);assert.match(D.view(s,o,fx).fixtureDetails(fx.fixtures[0]),/Not Available/);assert.equal(D.recent({...s,observed_at:'old'},o,1),null);
+console.log('PASS public match data: fixture identities, true zero, missing latest matches, snapshot gating, safe names and honest absent statistics');

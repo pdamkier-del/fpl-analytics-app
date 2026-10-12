@@ -54,7 +54,7 @@ jobs:
           python scripts/build_live_vfinal_desktop.py
           python scripts/locked_numerical_runtime.py scripts/validate_live_manager_chain.py
           python scripts/run_live_locked_ts.py
-          PYTHONPATH=src python -m pytest -q tests/test_live_vfinal_desktop.py tests/test_live_locked_ts_bridge.py tests/test_run_live_vfinal_joint_simulation.py tests/test_private_manager_service.py tests/test_club_lineup_publication.py
+          PYTHONPATH=src python -m pytest -q tests/test_live_vfinal_desktop.py tests/test_live_locked_ts_bridge.py tests/test_run_live_vfinal_joint_simulation.py tests/test_private_manager_service.py tests/test_club_lineup_publication.py tests/test_match_display.py
           python -c "from service.app import original_runtime_ready; assert original_runtime_ready(), 'Private original-Python worker imports failed'"
           node --check app/weekly-app.js
           node --check app/manager-state.js
@@ -68,6 +68,8 @@ jobs:
           node tests/test_classic_manager.js
           node tests/test_classic_profile.js
           node tests/test_catalog_data.js
+          node tests/test_match_data.js
+          node --check app/match-data.js
           node --check app/classic-catalog.js
           node tests/test_classic_pitch_import.js
           node --check app/classic-manager.js

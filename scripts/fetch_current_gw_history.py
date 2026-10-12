@@ -33,8 +33,10 @@ def main():
        all(f["finished"] for f in fixtures["fixtures"] if f.get("gw")==n)]
     current_ids={p["id"] for p in official["players"]}
     records=[]
+    display_events={}
     for n in complete:
         event=load(n)
+        display_events[n]=event
         rows=event.get("elements") or []
         if len(rows)<250:raise ValueError(f"GW{n}: incomplete live player feed")
         for row in rows:
@@ -52,5 +54,11 @@ def main():
          "source":"FPL event/{gw}/live; only complete gameweeks before official next GW",
          "rows":records}
     (APP/"historical-gw-stats.json").write_text(json.dumps(out,ensure_ascii=False,separators=(",",":"),allow_nan=False))
+    # Independent UI feed may include finished matches in an incomplete GW.
+    # Such outcomes never enter the completed-GW model history above.
+    for n in sorted({f['gw'] for f in fixtures['fixtures'] if f.get('finished') and isinstance(f.get('gw'),int) and f['gw']<gw}):
+        if n not in display_events:display_events[n]=load(n)
+    from build_match_display import write
+    write(official,fixtures,display_events,APP/"match-results.json")
     print("OFFICIAL GW HISTORY:",len(records),"rows, finished GWs",complete)
 if __name__=="__main__":main()
