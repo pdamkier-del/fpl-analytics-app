@@ -1,0 +1,29 @@
+name: MM star-player large-lead substitution backtest
+on:
+  push:
+    branches: [free-github-static-20261010]
+    paths:
+      - scripts/experiment_mm_big_lead_starter_substitution.py
+      - .github/workflows/mm-big-lead-substitution.yml
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  score-at-substitution:
+    runs-on: ubuntu-latest
+    timeout-minutes: 19
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install data-science dependencies
+        run: pip install pandas numpy requests
+      - name: Reconcile live match state at substitution against 2025-26 archived fixtures
+        run: python scripts/experiment_mm_big_lead_starter_substitution.py
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: big-lead-starter-duration-ab
+          path: work/live-final-model/mm_big_lead_protected_starter_duration_ab.json
+          retention-days: 30
