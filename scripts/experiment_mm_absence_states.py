@@ -27,7 +27,7 @@ H=ROOT/'analysis/results/fa-match-importance-20261006-v1/all_features_fa_mi.csv.
 N=ROOT/'data_v1_1/derived/team_news_audit/2025-26-v2'
 OUT=ROOT/'work/live-final-model/mm_absence_states_and_return_calibration.json'
 
-medical={'OUT','SUSPENDED','DOUBT','MAJOR_DOUBT'}
+medical={'OUT','DOUBT','MAJOR_DOUBT'}
 ready={'AVAILABLE','RETURNED_AVAILABLE'}
 def metrics(df,pcol,xcol):
     n=len(df)
@@ -79,15 +79,18 @@ def build():
         def z(row):return row is not None and row[1]==0.
         anchors=sum(st(t) for t in past[2:6])
         pre_anchors=sum(st(t) for t in past[1:5])
-        if current in ('OUT','SUSPENDED'): label='currently_hard_out'
+        if current=='SUSPENDED':label='currently_suspended'
+        elif current=='OUT':label='currently_medically_unavailable'
         elif current in ('DOUBT','MAJOR_DOUBT'):label='currently_doubtful'
         elif z(past[0]) and pre_anchors>=2:
-            if status1 in ('OUT','SUSPENDED'):label='immediate_return_from_confirmed_unavailable'
+            if status1=='SUSPENDED':label='immediate_return_after_suspension'
+            elif status1=='OUT':label='immediate_return_from_confirmed_unavailable'
             elif status1 in ('DOUBT','MAJOR_DOUBT'):label='immediate_return_after_medical_doubt'
             elif status1 in ready:label='return_after_available_zero_unexplained'
             else:label='immediate_return_zero_unknown_status'
         elif st(past[0]) and z(past[1]) and anchors>=2:
-            if status2 in ('OUT','SUSPENDED'):label='recovered_starter_after_confirmed_unavailable'
+            if status2=='SUSPENDED':label='recovered_starter_after_suspension'
+            elif status2=='OUT':label='recovered_starter_after_confirmed_unavailable'
             elif status2 in ('DOUBT','MAJOR_DOUBT'):label='recovered_starter_after_medical_doubt'
             elif status2 in ready:label='recovered_starter_after_available_zero_unexplained'
             else:label='recovered_starter_after_zero_unknown_status'
@@ -194,11 +197,44 @@ def main():
         selected_m=float(w[1]);selected_u=float(w[3])
         chosen=project(test,selected_m,selected_u)
         chosen_results=by_slice(chosen)
-    else:chosen_results=None
+        paired=baseline_test[['fixture_uuid','player_uuid','medical_recovered','minutes','y','p_model','x_model']].merge(
+            chosen[['fixture_uuid','player_uuid','p_model','x_model']],
+            on=['fixture_uuid','player_uuid'],how='inner',validate='one_to_one',suffixes=('_base','_candidate'))
+        matched=paired[paired.medical_recovered].copy()
+        def bootstrap(group):
+            if len(group)<10:return None
+            group=group.copy()
+            group['sq_old']=(group.x_model_base-group.minutes)**2
+            group['sq_new']=(group.x_model_candidate-group.minutes)**2
+            group['abs_old']=abs(group.x_model_base-group.minutes)
+            group['abs_new']=abs(group.x_model_candidate-group.minutes)
+            def ll(y,p):
+                p=np.clip(p,1e-9,1-1e-9)
+                return -(y*np.log(p)+(1-y)*np.log(1-p))
+            group['log_old']=ll(group.y,group.p_model_base)
+            group['log_new']=ll(group.y,group.p_model_candidate)
+            cases=group.groupby('fixture_uuid').agg(n=('y','size'),s0=('sq_old','sum'),s1=('sq_new','sum'),
+                a0=('abs_old','sum'),a1=('abs_new','sum'),
+                l0=('log_old','sum'),l1=('log_new','sum'))
+            array=cases.to_numpy(float);num=len(cases);rng=np.random.default_rng(20261012)
+            sample=rng.integers(0,num,size=(3000,num))
+            sampled=array[sample].sum(axis=1)
+            counts=sampled[:,0]
+            rmse=np.sqrt(sampled[:,2]/counts)-np.sqrt(sampled[:,1]/counts)
+            mae=(sampled[:,4]-sampled[:,3])/counts
+            loss=(sampled[:,6]-sampled[:,5])/counts
+            return dict(player_rows=len(group),distinct_matches=num,
+                delta_minute_rmse_ci95=list(map(lambda v:round(float(v),5),np.quantile(rmse,[.025,.975]))),
+                delta_minute_mae_ci95=list(map(lambda v:round(float(v),5),np.quantile(mae,[.025,.975]))),
+                delta_start_logloss_ci95=list(map(lambda v:round(float(v),6),np.quantile(loss,[.025,.975]))),
+                note='Match-cluster resampling, not a new independent season.')
+        uncertainty=bootstrap(matched)
+    else:chosen_results=None;uncertainty=None
     out=dict(classification='READ_ONLY_PREDEADLINE_ABSENCE_STATES_2025_26_REUSED_MM_DIAGNOSTIC',
         sample_rows=len(a),strict_news_rows=len(strict),
         training_windows=dict(development='2025/26 GW22-28',validation='2025/26 GW29-38 (same previously used diagnostic season)'),
-        labels=dict(confirmed_unavailable='Previous GW OUT/SUSPENDED and 0 minutes (historical, pre-target)',
+        labels=dict(confirmed_unavailable='Previous GW OUT and 0 minutes (historical, pre-target); distinct from suspension',
+                    suspension='Previous GW SUSPENDED and 0 minutes; excluded from injury return offset',
                     medical_doubt='Previous GW DOUBT/MAJOR_DOUBT and 0 minutes (not confirmed injured)',
                     unexplained_zero='Previous GW 0 minutes but officially AVAILABLE; this is NOT verified tactical bench',
                     recovered='Player started in most recent GW, had a medically tagged or unexplained 0 two GWs ago'),
@@ -214,6 +250,7 @@ def main():
         development_candidates=scores,
         selected_on_dev_only=best,
         validation_selected_if_eligible=chosen_results,
+        validation_returner_match_bootstrap=uncertainty,
         important_limitations=[
             'Tactical bench membership is not in FPL Team News; AVAILABLE and zero is unclassified, not tactical proof',
             'The saved original MM predictions precede strict news availability in this proxy; both arms receive equal caps',
@@ -225,6 +262,6 @@ def main():
     for label,v in [('COUNTS',dict(sample_rows=len(a),medical_n=medical_n,unexplained_n=unknown_n,dev=out['dev_counts'],test=out['test_counts'])),
                     ('CLASS_METRICS',classes),('DEV_BASE',base_d),
                     ('TEST_BASE',base_t),('CANDIDATES',scores),
-                    ('SELECTED',dict(selected=best,validated=chosen_results))]:
+                    ('SELECTED',dict(selected=best,validated=chosen_results,uncertainty=uncertainty))]:
         print('ABSENCE_MODEL_'+label,json.dumps(v,ensure_ascii=False),flush=True)
 if __name__=='__main__':main()
