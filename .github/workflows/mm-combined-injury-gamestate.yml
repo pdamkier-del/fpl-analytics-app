@@ -1,0 +1,29 @@
+name: Full MM injury and game-state combined test
+on:
+  push:
+    branches: [free-github-static-20261010]
+    paths:
+      - scripts/experiment_mm_combined_injury_and_gamestate.py
+      - .github/workflows/mm-combined-injury-gamestate.yml
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  full-mm:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install numerical and fixture provider dependencies
+        run: pip install -r requirements-model-checkpoint.txt requests scikit-learn
+      - name: Run real frozen full MM with score-at-substitution and medical return alternatives
+        run: python scripts/experiment_mm_combined_injury_and_gamestate.py
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: mm-combined-injury-big-lead-ab
+          path: work/live-final-model/mm_combined_medical_return_and_lead_substitution.json
+          retention-days: 30
