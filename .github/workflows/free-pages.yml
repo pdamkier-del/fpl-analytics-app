@@ -260,6 +260,8 @@ jobs:
                   h=q[q.team_id.eq(20)]
                   print('DEEP_TEAM',h.head(8).to_json(orient='records',date_format='iso'))
           PY
+      - name: Compare Sunderland simple xG xGA baseline with frozen PM (read-only)
+        run: python scripts/audit_sunderland_simple_attack_defence.py
       - name: Audit Le Fée six-GW forecast inputs (read-only)
         run: |
           python - <<'PY'
