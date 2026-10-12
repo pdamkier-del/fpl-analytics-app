@@ -5,10 +5,13 @@ This is an experimental MM shadow forecast. The original final-vFinal
 xP, TS, and publicly certified indicators remain 100% untouched.
 """
 from __future__ import annotations
-import json
+import json,sys
 from pathlib import Path
 import numpy as np
 import pandas as pd
+ROOT=Path(__file__).resolve().parents[1]
+sys.path[:0]=[str(ROOT/'src'),str(ROOT/'scripts')]
+from fpl_v1_1_model.live_availability_boundary import prepare_live_mm_release_candidate
 ROOT=Path(__file__).resolve().parents[1]
 B=ROOT/'data_v1_1/derived/live_locked_inputs/2026-27-v1'
 W=ROOT/'work/live-final-model'
@@ -23,6 +26,19 @@ def main():
         raise ValueError('Unverified experimental configuration')
     original=pd.read_csv(W/'mm_frozen_diagnostic_six_gw.csv.gz',low_memory=False)
     candidate=pd.read_csv(W/'mm_vnext_experimental_six_gw.csv.gz',low_memory=False)
+    origin=int(manifest['target_gw'])
+    def gate_current(source):
+        # Identical public hard-availability release boundary for both arms.
+        curr=source[source.target_gw.eq(origin)].copy()
+        gated=prepare_live_mm_release_candidate(
+            curr,p_start=curr.p_start.to_numpy(float),
+            q_sub=curr.mm_q_sub.to_numpy(float),
+            sub_minutes=curr.mm_sub_minutes.to_numpy(float),
+            origin_gw=origin,news_scoped_gw=origin)
+        fut=source[source.target_gw.ne(origin)].copy()
+        return pd.concat([gated,fut],ignore_index=True)
+    original=gate_current(original)
+    candidate=gate_current(candidate)
     keys=['fixture_uuid','player_uuid','target_gw','team_id','fpl_element']
     if original.duplicated(keys).any() or candidate.duplicated(keys).any():
         raise ValueError('Nonunique MM player fixture rows')
