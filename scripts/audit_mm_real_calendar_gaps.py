@@ -28,8 +28,17 @@ H=ROOT/'analysis/results/fa-match-importance-20261006-v1/all_features_fa_mi.csv.
 W=ROOT/'work/live-final-model'
 OUT=W/'mm_actual_calendar_gap_ab.json'
 
-def pl_calendar():
-    fixtures=[]
+def pl_calendar(model):
+    # The provider's numeric team_code is NOT the archived FPL team_id
+    # (e.g. provider Chelsea=8, FPL Chelsea=7). The match-id home/away
+    # slugs plus the model's certified team name let us build a deterministic
+    # cross-source identity bridge; no unsafe numeric team ID assumption.
+    mapped=model[['team_id','team']].drop_duplicates()
+    if mapped.duplicated('team_id').any() or mapped.duplicated('team').any():
+        raise ValueError('Ambiguous historical FPL team labels')
+    tid_by_slug=dict(zip(mapped.team.astype(str),mapped.team_id.astype(int)))
+    fixtures=[];provider_bridge={}
+    unmatched=set()
     for folder in sorted(RAW.glob('GW*')):
         df=pd.read_csv(folder/'matches.csv',low_memory=False)
         df=df[df.match_id.astype(str).str.contains('25-26-prem-')].copy()
@@ -37,8 +46,17 @@ def pl_calendar():
         for v in df.itertuples(index=False):
             gw=int(v.gameweek);ko=pd.Timestamp(v.kickoff_time)
             if ko.tzinfo is None:ko=ko.tz_localize('UTC')
-            for team in (int(v.home_team),int(v.away_team)):
-                fixtures.append(dict(match_id=str(v.match_id),gw=gw,team_id=team,ko=ko))
+            mid=str(v.match_id)
+            home,away=mid.removeprefix('25-26-prem-').split('-vs-',1)
+            for slug,code in ((home,int(v.home_team)),(away,int(v.away_team))):
+                if slug not in tid_by_slug:
+                    unmatched.add(slug);continue
+                if slug in provider_bridge and provider_bridge[slug]!=code:
+                    raise ValueError('Provider numeric code changes for '+slug)
+                provider_bridge[slug]=code
+                fixtures.append(dict(match_id=mid,gw=gw,team_id=tid_by_slug[slug],ko=ko))
+    if unmatched:raise ValueError('Unmapped historical club slugs: '+str(sorted(unmatched)))
+    if len(provider_bridge)!=20:raise AssertionError('Expected exactly 20 verified cross-provider teams')
     f=pd.DataFrame(fixtures).drop_duplicates(['match_id','team_id'])
     if not 740<=len(f)<=770:raise AssertionError(f'Insufficient 2025/26 verified PL fixtures: {len(f)}')
     f['ko']=pd.to_datetime(f.ko,utc=True)
@@ -191,7 +209,7 @@ def joao_2026_calendar():
 
 def main():
     a,_=build()
-    f=pl_calendar()
+    f=pl_calendar(a)
     a,coverage=attach(a,f)
     if coverage['available_rows']<len(a)*.80:
         print('CALENDAR_MM_MAPPING_DIAGNOSTIC',
