@@ -9,7 +9,8 @@ permissions:
   id-token: write
 concurrency:
   group: fpl-free-pages
-  cancel-in-progress: true
+  # Preserve a running verified build; coalesce newer pushes into the pending build.
+  cancel-in-progress: false
 jobs:
   build-and-deploy:
     runs-on: ubuntu-latest
@@ -68,6 +69,7 @@ jobs:
           node tests/test_classic_manager.js
           node tests/test_classic_profile.js
           node tests/test_catalog_data.js
+          node tests/test_roles_view.js
           node tests/test_match_data.js
           node --check app/match-data.js
           node --check app/classic-catalog.js
