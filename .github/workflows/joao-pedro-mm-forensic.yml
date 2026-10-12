@@ -5,6 +5,7 @@ on:
     paths:
       - scripts/audit_joao_pedro_mm.py
       - scripts/experiment_mm_deadline_workload.py
+      - scripts/audit_mm_return_after_absence.py
       - .github/workflows/joao-pedro-mm-forensic.yml
   workflow_dispatch:
 permissions:
@@ -26,6 +27,8 @@ jobs:
         run: python scripts/audit_joao_pedro_mm.py
       - name: Compare existing MM with workload features projected to each upcoming deadline
         run: python scripts/experiment_mm_deadline_workload.py
+      - name: Audit MM accuracy after one-game absences on historical 2025-26 cohort
+        run: python scripts/audit_mm_return_after_absence.py
       - uses: actions/upload-artifact@v4
         if: always()
         with:
@@ -33,4 +36,5 @@ jobs:
           path: |
             work/live-final-model/joao_pedro_mm_forensic.json
             work/live-final-model/joao_mm_workload_deadline_ab.json
+            work/live-final-model/mm_return_absence_calibration.json
           retention-days: 30
