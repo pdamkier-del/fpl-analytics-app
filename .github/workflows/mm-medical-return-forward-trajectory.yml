@@ -1,0 +1,29 @@
+name: MM medical return future trajectory study
+on:
+  push:
+    branches: [free-github-static-20261010]
+    paths:
+      - scripts/audit_mm_medical_return_forward_trajectory.py
+      - .github/workflows/mm-medical-return-forward-trajectory.yml
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  trajectory:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install historical modelling dependencies
+        run: pip install -r requirements-model-checkpoint.txt
+      - name: Study post-absence starts and minutes for next six real PL games
+        run: python scripts/audit_mm_medical_return_forward_trajectory.py
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: medical-return-forward-trajectory
+          path: work/live-final-model/mm_medical_return_forward_trajectory.json
+          retention-days: 30
