@@ -68,7 +68,7 @@ report=dict(classification='READ_ONLY_START_DURATION_SMOOTHING_REUSED_2025_26_DI
     selected_on_dev=selection,
     holdout_gw29_38_returners={c:metric(holdco,c) for c in cols},
     holdout_gw29_38_all={c:metric(hold,c) for c in cols},
-    returner_examples=cohort.sort_values('old_starter_mean')[['player','team','gw','healthy_starter_mean','old_starter_mean','mm_p_start','mm_xmins','minutes','smoothed_0.5']].head(10).round(3).to_dict('records'),
+    returner_examples=p[p.returner].sort_values('old_starter_mean')[['player','team','gw','healthy_starter_mean','old_starter_mean','mm_p_start','mm_xmins','minutes','smoothed_0.5']].head(10).round(3).to_dict('records'),
     frozen_input_changed=False,model_promoted=False,
     limitations='Reused MM results from same 2025/26 season; candidate is not validated on an independent season and is not the exact final live MM including XI',
 )
