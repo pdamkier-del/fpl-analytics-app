@@ -248,7 +248,7 @@ def live():
                 current_global_50_goals_xg_factor=round(league_factor,6),
                 global_50_diagnostic_adjusted_sunderland=round(float(sun.lam.mean()*league_factor),5),
                 sunderland=sunreport,
-                caution='Only 5-6 GWs, current goals from FPL credited players not official scorelines')
+                caution='2026/27 sample covers only 5 completed GWs and GW3-5 walkforward; official scorelines verified and reconciled to FPL credited player goals')
 
 def main():
     m,h=load_2025()
