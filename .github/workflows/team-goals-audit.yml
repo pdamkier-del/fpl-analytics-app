@@ -4,6 +4,7 @@ on:
     branches: [free-github-static-20261010]
     paths:
       - scripts/audit_frozen_team_goal_bias.py
+      - scripts/audit_early_season_goal_calibration.py
       - .github/workflows/team-goals-audit.yml
   workflow_dispatch:
 permissions:
@@ -23,3 +24,5 @@ jobs:
         run: python scripts/current_diagnostic_checkpoint.py restore
       - name: Audit original frozen team goal model versus historical actual scores
         run: python scripts/audit_frozen_team_goal_bias.py
+      - name: Evaluate temporally-decaying real-goals and xG team forecast alternative
+        run: python scripts/audit_early_season_goal_calibration.py
