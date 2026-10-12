@@ -24,12 +24,12 @@ def medical_return_mask(history,target,origin):
     """Strict known-before-deadline medical return after one verified missed GW."""
     states={'OUT','DOUBT','MAJOR_DOUBT'}
     eligible={'AVAILABLE','RETURNED_AVAILABLE'}
-    if not {'gw','player_uuid','started','minutes','team_news_state'}.issubset(history.columns):
+    if not {'gw','player_uuid','y','minutes','team_news_state'}.issubset(history.columns):
         raise ValueError('Unavailable historical medical state for vNext')
     past=history[history.gw.between(origin-6,origin-1)]
     counts=past.groupby(['player_uuid','gw']).size()
     ambiguous=set(counts[counts>1].index)
-    facts={(str(r.player_uuid),int(r.gw)):(int(r.started),float(r.minutes),str(r.team_news_state))
+    facts={(str(r.player_uuid),int(r.gw)):(int(r.y),float(r.minutes),str(r.team_news_state))
            for r in past.itertuples(index=False) if (r.player_uuid,r.gw) not in ambiguous}
     current=target[target.target_gw.eq(origin)]
     if current.player_uuid.duplicated().any():raise ValueError('Duplicate player in target')
