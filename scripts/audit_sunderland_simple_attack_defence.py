@@ -23,3 +23,13 @@ for r in sub.itertuples(index=False):
     simple=teamxg*opxga/league
     frozen=float(r.lambda_home_goals if r.home_team_id==20 else r.lambda_away_goals)
     print('BASE_COMPARE',dict(gw=int(r.target_gw),opponent_id=opponent,sunderland_hist_xg=round(teamxg,3),opponent_hist_xga=round(opxga,3),simple_opponent_adjusted_xg=round(simple,3),frozen_PM_goals=round(frozen,3),gap=round(frozen-simple,3)))
+
+# Diagnose the observed finishing gap using exactly the same completed fixtures.
+ph=pd.read_csv(B/'player_fixture_observations.csv.gz',low_memory=False)
+side=ph.groupby(['fixture_uuid','team_id'],as_index=False).agg(actual_goals=('goals','sum'),actual_assists=('fpl_assists','sum'),observed_xg=('xg','sum'))
+same=h.merge(side,on=['fixture_uuid','team_id'],how='left',validate='one_to_one')
+sun=same[same.team_id.eq(20)].sort_values('gw')
+print('FINISH_SUNDERLAND_MATCHES',sun[['gw','xg','observed_xg','actual_goals','actual_assists']].to_json(orient='records'))
+print('FINISH_SUNDERLAND_TOTAL',dict(games=len(sun),xg=round(float(sun.xg.sum()),3),goals=round(float(sun.actual_goals.sum()),3),goals_per_game=round(float(sun.actual_goals.mean()),3),xg_per_game=round(float(sun.xg.mean()),3),finishing_ratio=round(float(sun.actual_goals.sum()/sun.xg.sum()),3)))
+le=ph[ph.fpl_element.eq(542)].sort_values('gw')
+print('FINISH_LEFEE',dict(games=len(le),minutes=float(le.minutes.sum()),xg=float(le.xg.sum()),xa=float(le.xa.sum()),goals=float(le.goals.sum()),fpl_assists=float(le.fpl_assists.sum())))
