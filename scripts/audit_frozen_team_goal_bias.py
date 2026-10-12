@@ -162,6 +162,37 @@ def live():
     h=h.merge(g,on=['fixture_uuid','team_id'],how='inner',validate='one_to_one')
     h=h.rename(columns={'goals':'actual'})
     assert len(h)>=80 and h.team_id.nunique()==20
+    original_player_goals=float(h.actual.sum())
+    # Verify match outcomes against official FPL fixture SCORELINES.
+    # FPL player-credit goals omit own goals; scorelines do not.
+    # Never fill missing scores with fabricated outcomes.
+    official=json.loads((ROOT/'work/live-final-model/fixtures.json').read_text())
+    by_id={int(v['id']):v for v in official}
+    actual_scores=[];discrepancies=[]
+    for v in h.itertuples(index=False):
+        fixture_id=int(str(v.fixture_uuid).split('-')[-1])
+        fx=by_id.get(fixture_id)
+        if (fx is None or not fx.get('finished') or
+            fx.get('team_h_score') is None or fx.get('team_a_score') is None):
+            actual_scores.append(np.nan)
+            continue
+        expected_home=int(fx['team_h']);expected_away=int(fx['team_a'])
+        if (bool(v.was_home) and expected_home!=int(v.team_id) or
+            not bool(v.was_home) and expected_away!=int(v.team_id)):
+            raise ValueError('Official fixture team identity mismatch')
+        outcome=float(fx['team_h_score'] if bool(v.was_home) else fx['team_a_score'])
+        actual_scores.append(outcome)
+        if abs(outcome-float(v.actual))>1e-10:
+            discrepancies.append(dict(fixture_id=fixture_id,team=int(v.team_id),
+                                      scoreline=outcome,player_credited_goals=float(v.actual)))
+    if not np.isfinite(actual_scores).all():
+        raise ValueError('Incomplete official historical scorelines; no result substitution')
+    h['actual']=actual_scores
+    reconciliation=dict(official_fixture_sides=len(actual_scores),
+                        player_credited_goal_total=original_player_goals,
+                        official_scoreline_goal_total=float(h.actual.sum()),
+                        side_mismatches=len(discrepancies),
+                        examples=discrepancies[:6])
     # Only completed historical fixtures and only earlier GWs for each prediction.
     fxs=[]
     for f,grp in h.groupby('fixture_uuid'):
@@ -178,8 +209,11 @@ def live():
     if len(r)<30:raise AssertionError(f'not enough 2026 walkforward, got {len(r)}')
     o=score(r)
     tail=score(r[r.pred>=2]) if (r.pred>=2).any() else None
+    alternatives={col:score(r,col) for col in ['pred','global_50','goalblend_0.25','goalblend_0.5','goalblend_1.0']}
+    rows_by_gw=[dict(gw=int(gw),**score(z)) for gw,z in r.groupby('gw')]
     league=dict(games=int(len(h)/2),xg=round(float(h.xg.sum()),4),
-                fpl_credited_goals=round(float(h.actual.sum()),4),
+                official_scoreline_goals=round(float(h.actual.sum()),4),
+                fpl_credited_goals=round(original_player_goals,4),
                 xg_per_side=round(float(h.xg.mean()),5),
                 goals_per_side=round(float(h.actual.mean()),5))
     sides=[]
@@ -199,8 +233,9 @@ def live():
     ranked=v.groupby('team').lam.agg(['mean','count']).sort_values('mean',ascending=False).head(10)
     league_factor=(float(h.actual.sum())+50.)/(float(h.xg.sum())+50.)
     return dict(classification='CURRENT_2026_27_SOURCE_LIMITED_WALKFORWARD_NOT_PM_CERTIFICATION',
-                historical_league=league,
-                gw3_to_latest_walkforward=score(r),
+                historical_league=league,scoreline_reconciliation=reconciliation,
+                gw3_to_latest_walkforward=score(r),early_alternative_scores=alternatives,
+                gw3_to_latest_by_gw=rows_by_gw,
                 high_predicted_lambda_walkforward=tail,
                 tested_gws=sorted(map(int,r.gw.unique())),
                 forward_sides=len(r),
@@ -217,10 +252,15 @@ def live():
 
 def main():
     m,h=load_2025()
-    raw=compute_gws(m,h,min_gw=6)
+    raw=compute_gws(m,h,min_gw=3)
     assert raw.match_id.nunique()>=300
     hold=select_holdout(raw)
+    early=raw[raw.gw.between(3,5)]
+    early_baseline=score(early)
+    early_high=score(early[early.pred>=2]) if (early.pred>=2).any() else None
     report=dict(classification='READ_ONLY_ORIGINAL_FROZEN_TEAM_LATENT_WALKFORWARD_GOAL_BIAS_AUDIT',
+                historical_early_gw3_5=dict(baseline=early_baseline,high_predicted_lambdas=early_high,
+                                          lambda_ge2=int((early.pred>=2).sum())),
                 historical_2025_26_coverage=dict(matches=int(m.match_id.nunique()),
                     team_sides=int(len(h)),teams=int(h.team_id.nunique())),
                 historical=hold,live=live(),production_model_changed=False,
@@ -229,6 +269,7 @@ def main():
     OUT.parent.mkdir(parents=True,exist_ok=True)
     OUT.write_text(json.dumps(report,indent=2,ensure_ascii=False)+'\n',encoding='utf-8')
     print('TEAM_GOALS_COVERAGE',json.dumps(report['historical_2025_26_coverage']))
+    print('TEAM_GOALS_EARLY_2025',json.dumps(report['historical_early_gw3_5']))
     print('TEAM_GOALS_HOLDOUT',json.dumps({k:hold[k] for k in ['chosen_on_dev','holdout_all','holdout_by_original_prediction','holdout_original_over_actual_95ci_pct','chosen_minus_original_deviance_95ci']}))
     print('TEAM_GOALS_DEVELOPMENT',json.dumps({k:hold['dev'][k] for k in hold['dev']}))
     print('TEAM_GOALS_LIVE',json.dumps(report['live']))
