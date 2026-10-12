@@ -4,6 +4,7 @@ on:
     branches: [free-github-static-20261010]
     paths:
       - scripts/experiment_mm_absence_states.py
+      - scripts/experiment_mm_live_medical_return.py
       - .github/workflows/mm-absence-experiment.yml
   workflow_dispatch:
 permissions:
@@ -21,9 +22,15 @@ jobs:
         run: pip install -r requirements-model-checkpoint.txt requests
       - name: Classify cutoff-safe injury, doubt and unexplained absence, then score candidate
         run: python scripts/experiment_mm_absence_states.py
+      - name: Restore exact currently published original MM forecast inputs
+        run: python scripts/current_diagnostic_checkpoint.py restore
+      - name: Compare original and medical-return-adjusted current GW7 xM
+        run: python scripts/experiment_mm_live_medical_return.py
       - uses: actions/upload-artifact@v4
         if: always()
         with:
           name: mm-return-injury-available-classification
-          path: work/live-final-model/mm_absence_states_and_return_calibration.json
+          path: |
+            work/live-final-model/mm_absence_states_and_return_calibration.json
+            work/live-final-model/joao_pedro_medical_return_gw7_candidate.json
           retention-days: 30
