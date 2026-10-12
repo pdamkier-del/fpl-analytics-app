@@ -21,6 +21,8 @@ for r in m.itertuples(index=False):
     events=facts.get('events',{}).get('events',[])
     goals=[{k:e.get(k) for k in ['type','time','timeStr','isHome','homeScore','awayScore','ownGoal','isPenaltyShootoutEvent']}
            for e in events if str(e.get('type','')).lower() in ('goal','owngoal')]
+    substitutes=[e for e in events if e.get('type')=='Substitution']
+    print('GAME_STATE_SOURCE_SUB_EVENT',json.dumps(dict(id=int(r.fotmob_id),examples=substitutes[:3]),ensure_ascii=False)[:4700],flush=True)
     print('GAME_STATE_SOURCE_MATCH',json.dumps(dict(id=int(r.fotmob_id),
        general={k:z.get('general',{}).get(k) for k in ['finished','matchName']},
        full_score=[r.home_score,r.away_score],
