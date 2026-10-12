@@ -85,12 +85,48 @@ def main():
             info.append(dict(gw=gw,team=str(v.team),player=str(v.player),
                 prior_bench_gw=gw-2, prior_bench_verification='CONFIRMED_UNUSED_BENCH',
                 actual_start=int(v.y),actual_minutes=float(v.minutes),forecast_pstart=float(v.mm_p_start)))
+    # Pair *previous* matchday-squad membership and previous official available
+    # pre-deadline status against the next target. No target-GW lineup information.
+    sys.path.insert(0,str(ROOT/'src'))
+    from fpl_v1_1_model.team_news_history import read_split_gzip_jsonl,validate_strict_projection
+    strict=validate_strict_projection(read_split_gzip_jsonl(
+        ROOT/'data_v1_1/derived/team_news_audit/2025-26-v2'))
+    states={(int(v.gw),str(v.player_uuid)):str(v.normalized_availability_state)
+            for v in strict.itertuples(index=False)}
+    observations={}
+    for (pid,gw),g in hh.groupby(['player_uuid','gw']):
+        if len(g)==1:observations[(str(pid),int(gw))]=dict(y=int(g.y.iloc[0]),minutes=float(g.minutes.iloc[0]))
+    return_cases=[]
+    for v in pred.itertuples(index=False):
+        pid=str(v.player_uuid);gw=int(v.gw)
+        t1=observations.get((pid,gw-1));t2=observations.get((pid,gw-2))
+        recent=sum(observations.get((pid,gw-k),{}).get('y',0) for k in range(3,7))
+        status2=states.get((gw-2,pid),'UNKNOWN')
+        status1=states.get((gw-1,pid),'UNKNOWN')
+        label=None
+        if (t1 and t2 and int(t1['y'])==1 and float(t2['minutes'])==0 and
+            recent>=2 and status2 in {'AVAILABLE','RETURNED_AVAILABLE'}):
+            label='prior_available_zero_confirmed_unused_bench' if (pid,gw-2) in bench_keys else 'prior_available_zero_not_bench_verified'
+        elif (t1 and float(t1['minutes'])==0 and status1 in {'AVAILABLE','RETURNED_AVAILABLE'}):
+            label='last_available_zero_confirmed_unused_bench' if (pid,gw-1) in bench_keys else 'last_available_zero_not_bench_verified'
+        if label:
+            return_cases.append(dict(group=label,p_start=float(v.mm_p_start),xmins=float(v.mm_xmins),
+                                     actual_start=int(v.y),actual_minutes=float(v.minutes)))
+    bench_segment={}
+    if return_cases:
+        frame=pd.DataFrame(return_cases)
+        for label,g in frame.groupby('group'):
+            bench_segment[label]=dict(n=len(g),pstart_mean=round(float(g.p_start.mean()),5),
+                actual_start_rate=round(float(g.actual_start.mean()),5),
+                predicted_xmins=round(float(g.xmins.mean()),4),
+                actual_minutes=round(float(g.actual_minutes.mean()),4))
     out=dict(classification='RETROSPECTIVE_CONFIRMED_UNUSED_BENCH_PRIOR_GW_EVIDENCE_READ_ONLY',
         raw_confirmed_pl_lineup_rows=len(lu),raw_confirmed_pl_bench_id_rows=int(len(lu[(~lu.is_starting.astype(str).str.lower().isin(['true','1'])) &lu.player_id.notna()])),
         mapped_id_uuid_pairs=len(to_uuid),unambiguous_starter_name_anchors=len(anchors),
         mapped_bench_player_fixtures=len(bench),
         confirmed_unused_bench_fixture_players=len(evidence),
         confirmed_unused_prior_gw_cases_in_2025_scored_forecasts=len(info),
+        before_target_bench_segments=bench_segment,
         examples=info[:25],caution='No unused-bench proof for all other AVAILABLE zero minute observations; do not infer tactical nonselection',
         historical_source_only=True,app_changed=False)
     OUT.parent.mkdir(parents=True,exist_ok=True)
