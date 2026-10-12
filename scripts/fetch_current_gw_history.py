@@ -9,6 +9,7 @@ import json,time
 from urllib.request import Request,urlopen
 from pathlib import Path
 from datetime import datetime,timezone
+from fpl_match_status import played
 ROOT=Path(__file__).resolve().parents[1];APP=ROOT/"app"
 FIELDS=("minutes","starts","total_points","goals_scored","assists","expected_goals",
         "expected_assists","expected_goal_involvements","expected_goals_conceded",
@@ -56,7 +57,7 @@ def main():
     (APP/"historical-gw-stats.json").write_text(json.dumps(out,ensure_ascii=False,separators=(",",":"),allow_nan=False))
     # Independent UI feed may include finished matches in an incomplete GW.
     # Such outcomes never enter the completed-GW model history above.
-    for n in sorted({f['gw'] for f in fixtures['fixtures'] if f.get('finished') and isinstance(f.get('gw'),int) and f['gw']<gw}):
+    for n in sorted({f['gw'] for f in fixtures['fixtures'] if played(f) and isinstance(f.get('gw'),int) and f['gw']<gw}):
         if n not in display_events:display_events[n]=load(n)
     from build_match_display import write
     write(official,fixtures,display_events,APP/"match-results.json")

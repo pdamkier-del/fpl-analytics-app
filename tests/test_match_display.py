@@ -25,3 +25,13 @@ def test_snapshot_and_identity_gates():
     with pytest.raises(ValueError):build(official,fixtures,events)
     fixtures['fetched_at']='now';events[1]['elements'][0]['explain'][0]['fixture']=999
     with pytest.raises(ValueError):build(official,fixtures,events)
+
+def test_provisional_match_in_partial_gw_is_visible_but_not_a_final_gw():
+    o,fx,events=inputs()
+    fx['fixtures'][0].update(finished=False,finished_provisional=True,started=True,minutes=90)
+    out=build(o,fx,events)
+    r=next(r for r in out['match_rows'] if r['fixture_id']==10)
+    assert r['provisional'] is True
+    assert 1 not in out['completed_gws']
+    assert r['stats']['minutes']==0
+    assert not next(r for r in out['gw_rows'] if r['gw']==1)['gw_complete']

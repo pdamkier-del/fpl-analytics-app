@@ -18,6 +18,7 @@ def main():
     for f in fixtures:
         clean.append({"id":f["id"],"gw":f.get("event"),"kickoff":f.get("kickoff_time"),
           "started":f.get("started",False),"finished":f.get("finished",False),
+          "finished_provisional":f.get("finished_provisional",False),"minutes":f.get("minutes"),
           "home":f["team_h"],"away":f["team_a"],"difficulty_home":f.get("team_h_difficulty"),"difficulty_away":f.get("team_a_difficulty"),"home_score":f.get("team_h_score"),
           "away_score":f.get("team_a_score"),"stats":f.get("stats") or []})
     next_event=next((e for e in bootstrap.get("events",[]) if e.get("is_next")),None)

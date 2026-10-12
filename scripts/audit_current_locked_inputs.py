@@ -19,6 +19,7 @@ from run_mm_v2_team_news_availability_experiment import policy_caps
 from run_mm_unified_official_roles import compose
 from fpl_v1_1_model.archived_current_season_cohorts import load_archived_rosters
 from live_historical_membership import recover_zero_club
+from fpl_match_status import cutoff_safe
 WORK=ROOT/'work/live-final-model';OUT=ROOT/'data_v1_1/derived/live_locked_inputs/2026-27-v1'
 def readjl(p):return [json.loads(r) for r in gzip.decompress(p.read_bytes()).splitlines()]
 def dump(p,v):p.parent.mkdir(parents=True,exist_ok=True);p.write_text(json.dumps(v,ensure_ascii=False,indent=2,allow_nan=False)+'\n')
@@ -88,7 +89,9 @@ def materialize(horizon_end=None):
    fid=row['id'];matchids=[x['fixture'] for x in row.get('explain',[])];who=ids.get(fid)
    if not who or not who.get('player_uuid'):unresolved.append(dict(gw=n,fpl_element=fid,reason='No stable identity'));continue
    if len(matchids)!=1:unresolved.append(dict(gw=n,fpl_element=fid,reason='Missing/split fixture statistics; preserve raw'));continue
-   f=flookup[matchids[0]];tid=people[fid]['team']
+   f=flookup[matchids[0]]
+   if not cutoff_safe(f,asof):continue
+   tid=people[fid]['team']
    historical_team={r['team_id'] for r in events if r['player_id']==fid and gmap[r['match_id']]['gameweek']==n and gmap[r['match_id']]['kickoff_time']==pd.Timestamp(f['kickoff_time']).isoformat()}
    if len(historical_team)==1:tid=next(iter(historical_team))
    elif not historical_team:

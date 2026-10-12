@@ -13,3 +13,8 @@ assert.match(D.teamStats({...fx.fixtures[0],stats:[]},o),/Not Available/,'Absent
 assert.match(D.highlights(fx.fixtures[0],o),/&lt;One&gt;/);assert.doesNotMatch(D.highlights(fx.fixtures[0],o),/<a /);
 
 const expanded=D.view(s,o,fx).fixtureDetails(fx.fixtures[0],true);assert.doesNotMatch(expanded,/<details|<summary/,'Expanded match centre must show events without disclosure clicks');assert.match(expanded,/match-event-card/);assert.match(expanded,/Mål/);assert.match(portrait,/premierleague25/,'Use current official portrait collection');
+const membership=D.sideIds({stats:[{identifier:'bps',h:[{element:1,value:10}],a:[{element:2,value:10}]},{identifier:'defensive_contribution',h:[{element:3,value:9}],a:[]}]});
+assert.deepEqual([...membership.home],[1,3],'Zero-BPS starter is recovered using explicit same-side official DefCon evidence');
+const ambiguous=D.sideIds({stats:[{h:[{element:1}],a:[{element:1}]}]});assert.equal(ambiguous.home.size,0);assert.equal(ambiguous.away.size,0,'Conflicting evidence cannot assign a historical club');
+assert.equal(D.played({finished:false,finished_provisional:true,started:true,minutes:90}),true);
+assert.equal(D.played({finished:false,finished_provisional:true,started:true,minutes:89}),false);

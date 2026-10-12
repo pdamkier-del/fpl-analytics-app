@@ -10,6 +10,7 @@ import csv,gzip,hashlib,json,sqlite3,sys,time,unicodedata,uuid
 from urllib.request import Request,urlopen
 ROOT=Path(__file__).resolve().parents[1];sys.path.insert(0,str(ROOT/'src'))
 from fpl_v1_1_model.team_news_history import normalize_team_news
+from fpl_match_status import cutoff_safe
 WORK=ROOT/'work/live-final-model';WORK.mkdir(parents=True,exist_ok=True)
 CACHE=ROOT/'.cache/current-locked-inputs';CACHE.mkdir(parents=True,exist_ok=True)
 SOURCES=[];ERRORS=[]
@@ -65,7 +66,7 @@ def main():
  ident=[dict(fpl_element=p['id'],fpl_code=c,player_uuid=uuid_map.get(c),identity_rule='new_official_stable_code_registration' if c in new_codes else 'existing_historical_core_stable_code',team_id=p['team'],team_code=teams[p['team']]['code'],name=p['first_name']+' '+p['second_name']) for c,p in players.items()]
  dump(WORK/'current_identity.json',ident);dump(WORK/'bootstrap.json',bootstrap);dump(WORK/'fixtures.json',fixtures)
  for e in bootstrap['events']:
-  if e['id']<gw and e.get('finished'):
+  if e['id']<gw and any(f.get('event')==e['id'] and cutoff_safe(f,now) for f in fixtures):
    capture(f"https://fantasy.premierleague.com/api/event/{e['id']}/live/",base/f"fpl/gw{e['id']}.json")
  news=[]
  for code,p in players.items():
