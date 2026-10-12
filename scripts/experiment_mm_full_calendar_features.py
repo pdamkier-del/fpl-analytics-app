@@ -197,7 +197,7 @@ def run():
         results[label]['reused_test']=evaluate(te_train,test,CANDIDATES[label])
         q=results[label]['reused_test']['overall']
         print('CAL_MM_FULL_REUSED',json.dumps(dict(variant=label,n=results[label]['reused_test']['n'],
-            state_log_loss=q['state_log_loss'],xmins_mae=q['xmins_mae'],xmins_rmse=q['xmins_rmse']),flush=True)
+            state_log_loss=q['state_log_loss'],xmins_mae=q['xmins_mae'],xmins_rmse=q['xmins_rmse'])),flush=True)
     report=dict(classification='RESEARCH_REFIT_OF_FULL_2025_26_MM_WITH_CALENDAR_TIME_FEATURES',
         coverage=coverage,features=CANDIDATES,results=results,
         selected_development_only=selected,
