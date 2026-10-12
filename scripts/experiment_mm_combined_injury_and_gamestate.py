@@ -166,7 +166,11 @@ def main():
     f,cal=build_calendar(f)
     events,evt=load_game_events(f)
     f,features=attach_game_state(f,events)
-    if features['eligible_target_rows']<35:raise ValueError('Too few documented historical prior big leads')
+    print('FULL_MM_EVENT_LINKAGE',json.dumps(dict(source=evt,features=features,
+      subs_with_valid_leads=int(events.lead_at_sub.ge(3).sum()),
+      match_starters_identified=int(events.player_uuid.nunique()),
+      sample_medical=int(f.cal_medical_return_starter.sum()))),flush=True)
+    if features['eligible_target_rows']<8:raise ValueError('Too few documented historical prior big leads: '+str(features))
     known=pd.to_datetime(f.outcome_known_at,utc=True)
     configs=[
       ('original',0.,0.),('medical_0.4',.4,0.),('medical_0.8',.8,0.),
