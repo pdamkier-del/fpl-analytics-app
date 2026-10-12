@@ -262,6 +262,8 @@ jobs:
           PY
       - name: Walk-forward finishing calibration test (read-only)
         run: python scripts/audit_finishing_walkforward.py
+      - name: Historical 2025-26 finishing development and untouched holdout (read-only)
+        run: python scripts/audit_finishing_2025_26_holdout.py
       - name: Compare Sunderland simple xG xGA baseline with frozen PM (read-only)
         run: python scripts/audit_sunderland_simple_attack_defence.py
       - name: Audit Le Fée six-GW forecast inputs (read-only)
