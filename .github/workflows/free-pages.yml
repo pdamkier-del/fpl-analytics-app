@@ -266,6 +266,10 @@ jobs:
         run: python scripts/audit_finishing_2025_26_holdout.py
       - name: A/B compare six-GW xP after tau-50 finishing (read-only)
         run: python scripts/locked_numerical_runtime.py scripts/audit_finishing_player_xp_impact.py
+      - name: Test historical individual goal-assist share concentration with held-out GWs (read-only)
+        run: python scripts/audit_historical_player_share_concentration.py
+      - name: Audit Le Fee historical xG-xA share versus future model allocation (read-only)
+        run: python scripts/audit_live_assist_share_inputs.py
       - name: Compare Sunderland simple xG xGA baseline with frozen PM (read-only)
         run: python scripts/audit_sunderland_simple_attack_defence.py
       - name: Audit Le Fée six-GW forecast inputs (read-only)
