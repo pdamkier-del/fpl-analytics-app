@@ -24,6 +24,31 @@ def load(gw):
         except Exception:
             if attempt==2:raise
             time.sleep(2*(attempt+1))
+def historical_sides(fixtures,events):
+    """Recover missing official match sides without assuming today's club."""
+    matches={f['id']:f for f in fixtures['fixtures']};needed=set()
+    for event in events.values():
+        for row in event.get('elements',[]):
+            if not isinstance((row.get('stats') or {}).get('minutes'),(int,float)) or row['stats']['minutes']<=0:continue
+            for item in row.get('explain',[]):
+                f=matches.get(item.get('fixture'))
+                if f and played(f) and not any(entry['element']==row['id'] for s in f.get('stats',[]) for side in ('h','a') for entry in s.get(side,[])):needed.add(row['id'])
+    result={}
+    for player in sorted(needed):
+        try:
+            url=f'https://fantasy.premierleague.com/api/element-summary/{player}/'
+            with urlopen(Request(url,headers={'Accept':'application/json','User-Agent':'FPLAnalytics/1.0'}),timeout=30) as response:history=json.load(response).get('history',[])
+            for row in history:
+                f=matches.get(row.get('fixture'));side=row.get('was_home')
+                if f and played(f) and isinstance(side,bool) and row.get('round')==f['gw']:
+                    key=(player,f['id'])
+                    if key in result and result[key]!=side:raise ValueError('Contradictory official historical match side')
+                    result[key]=side
+        except Exception as error:
+            result={k:v for k,v in result.items() if k[0]!=player}
+            print(f'UI historical side Not Available for FPL-ID {player}: {type(error).__name__}',flush=True)
+    return result
+
 def main():
     official=json.loads((APP/"current-players.json").read_text())
     fixtures=json.loads((APP/"live-fixtures.json").read_text())
@@ -60,6 +85,6 @@ def main():
     for n in sorted({f['gw'] for f in fixtures['fixtures'] if played(f) and isinstance(f.get('gw'),int) and f['gw']<gw}):
         if n not in display_events:display_events[n]=load(n)
     from build_match_display import write
-    write(official,fixtures,display_events,APP/"match-results.json")
+    write(official,fixtures,display_events,APP/"match-results.json",historical_sides(fixtures,display_events))
     print("OFFICIAL GW HISTORY:",len(records),"rows, finished GWs",complete)
 if __name__=="__main__":main()

@@ -35,3 +35,12 @@ def test_provisional_match_in_partial_gw_is_visible_but_not_a_final_gw():
     assert 1 not in out['completed_gws']
     assert r['stats']['minutes']==0
     assert not next(r for r in out['gw_rows'] if r['gw']==1)['gw_complete']
+
+def test_explicit_element_history_recovers_zero_stat_historical_side():
+    o,fx,events=inputs()
+    events[1]['elements'][0]['stats'].update(minutes=90,starts=1)
+    out=build(o,fx,events,{(1,10):False})
+    row=next(r for r in out['match_rows'] if r['fixture_id']==10)
+    assert row['was_home'] is False and row['team_id']==2
+    out=build(o,fx,events,{(1,11):True})
+    assert next(r for r in out['match_rows'] if r['fixture_id']==10)['team_id'] is None

@@ -18,3 +18,4 @@ assert.deepEqual([...membership.home],[1,3],'Zero-BPS starter is recovered using
 const ambiguous=D.sideIds({stats:[{h:[{element:1}],a:[{element:1}]}]});assert.equal(ambiguous.home.size,0);assert.equal(ambiguous.away.size,0,'Conflicting evidence cannot assign a historical club');
 assert.equal(D.played({finished:false,finished_provisional:true,started:true,minutes:90}),true);
 assert.equal(D.played({finished:false,finished_provisional:true,started:true,minutes:89}),false);
+const recovered=D.sideIds({id:10,stats:[]},[{fixture_id:10,player_id:3,was_home:false},{fixture_id:11,player_id:4,was_home:true}]);assert.deepEqual([...recovered.away],[3]);assert.equal(recovered.home.size,0,'Unrelated fixture evidence never adds a player');
