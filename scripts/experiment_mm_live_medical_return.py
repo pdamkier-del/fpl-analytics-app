@@ -43,10 +43,11 @@ def main():
         now=str(r.team_news_state)
         is_return=bool(recent and before and recent['start']==1 and
             before['minutes']==0 and historic_starts>=2 and prev_news in MED and now in READY)
+        is_post_zero=(recent is not None and before is not None
+                      and recent['start']==1 and before['minutes']==0)
         label=('RECOVERED_AFTER_CONFIRMED_UNAVAILABLE' if prev_news in {'OUT','SUSPENDED'} else
                'RECOVERED_AFTER_MEDICAL_DOUBT' if prev_news in {'DOUBT','MAJOR_DOUBT'} else
-               'PREVIOUS_ABSENCE_NOT_MEDICALLY_DOCUMENTED') if recent and before and
-               recent['start']==1 and before['minutes']==0 else 'NO_RECENT_RETURN'
+               'PREVIOUS_ABSENCE_NOT_MEDICALLY_DOCUMENTED') if is_post_zero else 'NO_RECENT_RETURN'
         flagged.append(is_return);categories.append(label)
     current['medical_returner']=flagged
     current['classification']=categories
