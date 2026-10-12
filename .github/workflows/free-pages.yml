@@ -264,6 +264,8 @@ jobs:
         run: python scripts/audit_finishing_walkforward.py
       - name: Historical 2025-26 finishing development and untouched holdout (read-only)
         run: python scripts/audit_finishing_2025_26_holdout.py
+      - name: A/B compare six-GW xP after tau-50 finishing (read-only)
+        run: python scripts/locked_numerical_runtime.py scripts/audit_finishing_player_xp_impact.py
       - name: Compare Sunderland simple xG xGA baseline with frozen PM (read-only)
         run: python scripts/audit_sunderland_simple_attack_defence.py
       - name: Audit Le Fée six-GW forecast inputs (read-only)
