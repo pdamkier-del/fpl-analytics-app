@@ -95,8 +95,8 @@ def attach_game_state(f,events):
                 z['team_id']==tid and z['match_id'] in ids and
                 z['kickoff']+pd.Timedelta(hours=3)<c]
         before.sort(key=lambda v:v['kickoff'])
-        is_star=len(beforeteam)==5 and len(before)>=4 and
-            np.mean([z['minutes'] for z in before])>=75
+        is_star=(len(beforeteam)==5 and len(before)>=4 and
+                 np.mean([z['minutes'] for z in before])>=75)
         last3=before[-3:]
         m=[v for v in last3 if v['substituted'] and not v['injured_sub'] and
            55<=v['minutes']<=83 and v['lead_at_sub'] is not None and v['lead_at_sub']>=3]
