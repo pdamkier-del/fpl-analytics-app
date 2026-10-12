@@ -22,7 +22,7 @@ def version_frontend_assets(app):
     ui_version=ui_hash.hexdigest()[:16]
     # Each published HTML references the exact deployed asset bytes. This avoids
     # a normal reload retaining an older planner UI in the Pages CDN/browser cache.
-    for page in ('overview.html','manager-state.html','my-team-classic.html','transfers-classic.html','player.html','players-classic.html','clubs-classic.html'):
+    for page in ('overview.html','manager-state.html','my-team-classic.html','transfers-classic.html','player.html','players-classic.html','clubs-classic.html','fixtures-classic.html','match-centre.html'):
         path=app/page
         if not path.is_file():continue
         html=path.read_text()
