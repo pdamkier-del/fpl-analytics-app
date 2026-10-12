@@ -59,7 +59,7 @@ def current_focus(selected):
  for pid in [411,12]:
   past=f[f.fpl_element.eq(pid)].sort_values('kickoff_at').to_dict('records');r=inputs[inputs.fpl_element.eq(pid)&inputs.target_gw.eq(7)].iloc[0]
   before=project_minutes(past,duration_half_life=H).expected_minutes_given_start;after=project_minutes(past,duration_half_life=selected).expected_minutes_given_start
-  rows.append(dict(player=r.player,original_start_minutes=before,candidate_start_minutes=after,original_mm_xmins=float(r.xmins),candidate_component_xmins_fixed_p_start=float(r.p_start*after+(1-r.p_start)*r.p_cameo_given_bench*r.cameo_minutes_mean),p_start_unchanged=float(r.p_start),xp_after='Not Available: full PM rerun with this duration candidate has not been validated'))
+  rows.append(dict(player=r.player,original_start_minutes=before,candidate_start_minutes=after,original_mm_xmins=float(r.xmins),candidate_component_xmins_fixed_p_start=float(r.p_start*after+(1-r.p_start)*r.p_cameo_given_bench*r.cameo_minutes_mean),p_start_unchanged=float(r.p_start),xp_after='Not computed in this component experiment; see separate duration_pm_shadow_report.json'))
  return rows
 
 def main():

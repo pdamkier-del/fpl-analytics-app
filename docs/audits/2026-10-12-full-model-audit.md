@@ -10,7 +10,7 @@ No mathematical experiment yet qualifies for promotion. The supported fixes are 
 
 | Priority | Finding | Evidence and candidate action |
 |---|---|---|
-| P0 | Historical replay silently truncates the TS horizon | Authoritative GW6–38 forecast contains 33 origin/target cells versus 183 required. Planner selects available GWs and truncates weights; gaps can compress weights. Add an explicit audit/guard; never manufacture historical future forecasts. |
+| P0 | Historical replay silently truncates the TS horizon | Authoritative GW6–38 forecast contains 33 origin/target cells versus 183 required. Planner selects available GWs and truncates weights; gaps can compress weights. Add an explicit audit/guard and reject missing player-week rows in the live adapter; never manufacture historical future forecasts. |
 | P0 | Cutoff alone does not identify a forecast | Browser cache and backend jobs accepted changed predictions at the same cutoff. Canonical whole-payload SHA-256 now binds request, result and cache, with before/after backend checks. Actual manager-state is preserved. |
 | P1 | Conditional minute means are not preserved by PM | Clipped, rounded Normal(90,10) has mean 86.0122 minutes. Cameo support 1–45 conflicts with some means above 45. A mean-preserving sampler is tested in isolation, not promoted. |
 | P1 | Player profile mixed experimental MM with original PM | vNext xMin/P(start) was shown beside original PM xP, although PM/TS did not use vNext. Primary fields now use original MM; the separate experiment remains linked. |
@@ -77,9 +77,9 @@ Download the pinned benchmark artifact above into `analysis/results/full-model-a
 ## Remaining blockers and readiness
 
 1. Complete historical future fixture/roster/price snapshots at each origin deadline are needed for a faithful full six-GW TS candidate replay. Final realized schedules or later-deadline predictions introduce hindsight. The 2,125 baseline cannot be silently rebuilt with different information and called unchanged.
-2. Exact historical publication/revision clocks remain unknown. Historical roster gaps/conflicting mappings and 334 incomplete BPS rows are unresolved; no repeat of the same 223 source versions is presented as progress.
+2. Exact historical publication/revision clocks remain unknown. Historical roster gaps/conflicting mappings and the original 334 incomplete BPS rows are unresolved; the restored current cutoff actually quarantines 617 rows in total (1,204 verified), including 283 additional rows; no repeat of the same 223 source versions is presented as progress.
 3. 2024/25 supports conditional component tests, not full independent model certification: historic prices/cohorts/future snapshots are incomplete, model training overlaps parts of 2024 and scoring differs by season. Older seasons lack a verified complete aligned MM/PM/TS bundle for this audit. Current 2026 future outcomes are not yet known.
-4. Neither mathematical candidate passes the documented tests. No improved whole-season FPL score is claimed.
+4. No mathematical candidate has passed full PM/TS acceptance. The duration component improves its conditional-minute tests. No improved whole-season FPL score is claimed.
 5. Forecast-ID adoption requires coordinated backend, frontend and publisher rollout. Old unsealed snapshots/plans require refresh. This proposal remains on the separate branch.
 
 Verdict: diagnostic use with explicit freshness/state gates only; not certified live, no mathematical promotion. `locked_model_active=false` remains unchanged.
@@ -135,10 +135,42 @@ A third experiment changes only the shared duration half-life on covered histori
 | Haaland | 80.277 | 86.974 | 68.302 | 73.915 |
 | Saka | 88.972 | 85.687 | 85.255 | 82.119 |
 
-The duration improvement holds in these chronological component checks, making it the best mathematical research candidate so far. Missing 2025 playerstats are excluded, not converted to zero; its observed squad history differs from the full registered-roster MM ledger. Frozen training already overlaps 2024, publication clocks are proxies, and full vFinal / six-GW TS acceptance remains unavailable. It is therefore not enabled in production. Reproduce with `PYTHONPATH=src:scripts python scripts/audit_duration_walkforward.py`.
+The duration improvement holds in these chronological component checks, making it the best mathematical research candidate so far. Missing 2025 playerstats are excluded, not converted to zero; its observed squad history differs from the full registered-roster MM ledger. Frozen training already overlaps 2024, publication clocks are proxies, and full historical vFinal / six-GW TS acceptance remains unavailable. It is therefore not enabled in production. Reproduce with `PYTHONPATH=src:scripts python scripts/audit_duration_walkforward.py`.
 
 Browser audit of the published profiles confirmed Haaland GW7 5.92 xP / 68 min / 84%, Saka 5.74 xP / 85 min / 95%, both labelled MM vNext for minutes while xP remains Original PM. Profile source mixing is observable, not only inferred from code. Candidate primary-profile rendering is exercised against an explicit synthetic transport fixture. No private team was used.
 
 ## Joint start-count weakness
 
 The live 120 team/fixture distributions have mean probability 0.2591 of exactly 11 independently sampled starters, and 0.3724 of more than 11, despite marginal P(start) summing to 11 within 1.2e-12. A research candidate is a conditional joint distribution P(z) proportional to exp(sum_i a_i z_i), restricted to sum_i z_i=11 and legal role assignments. The a_i would be calibrated to preserve the intended marginal probabilities, rather than simply renormalizing an independent draw. This would require an original-input historical point backtest; no such sampler is promoted or substituted here.
+
+## Duration candidate propagated through original PM
+
+All 4,002 forecasts were rebuilt through the original `build_fixture_components` and `assemble` functions. This recomputes goal/assist allocation, nonlinear DefCon calibration, discipline and own-goal probability from new expected exposure. Penalty/BPS rate90 inputs have unchanged role/history covariates. No simplified PM is introduced. Rebuilding original components differs only by CSV-level floating-point rounding (maximum 3.6e-15); original 400-draw point outputs reproduce exactly before applying the candidate.
+
+| Player / GW | Original MM xMin (GW7) | Original simulated xMin | Candidate simulated xMin | Original xP | Candidate xP |
+|---|---:|---:|---:|---:|---:|
+| Haaland / 7 | 68.302 | 68.547 | 70.945 | 5.920 | 5.857 |
+| Haaland / 8 | — | 66.677 | 72.865 | 4.622 | 5.522 |
+| Haaland / 9 | — | 69.093 | 70.845 | 5.332 | 5.277 |
+| Haaland / 10 | — | 67.638 | 72.582 | 4.455 | 4.537 |
+| Haaland / 11 | — | 67.575 | 74.185 | 5.300 | 5.190 |
+| Haaland / 12 | — | 70.293 | 71.280 | 3.695 | 3.510 |
+| Saka / 7 | 85.255 | 82.828 | 78.705 | 5.740 | 5.447 |
+| Saka / 8 | — | 80.222 | 79.332 | 6.237 | 6.457 |
+| Saka / 9 | — | 80.522 | 77.103 | 4.947 | 4.777 |
+| Saka / 10 | — | 81.860 | 78.650 | 6.610 | 6.575 |
+| Saka / 11 | — | 80.975 | 79.403 | 6.423 | 6.513 |
+| Saka / 12 | — | 81.912 | 81.052 | 6.207 | 6.200 |
+
+The original PM sampler is deliberately retained in this experiment, so its clipping bias remains. MM expected minutes and finite-draw simulated minutes are distinct quantities. Current goal outcomes are unknown; these before/after values do not measure accuracy.
+
+Eight independent 400-draw seeds were also tested on the complete two GW7 fixture rosters. Their paired Monte Carlo intervals quantify simulation precision, not predictive uncertainty or historical accuracy:
+
+| Player | Original mean xP | Candidate mean xP | Paired xP delta | Monte Carlo 95% CI |
+|---|---:|---:|---:|---|
+| Haaland | 5.6816 | 5.9569 | +0.2753 | [-0.12958076000925434, 0.6802057600092545] |
+| Saka | 5.5722 | 5.5237 | -0.0484 | [-0.29399339227860605, 0.19711839227860556] |
+
+Both point-delta intervals include zero. The stronger evidence remains the earlier conditional-minute accuracy improvement; full historical PM/TS acceptance is still required. Reproduce with `audit_duration_pm_shadow.py` and then `audit_duration_pm_precision.py` under `locked_numerical_runtime.py`.
+
+Current source-quality correction: 617 BPS player-match rows are quarantined, not just the older 334 investigated rows. Required missing-field counts are chances_created 113, dispossessed 118, was_fouled 292, accurate_passes_percent 18 and tackles_won 284 (overlapping row counts). Only 1,204 rows are verified. No unavailable field is imputed as zero. This is an additional concrete certification blocker.

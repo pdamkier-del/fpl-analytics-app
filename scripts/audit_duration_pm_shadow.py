@@ -26,7 +26,8 @@ def rebuild(joined):
  rolehist=training[['fixture_uuid','player_uuid','team_id','cutoff','max_history_known_at']+QCOLS].copy();perf=pd.read_csv(W/'current_performance_ledger.csv.gz');perf['available_at']=pd.to_datetime(perf.available_at,utc=True);models=load_models()
  preliminary_cols=pd.read_csv(B/'vfinal_player_event_components_6gw.csv.gz',nrows=0).columns
  remove=[c for c in preliminary_cols if c not in ['fixture_uuid','player_uuid','fpl_element','target_gw','team_id','expected_minutes','p_start','live_eligibility_applied','cutoff']];out=[]
- for fx,g in joined.groupby('fixture_uuid',sort=True):
+ for index,(fx,g) in enumerate(joined.groupby('fixture_uuid',sort=True)):
+  if index%10==0:print('Original PM components rebuilt for fixtures',index,flush=True)
   rg=g.drop(columns=remove+RECENT_FEATURES,errors='ignore').copy();rg['expected_minutes']=rg.xmins;rg['evidence_at']=cut;h=int(g.home_team_id.iloc[0]);a=int(g.away_team_id.iloc[0])
   out.append(build_fixture_components(rg,history,rolehist,cut,models['attack'],models['dc'],models['neg'],models['ga'],models['dc_model'],models['dc_cal'],perf,h,a,float(g.lambda_home_goals.iloc[0]),float(g.lambda_away_goals.iloc[0]),float(g.assist_probability_per_goal.iloc[0]),season='2026-27'))
  # Penalty/BPS covariates are role/rate90/history, not expected duration. Reuse

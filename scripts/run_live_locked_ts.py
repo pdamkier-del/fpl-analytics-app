@@ -43,6 +43,8 @@ def project(payload):
     positions={1:'GKP',2:'DEF',3:'MID',4:'FWD'};meta=[];rows=[]
     first=min(payload['gws'])
     for p in payload['players']:
+        if sorted(w['gw'] for w in p['weeks'])!=sorted(payload['gws']):
+            raise ValueError('Incomplete or duplicate player forecast horizon; explicit blank-GW rows required')
         meta.append({'id':p['id'],'web_name':p['name'],'position':positions[p['position']], 'team':p['team_id'],'price_tenths':p['price_tenths']})
         for w in p['weeks']:
             rows.append({'id':p['id'],'web_name':p['name'],'position':positions[p['position']],

@@ -1,0 +1,132 @@
+{
+  "classification": "DURATION_CANDIDATE_ORIGINAL_PM_SHADOW_NOT_PROMOTED",
+  "cutoff": "2026-10-12 10:45:27.093744+00:00",
+  "selected_half_life": 3.0,
+  "selection_period": "2024-25 GW6-21 minimum MAE then MSE",
+  "original_component_max_abs_delta": {
+    "control_p_start": 0.0,
+    "control_xmins": 0.0,
+    "goal_mu": 9.974659986866641e-17,
+    "assist_mu": 9.974659986866641e-17,
+    "mu_dc": 3.552713678800501e-15,
+    "p_yellow": 9.974659986866641e-17,
+    "p_red": 9.974659986866641e-17,
+    "p_own_goal": 9.963817965141786e-17,
+    "lambda_saves": 0.0,
+    "bg_mean_rate90": 3.552713678800501e-15,
+    "bg_sd90": 0.0,
+    "lambda_pen": 0.0,
+    "pen_weight": 2.6469779601696886e-23
+  },
+  "original_pm_outputs_exact": true,
+  "rows": 4002,
+  "draws": 400,
+  "full_mm_refit": false,
+  "full_ts_accuracy_test": false,
+  "promotion_allowed": false,
+  "locked_model_active": false,
+  "focus": [
+    {
+      "player": "Haaland",
+      "target_gw": 7,
+      "expected_minutes_original": 68.5475,
+      "expected_minutes_candidate": 70.945,
+      "xpts_fixture_original": 5.92,
+      "xpts_fixture_candidate": 5.8575
+    },
+    {
+      "player": "Haaland",
+      "target_gw": 8,
+      "expected_minutes_original": 66.6775,
+      "expected_minutes_candidate": 72.865,
+      "xpts_fixture_original": 4.6225,
+      "xpts_fixture_candidate": 5.5225
+    },
+    {
+      "player": "Haaland",
+      "target_gw": 9,
+      "expected_minutes_original": 69.0925,
+      "expected_minutes_candidate": 70.845,
+      "xpts_fixture_original": 5.3325,
+      "xpts_fixture_candidate": 5.2775
+    },
+    {
+      "player": "Haaland",
+      "target_gw": 10,
+      "expected_minutes_original": 67.6375,
+      "expected_minutes_candidate": 72.5825,
+      "xpts_fixture_original": 4.455,
+      "xpts_fixture_candidate": 4.5375
+    },
+    {
+      "player": "Haaland",
+      "target_gw": 11,
+      "expected_minutes_original": 67.575,
+      "expected_minutes_candidate": 74.185,
+      "xpts_fixture_original": 5.3,
+      "xpts_fixture_candidate": 5.19
+    },
+    {
+      "player": "Haaland",
+      "target_gw": 12,
+      "expected_minutes_original": 70.2925,
+      "expected_minutes_candidate": 71.28,
+      "xpts_fixture_original": 3.695,
+      "xpts_fixture_candidate": 3.51
+    },
+    {
+      "player": "Saka",
+      "target_gw": 7,
+      "expected_minutes_original": 82.8275,
+      "expected_minutes_candidate": 78.705,
+      "xpts_fixture_original": 5.74,
+      "xpts_fixture_candidate": 5.4475
+    },
+    {
+      "player": "Saka",
+      "target_gw": 8,
+      "expected_minutes_original": 80.2225,
+      "expected_minutes_candidate": 79.3325,
+      "xpts_fixture_original": 6.2375,
+      "xpts_fixture_candidate": 6.4575
+    },
+    {
+      "player": "Saka",
+      "target_gw": 9,
+      "expected_minutes_original": 80.5225,
+      "expected_minutes_candidate": 77.1025,
+      "xpts_fixture_original": 4.9475,
+      "xpts_fixture_candidate": 4.7775
+    },
+    {
+      "player": "Saka",
+      "target_gw": 10,
+      "expected_minutes_original": 81.86,
+      "expected_minutes_candidate": 78.65,
+      "xpts_fixture_original": 6.61,
+      "xpts_fixture_candidate": 6.575
+    },
+    {
+      "player": "Saka",
+      "target_gw": 11,
+      "expected_minutes_original": 80.975,
+      "expected_minutes_candidate": 79.4025,
+      "xpts_fixture_original": 6.4225,
+      "xpts_fixture_candidate": 6.5125
+    },
+    {
+      "player": "Saka",
+      "target_gw": 12,
+      "expected_minutes_original": 81.9125,
+      "expected_minutes_candidate": 81.0525,
+      "xpts_fixture_original": 6.2075,
+      "xpts_fixture_candidate": 6.2
+    }
+  ],
+  "limitations": [
+    "Original start/sub/workload/role probabilities held fixed; only shared conditional starter duration changes",
+    "Goal/assist allocation, DefCon calibration, discipline and own-goal probability are recomputed by the original PM builder",
+    "Current future point outcomes are not yet observed",
+    "Historical origin-safe full six-GW TS inputs remain incomplete"
+  ]
+}

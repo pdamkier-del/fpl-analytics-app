@@ -27,3 +27,13 @@ def test_single_week_benchmark_is_not_six_week():
 def test_gap_is_rejected_not_weight_compressed():
     frame=pd.DataFrame({'decision_gw':[7]*5,'gw':[7,9,10,11,12]})
     with pytest.raises(ValueError,match='8'):require_horizon(frame,7)
+
+
+def test_live_adapter_does_not_silently_pad_missing_player_week():
+    from run_live_locked_ts import project
+    player={'id':1,'name':'Synthetic contract fixture','position':4,'team_id':1,'price_tenths':50,'weeks':[{'gw':g,'xpts':0.,'p_play':0.,'fixtures':[]} for g in range(7,13)]}
+    payload={'gws':list(range(7,13)),'players':[player]}
+    _,forecast=project(payload)
+    assert len(forecast)==6 # An explicit blank GW is valid; an absent row is not.
+    player['weeks'].pop(1)
+    with pytest.raises(ValueError,match='player forecast horizon'):project(payload)

@@ -1,0 +1,32 @@
+{
+  "classification": "MONTE_CARLO_PRECISION_NOT_ACCURACY_BACKTEST",
+  "replicates": 8,
+  "draws_per_replicate": 400,
+  "seed_base": 93000000,
+  "seed_stride": 100000,
+  "focus": {
+    "Haaland": {
+      "xp_original_mean": 5.6815625,
+      "xp_candidate_mean": 5.956875,
+      "paired_xp_delta": 0.27531250000000007,
+      "monte_carlo_delta_95_ci": [
+        -0.12958076000925434,
+        0.6802057600092545
+      ],
+      "minutes_original_mean": 67.66968750000001,
+      "minutes_candidate_mean": 72.1303125
+    },
+    "Saka": {
+      "xp_original_mean": 5.5721875,
+      "xp_candidate_mean": 5.52375,
+      "paired_xp_delta": -0.048437500000000244,
+      "monte_carlo_delta_95_ci": [
+        -0.29399339227860605,
+        0.19711839227860556
+      ],
+      "minutes_original_mean": 81.79781249999999,
+      "minutes_candidate_mean": 79.47625
+    }
+  },
+  "promotion_allowed": false
+}
