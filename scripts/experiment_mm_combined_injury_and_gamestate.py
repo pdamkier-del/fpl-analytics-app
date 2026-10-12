@@ -59,20 +59,48 @@ def load_game_events(frame):
     classified=pd.read_csv(CLASSIFIED,low_memory=False)
     lines=read_all('lineups')
     lines,team_codes=base_identity(lines,classified)
+    # The archived FPL-core player_id is NOT the FotMob matchDetails
+    # player ID: they have different namespaces. Match only on the same
+    # CONFIRMED 11-player sheet, home/away side and UNIQUE normalized
+    # surname. The first initial must match as an additional safety guard.
+    # Ambiguous surnames are discarded, never guessed.
+    import re,unicodedata
+    def tokens(name):
+        q=unicodedata.normalize('NFKD',str(name))
+        q=''.join(z for z in q if not unicodedata.combining(z))
+        return re.findall(r'[a-z]+',q.lower())
+    def last(name):
+        t=tokens(name)
+        return t[-1] if t else ''
+    def initial(name):
+        t=tokens(name)
+        return t[0][0] if t else ''
     pl=lines[lines.match_id.astype(str).str.contains('25-26-prem-')&
-             lines.player_id.notna()&lines.player_uuid.notna()].copy()
-    pl['player_id']=pl.player_id.astype(int)
-    unique=pl[['match_id','player_id','player_uuid','team_code']].drop_duplicates()
-    unique=unique[~unique.duplicated(['match_id','player_id'],keep=False)]
-    unique['team_id']=unique.team_code.map(team_codes)
-    unique=unique[unique.team_id.notna()]
+             lines.player_uuid.notna()&
+             lines.is_starting.astype(str).str.lower().isin(['true','1','yes'])].copy()
+    pl['surname']=pl.player_name.map(last)
+    pl['first_initial']=pl.player_name.map(initial)
+    pl['team_id']=pl.team_code.map(team_codes)
+    unique=pl[['match_id','team_side','surname','first_initial','player_uuid','team_id']].drop_duplicates()
+    unique=unique[unique.surname.ne('')&unique.team_id.notna()]
+    unique=unique[~unique.duplicated(['match_id','team_side','surname'],keep=False)]
     z=pd.DataFrame(collected)
-    z=z.merge(unique[['match_id','player_id','player_uuid','team_id']],on=['match_id','player_id'],how='inner',validate='many_to_one')
+    z['team_side']=np.where(z.home,'home','away')
+    z['surname']=z.name.map(last)
+    z['first_initial']=z.name.map(initial)
+    z=z[z.surname.ne('')]
+    z=z[~z.duplicated(['match_id','team_side','surname'],keep=False)]
+    z=z.merge(unique,on=['match_id','team_side','surname'],how='inner',
+              validate='one_to_one',suffixes=('_event','_lineup'))
+    z=z[z.first_initial_event.eq(z.first_initial_lineup)].copy()
     z['team_id']=z.team_id.astype(int)
     z['kickoff']=pd.to_datetime(z.kickoff,utc=True)
     if z.duplicated(['match_id','player_uuid']).any():raise ValueError('Ambiguous event lineup identity')
+    # For a full MM test, we need high coverage before proceeding, but never
+    # relax identity safety to chase that coverage.
+    if len(z)<4500:raise ValueError(f'Insufficient unique event-to-UUID starter mapping: {len(z)}')
     return z,dict(provider_matches=len(ff),verified_used_matches=matches,
-                  events_matched_to_uuid=len(z),role_lineup_id_anchors=len(unique),
+                  events_matched_to_uuid=len(z),role_lineup_name_anchors=len(unique),
                   provider_errors=len(err),excluded_matches=exclusions,errors_sample=dict(list(err.items())[:5]))
 
 def attach_game_state(f,events):
