@@ -1,0 +1,29 @@
+name: MM post-injury starter duration validation
+on:
+  push:
+    branches: [free-github-static-20261010]
+    paths:
+      - scripts/experiment_mm_medical_return_starter_duration.py
+      - .github/workflows/mm-medical-return-start-duration.yml
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  duration:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install numeric dependencies
+        run: pip install -r requirements-model-checkpoint.txt
+      - name: Evaluate restored healthy starter minutes versus locked duration on real returns
+        run: python scripts/experiment_mm_medical_return_starter_duration.py
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: mm-medical-return-starter-duration
+          path: work/live-final-model/mm_medical_return_conditional_duration_ab.json
+          retention-days: 30
