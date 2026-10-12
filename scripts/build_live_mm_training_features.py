@@ -7,6 +7,7 @@ predeadline roster. This reconstruction permits diagnostic inference only.
 """
 import json, sys
 from pathlib import Path
+from fpl_match_status import canonical_timestamp
 import numpy as np
 import pandas as pd
 ROOT=Path(__file__).resolve().parents[1]
@@ -112,12 +113,12 @@ def build():
     archived_news=[]
     for r in identities.itertuples(index=False):
         gw=int(r.gw);snapshot=archive[gw][int(r.fpl_element)]
-        observed=archive_evidence[gw]['snapshot_at_utc']
+        observed=canonical_timestamp(archive_evidence[gw]['snapshot_at_utc'])
         if pd.Timestamp(observed)>=cuts[gw]:
             raise ValueError('Post-cutoff archived Team News observation')
         prob=snapshot.get('chance_next')
         archived_news.append(dict(
-            season='2026-27',gw=gw,cutoff=cuts[gw].isoformat(),
+            season='2026-27',gw=gw,cutoff=canonical_timestamp(cuts[gw]),
             player_uuid=str(r.player_uuid),fpl_element=int(r.fpl_element),
             effective_at=observed,observed_at=observed,
             identity_status='mapped',timing_verified=True,tier='strict',

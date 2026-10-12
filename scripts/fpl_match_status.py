@@ -17,3 +17,10 @@ def cutoff_safe(fixture, cutoff):
     if ko.tzinfo is None or at.tzinfo is None:
         raise ValueError('Naive match availability timestamp')
     return ko.astimezone(timezone.utc)+timedelta(hours=4)<at.astimezone(timezone.utc)
+
+def canonical_timestamp(value):
+    """Preserve exact source instant in one explicit ISO format for validators."""
+    at=datetime.fromisoformat(value.replace('Z','+00:00')) if isinstance(value,str) else value
+    if at.tzinfo is None:
+        raise ValueError('Naive source timestamp')
+    return at.astimezone(timezone.utc).isoformat(timespec='microseconds')
