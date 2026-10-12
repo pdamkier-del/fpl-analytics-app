@@ -13,7 +13,7 @@ sys.path[:0]=[str(ROOT/'src'),str(ROOT/'scripts')]
 from fpl_v1_1_model.availability_projection import project_exact_starters_with_caps
 B=ROOT/'data_v1_1/derived/live_locked_inputs/2026-27-v1'
 W=ROOT/'work/live-final-model'
-MED={'OUT','SUSPENDED','DOUBT','MAJOR_DOUBT'}
+MED={'OUT','DOUBT','MAJOR_DOUBT'}
 READY={'AVAILABLE','RETURNED_AVAILABLE'}
 
 def main():
@@ -45,8 +45,9 @@ def main():
             before['minutes']==0 and historic_starts>=2 and prev_news in MED and now in READY)
         is_post_zero=(recent is not None and before is not None
                       and recent['start']==1 and before['minutes']==0)
-        label=('RECOVERED_AFTER_CONFIRMED_UNAVAILABLE' if prev_news in {'OUT','SUSPENDED'} else
+        label=('RECOVERED_AFTER_CONFIRMED_UNAVAILABLE' if prev_news=='OUT' else
                'RECOVERED_AFTER_MEDICAL_DOUBT' if prev_news in {'DOUBT','MAJOR_DOUBT'} else
+               'RECOVERED_AFTER_SUSPENSION' if prev_news=='SUSPENDED' else
                'PREVIOUS_ABSENCE_NOT_MEDICALLY_DOCUMENTED') if is_post_zero else 'NO_RECENT_RETURN'
         flagged.append(is_return);categories.append(label)
     current['medical_returner']=flagged
