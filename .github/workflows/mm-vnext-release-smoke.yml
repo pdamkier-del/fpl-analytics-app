@@ -1,0 +1,46 @@
+name: MM vNext isolated release smoke
+on:
+  push:
+    branches: [free-github-static-20261010]
+    paths:
+      - scripts/run_locked_live_mm_inference.py
+      - scripts/publish_mm_vnext_compare.py
+      - app/mm-vnext.html
+      - .github/workflows/mm-vnext-release-smoke.yml
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  verify-mm-vnext:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install frozen MM runtime
+        run: pip install -r requirements-model-checkpoint.txt -r requirements-model-tests.txt requests
+      - name: Restore matching original model checkpoint
+        run: python scripts/current_diagnostic_checkpoint.py restore
+      - name: Compute and validate optional MM vNext output
+        run: |
+          python scripts/run_locked_live_mm_inference.py --vnext-medical-preview
+          python scripts/publish_mm_vnext_compare.py
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          x=json.loads(Path('app/mm-vnext-6gw.json').read_text())
+          assert x['source_observed_at']==json.loads(Path('app/vfinal-diagnostic.json').read_text())['data_asof']
+          assert x['locked_model_active'] is False
+          assert x['production_xp_unchanged'] and x['medical_return_logit']==0.4
+          assert len(x['rows'])==667*6
+          assert len(x['medically_returned_ids'])==x['medically_returned_players']
+          print('MM_VNEXT_EXPERIMENTAL_VERIFIED',x['medically_returned_ids'],x['joao_pedro'])
+          PY
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: mm-vnext-same-cutoff-preview
+          path: app/mm-vnext-6gw.json
+          retention-days: 14
