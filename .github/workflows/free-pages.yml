@@ -207,6 +207,31 @@ jobs:
         run: touch app/.nojekyll
       - name: Publish cutoff-matched weekly display and TC assets
         run: python scripts/publish_weekly_assets.py
+      - name: Trace Le Fee raw offensive rates and allocation (read-only)
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          import pandas as pd
+          base=Path('data_v1_1/derived/live_locked_inputs/2026-27-v1')
+          for name in ['vfinal_live_full_simulator_input.csv.gz','vfinal_live_joined_inputs.csv.gz','vfinal_player_event_components_6gw.csv.gz','future_team_goal_lambdas.csv.gz']:
+              p=base/name
+              if not p.exists():
+                  print('TRACE_MISSING',name);continue
+              df=pd.read_csv(p,low_memory=False)
+              print('TRACE_FILE',name,'rows',len(df),'columns',list(df.columns))
+              if 'fpl_element' in df:
+                  sub=df[df.fpl_element.eq(519)]
+                  print('TRACE_PLAYER_ID_519',len(sub))
+                  # Identify player by FPL id after reading official bootstrap.
+              if 'player_uuid' in df:
+                  fid='fpl_element' if 'fpl_element' in df else None
+                  ids=sorted(df[fid].dropna().unique()) if fid else []
+                  # The frozen FPL ID is read from the forecast, no model change.
+                  if fid:
+                      sub=df[df[fid].eq(519)]
+                      cols=[c for c in ['fpl_element','target_gw','gw','team_id','opponent_team_id','expected_minutes','control_xmins','goal_rate90','assist_rate90','goal_role_prior90','assist_role_prior90','goal_mu','assist_mu','lambda_home_goals','lambda_away_goals','assist_probability_per_goal','perf_last_xgi','perf_last_sot','perf_last_chances'] if c in df]
+                      print('TRACE_SELECTED',name,sub[cols].head(6).to_json(orient='records') if cols else 'none')
+          PY
       - name: Audit Le Fée six-GW forecast inputs (read-only)
         run: |
           python - <<'PY'
