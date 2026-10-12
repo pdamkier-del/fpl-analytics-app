@@ -79,6 +79,6 @@ for row in r.sort_values('target_gw').itertuples(index=False):
         'top_players':top[[c for c in minimal if c in top]].head(18).round(5).to_dict('records')},default=str))
 report=dict(classification='JOAO_PEDRO_MM_FORENSIC_NO_MODEL_CHANGE',id=pid,gws=list(map(int(r.target_gw)),
             latest_xmins=float(r.sort_values('target_gw').xmins.iloc[0]),
-            training_rows=len(p),history_rows=len(h),history_source_gws=sorted(map(int,h.gw.unique())),
+            training_rows=len(past_features[past_features.player_uuid.eq(z.player_uuid.iloc[0])]),history_rows=len(h),history_source_gws=sorted(map(int,h.gw.unique())),
             calculation=rows,cutoff=str(cutoff.iloc[0]),promoted=False)
 out=W/'joao_pedro_mm_forensic.json';out.write_text(json.dumps(report,indent=2)+'\n')
