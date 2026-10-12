@@ -77,6 +77,8 @@ def main():
             raise ValueError('TC scenario publication differs from current forecast')
         result['tc_scenarios']=evidence
         result['blockers']=[b for b in result['blockers'] if not b.startswith('Locked TC future-option')]
+    from fpl_v1_1_model.forecast_snapshot import seal_forecast
+    result=seal_forecast(result)
     a.out.parent.mkdir(parents=True,exist_ok=True);a.out.write_text(json.dumps(result,ensure_ascii=False,allow_nan=False,separators=(',',':'))+'\n')
     print('Published diagnostic only:',result['fixtures'],result['player_fixture_rows'],len(result['players']))
 if __name__=='__main__':main()
