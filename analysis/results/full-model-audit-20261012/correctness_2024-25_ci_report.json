@@ -1,0 +1,127 @@
+{
+  "season": "2024-25",
+  "metrics": {
+    "combined": {
+      "all": {
+        "rows": 24072,
+        "mae": 0.9875439307078764,
+        "rmse": 1.8996646181095647,
+        "minute_mae": 13.593110771851112
+      },
+      "played": {
+        "rows": 10030,
+        "mae": 1.894627118644068,
+        "rmse": 2.819483132525572,
+        "minute_mae": 22.401268943170486
+      },
+      "late": {
+        "rows": 13105,
+        "mae": 0.9424307516215186,
+        "rmse": 1.8472727198048935,
+        "minute_mae": 12.931240175505534
+      },
+      "start_brier": 0.0851368553367025,
+      "mean_start_probability": 0.301595214356929,
+      "actual_start_rate": 0.3015952143569292,
+      "paired_mae_delta": -0.003645417912927883,
+      "fixture_block_bootstrap_95_ci": [
+        -0.005368741244074858,
+        -0.00187155423237183
+      ]
+    },
+    "joint_xi": {
+      "all": {
+        "rows": 24072,
+        "mae": 0.9909483009305418,
+        "rmse": 1.9012443546031073,
+        "minute_mae": 13.608815221003654
+      },
+      "played": {
+        "rows": 10030,
+        "mae": 1.899611415752742,
+        "rmse": 2.820316083737501,
+        "minute_mae": 22.42545787637089
+      },
+      "late": {
+        "rows": 13105,
+        "mae": 0.9469042350247997,
+        "rmse": 1.8501390826484032,
+        "minute_mae": 12.942221861884777
+      },
+      "start_brier": 0.0851368553367025,
+      "mean_start_probability": 0.301595214356929,
+      "actual_start_rate": 0.3015952143569292,
+      "paired_mae_delta": -0.00024104769026254445,
+      "fixture_block_bootstrap_95_ci": [
+        -0.002243168455188822,
+        0.0018094267632563692
+      ]
+    },
+    "original": {
+      "all": {
+        "rows": 24072,
+        "mae": 0.9911893486208041,
+        "rmse": 1.8985672309753479,
+        "minute_mae": 13.650383393832064
+      },
+      "played": {
+        "rows": 10030,
+        "mae": 1.8977627118644065,
+        "rmse": 2.8156636486188367,
+        "minute_mae": 22.10559165649783
+      },
+      "late": {
+        "rows": 13105,
+        "mae": 0.9477937809996184,
+        "rmse": 1.84814559463633,
+        "minute_mae": 12.993384490703725
+      },
+      "start_brier": 0.08522159307307713,
+      "mean_start_probability": 0.30159521435692843,
+      "actual_start_rate": 0.3015952143569292
+    },
+    "own_goals": {
+      "all": {
+        "rows": 24072,
+        "mae": 0.9897750498504486,
+        "rmse": 1.8994702876897158,
+        "minute_mae": 13.642240673811896
+      },
+      "played": {
+        "rows": 10030,
+        "mae": 1.8962953639082751,
+        "rmse": 2.818215197589642,
+        "minute_mae": 22.105825274177466
+      },
+      "late": {
+        "rows": 13105,
+        "mae": 0.9468931705455933,
+        "rmse": 1.8491390050754886,
+        "minute_mae": 12.981233498664633
+      },
+      "start_brier": 0.08522159307307713,
+      "mean_start_probability": 0.30159521435692843,
+      "actual_start_rate": 0.3015952143569292,
+      "paired_mae_delta": -0.0014142987703555981,
+      "fixture_block_bootstrap_95_ci": [
+        -0.003347257807654425,
+        0.00044693325502616777
+      ]
+    }
+  },
+  "failures": [],
+  "provenance": {
+    "source_run": 38375971604,
+    "evaluated_commit": "62374a7fd2cadc1d6c6ddec5d9786121ca3e42e6",
+    "draws": 400,
+    "fixtures": 330,
+    "origins": "GW6–38 current-GW only",
+    "promotion_approved": false,
+    "limitations": [
+      "Reused development data; not independent OOS",
+      "Conditional historical source/publication proxies",
+      "Historical six-GW future forecast cells incomplete",
+      "Original minute expectations analytic, candidate simulated"
+    ]
+  }
+}

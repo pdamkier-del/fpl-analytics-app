@@ -12,7 +12,7 @@ Bench appearances use vacant goalkeeper/outfield slots, at most five normal subs
 
 ## Regression and immutable benchmark
 
-489 local tests passed before the execution environment disconnected, including 5,000 XI draws/calibration, hard caps, false nine, slot/window limits, own-goal clean-sheet denial, conceded points, substitute/penalty overlap, total-mean conservation, invalid probabilities, exception-safe restoration, all three BPS seasons' draw-for-draw equivalence with corrections disabled, and the upper-bound floating timestamp regression.
+489 tests passed locally and in the final GitHub Actions run, including 5,000 XI draws/calibration, hard caps, false nine, slot/window limits, own-goal clean-sheet denial, conceded points, substitute/penalty overlap, total-mean conservation, invalid probabilities, exception-safe restoration, all three BPS seasons' draw-for-draw equivalence with corrections disabled, and the upper-bound floating timestamp regression.
 
 Atomic captures now fsync, verify complete gzip/JSON and replace their final path only after validation. Corrupt input is detected before simulation; per-fixture checkpoints are bound to source records, seeds, evaluator/model hashes and numerical runtime. A truncated local 2024 capture contained 314 intact records. Regenerating GW37–38 from unchanged source recovered the missing tail; all four overlapping records matched exactly and the repaired file contained 330 verified records. No values were filled manually. Cache reuse on two real historical fixtures reproduced all numerical results.
 
@@ -39,6 +39,22 @@ The first 2024 ablation rejected 35 fixtures in the own-goal/combined modes (70 
 
 Inspection confirmed an exposure bug in the existing conditional adapter: penalty occurrence denominators and the league prior counted only matches with a positive penalty-event row. They measured attempts per penalty-match instead of per played match. The corrected adapter counts all known official fixture-side exposures and filters events by the same cutoff, including a regression for a postponed prior-GW game not yet played. It preserves the original occurrence/taker/conversion formulas, half-lives and selected coefficients. The 2025 immutable benchmark and production are not changed. Both original and candidate must be recomputed on the same corrected 2024 inputs before comparison. The original conditional penalty/role/BPS source caveats remain; the correction does not create certification.
 
+
+## Final corrected two-season comparison (62374a7)
+
+The final read-only A/B workflow completed successfully: https://github.com/pdamkier-del/fpl-analytics-app/actions/runs/38375971604 . The separate full audit also passed: https://github.com/pdamkier-del/fpl-analytics-app/actions/runs/38375971613 . All 489 Python regressions, current original forecast identity, JavaScript checks and the original TS accounting assertion passed. Both seasons cover all 330 fixtures, with zero rejected fixture-mode evaluations. The corrected 2024 comparison recomputes **both** sides on the same fixed exposure inputs; it must not be compared directly to the old pre-fix original score.
+
+| 2024/25, 24,072 fixture rows | Point MAE | Point RMSE | Played-player minute MAE |
+| --- | ---: | ---: | ---: |
+| Original on corrected inputs | 0.991189 | 1.898567 | 22.105592 |
+| Own-goal/budget correction | 0.989775 | 1.899470 | 22.105825 |
+| Joint XI | 0.990948 | 1.901244 | 22.425458 |
+| Both | 0.987544 | 1.899665 | 22.401269 |
+
+Combined 2024 paired point MAE delta is -0.003645, fixture-block 95% interval [-0.005369,-0.001872]. Joint-XI-only and own-goal-only 2024 intervals include zero. Start Brier improves 0.085222→0.085137, but combined all-player point RMSE and played-player minute MAE worsen. In 2025, combined played-player point RMSE also worsens 2.924622→2.926763. Small aggregate MAE improvements on reused development periods therefore do **not** establish universal component improvement or independent acceptance.
+
+The full final metrics for all four modes are committed as correctness_2024-25_ci_report.json and correctness_2025-26_ci_report.json, each recording evaluated commit and source run. The previous rejected 2024 report is retained under an explicit pre_exposure_fix filename. Correctness regressions are accepted as candidate evidence; model promotion remains withheld.
+
 ## GW7 focus, eight independent 400-draw seeds
 
 Same audited cutoff 2026-10-12T10:45:27.093744+00:00. Seed averages are precision diagnostics, not the app's original single-seed output or new live recommendations.
@@ -57,4 +73,4 @@ Haaland paired xP delta +0.035938, seed-variation interval [-0.220089,+0.291964]
 
 ## Acceptance
 
-No production promotion or merge. Corrected 2024 comparison must finish; independent origin-safe publication/roster/price/schedule data and complete historical six-GW forecast cells still block whole-chain acceptance. The old 2,125 accounting replay is reproducible but its forecast horizon is incomplete; no candidate TS total is advertised as a true rolling six-GW improvement. Detailed public reports/artifacts contain no private manager-state or purchase prices.
+No production promotion or merge. Corrected 2024 comparison is complete with mixed precision outcomes; independent origin-safe publication/roster/price/schedule data and complete historical six-GW forecast cells still block whole-chain acceptance. The old 2,125 accounting replay is reproducible but its forecast horizon is incomplete; no candidate TS total is advertised as a true rolling six-GW improvement. Detailed public reports/artifacts contain no private manager-state or purchase prices.

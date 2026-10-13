@@ -110,14 +110,18 @@
     }
   },
   "failures": [],
-  "classification": "OFFLINE_CI_ABLATION_NOT_LIVE_CERTIFICATION",
-  "source_run": 38368218223,
-  "evaluated_commit": "0b0a8fc01f7c809ae230befae6a1996a476e97c2",
-  "locked_model_active": false,
-  "promotion_allowed": false,
-  "notes": [
-    "26,159 fixture rows, same complete cohort for all modes",
-    "2025/26 reused model-development period, not independent OOS",
-    "Paired equal seeds; changed random draw ordering, 400 draws per fixture"
-  ]
+  "provenance": {
+    "source_run": 38375971604,
+    "evaluated_commit": "62374a7fd2cadc1d6c6ddec5d9786121ca3e42e6",
+    "draws": 400,
+    "fixtures": 330,
+    "origins": "GW6–38 current-GW only",
+    "promotion_approved": false,
+    "limitations": [
+      "Reused development data; not independent OOS",
+      "Conditional historical source/publication proxies",
+      "Historical six-GW future forecast cells incomplete",
+      "Original minute expectations analytic, candidate simulated"
+    ]
+  }
 }
