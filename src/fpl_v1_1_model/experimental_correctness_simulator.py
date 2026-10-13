@@ -178,7 +178,7 @@ def simulate_match(inp:MatchSimInput,rng:Any,*,own_goals=True,joint_xi=True,trac
             own_mass[opponent]+=probability
             if rng.random()<probability:
                 out[p.player_id].own_goal=1
-                own_events.append((float(rng.uniform(a,b)),opponent,p.player_id))
+                own_events.append((min(float(rng.uniform(a,b)),float(np.nextafter(float(b),float(a)))),opponent,p.player_id))
         hpen=expected_penalty_goals(inp,intervals,inp.home_team,hp)
         apen=expected_penalty_goals(inp,intervals,inp.away_team,ap)
         h_open=float(inp.lambda_home_goals)-hpen-own_mass[inp.home_team]

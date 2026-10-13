@@ -1,0 +1,544 @@
+{
+  "season": "2024-25",
+  "metrics": {
+    "combined": {
+      "all": {
+        "rows": 21579,
+        "mae": 0.9748313174845914,
+        "rmse": 1.9307347530692298,
+        "minute_mae": 13.493356504008528
+      },
+      "played": {
+        "rows": 8959,
+        "mae": 1.8970903560665253,
+        "rmse": 2.889200365104669,
+        "minute_mae": 22.323793113070654
+      },
+      "late": {
+        "rows": 11137,
+        "mae": 0.9275188560653677,
+        "rmse": 1.8811523171313693,
+        "minute_mae": 12.696777408637875
+      },
+      "start_brier": 0.08421394532324601,
+      "mean_start_probability": 0.30075536401130704,
+      "actual_start_rate": 0.3007553640113073,
+      "paired_mae_delta": -0.0014247648176467867,
+      "fixture_block_bootstrap_95_ci": [
+        -0.0035765333574936534,
+        0.0008854783100088338
+      ]
+    },
+    "joint_xi": {
+      "all": {
+        "rows": 24072,
+        "mae": 0.9762491691591891,
+        "rmse": 1.9264790647193895,
+        "minute_mae": 13.59940158690595
+      },
+      "played": {
+        "rows": 10030,
+        "mae": 1.8896485543369894,
+        "rmse": 2.8734731350191827,
+        "minute_mae": 22.40692622133599
+      },
+      "late": {
+        "rows": 13105,
+        "mae": 0.9334721480351011,
+        "rmse": 1.8816141250190472,
+        "minute_mae": 12.925347195726822
+      },
+      "start_brier": 0.0851368553367025,
+      "mean_start_probability": 0.301595214356929,
+      "actual_start_rate": 0.3015952143569292,
+      "paired_mae_delta": 0.0003476030242605507,
+      "fixture_block_bootstrap_95_ci": [
+        -0.001655766205731018,
+        0.0023166856047985157
+      ]
+    },
+    "original": {
+      "all": {
+        "rows": 24072,
+        "mae": 0.9759015661349285,
+        "rmse": 1.9246838237973847,
+        "minute_mae": 13.650383393832064
+      },
+      "played": {
+        "rows": 10030,
+        "mae": 1.8857639581256234,
+        "rmse": 2.869363263254664,
+        "minute_mae": 22.10559165649783
+      },
+      "late": {
+        "rows": 13105,
+        "mae": 0.9341342998855399,
+        "rmse": 1.8811453123025108,
+        "minute_mae": 12.993384490703725
+      },
+      "start_brier": 0.08522159307307713,
+      "mean_start_probability": 0.30159521435692843,
+      "actual_start_rate": 0.3015952143569292
+    },
+    "own_goals": {
+      "all": {
+        "rows": 21579,
+        "mae": 0.9750355669864219,
+        "rmse": 1.931167927143387,
+        "minute_mae": 13.545530492608558
+      },
+      "played": {
+        "rows": 8959,
+        "mae": 1.8958365889050117,
+        "rmse": 2.8896179023451776,
+        "minute_mae": 22.025363042750303
+      },
+      "late": {
+        "rows": 11137,
+        "mae": 0.9292087186854628,
+        "rmse": 1.8821669394274658,
+        "minute_mae": 12.758168941366614
+      },
+      "start_brier": 0.08430112909008602,
+      "mean_start_probability": 0.30075536401130626,
+      "actual_start_rate": 0.3007553640113073,
+      "paired_mae_delta": -0.0012205153158163032,
+      "fixture_block_bootstrap_95_ci": [
+        -0.003352907059328026,
+        0.000964138949898396
+      ]
+    }
+  },
+  "failures": [
+    {
+      "fixture": "aa48a82c-32ea-55a1-b5ab-1000bce4cdb1",
+      "gw": 7,
+      "mode": "own_goals",
+      "error": "Explicit goal components exceed total goal intensity"
+    },
+    {
+      "fixture": "aa48a82c-32ea-55a1-b5ab-1000bce4cdb1",
+      "gw": 7,
+      "mode": "combined",
+      "error": "Explicit goal components exceed total goal intensity"
+    },
+    {
+      "fixture": "905033b0-992f-509b-a291-a8dbac4561b3",
+      "gw": 8,
+      "mode": "own_goals",
+      "error": "Explicit goal components exceed total goal intensity"
+    },
+    {
+      "fixture": "905033b0-992f-509b-a291-a8dbac4561b3",
+      "gw": 8,
+      "mode": "combined",
+      "error": "Explicit goal components exceed total goal intensity"
+    },
+    {
+      "fixture": "5d6995f6-2ff7-5a6c-881f-8b4f38c84baf",
+      "gw": 11,
+      "mode": "own_goals",
+      "error": "Explicit goal components exceed total goal intensity"
+    },
+    {
+      "fixture": "5d6995f6-2ff7-5a6c-881f-8b4f38c84baf",
+      "gw": 11,
+      "mode": "combined",
+      "error": "Explicit goal components exceed total goal intensity"
+    },
+    {
+      "fixture": "f4d310f4-a4a6-56e9-9723-6b88bda2f1dc",
+      "gw": 16,
+      "mode": "own_goals",
+      "error": "Explicit goal components exceed total goal intensity"
+    },
+    {
+      "fixture": "f4d310f4-a4a6-56e9-9723-6b88bda2f1dc",
+      "gw": 16,
+      "mode": "combined",
+      "error": "Explicit goal components exceed total goal intensity"
+    },
+    {
+      "fixture": "1bca9631-8f60-54c1-819e-c3696ba9d853",
+      "gw": 18,
+      "mode": "own_goals",
+      "error": "Explicit goal components exceed total goal intensity"
+    },
+    {
+      "fixture": "1bca9631-8f60-54c1-819e-c3696ba9d853",
+      "gw": 18,
+      "mode": "combined",
+      "error": "Explicit goal components exceed total goal intensity"
+    },
+    {
+      "fixture": "705369a4-00f7-5118-b2fc-fa30c5a6887b",
+      "gw": 18,
+      "mode": "own_goals",
+      "error": "Explicit goal components exceed total goal intensity"
+    },
+    {
+      "fixture": "705369a4-00f7-5118-b2fc-fa30c5a6887b",
+      "gw": 18,
+      "mode": "combined",
+      "error": "Explicit goal components exceed total goal intensity"
+    },
+    {
+      "fixture": "328ae737-2253-5140-8a54-e1d4166d83c5",
+      "gw": 20,
+      "mode": "own_goals",
+      "error": "Explicit goal components exceed total goal intensity"
+    },
+    {
+      "fixture": "328ae737-2253-5140-8a54-e1d4166d83c5",
+      "gw": 20,
+      "mode": "combined",
+      "error": "Explicit goal components exceed total goal intensity"
+    },
+    {
+      "fixture": "dbdb1067-266f-535e-b8d2-280522564fcb",
+      "gw": 21,
+      "mode": "own_goals",
+      "error": "Explicit goal components exceed total goal intensity"
+    },
+    {
+      "fixture": "dbdb1067-266f-535e-b8d2-280522564fcb",
+      "gw": 21,
+      "mode": "combined",
+      "error": "Explicit goal components exceed total goal intensity"
+    },
+    {
+      "fixture": "772c5e85-149a-59af-b6fe-e8bfeb58445e",
+      "gw": 22,
+      "mode": "own_goals",
+      "error": "Explicit goal components exceed total goal intensity"
+    },
+    {
+      "fixture": "772c5e85-149a-59af-b6fe-e8bfeb58445e",
+      "gw": 22,
+      "mode": "combined",
+      "error": "Explicit goal components exceed total goal intensity"
+    },
+    {
+      "fixture": "28c64b14-b699-531d-94c6-8420d53f9bef",
+      "gw": 22,
+      "mode": "own_goals",
+      "error": "Explicit goal components exceed total goal intensity"
+    },
+    {
+      "fixture": "28c64b14-b699-531d-94c6-8420d53f9bef",
+      "gw": 22,
+      "mode": "combined",
+      "error": "Explicit goal components exceed total goal intensity"
+    },
+    {
+      "fixture": "53a70a78-a54a-5b34-a59f-0be58acccbd1",
+      "gw": 23,
+      "mode": "own_goals",
+      "error": "Explicit goal components exceed total goal intensity"
+    },
+    {
+      "fixture": "53a70a78-a54a-5b34-a59f-0be58acccbd1",
+      "gw": 23,
+      "mode": "combined",
+      "error": "Explicit goal components exceed total goal intensity"
+    },
+    {
+      "fixture": "4ab32885-ed58-59de-a35c-e58c8ef5ae21",
+      "gw": 23,
+      "mode": "own_goals",
+      "error": "Explicit goal components exceed total goal intensity"
+    },
+    {
+      "fixture": "4ab32885-ed58-59de-a35c-e58c8ef5ae21",
+      "gw": 23,
+      "mode": "combined",
+      "error": "Explicit goal components exceed total goal intensity"
+    },
+    {
+      "fixture": "82acad73-8cd8-5546-9a0b-a7f26d495b6b",
+      "gw": 24,
+      "mode": "own_goals",
+      "error": "Explicit goal components exceed total goal intensity"
+    },
+    {
+      "fixture": "82acad73-8cd8-5546-9a0b-a7f26d495b6b",
+      "gw": 24,
+      "mode": "combined",
+      "error": "Explicit goal components exceed total goal intensity"
+    },
+    {
+      "fixture": "893ac573-def7-58fa-bf73-77458012d193",
+      "gw": 25,
+      "mode": "own_goals",
+      "error": "Explicit goal components exceed total goal intensity"
+    },
+    {
+      "fixture": "893ac573-def7-58fa-bf73-77458012d193",
+      "gw": 25,
+      "mode": "combined",
+      "error": "Explicit goal components exceed total goal intensity"
+    },
+    {
+      "fixture": "64cd43c7-a4f3-5af4-9968-a96b5fd2de70",
+      "gw": 25,
+      "mode": "own_goals",
+      "error": "Explicit goal components exceed total goal intensity"
+    },
+    {
+      "fixture": "64cd43c7-a4f3-5af4-9968-a96b5fd2de70",
+      "gw": 25,
+      "mode": "combined",
+      "error": "Explicit goal components exceed total goal intensity"
+    },
+    {
+      "fixture": "56c75ea1-ab29-5baa-9a97-19e84ab1f468",
+      "gw": 25,
+      "mode": "own_goals",
+      "error": "Explicit goal components exceed total goal intensity"
+    },
+    {
+      "fixture": "56c75ea1-ab29-5baa-9a97-19e84ab1f468",
+      "gw": 25,
+      "mode": "combined",
+      "error": "Explicit goal components exceed total goal intensity"
+    },
+    {
+      "fixture": "bf47bc92-5889-5528-9f40-e953c637d05e",
+      "gw": 26,
+      "mode": "own_goals",
+      "error": "Explicit goal components exceed total goal intensity"
+    },
+    {
+      "fixture": "bf47bc92-5889-5528-9f40-e953c637d05e",
+      "gw": 26,
+      "mode": "combined",
+      "error": "Explicit goal components exceed total goal intensity"
+    },
+    {
+      "fixture": "ed6f6c9e-a928-5cd1-acb1-03cdb9e3e0a8",
+      "gw": 28,
+      "mode": "own_goals",
+      "error": "Explicit goal components exceed total goal intensity"
+    },
+    {
+      "fixture": "ed6f6c9e-a928-5cd1-acb1-03cdb9e3e0a8",
+      "gw": 28,
+      "mode": "combined",
+      "error": "Explicit goal components exceed total goal intensity"
+    },
+    {
+      "fixture": "d0a72bbc-72dd-58f7-85b5-5eb727cd44aa",
+      "gw": 28,
+      "mode": "own_goals",
+      "error": "Explicit goal components exceed total goal intensity"
+    },
+    {
+      "fixture": "d0a72bbc-72dd-58f7-85b5-5eb727cd44aa",
+      "gw": 28,
+      "mode": "combined",
+      "error": "Explicit goal components exceed total goal intensity"
+    },
+    {
+      "fixture": "70746c69-002b-5999-865e-762f77a3f220",
+      "gw": 28,
+      "mode": "own_goals",
+      "error": "Explicit goal components exceed total goal intensity"
+    },
+    {
+      "fixture": "70746c69-002b-5999-865e-762f77a3f220",
+      "gw": 28,
+      "mode": "combined",
+      "error": "Explicit goal components exceed total goal intensity"
+    },
+    {
+      "fixture": "1122e972-14d7-58c6-a60d-b63a7b534cc2",
+      "gw": 30,
+      "mode": "own_goals",
+      "error": "Explicit goal components exceed total goal intensity"
+    },
+    {
+      "fixture": "1122e972-14d7-58c6-a60d-b63a7b534cc2",
+      "gw": 30,
+      "mode": "combined",
+      "error": "Explicit goal components exceed total goal intensity"
+    },
+    {
+      "fixture": "ef303a11-4ac7-5db3-be8f-30b2e9e56c2a",
+      "gw": 30,
+      "mode": "own_goals",
+      "error": "Explicit goal components exceed total goal intensity"
+    },
+    {
+      "fixture": "ef303a11-4ac7-5db3-be8f-30b2e9e56c2a",
+      "gw": 30,
+      "mode": "combined",
+      "error": "Explicit goal components exceed total goal intensity"
+    },
+    {
+      "fixture": "aa62d2f4-b7b5-517b-848c-a37f42248798",
+      "gw": 30,
+      "mode": "own_goals",
+      "error": "Explicit goal components exceed total goal intensity"
+    },
+    {
+      "fixture": "aa62d2f4-b7b5-517b-848c-a37f42248798",
+      "gw": 30,
+      "mode": "combined",
+      "error": "Explicit goal components exceed total goal intensity"
+    },
+    {
+      "fixture": "e82e35f7-2864-5c36-a170-aa95d2bdd992",
+      "gw": 31,
+      "mode": "own_goals",
+      "error": "Explicit goal components exceed total goal intensity"
+    },
+    {
+      "fixture": "e82e35f7-2864-5c36-a170-aa95d2bdd992",
+      "gw": 31,
+      "mode": "combined",
+      "error": "Explicit goal components exceed total goal intensity"
+    },
+    {
+      "fixture": "35e9bed7-0bc0-5b9c-a348-c5664a6bdf6d",
+      "gw": 31,
+      "mode": "own_goals",
+      "error": "Explicit goal components exceed total goal intensity"
+    },
+    {
+      "fixture": "35e9bed7-0bc0-5b9c-a348-c5664a6bdf6d",
+      "gw": 31,
+      "mode": "combined",
+      "error": "Explicit goal components exceed total goal intensity"
+    },
+    {
+      "fixture": "581cbc3f-743c-5ec9-9220-ef3bf6beb661",
+      "gw": 32,
+      "mode": "own_goals",
+      "error": "Explicit goal components exceed total goal intensity"
+    },
+    {
+      "fixture": "581cbc3f-743c-5ec9-9220-ef3bf6beb661",
+      "gw": 32,
+      "mode": "combined",
+      "error": "Explicit goal components exceed total goal intensity"
+    },
+    {
+      "fixture": "f204874d-3575-5726-b7e2-853765659fdd",
+      "gw": 32,
+      "mode": "own_goals",
+      "error": "Explicit goal components exceed total goal intensity"
+    },
+    {
+      "fixture": "f204874d-3575-5726-b7e2-853765659fdd",
+      "gw": 32,
+      "mode": "combined",
+      "error": "Explicit goal components exceed total goal intensity"
+    },
+    {
+      "fixture": "4d040b9a-2a6a-57a0-9b57-03d02c75c39c",
+      "gw": 32,
+      "mode": "own_goals",
+      "error": "Explicit goal components exceed total goal intensity"
+    },
+    {
+      "fixture": "4d040b9a-2a6a-57a0-9b57-03d02c75c39c",
+      "gw": 32,
+      "mode": "combined",
+      "error": "Explicit goal components exceed total goal intensity"
+    },
+    {
+      "fixture": "4bcfa5f3-7754-50ed-a8e8-8a7df098c7f2",
+      "gw": 33,
+      "mode": "own_goals",
+      "error": "Explicit goal components exceed total goal intensity"
+    },
+    {
+      "fixture": "4bcfa5f3-7754-50ed-a8e8-8a7df098c7f2",
+      "gw": 33,
+      "mode": "combined",
+      "error": "Explicit goal components exceed total goal intensity"
+    },
+    {
+      "fixture": "a43fda89-8020-5743-94fe-2264e5c93b50",
+      "gw": 33,
+      "mode": "own_goals",
+      "error": "Explicit goal components exceed total goal intensity"
+    },
+    {
+      "fixture": "a43fda89-8020-5743-94fe-2264e5c93b50",
+      "gw": 33,
+      "mode": "combined",
+      "error": "Explicit goal components exceed total goal intensity"
+    },
+    {
+      "fixture": "0b99d668-0262-5c8f-9fc4-5de2abcf16ef",
+      "gw": 34,
+      "mode": "own_goals",
+      "error": "Explicit goal components exceed total goal intensity"
+    },
+    {
+      "fixture": "0b99d668-0262-5c8f-9fc4-5de2abcf16ef",
+      "gw": 34,
+      "mode": "combined",
+      "error": "Explicit goal components exceed total goal intensity"
+    },
+    {
+      "fixture": "f3c62cc3-73d6-540a-91e4-e84aac60f8cd",
+      "gw": 35,
+      "mode": "own_goals",
+      "error": "Explicit goal components exceed total goal intensity"
+    },
+    {
+      "fixture": "f3c62cc3-73d6-540a-91e4-e84aac60f8cd",
+      "gw": 35,
+      "mode": "combined",
+      "error": "Explicit goal components exceed total goal intensity"
+    },
+    {
+      "fixture": "63176fc3-e2f1-5421-bbd2-a4a0d09c178b",
+      "gw": 36,
+      "mode": "own_goals",
+      "error": "Explicit goal components exceed total goal intensity"
+    },
+    {
+      "fixture": "63176fc3-e2f1-5421-bbd2-a4a0d09c178b",
+      "gw": 36,
+      "mode": "combined",
+      "error": "Explicit goal components exceed total goal intensity"
+    },
+    {
+      "fixture": "4bb77a94-57d2-571d-8b8c-d6a110e33742",
+      "gw": 37,
+      "mode": "own_goals",
+      "error": "Explicit goal components exceed total goal intensity"
+    },
+    {
+      "fixture": "4bb77a94-57d2-571d-8b8c-d6a110e33742",
+      "gw": 37,
+      "mode": "combined",
+      "error": "Explicit goal components exceed total goal intensity"
+    },
+    {
+      "fixture": "fd4ad055-e5e4-53c5-9c24-704cebabfc14",
+      "gw": 38,
+      "mode": "own_goals",
+      "error": "Explicit goal components exceed total goal intensity"
+    },
+    {
+      "fixture": "fd4ad055-e5e4-53c5-9c24-704cebabfc14",
+      "gw": 38,
+      "mode": "combined",
+      "error": "Explicit goal components exceed total goal intensity"
+    }
+  ],
+  "classification": "OFFLINE_CI_ABLATION_NOT_LIVE_CERTIFICATION",
+  "source_run": 38368218223,
+  "evaluated_commit": "0b0a8fc01f7c809ae230befae6a1996a476e97c2",
+  "locked_model_active": false,
+  "promotion_allowed": false,
+  "notes": [
+    "Pre-correction penalty exposure denominator; own-goal/combined supported subset only, not comparable to the entire original cohort",
+    "35 fixtures failed two modes (70 fixture-mode failures)",
+    "Exposure adapter corrected in following commit; full paired retest required"
+  ]
+}

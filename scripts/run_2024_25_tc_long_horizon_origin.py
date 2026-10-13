@@ -79,7 +79,7 @@ def main():
     lambdas=fit_team_latent(th[th.available_at<=cutoff],fx[['match_id','home_team_id','away_team_id']],origin)
     past=ph[ph.available_at<=cutoff].copy()
     goals=float(past.goals.sum());assist_prob=min(1.,max(.5,float(past.fpl_assists.sum())/goals)) if goals>0 else .7
-    ps,plam=penalty_state(origin,state,pens,fixtures,models['pen'])
+    ps,plam=penalty_state(origin,state,pens,fixtures,models['pen'],cutoff=cutoff)
     bmean=state.set_index('player_uuid').bg_mean_rate90.to_dict();bsd=state.set_index('player_uuid').bg_sd90.to_dict()
 
     sample_sums={};meta={};counter=0

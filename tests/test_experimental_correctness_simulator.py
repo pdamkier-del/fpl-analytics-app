@@ -140,3 +140,16 @@ def test_invalid_probabilities_do_not_enter_candidate(field,value):
     inp=fixture();players=(replace(inp.players[0],**{field:value}),)+inp.players[1:]
     with pytest.raises(ValueError,match='Invalid player probability'):
         simulate_match(replace(inp,players=players),np.random.default_rng(722))
+
+
+def test_own_goal_timestamp_is_inside_half_open_interval_even_at_float_boundary():
+    class BoundaryRng:
+        def __init__(self):self.base=np.random.default_rng(723)
+        def __getattr__(self,name):return getattr(self.base,name)
+        def normal(self,mean,sd):return mean
+        def uniform(self,low,high):return high
+    inp=fixture();inp=replace(inp,lambda_home_goals=0,lambda_away_goals=1,players=tuple(replace(p,p_own_goal=int(p.player_id=='H-DEF-0')) for p in inp.players))
+    trace={};res=simulate_match(inp,BoundaryRng(),trace=trace)
+    t,_,pid=trace['own_goal_events'][0];a,b=trace['intervals'][pid]
+    assert a<=t<b
+    assert res[pid].own_goal==1 and res[pid].goals_conceded_while_on_pitch==1 and res[pid].clean_sheet==0

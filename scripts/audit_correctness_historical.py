@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 """Two-season simulator-correctness ablation on fixed cutoff-generated inputs."""
-import argparse,gzip,json,sqlite3,sys,hashlib
+import argparse,gzip,json,sqlite3,sys,hashlib,os
+from importlib.metadata import version
 from pathlib import Path
 import pandas as pd,numpy as np
 ROOT=Path(__file__).resolve().parents[1];sys.path[:0]=[str(ROOT/'src'),str(ROOT/'scripts')]
@@ -8,6 +9,7 @@ from fpl_v1_1_model.joint_simulator import MatchSimInput,PlayerSimInput,simulate
 from fpl_v1_1_model.negative_events import DisciplineProbabilities
 from fpl_v1_1_model.experimental_correctness_simulator import shadow_simulator,start_marginals,simulate_match
 from fpl_v1_1_model.experimental_mean_preserving_minutes import clipped_rounded_mean
+from audit_capture_io import checked_records,write_records
 MODES={'own_goals':dict(own_goals=True,joint_xi=False),'joint_xi':dict(own_goals=False,joint_xi=True),'combined':dict(own_goals=True,joint_xi=True)}
 def decode(data):
  ps=[]
@@ -25,9 +27,19 @@ def main():
   truth=pd.read_sql_query('SELECT fixture_uuid,player_uuid,total_points,minutes,started FROM player_fixture_observations WHERE season=? AND is_final=1',c,params=[a.season]);fx=pd.read_sql_query('SELECT fixture_uuid,home_team_id,away_team_id FROM fixtures WHERE season=?',c,params=[a.season])
  if fx.duplicated(['home_team_id','away_team_id']).any():raise ValueError('Nonunique fixture sides')
  mapping={(int(r.home_team_id),int(r.away_team_id)):str(r.fixture_uuid) for r in fx.itertuples()};rows=[];diags=[];fail=[]
- with gzip.open(a.inputs,'rt') as z:
-  for i,line in enumerate(z):
-   r=json.loads(line);inp=decode(r['input']);fid=mapping[(r['home'],r['away'])];marginal,diag=start_marginals(inp);diags.append(dict(fixture=fid,gw=r['origin'],teams=diag))
+ records=checked_records(a.inputs)
+ cache=out/f'correctness_cache_{a.season}';cache.mkdir(exist_ok=True)
+ fingerprint=dict(evaluator=hashlib.sha256(Path(__file__).read_bytes()).hexdigest(),models={name:hashlib.sha256((ROOT/'src/fpl_v1_1_model'/name).read_bytes()).hexdigest() for name in ['experimental_correctness_simulator.py','joint_simulator.py','bps.py','defcon.py','keeper.py','negative_events.py']},numpy=version('numpy'),scipy=version('scipy'),runtime={k:os.environ.get(k) for k in ['OPENBLAS_CORETYPE','NPY_DISABLE_CPU_FEATURES','PYTHONHASHSEED']})
+ for i,r in enumerate(records):
+   signature=hashlib.sha256(json.dumps(dict(record=r,fingerprint=fingerprint),sort_keys=True).encode()).hexdigest();path=cache/f'{i:04d}.jsonl.gz'
+   if path.exists():
+    saved=checked_records(path)[0]
+    if saved['signature']==signature:
+     rows.extend(saved['rows']);diags.append(saved['diagnostics']);fail.extend(saved['failures'])
+     if i%20==0:print(a.season,'reused verified fixture',i,flush=True)
+     continue
+   row_start=len(rows);fail_start=len(fail)
+   inp=decode(r['input']);fid=mapping[(r['home'],r['away'])];marginal,diag=start_marginals(inp);diags.append(dict(fixture=fid,gw=r['origin'],teams=diag))
    values={mode:{} for mode in MODES}
    rngtrace=np.random.default_rng(r['seed']+1000000);capped=0;rejected=0
    for _ in range(100):
@@ -43,6 +55,7 @@ def main():
     rows.append(dict(fixture_uuid=fid,player_uuid=p.player_id,gw=r['origin'],pos=p.position,mode='original',xp=r['reference'][p.player_id],start_probability=p.p_start,sim_minutes=p.p_start*clipped_rounded_mean(p.start_minutes_mean,10.)+(1-p.p_start)*p.p_cameo_given_bench*clipped_rounded_mean(p.cameo_minutes_mean,7.,1,45)))
     for mode,sim in values.items():
      if p.player_id in sim:rows.append(dict(fixture_uuid=fid,player_uuid=p.player_id,gw=r['origin'],pos=p.position,mode=mode,xp=sim[p.player_id]['xPts'],start_probability=p.p_start if mode=='own_goals' else marginal[p.player_id],sim_minutes=sim[p.player_id]['expected_minutes']))
+   write_records(path,[dict(signature=signature,rows=rows[row_start:],diagnostics=diags[-1],failures=fail[fail_start:])])
    if i%20==0:print(a.season,'completed fixtures',i,flush=True)
  p=pd.DataFrame(rows).merge(truth,on=['fixture_uuid','player_uuid'],validate='many_to_one',how='left',indicator=True)
  if not p._merge.eq('both').all():raise ValueError('Missing historical actuals; no zero imputation')
