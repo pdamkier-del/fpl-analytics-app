@@ -206,10 +206,32 @@ The frozen Core has no duplicate or missing started/minutes records among its 29
 
 A further point-replay smoke test exposed a provenance issue: the 2,125 workflow regenerates GW1–38 base/role/workload/FA features and temporarily overwrites cached input paths. Those exact fresh feature files are not included in its uploaded prediction artifact. Replaying its first fixture using the repository's cached feature files matched 72 identities but differed by up to 0.7025 xP. This is not evidence that a mathematical candidate improves the baseline. Its original-source recipe was therefore being reconstructed in a separate detached checkout of 952b809, preserving the audit branch and immutable benchmark.
 
-The original min-GW1 P(start) and full role/workload generation completed, but the local execution environment disconnected before the warmed-input point smoke or full candidate replay could complete. No historical whole-chain candidate point total is claimed. This continuation is explicitly blocked locally, not marked as a completed exact reproduction of 2,125.
+This interruption was resolved on 13 October; the completed reproduction and paired point test below supersede the local block. No candidate six-GW TS total is claimed.
 
 ## Latest checkpoint
 
 The latest locally completed suite before the environment disconnected had **468 passing tests**, plus the classic-manager, profile and forecast-window JavaScript checks. The 667-player catalogue check, exact current 4,002-row forecast reconstruction and event decomposition also passed. Public source/results were saved on the separate audit branch; no private manager-state, purchases or tokens were included.
 
 Complete expanded CI at a4e7e0: https://github.com/pdamkier-del/fpl-analytics-app/actions/runs/38300513270. The next commit adds the tested catalogue/event audits and their cloud reproduction. Production stays unchanged and locked_model_active=false.
+
+
+## 13 October: exact historical point and transfer reproduction completed
+
+The original-source checkout at `952b809` rebuilt the GW1 warm base/role/workload inputs and installed them into the temporary cached paths used by its original PM runner. With archived locked MM states, the unchanged original point simulator reproduces **all 26,159 fixture forecasts exactly**, maximum xP difference **0**, with identical identities and appearance probabilities. This yields 25,750 aggregated player/GW forecasts. The full original TS replay then reproduces **2,125 points, 44 transfers and 28 hit points**; all 38 gameweek log rows agree except machine-dependent `runtime_seconds`. This is a reconstructed PM→TS replay from archived MM states, not a newly retrained/full-input MM reproduction.
+
+The earlier cached-input discrepancy of 0.7025 xP is explained by missing freshly generated GW1 warm features; it is not a mathematical baseline defect. FA/importance adjustments already enter the supplied archived MM states. The full exact PM output test establishes that the warmed source is sufficient for this paired PM experiment, without changing or inventing FA inputs.
+
+The duration candidate uses the half-life 3 selected on 2024/25 GW6–21, retains original P(start), cameo probability and cameo duration, and propagates changed starter exposure through the unchanged point model. Strict pre-cutoff Core history uses the original kickoff+3h proxy. For 101 no-prior-history rows, archived duration is retained unchanged instead of inventing a comparison. The remaining original starter durations reconstruct within 7.11e-15. Both PM replays use identical 400-draw seeds.
+
+| Metric / cohort | Original | Duration half-life 3 |
+| --- | ---: | ---: |
+| Point MAE, all 25,750 rows | 0.937787 | 0.941312 |
+| Point RMSE, all rows | 1.896983 | 1.889379 |
+| Point MAE, 9,838 played rows | 2.052318 | 2.050507 |
+| Point MAE, GW22–38 | 0.907721 | 0.911931 |
+
+All-row paired MAE delta is **+0.003524**, gameweek-block bootstrap 95% interval **[+0.000768, +0.006517]**; positive is worse. The active-player MAE interval spans zero. No actuals were missing or imputed. The interval describes block resampling of this reused period, not uncertainty from fresh seasons or repeated simulation seeds. **Do not promote this parameter change:** conditional minutes improved, but point accuracy is mixed and the primary absolute-error measure worsens.
+
+The historical archive still contains only current-GW cells, rather than a complete rolling six-GW forecast; reproducing its 2,125 accounting does not repair or certify that horizon. No candidate TS score using that incomplete horizon is presented as an improvement. Independent full-chain promotion still requires verified older source/deadline/schedule/price versions and actual publication clocks; the own-goal/clean-sheet defect and BPS quarantine also remain unresolved. Production, all locked mathematical source/parameters, and `locked_model_active=false` are unchanged.
+
+Reproduction is automated by `.github/workflows/historical-duration-shadow.yml`, using the pinned original source and benchmark artifact, explicit exact-output gates and read-only permissions. It cannot deploy Pages or Render. Local regression: **468 passed**, classic-manager/profile/forecast-window JS checks passed. Scripts and small reports are public model evidence, with no actual private manager-state.
