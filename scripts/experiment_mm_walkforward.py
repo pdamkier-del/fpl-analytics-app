@@ -5,7 +5,7 @@ from pathlib import Path
 import pandas as pd,numpy as np
 ROOT=Path(__file__).resolve().parents[1];sys.path[:0]=[str(ROOT/'src'),str(ROOT/'scripts')]
 from audit_mm_components import load_obs,metrics,score
-from fpl_v1_1_model.experimental_mm_research import fit_start,survival_prediction
+from fpl_v1_1_model.experimental_mm_research import fit_start,survival_prediction,project_partition
 
 STARTS=[('logistic_'+str(c),c,False) for c in (.1,1.)]+[('hierarchical_'+str(c),c,True) for c in (.1,1.)]
 SURV=[('survival_'+str(h)+'_'+str(t),h,t) for h in (21.,42.) for t in (2.,8.)]
@@ -18,11 +18,11 @@ def predict(frame,obs,previous=None,previous_obs=None):
     allobs['pos']=allobs.pos.replace({'GKP':'GK','G':'GK'})
     for gw,g in frame.groupby('gw',sort=True):
         cut=pd.to_datetime(g.cutoff,utc=True).min()
-        train=alltrain[pd.to_datetime(alltrain.outcome_known_at,utc=True)<cut]
-        if len(train) and (pd.to_datetime(train.outcome_known_at,utc=True)>=cut).any():raise ValueError('Leaky fit')
-        audit.append(dict(gw=int(gw),cutoff=str(cut),training_rows=len(train),max_training_known=str(pd.to_datetime(train.outcome_known_at,utc=True).max()) if len(train) else None))
+        train=alltrain[pd.to_datetime(alltrain.outcome_known_at,utc=True,format="mixed")<cut]
+        if len(train) and (pd.to_datetime(train.outcome_known_at,utc=True,format="mixed")>=cut).any():raise ValueError('Leaky fit')
+        audit.append(dict(gw=int(gw),cutoff=str(cut),training_rows=len(train),max_training_known=str(pd.to_datetime(train.outcome_known_at,utc=True,format="mixed").max()) if len(train) else None))
         p=g.new_p_start.to_numpy();s=g.new_start_minutes.to_numpy();q=g.new_q_sub.to_numpy();c=g.new_sub_minutes.to_numpy()
-        modes={'original':(p,s),'duration_h3':(p,g.duration_h3.to_numpy()),'duration_h6':(p,g.duration_h6.to_numpy())}
+        modes={'original':(p,s),'partition_only':(project_partition(g,p),s),'duration_h3':(p,g.duration_h3.to_numpy()),'duration_h6':(p,g.duration_h6.to_numpy())}
         for name,reg,hierarchy in STARTS:modes[name]=(fit_start(train,g,C=reg,hierarchical=hierarchy),s)
         pool=allobs[(allobs.known<cut)&allobs.started.eq(1)]
         for name,half,strength in SURV:modes[name]=(p,survival_prediction(g,obs,pool,half_days=half,strength=strength))
@@ -44,6 +44,8 @@ def summary(f):
         b=pd.DataFrame(dict(fixture=pair.fixture_uuid,delta=d)).groupby('fixture').delta.agg(['sum','size']).to_numpy();draw=b[rng.integers(len(b),size=(2000,len(b)))].sum(axis=1)
         m['paired_minute_mae_delta']=float(d.mean());m['fixture_bootstrap_95_ci']=np.quantile(draw[:,0]/draw[:,1],[.025,.975]).tolist()
         m['groups']={k:dict(minutes=score(v.minutes,v.x),start_brier=float(((v.p-v.y)**2).mean())) for k,v in g.groupby('player_type')}
+        for state,v in g.groupby('team_news_state'):
+            m['groups']['team_news_'+str(state)]=dict(minutes=score(v.minutes,v.x),start_brier=float(((v.p-v.y)**2).mean()))
         result[mode]=m
     return result
 

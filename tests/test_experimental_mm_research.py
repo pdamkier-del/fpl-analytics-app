@@ -39,3 +39,25 @@ def test_small_training_retains_archived_start_probability():
     target=pd.DataFrame(dict(new_p_start=[.2,.8]))
     train=pd.DataFrame(dict(y=[0,1]))
     assert np.array_equal(fit_start(train,target),[.2,.8])
+
+def test_partition_respects_soft_availability_caps():
+    f=roster();f['team_news_availability_cap']=1.
+    f.loc[0,'team_news_availability_cap']=.1
+    p=np.array([.8,.2]+[.6]*14)
+    q=project_partition(f,p)
+    assert q[0]<=.1 and np.isclose(q[:2].sum(),1)
+
+def test_mm_change_reaches_both_original_pm_alias_sets():
+    from capture_mm_pm_inputs import minute_fields
+    f=pd.DataFrame(dict(player_uuid=['p','q']))
+    state=pd.DataFrame(dict(player_uuid=['q','p'],p=[.5,.8],s=[80.,85.],q=[.2,.3],c=[10.,15.]))
+    state['x']=state.p*state.s+(1-state.p)*state.q*state.c
+    x=minute_fields(f,state)
+    assert np.allclose(x.control_xmins,x.v4_workload_start_xmins)
+    assert np.allclose(x.expected_minutes,[68.9,41.])
+    assert np.allclose(x.control_xmins,x.control_p_start*x.start_minutes_mean+(1-x.control_p_start)*x.p_cameo_given_bench*x.cameo_minutes_mean)
+
+def test_start_fit_rejects_future_outcomes_with_mixed_timestamp_styles():
+    train=pd.DataFrame(dict(y=[0,1],outcome_known_at=['2024-12-01 00:00:00+00:00','2025-02-01T00:00:00Z']))
+    target=pd.DataFrame(dict(new_p_start=[.5],cutoff=['2025-01-01T00:00:00Z']))
+    with pytest.raises(ValueError):fit_start(train,target)

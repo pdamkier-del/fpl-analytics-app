@@ -20,6 +20,9 @@ def start_inputs(f):
 
 def fit_start(train,target,C=1.,hierarchical=False):
     """L2 partial-pooling logistic model, not a fitted Bayesian variance hierarchy."""
+    if 'outcome_known_at' in train and 'cutoff' in target:
+        known=pd.to_datetime(train.outcome_known_at,utc=True,format='mixed')
+        if (known>=pd.to_datetime(target.cutoff,utc=True).min()).any():raise ValueError('Future outcome in start fit')
     if len(train)<500 or train.y.nunique()<2:return target.new_p_start.to_numpy()
     categories=['pos']+(['player_uuid','team_id'] if hierarchical else [])
     pre=ColumnTransformer([('continuous',StandardScaler(),NUMERIC),('categories',OneHotEncoder(handle_unknown='ignore'),categories)])
@@ -38,17 +41,18 @@ def project_partition(frame,p):
         indices=np.asarray(indices)
         for isgk,count in [(True,1),(False,10)]:
             idx=indices[frame.iloc[indices].pos.isin(['GK','GKP']).to_numpy()==isgk]
-            vals=p[idx];fixed=vals>=1.;mutable=(vals>0)&(vals<1);need=count-int(fixed.sum())
-            if need<0 or need>mutable.sum():raise ValueError('Infeasible roster partition')
+            vals=p[idx];caps=frame.iloc[idx].team_news_availability_cap.to_numpy() if 'team_news_availability_cap' in frame else np.ones(len(idx))
+            vals=np.minimum(vals,caps);fixed=vals>=1.;mutable=(vals>0)&(vals<1);need=count-int(fixed.sum())
+            if need<0 or need>caps[mutable].sum()+1e-9:raise ValueError('Infeasible roster partition')
             if need==0:vals[mutable]=0.
-            elif need==mutable.sum():vals[mutable]=1.
+            elif abs(need-caps[mutable].sum())<1e-9:vals[mutable]=caps[mutable]
             else:
                 z=logit(vals[mutable]);lo,hi=-60.,60.
                 for _ in range(90):
                     mid=(lo+hi)/2
-                    if expit(z+mid).sum()<need:lo=mid
+                    if np.minimum(caps[mutable],expit(z+mid)).sum()<need:lo=mid
                     else:hi=mid
-                vals[mutable]=expit(z+(lo+hi)/2)
+                vals[mutable]=np.minimum(caps[mutable],expit(z+(lo+hi)/2))
             p[idx]=vals
     return p
 

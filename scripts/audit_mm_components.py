@@ -101,6 +101,12 @@ def prepare(mm,db,season):
     merged['season']=season
     composed=merged.new_p_start*merged.new_start_minutes+(1-merged.new_p_start)*merged.new_q_sub*merged.new_sub_minutes
     discrepancy=float(abs(composed-merged.new_xmins).max())
+    if season=='2025-26':
+        from fpl_v1_1_model.team_news_history import read_split_gzip_jsonl,build_strict_team_news_features
+        news=read_split_gzip_jsonl(ROOT/'data_v1_1/derived/team_news_audit/2025-26-v2','predeadline_strict.jsonl.gz')
+        merged=build_strict_team_news_features(merged,news,doubt_cap=.5,major_doubt_cap=.1)
+    else:
+        merged['team_news_state']='UNKNOWN';merged['team_news_availability_cap']=1.
     f=prefix_features(merged,obs)
     return f,obs,dict(rows=len(f),excluded_already_started=excluded,max_composition_discrepancy=discrepancy,medical_label_rows=int(obs.absence_reason.notna().sum()),substitution_timestamp_rows=int(obs.sub_off_second.notna().sum()),matchday_squad_rows=int(obs.matchday_squad.notna().sum()),availability_proxy_hours=hours,source_sha256=hashlib.sha256(Path(mm).read_bytes()).hexdigest())
 
@@ -108,6 +114,8 @@ def audit(frame):
     group={g:metrics(f) for g,f in frame.groupby('player_type')}
     for label,mask in [('high_prior_production',frame.high_prior_production),('long_gap_not_verified_injury',frame.long_gap_proxy)]:
         if mask.any():group[label]=metrics(frame[mask])
+    for state,g in frame.groupby('team_news_state'):
+        group['team_news_'+str(state)]=metrics(g)
     sums=frame.groupby(['fixture_uuid','team_id']).new_p_start.sum()
     keeper=frame[frame.pos.isin(['GK','GKP'])].groupby(['fixture_uuid','team_id']).new_p_start.sum()
     return dict(all=metrics(frame),groups=group,xi=dict(team_rows=len(sums),max_start_sum_error=float(abs(sums-11).max()),max_keeper_sum_error=float(abs(keeper-1).max()),note='Marginal sums do not guarantee eleven starters in independent simulation'))
