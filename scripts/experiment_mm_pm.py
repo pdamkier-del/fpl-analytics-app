@@ -8,6 +8,7 @@ ROOT=Path(__file__).resolve().parents[1];sys.path[:0]=[str(ROOT/'src'),str(ROOT/
 from audit_capture_io import checked_records,write_records
 from audit_correctness_historical import decode
 from fpl_v1_1_model.joint_simulator import simulate_many
+from fpl_v1_1_model.experimental_survival_sampler import shadow_survival_sampler
 
 POINT_COMPONENTS=['appearance_points','goal_points','assist_points','cs_points','save_points','dc_points','negative_points','gc_points','penalty_save_points','expected_bonus']
 
@@ -18,8 +19,24 @@ def evaluate(task):
         if saved['signature']==signature:return saved['rows']
     rows=[]
     inputs={'original':record['input'],**record['candidate_inputs']}
+    if 'hard_out_ids' in record:
+        data=copy.deepcopy(record['input']);out_ids=set(record['hard_out_ids'])
+        for p in data['players']:
+            if p['player_id'] in out_ids:p.update(p_start=0.,p_cameo_given_bench=0.)
+        inputs['hard_availability']=data
+    if record.get('starter_hazards'):
+        names=[k for k in record['candidate_inputs'] if k.startswith('survival_')]
+        if len(names)==1:
+            inputs['survival_distribution']=record['candidate_inputs'][names[0]]
+            inputs['combined_distribution']=record['candidate_inputs']['combined']
     for mode,data in inputs.items():
-        inp=decode(copy.deepcopy(data));sim=simulate_many(inp,n=400,seed=record['seed'])
+        inp=decode(copy.deepcopy(data))
+        if mode=='hard_availability' and not record['hard_out_ids']:
+            sim=original_sim
+        elif mode.endswith('_distribution'):
+            with shadow_survival_sampler(record['starter_hazards']):sim=simulate_many(inp,n=400,seed=record['seed'])
+        else:sim=simulate_many(inp,n=400,seed=record['seed'])
+        if mode=='original':original_sim=sim
         if mode=='original' and any(sim[pid]['xPts']!=ref for pid,ref in record['reference'].items()):raise ValueError('Frozen baseline PM not exact')
         for p in inp.players:
             if p.player_id not in record['reference']:continue
@@ -50,11 +67,27 @@ def summarize(p):
 def main():
     ap=argparse.ArgumentParser();ap.add_argument('--inputs',required=True);ap.add_argument('--season',required=True);ap.add_argument('--db',default='work/core.sqlite3');ap.add_argument('--out',default='analysis/results/mm-research-20261014');ap.add_argument('--workers',type=int,default=3);ap.add_argument('--limit',type=int,default=0);a=ap.parse_args();out=Path(a.out);out.mkdir(parents=True,exist_ok=True)
     records=checked_records(a.inputs)
+    feature_path=out/f'{a.season}_features.csv.gz'
+    if feature_path.exists():
+        features=pd.read_csv(feature_path,usecols=['gw','player_uuid','team_news_state']);states={}
+        for origin in range(6,39):
+            state=features[features.gw.le(origin)].sort_values('gw',kind='stable').drop_duplicates('player_uuid',keep='last')
+            states[origin]=state[state.team_news_state.isin(['OUT','SUSPENDED'])].player_uuid.astype(str).tolist()
+        for r in records:r['hard_out_ids']=states[r['origin']]
+    hazard_path=out/f'{a.season}_starter_hazards.jsonl.gz'
+    if hazard_path.exists():
+        hazards=checked_records(hazard_path);states={}
+        for origin in range(6,39):
+            state={}
+            for r in hazards:
+                if r['gw']<=origin:state[r['player_uuid']]=r['hazard']
+            states[origin]=state
+        for r in records:r['starter_hazards']=states[r['origin']]
     if not a.limit and len(records)!=330:raise ValueError('Incomplete 330-fixture capture')
     if a.limit:records=records[:a.limit]
     cache=out/f'pm_cache_{a.season}';cache.mkdir(exist_ok=True)
     from importlib.metadata import version
-    fingerprint=dict(script=hashlib.sha256(Path(__file__).read_bytes()).hexdigest(),numpy=version('numpy'),scipy=version('scipy'),model=hashlib.sha256((ROOT/'src/fpl_v1_1_model/joint_simulator.py').read_bytes()).hexdigest(),runtime={k:os.environ.get(k) for k in ['OPENBLAS_CORETYPE','NPY_DISABLE_CPU_FEATURES','PYTHONHASHSEED']})
+    fingerprint=dict(script=hashlib.sha256(Path(__file__).read_bytes()).hexdigest(),numpy=version('numpy'),scipy=version('scipy'),model=hashlib.sha256((ROOT/'src/fpl_v1_1_model/joint_simulator.py').read_bytes()).hexdigest(),sampler=hashlib.sha256((ROOT/'src/fpl_v1_1_model/experimental_survival_sampler.py').read_bytes()).hexdigest(),runtime={k:os.environ.get(k) for k in ['OPENBLAS_CORETYPE','NPY_DISABLE_CPU_FEATURES','PYTHONHASHSEED']})
     allrows=[]
     with ProcessPoolExecutor(max_workers=a.workers) as pool:
         tasks=[pool.submit(evaluate,(i,r,str(cache),fingerprint)) for i,r in enumerate(records)]

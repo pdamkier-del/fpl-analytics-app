@@ -4,11 +4,16 @@ on:
     branches: [model-audit-optimization-20261012]
     paths:
       - scripts/audit_mm_*.py
+      - scripts/build_mm_survival_distributions.py
+      - scripts/experiment_mm_score_hazard.py
       - scripts/experiment_mm_walkforward.py
       - scripts/experiment_mm_pm.py
       - scripts/capture_mm_pm_inputs.py
       - src/fpl_v1_1_model/experimental_mm_research.py
+      - src/fpl_v1_1_model/experimental_survival_sampler.py
       - tests/test_mm_component_audit.py
+      - tests/test_mm_score_hazard.py
+      - tests/test_experimental_survival_sampler.py
       - tests/test_experimental_mm_research.py
       - .github/workflows/mm-component-research.yml
   workflow_dispatch:
@@ -47,6 +52,8 @@ jobs:
           python scripts/locked_numerical_runtime.py scripts/audit_mm_components.py
           python scripts/locked_numerical_runtime.py scripts/experiment_mm_walkforward.py
           python scripts/locked_numerical_runtime.py scripts/audit_mm_live_trace.py
+          python scripts/build_mm_survival_distributions.py
+          python scripts/experiment_mm_score_hazard.py --prepare-only
       - uses: actions/upload-artifact@v4
         if: always()
         with:
@@ -56,6 +63,7 @@ jobs:
             analysis/results/mm-research-20261014/*.json
             analysis/results/mm-research-20261014/*features.csv.gz
             analysis/results/mm-research-20261014/*candidates.csv.gz
+            analysis/results/mm-research-20261014/*starter_hazards.jsonl.gz
             analysis/results/conditional-2024-25-mm
             analysis/results/full-model-audit-20261012/locked-2125
   point-model:
@@ -126,3 +134,39 @@ jobs:
             analysis/results/mm-research-20261014/*pm_report.json
             analysis/results/mm-research-20261014/*pm_predictions.csv.gz
             work/mm-pm-*/inputs.jsonl.gz
+  score-context:
+    needs: [minutes, point-model]
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: pip install -r requirements-model-checkpoint.txt requests
+      - uses: actions/download-artifact@v4
+        with:
+          name: mm-component-inputs-and-results
+          path: analysis/results
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: mm-original-pm-*
+          merge-multiple: true
+          path: work/context-inputs
+      - run: |
+          python scripts/restore_core_checkpoint.py
+          python scripts/restore_2024_25_data_checkpoint.py
+          python - <<'PY'
+          from pathlib import Path
+          import subprocess,sys
+          root=Path('work/context-inputs')
+          paths={season:list(root.rglob(f'mm-pm-{season}/inputs.jsonl.gz')) for season in ['2024-25','2025-26']}
+          assert all(len(p)==1 for p in paths.values()),paths
+          subprocess.run([sys.executable,'scripts/experiment_mm_score_hazard.py','--inputs2024',str(paths['2024-25'][0]),'--inputs2025',str(paths['2025-26'][0])],check=True)
+          PY
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: mm-score-context-results
+          retention-days: 90
+          path: analysis/results/mm-research-20261014/*score_hazard*.json

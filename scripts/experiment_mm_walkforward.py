@@ -23,11 +23,14 @@ def predict(frame,obs,previous=None,previous_obs=None):
         audit.append(dict(gw=int(gw),cutoff=str(cut),training_rows=len(train),max_training_known=str(pd.to_datetime(train.outcome_known_at,utc=True,format="mixed").max()) if len(train) else None))
         p=g.new_p_start.to_numpy();s=g.new_start_minutes.to_numpy();q=g.new_q_sub.to_numpy();c=g.new_sub_minutes.to_numpy()
         modes={'original':(p,s),'partition_only':(project_partition(g,p),s),'duration_h3':(p,g.duration_h3.to_numpy()),'duration_h6':(p,g.duration_h6.to_numpy())}
+        hard=g.team_news_state.isin(['OUT','SUSPENDED']).to_numpy()
+        modes['hard_availability']=(np.where(hard,0.,p),s)
         for name,reg,hierarchy in STARTS:modes[name]=(fit_start(train,g,C=reg,hierarchical=hierarchy),s)
         pool=allobs[(allobs.known<cut)&allobs.started.eq(1)]
         for name,half,strength in SURV:modes[name]=(p,survival_prediction(g,obs,pool,half_days=half,strength=strength))
         for name,(pp,ss) in modes.items():
-            r=g.copy();r['mode']=name;r['p']=pp;r['s']=ss;r['q']=q;r['c']=c;r['x']=pp*ss+(1-pp)*q*c;rows.append(r)
+            qq=np.where(hard,0.,q) if name=='hard_availability' else q
+            r=g.copy();r['mode']=name;r['p']=pp;r['s']=ss;r['q']=qq;r['c']=c;r['x']=pp*ss+(1-pp)*qq*c;rows.append(r)
         print('MM candidate prefix completed',g.season.iloc[0],gw,flush=True)
     return pd.concat(rows,ignore_index=True),audit
 

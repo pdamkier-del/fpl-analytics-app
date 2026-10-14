@@ -73,7 +73,7 @@ def hazard_mean(h):
     if h.shape!=(90,) or not np.isfinite(h).all() or ((h<0)|(h>1)).any():raise ValueError('Invalid hazard')
     return float(np.cumprod(1-h).sum())
 
-def survival_prediction(target,observations,prior_started,half_days=21.,strength=2.):
+def survival_prediction(target,observations,prior_started,half_days=21.,strength=2.,return_hazards=False):
     """Pre-kickoff pooled hazard; no realized target score, coach or injury proxy."""
     cut=pd.to_datetime(target.cutoff,utc=True).min()
     past=observations[(observations.known<cut)&observations.started.eq(1)]
@@ -84,15 +84,15 @@ def survival_prediction(target,observations,prior_started,half_days=21.,strength
     for pos,g in pool.groupby('pos'):
         priors[str(pos)]=empirical_hazard(g.minutes.to_numpy())[0]
     history={str(pid):g for pid,g in past.groupby('player_uuid')}
-    result=[]
+    result=[];hazards=[]
     for r in target.itertuples():
         h0=priors.get(str(r.pos))
-        if h0 is None:result.append(float(r.new_start_minutes));continue
+        if h0 is None:result.append(float(r.new_start_minutes));hazards.append(None);continue
         hist=history.get(str(r.player_uuid))
         if hist is None:h=h0
         else:
             age=(cut-hist.known).dt.total_seconds().to_numpy()/86400
             w=np.exp2(-age/half_days);_,risk,events=empirical_hazard(hist.minutes.to_numpy(),w)
             h=(events+strength*h0)/(risk+strength)
-        result.append(hazard_mean(h))
-    return np.asarray(result)
+        result.append(hazard_mean(h));hazards.append(h.tolist())
+    return (np.asarray(result),hazards) if return_hazards else np.asarray(result)

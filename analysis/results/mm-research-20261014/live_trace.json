@@ -1,0 +1,77 @@
+{
+  "classification": "UNCHANGED_CURRENT_MM_STAGE_TRACE_AND_SHADOW_COMPONENTS",
+  "cutoff": "2026-10-12 10:45:27.093744+00:00",
+  "rows": [
+    {
+      "player": "Haaland",
+      "frozen_v2_normalized_prior": 0.9160288070023829,
+      "role_workload_raw": 0.7968636837527202,
+      "role_workload_normalized": 0.852729403627268,
+      "performance_normalized": 0.8289657929280224,
+      "availability_projected": 0.8338918019754606,
+      "xi_residual_raw": 0.8455706557288837,
+      "xi_residual_normalized": 0.8382303837267894,
+      "final": 0.8382304242200972,
+      "xi_logit_contributions": {
+        "xi_selected_map": 0.20817306237823605,
+        "xi_assignment_score": 0.0019139923110634137,
+        "xi_q_role": 1.2582931587436195,
+        "xi_hierarchy": -1.1329194094532018,
+        "xi_score_margin": 0.05088759958689477,
+        "xi_role_competitors": -0.2885254147922018,
+        "xi_formation_score_gap": -0.011012218971521453
+      },
+      "start_duration": 80.27730395306997,
+      "sub_probability": 0.4207609277393029,
+      "sub_duration": 14.852364026000407,
+      "mm_xmins": 68.30182426262957,
+      "candidate_focus": {
+        "selected_start": "logistic_1.0",
+        "selected_duration": "survival_42.0_2.0",
+        "p_start": 0.8293983492700818,
+        "start_duration": 83.96468348200808,
+        "combined_xmins": 70.70630982887909,
+        "duration_only_xmins": 71.39269796943186,
+        "start_only_xmins": 67.64800333444552,
+        "xp": "Not Available: focus candidates need full current PM component rebuild, not a substituted minute label"
+      }
+    },
+    {
+      "player": "Saka",
+      "frozen_v2_normalized_prior": 0.9604084449578084,
+      "role_workload_raw": 0.9219968773078524,
+      "role_workload_normalized": 0.937509126196627,
+      "performance_normalized": 0.9463744799157594,
+      "availability_projected": 0.9493541323814904,
+      "xi_residual_raw": 0.9578084864534343,
+      "xi_residual_normalized": 0.954422089128238,
+      "final": 0.9544221012825079,
+      "xi_logit_contributions": {
+        "xi_selected_map": 0.20817306237823605,
+        "xi_assignment_score": 0.0003912245538248102,
+        "xi_q_role": 1.1079669465375797,
+        "xi_hierarchy": -1.18379530772146,
+        "xi_score_margin": 0.24941172947141113,
+        "xi_role_competitors": -0.24980026934526436,
+        "xi_formation_score_gap": 0.05915710996337362
+      },
+      "start_duration": 88.97181742193612,
+      "sub_probability": 0.48018166671142287,
+      "sub_duration": 15.460625293138197,
+      "mm_xmins": 85.25503510312943,
+      "candidate_focus": {
+        "selected_start": "logistic_1.0",
+        "selected_duration": "survival_42.0_2.0",
+        "p_start": 0.9343918447518922,
+        "start_duration": 83.31067218160833,
+        "combined_xmins": 78.33188162981241,
+        "duration_only_xmins": 79.8519129671903,
+        "start_only_xmins": 83.62160957433069,
+        "xp": "Not Available: focus candidates need full current PM component rebuild, not a substituted minute label"
+      }
+    }
+  ],
+  "locked_model_active": false,
+  "promotion_allowed": false,
+  "interpretation": "Sequential fitted transformations; stage differences and coefficient contributions are not causal effects"
+}
