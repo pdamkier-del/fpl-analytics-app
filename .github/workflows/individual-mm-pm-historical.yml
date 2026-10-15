@@ -38,6 +38,19 @@ jobs:
           run-id: '38729720330'
           name: player-pm-v2-selection
           path: analysis/results/player-pm-v2-20261015
+      - name: Verify archived source inputs before expensive modelling
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          for season in ('2024-25','2025-26'):
+              path=Path(f'analysis/results/mm-research-20261014/{season}_features.csv.gz')
+              if not path.is_file():
+                  raise SystemExit(f'Missing restored historical MM features: {path}')
+          selection=Path('analysis/results/player-pm-v2-20261015/selection.json')
+          if not selection.is_file():
+              raise SystemExit(f'Missing archived player PM v2 selection: {selection}')
+          print('Preflight OK: both MM seasons and PM v2 selection restored')
+          PY
       - name: Restore historical datasets and validate role reproducibility
         run: |
           python scripts/restore_core_checkpoint.py
