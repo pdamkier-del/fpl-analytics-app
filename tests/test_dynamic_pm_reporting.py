@@ -1,6 +1,6 @@
 import numpy as np
 import pandas as pd
-from postprocess_dynamic_pm_v2 import compare_teams,point_losses
+from postprocess_dynamic_pm_v2 import compare_teams,point_losses,reliability_groups
 
 
 def test_paired_team_ci_is_zero_for_identical_forecasts():
@@ -18,3 +18,15 @@ def test_point_losses_use_observed_events_and_do_not_mutate_inputs():
     assert 'point_abs_error' not in f
     assert np.array_equal(p.point_squared_error,[1,4])
     assert np.allclose(p.assist_abs_error,[.8,.4])
+
+
+def test_reliability_cohorts_do_not_saturate_on_tiny_positive_mass_or_fit_test_cutoffs():
+    cols=['log_minutes','relative_variance','lineup_change','stability','disagreement','new_fraction','club_fraction','role_fraction','return_proxy']
+    dev=pd.DataFrame({k:[.0001,.01,.2]for k in cols});target=pd.DataFrame({k:[.001,.3]for k in cols})
+    grouped,cuts=reliability_groups(target,dev)
+    assert grouped.new_players.tolist()==['low','high']
+    assert grouped.absence_return_proxy.tolist()==['low','high']
+    assert cuts['new_fraction']==.01
+    target.loc[1,:]=1000
+    assert reliability_groups(target,dev)[1]==cuts
+    assert np.issubdtype(dev.lineup_change.dtype,np.number)

@@ -12,6 +12,13 @@ from experiment_mm_pm import POINT_COMPONENTS
 from fpl_v1_1_model.experimental_pm_conversion import poisson_deviance
 
 
+def reliability_groups(features,development):
+    mapping=dict(history='log_minutes',uncertainty='relative_variance',lineup_change='lineup_change',team_instability='stability',endpoint_disagreement='disagreement',new_players='new_fraction',club_moves='club_fraction',role_moves='role_fraction',absence_return_proxy='return_proxy')
+    thresholds={k:float(development[k].median())for k in mapping.values()};f=features.copy()
+    for name,k in mapping.items():f[name]=np.where(features[k]>thresholds[k],'high','low')
+    return f,thresholds
+
+
 def load(season,mm,layout,kind):
     paths=[OUT/f'{season}_{mm}_{layout}_{i}_{kind}.csv.gz'for i in range(6)]
     p=pd.concat([pd.read_csv(x)for x in paths],ignore_index=True)
@@ -59,11 +66,12 @@ def diagnose():
                     profiles+=1
         temporal[mm]=dict(forecast_sides=len(features),training_row_checks=len(trained),profile_cutoff_checks=profiles,all_passed=True)
         dev=features[features.season.eq('2024-25')&features.gw.le(21)]
-        thresholds={k:float(dev[k].median())for k in ['log_minutes','relative_variance','lineup_change','stability','disagreement']}
+        features,thresholds=reliability_groups(features,dev)
         for season in ['2024-25','2025-26']:
             f=features[features.season.eq(season)&(features.gw.ge(22)if season=='2024-25'else True)].copy();groups={}
-            for name,k in [('history','log_minutes'),('uncertainty','relative_variance'),('lineup_change','lineup_change'),('team_instability','stability'),('endpoint_disagreement','disagreement')]:f[name]=np.where(f[k]>thresholds[k],'high','low')
-            for name,k in [('new_players','new_fraction'),('club_moves','club_fraction'),('role_moves','role_fraction'),('absence_return_proxy','return_proxy')]:f[name]=np.where(f[k]>0,'present','absent')
+            # A tiny fringe-player start mass must not label virtually every
+            # team as a new-arrival/injury-return cohort. Cut on DEVELOPMENT
+            # median fractions, not presence>0 or evaluation-period quantiles.
             groupcols=['history','uncertainty','lineup_change','team_instability','endpoint_disagreement','new_players','club_moves','role_moves','absence_return_proxy']
             endpoint={}
             for name in ['all']+groupcols:
@@ -83,7 +91,7 @@ def diagnose():
                             for key in ['legal_draws','cameos_capped','cameos_rejected','zero_duration_clamped']:total[key]+=d['legal'].get(key,0)
                             total['max_marginal_shift']=max([total['max_marginal_shift']]+[v['max_abs_marginal_change']for v in (d.get('projection')or{}).values()])
                 for col in groupcols:
-                    groups[col]={str(k):dict(sides=int(tg[tg[col].eq(k)][['fixture_uuid','team_id']].drop_duplicates().shape[0]),points={mode:dict(rows=len(g),mae=float(g.point_abs_error.mean()),rmse=float(np.sqrt(g.point_squared_error.mean())),cs_brier=float(g.cs_brier.mean()),bonus_mae=float(g.bonus_abs_error.mean()))for mode,g in v.groupby('mode')},delta_mae_vs_fixed=paired_ci(v,'point_abs_error','fixed'),teams=compare_teams(tg[tg[col].eq(k)]))for k,v in joined.groupby(col)}
+                    groups[col]={str(k):dict(sides=int(tg[tg[col].eq(k)][['fixture_uuid','team_id']].drop_duplicates().shape[0]),fixture_blocks=int(v.fixture_uuid.nunique()),inference_warning='Fewer than20 fixture blocks: descriptive only, bootstrap intervals insufficient for reliable inference'if v.fixture_uuid.nunique()<20 else 'Exploratory subgroup; reused seasons and multiple comparisons',points={mode:dict(rows=len(g),mae=float(g.point_abs_error.mean()),rmse=float(np.sqrt(g.point_squared_error.mean())),cs_brier=float(g.cs_brier.mean()),bonus_mae=float(g.bonus_abs_error.mean()))for mode,g in v.groupby('mode')},delta_mae_vs_fixed=paired_ci(v,'point_abs_error','fixed'),teams=compare_teams(tg[tg[col].eq(k)]))for k,v in joined.groupby(col)}
                 ref=p[p['mode'].eq('fixed')];v=p[p['mode'].eq(chosen)].merge(ref,on=['fixture_uuid','player_uuid'],validate='one_to_one',suffixes=('','_base'));d=v[POINT_COMPONENTS].to_numpy()-v[[k+'_base'for k in POINT_COMPONENTS]].to_numpy()
                 if not np.allclose(d.sum(1),v.xp-v.xp_base,atol=1e-10):raise ValueError('Attribution component mismatch')
                 arms[layout]=dict(team_comparisons_vs_fixed=compare_teams(t),paired_vs_fixed={k:paired_ci(p,k,'fixed')for k in ['point_abs_error','point_squared_error','bonus_abs_error','goal_abs_error','assist_abs_error','cs_brier','gc_abs_error']},groups=copy.deepcopy(groups),sampler_checks=counts,selected_error_attribution_vs_fixed=error_attribution(v.xp_base-v.total_points,d),weight_by_group={col:{str(label):{mode:dict(mean=float(g.w.mean()),min=float(g.w.min()),max=float(g.w.max()))for mode,g in ff.groupby('mode')}for label,ff in wg.groupby(col)}for col in groupcols},weight_distribution={m:dict(sides=len(g),mean=float(g.w.mean()),quantiles=g.w.quantile([0,.1,.5,.9,1]).to_dict(),fallbacks=int(g.get('fallback',pd.Series(index=g.index,dtype=str)).notna().sum()))for m,g in ww.groupby('mode')})
@@ -95,7 +103,7 @@ def diagnose():
             result[season+'_'+mm]=dict(development_median_thresholds=thresholds,endpoint_errors=endpoint,arms=arms,xi_only=xi)
     for p in sorted(OUT.glob('*.csv.gz')):hashes[p.name]=hashlib.sha256(p.read_bytes()).hexdigest()
     for p in sorted(BASE.rglob('*_inputs.jsonl.gz')):hashes['prepared/'+p.name]=hashlib.sha256(p.read_bytes()).hexdigest()
-    save(OUT/'reliability_report.json',dict(classification='COMPLETED_DYNAMIC_PM_V2_DIAGNOSIS_NOT_RETUNED',results=result,temporal_checks=temporal,source_sha256=hashes,limitations=protocol['limitations']+['Shared seeds do not guarantee identical later lineups after event RNG consumption differs; report seed dispersion separately','Actions raw artifacts expire after90days; committed report hashes identify source captures but do not archive their full bytes'],locked_model_active=False,promotion_allowed=False))
+    save(OUT/'reliability_report.json',dict(classification='COMPLETED_DYNAMIC_PM_V2_DIAGNOSIS_NOT_RETUNED',grouping_protocol='All numeric reliability fractions split at2024GW6-21 development median; zero median retains high>0; revised after identifying saturated presence flags, no forecast or gate changed',results=result,temporal_checks=temporal,source_sha256=hashes,limitations=protocol['limitations']+['Shared seeds do not guarantee identical later lineups after event RNG consumption differs; report seed dispersion separately','Actions raw artifacts expire after90days; committed report hashes identify source captures but do not archive their full bytes'],locked_model_active=False,promotion_allowed=False))
     print('Reliability/error decomposition saved',flush=True)
 
 

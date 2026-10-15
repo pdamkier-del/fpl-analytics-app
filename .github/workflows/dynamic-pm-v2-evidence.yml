@@ -55,8 +55,16 @@ jobs:
           pattern: player-pm-v2-20*
           merge-multiple: true
           path: work/dynamic-source
+      - name: Reuse completed unchanged six-seed simulations
+        uses: actions/download-artifact@v4
+        with:
+          github-token: ${{ github.token }}
+          run-id: '38774188162'
+          name: dynamic-pm-complete-evidence
+          path: analysis/results/dynamic-pm-v2-20261015
       - run: python scripts/postprocess_dynamic_pm_v2.py --stage diagnose
       - run: python scripts/locked_numerical_runtime.py scripts/postprocess_dynamic_pm_v2.py --stage mc
+        if: ${{ hashFiles('analysis/results/dynamic-pm-v2-20261015/monte_carlo_report.json') == '' }}
       - uses: actions/upload-artifact@v4
         if: always()
         with:
