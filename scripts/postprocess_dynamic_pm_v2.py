@@ -4,7 +4,7 @@ import argparse,copy,hashlib,json,sys
 from pathlib import Path
 import numpy as np,pandas as pd
 ROOT=Path(__file__).resolve().parents[1];sys.path[:0]=[str(ROOT/'src'),str(ROOT/'scripts')]
-from research_dynamic_pm_v2 import OUT,records,evaluate
+from research_dynamic_pm_v2 import OUT,BASE,records,evaluate
 from research_player_pm_v2 import save
 from replay_pm_conversion import paired_ci
 from postprocess_player_pm_v2 import error_attribution
@@ -44,9 +44,20 @@ def compare_teams(t,reference='fixed'):
 
 
 def diagnose():
-    protocol=json.loads((OUT/'selection.json').read_text());chosen=protocol['selected'];result={};hashes={}
+    protocol=json.loads((OUT/'selection.json').read_text());chosen=protocol['selected'];result={};hashes={};temporal={}
     for mm in ['locked','mm']:
         features=pd.read_csv(OUT/f'{mm}_features.csv.gz');w=pd.read_csv(OUT/f'{mm}_weights.csv.gz')
+        cuts=pd.to_datetime(features.cutoff,utc=True);known=pd.to_datetime(features.known,utc=True)
+        if not known.gt(cuts).all():raise ValueError('Target outcome not after its forecast cutoff')
+        trained=w[w.max_known.notna()].merge(features[['fixture_uuid','team_id','cutoff']],on=['fixture_uuid','team_id'],validate='many_to_one')
+        if not pd.to_datetime(trained.max_known,utc=True).lt(pd.to_datetime(trained.cutoff,utc=True)).all():raise ValueError('A fitted label is not strictly prior to cutoff')
+        profiles=0
+        for season in ['2024-25','2025-26']:
+            for r in records(season,mm):
+                for pr in r['candidates']['hybrid']['spec']['profiles'].values():
+                    if pd.Timestamp(pr['maximum_known'])>=pd.Timestamp(r['cutoff']):raise ValueError('Future profile history')
+                    profiles+=1
+        temporal[mm]=dict(forecast_sides=len(features),training_row_checks=len(trained),profile_cutoff_checks=profiles,all_passed=True)
         dev=features[features.season.eq('2024-25')&features.gw.le(21)]
         thresholds={k:float(dev[k].median())for k in ['log_minutes','relative_variance','lineup_change','stability','disagreement']}
         for season in ['2024-25','2025-26']:
@@ -76,7 +87,8 @@ def diagnose():
             else:xi=None
             result[season+'_'+mm]=dict(development_median_thresholds=thresholds,endpoint_errors=endpoint,arms=arms,xi_only=xi)
     for p in sorted(OUT.glob('*.csv.gz')):hashes[p.name]=hashlib.sha256(p.read_bytes()).hexdigest()
-    save(OUT/'reliability_report.json',dict(classification='COMPLETED_DYNAMIC_PM_V2_DIAGNOSIS_NOT_RETUNED',results=result,source_sha256=hashes,limitations=protocol['limitations'],locked_model_active=False,promotion_allowed=False))
+    for p in sorted(BASE.rglob('*_inputs.jsonl.gz')):hashes['prepared/'+p.name]=hashlib.sha256(p.read_bytes()).hexdigest()
+    save(OUT/'reliability_report.json',dict(classification='COMPLETED_DYNAMIC_PM_V2_DIAGNOSIS_NOT_RETUNED',results=result,temporal_checks=temporal,source_sha256=hashes,limitations=protocol['limitations']+['Shared seeds do not guarantee identical later lineups after event RNG consumption differs; report seed dispersion separately','Actions raw artifacts expire after90days; committed report hashes identify source captures but do not archive their full bytes'],locked_model_active=False,promotion_allowed=False))
     print('Reliability/error decomposition saved',flush=True)
 
 

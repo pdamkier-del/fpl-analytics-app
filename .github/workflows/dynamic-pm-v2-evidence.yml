@@ -9,6 +9,9 @@ on:
 permissions:
   contents: read
   actions: read
+concurrency:
+  group: dynamic-pm-v2-evidence-${{ github.ref }}
+  cancel-in-progress: true
 env:
   PYTHONPATH: src:scripts
   OPENBLAS_NUM_THREADS: '1'
