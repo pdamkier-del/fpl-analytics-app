@@ -78,3 +78,14 @@ def test_history_excludes_future_and_team_ids_do_not_cross_seasons():
     assert state[0].loc['a','goals']==3.
     assert state[1].loc[6,'goals']==1.
     assert state[0].loc['b','goals']==1.
+
+
+def test_postprocess_groups_do_not_use_target_role_or_future_team_goals():
+    import pandas as pd
+    from postprocess_pm_conversion import labels
+    past=[dict(player_uuid='a',season='2024-25',team_id=6,fixture_uuid=str(i),known=pd.Timestamp('2024-09-01',tz='UTC')+pd.Timedelta(days=i),started=1,minutes=90,goals=1.,fpl_assists=0.,xg=1.) for i in range(6)]
+    future=dict(past[-1],fixture_uuid='future',known=pd.Timestamp('2024-10-01',tz='UTC'),started=0,goals=100.)
+    record=dict(cutoff='2024-09-20T00:00:00Z',origin=7,core_fixture='target',input={'players':[dict(player_id='a',team='6')]})
+    out=labels([record],pd.DataFrame(past+[future]),'2024-25').iloc[0]
+    assert out.role=='regular'
+    assert out.team_type=='credited_goals_at_or_below_xg'

@@ -31,7 +31,7 @@ Historisk tilgængelighed anvender fortsat de dokumenterede kickoff+3/4h-proxyer
 ## Kandidater og protokol
 
 1. **Simple xG/xA:** tidligere current-season xG/xA og positionsprior med de oprindelige primitive shrinkagekonstanter; ingen performance/rolle-korrektion. Et comparator-ablation, ikke ny produktion.
-2. **Gamma-Poisson conversion:** theta~Gamma(tau,tau), Y|X,theta~Pois(theta*X), E(theta|history)=(Y+tau)/(X+tau). Det er en effektiv kalibreringskorrektion på all-xG, ikke identificeret NPG-finishing.8mål/5xG vedtau50 bliver1.0545, ikke1.6.
+2. **Gamma-Poisson conversion:** theta~Gamma(tau,tau), Y|X,theta~Pois(theta*X), E(theta|history)=(Y+tau)/(X+tau). Det er en effektiv kalibreringskorrektion på all-xG, ikke identificeret NPG-finishing.8mål/5xG vedtau50 bliver1.0545, ikke1.6. Med kalenderdecay er de vægtede sufficient-statistics en power-likelihood-tilnærmelse; de er ikke ekstra faktiske heltalsmål eller et bevis for stationær spiller-evne.
 3. **Assist conversion:** samme struktur med FPL-assists/xA. Den identificerer ikke ren kreativitet; modtageres finishing og FPL-regler er blandet i udfaldet.
 4. **Hierarkisk EB:** spillerens Gamma-prior-middel shrinkes mod aktuel sæsons hold, som shrinkes mod league-conversion. Begge events testes. Der opfindes ikke en separat ligaforskel fra data om kun én liga.
 5. **Total-finishing:** den relative spillerkorrektion normaliseres én gang; optionalt korrigeres ordinary-team-lambda med den forventede eksponeringsvægtede finishingfaktor. Straffekonvertering og straffemasse fastholdes. En uniform finishingfaktor2 flytter ordinary-total2x, ikke4x. Fixed-total- og changed-total-arme holdes adskilt.
@@ -66,3 +66,26 @@ Analytisk pre-match event-proxy, ikke fuld MonteCarlo-PM:
 |2025GW6–38, FPL-assists|0.1134746|0.1134495|0.1132646|
 
 Målkorrektionerne generaliserer således ikke bedre på denne log-score i de senere perioder. Assistresultatet er mere positivt, men forskellene er små. Vi konkluderer ikke forbedret xP fra denne proxy. Den fulde PM-replay og MM-interaktion kører særskilt, med samme gamle pointkoefficienter og egne baselinekontroller.
+
+
+### Goal-credit-forskellen er forklaret af officiel efterfølgende kreditering
+
+Rækken er YoaneWissa, Brentford–Ipswich26/10/2024. PremierLeague annoncerede29/10, at HarryClarkes oprindelige selvmål blev omkrediteret til Wissa, men at GW9's FPL-point **ikke** blev ændret efter rundens afslutning27/10. Dermed kan providerens to fodboldmål og FPL's ene mål være korrekte under hver deres definition og tidspunkt. En senere fysisk goal-credit må ikke indlæses i en historisk forecast26/10 med kickoff+4h-stempel. Hverken Core's FPL-goals, assists eller points er overskrevet. [Officiel redegørelse](https://www.premierleague.com/news/4159875).
+
+Dette er en konkret evidens for både outcome-definition og publiceringskravet, ikke en begrundelse for at ændre den låste reference. De øvrige xG-afvigelser er stadig forskellige kildemålinger; de sidestilles ikke automatisk med denne forklaring.
+
+
+### Eksisterende kreativitetsfeatures og yderligere databegrænsninger
+
+Den originale allocator bruger allerede `perf_last_chances`, driblinger og afleveringspræcision på assistsiden samt xGI/SOT/goal-assist-signaler på målsiden. Disse stammer fra raw-`playermatchstats`, ikke fra de tomme Core-shotfelter. Nye rene A/xA-korrektioner skal derfor testes ud over eksisterende kreativitetssignaler, ikke beskrives som om den oprindelige model ignorerer dem.
+
+Den eksisterende `build_perf_ledger` konverterer manglende numeriske detaljer til nul. I de38arkiverede2025-filer er der13.881spillede rækker, hvor11manglerxG,20manglerxA og21manglerafleveringspræcision før denne konvertering; SOT/chances/driblinger har ingen sådanne nulls i denne kontrol. Dette er en bekræftet inherited baseline-datakvalitetsrisiko, ikke en begrundelse for at retune/ændre den låste model under A/B. Den nye conversion-history bruger de eksplicit validerede Core-felter og udelader tidlige2022-placeholders. Parserens eksakte zero-fill-effekt på PM er endnu ikke isoleret i en særskilt ablation.
+
+Core's set-piece-snapshots dækker2023/24 og et2026/27-snapshot, men ingen2024/25- eller2025/26-rækker. Ingen har `effective_at`; nogle har observerede rangeringer. Det er ikke tilstrækkeligt til at opfinde cutoff-korrekte dødboldsordener for testperioderne. Effekten kan delvist være i historisk xA/softrole og originalt penalty-state, men der er ikke implementeret en ny uverificeret corner/free-kick-effekt.
+
+
+### Aktuelt snapshot er fortsat diagnostisk, inklusive provisionelle data
+
+Den checksum-verificerede aktive fixtures-kilde i manifestet12/10viser Chelseas GW6 som `finished_provisional=true`, men `finished=false`, med5–1. De fem endeligt markerede kampe giver10mål; inklusive den provisionelle sjette kamp bliver det15, som spillerhistorikken også summerer til. Vi udelader ikke GW6 fra den diagnostiske shadow og påstår heller ikke, at kildens endelige status er bestået. `current_source_status.json` gemmer dette med kilde/checksum. Gamle filer i work-mappen må ikke vælges som aktuelle kilder uden manifestet. Ingen af disse snapshotanalyser er et nyt15/10-forecast.
+
+De to af60historiske hold/sæsoner med mindst1.5G/xG i deres første seks kampe falder samlet fra19/11.33=1.677 til16/12.67=1.263 i de næste seks. Det er en meget lille, efterfølgende deskriptiv gruppe, ikke evidens for en universel fast regressionsfaktor. Realiseret senere xG bruges kun til denne beskrivelse og aldrig til forecasts eller hyperparametervalg.

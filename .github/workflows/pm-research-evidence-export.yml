@@ -32,9 +32,14 @@ jobs:
           pattern: pm-conversion-*
           merge-multiple: true
           path: work/results
+      - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
         with:
           python-version: '3.12'
+      - run: |
+          pip install -r requirements-model-checkpoint.txt
+          python scripts/restore_core_checkpoint.py
+          PYTHONPATH=src:scripts python scripts/postprocess_pm_conversion.py
       - run: |
           python - <<'PY'
           from pathlib import Path
