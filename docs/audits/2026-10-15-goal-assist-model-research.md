@@ -48,3 +48,21 @@ Fuld PM er400draws/fixture med originale seeds og exact-reference-guard. Simulat
 Kode og regressioner er implementeret isoleret. Numeriske resultater tilføjes efter afsluttede kørsler; ingen kandidat er valgt til produktion. Historiske fremtidige seks-GW-celler mangler stadig, så et nyt korrekt kandidat-TS-total mod2125 kan ikke opfindes. Den originale baseline bevares.
 
 Primære metodereferencer: [StatsBomb: Quantifying finishing skill](https://blogarchive.statsbomb.com/articles/soccer/quantifying-finishing-skill/), [Biases in Expected Goals Models Confound Finishing Ability](https://arxiv.org/abs/2401.09940), [FPL scoring/assist rules](https://www.premierleague.com/en/news/2174909/), [2025/26 assist changes](https://www.premierleague.com/en/news/4362187/whats-new-in-202526-fantasy-changes-to-assists-rules). De begrunder forsøg/afgrænsning, ikke en påstået forbedring i vores model.
+
+
+## Rå npxG-kildekontrol og første afsluttede screening
+
+Raw-shotmap-auditten finder faktisk native NP-chancer i2024:380PL-kampe,83straffeskud,69straffemål og1013øvrige krediterede mål. Alle5323spiller/kamp-kombinationer med skud mapper tilCore; ingen unmapped/missing-xG-skud. Men183rækker har >0.05xG-afvigelse mellem kilderne, maksimum0.54194, og én goal-credit-uoverensstemmelse.4778rækker stemmer inden for0.01. Derfor må FotMob-straffe-xG ikke blot trækkes fra Core/FPL-xG. Kilderne er tilstrækkelige til et separat provider-internt2024-npxG-forsøg, ikke til at påstå en verificeret fler­sæsons npxG-reparation.804mål har provider-assistlinks, stadig ingen skaber ved de øvrige skud.
+
+Den udvidede udviklingsscreening valgte finishing med hele den tilgængelige historie/tau20, assistconversion365d/tau5 og hierarki365d/spiller-tau5/hold-tau320. Alle valg er fra2024GW6–21; testdata blev ikke brugt til valget.
+
+Analytisk pre-match event-proxy, ikke fuld MonteCarlo-PM:
+
+| Testperiode og event | Original Poisson NLL | Valgt playerconversion | Hierarki |
+| --- | ---: | ---: | ---: |
+|2024GW22–38, mål|0.1168332|0.1169068|0.1170441|
+|2025GW6–38, mål|0.1089216|0.1089557|0.1090834|
+|2024GW22–38, FPL-assists|0.1174993|0.1170642|0.1170301|
+|2025GW6–38, FPL-assists|0.1134746|0.1134495|0.1132646|
+
+Målkorrektionerne generaliserer således ikke bedre på denne log-score i de senere perioder. Assistresultatet er mere positivt, men forskellene er små. Vi konkluderer ikke forbedret xP fra denne proxy. Den fulde PM-replay og MM-interaktion kører særskilt, med samme gamle pointkoefficienter og egne baselinekontroller.
