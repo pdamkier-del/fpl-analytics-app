@@ -5,10 +5,14 @@ on:
     paths:
       - scripts/research_pm_conversion.py
       - scripts/replay_pm_conversion.py
+      - scripts/diagnose_pm_conversion.py
       - src/fpl_v1_1_model/experimental_pm_conversion.py
       - tests/test_experimental_pm_conversion.py
       - .github/workflows/pm-conversion-research.yml
   workflow_dispatch:
+concurrency:
+  group: pm-conversion-${{ github.ref }}
+  cancel-in-progress: true
 permissions:
   contents: read
   actions: read
@@ -112,3 +116,36 @@ jobs:
             analysis/results/pm-research-20261015/*_predictions.csv.gz
             analysis/results/pm-research-20261015/*_inputs.jsonl.gz
             analysis/results/pm-research-20261015/cache_*
+  diagnostics:
+    needs: selection
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: pip install -r requirements-model-checkpoint.txt requests
+      - run: |
+          python scripts/restore_core_checkpoint.py
+          python scripts/current_diagnostic_checkpoint.py restore
+      - uses: actions/download-artifact@v4
+        with:
+          name: pm-conversion-selected-inputs
+          path: analysis/results/pm-research-20261015
+      - uses: actions/download-artifact@v4
+        with:
+          github-token: ${{ github.token }}
+          run-id: '38712316437'
+          name: mm-current-pm-focus
+          path: work/current-focus
+      - run: |
+          python scripts/locked_numerical_runtime.py scripts/diagnose_pm_conversion.py --inputs work/current-focus/current_pm_focus_inputs.jsonl.gz
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: pm-conversion-current-focus
+          retention-days: 90
+          path: |
+            analysis/results/pm-research-20261015/current_conversion_report.json
+            analysis/results/pm-research-20261015/current_conversion_focus.csv.gz

@@ -69,7 +69,7 @@ def paired_ci(frame,value,base='original'):
 
 
 def metrics(g):
-    e=g.xp-g.total_points;out=dict(rows=len(g),mae=float(abs(e).mean()),rmse=float(np.sqrt((e*e).mean())),bias=float(e.mean()),mean_xp=float(g.xp.mean()),mean_actual=float(g.total_points.mean()),bonus_mae=float(abs(g.expected_bonus-g.bonus).mean()),bonus_bias=float((g.expected_bonus-g.bonus).mean()),point_components={k:float(g[k].mean()) for k in POINT_COMPONENTS})
+    e=g.xp-g.total_points;out=dict(rows=len(g),mae=float(abs(e).mean()),rmse=float(np.sqrt((e*e).mean())),bias=float(e.mean()),mean_xp=float(g.xp.mean()),mean_actual=float(g.total_points.mean()),bonus_mae=float(abs(g.expected_bonus-g.bonus).mean()),bonus_bias=float((g.expected_bonus-g.bonus).mean()),bps_mae=float(abs(g.bps_mean-g.bps).mean()),bps_bias=float((g.bps_mean-g.bps).mean()),bonus_brier=float(np.mean(np.sum((np.column_stack([1-g[['p_bonus_1','p_bonus_2','p_bonus_3']].sum(axis=1),g.p_bonus_1,g.p_bonus_2,g.p_bonus_3])-np.eye(4)[g.bonus.astype(int)])**2,axis=1))),point_components={k:float(g[k].mean()) for k in POINT_COMPONENTS})
     for event,col,prob in [('goals','goal_mu','p_goal'),('fpl_assists','assist_mu','p_assist')]:
         y=g[event].to_numpy();mu=np.maximum(g[col].to_numpy(),1e-12);p=g[prob].to_numpy();yes=(y>0).astype(float)
         out[event]=dict(mae=float(abs(mu-y).mean()),rmse=float(np.sqrt(((mu-y)**2).mean())),bias=float((mu-y).mean()),poisson_nll=float((mu-y*np.log(mu)+gammaln(y+1)).mean()),brier=float(((p-yes)**2).mean()),binary_log_loss=float(-(yes*np.log(p)+(1-yes)*np.log1p(-p)).mean()),mean_pred=float(mu.mean()),mean_actual=float(y.mean()))
@@ -110,7 +110,7 @@ def main():
             for gw in sorted(hazards):
                 if gw<=record['origin']:h.update(hazards[gw])
             record['hazards']=h
-        record['inputs']={k:asdict(v) for k,v in inputs.items()};record.pop('candidate_inputs',None);prepared.append(record)
+        record['cutoff']=str(cut);record['inputs']={k:asdict(v) for k,v in inputs.items()};record.pop('candidate_inputs',None);prepared.append(record)
     write_records(out/f'{a.season}_{a.arm}_inputs.jsonl.gz',prepared)
     cache=out/f'cache_{a.season}_{a.arm}';cache.mkdir(exist_ok=True)
     from importlib.metadata import version
@@ -121,9 +121,9 @@ def main():
         for i,future in enumerate(as_completed(tasks)):
             rows.extend(future.result())
             if (i+1)%10==0:print('PM conversion',a.season,a.arm,i+1,'/',len(prepared),flush=True)
-    truth=obs[obs.season.eq(a.season)][['fixture_uuid','player_uuid','goals','fpl_assists','total_points','minutes','bonus']]
+    truth=obs[obs.season.eq(a.season)][['fixture_uuid','player_uuid','goals','fpl_assists','total_points','minutes','bonus','bps']]
     p=pd.DataFrame(rows).merge(truth,on=['fixture_uuid','player_uuid'],how='left',validate='many_to_one')
-    if p[['goals','fpl_assists','total_points','minutes','bonus']].isna().any().any():raise ValueError('Missing truth; no imputation allowed')
+    if p[['goals','fpl_assists','total_points','minutes','bonus','bps']].isna().any().any():raise ValueError('Missing truth; no imputation allowed')
     # MM-only arm must be paired to its own unchanged PM baseline.
     if a.arm=='mm':p['mode']=p['mode'].replace({'mm_original':'original','mm_combined':'combined','mm_hierarchy':'hierarchy'})
     team_truth=teams[teams.season.eq(a.season)][['fixture_uuid','team_id','gf']]

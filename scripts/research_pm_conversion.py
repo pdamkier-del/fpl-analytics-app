@@ -88,7 +88,7 @@ def target_records(path,db,season):
 
 
 def config_list():
-    return [dict(name=f'{family}_h{half}_t{tau}',family=family,half=half,tau=tau,team_tau=80.) for family in ['goal','assist','hierarchy'] for half in HALVES for tau in TAUS]
+    return [dict(name=f'{family}_h{half}_t{tau}_team{team_tau}',family=family,half=half,tau=tau,team_tau=team_tau) for family in ['goal','assist','hierarchy'] for half in HALVES for tau in TAUS for team_tau in ([20.,80.,320.] if family=='hierarchy' else [80.])]
 
 
 def propose(inp,cfg,state):
