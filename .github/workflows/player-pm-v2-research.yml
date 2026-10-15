@@ -1,0 +1,135 @@
+name: Isolated player-based PM v2 research
+on:
+  push:
+    branches: [model-audit-optimization-20261012]
+    paths:
+      - src/fpl_v1_1_model/experimental_player_pm.py
+      - scripts/research_player_pm_v2.py
+      - scripts/diagnose_player_pm_v2.py
+      - tests/test_experimental_player_pm.py
+      - .github/workflows/player-pm-v2-research.yml
+  workflow_dispatch:
+concurrency:
+  group: player-pm-v2-${{ github.ref }}
+  cancel-in-progress: false
+permissions:
+  contents: read
+  actions: read
+env:
+  PYTHONPATH: src:scripts
+  OPENBLAS_NUM_THREADS: '1'
+  OMP_NUM_THREADS: '1'
+  PYTHONHASHSEED: '0'
+jobs:
+  selection:
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: pip install -r requirements-model-checkpoint.txt -r requirements-model-tests.txt requests
+      - run: |
+          python -m pytest tests -q
+          python scripts/restore_core_checkpoint.py
+      - uses: actions/download-artifact@v4
+        with:
+          github-token: ${{ github.token }}
+          run-id: '38565961308'
+          pattern: mm-original-pm-*
+          merge-multiple: true
+          path: work/original-pm
+      - uses: actions/download-artifact@v4
+        with:
+          github-token: ${{ github.token }}
+          run-id: '38565961308'
+          name: mm-component-inputs-and-results
+          path: analysis/results
+      - name: Select only on earlier development period
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          import subprocess,sys
+          p={s:list(Path('work/original-pm').rglob(f'mm-pm-{s}/inputs.jsonl.gz')) for s in ['2024-25','2025-26']}
+          assert all(len(v)==1 for v in p.values()),p
+          subprocess.run([sys.executable,'scripts/locked_numerical_runtime.py','scripts/research_player_pm_v2.py','--stage','select','--inputs2024',str(p['2024-25'][0]),'--inputs2025',str(p['2025-26'][0])],check=True)
+          PY
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: player-pm-v2-selection
+          path: analysis/results/player-pm-v2-20261015/
+          retention-days: 90
+  replay:
+    needs: selection
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+    strategy:
+      fail-fast: false
+      matrix:
+        season: ['2024-25','2025-26']
+        arm: ['locked','mm']
+        shard: [0,1,2,3]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: pip install -r requirements-model-checkpoint.txt requests
+      - run: python scripts/restore_core_checkpoint.py
+      - uses: actions/download-artifact@v4
+        with:
+          name: player-pm-v2-selection
+          path: analysis/results/player-pm-v2-20261015
+      - uses: actions/download-artifact@v4
+        with:
+          github-token: ${{ github.token }}
+          run-id: '38565961308'
+          name: mm-original-pm-${{ matrix.season }}
+          path: work/original-pm
+      - uses: actions/download-artifact@v4
+        with:
+          github-token: ${{ github.token }}
+          run-id: '38565961308'
+          name: mm-component-inputs-and-results
+          path: analysis/results
+      - run: |
+          python - <<'PY'
+          from pathlib import Path
+          import subprocess,sys
+          p=list(Path('work/original-pm').rglob('mm-pm-${{ matrix.season }}/inputs.jsonl.gz'));assert len(p)==1,p
+          subprocess.run([sys.executable,'scripts/locked_numerical_runtime.py','scripts/research_player_pm_v2.py','--stage','replay','--inputs',str(p[0]),'--season','${{ matrix.season }}','--arm','${{ matrix.arm }}','--shard','${{ matrix.shard }}'],check=True)
+          PY
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: player-pm-v2-${{ matrix.season }}-${{ matrix.arm }}-${{ matrix.shard }}
+          path: |
+            analysis/results/player-pm-v2-20261015/*_${{ matrix.arm }}_${{ matrix.shard }}_*
+            analysis/results/player-pm-v2-20261015/cache_${{ matrix.season }}_${{ matrix.arm }}_${{ matrix.shard }}/
+          retention-days: 90
+  aggregate:
+    needs: replay
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: pip install -r requirements-model-checkpoint.txt
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: player-pm-v2-*
+          merge-multiple: true
+          path: analysis/results/player-pm-v2-20261015
+      - run: python scripts/research_player_pm_v2.py --stage aggregate
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: player-pm-v2-final-reports
+          path: |
+            analysis/results/player-pm-v2-20261015/*report.json
+            analysis/results/player-pm-v2-20261015/selection.json
+            analysis/results/player-pm-v2-20261015/summary.json
+          retention-days: 90

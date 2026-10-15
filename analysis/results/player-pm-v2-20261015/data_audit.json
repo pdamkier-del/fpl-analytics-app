@@ -1,0 +1,139 @@
+{
+  "audit": {
+    "rows_by_season": {
+      "2022-23": 26505,
+      "2023-24": 29725,
+      "2024-25": 27283,
+      "2025-26": 29747
+    },
+    "excluded_2022_early_placeholder_rows": 8491,
+    "missing_fields": {
+      "npxg": 113260,
+      "shots": 113260,
+      "shots_on_target": 113260,
+      "big_chances_created": 113260
+    },
+    "source_publication_certified": false,
+    "availability": "kickoff+4h; 2025/26 +3h, matching archived MM/PM adapter proxies",
+    "team_identity": "(season, team_id), never team_id alone across seasons",
+    "fields": {
+      "sub_on_second": {
+        "non_null": 0,
+        "rows": 104769
+      },
+      "sub_off_second": {
+        "non_null": 0,
+        "rows": 104769
+      },
+      "xg": {
+        "non_null": 104769,
+        "rows": 104769
+      },
+      "npxg": {
+        "non_null": 0,
+        "rows": 104769
+      },
+      "xa": {
+        "non_null": 104769,
+        "rows": 104769
+      },
+      "shots": {
+        "non_null": 0,
+        "rows": 104769
+      },
+      "shots_on_target": {
+        "non_null": 0,
+        "rows": 104769
+      },
+      "big_chances_created": {
+        "non_null": 0,
+        "rows": 104769
+      },
+      "tackles": {
+        "non_null": 29747,
+        "rows": 104769
+      },
+      "recoveries": {
+        "non_null": 29747,
+        "rows": 104769
+      },
+      "defcon_count": {
+        "non_null": 29747,
+        "rows": 104769
+      },
+      "bps": {
+        "non_null": 104769,
+        "rows": 104769
+      }
+    },
+    "canonical_players": 1573,
+    "roles": {
+      "MID": 46169,
+      "DEF": 34631,
+      "FWD": 12338,
+      "GK": 11631
+    },
+    "source_tables": [
+      "raw_fetch_manifest",
+      "schema_registry",
+      "ingestion_quarantine",
+      "players",
+      "player_id_mapping",
+      "player_registrations",
+      "fixtures",
+      "fixture_schedule_snapshots",
+      "player_fixture_observations",
+      "player_fixture_point_components",
+      "team_fixture_observations",
+      "player_state_snapshots",
+      "set_piece_role_snapshots",
+      "news_statements",
+      "career_penalties"
+    ],
+    "set_piece_by_season": [
+      {
+        "season": "2023-24",
+        "rows": 88530
+      },
+      {
+        "season": "2026-27",
+        "rows": 1986
+      }
+    ],
+    "player_source_names": [
+      {
+        "season": "2022-23",
+        "source_name": "vaastav_historical_core",
+        "rows": 18014
+      },
+      {
+        "season": "2023-24",
+        "source_name": "vaastav_historical_core",
+        "rows": 29725
+      },
+      {
+        "season": "2024-25",
+        "source_name": "vaastav_historical_core",
+        "rows": 27283
+      },
+      {
+        "season": "2025-26",
+        "source_name": "vaastav_historical_core",
+        "rows": 29747
+      }
+    ],
+    "raw_sources_prior_audit": "docs/audits/2026-10-15-goal-assist-model-research.md: native 2024 shotmaps, source disagreement, missing failed-shot creator links; raw performance-ledger features already used by original allocator"
+  },
+  "limitations": [
+    "Reused development seasons, no pristine independent holdout",
+    "Historical publication uses kickoff+3/4h proxies, not source availability certification",
+    "Broad FPL roles only; no verified temporal tactical role or set-piece orders",
+    "All-xG contains penalties; finishing is effective calibration not isolated NPG skill",
+    "No failed-shot creator/receiver links: team creative elasticity is not pair chemistry",
+    "Original independent-XI, own-goal and special-assist limitations retained to isolate PM",
+    "Conditional EB/quasi-Poisson intervals omit parameter/context/MM uncertainty",
+    "Fixture bootstrap does not include all Monte Carlo uncertainty",
+    "No historical six-GW candidate TS replay or live certification"
+  ],
+  "locked_model_active": false
+}
