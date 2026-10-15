@@ -74,12 +74,19 @@ def diagnose():
             layouts=['independent','legal']if mm=='locked'else ['legal'];arms={}
             for layout in layouts:
                 p=point_losses(load(season,mm,layout,'predictions'));t=load(season,mm,layout,'teams');joined=p.merge(f[['fixture_uuid','team_id']+groupcols],on=['fixture_uuid','team_id'],validate='many_to_one');tg=t.merge(f[['fixture_uuid','team_id']+groupcols],on=['fixture_uuid','team_id'],validate='many_to_one')
+                ww=w[w.fixture_uuid.isin(f.fixture_uuid)];wg=ww.merge(f[['fixture_uuid','team_id']+groupcols],on=['fixture_uuid','team_id'],validate='many_to_one');counts={}
+                for i in range(6):
+                    c=json.loads((OUT/f'{season}_{mm}_{layout}_{i}_completion.json').read_text())
+                    for ds in c['diagnostics']:
+                        for d in ds:
+                            total=counts.setdefault(d['mode'],dict(legal_draws=0,cameos_capped=0,cameos_rejected=0,zero_duration_clamped=0,max_marginal_shift=0.))
+                            for key in ['legal_draws','cameos_capped','cameos_rejected','zero_duration_clamped']:total[key]+=d['legal'].get(key,0)
+                            total['max_marginal_shift']=max([total['max_marginal_shift']]+[v['max_abs_marginal_change']for v in (d.get('projection')or{}).values()])
                 for col in groupcols:
                     groups[col]={str(k):dict(sides=int(tg[tg[col].eq(k)][['fixture_uuid','team_id']].drop_duplicates().shape[0]),points={mode:dict(rows=len(g),mae=float(g.point_abs_error.mean()),rmse=float(np.sqrt(g.point_squared_error.mean())),cs_brier=float(g.cs_brier.mean()),bonus_mae=float(g.bonus_abs_error.mean()))for mode,g in v.groupby('mode')},delta_mae_vs_fixed=paired_ci(v,'point_abs_error','fixed'),teams=compare_teams(tg[tg[col].eq(k)]))for k,v in joined.groupby(col)}
                 ref=p[p['mode'].eq('fixed')];v=p[p['mode'].eq(chosen)].merge(ref,on=['fixture_uuid','player_uuid'],validate='one_to_one',suffixes=('','_base'));d=v[POINT_COMPONENTS].to_numpy()-v[[k+'_base'for k in POINT_COMPONENTS]].to_numpy()
                 if not np.allclose(d.sum(1),v.xp-v.xp_base,atol=1e-10):raise ValueError('Attribution component mismatch')
-                ww=w[w.fixture_uuid.isin(f.fixture_uuid)]
-                arms[layout]=dict(team_comparisons_vs_fixed=compare_teams(t),paired_vs_fixed={k:paired_ci(p,k,'fixed')for k in ['point_abs_error','point_squared_error','bonus_abs_error','goal_abs_error','assist_abs_error','cs_brier','gc_abs_error']},groups=copy.deepcopy(groups),selected_error_attribution_vs_fixed=error_attribution(v.xp_base-v.total_points,d),weight_distribution={m:dict(sides=len(g),mean=float(g.w.mean()),quantiles=g.w.quantile([0,.1,.5,.9,1]).to_dict(),fallbacks=int(g.get('fallback',pd.Series(index=g.index,dtype=str)).notna().sum()))for m,g in ww.groupby('mode')})
+                arms[layout]=dict(team_comparisons_vs_fixed=compare_teams(t),paired_vs_fixed={k:paired_ci(p,k,'fixed')for k in ['point_abs_error','point_squared_error','bonus_abs_error','goal_abs_error','assist_abs_error','cs_brier','gc_abs_error']},groups=copy.deepcopy(groups),sampler_checks=counts,selected_error_attribution_vs_fixed=error_attribution(v.xp_base-v.total_points,d),weight_by_group={col:{str(label):{mode:dict(mean=float(g.w.mean()),min=float(g.w.min()),max=float(g.w.max()))for mode,g in ff.groupby('mode')}for label,ff in wg.groupby(col)}for col in groupcols},weight_distribution={m:dict(sides=len(g),mean=float(g.w.mean()),quantiles=g.w.quantile([0,.1,.5,.9,1]).to_dict(),fallbacks=int(g.get('fallback',pd.Series(index=g.index,dtype=str)).notna().sum()))for m,g in ww.groupby('mode')})
             if mm=='locked':
                 a=point_losses(load(season,mm,'independent','predictions'));b=point_losses(load(season,mm,'legal','predictions'));a['mode']='independent_'+a['mode'];b['mode']='legal_'+b['mode'];ab=pd.concat([a,b]);xi={}
                 for ref in ['independent_original','independent_fixed']:
