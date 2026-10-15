@@ -8,6 +8,7 @@ ROOT=Path(__file__).resolve().parents[1];sys.path[:0]=[str(ROOT/'src'),str(ROOT/
 from audit_mm_components import prefix_features,load_obs
 from audit_capture_io import write_records
 from capture_mm_pm_inputs import minute_fields
+from assemble_live_vfinal_inputs import assemble
 from fpl_v1_1_model.experimental_mm_research import fit_start,survival_prediction
 from fpl_v1_1_model.experimental_survival_sampler import shadow_survival_sampler
 from fpl_v1_1_model.joint_simulator import simulate_many
@@ -54,14 +55,15 @@ def context(base):
     return hist,role,perf,load_models()
 
 
-def overlay_components(original,built):
-    """Align by verified identity rather than the component builder's row order."""
-    if original.player_uuid.duplicated().any() or built.player_uuid.duplicated().any():raise ValueError('Duplicate component identity')
-    if set(original.player_uuid)!=set(built.player_uuid):raise ValueError('Component identities differ')
-    aligned=built.set_index('player_uuid',drop=False).loc[original.player_uuid]
-    result=original.copy()
-    for col in built.columns:result[col]=aligned[col].to_numpy()
-    return result
+def current_minute_fields(frame,state):
+    x=minute_fields(frame,state)
+    for to,fr in [('p_start','control_p_start'),('xmins','control_xmins'),('mm_q_sub','p_cameo_given_bench'),('mm_sub_minutes','cameo_minutes_mean')]:x[to]=x[fr]
+    return x
+
+
+def assemble_fixture(built,reference):
+    keys=['fixture_uuid','player_uuid']
+    return assemble(built,reference[keys+['lambda_pen','pen_weight','pen_conversion','team_pen_conversion']],reference[keys+['bg_mean_rate90','bg_sd90']])
 
 
 def main():
@@ -81,7 +83,7 @@ def main():
         def rebuild(frame):return build_fixture_components(frame,source_hist,role,cut,m['attack'],m['dc'],m['neg'],m['ga'],m['dc_model'],m['dc_cal'],perf,h,away,float(g.lambda_home_goals.iloc[0]),float(g.lambda_away_goals.iloc[0]),float(g.assist_probability_per_goal.iloc[0]),season='2026-27')
         baseline=rebuild(source);original,_=make_vfinal_input(g);original=replace(original,bps_rules='2026-27')
         # Prove that the context rebuild recovers every original component used by PM.
-        verified=overlay_components(g,baseline)
+        verified=assemble_fixture(baseline,g)
         check,_=make_vfinal_input(verified);check=replace(check,bps_rules='2026-27')
         def close(left,right):
             if isinstance(left,dict):return left.keys()==right.keys() and all(close(left[k],right[k]) for k in left)
@@ -91,8 +93,8 @@ def main():
         if not close(asdict(check),asdict(original)):raise ValueError('Current original component rebuild differs')
         inputs={'original':original}
         for mode,state in states.items():
-            rebuilt=rebuild(minute_fields(source,state));alt=overlay_components(g,rebuilt)
-            alt=minute_fields(alt,state);inp,_=make_vfinal_input(alt);inp=replace(inp,bps_rules='2026-27')
+            rebuilt=rebuild(current_minute_fields(source,state));alt=assemble_fixture(rebuilt,g)
+            inp,_=make_vfinal_input(alt);inp=replace(inp,bps_rules='2026-27')
             if (inp.lambda_home_goals,inp.lambda_away_goals)!=(original.lambda_home_goals,original.lambda_away_goals):raise ValueError('Changed team-goal model')
             inputs[mode]=inp
         inputs['combined_distribution']=inputs['combined_mean'];inputs['survival_distribution']=inputs['survival_mean']

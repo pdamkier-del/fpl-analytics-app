@@ -1,18 +1,21 @@
 import pandas as pd
 import pytest
-from experiment_mm_current_pm import overlay_components
+from experiment_mm_current_pm import current_minute_fields
 
 
-def test_component_rebuild_retains_identity_and_original_order():
-    base=pd.DataFrame({'player_uuid':['a','b'],'minutes':[90,79],'untouched':[1,2]},index=[5,9])
-    built=pd.DataFrame({'player_uuid':['b','a'],'minutes':[20,80]})
-    out=overlay_components(base,built)
-    assert out.to_dict('list')=={'player_uuid':['a','b'],'minutes':[80,20],'untouched':[1,2]}
-    assert out.index.tolist()==[5,9]
-    assert base.minutes.tolist()==[90,79]
+def test_current_assembly_aliases_share_the_candidate_minute_identity():
+    base=pd.DataFrame({'player_uuid':['a','b'],'p_start':[.9,.1],'xmins':[80.,3.],'mm_q_sub':[.2,.3]})
+    state=pd.DataFrame({'player_uuid':['b','a'],'p':[.1,.8],'s':[70.,85.],'q':[.4,.2],'c':[20.,10.],'x':[14.2,68.4]})
+    out=current_minute_fields(base,state)
+    assert out.player_uuid.tolist()==['a','b']
+    assert out.p_start.tolist()==[.8,.1]
+    assert out.xmins.tolist()==[68.4,14.2]
+    assert out.mm_q_sub.tolist()==[.2,.4]
+    assert out.mm_sub_minutes.tolist()==[10.,20.]
+    assert out.expected_minutes.tolist()==[68.4,14.2]
+    assert base.p_start.tolist()==[.9,.1]
+    assert (out.p_start*out.start_minutes_mean+(1-out.p_start)*out.mm_q_sub*out.mm_sub_minutes).tolist()==pytest.approx(out.xmins.tolist())
 
 
-def test_component_rebuild_rejects_missing_or_duplicate_identity():
-    base=pd.DataFrame({'player_uuid':['a','b']})
-    for ids in [['a'],['a','a'],['a','c']]:
-        with pytest.raises(ValueError):overlay_components(base,pd.DataFrame({'player_uuid':ids}))
+def test_current_state_requires_every_player_identity():
+    with pytest.raises(ValueError):current_minute_fields(pd.DataFrame({'player_uuid':['a','b']}),pd.DataFrame({'player_uuid':['a']}))
