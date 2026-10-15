@@ -1,0 +1,176 @@
+{
+  "results": {
+    "2024-25_locked": {
+      "amount": {
+        "mean_mae_delta": 0.001684397163120567,
+        "seed_sd": 0.009066142226020478,
+        "seed_range": [
+          -0.008315602836879425,
+          0.01636524822695037
+        ],
+        "seeds": 6
+      },
+      "covariance": {
+        "mean_mae_delta": -0.001359338061465717,
+        "seed_sd": 0.011969373015371388,
+        "seed_range": [
+          -0.014343971631205661,
+          0.01882978723404256
+        ],
+        "seeds": 6
+      },
+      "fixed": {
+        "mean_mae_delta": 0.0,
+        "seed_sd": 0.0,
+        "seed_range": [
+          0.0,
+          0.0
+        ],
+        "seeds": 6
+      },
+      "learned": {
+        "mean_mae_delta": -0.0027393617021276608,
+        "seed_sd": 0.005618444349247233,
+        "seed_range": [
+          -0.014131205673758852,
+          0.00035460992907799925
+        ],
+        "seeds": 6
+      },
+      "original": {
+        "mean_mae_delta": 0.0015839243498818037,
+        "seed_sd": 0.015525334054975077,
+        "seed_range": [
+          -0.026914893617021277,
+          0.01737588652482269
+        ],
+        "seeds": 6
+      },
+      "uncertainty": {
+        "mean_mae_delta": -0.0029373522458628846,
+        "seed_sd": 0.013619614422611464,
+        "seed_range": [
+          -0.021365248226950365,
+          0.010602836879432632
+        ],
+        "seeds": 6
+      }
+    },
+    "2024-25_mm": {
+      "amount": {
+        "mean_mae_delta": -0.004807919621749401,
+        "seed_sd": 0.015419528532067165,
+        "seed_range": [
+          -0.028138297872340404,
+          0.010407801418439748
+        ],
+        "seeds": 6
+      },
+      "fixed": {
+        "mean_mae_delta": 0.0,
+        "seed_sd": 0.0,
+        "seed_range": [
+          0.0,
+          0.0
+        ],
+        "seeds": 6
+      },
+      "original": {
+        "mean_mae_delta": 0.009122340425531913,
+        "seed_sd": 0.013922478747194154,
+        "seed_range": [
+          -0.012163120567375858,
+          0.02356382978723404
+        ],
+        "seeds": 6
+      }
+    },
+    "2025-26_locked": {
+      "amount": {
+        "mean_mae_delta": 0.009417229729729715,
+        "seed_sd": 0.004829554072600826,
+        "seed_range": [
+          0.0010304054054054085,
+          0.014290540540540509
+        ],
+        "seeds": 6
+      },
+      "covariance": {
+        "mean_mae_delta": 0.0035444819819819714,
+        "seed_sd": 0.01164416034444827,
+        "seed_range": [
+          -0.015760135135135134,
+          0.01374999999999999
+        ],
+        "seeds": 6
+      },
+      "fixed": {
+        "mean_mae_delta": 0.0,
+        "seed_sd": 0.0,
+        "seed_range": [
+          0.0,
+          0.0
+        ],
+        "seeds": 6
+      },
+      "learned": {
+        "mean_mae_delta": -0.0007545045045045075,
+        "seed_sd": 0.0056409781047769714,
+        "seed_range": [
+          -0.01064189189189189,
+          0.006368243243243254
+        ],
+        "seeds": 6
+      },
+      "original": {
+        "mean_mae_delta": 0.001342905405405397,
+        "seed_sd": 0.007531198426227277,
+        "seed_range": [
+          -0.008614864864864884,
+          0.010945945945945931
+        ],
+        "seeds": 6
+      },
+      "uncertainty": {
+        "mean_mae_delta": 0.006204954954954947,
+        "seed_sd": 0.008584310327333115,
+        "seed_range": [
+          -0.002685810810810819,
+          0.016469594594594576
+        ],
+        "seeds": 6
+      }
+    },
+    "2025-26_mm": {
+      "amount": {
+        "mean_mae_delta": 0.006962274774774779,
+        "seed_sd": 0.006444715382237395,
+        "seed_range": [
+          0.0009966216216216394,
+          0.01699324324324326
+        ],
+        "seeds": 6
+      },
+      "fixed": {
+        "mean_mae_delta": 0.0,
+        "seed_sd": 0.0,
+        "seed_range": [
+          0.0,
+          0.0
+        ],
+        "seeds": 6
+      },
+      "original": {
+        "mean_mae_delta": 0.000886824324324323,
+        "seed_sd": 0.007029809983617669,
+        "seed_range": [
+          -0.007331081081081078,
+          0.012939189189189194
+        ],
+        "seeds": 6
+      }
+    }
+  },
+  "design": "First two evaluation fixtures/season/MM, six independent common seeds,400 draws per arm; seed dispersion conditional on selected fixtures, NOT a sampling CI or whole-season robustness test",
+  "locked_model_active": false
+}

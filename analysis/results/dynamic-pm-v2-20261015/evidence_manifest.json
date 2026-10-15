@@ -1,0 +1,57 @@
+{
+  "classification": "ISOLATED_DYNAMIC_PM_V2_COMPLETED_NOT_PROMOTED",
+  "base_commit": "0e1117da55662b567bba23688f79b760ad5b3d42",
+  "numeric_source": {
+    "commit": "72b61e46e9144dd74992fe32dc18bd36f9d05396",
+    "workflow_run": 38772814007,
+    "conclusion": "success",
+    "jobs": 38,
+    "match_draws": 3168000
+  },
+  "monte_carlo_source": {
+    "commit": "9fac2d1b7606761ddb7a81825f56499d0b3c5ee6",
+    "workflow_run": 38774188162,
+    "conclusion": "success",
+    "additional_match_draws": 86400
+  },
+  "corrected_cohort_export": {
+    "commit": "140387a4b541c4082f4416a6fd190c1a169ef37d",
+    "workflow_run": 38777082642,
+    "job": 116567412927,
+    "conclusion": "success",
+    "simulations_reused_unchanged": true
+  },
+  "prepared_capture_source": {
+    "commit": "852f23790ebb4769272b5c8e02b8b30a1794551a",
+    "workflow_run": 38729720330,
+    "raw_artifact_retention_days": 90
+  },
+  "regressions": {
+    "local_tests_passed": 547,
+    "local_seconds": 31.07,
+    "full_audit_run": 38774188180,
+    "full_audit_commit": "9fac2d1b7606761ddb7a81825f56499d0b3c5ee6",
+    "full_audit_conclusion": "success",
+    "full_audit_tests": 546,
+    "full_audit_seconds": 29.93,
+    "new_grouping_regression_added_after_full_audit": true
+  },
+  "original_export_sha256": {
+    "2024-25_locked_independent_report.json": "306017c234b10f61544c466ffc9db9d6f4a9f6b45d608b6167543ecd1c753e0c",
+    "2024-25_locked_legal_report.json": "799a446767a70d4ed39f0f06e3e7686847d1457db573e22bd234417a7de183f3",
+    "2024-25_mm_legal_report.json": "b6b22a0d56f02b524d846fa93cdab50c4418bc0e8b1945e80fd33c85e717b43c",
+    "2025-26_locked_independent_report.json": "89cdee958894e89323e4bde80621b88c1e77cee951ea5a527cf57073ae697fb8",
+    "2025-26_locked_legal_report.json": "e248c3af0b42e0d165e1ebf3b320b7a2474f1799fa857b927dcd8388955fcacc",
+    "2025-26_mm_legal_report.json": "09747561f1a025c9af87ba07422db3721f597a9b9654ffb9c2b67f68cf4e0ef4",
+    "matrix_report.json": "30f41e3aeb8dad48305ca99cf6c0f447edb7e3eed3be0fce2b3ecebd1a309db9",
+    "monte_carlo_report.json": "f088fd0993e12c6faab05c651d1b61bc781cce3fcd0cad9ab704594725e50200",
+    "reliability_report.json": "92c61cf158d5d5f8c23b9b432e50a533b81bb3335beee3948b2281ac28b69da4",
+    "selection.json": "54280d384fff01c28ec31ca1444e206e217556b40b9f2e7a7fdf13d1470fa3f2",
+    "summary.json": "6b13110ab944dca479ada6bc2569fd8196cdbf9b6a0c77980e6230791405ac07"
+  },
+  "all_11_export_hashes_verified": true,
+  "local_preservation_sha256": "2218005b0224606b49b49746f02f0b09b2c63269761bfee2654f5d893aa878a3",
+  "locked_model_active": false,
+  "promotion_allowed": false,
+  "decision": "No tested dynamic gate establishes robust FPL-point superiority over both fixed75 and original PM under controlled legal XI. Keep original production; retain fixed75 research reference."
+}
