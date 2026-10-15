@@ -1,0 +1,96 @@
+name: Individual MM x PM historical evaluation
+on:
+  push:
+    branches: [ts-six-gw-validation-20261015]
+    paths: [.github/workflows/individual-mm-pm-historical.yml]
+  workflow_dispatch:
+permissions:
+  contents: read
+  actions: read
+env:
+  PYTHONPATH: src:scripts
+  OPENBLAS_NUM_THREADS: '1'
+  OMP_NUM_THREADS: '1'
+  PYTHONHASHSEED: '0'
+  OPENBLAS_CORETYPE: NEHALEM
+jobs:
+  provenance-and-inputs:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: pip install -r requirements-model-checkpoint.txt -r requirements-model-tests.txt requests
+      - uses: actions/download-artifact@v4
+        with:
+          github-token: ${{ github.token }}
+          run-id: '38565961308'
+          name: mm-component-inputs-and-results
+          path: analysis/results
+      - uses: actions/download-artifact@v4
+        with:
+          github-token: ${{ github.token }}
+          run-id: '38729720330'
+          name: player-pm-v2-selection
+          path: analysis/results
+      - name: Restore historical datasets and validate role reproducibility
+        run: |
+          python scripts/restore_core_checkpoint.py
+          python scripts/restore_2024_25_data_checkpoint.py
+          python -m pytest tests/test_individual_mm_validation.py -q
+          python scripts/locked_numerical_runtime.py scripts/individual_mm_validation.py
+          python scripts/individual_mm_finish.py
+      - uses: actions/upload-artifact@v4
+        with:
+          name: individual-mm-historical-source
+          retention-days: 90
+          path: |
+            analysis/results/individual-mm-20261015
+            analysis/results/mm-research-20261014
+            analysis/results/player-pm-v2-20261015/selection.json
+  pm-2024:
+    needs: provenance-and-inputs
+    runs-on: ubuntu-latest
+    timeout-minutes: 180
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: {python-version: '3.12'}
+      - run: pip install -r requirements-model-checkpoint.txt requests
+      - uses: actions/download-artifact@v4
+        with:
+          name: individual-mm-historical-source
+          path: analysis/results
+      - uses: actions/download-artifact@v4
+        with:
+          github-token: ${{ github.token }}
+          run-id: '38565961308'
+          name: mm-original-pm-2024-25
+          path: work/archived-mm-pm
+      - run: |
+          python scripts/restore_core_checkpoint.py
+          python scripts/restore_2024_25_data_checkpoint.py
+          python - <<'PY'
+          from pathlib import Path
+          import subprocess,sys
+          paths=list(Path('work/archived-mm-pm').rglob('inputs.jsonl.gz'))
+          assert len(paths)==1,paths
+          args=[sys.executable,'scripts/locked_numerical_runtime.py','scripts/capture_individual_mm_pm.py',
+           '--season','2024-25','--source-root','.',
+           '--baseline-inputs',str(paths[0]),
+           '--candidates','analysis/results/individual-mm-20261015/2024-25_candidates.csv.gz',
+           '--selection','analysis/results/individual-mm-20261015/selection.json',
+           '--out','work/individual-mm-pm-2024-25']
+          subprocess.run(args,check=True)
+          PY
+          python scripts/locked_numerical_runtime.py scripts/individual_mm_pm_replay.py --season 2024-25 --inputs work/individual-mm-pm-2024-25/inputs.jsonl.gz --workers 2
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: individual-mm-pm-evidence-2024-25
+          retention-days: 90
+          path: |
+            analysis/results/individual-mm-20261015/*pm_report.json
+            analysis/results/individual-mm-20261015/*pm_predictions.csv.gz
