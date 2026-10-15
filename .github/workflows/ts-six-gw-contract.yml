@@ -16,9 +16,9 @@ jobs:
           python-version: '3.12'
       - run: python -m pip install pytest pandas
       - name: Strict horizon and player coverage regressions
-        run: python -m pytest tests/test_six_gw_forecast_validator.py tests/test_rolling_deadline_state.py tests/test_rolling_future_minutes.py tests/test_experimental_individual_role_mm.py -q
+        run: python -m pytest tests/test_six_gw_forecast_validator.py tests/test_rolling_deadline_state.py tests/test_rolling_future_minutes.py tests/test_experimental_individual_role_mm.py tests/test_experimental_mm_role_profiles.py -q
       - name: Compile research generator
-        run: python -m py_compile scripts/run_rolling_vfinal_gw6_38.py scripts/rolling_deadline_state.py scripts/rolling_future_minutes.py scripts/experimental_individual_role_mm.py
+        run: python -m py_compile scripts/run_rolling_vfinal_gw6_38.py scripts/rolling_deadline_state.py scripts/rolling_future_minutes.py scripts/experimental_individual_role_mm.py scripts/experimental_mm_role_profiles.py
       - name: Reject synthetic one-GW-only historical input
         run: |
           python - <<'PY'
