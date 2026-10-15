@@ -8,7 +8,7 @@ from sklearn.preprocessing import OneHotEncoder,StandardScaler
 from sklearn.pipeline import make_pipeline
 from sklearn.linear_model import LogisticRegression
 ROOT=Path(__file__).resolve().parents[1];sys.path[:0]=[str(ROOT/'src'),str(ROOT/'scripts')]
-from audit_capture_io import checked_records
+from audit_capture_io import checked_records,write_frame
 from audit_mm_components import metrics,score
 NUM=['duration_h6','start_share6','team_rest_days','minutes_14d','season_progress']
 SCORE=['lead','trail','lead_late','regular_lead_late']
@@ -63,7 +63,7 @@ def prepare(out):
                     diff=(current[0]-current[1])*(1 if home else -1)
                     rec=rr.to_dict();rec.update(fixture_uuid=fid,player_uuid=pid,bin=int(t//5),time=float(t),score_diff=float(diff),exit=int(m<90 and t<=m<t+5),coach_id=(team.get('coach') or {}).get('id'),source_sha256=hashlib.sha256(path.read_bytes()).hexdigest());rows.append(rec)
         matches.append(dict(fixture_uuid=fid,provider_match=mid,starters=startercount,coach_sides=coachcount,goals=len(goals)))
-    risk=pd.DataFrame(rows);risk=score_features(risk,risk.score_diff.to_numpy(),risk.time.to_numpy());risk.to_csv(out/'score_hazard_risk.csv.gz',index=False,compression='gzip')
+    risk=pd.DataFrame(rows);risk=score_features(risk,risk.score_diff.to_numpy(),risk.time.to_numpy());write_frame(out/'score_hazard_risk.csv.gz',risk)
     report=dict(classification='VERIFIED_RAW_GOAL_PATH_EXTRACTION_WITH_CONDITIONAL_PUBLICATION_CLOCK',mapped_matches=len(matches),risk_rows=len(risk),mapped_starter_fixture_rows=sum(m['starters'] for m in matches),coach_sides=sum(m['coach_sides'] for m in matches),failures=fail,matches=matches,availability='kickoff+4h proxy; extraction performed later, actual historical publication uncertified',equal_minute_event_order='excluded from pre-bin score',coaches='Observed match coaches recorded for audit only; not assumed known at forecast cutoff',prediction_rule='Actual target goals/lineups are never used in forecast contexts')
     (out/'score_hazard_source_audit.json').write_text(json.dumps(report,indent=2)+'\n');return risk
 
@@ -123,5 +123,5 @@ def main():
     p24=preds[chosen['mode']];report=dict(classification='PREKICKOFF_SCORE_SCENARIO_HAZARD_EXPERIMENT',selection=chosen,results={},fit_audit={'2024-25':fitlogs[chosen['mode']],'2025-26':log25},scenario_paths=128,locked_model_active=False,promotion_allowed=False,limitations=['Only 2024 raw match goal paths verified; 2025 fits retain known 2024 hazard training, while player features and goal forecasts update','Five-minute risk bins and midpoint integration; not exact exit seconds','Substitution/red-card/injury causes not separated; this is all-cause departure','Coach observations are not used as unverified future coach assignments','Historical source clocks remain proxies; frozen baseline previously used both seasons','PM/TS impact requires a separate full component replay; no production promotion'])
     for label,p in [('2024-25_GW22-38',p24[p24.gw.ge(22)]),('2025-26_GW6-38',p25)]:
         report['results'][label]=dict(original=metrics(p),candidate=metrics(p,s=p.s.to_numpy()))
-    p24.to_csv(out/'2024-25_context_candidate.csv.gz',index=False,compression='gzip');p25.to_csv(out/'2025-26_context_candidate.csv.gz',index=False,compression='gzip');(out/'score_hazard_report.json').write_text(json.dumps(report,indent=2)+'\n');print(json.dumps({k:{m:v['minutes'] for m,v in r.items()} for k,r in report['results'].items()},indent=2))
+    write_frame(out/'2024-25_context_candidate.csv.gz',p24);write_frame(out/'2025-26_context_candidate.csv.gz',p25);(out/'score_hazard_report.json').write_text(json.dumps(report,indent=2)+'\n');print(json.dumps({k:{m:v['minutes'] for m,v in r.items()} for k,r in report['results'].items()},indent=2))
 if __name__=='__main__':main()

@@ -1,0 +1,49 @@
+name: Recover verified MM research evidence
+on:
+  push:
+    branches: [model-audit-optimization-20261012]
+    paths: [.github/workflows/mm-evidence-export.yml]
+  workflow_dispatch:
+permissions:
+  contents: read
+  actions: read
+jobs:
+  export:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - uses: actions/download-artifact@v4
+        with:
+          github-token: ${{ github.token }}
+          run-id: '38565961308'
+          pattern: mm-original-pm-*
+          merge-multiple: true
+          path: work/verified
+      - uses: actions/download-artifact@v4
+        with:
+          github-token: ${{ github.token }}
+          run-id: '38565961308'
+          name: mm-score-context-results
+          path: work/context
+      - name: Export completed reports without rerunning simulations
+        run: |
+          python - <<'PY'
+          import json,hashlib
+          from pathlib import Path
+          paths=sorted(Path('work').rglob('*pm_report.json'))+sorted(Path('work/context').rglob('*score_hazard*.json'))
+          assert len(paths)==5,paths
+          for p in paths:
+              print('VERIFIED_REPORT '+p.name)
+              print(json.dumps(dict(file=p.name,sha256=hashlib.sha256(p.read_bytes()).hexdigest(),source_run=38565961308,source_commit='892fad16311ca206e19e2c2ed314bef575a578d7',report=json.loads(p.read_text())),indent=2))
+          PY
+      - uses: actions/upload-artifact@v4
+        with:
+          name: verified-mm-reports
+          retention-days: 90
+          path: |
+            work/verified/**/mm-research-20261014/*pm_report.json
+            work/context/*.json

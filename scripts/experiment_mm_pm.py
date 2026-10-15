@@ -5,7 +5,7 @@ from concurrent.futures import ProcessPoolExecutor,as_completed
 from pathlib import Path
 import numpy as np,pandas as pd
 ROOT=Path(__file__).resolve().parents[1];sys.path[:0]=[str(ROOT/'src'),str(ROOT/'scripts')]
-from audit_capture_io import checked_records,write_records
+from audit_capture_io import checked_records,write_records,write_frame
 from audit_correctness_historical import decode
 from fpl_v1_1_model.joint_simulator import simulate_many
 from fpl_v1_1_model.experimental_survival_sampler import shadow_survival_sampler
@@ -99,7 +99,7 @@ def main():
     if fx.duplicated(['home_team_id','away_team_id']).any():raise ValueError('Nonunique fixture sides')
     p=pd.DataFrame(allrows).merge(fx,left_on=['home','away'],right_on=['home_team_id','away_team_id'],validate='many_to_one',how='left');p=p.merge(truth,on=['fixture_uuid','player_uuid'],validate='many_to_one',how='left',indicator=True)
     if not p._merge.eq('both').all() or p[['total_points','minutes']].isna().any().any():raise ValueError('Missing truth; cannot impute')
-    p=p.sort_values(['gw','fixture_uuid','player_uuid','mode']).drop(columns='_merge');p.to_csv(out/f'{a.season}_pm_predictions.csv.gz',index=False,compression='gzip')
+    p=p.sort_values(['gw','fixture_uuid','player_uuid','mode']).drop(columns='_merge');write_frame(out/f'{a.season}_pm_predictions.csv.gz',p)
     periods={'all':p,'GW22_38':p[p.gw.ge(22)]}
     report=dict(classification='TEMPORAL_CANDIDATE_MM_THROUGH_UNCHANGED_FULL_PM',season=a.season,fixtures=len(records),draws=400,original_exact=True,results={k:summarize(v) for k,v in periods.items()},source_sha256=hashlib.sha256(Path(a.inputs).read_bytes()).hexdigest(),locked_model_active=False,promotion_allowed=False,limitations=['Reused baseline-development seasons; source publication availability proxies','Point coefficients and original simulator fixed; simulator-correctness candidate deliberately not combined','Independent branches change RNG consumption, bootstrap does not include all Monte Carlo uncertainty','All upstream MM-dependent GA/DC/own-goal components rebuilt through original functions','Complete historical six-GW candidate TS cells unavailable'])
     (out/f'{a.season}_pm_report.json').write_text(json.dumps(report,indent=2)+'\n');print(json.dumps(dict(season=a.season,fixtures=len(records),results={k:{mode:{key:r[key] for key in ['rows','mae','rmse','bias','paired_point_mae_delta','fixture_bootstrap_95_ci']} for mode,r in v.items()} for k,v in report['results'].items()}),indent=2))

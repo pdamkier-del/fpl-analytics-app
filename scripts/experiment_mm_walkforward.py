@@ -4,6 +4,7 @@ import argparse,json,sys,hashlib
 from pathlib import Path
 import pandas as pd,numpy as np
 ROOT=Path(__file__).resolve().parents[1];sys.path[:0]=[str(ROOT/'src'),str(ROOT/'scripts')]
+from audit_capture_io import write_frame
 from audit_mm_components import load_obs,metrics,score
 from fpl_v1_1_model.experimental_mm_research import fit_start,survival_prediction,project_partition
 
@@ -65,7 +66,7 @@ def main():
     p24=combined(p24,start,duration)
     f25=pd.read_csv(out/'2025-26_features.csv.gz');o25=load_obs(a.db,'2025-26',3)
     p25,fit25=predict(f25,o25,previous=f24,previous_obs=o24);p25=combined(p25,start,duration)
-    p24.to_csv(out/'2024-25_candidates.csv.gz',index=False,compression='gzip');p25.to_csv(out/'2025-26_candidates.csv.gz',index=False,compression='gzip')
+    write_frame(out/'2024-25_candidates.csv.gz',p24);write_frame(out/'2025-26_candidates.csv.gz',p25)
     report=dict(classification='TEMPORAL_COMPONENT_SCREEN_WITH_UNCERTIFIED_SOURCE_CLOCKS',protocol=protocol,results={'2024-25_GW22-38':summary(p24[p24.gw.ge(22)]),'2025-26_GW6-38':summary(p25)},fit_audit={'2024-25':fit24,'2025-26':fit25},promotion_allowed=False,locked_model_active=False,limitations=['Historical kickoff+3/4h availability proxies; not actual publication timestamps','Locked baseline selected partly on these seasons; neither is pristine independent model-development OOS','Medical absence/exit cause/coach/score-at-exit labels unavailable in Core','Prefix workload features use PL observations only, not complete all-competition workload','Survival candidate treats all <90-minute starter departures as all-cause exits; not inferred tactical substitutions','Minute survival mean fed to original Normal PM sampler; full duration distribution not replaced','No historical complete six-GW candidate TS acceptance test'])
     (out/'walkforward_report.json').write_text(json.dumps(report,indent=2)+'\n');print(json.dumps(dict(selected_start=start,selected_duration=duration,results={k:{m:v['minutes'] for m,v in r.items()} for k,r in report['results'].items()}),indent=2))
 if __name__=='__main__':main()
