@@ -66,6 +66,19 @@ def assemble_fixture(built,reference):
     return assemble(built,reference[keys+['lambda_pen','pen_weight','pen_conversion','team_pen_conversion']],reference[keys+['bg_mean_rate90','bg_sd90']])
 
 
+def component_differences(left,right,path='input'):
+    if isinstance(left,dict):
+        if left.keys()!=right.keys():return [dict(path=path,reason='Different fields')]
+        return [d for k in left for d in component_differences(left[k],right[k],path+'.'+str(k))]
+    if isinstance(left,(list,tuple)):
+        if len(left)!=len(right):return [dict(path=path,reason='Different sequence length')]
+        return [d for i,(a,b) in enumerate(zip(left,right)) for d in component_differences(a,b,path+'.'+str(i))]
+    if isinstance(left,(float,int)) and not isinstance(left,bool):
+        equal=bool(np.isclose(left,right,rtol=0,atol=1e-10))
+    else:equal=left==right
+    return [] if equal else [dict(path=path,rebuilt=left,original=right)]
+
+
 def main():
     ap=argparse.ArgumentParser();ap.add_argument('--out',default='analysis/results/mm-research-20261014');a=ap.parse_args();out=Path(a.out)
     base=ROOT/'data_v1_1/derived/live_locked_inputs/2026-27-v1'
@@ -85,12 +98,8 @@ def main():
         # Prove that the context rebuild recovers every original component used by PM.
         verified=assemble_fixture(baseline,g)
         check,_=make_vfinal_input(verified);check=replace(check,bps_rules='2026-27')
-        def close(left,right):
-            if isinstance(left,dict):return left.keys()==right.keys() and all(close(left[k],right[k]) for k in left)
-            if isinstance(left,list):return len(left)==len(right) and all(close(x,y) for x,y in zip(left,right))
-            if isinstance(left,(float,int)) and not isinstance(left,bool):return bool(np.isclose(left,right,rtol=0,atol=1e-10))
-            return left==right
-        if not close(asdict(check),asdict(original)):raise ValueError('Current original component rebuild differs')
+        differences=component_differences(asdict(check),asdict(original))
+        if differences:raise ValueError('Current original component rebuild differs: '+str(differences[:5]))
         inputs={'original':original}
         for mode,state in states.items():
             rebuilt=rebuild(current_minute_fields(source,state));alt=assemble_fixture(rebuilt,g)

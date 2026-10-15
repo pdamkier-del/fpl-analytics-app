@@ -19,3 +19,16 @@ def test_current_assembly_aliases_share_the_candidate_minute_identity():
 
 def test_current_state_requires_every_player_identity():
     with pytest.raises(ValueError):current_minute_fields(pd.DataFrame({'player_uuid':['a','b']}),pd.DataFrame({'player_uuid':['a']}))
+
+
+def test_dataclass_tuple_component_guard_respects_numeric_serialization_tolerance():
+    from experiment_mm_current_pm import component_differences
+    assert component_differences({'players':({'mu':1.0},)},{'players':({'mu':1.+1e-12},)})==[]
+    diff=component_differences({'players':({'mu':1.0},)},{'players':({'mu':1.01},)})
+    assert diff[0]['path']=='input.players.0.mu'
+
+
+def test_component_guard_rejects_different_roster_or_fields():
+    from experiment_mm_current_pm import component_differences
+    assert component_differences({'players':()},{'players':({},)})
+    assert component_differences({'players':()},{'other':()})
