@@ -97,9 +97,18 @@ def main():
 
     rows=[];faudit=[];counter=0
     for origin in range(a.start_origin,a.end_origin+1):
-        cutoff=src.loc[src.gw.eq(origin),'cutoff'].min()
-        sstate=src[src.gw<=origin].sort_values(['gw','cutoff']).drop_duplicates('player_uuid',keep='last').copy()
-        mstate=mm[mm.gw<=origin].sort_values(['gw','cutoff']).drop_duplicates('player_uuid',keep='last').copy()
+        # Freeze both feeds at the actual origin deadline. GW order alone is
+        # insufficient: a delayed file for the same GW can be post-deadline.
+        available_cutoffs=src.loc[src.gw.eq(origin),'cutoff'].dropna()
+        if available_cutoffs.empty:
+            raise ValueError(f'No source cutoff for origin GW{origin}')
+        cutoff=available_cutoffs.min()
+        sstate=src[(src.gw<=origin)&(src.cutoff<=cutoff)].sort_values(['cutoff','gw']).drop_duplicates('player_uuid',keep='last').copy()
+        mstate=mm[(mm.gw<=origin)&(mm.cutoff<=cutoff)].sort_values(['cutoff','gw']).drop_duplicates('player_uuid',keep='last').copy()
+        if sstate.empty or mstate.empty:
+            raise ValueError(f'No pre-cutoff source/MM player state for origin GW{origin}')
+        if (sstate.cutoff>cutoff).any() or (mstate.cutoff>cutoff).any():
+            raise AssertionError('Post-deadline player state entered rolling forecast')
         state=sstate.merge(mstate[['player_uuid','new_p_start','new_xmins','new_q_sub','new_sub_minutes','new_start_minutes']],
                            on='player_uuid',how='inner',validate='one_to_one')
         state['cutoff']=cutoff
