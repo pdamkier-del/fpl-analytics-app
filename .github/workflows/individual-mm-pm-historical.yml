@@ -2,7 +2,10 @@ name: Individual MM x PM historical evaluation
 on:
   push:
     branches: [ts-six-gw-validation-20261015]
-    paths:\n      - .github/workflows/individual-mm-pm-historical.yml\n      - scripts/individual_mm_*.py\n      - scripts/capture_individual_mm_pm.py
+    paths:
+      - .github/workflows/individual-mm-pm-historical.yml
+      - 'scripts/individual_mm_*.py'
+      - scripts/capture_individual_mm_pm.py
   workflow_dispatch:
 permissions:
   contents: read
