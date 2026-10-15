@@ -14,8 +14,8 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: '3.12'
-      - run: python -m pip install pytest
+      - run: python -m pip install pytest pandas
       - name: DC propensity and cutoff regressions
-        run: python -m pytest tests/test_experimental_individual_dc_propensity.py -q
+        run: python -m pytest tests/test_experimental_individual_dc_propensity.py tests/test_evaluate_individual_dc.py -q
       - name: Compile research model
-        run: python -m py_compile scripts/experimental_individual_dc_propensity.py
+        run: python -m py_compile scripts/experimental_individual_dc_propensity.py scripts/evaluate_individual_dc.py
