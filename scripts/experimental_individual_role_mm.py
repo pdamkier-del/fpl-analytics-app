@@ -14,7 +14,7 @@ def role_start_probability(observations, prior=.75, strength=8.,
     Missing or unavailable games do not count as evidence of role loss.
     This is a *role prior*, not a complete availability/start prediction.
     """
-    if not (0 < prior < 1 and strength > 0 and half_life_days > 0):
+    if not all(math.isfinite(float(v)) for v in (prior,strength,half_life_days)) or not (0 < prior < 1 and strength > 0 and half_life_days > 0):
         raise ValueError("Invalid model settings")
     if cutoff is None:
         raise ValueError("Cutoff required")
@@ -24,7 +24,7 @@ def role_start_probability(observations, prior=.75, strength=8.,
     last=None
     for obs in sorted(observations,key=lambda x:x["known_at"]):
         known=obs["known_at"]
-        if known > cutoff:
+        if known >= cutoff:
             continue
         if obs.get("available") is not True:
             continue
@@ -42,3 +42,4 @@ def role_start_probability(observations, prior=.75, strength=8.,
     value=successes/exposure
     return {"role_start_prior":value,"effective_observations":exposure-strength,
             "observations_used":accepted,"is_experiment":True}
+
