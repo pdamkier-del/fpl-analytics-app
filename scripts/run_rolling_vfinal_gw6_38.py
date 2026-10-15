@@ -21,6 +21,7 @@ from run_bps_background_experiment import actual_background_ledger,feature_frame
 from run_vfinal_integrated import make_vfinal_input
 from vfinal_replay_components import build_fixture_components
 import run_horizon_policy_comparison as hp
+from rolling_deadline_state import select_deadline_state
 
 RAW=ROOT/'data_v1_1/raw/all-competitions-2025-26'
 TEAMS=ROOT/'data_v1_1/derived/mm_v2_ratings/identity_source/data/2025-2026/teams.csv'
@@ -103,8 +104,8 @@ def main():
         if available_cutoffs.empty:
             raise ValueError(f'No source cutoff for origin GW{origin}')
         cutoff=available_cutoffs.min()
-        sstate=src[(src.gw<=origin)&(src.cutoff<=cutoff)].sort_values(['cutoff','gw']).drop_duplicates('player_uuid',keep='last').copy()
-        mstate=mm[(mm.gw<=origin)&(mm.cutoff<=cutoff)].sort_values(['cutoff','gw']).drop_duplicates('player_uuid',keep='last').copy()
+        sstate=select_deadline_state(src,origin,cutoff)
+        mstate=select_deadline_state(mm,origin,cutoff)
         if sstate.empty or mstate.empty:
             raise ValueError(f'No pre-cutoff source/MM player state for origin GW{origin}')
         if (sstate.cutoff>cutoff).any() or (mstate.cutoff>cutoff).any():
