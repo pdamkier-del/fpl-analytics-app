@@ -22,6 +22,7 @@ from run_vfinal_integrated import make_vfinal_input
 from vfinal_replay_components import build_fixture_components
 import run_horizon_policy_comparison as hp
 from rolling_deadline_state import select_deadline_state
+from validate_six_gw_forecast import validate_forecasts
 
 RAW=ROOT/'data_v1_1/raw/all-competitions-2025-26'
 TEAMS=ROOT/'data_v1_1/derived/mm_v2_ratings/identity_source/data/2025-2026/teams.csv'
@@ -68,6 +69,7 @@ def main():
     ap.add_argument('--mm',required=True);ap.add_argument('--out',required=True)
     ap.add_argument('--start-origin',type=int,default=6);ap.add_argument('--end-origin',type=int,default=38)
     ap.add_argument('--max-fixtures',type=int,default=0)
+    ap.add_argument('--require-complete-horizon',action='store_true',help='Fail if any GW or player target is missing; for pre-TS research validation')
     a=ap.parse_args();out=Path(a.out);out.mkdir(parents=True,exist_ok=True)
     src=pd.read_csv(a.source).reset_index(drop=True);mm=pd.read_csv(a.mm)
     src['cutoff']=pd.to_datetime(src.cutoff,utc=True);mm['cutoff']=pd.to_datetime(mm.cutoff,utc=True)
@@ -190,8 +192,18 @@ def main():
     z.to_csv(out/'fixture_predictions.csv.gz',index=False,compression='gzip')
     agg.to_csv(out/'rolling_vfinal_forecast.csv.gz',index=False,compression='gzip')
     pd.DataFrame(faudit).to_csv(out/'origin_audit.csv',index=False)
-    summary={'classification':'cutoff-safe frozen-state rolling locked MM + vFinal PM',
+    contract=validate_forecasts(out/'rolling_vfinal_forecast.csv.gz',
+                                start=a.start_origin,end=a.end_origin,horizon=6)
+    (out/'forecast_contract.json').write_text(json.dumps(contract,indent=2)+'\n')
+    summary={'classification':'RESEARCH_ORIGIN_FROZEN_MM_NOT_CERTIFIED_SIX_GW_FORECAST',
              'decision_gws':[int(a.start_origin),int(a.end_origin)],'horizon':6,'draws_per_fixture':400,
-             'phase5q_xp_used':False,'rows':int(len(agg))}
+             'phase5q_xp_used':False,'rows':int(len(agg)),
+             'mm_projection':'The same origin-cutoff MM state is reused across all future fixtures; target-date rotation/injury/workload not forecast.',
+             'historical_publication':'kickoff+3h proxy; actual source publication timestamps not verified',
+             'coverage_report':'forecast_contract.json',
+             'coverage_passed':bool(contract['passed']),
+             'ts_certified':False}
     (out/'summary.json').write_text(json.dumps(summary,indent=2)+'\n');print(json.dumps(summary,indent=2))
+    if a.require_complete_horizon and not contract['passed']:
+        raise SystemExit('Missing/invalid six-GW forecast inputs; see forecast_contract.json')
 if __name__=='__main__':main()
