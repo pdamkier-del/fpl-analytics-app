@@ -34,7 +34,7 @@ jobs:
           github-token: ${{ github.token }}
           run-id: '38729720330'
           name: player-pm-v2-selection
-          path: analysis/results
+          path: analysis/results/player-pm-v2-20261015
       - name: Restore historical datasets and validate role reproducibility
         run: |
           python scripts/restore_core_checkpoint.py
