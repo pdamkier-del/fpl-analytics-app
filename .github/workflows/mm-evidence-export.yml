@@ -2,7 +2,7 @@ name: Recover verified MM research evidence
 on:
   push:
     branches: [model-audit-optimization-20261012]
-    paths: [.github/workflows/mm-evidence-export.yml]
+    paths: [.github/workflows/mm-evidence-export.yml, scripts/experiment_mm_current_pm.py, tests/test_mm_current_pm.py]
   workflow_dispatch:
 permissions:
   contents: read

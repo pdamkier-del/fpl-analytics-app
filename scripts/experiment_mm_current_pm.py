@@ -54,6 +54,16 @@ def context(base):
     return hist,role,perf,load_models()
 
 
+def overlay_components(original,built):
+    """Align by verified identity rather than the component builder's row order."""
+    if original.player_uuid.duplicated().any() or built.player_uuid.duplicated().any():raise ValueError('Duplicate component identity')
+    if set(original.player_uuid)!=set(built.player_uuid):raise ValueError('Component identities differ')
+    aligned=built.set_index('player_uuid',drop=False).loc[original.player_uuid]
+    result=original.copy()
+    for col in built.columns:result[col]=aligned[col].to_numpy()
+    return result
+
+
 def main():
     ap=argparse.ArgumentParser();ap.add_argument('--out',default='analysis/results/mm-research-20261014');a=ap.parse_args();out=Path(a.out)
     base=ROOT/'data_v1_1/derived/live_locked_inputs/2026-27-v1'
@@ -71,9 +81,7 @@ def main():
         def rebuild(frame):return build_fixture_components(frame,source_hist,role,cut,m['attack'],m['dc'],m['neg'],m['ga'],m['dc_model'],m['dc_cal'],perf,h,away,float(g.lambda_home_goals.iloc[0]),float(g.lambda_away_goals.iloc[0]),float(g.assist_probability_per_goal.iloc[0]),season='2026-27')
         baseline=rebuild(source);original,_=make_vfinal_input(g);original=replace(original,bps_rules='2026-27')
         # Prove that the context rebuild recovers every original component used by PM.
-        verified=g.copy()
-        b=baseline.set_index('player_uuid').loc[g.player_uuid]
-        for col in baseline.columns:verified[col]=b[col].to_numpy()
+        verified=overlay_components(g,baseline)
         check,_=make_vfinal_input(verified);check=replace(check,bps_rules='2026-27')
         def close(left,right):
             if isinstance(left,dict):return left.keys()==right.keys() and all(close(left[k],right[k]) for k in left)
@@ -83,8 +91,7 @@ def main():
         if not close(asdict(check),asdict(original)):raise ValueError('Current original component rebuild differs')
         inputs={'original':original}
         for mode,state in states.items():
-            rebuilt=rebuild(minute_fields(source,state));alt=g.copy();r=rebuilt.set_index('player_uuid').loc[g.player_uuid]
-            for col in rebuilt.columns:alt[col]=r[col].to_numpy()
+            rebuilt=rebuild(minute_fields(source,state));alt=overlay_components(g,rebuilt)
             alt=minute_fields(alt,state);inp,_=make_vfinal_input(alt);inp=replace(inp,bps_rules='2026-27')
             if (inp.lambda_home_goals,inp.lambda_away_goals)!=(original.lambda_home_goals,original.lambda_away_goals):raise ValueError('Changed team-goal model')
             inputs[mode]=inp
