@@ -68,6 +68,10 @@ Koefficientbidragene til XI-residualens logit ligger i `live_trace.json`. Sekven
 
 MM-input, original PM-input og original forecast deler snapshot. PM's clipped/rounded Normal-sampler har et andet forventet minutgennemsnit end den rå MM-komposition; det er en transformationsforskel, ikke i sig selv et andet cutoff. Appens MM vNext er et særskilt preview og var allerede dokumenteret som **ikke** minutkilden til original PM/TS. Preview-tal må ikke udlægges som en ny sammenhængende MM→PM-kæde.
 
+### Observationstidspunkt og restitution
+
+Et yderligere inputcheck viser, at Haalands observerede `work_player_rest_days`/`work_team_rest_days` er ca. 0,8024 på cutoff og gentages over GW7–12. Ved GW7-kickoff er der ca. 5,9375 dage siden seneste observerede PL-kickoff. Features beskriver dermed observationstilstanden, ikke nødvendigvis restitutionsforholdene på hver fremtidig kampdag. Observationstilstanden er i sig selv et legitimt input, men fortolkning og seks-GW-fremskrivning skal holdes adskilt. Vi har ikke bevist, at denne forskel alene skaber Haalands startchance. Et simpelt skift til target-kickoff løser heller ikke kendte/ukendte mellemliggende kampe eller workload i andre turneringer; sådanne data må ikke opdigtet antages fraværende.
+
 ## 3. Afprøvede kandidater
 
 Udvikling/valg: **2024/25 GW11–21**, med fit kun på udfald strengt kendt før hver origin. Senere evaluering: **2024/25 GW22–38** og **2025/26 GW6–38**. Ved en 2025-origin er afsluttet 2024-historik lovlig træningshistorik; konfigurationerne vælges ikke igen på 2025-resultaterne. Usikkerhedsintervaller anvender fixture-blok-bootstrap.
@@ -104,16 +108,106 @@ Den nye hazardtest bruger tidsbins, tidligere rolle/startvarighed/rest og førin
 
 Separat føres den empiriske survival-fordeling direkte til en opt-in minut-sampler. Dette tester masse ved 90 og tidlige exits frem for alene at ændre gennemsnittet i originalens Normal-sampler. Original sampler genskabes også efter exceptions. Benchgrenen og alle oprindelige pointregler bevares.
 
-**De fulde PM- og kampstillingsresultater tilføjes efter afsluttede kørsler. Dette checkpoint er ikke en godkendelse.**
+Den udviklingsvalgte kampstillingsmodel er `context_1.0`. Dens faktiske raw-MM-resultat er:
 
-## 5. PM, TS og produktionskrav
+| Testperiode | Original MAE / RMSE | Score-context MAE / RMSE |
+| --- | --- | --- |
+| 2024/25 GW22–38 | 12,653130 / 22,304667 | 12,973982 / 22,118263 |
+| 2025/26 GW6–38 | 10,533125 / 20,494545 | 10,810297 / 20,286332 |
+
+RMSE forbedres, men MAE forringes i begge perioder. Kandidaten anbefales derfor ikke som en dokumenteret samlet minutforbedring. 2025-forecastet opdaterer spillerfeatures og præ-kickoff målprognoser, men hazard-fit kan kun bruge de verificerede 2024-scoreforløb. Forecast integrerer 128 score-scenarier med femminutters bins/midtpunktstilnærmelse. Det er ikke en komplet fælles mål-/exit-simulator og dokumenterer ikke taktisk årsag eller en træners kausale effekt. PM/TS for netop score-context-kandidaten er endnu **Not Available**; dens minuttest må ikke markedsføres som en forbedret fuld kæde.
+
+## 5. Afsluttede fulde PM A/B-tests
+
+[CI-kørsel 38565961308](https://github.com/pdamkier-del/fpl-analytics-app/actions/runs/38565961308) afsluttede begge sæsoner og score-context med **success** ved commit `892fad16311ca206e19e2c2ed314bef575a578d7`. Begge PM-kørsler dækker 330 fixtures, 400 simuleringer per fixture/mode, og eksakt genskabelse af originalens frosne xP. Alle ti pointkomponenter summerer til xP. Samme modelkomponenter, scoringregler, fixtures, sandhedsdata og seeds anvendes på begge sider.
+
+| PM-kandidat | 2024/25 GW22–38 xP-MAE / RMSE | 2025/26 GW6–38 xP-MAE / RMSE |
+| --- | --- | --- |
+| Låst original | 0,947794 / 1,848146 | 0,929173 / 1,880707 |
+| Valgt startmodel | 0,935537 / 1,848219 | 0,926031 / 1,875504 |
+| Survival-gennemsnit, original Normal-sampler | 0,960428 / 1,846284 | 0,938204 / 1,873622 |
+| Start + survival-gennemsnit, original Normal | 0,946319 / 1,845841 | 0,935981 / 1,870678 |
+| Survival-fordeling, oprindelig startmodel | 0,946722 / 1,845837 | 0,926274 / 1,868705 |
+| **Start + fuld survival-fordeling** | **0,932798 / 1,842353** | **0,923462 / 1,866162** |
+| Hard-availability-ablation | 0,947794 / 1,848146 | 0,918891 / 1,880508 |
+
+For start + fuld survival-fordeling er det parrede xP-MAE-delta:
+
+- 2024/25: **−0,014996**, fixture-bootstrap 95 % interval **[−0,018565;−0,011477]**, relativt ca. 1,58 %.
+- 2025/26: **−0,005711**, interval **[−0,008661;−0,002788]**, relativt ca. 0,61 %.
+- Den sene 2025-del GW22–38 alene: −0,003136, interval **[−0,006820;+0,000760]**; her inkluderer intervallet nul. En samlet forbedring er ikke ensbetydende med sikker gevinst i hver delperiode.
+
+Fordelingsformen er vigtig: den valgte hazard har masse ved 90 og tidlige exits. Hvis kun dens gennemsnit sendes til den gamle Normal-sampler, genskabes den ikke. Appearance- og clean-sheet-point har minutgrænser, og GA/DC-komponenter afhænger også af eksponering; samme forventede minutlabel er derfor ikke samme pointfordeling. Dette er en dokumenteret mekanismeforskel, ikke bevis for, at enhver mere kompleks survivalmodel er bedre.
+
+### Spillede spillere, bias og komponenter
+
+Start + fuld fordeling forbedrer også xP-MAE og RMSE blandt spillere med faktiske minutter:
+
+| Faktisk spillede spillere | Original xP-MAE / RMSE | Kandidat xP-MAE / RMSE |
+| --- | --- | --- |
+| 2024/25 GW22–38, 5.219 rækker | 1,893687 / 2,800329 | 1,873894 / 2,782990 |
+| 2025/26 GW6–38, 9.969 rækker | 2,034955 / 2,924622 | 2,013330 / 2,897552 |
+
+Samlet xP-bias ændres +0,012400→+0,007450 i 2024 og +0,019572→+0,018067 i 2025. Blandt faktisk spillede spillere er 2025-bias dog −0,351870→−0,362458: let større underprognose. Gruppen vælges efter udfald og er en diagnostik, ikke et forecast-filter.
+
+Den simulerede minuts-MAE bliver 13,002977→12,695661 i 2024 og 10,912478→10,892507 i 2025. Dette må **ikke** forveksles med raw-MM-kompositionens MAE i afsnit 3: raw-MM-kombinationen forringer fortsat 2025-minut-MAE 10,533125→10,893571. En bedre PM via en anden fordelingsform gør ikke den analytiske minutmiddelværdi bedre på alle mål.
+
+2025 gennemsnitlige pointkomponenter per evalueret spiller/kamp:
+
+| Komponent | Original | Start + fuld fordeling |
+| --- | ---: | ---: |
+| Appearance | 0,627312 | 0,632257 |
+| Mål | 0,167546 | 0,167985 |
+| Assist | 0,091053 | 0,091175 |
+| Clean sheet | 0,175742 | 0,169391 |
+| Saves | 0,013252 | 0,014150 |
+| DefCon | 0,099247 | 0,100983 |
+| Negative events | −0,044452 | −0,044334 |
+| Goals conceded | −0,054440 | −0,057892 |
+| Strafferedning | 0,002017 | 0,002109 |
+| Bonus | 0,080640 | 0,080589 |
+
+Detaljerede positionsgrupper, xP-kalibreringsbins og bias er bevaret i `2024-25_pm_report.json` og `2025-26_pm_report.json`. Alle rapporter er hentet fra afsluttede CI-artifacts; `evidence_manifest.json` kontrollerer de oprindelige filers SHA256. Ingen tal er tilpasset Haaland eller tidligere kontrolværdier.
+
+### Sandsynlighedskalibrering
+
+Den valgte startmodels Brier/log-loss/ECE10:
+
+| Periode | Original Brier / log-loss / ECE | Startkandidat |
+| --- | --- | --- |
+| 2024/25 GW22–38 | 0,081052 / 0,265987 / 0,013978 | 0,080122 / 0,259891 / 0,004959 |
+| 2025/26 GW6–38 | 0,069635 / 0,228875 / 0,008707 | 0,069420 / 0,228468 / 0,007557 |
+
+Brier og log-loss er proper scores. ECE er en bin-afhængig kalibreringsdiagnostik. Lighed mellem samlet gennemsnitlig p og faktisk startrate følger delvist af holdets sumkrav og beviser ikke individuel kalibrering. Partition-only-kontrollen forbedrer allerede 2025 Brier til ca. 0,069455 og log-loss til 0,228194: den lærte startmodel har ikke en ubetinget gevinst på alle mål relativt til den kontrol.
+
+## 6. Tilgængelighedsfejl og kildekonflikter
+
+I den arkiverede MM har 135 `SUSPENDED`-rækker p=0, men positiv q og **6,358 forventede minutter i gennemsnit**, mens alle har faktisk nul. Det er en konkret sammensætningsfejl: ikke-start er ikke det samme som dokumenteret utilgængelig. Hard-availability-ablationen sætter både p og q til nul for kendte OUT/SUSPENDED-stater, uden en ny fitted tærskel.
+
+2025 raw-MM-MAE bliver 10,533125→10,354842 og RMSE 20,494545→20,443038. PM-MAE bliver 0,929173→0,918891, men forbedringen er stærkt koncentreret i nulminutsrækker: blandt faktisk spillede spillere forringes point-MAE 2,034955→2,038763 og RMSE 2,924622→2,926938. Den samlede tre-state log-loss forringes også en smule: 0,430807→0,430939, selv om Brier forbedres 0,227248→0,220545.
+
+Der er **19 OUT-rækker med faktiske minutter** i sandhedsdata. Det kan skyldes forældede nyheder eller mapping-/sandhedsproblemer; de må ikke omdøbes til sikre fravær ved hjælp af efterfølgende viden. Den bedste all-row-MAE er derfor ikke automatisk den mest forsvarlige model. 2024 har ikke verificeret Team News-dækning til at validere denne medicinske ablation. Den publicerede live-PM har desuden en særskilt hard-eligibility gate: arkivfejlen er ikke bevis for, at enhver aktuel appsti har samme fejl.
+
+For 668 cutoff-dokumenterede RETURNED_AVAILABLE-rækker undervurderer originalen minutter med ca. 15,08 i gennemsnit. Det peger på en særskilt retur-/rollehypotese; det beviser ikke, at alle skal have samme logit-boost. Ingen ikke-gemte eller uafsluttede returmodelresultater indgår som godkendt evidens i denne rapport.
+
+## 7. PM, TS og produktionskrav
 
 PM-testen genbygger de oprindelige minutafhængige GA-/DefCon-/own-goal-komponenter efter hver kandidat; den udskifter ikke blot et minutlabel. Original pointmodel, koefficienter, målintensiteter og 400-draw seeds er uændrede. Originale outputs skal matche de frosne referencer eksakt. Pointkomponenterne skal summere til xP. Simulationsgrenene forbruger RNG forskelligt, så fixture-bootstrap dækker ikke al Monte Carlo-usikkerhed.
 
 Benchmark **2.125 point, 44 transfers og 28 hitpoint** bevares. Det eksisterende historiske forecastarkiv mangler de komplette fremtidige seks-GW-celler; der konstrueres ingen falske celler og intet kandidat-TS-total. En fuld MM→PM→TS-promovering er blokeret af dette samt uafhængig kilde-/testvalidering.
 
-Foreløbig beslutning: **ingen udskiftning af produktionen**. MAE, RMSE, proper start/substate scores, kalibrering, spillergrupper og PM skal vurderes samlet. En glattere eller mere plausibel Haaland-prognose er ikke et acceptkriterium i sig selv.
+Beslutning: **ingen udskiftning af produktionen**. Den mest lovende fulde PM-forsøgskandidat er den udviklingsvalgte logistiske startmodel sammen med den empiriske survival-fordeling, fordi både samlet og played-player xP-MAE/RMSE forbedres i begge sæsoner. Den er en kandidat til ny, uafhængig validering, ikke en færdiggodkendt minutmodel. Fordelingsforsøget blev valgt som en opfølgende hypotese efter at gennemsnitsforsøget slog fejl; det er en adaptiv forskningsproces, ikke et uberørt confirmatory holdout. MAE, RMSE, proper start/substate scores, kalibrering, spillergrupper og PM skal vurderes samlet. En glattere eller mere plausibel Haaland-prognose er ikke et acceptkriterium i sig selv.
 
 Maskinlæsbare rapporter og CI-artifacts indeholder alle ablationer, inputs/checksums, feature/fit cutoffs og gruppeanalyser. Ingen manager-state eller købspriser er publiceret.
 
 Metodereferencer: [scikit-learn logistic regression](https://scikit-learn.org/stable/modules/linear_model.html#logistic-regression), [ukendte kategorier](https://scikit-learn.org/stable/modules/generated/sklearn.preprocessing.OneHotEncoder.html), [right-censored survival](https://www.statsmodels.org/stable/duration.html). Hazardtestens konkrete matematik og begrænsninger fremgår ovenfor og i koden; referencerne er ikke ekstern validering af FPL-resultaterne.
+
+
+## 8. Validering og resterende godkendelseskrav
+
+- 15. oktober: 508 lokale Python-regressioner bestod, inklusive atomisk CSV-lagring og kontrol af konsistente aktuelle minutaliaser/identiteter. Alle 508 genkøres efter den sidste aliasrettelse. Classic Manager, spillerprofil-snapshot og forecast/deadline-JavaScript-checks bestod.
+- [Fuld audit ved den beregnede modelkode](https://github.com/pdamkier-del/fpl-analytics-app/actions/runs/38565961258) og [hele MM/PM/context-kørslen](https://github.com/pdamkier-del/fpl-analytics-app/actions/runs/38565961308) bestod. Rapporter er gendannet med original checksum efter forbindelsesbruddet; de dyre tests er ikke erstattet med genfortalte kontroltal.
+- CSV- og JSONL-gzip-checkpoints skrives til midlertidig fil, trailer-valideres, fsync'es og omdøbes atomisk; ved fejlet serialisering bevares sidste komplette fil. Dette ændrer ikke modelmatematikken.
+- Kræver stadig: uafhængig ny testperiode, verificerede historiske publiceringstider/rosters/medicinske labels, komplet workload, validering af 2025 exit-/scorekilder samt fulde historiske fremtidige seks-GW-celler.
+- De separate own-goal/exact-XI-rettelser og MM-fordelingskandidaten er endnu ikke samlet i én accepteret simulator. Eksakte marginalsummer alene certificerer hverken realiserede 11 startere eller kontinuerlig 990-minutters dækning.
+- Den låste original, TS-benchmark og alle produktionsstrategier er bevaret; intet deploy, ingen officielle transfers og ingen live-certificering. `locked_model_active=false`.
