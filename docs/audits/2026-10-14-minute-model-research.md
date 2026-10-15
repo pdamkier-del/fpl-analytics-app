@@ -10,7 +10,7 @@ Nye historiske features udvælger konsekvent `outcome_known_at < cutoff` efter t
 
 Der bruges fortsat kickoff+4h i 2024 og +3h i 2025 som dokumenterede tilgængelighedsproxies. Det er ikke de faktisk observerede historiske publiceringstidspunkter. Final-season-rosters og 2024's formation-/nyheds-/penalty-proxies er ikke fuldt certificerede. Den låste baseline blev tidligere udviklet med disse sæsoner. Der er derfor en streng tidsmæssig fit/feature-adskillelse i kandidaterne, men **ikke** et pristine, uafhængigt holdout for hele den låste model eller en kildecertificering.
 
-Core har ingen udfyldte historiske `absence_reason`, `sub_off_second` eller `matchday_squad` i de fire tilgængelige sæsoner. 2025/26 har dog separate cutoff-kontrollerede Team News-stater, inklusive 668 `RETURNED_AVAILABLE`-rækker i evalueringskohorten. De rapporteres særskilt; et langt spillerhul bliver aldrig omdøbt til en dokumenteret skade. PL-baserede restitutionsfeatures må heller ikke forveksles med komplet workload fra alle turneringer.
+Core har ingen udfyldte historiske `absence_reason`, `sub_off_second` eller `matchday_squad` i de fire tilgængelige sæsoner. 2025/26 har dog separate cutoff-kontrollerede Team News-stater, inklusive 668 `RETURNED_AVAILABLE`-rækker i evalueringskohorten. De rapporteres særskilt; et langt spillerhul bliver aldrig omdøbt til en dokumenteret skade. PL-baserede restitutionsfeatures må heller ikke forveksles med komplet workload fra alle turneringer. Kampvigtighed og præ-kickoff træneridentitet er ikke tildelt hjemmelavede labels; der mangler et tilstrækkeligt verificeret historisk grundlag for disse features.
 
 ## 1. Additiv fejlattribution
 
@@ -96,7 +96,7 @@ Startkandidaten vælges på udviklingsperiodens log-loss; varighedskandidaten p�
 
 Survival forbedrer starter-RMSE fra 14,7600→11,8991 i 2024 og 14,6848→11,7979 i 2025, men gør samlet MAE dårligere. Kombinationens 2025-MAE-delta er +0,3605 med fixture-interval ca. `[+0,3056;+0,4144]`. Et lavere starter-RMSE er således utilstrækkeligt som acceptkriterium.
 
-Haaland i samme cutoff: start-only 67,6480 xMins, survival-only 71,3927 og kombination 70,7063. Kombinationens startchance er 82,94 %, ikke en tvungen 100 %. Saka får ca. 78,3319 xMins i kombinationen. Disse er shadow-komponenttal, ikke publicerede anbefalinger eller genberegnede aktuelle xP.
+Haaland i samme cutoff: start-only 67,6480 xMins, survival-only 71,3927 og kombination 70,7063. Kombinationens startchance er 82,94 %, ikke en tvungen 100 %. Saka får ca. 78,3319 xMins i kombinationen. Disse er raw shadow-komponenttal. Den separate fulde PM-shadow i afsnit 7 anvender samme frosne cutoff; ingen af delene er publicerede anbefalinger eller et nyt live-forecast.
 
 ## 4. Kampstillings- og fordelingsforsøg
 
@@ -186,11 +186,30 @@ I den arkiverede MM har 135 `SUSPENDED`-rækker p=0, men positiv q og **6,358 fo
 
 2025 raw-MM-MAE bliver 10,533125→10,354842 og RMSE 20,494545→20,443038. PM-MAE bliver 0,929173→0,918891, men forbedringen er stærkt koncentreret i nulminutsrækker: blandt faktisk spillede spillere forringes point-MAE 2,034955→2,038763 og RMSE 2,924622→2,926938. Den samlede tre-state log-loss forringes også en smule: 0,430807→0,430939, selv om Brier forbedres 0,227248→0,220545.
 
-Der er **19 OUT-rækker med faktiske minutter** i sandhedsdata. Det kan skyldes forældede nyheder eller mapping-/sandhedsproblemer; de må ikke omdøbes til sikre fravær ved hjælp af efterfølgende viden. Den bedste all-row-MAE er derfor ikke automatisk den mest forsvarlige model. 2024 har ikke verificeret Team News-dækning til at validere denne medicinske ablation. Den publicerede live-PM har desuden en særskilt hard-eligibility gate: arkivfejlen er ikke bevis for, at enhver aktuel appsti har samme fejl.
+Der er **19 OUT-rækker med faktiske minutter** i sandhedsdata; samtlige rækker med identitet, GW, cutoff og nyhedskilde er gemt i `out_state_actual_minutes.csv` og genverificeret mod Core 15. oktober. Det kan skyldes forældede nyheder eller mapping-/sandhedsproblemer; de må ikke omdøbes til sikre fravær ved hjælp af efterfølgende viden. Den bedste all-row-MAE er derfor ikke automatisk den mest forsvarlige model. 2024 har ikke verificeret Team News-dækning til at validere denne medicinske ablation. Den publicerede live-PM har desuden en særskilt hard-eligibility gate: arkivfejlen er ikke bevis for, at enhver aktuel appsti har samme fejl.
 
 For 668 cutoff-dokumenterede RETURNED_AVAILABLE-rækker undervurderer originalen minutter med ca. 15,08 i gennemsnit. Det peger på en særskilt retur-/rollehypotese; det beviser ikke, at alle skal have samme logit-boost. Ingen ikke-gemte eller uafsluttede returmodelresultater indgår som godkendt evidens i denne rapport.
 
-## 7. PM, TS og produktionskrav
+## 7. Haaland, Saka og Chelsea gennem fulde aktuelle PM-komponenter
+
+[Den ekstra fokus-kørsel](https://github.com/pdamkier-del/fpl-analytics-app/actions/runs/38712316437) bestod ved `3838f836171c3c0f691e3338b24069f8395f734a`. Dette er **det frosne 12. oktober-snapshot**, ikke en ny prognose med et senere cutoff. Tre komplette klubfixtures genbygges gennem den originale GA/DC/own-goal-builder og original live-assembler med samme penalty-/BPS-historik, 2026/27-pointregler og målintensiteter. Samtlige inputkomponenter på originalens side matcher inden for 1e-10; den publicerede originale seeds xP matcher **eksakt for alle spillere i de tre fixtures**. Nye regres­sioner beskytter identiteter og minutaliaser efter adapterfejl fundet under denne test.
+
+Der anvendes otte faste, parrede 400-draw seeds: `93000000 + fixture-offset i alle 60 frosne fixtures + repeat*100000`. Ingen seed vælges efter resultat. Den første seed genskaber den publicerede reference; gennemsnittet over otte er et andet estimat end et enkelt publiceret draw-budget eller et tidligere seed-grid.
+
+| GW7, gennemsnit over otte seeds | Original P(start) | Kandidat P(start) | Original sim-minutter | Kandidat sim-minutter | Original xP | Kandidat xP |
+| --- | ---: | ---: | ---: | ---: | ---: | ---: |
+| Haaland | 83,8230 % | 82,9398 % | 67,6697 | 70,8497 | 5,68156 | 5,66687 |
+| Saka | 95,4422 % | 93,4392 % | 81,7978 | 79,1303 | 5,57219 | 5,44594 |
+
+Kandidat er her valgt startmodel + **fuld survival-fordeling**. Raw-MM-forventningen for Haaland er fortsat 68,3018→70,7063, mens tabellen viser realiseret Monte Carlo-gennemsnit. Haalands seed-xP-standardafvigelse er 0,2911 for originalen og 0,2068 for kandidaten. Sakas er 0,2931 og 0,1436. Dette er simulationsvariation, ikke et interval for faktisk kampudfald eller bevis for prognosepræcision. En højere forventet spilletid giver ikke automatisk en højere xP i én kamp, når hele målallokeringen og pointfordelingen genberegnes.
+
+Sakas originale xP-komponenter i dette seed-grid er appearance 1,92750, mål 2,05781, assists 0,60375, clean sheet 0,30313, DefCon 0,17750, negative events −0,20406 og bonus 0,70656 (øvrige nul). Kandidaten giver henholdsvis 1,88125, 2,05000, 0,55688, 0,30094, 0,16750, −0,19281 og 0,68219. Dermed kan forskellen spores til faktiske beregnede pointkomponenter; der er ingen manuel Saka-justering.
+
+Chelseas totale GW7-målintensitet forbliver **1,342868819888325** på begge sider. Denne MM-test ændrer hverken holdmålmodellen eller dens låste shrinkageparametre. At tildele Chelsea flere mål her ville sammenblande to forskellige hypoteser.
+
+Fuld per-seed-rapport og input er bevaret i `mm-current-pm-focus`-artifactet; den præcist loggede oversigt med provenance ligger i `current_pm_focus_summary.json`. Dette er ikke en managerberegning, en officiel transferanbefaling eller en kandidat-TS-backtest.
+
+## 8. PM, TS og produktionskrav
 
 PM-testen genbygger de oprindelige minutafhængige GA-/DefCon-/own-goal-komponenter efter hver kandidat; den udskifter ikke blot et minutlabel. Original pointmodel, koefficienter, målintensiteter og 400-draw seeds er uændrede. Originale outputs skal matche de frosne referencer eksakt. Pointkomponenterne skal summere til xP. Simulationsgrenene forbruger RNG forskelligt, så fixture-bootstrap dækker ikke al Monte Carlo-usikkerhed.
 
@@ -203,11 +222,11 @@ Maskinlæsbare rapporter og CI-artifacts indeholder alle ablationer, inputs/chec
 Metodereferencer: [scikit-learn logistic regression](https://scikit-learn.org/stable/modules/linear_model.html#logistic-regression), [ukendte kategorier](https://scikit-learn.org/stable/modules/generated/sklearn.preprocessing.OneHotEncoder.html), [right-censored survival](https://www.statsmodels.org/stable/duration.html). Hazardtestens konkrete matematik og begrænsninger fremgår ovenfor og i koden; referencerne er ikke ekstern validering af FPL-resultaterne.
 
 
-## 8. Validering og resterende godkendelseskrav
+## 9. Validering og resterende godkendelseskrav
 
-- 15. oktober: 508 lokale Python-regressioner bestod, inklusive atomisk CSV-lagring og kontrol af konsistente aktuelle minutaliaser/identiteter. Alle 508 genkøres efter den sidste aliasrettelse. Classic Manager, spillerprofil-snapshot og forecast/deadline-JavaScript-checks bestod.
+- 15. oktober: **510 lokale Python-regressioner bestod** efter de sidste adapterrettelser, inklusive atomisk CSV-lagring, konsistente aktuelle minutaliaser/identiteter og nested-dataclass-komponentkontrol med eksplicit tolerance. Classic Manager, spillerprofil-snapshot og forecast/deadline-JavaScript-checks bestod.
 - [Fuld audit ved den beregnede modelkode](https://github.com/pdamkier-del/fpl-analytics-app/actions/runs/38565961258) og [hele MM/PM/context-kørslen](https://github.com/pdamkier-del/fpl-analytics-app/actions/runs/38565961308) bestod. Rapporter er gendannet med original checksum efter forbindelsesbruddet; de dyre tests er ikke erstattet med genfortalte kontroltal.
-- CSV- og JSONL-gzip-checkpoints skrives til midlertidig fil, trailer-valideres, fsync'es og omdøbes atomisk; ved fejlet serialisering bevares sidste komplette fil. Dette ændrer ikke modelmatematikken.
+- Forsøgenes kandidat-/PM-CSV- og JSONL-gzip-checkpoints skrives til midlertidig fil, trailer-valideres, fsync'es og omdøbes atomisk; ved fejlet serialisering bevares sidste komplette fil. Dette ændrer ikke modelmatematikken.
 - Kræver stadig: uafhængig ny testperiode, verificerede historiske publiceringstider/rosters/medicinske labels, komplet workload, validering af 2025 exit-/scorekilder samt fulde historiske fremtidige seks-GW-celler.
 - De separate own-goal/exact-XI-rettelser og MM-fordelingskandidaten er endnu ikke samlet i én accepteret simulator. Eksakte marginalsummer alene certificerer hverken realiserede 11 startere eller kontinuerlig 990-minutters dækning.
 - Den låste original, TS-benchmark og alle produktionsstrategier er bevaret; intet deploy, ingen officielle transfers og ingen live-certificering. `locked_model_active=false`.
