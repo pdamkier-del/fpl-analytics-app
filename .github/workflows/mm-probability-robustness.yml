@@ -37,9 +37,20 @@ jobs:
       - name: Exact result reproduction and production unchanged
         run: |
           sha256sum --check work/frozen-mm-before.sha256
-          git diff --exit-code -- analysis/results/mm-probability-robustness-20261016
+          python - <<'PY'
+          import gzip, hashlib, subprocess
+          from pathlib import Path
+          path = 'analysis/results/mm-probability-robustness-20261016/report.json'
+          expected = gzip.decompress(subprocess.check_output(['git', 'show', 'HEAD:'+path+'.gz']))
+          actual = Path(path).read_bytes()
+          print('JSON expected SHA256:', hashlib.sha256(expected).hexdigest())
+          print('JSON actual SHA256:  ', hashlib.sha256(actual).hexdigest())
+          assert actual == expected, 'MM report JSON differs; gzip codec bytes are not compared'
+          PY
+          git diff --exit-code -- analysis/results/mm-probability-robustness-20261016/reliability.csv analysis/results/mm-probability-robustness-20261016/endpoint_conflicts.csv
           git diff --exit-code 4f34321bb45b1aedf073aa0de6d29d9c7a35416f HEAD -- src
       - uses: actions/upload-artifact@v4
+        if: always()
         with:
           name: mm-only-probability-robustness
           path: analysis/results/mm-probability-robustness-20261016/
