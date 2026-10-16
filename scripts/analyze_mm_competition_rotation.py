@@ -272,7 +272,7 @@ def turnover_association(players,games):
     result={};pred=f.loc[test,['club','competition','kickoff','match_id','changes']].copy()
     for label,cat in [('load_team_role_controls',['club']),('plus_competition_stage_categories',['club','competition','stage'])]:
         def model(alpha):
-            return make_pipeline(ColumnTransformer([('numeric',StandardScaler(),num),('categorical',OneHotEncoder(handle_unknown='ignore'),cat)]),Ridge(alpha=alpha,solver='lsqr'))
+            return make_pipeline(ColumnTransformer([('numeric',StandardScaler(),num),('categorical',OneHotEncoder(handle_unknown='ignore'),cat)]),Ridge(alpha=alpha,solver='lsqr',tol=1e-12))
         losses=[]
         for alpha in [.1,1.,10.,100.]:
             fit=model(alpha).fit(f.loc[early],f.loc[early,'changes'])
