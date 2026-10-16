@@ -1,0 +1,48 @@
+name: MM B probabilistic minutes, role-conditional research
+on:
+  push:
+    branches: [research-mm-predictive-distribution-20261017]
+    paths:
+      - scripts/research_mm_predictive_distribution.py
+      - .github/workflows/mm-predictive-distribution.yml
+  workflow_dispatch:
+permissions:
+  contents: write
+env:
+  PYTHONPATH: src:scripts:.
+  OPENBLAS_NUM_THREADS: '1'
+jobs:
+  mm-distribution:
+    runs-on: ubuntu-latest
+    timeout-minutes: 35
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: pip install -r requirements-model-checkpoint.txt -r requirements-model-tests.txt requests
+      - name: Verify source B predictions
+        run: |
+          test -f analysis/results/individual-mm-refinement-20261016/predictions.npz
+          sha256sum analysis/results/individual-mm-refinement-20261016/predictions.npz > /tmp/mm-b-input.sha256
+      - name: Train dispersion on development, evaluate held-out cohorts
+        run: python scripts/research_mm_predictive_distribution.py
+      - name: Ensure source and production unchanged
+        run: |
+          sha256sum --check /tmp/mm-b-input.sha256
+          git diff --exit-code HEAD -- src
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: mm-predictive-distributions
+          path: analysis/results/mm-predictive-distribution-20261017/
+      - name: Commit research outputs
+        run: |
+          git config user.name 'FPL MM research evidence'
+          git config user.email 'research-evidence@users.noreply.github.com'
+          git add analysis/results/mm-predictive-distribution-20261017/
+          if git diff --cached --quiet; then exit 0; fi
+          git commit -m 'Store role-conditional MM distribution scoring and calibration'
+          git push origin HEAD:research-mm-predictive-distribution-20261017
