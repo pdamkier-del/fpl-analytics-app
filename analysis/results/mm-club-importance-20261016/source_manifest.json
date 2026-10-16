@@ -1,0 +1,52 @@
+{
+  "inputs": {
+    "scripts/experimental_club_match_importance.py": "8224233a14f465fd0314aadafdd923b8a7926f41dad0baff197df5c28244973f",
+    "scripts/analyze_mm_competition_rotation.py": "4dba951fdb056e0e5eb945f3c1f775f936dd9c86225007e3bc6b35d15587537a",
+    "scripts/experimental_mm_role_profiles.py": "130bf4a04e595b82bef7a7da48c687991bf73f0209636471f7dd3c6a28fd835a",
+    "data_v1_1/derived/season_2024_25_v1/all_competition_player_observations.jsonl.gz": "6c9b0d2f133eb8961eb52ce4a81d0624acf6a36a0a4e5ed2ab69b71c92fb1773",
+    "data_v1_1/derived/season_2024_25_v1/all_competition_match_actuals.jsonl.gz": "744b388352ffad753822a8229f083dc6ae2c41254e3a1a8b398a329f63a39ff6",
+    "analysis/results/role-injury-mm-20261016/predictions.npz": "9c5caadd41b105456a484d9f718f8a7547fb78afdee1d17830eef90cbbe4f5fa",
+    "analysis/results/role-injury-mm-20261016/coverage.csv": "7f45fed74f80143a63710c397c794c4acc759d8f5b62603de76057173fbabb2e"
+  },
+  "source_audit": {
+    "source_player_rows": 19600,
+    "club_mapping": {
+      "Manchester United": "Man Utd",
+      "Fulham": "Fulham",
+      "Ipswich Town": "Ipswich",
+      "Liverpool": "Liverpool",
+      "Arsenal": "Arsenal",
+      "Wolverhampton Wanderers": "Wolves",
+      "Everton": "Everton",
+      "Brighton & Hove Albion": "Brighton",
+      "Newcastle United": "Newcastle",
+      "Southampton": "Southampton",
+      "Nottingham Forest": "Nott'm Forest",
+      "AFC Bournemouth": "Bournemouth",
+      "West Ham United": "West Ham",
+      "Aston Villa": "Aston Villa",
+      "Brentford": "Brentford",
+      "Crystal Palace": "Crystal Palace",
+      "Chelsea": "Chelsea",
+      "Manchester City": "Man City",
+      "Leicester City": "Leicester",
+      "Tottenham Hotspur": "Spurs"
+    },
+    "strict_publication_rows": 0,
+    "competition_stage_source": "Pinned postmatch FotMob match ledger; not a historical schedule snapshot"
+  },
+  "deadline_correct": false,
+  "locked_model_active": false,
+  "production_changed": false,
+  "mm_pm_ts_points_chips_run": false,
+  "validation": "2024/25 pre-Dec train, Dec validation, refit pre-Jan, later evaluation; previously reused season, not independent holdout",
+  "unknowns": [
+    "2025/26 FA missing and Europe IDs/quarantines prevent comparable all-competition validation",
+    "Historical schedule/phase publication clocks missing",
+    "No verified predeadline tie state or next-known-fixture calendar",
+    "Unknown absence is not deliberate rotation",
+    "Hierarchy is prior selection/conditional minutes, not measured player ability",
+    "Normal-player events conditioned on historical named matchday selection; no unknown absence counted as bench"
+  ],
+  "feature_contract": "importance_estimate is raw predicted normal-XI-share contrast with same-club PL, in percentage points; no absolute latent causal scale; consumer must call require_deadline_features"
+}
