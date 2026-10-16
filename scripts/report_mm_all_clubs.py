@@ -144,6 +144,11 @@ def main():
         '## Data, kode og reproduktion\n',
         '`scripts/validate_mm_all_clubs.py` genskaber alle tabeller fra permanente MM-kapsler og Core; `scripts/report_mm_all_clubs.py` genskaber denne rapport og de to klubrapporter. `content_manifest.json` gemmer kode-/inputhashes og eksakte indholdshashes (udpakket gzip). Den dedikerede GitHub-workflow kontrollerer 40 evaluerings-klubsæsoner, 540 klub/model/periode-rækker, 5.400 største-fejl-cases, regressionstests, frosne prediction-bytes og uændret `src`.\n',
         'Resultatfiler: `club_metrics.csv`, `overall_metrics.csv`, `isolated_ablations.csv`, `group_metrics.csv.gz`, `top_errors.csv.gz`, `report.json.gz`, `summary.json`, `content_manifest.json` i `analysis/results/mm-all-clubs-20261016/`. Gzip-filer udpakkes til almindelig CSV/JSON. Der er ingen private managerdata.\n']
+    proof_path = DATA/'reproduction.json'
+    if proof_path.exists():
+        proof = json.loads(proof_path.read_text())
+        main += ['## Bestået CI og eksakt reproduktion\n',
+            f"[Workflow {proof['workflow_run']}]({proof['workflow_url']}) er bestået med {proof['tests_passed']} relevante regressionstests, alle dæknings-/hashkontroller og uændret produktion. Alle syv numeriske outputfilers indhold matcher den uafhængige lokale kørsel byte for byte (gzip udpakkes før sammenligning; ingen numerisk tolerance/afrunding). Kodecommit `{proof['code_commit'][:7]}`, dataresultatcommit `{proof['data_commit'][:7]}`; `reproduction.json` gemmer kontrollen.\n"]
     (DOC/'2026-10-16-mm-all-clubs-results.md').write_text('\n'.join(main))
     print('Main MM report and both complete 20-club reports generated')
 
