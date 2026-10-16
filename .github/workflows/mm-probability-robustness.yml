@@ -1,0 +1,56 @@
+name: MM-only probability and temporal robustness
+on:
+  push:
+    branches: [research-role-injury-club-audit-20261016]
+    paths:
+      - scripts/validate_mm_probability_robustness.py
+      - tests/test_mm_probability_robustness.py
+      - .github/workflows/mm-probability-robustness.yml
+      - analysis/results/mm-probability-robustness-20261016/**
+  workflow_dispatch:
+permissions:
+  contents: read
+env:
+  PYTHONPATH: src:scripts:.
+  OPENBLAS_NUM_THREADS: '1'
+jobs:
+  read-only-mm:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: pip install -r requirements-model-checkpoint.txt -r requirements-model-tests.txt requests
+      - name: Source, role and probability regressions only
+        run: python -m pytest tests/test_mm_probability_robustness.py tests/test_mm_role_injury_integration.py tests/test_research_role_injury_club_audit.py tests/test_team_news_history.py tests/test_team_news_audit.py -q
+      - name: Restore checksum-verified MM predictions and source evidence
+        run: |
+          python scripts/archive_role_injury_mm.py --restore work/mm-probability-input
+          python scripts/restore_core_checkpoint.py
+          cp work/mm-probability-input/results/predictions.npz work/mm-probability-input/results/source_backed_news.csv.gz analysis/results/role-injury-mm-20261016/
+          sha256sum analysis/results/role-injury-mm-20261016/predictions.npz > work/frozen-mm-before.sha256
+      - name: Read-only MM calibration and serial-dependence audit
+        run: python scripts/validate_mm_probability_robustness.py
+      - name: Exact result reproduction and production unchanged
+        run: |
+          sha256sum --check work/frozen-mm-before.sha256
+          python - <<'PY'
+          import gzip, hashlib, subprocess
+          from pathlib import Path
+          path = 'analysis/results/mm-probability-robustness-20261016/report.json'
+          expected = gzip.decompress(subprocess.check_output(['git', 'show', 'HEAD:'+path+'.gz']))
+          actual = Path(path).read_bytes()
+          print('JSON expected SHA256:', hashlib.sha256(expected).hexdigest())
+          print('JSON actual SHA256:  ', hashlib.sha256(actual).hexdigest())
+          assert actual == expected, 'MM report JSON differs; gzip codec bytes are not compared'
+          PY
+          git diff --exit-code -- analysis/results/mm-probability-robustness-20261016/reliability.csv analysis/results/mm-probability-robustness-20261016/endpoint_conflicts.csv
+          git diff --exit-code 4f34321bb45b1aedf073aa0de6d29d9c7a35416f HEAD -- src
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: mm-only-probability-robustness
+          path: analysis/results/mm-probability-robustness-20261016/

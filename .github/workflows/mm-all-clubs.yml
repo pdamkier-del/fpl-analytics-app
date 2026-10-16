@@ -1,0 +1,80 @@
+name: MM-only all clubs and isolated duration tests
+on:
+  push:
+    branches: [research-role-injury-club-audit-20261016]
+    paths:
+      - scripts/validate_mm_all_clubs.py
+      - tests/test_mm_all_clubs.py
+      - .github/workflows/mm-all-clubs.yml
+  workflow_dispatch:
+permissions:
+  contents: write
+env:
+  PYTHONPATH: src:scripts:.
+  OPENBLAS_NUM_THREADS: '1'
+jobs:
+  all-clubs-mm:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: pip install -r requirements-model-checkpoint.txt -r requirements-model-tests.txt requests
+      - name: MM, source, temporal and return-cohort regressions only
+        run: python -m pytest tests/test_mm_all_clubs.py tests/test_mm_probability_robustness.py tests/test_mm_role_injury_integration.py tests/test_research_role_injury_club_audit.py tests/test_team_news_history.py tests/test_team_news_audit.py -q
+      - name: Restore permanent verified MM evidence
+        run: |
+          python scripts/archive_role_injury_mm.py --restore work/mm-club-input
+          python scripts/restore_core_checkpoint.py
+          mkdir -p work/mm-source
+          cp work/mm-club-input/mm-source/*_candidates.npz work/mm-source/
+          cp work/mm-club-input/results/predictions.npz work/mm-club-input/results/source_backed_news.csv.gz analysis/results/role-injury-mm-20261016/
+          sha256sum analysis/results/role-injury-mm-20261016/predictions.npz > work/mm-club-input.sha256
+      - name: Full all-club MM replay, paired temporal intervals and isolated ablations
+        run: python scripts/validate_mm_all_clubs.py
+      - name: Verify coverage, content hashes and unchanged baseline
+        run: |
+          sha256sum --check work/mm-club-input.sha256
+          git diff --exit-code 4f34321bb45b1aedf073aa0de6d29d9c7a35416f HEAD -- src
+          python - <<'PY'
+          import gzip, hashlib, json
+          from pathlib import Path
+          root = Path('analysis/results/mm-all-clubs-20261016')
+          summary = json.loads((root/'summary.json').read_text())
+          assert summary['club_seasons_evaluated'] == 40
+          assert summary['total_club_model_phase_rows'] == 540
+          assert summary['total_error_cases'] == 5400
+          manifest = json.loads((root/'content_manifest.json').read_text())
+          for name, entry in manifest['files'].items():
+              raw = (root/name).read_bytes()
+              content = gzip.decompress(raw) if name.endswith('.gz') else raw
+              assert hashlib.sha256(content).hexdigest() == entry['content_sha256'], name
+          print('40 evaluation club-seasons, 540 model/club/phase rows, 5400 largest-error cases verified')
+          PY
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: mm-all-clubs-complete
+          path: analysis/results/mm-all-clubs-20261016/
+      - name: Preserve allowlisted public MM evidence on research branch
+        run: |
+          git config user.name 'FPL MM research evidence'
+          git config user.email 'research-evidence@users.noreply.github.com'
+          git fetch origin research-role-injury-club-audit-20261016
+          if ! git diff --quiet "$GITHUB_SHA" origin/research-role-injury-club-audit-20261016 -- scripts/validate_mm_all_clubs.py scripts/validate_mm_probability_robustness.py checkpoints/role_injury_mm_20261016/manifest.json; then
+            echo 'Newer MM inputs/code exist; artifact retained, stale publication skipped.'
+            exit 0
+          fi
+          git worktree add -b mm-club-publication /tmp/mm-club-publication origin/research-role-injury-club-audit-20261016
+          mkdir -p /tmp/mm-club-publication/analysis/results/mm-all-clubs-20261016
+          for name in club_metrics.csv group_metrics.csv.gz top_errors.csv.gz overall_metrics.csv isolated_ablations.csv report.json.gz summary.json content_manifest.json; do
+            cp "analysis/results/mm-all-clubs-20261016/$name" "/tmp/mm-club-publication/analysis/results/mm-all-clubs-20261016/$name"
+          done
+          git -C /tmp/mm-club-publication add analysis/results/mm-all-clubs-20261016
+          if git -C /tmp/mm-club-publication diff --cached --quiet; then exit 0; fi
+          git -C /tmp/mm-club-publication commit -m 'Preserve complete MM-only club evaluation, return cohorts and isolated duration tests'
+          git -C /tmp/mm-club-publication push origin HEAD:research-role-injury-club-audit-20261016
