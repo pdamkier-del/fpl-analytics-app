@@ -1,0 +1,62 @@
+name: Individual MM refinement, prequential research only
+on:
+  push:
+    branches: [research-individual-mm-refinement-20261016]
+    paths:
+      - scripts/research_individual_mm_refinement.py
+      - tests/test_individual_mm_refinement.py
+      - .github/workflows/individual-mm-refinement.yml
+  workflow_dispatch:
+permissions:
+  contents: write
+env:
+  PYTHONPATH: src:scripts:.
+  OPENBLAS_NUM_THREADS: '1'
+jobs:
+  mm-only:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: pip install -r requirements-model-checkpoint.txt -r requirements-model-tests.txt requests
+      - name: MM source, probability, identity and leakage regressions only
+        run: python -m pytest tests/test_individual_mm_refinement.py tests/test_club_match_importance.py tests/test_mm_competition_rotation.py tests/test_mm_all_clubs.py tests/test_mm_probability_robustness.py tests/test_mm_role_injury_integration.py tests/test_research_role_injury_club_audit.py tests/test_team_news_history.py tests/test_team_news_audit.py -q
+      - name: Restore existing canonical and frozen MM archives
+        run: |
+          python scripts/restore_core_checkpoint.py
+          python scripts/archive_role_injury_mm.py --restore work/refinement-mm-source
+          cp work/refinement-mm-source/results/predictions.npz analysis/results/role-injury-mm-20261016/
+          sha256sum analysis/results/role-injury-mm-20261016/predictions.npz > work/refinement-frozen.sha256
+      - name: Execute A B C D and combinations, MM only
+        run: python scripts/research_individual_mm_refinement.py
+      - name: Frozen and production models unchanged
+        run: |
+          sha256sum --check work/refinement-frozen.sha256
+          git diff --exit-code 4f34321bb45b1aedf073aa0de6d29d9c7a35416f HEAD -- src
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: individual-mm-refinement-research
+          path: |
+            analysis/results/individual-mm-refinement-20261016/
+            work/mm-refinement.log
+      - name: Preserve allowlisted public research outputs
+        run: |
+          git config user.name 'FPL MM research evidence'
+          git config user.email 'research-evidence@users.noreply.github.com'
+          git fetch origin research-individual-mm-refinement-20261016
+          if ! git diff --quiet "$GITHUB_SHA" origin/research-individual-mm-refinement-20261016 -- scripts/research_individual_mm_refinement.py; then exit 0; fi
+          git worktree add -b refinement-evidence /tmp/refinement-evidence origin/research-individual-mm-refinement-20261016
+          mkdir -p /tmp/refinement-evidence/analysis/results/individual-mm-refinement-20261016
+          for name in overall_metrics.csv club_metrics.csv group_metrics.csv.gz calibration.csv paired_intervals.csv top_errors.csv fit_cutoffs.csv development_selection.csv prior_only_features.csv.gz conditional_distributions.csv.gz predictions.npz false_zero_source_diagnosis.csv report.json content_manifest.json; do
+            cp "analysis/results/individual-mm-refinement-20261016/$name" "/tmp/refinement-evidence/analysis/results/individual-mm-refinement-20261016/$name"
+          done
+          git -C /tmp/refinement-evidence add analysis/results/individual-mm-refinement-20261016
+          if git -C /tmp/refinement-evidence diff --cached --quiet; then exit 0; fi
+          git -C /tmp/refinement-evidence commit -m 'Preserve MM-only prequential refinement results and distribution evidence'
+          git -C /tmp/refinement-evidence push origin HEAD:research-individual-mm-refinement-20261016
