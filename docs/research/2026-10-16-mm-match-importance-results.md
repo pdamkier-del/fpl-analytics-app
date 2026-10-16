@@ -234,3 +234,9 @@ PYTHONPATH=src:scripts:. python -m pytest tests/test_mm_competition_rotation.py 
 **52 tests består lokalt.** De nye regressioner kontrollerer bl.a. forskellen på XI-skift og indskiftninger, afvisning af 0–1-intervaller, ukendt årsag til tidlig exit, ID-krav, dubletter og at fremtidige minutter ikke påvirker tidligere workload. Actions gentager de samme tests og analysen og kontrollerer frosne prognosers checksum og uændret `src` mod produktionsreferencen.
 
 Anbefaling: behold eksisterende MM. Prioritér verificerede predeadline-kalendere og spiller-/eventhistorik i de konkrete manglende turneringer, før nye belastnings-/importance-MM-arme køres. Den observerede turneringseffekt er værd at undersøge videre, men den dokumenterer ikke en produktionsklar forbedring.
+
+### Verificeret GitHub-kørsel og lokal/CI-sammenligning
+
+[Actions 38941461600](https://github.com/pdamkier-del/fpl-analytics-app/actions/runs/38941461600) består alle trin: 52 MM-/kilderegressioner, gendannelse af arkiver, faktisk analyse og frossen A-replay, uændret produktions-`src`, checksum og resultatpublicering. Implementering `31b736a`; strammet solvertolerance `74645ce`; resultater `915bfea`.
+
+Syv af ti numeriske resultatfilers indhold er byteidentisk lokalt/CI, inklusive observationer, workload, alle klubtabeller og A-reference. De tre filer med regressionsoutput er numerisk kontrolleret med tolerance 1e−9: største forskel i en prognose er **5,05e−12 XI-skift**, største forskel i JSON-tal **1,09e−12**. Strenge, nøgler og rækker matches; forskellen er numerisk afrunding på tværs af runtime. Disse tre filer påstås ikke at være byteidentiske. Det tilhørende `reproduction.json` bevarer målene.
