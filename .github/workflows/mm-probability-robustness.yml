@@ -23,7 +23,7 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: '3.12'
-      - run: pip install -r requirements-model-checkpoint.txt -r requirements-model-tests.txt
+      - run: pip install -r requirements-model-checkpoint.txt -r requirements-model-tests.txt requests
       - name: Source, role and probability regressions only
         run: python -m pytest tests/test_mm_probability_robustness.py tests/test_mm_role_injury_integration.py tests/test_research_role_injury_club_audit.py tests/test_team_news_history.py tests/test_team_news_audit.py -q
       - name: Restore checksum-verified MM predictions and source evidence
