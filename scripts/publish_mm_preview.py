@@ -48,7 +48,7 @@ def main():
     shutil.copytree(source,dest)
     after=hashes(SITE)
     if before!=after:raise ValueError('Preview altered a production file')
-    evidence=dict(preview_source_commit=os.environ['GITHUB_SHA'],production_run=run['id'],production_artifact=artifact['id'],production_files=len(before),production_files_identical=True,locked_model_active=False,preview_scope='historical_replay',production_sha256=before)
+    evidence=dict(preview_source_commit=os.environ.get('PREVIEW_SOURCE_SHA',os.environ['GITHUB_SHA']),production_run=run['id'],production_artifact=artifact['id'],production_files=len(before),production_files_identical=True,locked_model_active=False,preview_scope='historical_replay',production_sha256=before)
     (dest/'publication.json').write_text(json.dumps(evidence,sort_keys=True,indent=2)+'\n')
     # Keep this isolated new path in future normal forecast publications. No
     # production scripts, model files or existing web assets enter this commit.
