@@ -1,11 +1,5 @@
 name: Individual MM x PM historical evaluation
 on:
-  push:
-    branches: [ts-six-gw-validation-20261015]
-    paths:
-      - .github/workflows/individual-mm-pm-historical.yml
-      - 'scripts/individual_mm_*.py'
-      - scripts/capture_individual_mm_pm.py
   workflow_dispatch:
 permissions:
   contents: read
@@ -46,6 +40,10 @@ jobs:
               path=Path(f'analysis/results/mm-research-20261014/{season}_features.csv.gz')
               if not path.is_file():
                   raise SystemExit(f'Missing restored historical MM features: {path}')
+          for name in ('conditional_feature_frame.csv.gz','locked_mm_predictions.csv.gz'):
+              path=Path('analysis/results/conditional-2024-25-mm')/name
+              if not path.is_file():
+                  raise SystemExit(f'Missing restored conditional MM prerequisite: {path}')
           selection=Path('analysis/results/player-pm-v2-20261015/selection.json')
           if not selection.is_file():
               raise SystemExit(f'Missing archived player PM v2 selection: {selection}')
@@ -65,6 +63,7 @@ jobs:
           path: |
             analysis/results/individual-mm-20261015
             analysis/results/mm-research-20261014
+            analysis/results/conditional-2024-25-mm
             analysis/results/player-pm-v2-20261015/selection.json
   pm-2024:
     needs: provenance-and-inputs
