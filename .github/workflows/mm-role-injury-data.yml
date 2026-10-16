@@ -1,0 +1,50 @@
+name: MM-only historical injury source integration
+on:
+  push:
+    branches: [research-role-injury-club-audit-20261016]
+    paths:
+      - scripts/capture_mm_news_2024.py
+      - scripts/restore_role_mm_source.py
+      - .github/workflows/mm-role-injury-data.yml
+  workflow_dispatch:
+permissions:
+  contents: read
+  actions: read
+jobs:
+  capture:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    env:
+      PYTHONPATH: src:scripts
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: pip install -r requirements-model-checkpoint.txt requests
+      - run: |
+          git fetch origin 6d875a65251fb62f691dc0386ea81aeb29d27c0f
+          python scripts/restore_role_mm_source.py
+          python scripts/restore_core_checkpoint.py
+      - name: Verify 2024 archive clocks, identities and deadline scope
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: python scripts/capture_mm_news_2024.py
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: verified-mm-news-2024
+          path: |
+            work/news-2024/*.json
+            work/news-2024/*.jsonl.gz
+          retention-days: 90
+      - name: Export public source evidence with hashes
+        run: |
+          python - <<'PY'
+          import base64,hashlib,json
+          from pathlib import Path
+          for p in sorted(Path('work/news-2024').glob('*')):
+              if p.is_file():
+                  b=p.read_bytes()
+                  print(json.dumps({'file':p.name,'sha256':hashlib.sha256(b).hexdigest(),'base64':base64.b64encode(b).decode()}))
+          PY
