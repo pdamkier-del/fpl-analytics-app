@@ -1,0 +1,64 @@
+{
+  "classification": "PUBLIC_RESEARCH_SOURCE_AND_RESULT_PROVENANCE_NOT_PUBLICATION_CERTIFICATION",
+  "research_source_commit": "7f68cbd99f391e0327d93691993ad61bf5ab833c",
+  "core_sqlite_sha256": "a4742428fb0c9943ff3ee565f765eb98d733a1690180c566d6df794786ef409f",
+  "artifacts": {
+    "artifact-11896735880.zip": {
+      "bytes": 142870635,
+      "sha256": "84dd5b72dd6635448e9a2579f995558a88e227eebf1046f7b1cf26ba952f7ef8"
+    },
+    "artifact-11898573338.zip": {
+      "bytes": 19376754,
+      "sha256": "e6ed430053515d6c48d291d06ec437f2343f0d0568cd2d2e50b06749bb532127"
+    },
+    "artifact-12001453203.zip": {
+      "bytes": 255922203,
+      "sha256": "ca5fffae7b360f598eabcc1d19be26e45469a0ef623be95cbdd006dcd26d6176"
+    },
+    "artifact-12003124849.zip": {
+      "bytes": 3530805,
+      "sha256": "d9a441a8096a3e4cbe9b495f7068a364aa4e1340fbd8733d19d3d37d6c858cdf"
+    },
+    "recovery-source.zip": {
+      "bytes": 1066065,
+      "sha256": "4f2d8fd3cebb884e875f9d1318735821cf2d43938286455598e2eacef9dfa300"
+    }
+  },
+  "scripts_sha256": {
+    "scripts/capture_individual_mm_pm.py": "d583abfa2748394a75867b0c055bb86a882914cd79ebdb9c4dfd9dce0446a8bf",
+    "scripts/experimental_individual_role_mm.py": "68a139e4da4386c6a30cfa40404a97251b252aa8f3912d3488b876d5a4e328dc",
+    "scripts/individual_mm_diagnostics.py": "e1285cca19015d77ec29269eedbc7bcc703e5f48cf55d3737fa21d6f35a07d0e",
+    "scripts/individual_mm_evidence.py": "e97e7e2f91bef048d37dc8da31a63b875759fb9b61c23e84e0a4901b849f1e17",
+    "scripts/individual_mm_finish.py": "1d6726c031d4c97d104befc1fffed34712d6ac35d79c74cb6b32cfb303b95c6a",
+    "scripts/individual_mm_horizon.py": "b09f1e2a3eb668ff95dcea976f3c1d5b6d0ed2c4da197dca4af7d4c3bba783a3",
+    "scripts/individual_mm_pm_replay.py": "333dafc1bacb1ddb3096cddf78319235f41faf5428ce470c1c930398861c05db",
+    "scripts/individual_mm_validation.py": "4744fc5ab629d3bfe38cdbc582d452612ab0fbb3b59376ca9fb06b5ae7223708",
+    "scripts/merge_individual_mm_captures.py": "de81bb7c878c1d03e891257c29ef8892418eab73b72e2414a9277b333dea77a1",
+    "scripts/experimental_mm_role_profiles.py": "130bf4a04e595b82bef7a7da48c687991bf73f0209636471f7dd3c6a28fd835a",
+    "src/fpl_v1_1_model/joint_simulator.py": "1794b9081264dde34cc5170e2358501cbe4a7e694ae0d011c3d2b2d35e66a6aa",
+    "src/fpl_v1_1_model/experimental_player_pm.py": "27666c50d4de1c77c0207727a4f36a03fc6bcd568db05b28d3dfc8a657743a26"
+  },
+  "source_runs": {
+    "mm_and_selection": 38795223403,
+    "completed_2025_pm": 38795223403,
+    "archived_inputs": 38565961308,
+    "backup_2024_recovery": 38869721082
+  },
+  "2024_capture_merge": {
+    "fixtures": 330,
+    "sources": {
+      "work/archived-mm-pm/work/mm-pm-2024-25/inputs.jsonl.gz": "812aa0dadd1246a106c3f58387a5c5e3d44769d870624050d8efd07c037a5f7a",
+      "work/capture24-a/inputs.jsonl.gz": "a93c808c7b10ec6842135a5626a15cc434ad6d9e221aa1fa57e20e616513deca",
+      "work/capture24-b/inputs.jsonl.gz": "d2b6464c4001ec5e8f1284fa74a144c39398df4b39847d195890778e4082e022",
+      "work/capture24-c/inputs.jsonl.gz": "176c0861816bc1ef69469a0dda63255fe19235787d7038b6027a007e406f8676"
+    },
+    "output_sha256": "759a55582ec3aac5daceea77a93461e5e43513d309ec3b1eac3537f3883a343b",
+    "locked_model_active": false
+  },
+  "2024_computation": "Completed locally under pinned runtime after restoring exact remote research source; backup CI is separate",
+  "publication_times": "kickoff+4h/+3h proxies, not certified source clocks",
+  "independent_holdout": false,
+  "locked_model_active": false,
+  "legacy_benchmark_points": 2125,
+  "pm_v2": "Fixed PR3 0e1117d configuration; no retuning"
+}

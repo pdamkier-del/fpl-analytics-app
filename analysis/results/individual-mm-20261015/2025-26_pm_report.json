@@ -1,0 +1,609 @@
+{
+  "fixtures": 330,
+  "draws": 400,
+  "original_exact": true,
+  "results": {
+    "original_PM": {
+      "control_MM__original_PM": {
+        "rows": 26159,
+        "mae": 0.9151759432700027,
+        "rmse": 1.874801687398568,
+        "bias": 0.007616212393440117,
+        "mean_xp": 1.1459624794525785,
+        "mean_actual": 1.1383462670591384,
+        "minute_mae": 10.794658148247258,
+        "point_components": {
+          "appearance_points": 0.6177200007645552,
+          "goal_points": 0.16805248671585302,
+          "assist_points": 0.09129162047478878,
+          "cs_points": 0.1746243166787721,
+          "save_points": 0.013197752207653199,
+          "dc_points": 0.0970988952177071,
+          "negative_points": -0.044206773959249206,
+          "gc_points": -0.0545055239114645,
+          "penalty_save_points": 0.002084846515539585,
+          "expected_bonus": 0.0806048587484231
+        },
+        "paired": {
+          "fixture_uuid": {
+            "mae_delta": -0.013996712412553996,
+            "mae_interval95": [
+              -0.01630008098701543,
+              -0.01170124160455552
+            ],
+            "rmse_interval95": [
+              -0.009491145921933985,
+              -0.0020120121245504018
+            ]
+          },
+          "team_id": {
+            "mae_delta": -0.013996712412553996,
+            "mae_interval95": [
+              -0.01609860882021671,
+              -0.01195765480952518
+            ],
+            "rmse_interval95": [
+              -0.00914275936176776,
+              -0.0026211307375362107
+            ]
+          }
+        },
+        "component_mean_delta": {
+          "appearance_points": -0.009591727512519577,
+          "goal_points": 0.0005061355556404967,
+          "assist_points": 0.00023854122864022664,
+          "cs_points": -0.001117493023433641,
+          "save_points": -5.457012882755484e-05,
+          "dc_points": -0.0021484001682021414,
+          "negative_points": 0.00024503994801024914,
+          "gc_points": -6.575174892005375e-05,
+          "penalty_save_points": 6.833212278756868e-05,
+          "expected_bonus": -3.545624832752836e-05
+        }
+      },
+      "original_MM__original_PM": {
+        "rows": 26159,
+        "mae": 0.9291726556825567,
+        "rmse": 1.8807071331403256,
+        "bias": 0.019571562368592074,
+        "mean_xp": 1.1579178294277304,
+        "mean_actual": 1.1383462670591384,
+        "minute_mae": 10.91247782789862,
+        "point_components": {
+          "appearance_points": 0.6273117282770748,
+          "goal_points": 0.16754635116021252,
+          "assist_points": 0.09105307924614855,
+          "cs_points": 0.17574180970220574,
+          "save_points": 0.013252322336480753,
+          "dc_points": 0.09924729538590925,
+          "negative_points": -0.044451813907259455,
+          "gc_points": -0.05443977216254445,
+          "penalty_save_points": 0.0020165143927520163,
+          "expected_bonus": 0.08064031499675063
+        },
+        "paired": {
+          "fixture_uuid": {
+            "mae_delta": 0.0,
+            "mae_interval95": [
+              0.0,
+              0.0
+            ],
+            "rmse_interval95": [
+              0.0,
+              0.0
+            ]
+          },
+          "team_id": {
+            "mae_delta": 0.0,
+            "mae_interval95": [
+              0.0,
+              0.0
+            ],
+            "rmse_interval95": [
+              0.0,
+              0.0
+            ]
+          }
+        },
+        "component_mean_delta": {
+          "appearance_points": 0.0,
+          "goal_points": 0.0,
+          "assist_points": 0.0,
+          "cs_points": 0.0,
+          "save_points": 0.0,
+          "dc_points": 0.0,
+          "negative_points": 0.0,
+          "gc_points": 0.0,
+          "penalty_save_points": 0.0,
+          "expected_bonus": 0.0
+        }
+      },
+      "role_MM__original_PM": {
+        "rows": 26159,
+        "mae": 0.9146088344355672,
+        "rmse": 1.8753875753587397,
+        "bias": 0.0077614778852402614,
+        "mean_xp": 1.1461077449443786,
+        "mean_actual": 1.1383462670591384,
+        "minute_mae": 10.774153350663251,
+        "point_components": {
+          "appearance_points": 0.6174772544822049,
+          "goal_points": 0.1675766466608051,
+          "assist_points": 0.09098713635842348,
+          "cs_points": 0.17605996024312856,
+          "save_points": 0.013162582667533161,
+          "dc_points": 0.097003899231622,
+          "negative_points": -0.044313716120646815,
+          "gc_points": -0.05452110172407202,
+          "penalty_save_points": 0.0020375396613020375,
+          "expected_bonus": 0.08063754348407814
+        },
+        "paired": {
+          "fixture_uuid": {
+            "mae_delta": -0.014563821246989562,
+            "mae_interval95": [
+              -0.016892440235135635,
+              -0.012340190411291054
+            ],
+            "rmse_interval95": [
+              -0.008946042599772264,
+              -0.0017238441940682723
+            ]
+          },
+          "team_id": {
+            "mae_delta": -0.014563821246989562,
+            "mae_interval95": [
+              -0.01675473024873848,
+              -0.012337117165922
+            ],
+            "rmse_interval95": [
+              -0.007459499948874304,
+              -0.00299445114723157
+            ]
+          }
+        },
+        "component_mean_delta": {
+          "appearance_points": -0.009834473794869902,
+          "goal_points": 3.0295500592580904e-05,
+          "assist_points": -6.59428877250734e-05,
+          "cs_points": 0.0003181505409228236,
+          "save_points": -8.97396689475919e-05,
+          "dc_points": -0.0022433961542872444,
+          "negative_points": 0.00013809778661263983,
+          "gc_points": -8.132956152757248e-05,
+          "penalty_save_points": 2.1025268550021233e-05,
+          "expected_bonus": -2.7715126724864314e-06
+        }
+      }
+    },
+    "original_PM_role_vs_logistic_control": {
+      "control_MM__original_PM": {
+        "rows": 26159,
+        "mae": 0.9151759432700027,
+        "rmse": 1.874801687398568,
+        "bias": 0.007616212393440117,
+        "mean_xp": 1.1459624794525785,
+        "mean_actual": 1.1383462670591384,
+        "minute_mae": 10.794658148247258,
+        "point_components": {
+          "appearance_points": 0.6177200007645552,
+          "goal_points": 0.16805248671585302,
+          "assist_points": 0.09129162047478878,
+          "cs_points": 0.1746243166787721,
+          "save_points": 0.013197752207653199,
+          "dc_points": 0.0970988952177071,
+          "negative_points": -0.044206773959249206,
+          "gc_points": -0.0545055239114645,
+          "penalty_save_points": 0.002084846515539585,
+          "expected_bonus": 0.0806048587484231
+        },
+        "paired": {
+          "fixture_uuid": {
+            "mae_delta": 0.0,
+            "mae_interval95": [
+              0.0,
+              0.0
+            ],
+            "rmse_interval95": [
+              0.0,
+              0.0
+            ]
+          },
+          "team_id": {
+            "mae_delta": 0.0,
+            "mae_interval95": [
+              0.0,
+              0.0
+            ],
+            "rmse_interval95": [
+              0.0,
+              0.0
+            ]
+          }
+        },
+        "component_mean_delta": {
+          "appearance_points": 0.0,
+          "goal_points": 0.0,
+          "assist_points": 0.0,
+          "cs_points": 0.0,
+          "save_points": 0.0,
+          "dc_points": 0.0,
+          "negative_points": 0.0,
+          "gc_points": 0.0,
+          "penalty_save_points": 0.0,
+          "expected_bonus": 0.0
+        }
+      },
+      "role_MM__original_PM": {
+        "rows": 26159,
+        "mae": 0.9146088344355672,
+        "rmse": 1.8753875753587397,
+        "bias": 0.0077614778852402614,
+        "mean_xp": 1.1461077449443786,
+        "mean_actual": 1.1383462670591384,
+        "minute_mae": 10.774153350663251,
+        "point_components": {
+          "appearance_points": 0.6174772544822049,
+          "goal_points": 0.1675766466608051,
+          "assist_points": 0.09098713635842348,
+          "cs_points": 0.17605996024312856,
+          "save_points": 0.013162582667533161,
+          "dc_points": 0.097003899231622,
+          "negative_points": -0.044313716120646815,
+          "gc_points": -0.05452110172407202,
+          "penalty_save_points": 0.0020375396613020375,
+          "expected_bonus": 0.08063754348407814
+        },
+        "paired": {
+          "fixture_uuid": {
+            "mae_delta": -0.0005671088344355671,
+            "mae_interval95": [
+              -0.0025617242798552094,
+              0.001397694293647095
+            ],
+            "rmse_interval95": [
+              -0.0026785016124181715,
+              0.0038477950509268883
+            ]
+          },
+          "team_id": {
+            "mae_delta": -0.0005671088344355671,
+            "mae_interval95": [
+              -0.0026515928476478837,
+              0.001486666233873944
+            ],
+            "rmse_interval95": [
+              -0.002380018070871731,
+              0.0035583732249403863
+            ]
+          }
+        },
+        "component_mean_delta": {
+          "appearance_points": -0.0002427462823503257,
+          "goal_points": -0.0004758400550479158,
+          "assist_points": -0.00030448411636530004,
+          "cs_points": 0.0014356435643564647,
+          "save_points": -3.516954012003706e-05,
+          "dc_points": -9.499598608510296e-05,
+          "negative_points": -0.00010694216139760931,
+          "gc_points": -1.5577812607518726e-05,
+          "penalty_save_points": -4.730685423754745e-05,
+          "expected_bonus": 3.268473565504193e-05
+        }
+      }
+    },
+    "player_PM_v2": {
+      "control_MM__player_PM_v2": {
+        "rows": 26159,
+        "mae": 0.9157820444206581,
+        "rmse": 1.8737416431256744,
+        "bias": 0.009631006536947132,
+        "mean_xp": 1.1479772735960854,
+        "mean_actual": 1.1383462670591384,
+        "minute_mae": 10.782653102182804,
+        "point_components": {
+          "appearance_points": 0.6177709392560877,
+          "goal_points": 0.16573827363431323,
+          "assist_points": 0.09007110363546007,
+          "cs_points": 0.17994619442639243,
+          "save_points": 0.013179498451775679,
+          "dc_points": 0.0970985129400971,
+          "negative_points": -0.04412018808058413,
+          "gc_points": -0.054480389158606986,
+          "penalty_save_points": 0.002071944646202072,
+          "expected_bonus": 0.08070138384494821
+        },
+        "paired": {
+          "fixture_uuid": {
+            "mae_delta": -0.013746225008601246,
+            "mae_interval95": [
+              -0.016108195928810538,
+              -0.011374456242476232
+            ],
+            "rmse_interval95": [
+              -0.008222642468519581,
+              -0.001242297043980594
+            ]
+          },
+          "team_id": {
+            "mae_delta": -0.013746225008601246,
+            "mae_interval95": [
+              -0.015892392030343358,
+              -0.011489470612791128
+            ],
+            "rmse_interval95": [
+              -0.00770721620300816,
+              -0.0018203293957387472
+            ]
+          }
+        },
+        "component_mean_delta": {
+          "appearance_points": -0.009394089988149501,
+          "goal_points": -0.001414236018196402,
+          "assist_points": -0.0008730264918383746,
+          "cs_points": 0.002248843610229756,
+          "save_points": -8.123399212507307e-06,
+          "dc_points": -0.0021269926220421204,
+          "negative_points": 0.00025086968156274453,
+          "gc_points": 0.000596735349210592,
+          "penalty_save_points": 2.6281585687526216e-05,
+          "expected_bonus": -4.587331319999555e-06
+        }
+      },
+      "original_MM__player_PM_v2": {
+        "rows": 26159,
+        "mae": 0.9295282694292595,
+        "rmse": 1.8785701268648423,
+        "bias": 0.02032933216101533,
+        "mean_xp": 1.1586755992201536,
+        "mean_actual": 1.1383462670591384,
+        "minute_mae": 10.924456305669176,
+        "point_components": {
+          "appearance_points": 0.6271650292442372,
+          "goal_points": 0.16715250965250963,
+          "assist_points": 0.09094413012729845,
+          "cs_points": 0.17769735081616267,
+          "save_points": 0.013187621850988186,
+          "dc_points": 0.09922550556213922,
+          "negative_points": -0.04437105776214687,
+          "gc_points": -0.05507712450781758,
+          "penalty_save_points": 0.0020456630605145457,
+          "expected_bonus": 0.08070597117626821
+        },
+        "paired": {
+          "fixture_uuid": {
+            "mae_delta": 0.0,
+            "mae_interval95": [
+              0.0,
+              0.0
+            ],
+            "rmse_interval95": [
+              0.0,
+              0.0
+            ]
+          },
+          "team_id": {
+            "mae_delta": 0.0,
+            "mae_interval95": [
+              0.0,
+              0.0
+            ],
+            "rmse_interval95": [
+              0.0,
+              0.0
+            ]
+          }
+        },
+        "component_mean_delta": {
+          "appearance_points": 0.0,
+          "goal_points": 0.0,
+          "assist_points": 0.0,
+          "cs_points": 0.0,
+          "save_points": 0.0,
+          "dc_points": 0.0,
+          "negative_points": 0.0,
+          "gc_points": 0.0,
+          "penalty_save_points": 0.0,
+          "expected_bonus": 0.0
+        }
+      },
+      "role_MM__player_PM_v2": {
+        "rows": 26159,
+        "mae": 0.9155922435872931,
+        "rmse": 1.873055169931473,
+        "bias": 0.009243950456821743,
+        "mean_xp": 1.14759021751596,
+        "mean_actual": 1.1383462670591384,
+        "minute_mae": 10.78064375549524,
+        "point_components": {
+          "appearance_points": 0.6176688711342176,
+          "goal_points": 0.1653876294965404,
+          "assist_points": 0.08983026874115983,
+          "cs_points": 0.1800896440995451,
+          "save_points": 0.013220688864253222,
+          "dc_points": 0.09714553308612713,
+          "negative_points": -0.04413003172904163,
+          "gc_points": -0.054373542566611865,
+          "penalty_save_points": 0.002066210482052066,
+          "expected_bonus": 0.08068494590771817
+        },
+        "paired": {
+          "fixture_uuid": {
+            "mae_delta": -0.013936025841966434,
+            "mae_interval95": [
+              -0.01640084070163976,
+              -0.011410434767474924
+            ],
+            "rmse_interval95": [
+              -0.00940771150236006,
+              -0.0013768299674292179
+            ]
+          },
+          "team_id": {
+            "mae_delta": -0.013936025841966434,
+            "mae_interval95": [
+              -0.016408678283174265,
+              -0.011313681091726016
+            ],
+            "rmse_interval95": [
+              -0.008301696826573357,
+              -0.0026472848205605025
+            ]
+          }
+        },
+        "component_mean_delta": {
+          "appearance_points": -0.009496158110019581,
+          "goal_points": -0.001764880155969234,
+          "assist_points": -0.0011138613861386149,
+          "cs_points": 0.0023922932833824184,
+          "save_points": 3.306701326503611e-05,
+          "dc_points": -0.0020799724760120902,
+          "negative_points": 0.00024102603310523912,
+          "gc_points": 0.0007035819412057123,
+          "penalty_save_points": 2.0547421537520268e-05,
+          "expected_bonus": -2.102526855003728e-05
+        }
+      }
+    },
+    "player_PM_v2_role_vs_logistic_control": {
+      "control_MM__player_PM_v2": {
+        "rows": 26159,
+        "mae": 0.9157820444206581,
+        "rmse": 1.8737416431256744,
+        "bias": 0.009631006536947132,
+        "mean_xp": 1.1479772735960854,
+        "mean_actual": 1.1383462670591384,
+        "minute_mae": 10.782653102182804,
+        "point_components": {
+          "appearance_points": 0.6177709392560877,
+          "goal_points": 0.16573827363431323,
+          "assist_points": 0.09007110363546007,
+          "cs_points": 0.17994619442639243,
+          "save_points": 0.013179498451775679,
+          "dc_points": 0.0970985129400971,
+          "negative_points": -0.04412018808058413,
+          "gc_points": -0.054480389158606986,
+          "penalty_save_points": 0.002071944646202072,
+          "expected_bonus": 0.08070138384494821
+        },
+        "paired": {
+          "fixture_uuid": {
+            "mae_delta": 0.0,
+            "mae_interval95": [
+              0.0,
+              0.0
+            ],
+            "rmse_interval95": [
+              0.0,
+              0.0
+            ]
+          },
+          "team_id": {
+            "mae_delta": 0.0,
+            "mae_interval95": [
+              0.0,
+              0.0
+            ],
+            "rmse_interval95": [
+              0.0,
+              0.0
+            ]
+          }
+        },
+        "component_mean_delta": {
+          "appearance_points": 0.0,
+          "goal_points": 0.0,
+          "assist_points": 0.0,
+          "cs_points": 0.0,
+          "save_points": 0.0,
+          "dc_points": 0.0,
+          "negative_points": 0.0,
+          "gc_points": 0.0,
+          "penalty_save_points": 0.0,
+          "expected_bonus": 0.0
+        }
+      },
+      "role_MM__player_PM_v2": {
+        "rows": 26159,
+        "mae": 0.9155922435872931,
+        "rmse": 1.873055169931473,
+        "bias": 0.009243950456821743,
+        "mean_xp": 1.14759021751596,
+        "mean_actual": 1.1383462670591384,
+        "minute_mae": 10.78064375549524,
+        "point_components": {
+          "appearance_points": 0.6176688711342176,
+          "goal_points": 0.1653876294965404,
+          "assist_points": 0.08983026874115983,
+          "cs_points": 0.1800896440995451,
+          "save_points": 0.013220688864253222,
+          "dc_points": 0.09714553308612713,
+          "negative_points": -0.04413003172904163,
+          "gc_points": -0.054373542566611865,
+          "penalty_save_points": 0.002066210482052066,
+          "expected_bonus": 0.08068494590771817
+        },
+        "paired": {
+          "fixture_uuid": {
+            "mae_delta": -0.00018980083336518877,
+            "mae_interval95": [
+              -0.0022519028944943034,
+              0.0017872078147572713
+            ],
+            "rmse_interval95": [
+              -0.004266224829020354,
+              0.002856008842267396
+            ]
+          },
+          "team_id": {
+            "mae_delta": -0.00018980083336518877,
+            "mae_interval95": [
+              -0.002148458159285076,
+              0.0018229693634121496
+            ],
+            "rmse_interval95": [
+              -0.003467374839816717,
+              0.002344348985217501
+            ]
+          }
+        },
+        "component_mean_delta": {
+          "appearance_points": -0.0001020681218700803,
+          "goal_points": -0.000350644137772832,
+          "assist_points": -0.0002408348943002403,
+          "cs_points": 0.00014344967315266244,
+          "save_points": 4.119041247754342e-05,
+          "dc_points": 4.702014603003013e-05,
+          "negative_points": -9.843648457505405e-06,
+          "gc_points": 0.00010684659199512031,
+          "penalty_save_points": -5.7341641500059486e-06,
+          "expected_bonus": -1.6437937230037725e-05
+        }
+      }
+    }
+  },
+  "pm_v2_config": {
+    "name": "hybrid_h0.25_b0.25",
+    "family": "hybrid",
+    "half": 365.0,
+    "strength": 5.0,
+    "hierarchical": true,
+    "anchor_weight": 0.25,
+    "creativity": 0.25,
+    "finishing": true
+  },
+  "fingerprint": {
+    "scripts/individual_mm_pm_replay.py": "333dafc1bacb1ddb3096cddf78319235f41faf5428ce470c1c930398861c05db",
+    "src/fpl_v1_1_model/joint_simulator.py": "1794b9081264dde34cc5170e2358501cbe4a7e694ae0d011c3d2b2d35e66a6aa",
+    "src/fpl_v1_1_model/experimental_player_pm.py": "27666c50d4de1c77c0207727a4f36a03fc6bcd568db05b28d3dfc8a657743a26"
+  },
+  "locked_model_active": false,
+  "promotion_allowed": false,
+  "limitations": [
+    "Frozen archived originals; all MM-dependent GA/DC/discipline/own-goal inputs rebuilt and baseline checked",
+    "Original independent start simulator retained in both arms; expected-XI constraints do not repair its realized-XI physics",
+    "Original scoring and fixed PM v2 configuration retained; no PM research retuning",
+    "Single paired seed per fixture; interval does not include all Monte Carlo uncertainty",
+    "Research seasons and publication proxies reused; not independent certification"
+  ]
+}
