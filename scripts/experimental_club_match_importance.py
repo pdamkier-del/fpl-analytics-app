@@ -154,6 +154,9 @@ def build_samples(players,games,snapshots,core,news):
                     transfer_registration_verified=False)
                 # Only now access the current XI/minutes as labels.
                 key['normal_share']=sum(d['started']for d in detail)/11
+                av=[d for d in detail if d['explicit_available']]
+                key['available_normal_starter_share']=sum(d['started']for d in av)/len(av)if av else np.nan
+                key['available_normal_count']=len(av)
                 key['xi_changes']=match['xi_changes_from_previous_recorded']
                 total=current.minutes.sum(min_count=1)
                 key['normal_minute_share']=sum(d['recorded_minutes']for d in detail if pd.notna(d['recorded_minutes']))/total if total>0 else np.nan
@@ -213,7 +216,7 @@ def feature_dicts(frame,variant,player=False,counter_pl=False):
 class Model:
     def __init__(self,alpha=10.,classification=False):
         self.alpha=alpha;self.classification=classification
-        self.vector=DictVectorizer(sparse=True,sort=True);self.scale=StandardScaler(with_mean=False)
+        self.vector=DictVectorizer(sparse=False,sort=True);self.scale=StandardScaler(with_mean=True)
     def fit(self,features,y):
         x=self.scale.fit_transform(self.vector.fit_transform(features))
         # Explicit nested interaction coefficients shrink to zero/global competition effect.
@@ -221,22 +224,24 @@ class Model:
         names=self.vector.get_feature_names_out();self.scale.scale_[np.array(['='in n or n.startswith('slope:')for n in names])]=1.
         x=self.scale.transform(self.vector.transform(features))
         self.fit_x=x;self.y=np.asarray(y)
-        self.estimator=(LogisticRegression(C=1/self.alpha,max_iter=2000,tol=1e-9,solver='lbfgs')if self.classification else Ridge(alpha=self.alpha,solver='lsqr',tol=1e-12))
-        self.estimator.fit(x,y);return self
+        self.estimator=(LogisticRegression(C=1/self.alpha,max_iter=4000,tol=1e-8,solver='lbfgs')if self.classification else Ridge(alpha=self.alpha,solver='lsqr',tol=1e-12))
+        self.estimator.fit(x,y)
+        if self.classification and self.estimator.n_iter_[0]>=self.estimator.max_iter:raise ValueError('Classifier failed convergence')
+        return self
     def transform(self,features):return self.scale.transform(self.vector.transform(features))
     def predict(self,features):
         x=self.transform(features)
         return self.estimator.predict_proba(x)[:,1]if self.classification else self.estimator.predict(x)
     def contrast_uncertainty(self,features,reference,weeks,groups):
         """Week-cluster sandwich for penalized coefficients; conditional on fit/hyperparameters."""
-        x=self.fit_x.toarray();x=np.column_stack([np.ones(len(x)),x]);pen=np.eye(x.shape[1])*self.alpha;pen[0,0]=0
+        x=self.fit_x;x=np.column_stack([np.ones(len(x)),x]);pen=np.eye(x.shape[1])*self.alpha;pen[0,0]=0
         inv=np.linalg.pinv(x.T@x+pen,rcond=1e-12)
         residual=self.y-self.estimator.predict(self.fit_x)
         scores=[]
         for w in sorted(set(weeks)):
             mask=np.asarray(weeks)==w;scores.append(x[mask].T@residual[mask])
         scores=np.asarray(scores);cov=inv@scores.T@scores@inv
-        d=(self.transform(features)-self.transform(reference)).toarray();d=np.column_stack([np.zeros(len(d)),d])
+        d=self.transform(features)-self.transform(reference);d=np.column_stack([np.zeros(len(d)),d])
         se=np.sqrt(np.maximum(np.einsum('ij,jk,ik->i',d,cov,d),0))
         groupse={}
         for key in sorted(set(groups)):
@@ -314,15 +319,14 @@ def validate(frame,individual):
         weights={};saved={}
         for variant in VARIANTS:
             features=feature_dicts(f,variant)
-            # Tune only normal starter-share MAE in December; fix before later evaluation.
-            scores=[]
-            for alpha in [1.,10.,100.]:
-                m=Model(alpha).fit([features[i]for i in np.flatnonzero(early)],f.loc[early,'normal_share'])
-                err=metrics(f.loc[val,'normal_share'],np.clip(m.predict([features[i]for i in np.flatnonzero(val)]),0,1))['mae'];scores.append((err,alpha))
-            alpha=min(scores)[1];weights[variant]=alpha
-            selection.append(dict(role_definition=role,model=variant,alpha=alpha,validation_mae=min(scores)[0],development_rows=int(dev.sum()),evaluation_rows=int(test.sum())))
             for outcome,(lo,hi)in OUTCOMES.items():
                 use=f[outcome].notna();train=dev&use;ev=test&use
+                scores=[]
+                for alpha in [1.,10.,100.]:
+                    m=Model(alpha).fit([features[i]for i in np.flatnonzero(early&use)],f.loc[early&use,outcome])
+                    err=metrics(f.loc[val&use,outcome],np.clip(m.predict([features[i]for i in np.flatnonzero(val&use)]),lo,hi))['mae'];scores.append((err,alpha))
+                alpha=min(scores)[1]
+                selection.append(dict(role_definition=role,model=variant,outcome=outcome,alpha=alpha,validation_loss=min(scores)[0],development_rows=int(train.sum()),evaluation_rows=int(ev.sum())))
                 m=Model(alpha).fit([features[i]for i in np.flatnonzero(train)],f.loc[train,outcome])
                 pred=np.clip(m.predict([features[i]for i in np.flatnonzero(ev)]),lo,hi)
                 v=f.loc[ev,['club','club_id','competition','match_id','cutoff',outcome]].copy();v['prediction']=pred;v['model']=variant;v['outcome']=outcome;v['role_definition']=role
@@ -336,15 +340,29 @@ def validate(frame,individual):
                     im=f.loc[ev].copy();im['model']=variant;im['importance_estimate']=effect*100;im['importance_se']=se*100
                     im['importance_low']=(effect-1.96*se)*100;im['importance_high']=(effect+1.96*se)*100
                     im['club_comp_mean_se']=[groupse[k]*100 for k in keys]
+                    training=f.loc[train]
+                    im['training_comp_games']=[int(training.competition.eq(r.competition).sum())for r in im.itertuples()]
+                    im['training_club_comp_games']=[int((training.club.eq(r.club)&training.competition.eq(r.competition)).sum())for r in im.itertuples()]
+                    unseen=im.training_club_comp_games.eq(0)
+                    # Unknown categorical effects are shrunk to global prior, not falsely known with zero uncertainty.
+                    im.loc[unseen,['importance_se','importance_low','importance_high','club_comp_mean_se']]=np.nan
                     im['predicted_normal_share']=pred;importance.append(im)
         # Individual probability endpoint: 11 prior-defined normal players, not current-XI-selected sample.
         ip=individual[individual.role_definition.eq(role)].merge(f,on=['season','club','club_id','match_id','competition','cutoff','role_definition','deadline_correct'],validate='many_to_one',suffixes=('','_team'))
         # Strict available and unknown strata both reported. Inference is not labelled intentional rest.
         ip=ip.sort_values(['cutoff','club','player_id']).reset_index(drop=True)
         train=ip.cutoff.lt(pd.Timestamp('2025-01-01',tz='UTC'));ev=~train
+        earlyp=ip.cutoff.lt(pd.Timestamp('2024-12-01',tz='UTC'));valp=train&~earlyp
         for variant in VARIANTS:
             features=feature_dicts(ip,variant,player=True)
-            m=Model(weights[variant],classification=True).fit([features[i]for i in np.flatnonzero(train)],ip.loc[train,'started'])
+            scores=[]
+            for alpha in [1.,10.,100.]:
+                m=Model(alpha,classification=True).fit([features[i]for i in np.flatnonzero(earlyp)],ip.loc[earlyp,'started'])
+                pr=m.predict([features[i]for i in np.flatnonzero(valp)])
+                scores.append((float(brier_score_loss(ip.loc[valp,'started'],pr)),alpha))
+            alpha=min(scores)[1]
+            selection.append(dict(role_definition=role,model=variant,outcome='normal_player_started',alpha=alpha,validation_loss=min(scores)[0],development_rows=int(train.sum()),evaluation_rows=int(ev.sum())))
+            m=Model(alpha,classification=True).fit([features[i]for i in np.flatnonzero(train)],ip.loc[train,'started'])
             pred=m.predict([features[i]for i in np.flatnonzero(ev)])
             v=ip.loc[ev,['club','competition','match_id','cutoff','player_id','started','availability_state','explicit_available']].copy();v['prediction']=pred;v['role_definition']=role;v['model']=variant;v['outcome']='normal_player_started'
             predictions.append(v.rename(columns={'started':'observed'}));saved[(variant,'normal_player_started')]=v
@@ -362,10 +380,14 @@ def validate(frame,individual):
                 y=j['started'if outcome=='normal_player_started'else outcome]
                 loss=(j.prediction-y)**2-(j.prediction_baseline-y)**2 if outcome=='normal_player_started'else abs(j.prediction-y)-abs(j.prediction_baseline-y)
                 records.append(dict(role_definition=role,model=after,outcome=outcome,contrast_before=before,loss='brier'if outcome=='normal_player_started'else'mae',**block_interval(j.cutoff,loss)))
+                if outcome=='normal_player_started':
+                    available=j.explicit_available.to_numpy()
+                    if available.any():records.append(dict(role_definition=role,model=after,outcome=outcome,contrast_before=before,availability_group='explicit_predeadline_available',loss='brier',**block_interval(j.loc[available,'cutoff'],loss[available])))
     return pd.DataFrame(records),pd.concat(predictions,ignore_index=True),pd.DataFrame(calibration),pd.concat(importance,ignore_index=True),pd.DataFrame(selection)
 
 
 def require_deadline_features(frame):
+    if set(frame.columns)&{'normal_share','xi_changes','normal_minute_share','started','recorded_minutes','available_normal_starter_share','verified_available_not_started'}:raise ValueError('Outcome columns forbidden in MM features')
     if not frame.deadline_correct.eq(True).all():raise ValueError('Not Available: uncertified source clocks/schedule/availability')
     if 'source_publication_at'not in frame or frame.source_publication_at.isna().any():raise ValueError('Missing verified publication')
     if not (pd.to_datetime(frame.source_publication_at,utc=True)<pd.to_datetime(frame.cutoff,utc=True)).all():raise ValueError('Future publication')
@@ -394,19 +416,28 @@ def main():
     f=pooled_history(sporting_context(f,ledger,audit['club_mapping']))
     f['cutoff']=pd.to_datetime(f.cutoff,utc=True,format='mixed');ip['cutoff']=pd.to_datetime(ip.cutoff,utc=True,format='mixed')
     metrics_,pred,cal,importance,sel=validate(f,ip)
-    for name,d in [('match_samples',f),('individual_role_features',ip),('validation_metrics',metrics_),('validation_predictions',pred),('calibration',cal),('pre_match_features',importance),('hyperparameter_selection',sel)]:
-        d.to_csv(OUT/(name+'.csv.gz'if name in ['individual_role_features','validation_predictions','pre_match_features']else name+'.csv'),index=False,compression={'method':'gzip','mtime':0}if name in ['individual_role_features','validation_predictions','pre_match_features']else None)
+    label_columns=['normal_share','xi_changes','normal_minute_share','normal_nonselection_unknown','verified_available_not_started','available_normal_starter_share']
+    safe=importance.drop(columns=label_columns+['club_comp_mean_se'])
+    for name,d in [('match_samples',f),('individual_role_samples',ip),('individual_pre_match_features',ip.drop(columns=['started','recorded_minutes'])),('validation_metrics',metrics_),('validation_predictions',pred),('calibration',cal),('pre_match_features',safe),('hyperparameter_selection',sel)]:
+        compressed=name in ['individual_role_samples','individual_pre_match_features','validation_predictions','pre_match_features']
+        d.to_csv(OUT/(name+'.csv.gz'if compressed else name+'.csv'),index=False,compression={'method':'gzip','mtime':0}if compressed else None)
     observed=[]
     for (role,club,comp),g in f.groupby(['role_definition','club','competition']):
-        observed.append(dict(role_definition=role,club=club,competition=comp,games=len(g),normal_starter_share=g.normal_share.mean(),normal_minute_share=g.normal_minute_share.mean(),xi_changes=g.xi_changes.mean(),mean_unknown_availability=g.unknown_availability.mean(),explicit_available_nonstarts=int(g.verified_available_not_started.sum()),unknown_nonselection=int(g.normal_nonselection_unknown.sum())))
+        observed.append(dict(role_definition=role,club=club,competition=comp,games=len(g),normal_starter_share=g.normal_share.mean(),available_normal_starter_share=g.available_normal_starter_share.mean(),available_normal_player_games=int(g.available_normal_count.sum()),normal_minute_share=g.normal_minute_share.mean(),xi_changes=g.xi_changes.mean(),mean_unknown_availability=g.unknown_availability.mean(),explicit_available_nonstarts=int(g.verified_available_not_started.sum()),unknown_nonselection=int(g.normal_nonselection_unknown.sum())))
     pd.DataFrame(observed).to_csv(OUT/'observed_club_priorities.csv',index=False)
     clubpri=[];monthly=[]
     for (role,model,club,comp),g in importance.groupby(['role_definition','model','club','competition']):
         # Average coefficient contrasts, not a subjective 0-100 score.
         mean=g.importance_estimate.mean();se=g.club_comp_mean_se.iloc[0]
-        clubpri.append(dict(role_definition=role,model=model,club=club,competition=comp,evaluation_games=len(g),relative_priority_pp=mean,conditional_low=mean-1.96*se,conditional_high=mean+1.96*se,predicted_normal_share=g.predicted_normal_share.mean(),observed_normal_share=g.normal_share.mean(),deadline_correct=False))
+        clubpri.append(dict(role_definition=role,model=model,club=club,competition=comp,evaluation_games=len(g),training_comp_games=int(g.training_comp_games.iloc[0]),training_club_comp_games=int(g.training_club_comp_games.iloc[0]),relative_priority_pp=mean,conditional_low=mean-1.96*se,conditional_high=mean+1.96*se,predicted_normal_share=g.predicted_normal_share.mean(),observed_normal_share=g.normal_share.mean(),deadline_correct=False))
         for month,h in g.groupby(pd.to_datetime(g.cutoff).dt.strftime('%Y-%m')):monthly.append(dict(role_definition=role,model=model,club=club,competition=comp,month=month,games=len(h),relative_priority_pp=h.importance_estimate.mean(),observed_normal_share=h.normal_share.mean(),deadline_correct=False))
-    pd.DataFrame(clubpri).to_csv(OUT/'club_priorities.csv',index=False);pd.DataFrame(monthly).to_csv(OUT/'monthly_priorities.csv',index=False)
+    rawcoverage=games.groupby(['club','competition']).agg(raw_team_games=('match_id','size')).reset_index()
+    cov=rawcoverage.merge(pd.DataFrame(observed),on=['club','competition'],how='left')
+    cov.to_csv(OUT/'sample_coverage.csv',index=False)
+    grid=rawcoverage.merge(pd.DataFrame([(r,m)for r in ['existing','objective']for m in VARIANTS],columns=['role_definition','model']),how='cross')
+    cp=grid.merge(pd.DataFrame(clubpri),on=['club','competition','role_definition','model'],how='left',validate='one_to_one')
+    cp['status']=np.where(cp.evaluation_games.notna(),'Diagnostic pre-match estimate; not certified','Not Available: no chronological evaluation observations')
+    cp.to_csv(OUT/'club_priorities.csv',index=False);pd.DataFrame(monthly).to_csv(OUT/'monthly_priorities.csv',index=False)
     inputs=[ROOT/'scripts/experimental_club_match_importance.py',ROOT/'scripts/analyze_mm_competition_rotation.py',ROOT/'scripts/experimental_mm_role_profiles.py',RAW24/'all_competition_player_observations.jsonl.gz',RAW24/'all_competition_match_actuals.jsonl.gz',ROOT/'analysis/results/role-injury-mm-20261016/predictions.npz',ROOT/'analysis/results/role-injury-mm-20261016/coverage.csv']
     save_json(OUT/'source_manifest.json',dict(inputs={str(p.relative_to(ROOT)):hashlib.sha256(p.read_bytes()).hexdigest()for p in inputs},source_audit=audit,deadline_correct=False,locked_model_active=False,production_changed=False,mm_pm_ts_points_chips_run=False,
         validation='2024/25 pre-Dec train, Dec validation, refit pre-Jan, later evaluation; previously reused season, not independent holdout',
@@ -415,7 +446,7 @@ def main():
     content={}
     import gzip
     for p in sorted(OUT.glob('*')):
-        if p.name in ['content_manifest.json','report.md']:continue
+        if p.name in ['content_manifest.json','report.md','individual_role_features.csv.gz']:continue
         b=gzip.decompress(p.read_bytes())if p.suffix=='.gz'else p.read_bytes();content[p.name]=dict(sha256=hashlib.sha256(b).hexdigest(),bytes=len(b))
     save_json(OUT/'content_manifest.json',content)
     print('Executed priority candidates:',len(f),'team-role rows;',len(ip),'individual rows;',len(pred),'predictions')

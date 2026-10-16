@@ -26,7 +26,7 @@ def test_current_lineup_and_minutes_do_not_change_own_features_or_prior_hierarch
     changed.loc[mask&changed.player_id.eq('0'),['started','minutes']]=[False,20]
     changed.loc[mask&changed.player_id.eq('11'),['started','minutes']]=[True,70]
     b,ib=build(changed,s,c,n)
-    labels=['normal_share','xi_changes','normal_minute_share','normal_nonselection_unknown','verified_available_not_started']
+    labels=['normal_share','xi_changes','normal_minute_share','normal_nonselection_unknown','verified_available_not_started','available_normal_starter_share']
     pd.testing.assert_frame_equal(a.drop(columns=labels),b.drop(columns=labels))
     pd.testing.assert_frame_equal(ia.drop(columns=['started','recorded_minutes']),ib.drop(columns=['started','recorded_minutes']))
     assert a.normal_share.ne(b.normal_share).any()

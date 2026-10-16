@@ -52,7 +52,7 @@ jobs:
           if ! git diff --quiet "$GITHUB_SHA" origin/research-role-injury-club-audit-20261016 -- scripts/experimental_club_match_importance.py; then exit 0; fi
           git worktree add -b priority-evidence /tmp/priority-evidence origin/research-role-injury-club-audit-20261016
           mkdir -p /tmp/priority-evidence/analysis/results/mm-club-importance-20261016
-          for name in match_samples.csv individual_role_features.csv.gz validation_metrics.csv validation_predictions.csv.gz calibration.csv pre_match_features.csv.gz hyperparameter_selection.csv observed_club_priorities.csv club_priorities.csv monthly_priorities.csv source_manifest.json content_manifest.json; do
+          for name in match_samples.csv individual_role_samples.csv.gz individual_pre_match_features.csv.gz validation_metrics.csv validation_predictions.csv.gz calibration.csv pre_match_features.csv.gz hyperparameter_selection.csv observed_club_priorities.csv club_priorities.csv monthly_priorities.csv sample_coverage.csv source_manifest.json content_manifest.json; do
             cp "analysis/results/mm-club-importance-20261016/$name" "/tmp/priority-evidence/analysis/results/mm-club-importance-20261016/$name"
           done
           git -C /tmp/priority-evidence add analysis/results/mm-club-importance-20261016
