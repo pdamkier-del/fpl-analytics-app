@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Single offline entry point for the already connected individual MM + PM v2.
 
-No production flags, forecast pages, locked parameters or benchmarks are changed.
+No production flags, forecast pages, locked parameters or benchmarks are changed.\nCI runner lives in .github/workflows/combined-player-chain.yml.
 Uses the existing fixed-75 PM v2 and the experimental start/survival MM under
 the legal joint-XI simulator. Also replays locked controls for valid A/B.
 """
