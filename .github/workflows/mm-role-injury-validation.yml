@@ -36,14 +36,10 @@ jobs:
           python scripts/restore_role_mm_source.py
           python scripts/restore_core_checkpoint.py
           python scripts/restore_team_news_audit.py
-      - uses: actions/download-artifact@v4
-        with:
-          github-token: ${{ github.token }}
-          run-id: '38921917263'
-          name: verified-mm-news-2024
-          path: work/news-2024
-      - name: Recover independent historical push clocks
-        run: python scripts/verify_mm_archive_push_times.py
+      - name: Restore permanent verified source evidence (no expiring artifact dependency)
+        run: |
+          python scripts/archive_role_injury_mm.py --restore work/permanent-mm-evidence
+          cp -r work/permanent-mm-evidence/news-2024 work/news-2024-push-verified
       - name: Historical MM only, fixed cohorts and no parameter tuning
         run: python scripts/validate_role_injury_mm.py
       - name: Verify locked production sources unchanged
