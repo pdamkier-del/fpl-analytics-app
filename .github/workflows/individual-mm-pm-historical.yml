@@ -1,0 +1,186 @@
+name: Individual MM x PM historical evaluation
+on:
+  workflow_dispatch:
+permissions:
+  contents: read
+  actions: read
+env:
+  PYTHONPATH: src:scripts
+  OPENBLAS_NUM_THREADS: '1'
+  OMP_NUM_THREADS: '1'
+  PYTHONHASHSEED: '0'
+  OPENBLAS_CORETYPE: NEHALEM
+jobs:
+  provenance-and-inputs:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: pip install -r requirements-model-checkpoint.txt -r requirements-model-tests.txt requests
+      - uses: actions/download-artifact@v4
+        with:
+          github-token: ${{ github.token }}
+          run-id: '38565961308'
+          name: mm-component-inputs-and-results
+          path: analysis/results
+      - uses: actions/download-artifact@v4
+        with:
+          github-token: ${{ github.token }}
+          run-id: '38729720330'
+          name: player-pm-v2-selection
+          path: analysis/results/player-pm-v2-20261015
+      - name: Verify archived source inputs before expensive modelling
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          for season in ('2024-25','2025-26'):
+              path=Path(f'analysis/results/mm-research-20261014/{season}_features.csv.gz')
+              if not path.is_file():
+                  raise SystemExit(f'Missing restored historical MM features: {path}')
+          for name in ('conditional_feature_frame.csv.gz','locked_mm_predictions.csv.gz'):
+              path=Path('analysis/results/conditional-2024-25-mm')/name
+              if not path.is_file():
+                  raise SystemExit(f'Missing restored conditional MM prerequisite: {path}')
+          selection=Path('analysis/results/player-pm-v2-20261015/selection.json')
+          if not selection.is_file():
+              raise SystemExit(f'Missing archived player PM v2 selection: {selection}')
+          print('Preflight OK: both MM seasons and PM v2 selection restored')
+          PY
+      - name: Restore historical datasets and validate role reproducibility
+        run: |
+          python scripts/restore_core_checkpoint.py
+          python scripts/restore_2024_25_data_checkpoint.py
+          python -m pytest tests/test_individual_mm_validation.py -q
+          python scripts/locked_numerical_runtime.py scripts/individual_mm_validation.py
+          python scripts/individual_mm_finish.py
+      - uses: actions/upload-artifact@v4
+        with:
+          name: individual-mm-historical-source
+          retention-days: 90
+          path: |
+            analysis/results/individual-mm-20261015
+            analysis/results/mm-research-20261014
+            analysis/results/conditional-2024-25-mm
+            analysis/results/player-pm-v2-20261015/selection.json
+  pm-2024:
+    needs: provenance-and-inputs
+    runs-on: ubuntu-latest
+    timeout-minutes: 180
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: {python-version: '3.12'}
+      - run: pip install -r requirements-model-checkpoint.txt requests
+      - uses: actions/download-artifact@v4
+        with:
+          name: individual-mm-historical-source
+          path: analysis/results
+      - uses: actions/download-artifact@v4
+        with:
+          github-token: ${{ github.token }}
+          run-id: '38565961308'
+          name: mm-original-pm-2024-25
+          path: work/archived-mm-pm
+      - run: |
+          python scripts/restore_core_checkpoint.py
+          python scripts/restore_2024_25_data_checkpoint.py
+          python - <<'PY'
+          from pathlib import Path
+          import subprocess,sys
+          paths=list(Path('work/archived-mm-pm').rglob('inputs.jsonl.gz'))
+          assert len(paths)==1,paths
+          args=[sys.executable,'scripts/locked_numerical_runtime.py','scripts/capture_individual_mm_pm.py',
+           '--season','2024-25','--source-root','.',
+           '--baseline-inputs',str(paths[0]),
+           '--candidates','analysis/results/individual-mm-20261015/2024-25_candidates.csv.gz',
+           '--selection','analysis/results/individual-mm-20261015/selection.json',
+           '--out','work/individual-mm-pm-2024-25']
+          subprocess.run(args,check=True)
+          PY
+          python scripts/locked_numerical_runtime.py scripts/individual_mm_pm_replay.py --season 2024-25 --inputs work/individual-mm-pm-2024-25/inputs.jsonl.gz --workers 2
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: individual-mm-pm-evidence-2024-25
+          retention-days: 90
+          path: |
+            analysis/results/individual-mm-20261015/*pm_report.json
+            analysis/results/individual-mm-20261015/*pm_predictions.csv.gz
+
+  pm-2025:
+    needs: provenance-and-inputs
+    runs-on: ubuntu-latest
+    timeout-minutes: 180
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: {python-version: '3.12'}
+      - run: pip install -r requirements-model-checkpoint.txt requests
+      - uses: actions/download-artifact@v4
+        with:
+          name: individual-mm-historical-source
+          path: analysis/results
+      - uses: actions/download-artifact@v4
+        with:
+          github-token: ${{ github.token }}
+          run-id: '38565961308'
+          name: mm-original-pm-2025-26
+          path: work/archived-mm-pm
+      - uses: actions/download-artifact@v4
+        with:
+          github-token: ${{ github.token }}
+          run-id: '37612845586'
+          name: final-locked-chain-gw1-38
+          path: analysis/results/full-model-audit-20261012/locked-2125
+      - uses: actions/checkout@v4
+        with:
+          ref: 952b809ad78eb08f2130c0aec683f30e6fa2e686
+          path: work/benchmark-source
+      - uses: actions/download-artifact@v4
+        with:
+          github-token: ${{ github.token }}
+          run-id: '38375971604'
+          name: correctness-ab-2025-26
+          path: work/prior-pm
+      - name: Restore original 2025 feature pipeline
+        run: |
+          python scripts/restore_core_checkpoint.py
+          python scripts/restore_core_checkpoint.py --out work/benchmark-source/work/core.sqlite3
+      - name: Reconstruct original 2025 rolling-MM prerequisites
+        working-directory: work/benchmark-source
+        run: |
+          python scripts/reproduce_pstart_v2_fixture_minutes.py --db work/core.sqlite3 --out analysis/results/v2-reproduced-final-gw1 --min-gw 1
+          python scripts/build_reproducible_role_benchmark.py --db work/core.sqlite3 --baseline analysis/results/v2-reproduced-final-gw1/pstart_v2_fixture_holdout_2025_26.csv --cutoffs analysis/results/workload-recovered-v4/authoritative_deadlines.csv --out analysis/results/reproducible-role-final-gw1
+          python scripts/build_workload_features.py --db work/core.sqlite3 --features analysis/results/reproducible-role-final-gw1/all_feature_predictions.csv.gz --out analysis/results/workload-final-gw1
+          cp analysis/results/reproducible-role-final-gw1/all_feature_predictions.csv.gz analysis/results/reproducible-role-v1/all_feature_predictions.csv.gz
+          cp analysis/results/workload-final-gw1/all_features.csv.gz analysis/results/workload-recovered-v4/all_features.csv.gz
+          cp analysis/results/workload-final-gw1/official_player_minutes.csv analysis/results/workload-recovered-v4/official_player_minutes.csv
+          cp analysis/results/workload-final-gw1/team_match_coverage.csv analysis/results/workload-recovered-v4/team_match_coverage.csv
+      - name: Capture and compare six 2025 MM/PM arms
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          import subprocess,sys
+          paths=list(Path('work/archived-mm-pm').rglob('inputs.jsonl.gz'))
+          assert len(paths)==1,paths
+          args=[sys.executable,'scripts/locked_numerical_runtime.py','scripts/capture_individual_mm_pm.py',
+           '--season','2025-26','--source-root','work/benchmark-source',
+           '--archive','analysis/results/full-model-audit-20261012/locked-2125',
+           '--baseline-inputs',str(paths[0]),
+           '--candidates','analysis/results/individual-mm-20261015/2025-26_candidates.csv.gz',
+           '--selection','analysis/results/individual-mm-20261015/selection.json',
+           '--out','work/individual-mm-pm-2025-26']
+          subprocess.run(args,check=True)
+          PY
+          python scripts/locked_numerical_runtime.py scripts/individual_mm_pm_replay.py --season 2025-26 --inputs work/individual-mm-pm-2025-26/inputs.jsonl.gz --workers 2
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: individual-mm-pm-evidence-2025-26
+          retention-days: 90
+          path: |
+            analysis/results/individual-mm-20261015/*pm_report.json
+            analysis/results/individual-mm-20261015/*pm_predictions.csv.gz

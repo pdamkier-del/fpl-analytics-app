@@ -1,0 +1,35 @@
+name: Individual role MM regression checks
+on:
+  push:
+    branches: [ts-six-gw-validation-20261015]
+    paths:
+      - scripts/individual_mm_*.py
+      - scripts/capture_individual_mm_pm.py
+      - scripts/experimental_individual_role_mm.py
+      - scripts/experimental_mm_role_profiles.py
+      - tests/test_individual_mm_validation.py
+      - .github/workflows/individual-role-mm-validation.yml
+  workflow_dispatch:
+permissions:
+  contents: read
+env:
+  PYTHONPATH: src:scripts
+  OPENBLAS_NUM_THREADS: '1'
+  OMP_NUM_THREADS: '1'
+  PYTHONHASHSEED: '0'
+jobs:
+  tests:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: pip install -r requirements-model-checkpoint.txt -r requirements-model-tests.txt requests
+      - run: python -m pytest tests -q --junitxml=work/individual-role-tests.xml
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: individual-role-mm-tests
+          path: work/individual-role-tests.xml

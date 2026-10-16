@@ -1,0 +1,1087 @@
+{
+  "results": {
+    "control_MM__original_PM": {
+      "rows": 13105,
+      "played": {
+        "rows": 5219,
+        "mae": 1.8960442613527495,
+        "rmse": 2.7973377163801048,
+        "bias": -0.4370224180877563,
+        "mean_xp": 2.2901283770837324,
+        "mean_actual": 2.7271507951714886,
+        "minute_mae": 21.997451140065145,
+        "point_components": {
+          "appearance_points": 1.3340352557961295,
+          "goal_points": 0.3983722935428243,
+          "assist_points": 0.2112416171680399,
+          "cs_points": 0.3591133358881012,
+          "save_points": 0.034989940601647826,
+          "dc_points": 0.0,
+          "negative_points": -0.1061213834067829,
+          "gc_points": -0.1231936194673309,
+          "penalty_save_points": 0.0016669860126461006,
+          "expected_bonus": 0.18002395094845755
+        }
+      },
+      "prior_roles": {
+        "regular": {
+          "rows": 1665,
+          "mae": 2.3462777777777775,
+          "rmse": 3.0947059142907176,
+          "bias": 0.05759609609609608,
+          "mean_xp": 3.1891276276276272,
+          "mean_actual": 3.1315315315315315,
+          "minute_mae": 17.83513963963964,
+          "point_components": {
+            "appearance_points": 1.7868813813813813,
+            "goal_points": 0.5184144144144144,
+            "assist_points": 0.27724774774774774,
+            "cs_points": 0.6232432432432433,
+            "save_points": 0.07945645645645645,
+            "dc_points": 0.0,
+            "negative_points": -0.15095795795795797,
+            "gc_points": -0.21416366366366366,
+            "penalty_save_points": 0.003933933933933934,
+            "expected_bonus": 0.26507207207207206
+          }
+        },
+        "reserve": {
+          "rows": 7994,
+          "mae": 0.32728014761070806,
+          "rmse": 0.9634654103048487,
+          "bias": -0.017560357768326245,
+          "mean_xp": 0.27641012009006755,
+          "mean_actual": 0.2939704778583938,
+          "minute_mae": 6.312297035276457,
+          "point_components": {
+            "appearance_points": 0.18274268201150864,
+            "goal_points": 0.043821616212159124,
+            "assist_points": 0.02304978734050538,
+            "cs_points": 0.025972917187890916,
+            "save_points": 0.0019968101075806856,
+            "dc_points": 0.0,
+            "negative_points": -0.007978483862897174,
+            "gc_points": -0.00938516387290468,
+            "penalty_save_points": 9.694771078308731e-05,
+            "expected_bonus": 0.01609300725544158
+          }
+        },
+        "rotation_or_short_history": {
+          "rows": 3446,
+          "mae": 1.6649397852582704,
+          "rmse": 2.4919467806551423,
+          "bias": 0.03726567034242601,
+          "mean_xp": 1.9725529599535692,
+          "mean_actual": 1.9352872896111433,
+          "minute_mae": 25.020625362739406,
+          "point_components": {
+            "appearance_points": 1.1748258850841555,
+            "goal_points": 0.3493884213580963,
+            "assist_points": 0.18879497968659317,
+            "cs_points": 0.28038377829367384,
+            "save_points": 0.02000507835171213,
+            "dc_points": 0.0,
+            "negative_points": -0.09154381892048753,
+            "gc_points": -0.10070443993035402,
+            "penalty_save_points": 0.0008814567614625655,
+            "expected_bonus": 0.15052161926871735
+          }
+        }
+      },
+      "news_states": {
+        "UNKNOWN": {
+          "rows": 13105,
+          "mae": 0.9355370087752766,
+          "rmse": 1.8482194431852172,
+          "bias": 0.006404998092331172,
+          "mean_xp": 1.0924790156428843,
+          "mean_actual": 1.0860740175505532,
+          "minute_mae": 12.695695154521175,
+          "point_components": {
+            "appearance_points": 0.6474210225104922,
+            "goal_points": 0.18446871423120945,
+            "assist_points": 0.09892903471957268,
+            "cs_points": 0.16875467378863027,
+            "save_points": 0.016573445249904617,
+            "dc_points": 0.0,
+            "negative_points": -0.048117893933613126,
+            "gc_points": -0.05941510873712323,
+            "penalty_save_points": 0.00079072872949256,
+            "expected_bonus": 0.08307439908431896
+          }
+        }
+      },
+      "component_delta_vs_logistic": {
+        "appearance_points": 0.0,
+        "goal_points": 0.0,
+        "assist_points": 0.0,
+        "cs_points": 0.0,
+        "save_points": 0.0,
+        "dc_points": 0.0,
+        "negative_points": 0.0,
+        "gc_points": 0.0,
+        "penalty_save_points": 0.0,
+        "expected_bonus": 0.0
+      },
+      "xp_reliability": [
+        {
+          "bin": "(-inf, 0.0]",
+          "rows": 235,
+          "mean_pred": 0.0,
+          "mean_actual": 0.00425531914893617
+        },
+        {
+          "bin": "(0.0, 1.0]",
+          "rows": 7852,
+          "mean_pred": 0.17017193071828834,
+          "mean_actual": 0.20300560366785533
+        },
+        {
+          "bin": "(1.0, 2.0]",
+          "rows": 1559,
+          "mean_pred": 1.4928672225785762,
+          "mean_actual": 1.541372674791533
+        },
+        {
+          "bin": "(2.0, 3.0]",
+          "rows": 1859,
+          "mean_pred": 2.505048413125336,
+          "mean_actual": 2.3238300161377086
+        },
+        {
+          "bin": "(3.0, 4.0]",
+          "rows": 1205,
+          "mean_pred": 3.427441908713693,
+          "mean_actual": 3.43402489626556
+        },
+        {
+          "bin": "(4.0, 5.0]",
+          "rows": 307,
+          "mean_pred": 4.37864006514658,
+          "mean_actual": 4.3322475570032575
+        },
+        {
+          "bin": "(5.0, 6.0]",
+          "rows": 56,
+          "mean_pred": 5.329508928571428,
+          "mean_actual": 4.928571428571429
+        },
+        {
+          "bin": "(6.0, 8.0]",
+          "rows": 27,
+          "mean_pred": 6.688425925925925,
+          "mean_actual": 4.851851851851852
+        },
+        {
+          "bin": "(8.0, inf]",
+          "rows": 5,
+          "mean_pred": 8.6265,
+          "mean_actual": 8.0
+        }
+      ]
+    },
+    "control_MM__player_PM_v2": {
+      "rows": 13105,
+      "played": {
+        "rows": 5219,
+        "mae": 1.8842249473079136,
+        "rmse": 2.7823310231873086,
+        "bias": -0.4245257712205404,
+        "mean_xp": 2.3026250239509483,
+        "mean_actual": 2.7271507951714886,
+        "minute_mae": 21.998642939260392,
+        "point_components": {
+          "appearance_points": 1.3343135658172063,
+          "goal_points": 0.38632784058248704,
+          "assist_points": 0.20512550296991763,
+          "cs_points": 0.38756083540908215,
+          "save_points": 0.035275435907261926,
+          "dc_points": 0.0,
+          "negative_points": -0.10604138723893468,
+          "gc_points": -0.12149885035447403,
+          "penalty_save_points": 0.0017340486683272655,
+          "expected_bonus": 0.17982803219007473
+        }
+      },
+      "prior_roles": {
+        "regular": {
+          "rows": 1665,
+          "mae": 2.3363753753753755,
+          "rmse": 3.0772377609208617,
+          "bias": 0.08111411411411412,
+          "mean_xp": 3.212645645645646,
+          "mean_actual": 3.1315315315315315,
+          "minute_mae": 17.839686186186185,
+          "point_components": {
+            "appearance_points": 1.7861741741741741,
+            "goal_points": 0.502496996996997,
+            "assist_points": 0.2666216216216216,
+            "cs_points": 0.6705750750750751,
+            "save_points": 0.07994444444444444,
+            "dc_points": 0.0,
+            "negative_points": -0.15033033033033033,
+            "gc_points": -0.21122822822822823,
+            "penalty_save_points": 0.004144144144144144,
+            "expected_bonus": 0.26424774774774773
+          }
+        },
+        "reserve": {
+          "rows": 7994,
+          "mae": 0.32843695271453593,
+          "rmse": 0.9647021205460469,
+          "bias": -0.016755066299724793,
+          "mean_xp": 0.277215411558669,
+          "mean_actual": 0.2939704778583938,
+          "minute_mae": 6.3000337753314986,
+          "point_components": {
+            "appearance_points": 0.18282368026019513,
+            "goal_points": 0.04255379034275707,
+            "assist_points": 0.02290061295971979,
+            "cs_points": 0.028081373530147613,
+            "save_points": 0.0019405178884163126,
+            "dc_points": 0.0,
+            "negative_points": -0.00801257192894671,
+            "gc_points": -0.009350137603202403,
+            "penalty_save_points": 7.505629221916439e-05,
+            "expected_bonus": 0.01620308981736302
+          }
+        },
+        "rotation_or_short_history": {
+          "rows": 3446,
+          "mae": 1.6584743180499133,
+          "rmse": 2.4834479610068376,
+          "bias": 0.052294689495066736,
+          "mean_xp": 1.98758197910621,
+          "mean_actual": 1.9352872896111433,
+          "minute_mae": 25.038224027858387,
+          "point_components": {
+            "appearance_points": 1.1751088218224028,
+            "goal_points": 0.3410787869994196,
+            "assist_points": 0.18499274521183978,
+            "cs_points": 0.3041664248403946,
+            "save_points": 0.0202459373186303,
+            "dc_points": 0.0,
+            "negative_points": -0.0915387405687754,
+            "gc_points": -0.0985309053975624,
+            "penalty_save_points": 0.0008778293673824725,
+            "expected_bonus": 0.15118107951247825
+          }
+        }
+      },
+      "news_states": {
+        "UNKNOWN": {
+          "rows": 13105,
+          "mae": 0.9332844334223578,
+          "rmse": 1.8418884544131797,
+          "bias": 0.013836131247615414,
+          "mean_xp": 1.0999101487981686,
+          "mean_actual": 1.0860740175505532,
+          "minute_mae": 12.693419877909195,
+          "point_components": {
+            "appearance_points": 0.6474549790156429,
+            "goal_points": 0.17948798168637922,
+            "assist_points": 0.0964881724532621,
+            "cs_points": 0.18230808851583366,
+            "save_points": 0.016664441053033194,
+            "dc_points": 0.0,
+            "negative_points": -0.04805761159862648,
+            "gc_points": -0.058449256009156805,
+            "penalty_save_points": 0.0008031285768790538,
+            "expected_bonus": 0.08321022510492179
+          }
+        }
+      },
+      "component_delta_vs_logistic": {
+        "appearance_points": 0.0,
+        "goal_points": 0.0,
+        "assist_points": 0.0,
+        "cs_points": 0.0,
+        "save_points": 0.0,
+        "dc_points": 0.0,
+        "negative_points": 0.0,
+        "gc_points": 0.0,
+        "penalty_save_points": 0.0,
+        "expected_bonus": 0.0
+      },
+      "xp_reliability": [
+        {
+          "bin": "(-inf, 0.0]",
+          "rows": 263,
+          "mean_pred": 0.0,
+          "mean_actual": 0.0038022813688212928
+        },
+        {
+          "bin": "(0.0, 1.0]",
+          "rows": 7830,
+          "mean_pred": 0.17293805874840357,
+          "mean_actual": 0.2008939974457216
+        },
+        {
+          "bin": "(1.0, 2.0]",
+          "rows": 1590,
+          "mean_pred": 1.49938679245283,
+          "mean_actual": 1.5616352201257861
+        },
+        {
+          "bin": "(2.0, 3.0]",
+          "rows": 1735,
+          "mean_pred": 2.488939481268012,
+          "mean_actual": 2.196541786743516
+        },
+        {
+          "bin": "(3.0, 4.0]",
+          "rows": 1220,
+          "mean_pred": 3.434428278688525,
+          "mean_actual": 3.517213114754098
+        },
+        {
+          "bin": "(4.0, 5.0]",
+          "rows": 374,
+          "mean_pred": 4.347707219251337,
+          "mean_actual": 4.283422459893048
+        },
+        {
+          "bin": "(5.0, 6.0]",
+          "rows": 69,
+          "mean_pred": 5.354927536231885,
+          "mean_actual": 4.6231884057971016
+        },
+        {
+          "bin": "(6.0, 8.0]",
+          "rows": 19,
+          "mean_pred": 6.7290789473684205,
+          "mean_actual": 5.947368421052632
+        },
+        {
+          "bin": "(8.0, inf]",
+          "rows": 5,
+          "mean_pred": 8.899000000000001,
+          "mean_actual": 8.0
+        }
+      ]
+    },
+    "original_MM__original_PM": {
+      "rows": 13105,
+      "played": {
+        "rows": 5219,
+        "mae": 1.8936870090055566,
+        "rmse": 2.8003289266413964,
+        "bias": -0.4551029890783675,
+        "mean_xp": 2.2720478060931213,
+        "mean_actual": 2.7271507951714886,
+        "minute_mae": 22.020626556811653,
+        "point_components": {
+          "appearance_points": 1.3252035830618893,
+          "goal_points": 0.39834163632879865,
+          "assist_points": 0.2114772945008622,
+          "cs_points": 0.3508502586702434,
+          "save_points": 0.03488551446637287,
+          "dc_points": 0.0,
+          "negative_points": -0.10514753784249856,
+          "gc_points": -0.12333109791147728,
+          "penalty_save_points": 0.0016885418662579037,
+          "expected_bonus": 0.17807961295267294
+        }
+      },
+      "prior_roles": {
+        "regular": {
+          "rows": 1665,
+          "mae": 2.3415375375375374,
+          "rmse": 3.0911582544985228,
+          "bias": 0.062237237237237265,
+          "mean_xp": 3.1937687687687686,
+          "mean_actual": 3.1315315315315315,
+          "minute_mae": 17.557662162162163,
+          "point_components": {
+            "appearance_points": 1.7910795795795795,
+            "goal_points": 0.5244174174174174,
+            "assist_points": 0.28074324324324323,
+            "cs_points": 0.6171831831831832,
+            "save_points": 0.07952852852852853,
+            "dc_points": 0.0,
+            "negative_points": -0.1517207207207207,
+            "gc_points": -0.2166006006006006,
+            "penalty_save_points": 0.004211711711711711,
+            "expected_bonus": 0.2649264264264264
+          }
+        },
+        "reserve": {
+          "rows": 7994,
+          "mae": 0.35150956967725794,
+          "rmse": 0.96399150404511,
+          "bias": 0.001818551413560169,
+          "mean_xp": 0.29578902927195394,
+          "mean_actual": 0.2939704778583938,
+          "minute_mae": 6.879582499374531,
+          "point_components": {
+            "appearance_points": 0.19529303227420566,
+            "goal_points": 0.04617744558418815,
+            "assist_points": 0.023986114585939456,
+            "cs_points": 0.029120277708281215,
+            "save_points": 0.0027323617713284967,
+            "dc_points": 0.0,
+            "negative_points": -0.0075347135351513635,
+            "gc_points": -0.011023580185138852,
+            "penalty_save_points": 8.287465599199401e-05,
+            "expected_bonus": 0.016955216412309234
+          }
+        },
+        "rotation_or_short_history": {
+          "rows": 3446,
+          "mae": 1.6576349390597795,
+          "rmse": 2.4933935998824968,
+          "bias": 0.012867092280905403,
+          "mean_xp": 1.9481543818920488,
+          "mean_actual": 1.9352872896111433,
+          "minute_mae": 25.007291787579803,
+          "point_components": {
+            "appearance_points": 1.161294979686593,
+            "goal_points": 0.348086912362159,
+            "assist_points": 0.1887732153221126,
+            "cs_points": 0.2703017991874637,
+            "save_points": 0.0195233604178758,
+            "dc_points": 0.0,
+            "negative_points": -0.08964233894370285,
+            "gc_points": -0.09930934416715032,
+            "penalty_save_points": 0.0007690075449796865,
+            "expected_bonus": 0.14835679048171793
+          }
+        }
+      },
+      "news_states": {
+        "UNKNOWN": {
+          "rows": 13105,
+          "mae": 0.9477937809996183,
+          "rmse": 1.84814559463633,
+          "bias": 0.012400038153376577,
+          "mean_xp": 1.0984740557039299,
+          "mean_actual": 1.0860740175505532,
+          "minute_mae": 13.002977298740939,
+          "point_components": {
+            "appearance_points": 0.6520520793590233,
+            "goal_points": 0.1863262113697062,
+            "assist_points": 0.09993857306371613,
+            "cs_points": 0.16725352918733308,
+            "save_points": 0.016904616558565434,
+            "dc_points": 0.0,
+            "negative_points": -0.04744410530331934,
+            "gc_points": -0.060357306371613885,
+            "penalty_save_points": 0.0007878672262495231,
+            "expected_bonus": 0.08301259061426935
+          }
+        }
+      },
+      "component_delta_vs_logistic": {
+        "appearance_points": 0.0046310568485311565,
+        "goal_points": 0.0018574971384967554,
+        "assist_points": 0.0010095383441434541,
+        "cs_points": -0.0015011446012971885,
+        "save_points": 0.0003311713086608173,
+        "dc_points": 0.0,
+        "negative_points": 0.000673788630293784,
+        "gc_points": -0.0009421976344906532,
+        "penalty_save_points": -2.861503243036922e-06,
+        "expected_bonus": -6.180847004960688e-05
+      },
+      "xp_reliability": [
+        {
+          "bin": "(-inf, 0.0]",
+          "rows": 121,
+          "mean_pred": 0.0,
+          "mean_actual": 0.0
+        },
+        {
+          "bin": "(0.0, 1.0]",
+          "rows": 8105,
+          "mean_pred": 0.20479333744602096,
+          "mean_actual": 0.21690314620604564
+        },
+        {
+          "bin": "(1.0, 2.0]",
+          "rows": 1531,
+          "mean_pred": 1.4859062704114956,
+          "mean_actual": 1.6446766819072502
+        },
+        {
+          "bin": "(2.0, 3.0]",
+          "rows": 1746,
+          "mean_pred": 2.5170518327605964,
+          "mean_actual": 2.29495990836197
+        },
+        {
+          "bin": "(3.0, 4.0]",
+          "rows": 1172,
+          "mean_pred": 3.43615614334471,
+          "mean_actual": 3.4249146757679183
+        },
+        {
+          "bin": "(4.0, 5.0]",
+          "rows": 329,
+          "mean_pred": 4.377682370820669,
+          "mean_actual": 4.306990881458966
+        },
+        {
+          "bin": "(5.0, 6.0]",
+          "rows": 67,
+          "mean_pred": 5.318320895522388,
+          "mean_actual": 4.8059701492537314
+        },
+        {
+          "bin": "(6.0, 8.0]",
+          "rows": 26,
+          "mean_pred": 6.634038461538462,
+          "mean_actual": 5.153846153846154
+        },
+        {
+          "bin": "(8.0, inf]",
+          "rows": 8,
+          "mean_pred": 8.7140625,
+          "mean_actual": 7.875
+        }
+      ]
+    },
+    "original_MM__player_PM_v2": {
+      "rows": 13105,
+      "played": {
+        "rows": 5219,
+        "mae": 1.8886491665069938,
+        "rmse": 2.7881851313861037,
+        "bias": -0.44696972600114965,
+        "mean_xp": 2.280181069170339,
+        "mean_actual": 2.7271507951714886,
+        "minute_mae": 22.04497077984288,
+        "point_components": {
+          "appearance_points": 1.3248299482659511,
+          "goal_points": 0.3861391071086415,
+          "assist_points": 0.20554656064380147,
+          "cs_points": 0.37700134125311363,
+          "save_points": 0.03467666219582295,
+          "dc_points": 0.0,
+          "negative_points": -0.10527783100210768,
+          "gc_points": -0.12174889825637096,
+          "penalty_save_points": 0.0017915309446254071,
+          "expected_bonus": 0.17722264801686147
+        }
+      },
+      "prior_roles": {
+        "regular": {
+          "rows": 1665,
+          "mae": 2.33953003003003,
+          "rmse": 3.0766491897007833,
+          "bias": 0.08397447447447447,
+          "mean_xp": 3.215506006006006,
+          "mean_actual": 3.1315315315315315,
+          "minute_mae": 17.66168168168168,
+          "point_components": {
+            "appearance_points": 1.7899114114114114,
+            "goal_points": 0.5117552552552552,
+            "assist_points": 0.2696846846846847,
+            "cs_points": 0.6609864864864865,
+            "save_points": 0.07868018018018018,
+            "dc_points": 0.0,
+            "negative_points": -0.1520810810810811,
+            "gc_points": -0.21381681681681686,
+            "penalty_save_points": 0.004301801801801801,
+            "expected_bonus": 0.26608408408408407
+          }
+        },
+        "reserve": {
+          "rows": 7994,
+          "mae": 0.3551988991743808,
+          "rmse": 0.9646103221276281,
+          "bias": 0.004367650738053541,
+          "mean_xp": 0.2983381285964473,
+          "mean_actual": 0.2939704778583938,
+          "minute_mae": 6.87593163622717,
+          "point_components": {
+            "appearance_points": 0.19533962972229174,
+            "goal_points": 0.04540499124343257,
+            "assist_points": 0.02446178383787841,
+            "cs_points": 0.031454841130848135,
+            "save_points": 0.0027849011758819117,
+            "dc_points": 0.0,
+            "negative_points": -0.007570052539404554,
+            "gc_points": -0.010773079809857394,
+            "penalty_save_points": 7.974731048286214e-05,
+            "expected_bonus": 0.01715536652489367
+          }
+        },
+        "rotation_or_short_history": {
+          "rows": 3446,
+          "mae": 1.656713580963436,
+          "rmse": 2.4896593287000472,
+          "bias": 0.023064422518862454,
+          "mean_xp": 1.9583517121300056,
+          "mean_actual": 1.9352872896111433,
+          "minute_mae": 24.988457632037147,
+          "point_components": {
+            "appearance_points": 1.1610142193847939,
+            "goal_points": 0.33829439930354027,
+            "assist_points": 0.18423316889146835,
+            "cs_points": 0.2934656123041207,
+            "save_points": 0.01971343586767266,
+            "dc_points": 0.0,
+            "negative_points": -0.08965684852002322,
+            "gc_points": -0.09740133488102147,
+            "penalty_save_points": 0.0008560650029019153,
+            "expected_bonus": 0.14783299477655254
+          }
+        }
+      },
+      "news_states": {
+        "UNKNOWN": {
+          "rows": 13105,
+          "mae": 0.9495469286531858,
+          "rmse": 1.8439380230242757,
+          "bias": 0.019398130484547884,
+          "mean_xp": 1.105472148035101,
+          "mean_actual": 1.0860740175505532,
+          "minute_mae": 13.009013544448683,
+          "point_components": {
+            "appearance_points": 0.6518582602060283,
+            "goal_points": 0.18167130866081646,
+            "assist_points": 0.09762991224723389,
+            "cs_points": 0.18033384204502095,
+            "save_points": 0.016878863029378098,
+            "dc_points": 0.0,
+            "negative_points": -0.04751526135062953,
+            "gc_points": -0.05934910339565051,
+            "penalty_save_points": 0.0008202975963372759,
+            "expected_bonus": 0.0831440289965662
+          }
+        }
+      },
+      "component_delta_vs_logistic": {
+        "appearance_points": 0.004403281190385466,
+        "goal_points": 0.0021833269744372386,
+        "assist_points": 0.00114173979397178,
+        "cs_points": -0.001974246470812707,
+        "save_points": 0.0002144219763449036,
+        "dc_points": 0.0,
+        "negative_points": 0.0005423502479969533,
+        "gc_points": -0.0008998473864937073,
+        "penalty_save_points": 1.7169019458222073e-05,
+        "expected_bonus": -6.619610835559286e-05
+      },
+      "xp_reliability": [
+        {
+          "bin": "(-inf, 0.0]",
+          "rows": 116,
+          "mean_pred": -2.1551724137931036e-05,
+          "mean_actual": 0.0
+        },
+        {
+          "bin": "(0.0, 1.0]",
+          "rows": 8136,
+          "mean_pred": 0.21004086774827924,
+          "mean_actual": 0.21853490658800392
+        },
+        {
+          "bin": "(1.0, 2.0]",
+          "rows": 1528,
+          "mean_pred": 1.5012336387434557,
+          "mean_actual": 1.6302356020942408
+        },
+        {
+          "bin": "(2.0, 3.0]",
+          "rows": 1643,
+          "mean_pred": 2.498481436396835,
+          "mean_actual": 2.2391965916007304
+        },
+        {
+          "bin": "(3.0, 4.0]",
+          "rows": 1197,
+          "mean_pred": 3.4333166248955727,
+          "mean_actual": 3.472013366750209
+        },
+        {
+          "bin": "(4.0, 5.0]",
+          "rows": 389,
+          "mean_pred": 4.370655526992288,
+          "mean_actual": 4.215938303341902
+        },
+        {
+          "bin": "(5.0, 6.0]",
+          "rows": 68,
+          "mean_pred": 5.378823529411765,
+          "mean_actual": 4.6911764705882355
+        },
+        {
+          "bin": "(6.0, 8.0]",
+          "rows": 23,
+          "mean_pred": 6.886086956521739,
+          "mean_actual": 5.6521739130434785
+        },
+        {
+          "bin": "(8.0, inf]",
+          "rows": 5,
+          "mean_pred": 9.0855,
+          "mean_actual": 8.0
+        }
+      ]
+    },
+    "role_MM__original_PM": {
+      "rows": 13105,
+      "played": {
+        "rows": 5219,
+        "mae": 1.8941708181643997,
+        "rmse": 2.7941333972463784,
+        "bias": -0.4354402184326499,
+        "mean_xp": 2.291710576738839,
+        "mean_actual": 2.7271507951714886,
+        "minute_mae": 21.957175225138915,
+        "point_components": {
+          "appearance_points": 1.3344429009388772,
+          "goal_points": 0.3997968959570799,
+          "assist_points": 0.21227486108449894,
+          "cs_points": 0.3575675416746503,
+          "save_points": 0.03526010730024909,
+          "dc_points": 0.0,
+          "negative_points": -0.10595181069170341,
+          "gc_points": -0.12380293159609121,
+          "penalty_save_points": 0.0018274573673117455,
+          "expected_bonus": 0.1802955547039663
+        }
+      },
+      "prior_roles": {
+        "regular": {
+          "rows": 1665,
+          "mae": 2.3437177177177175,
+          "rmse": 3.0901979379638123,
+          "bias": 0.05879879879879878,
+          "mean_xp": 3.19033033033033,
+          "mean_actual": 3.1315315315315315,
+          "minute_mae": 17.837241741741742,
+          "point_components": {
+            "appearance_points": 1.7860975975975977,
+            "goal_points": 0.5189504504504504,
+            "assist_points": 0.2787387387387388,
+            "cs_points": 0.6206441441441441,
+            "save_points": 0.0801081081081081,
+            "dc_points": 0.0,
+            "negative_points": -0.15063063063063065,
+            "gc_points": -0.21417267267267265,
+            "penalty_save_points": 0.004436936936936937,
+            "expected_bonus": 0.2661576576576577
+          }
+        },
+        "reserve": {
+          "rows": 7994,
+          "mae": 0.32577995996997744,
+          "rmse": 0.960746596346713,
+          "bias": -0.018843507630723042,
+          "mean_xp": 0.2751269702276708,
+          "mean_actual": 0.2939704778583938,
+          "minute_mae": 6.279650050037528,
+          "point_components": {
+            "appearance_points": 0.18236364773580185,
+            "goal_points": 0.04385288966725044,
+            "assist_points": 0.022818989241931452,
+            "cs_points": 0.025806855141356014,
+            "save_points": 0.001896422316737553,
+            "dc_points": 0.0,
+            "negative_points": -0.007969101826369777,
+            "gc_points": -0.009612521891418565,
+            "penalty_save_points": 6.0983237428071055e-05,
+            "expected_bonus": 0.015908806604953717
+          }
+        },
+        "rotation_or_short_history": {
+          "rows": 3446,
+          "mae": 1.6656884793964015,
+          "rmse": 2.4929399218748114,
+          "bias": 0.040923534532791635,
+          "mean_xp": 1.9762108241439351,
+          "mean_actual": 1.9352872896111433,
+          "minute_mae": 25.015774811375508,
+          "point_components": {
+            "appearance_points": 1.17657066163668,
+            "goal_points": 0.3521786128845038,
+            "assist_points": 0.1902031340684852,
+            "cs_points": 0.2782878699941962,
+            "save_points": 0.020260446894950667,
+            "dc_points": 0.0,
+            "negative_points": -0.09129425420777713,
+            "gc_points": -0.10131674405107369,
+            "penalty_save_points": 0.0008995937318630295,
+            "expected_bonus": 0.15042150319210681
+          }
+        }
+      },
+      "news_states": {
+        "UNKNOWN": {
+          "rows": 13105,
+          "mae": 0.9344935139259826,
+          "rmse": 1.8467493922871643,
+          "bias": 0.006736932468523466,
+          "mean_xp": 1.0928109500190768,
+          "mean_actual": 1.0860740175505532,
+          "minute_mae": 12.674772224341856,
+          "point_components": {
+            "appearance_points": 0.6475490270888975,
+            "goal_points": 0.18528958412819532,
+            "assist_points": 0.09934795879435329,
+            "cs_points": 0.1677720335749714,
+            "save_points": 0.016662151850438765,
+            "dc_points": 0.0,
+            "negative_points": -0.0480049599389546,
+            "gc_points": -0.05971594811140787,
+            "penalty_save_points": 0.0008374666157954979,
+            "expected_bonus": 0.08307363601678747
+          }
+        }
+      },
+      "component_delta_vs_logistic": {
+        "appearance_points": 0.00012800457840533852,
+        "goal_points": 0.0008208698969858763,
+        "assist_points": 0.00041892407478061333,
+        "cs_points": -0.0009826402136588752,
+        "save_points": 8.870660053414761e-05,
+        "dc_points": 0.0,
+        "negative_points": 0.00011293399465852477,
+        "gc_points": -0.0003008393742846352,
+        "penalty_save_points": 4.673788630293787e-05,
+        "expected_bonus": -7.630675314951318e-07
+      },
+      "xp_reliability": [
+        {
+          "bin": "(-inf, 0.0]",
+          "rows": 223,
+          "mean_pred": -2.242152466367713e-05,
+          "mean_actual": 0.004484304932735426
+        },
+        {
+          "bin": "(0.0, 1.0]",
+          "rows": 7880,
+          "mean_pred": 0.17046319796954315,
+          "mean_actual": 0.19949238578680203
+        },
+        {
+          "bin": "(1.0, 2.0]",
+          "rows": 1537,
+          "mean_pred": 1.4976740403383215,
+          "mean_actual": 1.5491216655823032
+        },
+        {
+          "bin": "(2.0, 3.0]",
+          "rows": 1834,
+          "mean_pred": 2.4963958560523447,
+          "mean_actual": 2.3151581243184296
+        },
+        {
+          "bin": "(3.0, 4.0]",
+          "rows": 1224,
+          "mean_pred": 3.417524509803921,
+          "mean_actual": 3.4616013071895426
+        },
+        {
+          "bin": "(4.0, 5.0]",
+          "rows": 316,
+          "mean_pred": 4.36064082278481,
+          "mean_actual": 4.155063291139241
+        },
+        {
+          "bin": "(5.0, 6.0]",
+          "rows": 66,
+          "mean_pred": 5.403825757575758,
+          "mean_actual": 5.0
+        },
+        {
+          "bin": "(6.0, 8.0]",
+          "rows": 20,
+          "mean_pred": 6.861624999999999,
+          "mean_actual": 5.8
+        },
+        {
+          "bin": "(8.0, inf]",
+          "rows": 5,
+          "mean_pred": 8.565999999999999,
+          "mean_actual": 7.4
+        }
+      ]
+    },
+    "role_MM__player_PM_v2": {
+      "rows": 13105,
+      "played": {
+        "rows": 5219,
+        "mae": 1.8891176470588236,
+        "rmse": 2.7849234806134615,
+        "bias": -0.42435715654339906,
+        "mean_xp": 2.3027936386280894,
+        "mean_actual": 2.7271507951714886,
+        "minute_mae": 21.90406399693428,
+        "point_components": {
+          "appearance_points": 1.3348562943092546,
+          "goal_points": 0.38643609886951524,
+          "assist_points": 0.20525052692086604,
+          "cs_points": 0.38681691894999043,
+          "save_points": 0.03511735964744203,
+          "dc_points": 0.0,
+          "negative_points": -0.10596187009005559,
+          "gc_points": -0.12163632879862041,
+          "penalty_save_points": 0.0018035064188541869,
+          "expected_bonus": 0.18011113240084306
+        }
+      },
+      "prior_roles": {
+        "regular": {
+          "rows": 1665,
+          "mae": 2.3441696696696694,
+          "rmse": 3.0829436355876196,
+          "bias": 0.08760510510510511,
+          "mean_xp": 3.219136636636636,
+          "mean_actual": 3.1315315315315315,
+          "minute_mae": 17.790456456456457,
+          "point_components": {
+            "appearance_points": 1.7867387387387388,
+            "goal_points": 0.5078048048048048,
+            "assist_points": 0.2662702702702703,
+            "cs_points": 0.6691411411411411,
+            "save_points": 0.07954954954954954,
+            "dc_points": 0.0,
+            "negative_points": -0.15024174174174174,
+            "gc_points": -0.21133633633633633,
+            "penalty_save_points": 0.00418918918918919,
+            "expected_bonus": 0.26702102102102104
+          }
+        },
+        "reserve": {
+          "rows": 7994,
+          "mae": 0.3278046034525895,
+          "rmse": 0.9633043307349498,
+          "bias": -0.0184013009757318,
+          "mean_xp": 0.27556917688266197,
+          "mean_actual": 0.2939704778583938,
+          "minute_mae": 6.279570615461596,
+          "point_components": {
+            "appearance_points": 0.18222792094070553,
+            "goal_points": 0.04200556667500626,
+            "assist_points": 0.022620090067550662,
+            "cs_points": 0.028036965223917937,
+            "save_points": 0.001921441080810608,
+            "dc_points": 0.0,
+            "negative_points": -0.007962847135351513,
+            "gc_points": -0.009225981986489867,
+            "penalty_save_points": 6.723792844633475e-05,
+            "expected_bonus": 0.01587878408806605
+          }
+        },
+        "rotation_or_short_history": {
+          "rows": 3446,
+          "mae": 1.6613965467208358,
+          "rmse": 2.4853466973952805,
+          "bias": 0.051042513058618684,
+          "mean_xp": 1.986329802669762,
+          "mean_actual": 1.9352872896111433,
+          "minute_mae": 24.947621880441087,
+          "point_components": {
+            "appearance_points": 1.1769239698200813,
+            "goal_points": 0.3396205745792223,
+            "assist_points": 0.1853409750435287,
+            "cs_points": 0.3035512188044109,
+            "save_points": 0.02007690075449797,
+            "dc_points": 0.0,
+            "negative_points": -0.09155542658154382,
+            "gc_points": -0.09899013348810215,
+            "penalty_save_points": 0.0009540046430644225,
+            "expected_bonus": 0.15040771909460243
+          }
+        }
+      },
+      "news_states": {
+        "UNKNOWN": {
+          "rows": 13105,
+          "mae": 0.9346573826783672,
+          "rmse": 1.8433273497231342,
+          "bias": 0.013327355971003436,
+          "mean_xp": 1.0994013735215566,
+          "mean_actual": 1.0860740175505532,
+          "minute_mae": 12.650858641739795,
+          "point_components": {
+            "appearance_points": 0.6476405951926746,
+            "goal_points": 0.17944448683708508,
+            "assist_points": 0.0963639832125143,
+            "cs_points": 0.18193704692865317,
+            "save_points": 0.016558183899275086,
+            "dc_points": 0.0,
+            "negative_points": -0.048020412056466996,
+            "gc_points": -0.0585080122090805,
+            "penalty_save_points": 0.0008241129339946586,
+            "expected_bonus": 0.08316138878290728
+          }
+        }
+      },
+      "component_delta_vs_logistic": {
+        "appearance_points": 0.00018561617703172217,
+        "goal_points": -4.349484929414005e-05,
+        "assist_points": -0.00012418924074780735,
+        "cs_points": -0.0003710415871804873,
+        "save_points": -0.0001062571537581089,
+        "dc_points": 0.0,
+        "negative_points": 3.719954215948562e-05,
+        "gc_points": -5.875619992369574e-05,
+        "penalty_save_points": 2.0984357115604816e-05,
+        "expected_bonus": -4.8836322014508826e-05
+      },
+      "xp_reliability": [
+        {
+          "bin": "(-inf, 0.0]",
+          "rows": 259,
+          "mean_pred": -9.652509652509653e-06,
+          "mean_actual": 0.015444015444015444
+        },
+        {
+          "bin": "(0.0, 1.0]",
+          "rows": 7834,
+          "mean_pred": 0.17245628031656882,
+          "mean_actual": 0.20015317845289762
+        },
+        {
+          "bin": "(1.0, 2.0]",
+          "rows": 1600,
+          "mean_pred": 1.4986078125,
+          "mean_actual": 1.555625
+        },
+        {
+          "bin": "(2.0, 3.0]",
+          "rows": 1754,
+          "mean_pred": 2.501157354618016,
+          "mean_actual": 2.2297605473204105
+        },
+        {
+          "bin": "(3.0, 4.0]",
+          "rows": 1205,
+          "mean_pred": 3.451676348547718,
+          "mean_actual": 3.5269709543568464
+        },
+        {
+          "bin": "(4.0, 5.0]",
+          "rows": 361,
+          "mean_pred": 4.358331024930748,
+          "mean_actual": 4.224376731301939
+        },
+        {
+          "bin": "(5.0, 6.0]",
+          "rows": 66,
+          "mean_pred": 5.369583333333333,
+          "mean_actual": 4.96969696969697
+        },
+        {
+          "bin": "(6.0, 8.0]",
+          "rows": 21,
+          "mean_pred": 6.746071428571428,
+          "mean_actual": 5.619047619047619
+        },
+        {
+          "bin": "(8.0, inf]",
+          "rows": 5,
+          "mean_pred": 8.629,
+          "mean_actual": 8.0
+        }
+      ]
+    }
+  },
+  "classification": "POSTHOC_DIAGNOSTICS_NO_MODEL_SELECTION",
+  "verified_medical_return_group": "Not Available: no verified medical labels",
+  "locked_model_active": false
+}

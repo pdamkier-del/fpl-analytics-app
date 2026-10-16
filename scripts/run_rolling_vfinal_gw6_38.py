@@ -21,6 +21,9 @@ from run_bps_background_experiment import actual_background_ledger,feature_frame
 from run_vfinal_integrated import make_vfinal_input
 from vfinal_replay_components import build_fixture_components
 import run_horizon_policy_comparison as hp
+from rolling_deadline_state import select_deadline_state
+from validate_six_gw_forecast import validate_forecasts
+from rolling_future_minutes import project_fixture_minutes
 
 RAW=ROOT/'data_v1_1/raw/all-competitions-2025-26'
 TEAMS=ROOT/'data_v1_1/derived/mm_v2_ratings/identity_source/data/2025-2026/teams.csv'
@@ -67,7 +70,12 @@ def main():
     ap.add_argument('--mm',required=True);ap.add_argument('--out',required=True)
     ap.add_argument('--start-origin',type=int,default=6);ap.add_argument('--end-origin',type=int,default=38)
     ap.add_argument('--max-fixtures',type=int,default=0)
-    a=ap.parse_args();out=Path(a.out);out.mkdir(parents=True,exist_ok=True)
+    ap.add_argument('--short-rest-start-penalty',type=float,default=0.,help='Opt-in sensitivity only, NOT trained; 0 exactly preserves origin MM')
+    ap.add_argument('--require-complete-horizon',action='store_true',help='Fail if any GW or player target is missing; for pre-TS research validation')
+    a=ap.parse_args()
+    if not 0.<=a.short_rest_start_penalty<=1.:
+        ap.error('--short-rest-start-penalty must be between 0 and 1')
+    out=Path(a.out);out.mkdir(parents=True,exist_ok=True)
     src=pd.read_csv(a.source).reset_index(drop=True);mm=pd.read_csv(a.mm)
     src['cutoff']=pd.to_datetime(src.cutoff,utc=True);mm['cutoff']=pd.to_datetime(mm.cutoff,utc=True)
     models=load_models();perf=build_perf_ledger();bpsledger=actual_background_ledger()
@@ -97,9 +105,18 @@ def main():
 
     rows=[];faudit=[];counter=0
     for origin in range(a.start_origin,a.end_origin+1):
-        cutoff=src.loc[src.gw.eq(origin),'cutoff'].min()
-        sstate=src[src.gw<=origin].sort_values(['gw','cutoff']).drop_duplicates('player_uuid',keep='last').copy()
-        mstate=mm[mm.gw<=origin].sort_values(['gw','cutoff']).drop_duplicates('player_uuid',keep='last').copy()
+        # Freeze both feeds at the actual origin deadline. GW order alone is
+        # insufficient: a delayed file for the same GW can be post-deadline.
+        available_cutoffs=src.loc[src.gw.eq(origin),'cutoff'].dropna()
+        if available_cutoffs.empty:
+            raise ValueError(f'No source cutoff for origin GW{origin}')
+        cutoff=available_cutoffs.min()
+        sstate=select_deadline_state(src,origin,cutoff)
+        mstate=select_deadline_state(mm,origin,cutoff)
+        if sstate.empty or mstate.empty:
+            raise ValueError(f'No pre-cutoff source/MM player state for origin GW{origin}')
+        if (sstate.cutoff>cutoff).any() or (mstate.cutoff>cutoff).any():
+            raise AssertionError('Post-deadline player state entered rolling forecast')
         state=sstate.merge(mstate[['player_uuid','new_p_start','new_xmins','new_q_sub','new_sub_minutes','new_start_minutes']],
                            on='player_uuid',how='inner',validate='one_to_one')
         state['cutoff']=cutoff
@@ -121,6 +138,9 @@ def main():
         bmean=state.set_index('player_uuid').bg_mean_rate90.to_dict()
         bsd=state.set_index('player_uuid').bg_sd90.to_dict()
         origin_count=0
+        last_scheduled_by_team={}
+        # Fixture schedule comes from the origin-frozen calendar, not actual later outcomes.
+        fx=fx.sort_values('kickoff').copy()
 
         for fr in fx.itertuples(index=False):
             home=int(fr.home_team_id);away=int(fr.away_team_id)
@@ -130,6 +150,20 @@ def main():
             rg['home_team_id']=home;rg['away_team_id']=away
             rg['opponent_team_id']=np.where(rg.team_id.astype(int)==home,away,home)
             rg['was_home']=rg.team_id.astype(int)==home;rg['evidence_at']=cutoff
+            # Last known fixture in this origin's *snapshot*, for schedule-only
+            # rest sensitivity. No return-from-injury or rotation assumption.
+            rest={}
+            for team in (home,away):
+                prev=last_scheduled_by_team.get(team)
+                rest[team]=None if prev is None else max(0.,(fr.kickoff-prev).total_seconds()/86400.)
+                last_scheduled_by_team[team]=fr.kickoff
+            if a.short_rest_start_penalty:
+                scenarios=[project_fixture_minutes(float(rr.new_p_start),
+                            float(rr.new_start_minutes),float(rr.new_q_sub),
+                            float(rr.new_sub_minutes),rest[int(rr.team_id)],
+                            a.short_rest_start_penalty) for rr in rg.itertuples(index=False)]
+                rg['new_p_start']=[z['p_start'] for z in scenarios]
+                rg['new_xmins']=[z['xmins'] for z in scenarios]
             rg['expected_minutes']=rg.new_xmins.astype(float);rg['pos']=rg.pos.replace({'G':'GK'})
             hgoal,agoal=lambdas[str(fr.match_id)]
             rg=build_fixture_components(rg,past,rolehist,cutoff,models['attack'],models['dc'],models['neg'],
@@ -180,8 +214,19 @@ def main():
     z.to_csv(out/'fixture_predictions.csv.gz',index=False,compression='gzip')
     agg.to_csv(out/'rolling_vfinal_forecast.csv.gz',index=False,compression='gzip')
     pd.DataFrame(faudit).to_csv(out/'origin_audit.csv',index=False)
-    summary={'classification':'cutoff-safe frozen-state rolling locked MM + vFinal PM',
+    contract=validate_forecasts(out/'rolling_vfinal_forecast.csv.gz',
+                                start=a.start_origin,end=a.end_origin,horizon=6)
+    (out/'forecast_contract.json').write_text(json.dumps(contract,indent=2)+'\n')
+    summary={'classification':'RESEARCH_ORIGIN_FROZEN_MM_NOT_CERTIFIED_SIX_GW_FORECAST',
              'decision_gws':[int(a.start_origin),int(a.end_origin)],'horizon':6,'draws_per_fixture':400,
-             'phase5q_xp_used':False,'rows':int(len(agg))}
+             'phase5q_xp_used':False,'rows':int(len(agg)),
+             'mm_projection':'The same origin-cutoff MM state is reused across all future fixtures; target-date rotation/injury/workload not forecast.',
+             'historical_publication':'kickoff+3h proxy; actual source publication timestamps not verified',
+             'coverage_report':'forecast_contract.json',
+             'coverage_passed':bool(contract['passed']),
+             'ts_certified':False,'short_rest_start_penalty':a.short_rest_start_penalty,
+             'short_rest_scenario':'Uncalibrated opt-in scenario, only scheduled prior fixture in frozen snapshot; defaults to neutral'}
     (out/'summary.json').write_text(json.dumps(summary,indent=2)+'\n');print(json.dumps(summary,indent=2))
+    if a.require_complete_horizon and not contract['passed']:
+        raise SystemExit('Missing/invalid six-GW forecast inputs; see forecast_contract.json')
 if __name__=='__main__':main()

@@ -1,0 +1,40 @@
+name: Isolated six-GW TS input contract
+on:
+  push:
+    branches: [ts-six-gw-validation-20261015]
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  horizon-contract:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: python -m pip install pytest pandas
+      - name: Strict horizon and player coverage regressions
+        run: python -m pytest tests/test_six_gw_forecast_validator.py tests/test_rolling_deadline_state.py tests/test_rolling_future_minutes.py tests/test_experimental_individual_role_mm.py tests/test_experimental_mm_role_profiles.py -q
+      - name: Compile research generator
+        run: python -m py_compile scripts/run_rolling_vfinal_gw6_38.py scripts/rolling_deadline_state.py scripts/rolling_future_minutes.py scripts/experimental_individual_role_mm.py scripts/experimental_mm_role_profiles.py
+      - name: Reject synthetic one-GW-only historical input
+        run: |
+          python - <<'PY'
+          import csv
+          with open('/tmp/onegw.csv','w',newline='') as f:
+              w=csv.writer(f)
+              w.writerow(('decision_gw','gw','id','xpts_mean'))
+              w.writerow((6,6,411,5.0))
+          PY
+          if python scripts/validate_six_gw_forecast.py /tmp/onegw.csv --start 6 --end 6 > /tmp/horizon-failure.json; then
+            echo "Validator incorrectly accepted missing future weeks"
+            exit 1
+          fi
+          python - <<'PY'
+          import json
+          d=json.load(open('/tmp/horizon-failure.json'))
+          assert d['missing_origin_target_pairs']['6']==[7,8,9,10,11]
+          assert d['passed'] is False
+          PY

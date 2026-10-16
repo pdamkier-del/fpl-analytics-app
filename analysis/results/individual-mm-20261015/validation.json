@@ -1,0 +1,23 @@
+{
+  "suite": "python -m pytest tests -q --junitxml=work/final-tests.xml",
+  "tests": 570,
+  "failures": 0,
+  "elapsed_seconds": 22.83,
+  "local_service_source_restored_to_remote_commit": true,
+  "prior_ci_tests": {
+    "run": 38781900099,
+    "passed": 565
+  },
+  "new_checks": [
+    "capture shard overlap, missing, identity/reference/seed drift",
+    "lossless prediction and missing-category roundtrip"
+  ],
+  "pm_required_fixtures_per_season": 330,
+  "pm_required_modes": 6,
+  "pm_draws": 400,
+  "original_reference_exact_required": true,
+  "all_components_sum_to_xp_required": true,
+  "six_gw_input_contract": "FAIL: 33/183 pairs; no TS replay",
+  "locked_model_active": false,
+  "promotion_allowed": false
+}

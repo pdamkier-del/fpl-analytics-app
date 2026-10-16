@@ -1,0 +1,92 @@
+name: Recover 2024 individual MM x PM evaluation
+on:
+  push:
+    branches: [ts-six-gw-validation-20261015]
+    paths: [.github/workflows/individual-mm-pm-recovery.yml]
+  workflow_dispatch:
+permissions:
+  contents: read
+  actions: read
+env:
+  PYTHONPATH: src:scripts
+  OPENBLAS_NUM_THREADS: '1'
+  OMP_NUM_THREADS: '1'
+  PYTHONHASHSEED: '0'
+  OPENBLAS_CORETYPE: NEHALEM
+jobs:
+  recover-2024:
+    runs-on: ubuntu-latest
+    timeout-minutes: 180
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: {python-version: '3.12'}
+      - run: pip install -r requirements-model-checkpoint.txt -r requirements-model-tests.txt requests
+      - name: Preserve exact research source for local verification
+        run: tar -czf /tmp/research-source.tar.gz scripts src tests .github/workflows docs/audits requirements-model-checkpoint.txt requirements-model-tests.txt
+      - uses: actions/upload-artifact@v4
+        with:
+          name: individual-mm-recovery-source
+          path: /tmp/research-source.tar.gz
+      - uses: actions/download-artifact@v4
+        with:
+          github-token: ${{ github.token }}
+          run-id: '38795223403'
+          name: individual-mm-historical-source
+          path: analysis/results
+      - uses: actions/download-artifact@v4
+        with:
+          github-token: ${{ github.token }}
+          run-id: '38565961308'
+          name: mm-component-inputs-and-results
+          path: work/original-mm-components
+      - uses: actions/download-artifact@v4
+        with:
+          github-token: ${{ github.token }}
+          run-id: '38565961308'
+          name: mm-original-pm-2024-25
+          path: work/archived-mm-pm
+      - name: Restore conditional 2024 source with required-file checks
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          import shutil
+          source=Path('work/original-mm-components/conditional-2024-25-mm')
+          target=Path('analysis/results/conditional-2024-25-mm')
+          for name in ('conditional_feature_frame.csv.gz','locked_mm_predictions.csv.gz'):
+              if not (source/name).is_file():
+                  raise SystemExit(f'Missing original conditional source: {source/name}')
+          shutil.copytree(source,target,dirs_exist_ok=True)
+          print('Restored original conditional feature and locked-MM files')
+          PY
+          python scripts/restore_core_checkpoint.py
+          python scripts/restore_2024_25_data_checkpoint.py
+          python -m pytest tests/test_individual_mm_validation.py tests/test_rolling_deadline_state.py tests/test_six_gw_forecast_validator.py -q
+      - name: Rebuild all 330 original and candidate fixture inputs
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          import subprocess,sys
+          paths=list(Path('work/archived-mm-pm').rglob('inputs.jsonl.gz'))
+          assert len(paths)==1,paths
+          subprocess.run([sys.executable,'scripts/locked_numerical_runtime.py','scripts/capture_individual_mm_pm.py',
+           '--season','2024-25','--source-root','.',
+           '--baseline-inputs',str(paths[0]),
+           '--candidates','analysis/results/individual-mm-20261015/2024-25_candidates.csv.gz',
+           '--selection','analysis/results/individual-mm-20261015/selection.json',
+           '--out','work/individual-mm-pm-2024-25'],check=True)
+          PY
+      - name: Run six-arm PM factorial and conditional horizons
+        run: |
+          python scripts/locked_numerical_runtime.py scripts/individual_mm_pm_replay.py --season 2024-25 --inputs work/individual-mm-pm-2024-25/inputs.jsonl.gz --workers 2
+          python scripts/locked_numerical_runtime.py scripts/individual_mm_horizon.py
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: individual-mm-pm-recovered-2024-25
+          retention-days: 90
+          path: |
+            analysis/results/individual-mm-20261015/*pm_report.json
+            analysis/results/individual-mm-20261015/*pm_predictions.csv.gz
+            analysis/results/individual-mm-20261015/*horizon*
+            work/individual-mm-pm-2024-25/inputs.jsonl.gz
