@@ -29,7 +29,8 @@ def main():
             if outcome=='normal_player_started':
                 av=j.explicit_available.astype(str).eq('True')
                 overall.append(dict(role_definition=role,outcome=outcome,model=model,group='explicit_predeadline_available',**block_interval(j.loc[av,'cutoff'],error[av])))
-    pd.DataFrame(overall).to_csv(P/'overall_contrasts.csv',index=False)
+    data_dir=ROOT/'docs/research/data';data_dir.mkdir(exist_ok=True)
+    pd.DataFrame(overall).to_csv(data_dir/'2026-10-16-importance-overall-contrasts.csv',index=False)
     parts=['''# Klubspecifik og dynamisk match importance: historisk kandidatstudie
 
 Dato: 2026-10-16. PR #8, `research-role-injury-club-audit-20261016`.
@@ -212,7 +213,7 @@ Kildemanifest og indholdschecksums findes sammen med resultaterne. Gzip-indhold 
     repro=ROOT/'docs/checkpoints/2026-10-16-club-importance-reproduction.json'
     if repro.exists():
         r=json.loads(repro.read_text());exact=sum(v['exact']for v in r['files'].values());maximum=max(v['max_numeric_difference']for v in r['files'].values())
-        parts.append(f"\n### Verificeret Actions og genkørsel\n\n[Actions {r['workflow_run']}]({r['workflow_url']}) er bestået med alle 61 tests, modelkørsler, produktionsdiff og frossen MM-checksum. Kode `e7422b1`, resultatcommit `9fae5f8`. Artifact {r['artifact_id']} er downloadet og ZIP-SHA-256-verificeret; alle 13 manifestførte filer og gzip-streams er valideret.\n\nEn separat lokal genkørsel matcher {exact}/13 filindhold byte-for-byte. De øvrige matcher rækker, labels, missingness, modelvalg og tal med højst {maximum:.3g} absolut numerisk forskel (kontrolleret tolerance 1e−6). De syv regressions-/klassifikationsfiler påstås ikke at være byteidentiske. Det fulde bevis findes i `docs/checkpoints/2026-10-16-club-importance-reproduction.json`. `overall_contrasts.csv` dannes reproducerbart af rapportscriptet fra de verificerede enkeltprognoser; det er ikke en ny modelkørsel.\n")
+        parts.append(f"\n### Verificeret Actions og genkørsel\n\n[Actions {r['workflow_run']}]({r['workflow_url']}) er bestået med alle 61 tests, modelkørsler, produktionsdiff og frossen MM-checksum. Kode `e7422b1`, resultatcommit `9fae5f8`. Artifact {r['artifact_id']} er downloadet og ZIP-SHA-256-verificeret; alle 13 manifestførte filer og gzip-streams er valideret.\n\nEn separat lokal genkørsel matcher {exact}/13 filindhold byte-for-byte. De øvrige matcher rækker, labels, missingness, modelvalg og tal med højst {maximum:.3g} absolut numerisk forskel (kontrolleret tolerance 1e−6). De syv regressions-/klassifikationsfiler påstås ikke at være byteidentiske. Det fulde bevis findes i `docs/checkpoints/2026-10-16-club-importance-reproduction.json`. `docs/research/data/2026-10-16-importance-overall-contrasts.csv` dannes reproducerbart af rapportscriptet fra de verificerede enkeltprognoser; det er ikke en ny modelkørsel.\n")
     target=ROOT/'docs/research/2026-10-16-mm-club-dynamic-importance.md';target.write_text('\n'.join(parts));print(target)
 
 if __name__=='__main__':main()
