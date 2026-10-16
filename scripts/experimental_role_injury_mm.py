@@ -24,6 +24,7 @@ def eligible_news(row,cutoff,club):
     cut=pd.Timestamp(cutoff);effective=pd.Timestamp(row['effective_at'])
     if cut.tzinfo is None or effective.tzinfo is None:raise ValueError('Timezone required')
     if effective>=cut or int(row['team_id'])!=int(club):return False
+    if row.get('cutoff')and pd.Timestamp(row['cutoff'])!=cut:return False
     if row.get('news_added')and pd.Timestamp(row['news_added'])>effective:return False
     return int(row['gw'])in [row.get('payload_current_event'),row.get('payload_next_event')]
 
@@ -59,12 +60,14 @@ def carry_normal_role(frame,duration_only=False):
     Medical OUT does not update that latent state. UNKNOWN never establishes it.
     This alternative must be compared with the same role+hard-news control.
     """
-    f=frame.copy();f['carried_normal_role']=False
+    f=frame.copy();f['carried_normal_role']=False;f['normal_role_p']=np.nan;f['normal_role_s']=np.nan;f['normal_role_asof']=None
     for _,idx in f.groupby(['season','player_uuid'],sort=False).groups.items():
         order=f.loc[idx].sort_values(['cutoff','fixture_uuid']);latent=None;medical=False;handled=None
         for cut,g in order.groupby('cutoff',sort=True):
             row=g.iloc[0];club=int(row.team_id)
             if latent is not None and latent['club']!=club:latent=None;medical=False
+            if latent is not None:
+                f.loc[g.index,'normal_role_p']=latent['p'];f.loc[g.index,'normal_role_s']=latent['s'];f.loc[g.index,'normal_role_asof']=latent['cutoff']
             if not row.news_eligible:continue
             if row.news_medical_out:medical=True;continue
             if row.news_state not in ['AVAILABLE','RETURNED_AVAILABLE']:continue

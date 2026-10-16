@@ -5,7 +5,7 @@ ROOT=Path(__file__).resolve().parents[1];OUT=ROOT/'analysis/results/role-injury-
 def sha(b):return hashlib.sha256(b).hexdigest()
 def package():
     files={}
-    for name in ['report.json','summary.json','coverage.csv','source_manifest.json','source_backed_news.csv.gz','predictions.npz','tactical_profiles.json']:
+    for name in ['report.json','summary.json','coverage.csv','source_manifest.json','source_backed_news.csv.gz','predictions.npz','tactical_profiles.json','2024-25_normal_roles.csv.gz','2025-26_normal_roles.csv.gz','observed_returns_evaluation_only.csv']:
         files['results/'+name]=(OUT/name).read_bytes()
     for name in ['observations.jsonl.gz','predeadline_strict.jsonl.gz','source_manifest.json','SHA256_MANIFEST.json']:
         files['news-2024/'+name]=(ROOT/'work/news-2024-push-verified'/name).read_bytes()

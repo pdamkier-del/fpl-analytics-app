@@ -38,6 +38,7 @@ def test_injury_does_not_erase_role_but_return_is_not_automatic_90_minutes():
     f=frame();r=carry_normal_role(f)
     assert r.loc[2,'p']==.85 and r.loc[2,'s']==82
     assert r.loc[1,'p']==r.loc[1,'q']==0
+    assert r.loc[1,'normal_role_p']==.85
     assert r.loc[3,'p']==.7
     assert not r.loc[3,'carried_normal_role']
     assert f.loc[2,'p']==.2

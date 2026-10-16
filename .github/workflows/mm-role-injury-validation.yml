@@ -62,9 +62,15 @@ jobs:
         run: |
           git config user.name 'FPL research evidence'
           git config user.email 'research-evidence@users.noreply.github.com'
-          git checkout -b mm-evidence-publication
-          git add analysis/results/role-injury-mm-20261016/report.json analysis/results/role-injury-mm-20261016/summary.json analysis/results/role-injury-mm-20261016/coverage.csv analysis/results/role-injury-mm-20261016/source_manifest.json checkpoints/role_injury_mm_20261016/
-          git commit -m 'Preserve verified MM-only role injury data, club results and source clocks'
           git fetch origin research-role-injury-club-audit-20261016
-          git rebase origin/research-role-injury-club-audit-20261016
-          git push origin HEAD:research-role-injury-club-audit-20261016
+          if ! git diff --quiet "$GITHUB_SHA" origin/research-role-injury-club-audit-20261016 -- scripts/experimental_role_injury_mm.py scripts/validate_role_injury_mm.py scripts/verify_mm_archive_push_times.py; then
+            echo 'Newer MM code exists; artifact preserved, refusing stale result publication.'
+            exit 0
+          fi
+          git worktree add -b mm-evidence-publication /tmp/mm-evidence-publication origin/research-role-injury-club-audit-20261016
+          mkdir -p /tmp/mm-evidence-publication/analysis/results/role-injury-mm-20261016 /tmp/mm-evidence-publication/checkpoints
+          cp analysis/results/role-injury-mm-20261016/report.json analysis/results/role-injury-mm-20261016/summary.json analysis/results/role-injury-mm-20261016/coverage.csv analysis/results/role-injury-mm-20261016/source_manifest.json /tmp/mm-evidence-publication/analysis/results/role-injury-mm-20261016/
+          cp -r checkpoints/role_injury_mm_20261016 /tmp/mm-evidence-publication/checkpoints/
+          git -C /tmp/mm-evidence-publication add analysis/results/role-injury-mm-20261016 checkpoints/role_injury_mm_20261016
+          git -C /tmp/mm-evidence-publication commit -m 'Preserve verified MM-only role injury data, club results and source clocks'
+          git -C /tmp/mm-evidence-publication push origin HEAD:research-role-injury-club-audit-20261016
