@@ -1,0 +1,26 @@
+{
+  "frozen_B_rows": 39264,
+  "formations_team_fixtures": 660,
+  "forecast_source": "Original frozen PR9 Model B",
+  "reuse": [
+    "PR11 pre-cutoff historical formation selector",
+    "PR13 probabilistic minute distribution",
+    "PR12 role-dependent error stratification"
+  ],
+  "evidence_scope": "Separate components validated against same frozen B, NOT an end-to-end single combined candidate",
+  "formation_nudge_flags": {
+    "minute_mae_improved": true,
+    "rmse_not_worse": false,
+    "start_brier_not_worse": false,
+    "error_over60_not_worse": false
+  },
+  "ready_for_production": false,
+  "why_not": [
+    "Formation probability nudge worsens Brier, RMSE and over60 tails",
+    "Uncertainty 80% intervals empirical coverage ~90%, not calibrated",
+    "Distribution hyperparameter role conditions selected same spread for all",
+    "No independent fresh season and inherited data known-at proxies"
+  ],
+  "production_changed": false,
+  "pm_ts_chips_untouched": true
+}
