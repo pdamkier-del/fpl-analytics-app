@@ -1,0 +1,44 @@
+name: MM-only error tails and predicted XI diagnostic
+on:
+  push:
+    branches: [research-mm-error-xi-audit-20261016]
+    paths:
+      - scripts/research_mm_error_xi_audit.py
+      - .github/workflows/mm-error-xi-audit.yml
+  workflow_dispatch:
+permissions:
+  contents: write
+env:
+  PYTHONPATH: src:scripts:.
+  OPENBLAS_NUM_THREADS: '1'
+jobs:
+  audit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: pip install -r requirements-model-checkpoint.txt -r requirements-model-tests.txt requests
+      - name: Verify existing frozen predictions and run MM-only error diagnostics
+        run: |
+          test -f analysis/results/individual-mm-refinement-20261016/predictions.npz
+          sha256sum analysis/results/individual-mm-refinement-20261016/predictions.npz > /tmp/locked-pred.sha
+          python scripts/research_mm_error_xi_audit.py
+          sha256sum --check /tmp/locked-pred.sha
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: mm-error-xi-audit
+          path: analysis/results/mm-error-xi-audit-20261016/
+      - name: Preserve only computed audit CSV and JSON
+        run: |
+          git config user.name 'FPL MM research evidence'
+          git config user.email 'research-evidence@users.noreply.github.com'
+          git add analysis/results/mm-error-xi-audit-20261016/
+          if git diff --cached --quiet; then exit 0; fi
+          git commit -m 'Record empirical MM error and top-11 accuracy distributions'
+          git push origin HEAD:research-mm-error-xi-audit-20261016
