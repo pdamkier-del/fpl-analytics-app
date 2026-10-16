@@ -1,0 +1,1413 @@
+{
+  "audit": {
+    "canonical_rows": 50231,
+    "frozen_model_arms": 13,
+    "all_core_minutes_starts_clubs_gws_match": true,
+    "all_target_kickoffs_after_cutoff": true,
+    "all_eligible_news_strictly_predeadline": true,
+    "historical_publication_clock": "Inherited kickoff+3/4h proxy for actual outcomes; NOT fully certified",
+    "injuries_and_tactical_unknowns_not_imputed": true,
+    "input_sha256": {
+      "analysis/results/role-injury-mm-20261016/predictions.npz": "9c5caadd41b105456a484d9f718f8a7547fb78afdee1d17830eef90cbbe4f5fa",
+      "analysis/results/role-injury-mm-20261016/source_backed_news.csv.gz": "fe2af698034e0a0ab810e297c8db3893396167dab1f168425e2298dfa1112266",
+      "work/mm-source/2024-25_candidates.npz": "1696127306a316e51ca7624ae34426f25a48f19b2b0ad453226a283520a27314",
+      "work/mm-source/2025-26_candidates.npz": "d8159d795811e87ce401d53226ae3040d96e57efa23650a84db56a1f81009096"
+    },
+    "coverage_rows": [
+      {
+        "season": "2024-25",
+        "team_id": 1,
+        "club": "Arsenal",
+        "forecast_rows": 1110,
+        "strict_matched_rows": 1104,
+        "strict_coverage": 0.9945945945945946,
+        "unresolved_or_unavailable_rows": 6,
+        "wrong_club_rejected": 0,
+        "source_rows": 1104,
+        "flagged_injury_rows": 124,
+        "typed_medical_out_rows": 124,
+        "observed_medical_episodes": 17,
+        "source_confirmed_selection_returns": 12,
+        "training_return_statements": 0
+      },
+      {
+        "season": "2024-25",
+        "team_id": 2,
+        "club": "Aston Villa",
+        "forecast_rows": 1325,
+        "strict_matched_rows": 1323,
+        "strict_coverage": 0.998490566037736,
+        "unresolved_or_unavailable_rows": 2,
+        "wrong_club_rejected": 0,
+        "source_rows": 1323,
+        "flagged_injury_rows": 43,
+        "typed_medical_out_rows": 37,
+        "observed_medical_episodes": 18,
+        "source_confirmed_selection_returns": 14,
+        "training_return_statements": 0
+      },
+      {
+        "season": "2024-25",
+        "team_id": 3,
+        "club": "Bournemouth",
+        "forecast_rows": 1190,
+        "strict_matched_rows": 1182,
+        "strict_coverage": 0.9932773109243698,
+        "unresolved_or_unavailable_rows": 8,
+        "wrong_club_rejected": 0,
+        "source_rows": 1182,
+        "flagged_injury_rows": 133,
+        "typed_medical_out_rows": 129,
+        "observed_medical_episodes": 17,
+        "source_confirmed_selection_returns": 12,
+        "training_return_statements": 0
+      },
+      {
+        "season": "2024-25",
+        "team_id": 4,
+        "club": "Brentford",
+        "forecast_rows": 1193,
+        "strict_matched_rows": 1188,
+        "strict_coverage": 0.9958088851634534,
+        "unresolved_or_unavailable_rows": 5,
+        "wrong_club_rejected": 0,
+        "source_rows": 1188,
+        "flagged_injury_rows": 170,
+        "typed_medical_out_rows": 147,
+        "observed_medical_episodes": 19,
+        "source_confirmed_selection_returns": 16,
+        "training_return_statements": 0
+      },
+      {
+        "season": "2024-25",
+        "team_id": 5,
+        "club": "Brighton",
+        "forecast_rows": 1575,
+        "strict_matched_rows": 1567,
+        "strict_coverage": 0.9949206349206348,
+        "unresolved_or_unavailable_rows": 8,
+        "wrong_club_rejected": 0,
+        "source_rows": 1567,
+        "flagged_injury_rows": 124,
+        "typed_medical_out_rows": 122,
+        "observed_medical_episodes": 22,
+        "source_confirmed_selection_returns": 17,
+        "training_return_statements": 0
+      },
+      {
+        "season": "2024-25",
+        "team_id": 6,
+        "club": "Chelsea",
+        "forecast_rows": 1443,
+        "strict_matched_rows": 1436,
+        "strict_coverage": 0.9951489951489952,
+        "unresolved_or_unavailable_rows": 7,
+        "wrong_club_rejected": 0,
+        "source_rows": 1436,
+        "flagged_injury_rows": 107,
+        "typed_medical_out_rows": 96,
+        "observed_medical_episodes": 16,
+        "source_confirmed_selection_returns": 14,
+        "training_return_statements": 0
+      },
+      {
+        "season": "2024-25",
+        "team_id": 7,
+        "club": "Crystal Palace",
+        "forecast_rows": 1129,
+        "strict_matched_rows": 1127,
+        "strict_coverage": 0.9982285208148804,
+        "unresolved_or_unavailable_rows": 2,
+        "wrong_club_rejected": 0,
+        "source_rows": 1127,
+        "flagged_injury_rows": 107,
+        "typed_medical_out_rows": 96,
+        "observed_medical_episodes": 19,
+        "source_confirmed_selection_returns": 15,
+        "training_return_statements": 0
+      },
+      {
+        "season": "2024-25",
+        "team_id": 8,
+        "club": "Everton",
+        "forecast_rows": 1051,
+        "strict_matched_rows": 1043,
+        "strict_coverage": 0.9923882017126546,
+        "unresolved_or_unavailable_rows": 8,
+        "wrong_club_rejected": 2,
+        "source_rows": 1042,
+        "flagged_injury_rows": 130,
+        "typed_medical_out_rows": 124,
+        "observed_medical_episodes": 19,
+        "source_confirmed_selection_returns": 14,
+        "training_return_statements": 0
+      },
+      {
+        "season": "2024-25",
+        "team_id": 9,
+        "club": "Fulham",
+        "forecast_rows": 997,
+        "strict_matched_rows": 996,
+        "strict_coverage": 0.9989969909729188,
+        "unresolved_or_unavailable_rows": 1,
+        "wrong_club_rejected": 0,
+        "source_rows": 996,
+        "flagged_injury_rows": 80,
+        "typed_medical_out_rows": 79,
+        "observed_medical_episodes": 15,
+        "source_confirmed_selection_returns": 11,
+        "training_return_statements": 0
+      },
+      {
+        "season": "2024-25",
+        "team_id": 10,
+        "club": "Ipswich",
+        "forecast_rows": 1165,
+        "strict_matched_rows": 1163,
+        "strict_coverage": 0.9982832618025752,
+        "unresolved_or_unavailable_rows": 2,
+        "wrong_club_rejected": 0,
+        "source_rows": 1163,
+        "flagged_injury_rows": 127,
+        "typed_medical_out_rows": 127,
+        "observed_medical_episodes": 25,
+        "source_confirmed_selection_returns": 18,
+        "training_return_statements": 0
+      },
+      {
+        "season": "2024-25",
+        "team_id": 11,
+        "club": "Leicester",
+        "forecast_rows": 1172,
+        "strict_matched_rows": 1166,
+        "strict_coverage": 0.9948805460750854,
+        "unresolved_or_unavailable_rows": 6,
+        "wrong_club_rejected": 0,
+        "source_rows": 1166,
+        "flagged_injury_rows": 94,
+        "typed_medical_out_rows": 92,
+        "observed_medical_episodes": 15,
+        "source_confirmed_selection_returns": 11,
+        "training_return_statements": 0
+      },
+      {
+        "season": "2024-25",
+        "team_id": 12,
+        "club": "Liverpool",
+        "forecast_rows": 1092,
+        "strict_matched_rows": 1088,
+        "strict_coverage": 0.9963369963369964,
+        "unresolved_or_unavailable_rows": 4,
+        "wrong_club_rejected": 0,
+        "source_rows": 1087,
+        "flagged_injury_rows": 61,
+        "typed_medical_out_rows": 60,
+        "observed_medical_episodes": 13,
+        "source_confirmed_selection_returns": 13,
+        "training_return_statements": 0
+      },
+      {
+        "season": "2024-25",
+        "team_id": 13,
+        "club": "Man City",
+        "forecast_rows": 1115,
+        "strict_matched_rows": 1109,
+        "strict_coverage": 0.9946188340807176,
+        "unresolved_or_unavailable_rows": 6,
+        "wrong_club_rejected": 0,
+        "source_rows": 1109,
+        "flagged_injury_rows": 116,
+        "typed_medical_out_rows": 108,
+        "observed_medical_episodes": 19,
+        "source_confirmed_selection_returns": 18,
+        "training_return_statements": 0
+      },
+      {
+        "season": "2024-25",
+        "team_id": 14,
+        "club": "Man Utd",
+        "forecast_rows": 1214,
+        "strict_matched_rows": 1203,
+        "strict_coverage": 0.9909390444810544,
+        "unresolved_or_unavailable_rows": 11,
+        "wrong_club_rejected": 0,
+        "source_rows": 1203,
+        "flagged_injury_rows": 99,
+        "typed_medical_out_rows": 97,
+        "observed_medical_episodes": 23,
+        "source_confirmed_selection_returns": 21,
+        "training_return_statements": 0
+      },
+      {
+        "season": "2024-25",
+        "team_id": 15,
+        "club": "Newcastle",
+        "forecast_rows": 1100,
+        "strict_matched_rows": 1099,
+        "strict_coverage": 0.9990909090909093,
+        "unresolved_or_unavailable_rows": 1,
+        "wrong_club_rejected": 0,
+        "source_rows": 1099,
+        "flagged_injury_rows": 103,
+        "typed_medical_out_rows": 98,
+        "observed_medical_episodes": 14,
+        "source_confirmed_selection_returns": 12,
+        "training_return_statements": 0
+      },
+      {
+        "season": "2024-25",
+        "team_id": 16,
+        "club": "Nott'm Forest",
+        "forecast_rows": 1113,
+        "strict_matched_rows": 1111,
+        "strict_coverage": 0.9982030548068284,
+        "unresolved_or_unavailable_rows": 2,
+        "wrong_club_rejected": 0,
+        "source_rows": 1111,
+        "flagged_injury_rows": 36,
+        "typed_medical_out_rows": 35,
+        "observed_medical_episodes": 7,
+        "source_confirmed_selection_returns": 6,
+        "training_return_statements": 0
+      },
+      {
+        "season": "2024-25",
+        "team_id": 17,
+        "club": "Southampton",
+        "forecast_rows": 1291,
+        "strict_matched_rows": 1287,
+        "strict_coverage": 0.9969016266460108,
+        "unresolved_or_unavailable_rows": 4,
+        "wrong_club_rejected": 0,
+        "source_rows": 1288,
+        "flagged_injury_rows": 93,
+        "typed_medical_out_rows": 79,
+        "observed_medical_episodes": 22,
+        "source_confirmed_selection_returns": 21,
+        "training_return_statements": 0
+      },
+      {
+        "season": "2024-25",
+        "team_id": 18,
+        "club": "Spurs",
+        "forecast_rows": 1410,
+        "strict_matched_rows": 1403,
+        "strict_coverage": 0.9950354609929078,
+        "unresolved_or_unavailable_rows": 7,
+        "wrong_club_rejected": 0,
+        "source_rows": 1403,
+        "flagged_injury_rows": 142,
+        "typed_medical_out_rows": 138,
+        "observed_medical_episodes": 27,
+        "source_confirmed_selection_returns": 22,
+        "training_return_statements": 0
+      },
+      {
+        "season": "2024-25",
+        "team_id": 19,
+        "club": "West Ham",
+        "forecast_rows": 996,
+        "strict_matched_rows": 993,
+        "strict_coverage": 0.9969879518072288,
+        "unresolved_or_unavailable_rows": 3,
+        "wrong_club_rejected": 0,
+        "source_rows": 993,
+        "flagged_injury_rows": 60,
+        "typed_medical_out_rows": 58,
+        "observed_medical_episodes": 7,
+        "source_confirmed_selection_returns": 5,
+        "training_return_statements": 0
+      },
+      {
+        "season": "2024-25",
+        "team_id": 20,
+        "club": "Wolves",
+        "forecast_rows": 1391,
+        "strict_matched_rows": 1386,
+        "strict_coverage": 0.9964054636951832,
+        "unresolved_or_unavailable_rows": 5,
+        "wrong_club_rejected": 0,
+        "source_rows": 1386,
+        "flagged_injury_rows": 151,
+        "typed_medical_out_rows": 150,
+        "observed_medical_episodes": 15,
+        "source_confirmed_selection_returns": 10,
+        "training_return_statements": 0
+      },
+      {
+        "season": "2025-26",
+        "team_id": 1,
+        "club": "Arsenal",
+        "forecast_rows": 1179,
+        "strict_matched_rows": 1178,
+        "strict_coverage": 0.9991518235793044,
+        "unresolved_or_unavailable_rows": 1,
+        "wrong_club_rejected": 0,
+        "source_rows": 1316,
+        "flagged_injury_rows": 86,
+        "typed_medical_out_rows": 86,
+        "observed_medical_episodes": 14,
+        "source_confirmed_selection_returns": 11,
+        "training_return_statements": 0
+      },
+      {
+        "season": "2025-26",
+        "team_id": 2,
+        "club": "Aston Villa",
+        "forecast_rows": 1513,
+        "strict_matched_rows": 1508,
+        "strict_coverage": 0.9966953073364178,
+        "unresolved_or_unavailable_rows": 5,
+        "wrong_club_rejected": 0,
+        "source_rows": 1665,
+        "flagged_injury_rows": 86,
+        "typed_medical_out_rows": 82,
+        "observed_medical_episodes": 18,
+        "source_confirmed_selection_returns": 16,
+        "training_return_statements": 0
+      },
+      {
+        "season": "2025-26",
+        "team_id": 3,
+        "club": "Burnley",
+        "forecast_rows": 1417,
+        "strict_matched_rows": 1414,
+        "strict_coverage": 0.9978828510938604,
+        "unresolved_or_unavailable_rows": 3,
+        "wrong_club_rejected": 0,
+        "source_rows": 1576,
+        "flagged_injury_rows": 142,
+        "typed_medical_out_rows": 142,
+        "observed_medical_episodes": 12,
+        "source_confirmed_selection_returns": 9,
+        "training_return_statements": 0
+      },
+      {
+        "season": "2025-26",
+        "team_id": 4,
+        "club": "Bournemouth",
+        "forecast_rows": 1410,
+        "strict_matched_rows": 1407,
+        "strict_coverage": 0.997872340425532,
+        "unresolved_or_unavailable_rows": 3,
+        "wrong_club_rejected": 0,
+        "source_rows": 1563,
+        "flagged_injury_rows": 98,
+        "typed_medical_out_rows": 97,
+        "observed_medical_episodes": 18,
+        "source_confirmed_selection_returns": 17,
+        "training_return_statements": 0
+      },
+      {
+        "season": "2025-26",
+        "team_id": 5,
+        "club": "Brentford",
+        "forecast_rows": 1315,
+        "strict_matched_rows": 1309,
+        "strict_coverage": 0.9954372623574144,
+        "unresolved_or_unavailable_rows": 6,
+        "wrong_club_rejected": 0,
+        "source_rows": 1457,
+        "flagged_injury_rows": 108,
+        "typed_medical_out_rows": 99,
+        "observed_medical_episodes": 12,
+        "source_confirmed_selection_returns": 9,
+        "training_return_statements": 0
+      },
+      {
+        "season": "2025-26",
+        "team_id": 6,
+        "club": "Brighton",
+        "forecast_rows": 1491,
+        "strict_matched_rows": 1487,
+        "strict_coverage": 0.9973172367538564,
+        "unresolved_or_unavailable_rows": 4,
+        "wrong_club_rejected": 0,
+        "source_rows": 1659,
+        "flagged_injury_rows": 108,
+        "typed_medical_out_rows": 107,
+        "observed_medical_episodes": 14,
+        "source_confirmed_selection_returns": 10,
+        "training_return_statements": 0
+      },
+      {
+        "season": "2025-26",
+        "team_id": 7,
+        "club": "Chelsea",
+        "forecast_rows": 1205,
+        "strict_matched_rows": 1197,
+        "strict_coverage": 0.9933609958506224,
+        "unresolved_or_unavailable_rows": 8,
+        "wrong_club_rejected": 0,
+        "source_rows": 1332,
+        "flagged_injury_rows": 122,
+        "typed_medical_out_rows": 91,
+        "observed_medical_episodes": 25,
+        "source_confirmed_selection_returns": 24,
+        "training_return_statements": 0
+      },
+      {
+        "season": "2025-26",
+        "team_id": 8,
+        "club": "Crystal Palace",
+        "forecast_rows": 1350,
+        "strict_matched_rows": 1345,
+        "strict_coverage": 0.9962962962962963,
+        "unresolved_or_unavailable_rows": 5,
+        "wrong_club_rejected": 0,
+        "source_rows": 1488,
+        "flagged_injury_rows": 136,
+        "typed_medical_out_rows": 130,
+        "observed_medical_episodes": 24,
+        "source_confirmed_selection_returns": 19,
+        "training_return_statements": 0
+      },
+      {
+        "season": "2025-26",
+        "team_id": 9,
+        "club": "Everton",
+        "forecast_rows": 1189,
+        "strict_matched_rows": 1188,
+        "strict_coverage": 0.9991589571068124,
+        "unresolved_or_unavailable_rows": 1,
+        "wrong_club_rejected": 0,
+        "source_rows": 1323,
+        "flagged_injury_rows": 69,
+        "typed_medical_out_rows": 63,
+        "observed_medical_episodes": 11,
+        "source_confirmed_selection_returns": 9,
+        "training_return_statements": 0
+      },
+      {
+        "season": "2025-26",
+        "team_id": 10,
+        "club": "Fulham",
+        "forecast_rows": 998,
+        "strict_matched_rows": 996,
+        "strict_coverage": 0.997995991983968,
+        "unresolved_or_unavailable_rows": 2,
+        "wrong_club_rejected": 0,
+        "source_rows": 1106,
+        "flagged_injury_rows": 59,
+        "typed_medical_out_rows": 59,
+        "observed_medical_episodes": 20,
+        "source_confirmed_selection_returns": 18,
+        "training_return_statements": 0
+      },
+      {
+        "season": "2025-26",
+        "team_id": 11,
+        "club": "Leeds",
+        "forecast_rows": 1166,
+        "strict_matched_rows": 1162,
+        "strict_coverage": 0.9965694682675816,
+        "unresolved_or_unavailable_rows": 4,
+        "wrong_club_rejected": 0,
+        "source_rows": 1293,
+        "flagged_injury_rows": 55,
+        "typed_medical_out_rows": 55,
+        "observed_medical_episodes": 23,
+        "source_confirmed_selection_returns": 19,
+        "training_return_statements": 0
+      },
+      {
+        "season": "2025-26",
+        "team_id": 12,
+        "club": "Liverpool",
+        "forecast_rows": 1217,
+        "strict_matched_rows": 1213,
+        "strict_coverage": 0.9967132292522596,
+        "unresolved_or_unavailable_rows": 4,
+        "wrong_club_rejected": 0,
+        "source_rows": 1353,
+        "flagged_injury_rows": 190,
+        "typed_medical_out_rows": 190,
+        "observed_medical_episodes": 23,
+        "source_confirmed_selection_returns": 16,
+        "training_return_statements": 0
+      },
+      {
+        "season": "2025-26",
+        "team_id": 13,
+        "club": "Man City",
+        "forecast_rows": 1221,
+        "strict_matched_rows": 1217,
+        "strict_coverage": 0.9967239967239968,
+        "unresolved_or_unavailable_rows": 4,
+        "wrong_club_rejected": 0,
+        "source_rows": 1345,
+        "flagged_injury_rows": 89,
+        "typed_medical_out_rows": 89,
+        "observed_medical_episodes": 18,
+        "source_confirmed_selection_returns": 17,
+        "training_return_statements": 0
+      },
+      {
+        "season": "2025-26",
+        "team_id": 14,
+        "club": "Man Utd",
+        "forecast_rows": 1382,
+        "strict_matched_rows": 1377,
+        "strict_coverage": 0.996382054992764,
+        "unresolved_or_unavailable_rows": 5,
+        "wrong_club_rejected": 0,
+        "source_rows": 1535,
+        "flagged_injury_rows": 68,
+        "typed_medical_out_rows": 67,
+        "observed_medical_episodes": 14,
+        "source_confirmed_selection_returns": 13,
+        "training_return_statements": 0
+      },
+      {
+        "season": "2025-26",
+        "team_id": 15,
+        "club": "Newcastle",
+        "forecast_rows": 1258,
+        "strict_matched_rows": 1255,
+        "strict_coverage": 0.9976152623211448,
+        "unresolved_or_unavailable_rows": 3,
+        "wrong_club_rejected": 0,
+        "source_rows": 1397,
+        "flagged_injury_rows": 118,
+        "typed_medical_out_rows": 117,
+        "observed_medical_episodes": 22,
+        "source_confirmed_selection_returns": 17,
+        "training_return_statements": 0
+      },
+      {
+        "season": "2025-26",
+        "team_id": 16,
+        "club": "Nott'm Forest",
+        "forecast_rows": 1256,
+        "strict_matched_rows": 1253,
+        "strict_coverage": 0.9976114649681528,
+        "unresolved_or_unavailable_rows": 3,
+        "wrong_club_rejected": 0,
+        "source_rows": 1390,
+        "flagged_injury_rows": 125,
+        "typed_medical_out_rows": 124,
+        "observed_medical_episodes": 18,
+        "source_confirmed_selection_returns": 13,
+        "training_return_statements": 0
+      },
+      {
+        "season": "2025-26",
+        "team_id": 17,
+        "club": "Sunderland",
+        "forecast_rows": 1589,
+        "strict_matched_rows": 1585,
+        "strict_coverage": 0.9974826935179358,
+        "unresolved_or_unavailable_rows": 4,
+        "wrong_club_rejected": 0,
+        "source_rows": 1761,
+        "flagged_injury_rows": 128,
+        "typed_medical_out_rows": 111,
+        "observed_medical_episodes": 21,
+        "source_confirmed_selection_returns": 17,
+        "training_return_statements": 0
+      },
+      {
+        "season": "2025-26",
+        "team_id": 18,
+        "club": "Spurs",
+        "forecast_rows": 1400,
+        "strict_matched_rows": 1394,
+        "strict_coverage": 0.9957142857142856,
+        "unresolved_or_unavailable_rows": 6,
+        "wrong_club_rejected": 0,
+        "source_rows": 1542,
+        "flagged_injury_rows": 226,
+        "typed_medical_out_rows": 191,
+        "observed_medical_episodes": 26,
+        "source_confirmed_selection_returns": 20,
+        "training_return_statements": 0
+      },
+      {
+        "season": "2025-26",
+        "team_id": 19,
+        "club": "West Ham",
+        "forecast_rows": 1264,
+        "strict_matched_rows": 1258,
+        "strict_coverage": 0.995253164556962,
+        "unresolved_or_unavailable_rows": 6,
+        "wrong_club_rejected": 0,
+        "source_rows": 1387,
+        "flagged_injury_rows": 30,
+        "typed_medical_out_rows": 30,
+        "observed_medical_episodes": 10,
+        "source_confirmed_selection_returns": 9,
+        "training_return_statements": 0
+      },
+      {
+        "season": "2025-26",
+        "team_id": 20,
+        "club": "Wolves",
+        "forecast_rows": 1339,
+        "strict_matched_rows": 1331,
+        "strict_coverage": 0.9940253920836444,
+        "unresolved_or_unavailable_rows": 8,
+        "wrong_club_rejected": 0,
+        "source_rows": 1472,
+        "flagged_injury_rows": 85,
+        "typed_medical_out_rows": 85,
+        "observed_medical_episodes": 14,
+        "source_confirmed_selection_returns": 11,
+        "training_return_statements": 0
+      }
+    ],
+    "protocol": {
+      "primary_five": [
+        "original",
+        "role",
+        "role_news_projected",
+        "role_source_chance",
+        "role_chance_return_duration"
+      ],
+      "isolated_extra_arms": [
+        "role_return_carry",
+        "role_return_duration",
+        "news_all_starter_duration",
+        "chance_all_starter_duration"
+      ],
+      "parameters_fitted": 0,
+      "new_duration_arm": "Only s replaced from frozen role_start_duration; p,q,c unchanged",
+      "return_label": "Source-confirmed selection availability, NOT medical/training clearance",
+      "played_return_cohort": "Retrospective evaluation only; never a forecast feature",
+      "descriptive_stint_groups": "Three previous source-AVAILABLE 90-minute starts; short-reaction group adds a fourth most recent start under60min. Diagnostic thresholds, not forecast parameters.",
+      "prospective_validation": "Not Available; all periods previously used in research",
+      "known_missing": "GW1-5 forecasts, exact historical outcome publication times, medical clearance/training return dates, verified fixture-specific suspension expiry",
+      "pm_ts_chips_points_not_run": true,
+      "locked_model_active": false,
+      "promotion_allowed": false
+    }
+  },
+  "combined_evaluation": {
+    "original": {
+      "minute_mae": 11.240711312679037,
+      "minute_rmse": 21.115962188038406,
+      "start_brier": 0.07344526376533932,
+      "start_log_loss": 0.24126194809910465,
+      "appearance_brier": 0.08436440009392235,
+      "appearance_log_loss": 0.28392421967192505,
+      "rows": 39264,
+      "fixtures": 501,
+      "gameweeks": 33,
+      "minute_bias": -0.0825090903083091,
+      "start_bias": 2.173281929316665e-17,
+      "appearance_bias": -0.00956402546694534,
+      "false_zero_minutes": 0,
+      "false_zero_start": 4,
+      "false_zero_appearance": 0,
+      "starter_duration_mae": 8.151006793268344,
+      "starter_duration_bias": 0.12975613084389764,
+      "cameo_duration_mae": 11.348577503737458,
+      "expected_starts": 11022.0,
+      "actual_starts": 11022,
+      "role_duration_change": 0.0
+    },
+    "role": {
+      "minute_mae": 11.028528233338825,
+      "minute_rmse": 20.931300434959827,
+      "start_brier": 0.07293090339538065,
+      "start_log_loss": 0.2388935275038362,
+      "appearance_brier": 0.081907506214327,
+      "appearance_log_loss": 0.28783790143516336,
+      "rows": 39264,
+      "fixtures": 501,
+      "gameweeks": 33,
+      "minute_bias": -0.2698584477230901,
+      "start_bias": -4.737901640336981e-17,
+      "appearance_bias": -0.016364036634557072,
+      "false_zero_minutes": 19,
+      "false_zero_start": 4,
+      "false_zero_appearance": 19,
+      "starter_duration_mae": 8.151006793268344,
+      "starter_duration_bias": 0.12975613084389764,
+      "cameo_duration_mae": 11.348577503737458,
+      "expected_starts": 11021.999999999996,
+      "actual_starts": 11022,
+      "role_duration_change": 0.0
+    },
+    "role_news_projected": {
+      "minute_mae": 10.682459037919914,
+      "minute_rmse": 20.666538855004006,
+      "start_brier": 0.0712572586791648,
+      "start_log_loss": 0.23498666018870643,
+      "appearance_brier": 0.0790335253950801,
+      "appearance_log_loss": 0.28665787772208234,
+      "rows": 39264,
+      "fixtures": 501,
+      "gameweeks": 33,
+      "minute_bias": -0.3349181277474592,
+      "start_bias": 2.791901003602249e-16,
+      "appearance_bias": -0.02050636239103584,
+      "false_zero_minutes": 35,
+      "false_zero_start": 8,
+      "false_zero_appearance": 35,
+      "starter_duration_mae": 8.151006793268344,
+      "starter_duration_bias": 0.12975613084389764,
+      "cameo_duration_mae": 11.348577503737458,
+      "expected_starts": 11022.000000000011,
+      "actual_starts": 11022,
+      "role_duration_change": 0.0
+    },
+    "role_source_chance": {
+      "minute_mae": 10.52845296409304,
+      "minute_rmse": 20.437036132208693,
+      "start_brier": 0.07011540956152484,
+      "start_log_loss": 0.23135358615960763,
+      "appearance_brier": 0.07675566953241215,
+      "appearance_log_loss": 0.27798025499853524,
+      "rows": 39264,
+      "fixtures": 501,
+      "gameweeks": 33,
+      "minute_bias": -0.39679310101582077,
+      "start_bias": 3.6737117015943064e-16,
+      "appearance_bias": -0.022895319351814648,
+      "false_zero_minutes": 35,
+      "false_zero_start": 8,
+      "false_zero_appearance": 35,
+      "starter_duration_mae": 8.151006793268344,
+      "starter_duration_bias": 0.12975613084389764,
+      "cameo_duration_mae": 11.348577503737458,
+      "expected_starts": 11022.000000000015,
+      "actual_starts": 11022,
+      "role_duration_change": 0.0
+    },
+    "role_chance_return_duration": {
+      "minute_mae": 10.521391638183292,
+      "minute_rmse": 20.416724805447817,
+      "start_brier": 0.07011540956152484,
+      "start_log_loss": 0.23135358615960763,
+      "appearance_brier": 0.07675566953241215,
+      "appearance_log_loss": 0.27798025499853524,
+      "rows": 39264,
+      "fixtures": 501,
+      "gameweeks": 33,
+      "minute_bias": -0.37765653580840247,
+      "start_bias": 3.6737117015943064e-16,
+      "appearance_bias": -0.022895319351814648,
+      "false_zero_minutes": 35,
+      "false_zero_start": 8,
+      "false_zero_appearance": 35,
+      "starter_duration_mae": 8.06455625845639,
+      "starter_duration_bias": 0.2746652797533473,
+      "cameo_duration_mae": 11.348577503737458,
+      "expected_starts": 11022.000000000015,
+      "actual_starts": 11022,
+      "role_duration_change": 0.0
+    },
+    "role_return_carry": {
+      "minute_mae": 10.715493284997143,
+      "minute_rmse": 20.66097848449666,
+      "start_brier": 0.07152414561728294,
+      "start_log_loss": 0.23534644039561728,
+      "appearance_brier": 0.07743743953793396,
+      "appearance_log_loss": 0.28158542017380783,
+      "rows": 39264,
+      "fixtures": 501,
+      "gameweeks": 33,
+      "minute_bias": -0.248383804403459,
+      "start_bias": 2.0261343992598872e-16,
+      "appearance_bias": -0.01830130335234839,
+      "false_zero_minutes": 35,
+      "false_zero_start": 8,
+      "false_zero_appearance": 35,
+      "starter_duration_mae": 8.06455625845639,
+      "starter_duration_bias": 0.2746652797533473,
+      "cameo_duration_mae": 11.37104902744162,
+      "expected_starts": 11022.000000000007,
+      "actual_starts": 11022,
+      "role_duration_change": 0.0
+    },
+    "role_return_duration": {
+      "minute_mae": 10.675336268828332,
+      "minute_rmse": 20.64633587981705,
+      "start_brier": 0.0712572586791648,
+      "start_log_loss": 0.23498666018870643,
+      "appearance_brier": 0.0790335253950801,
+      "appearance_log_loss": 0.28665787772208234,
+      "rows": 39264,
+      "fixtures": 501,
+      "gameweeks": 33,
+      "minute_bias": -0.31598506661300774,
+      "start_bias": 2.791901003602249e-16,
+      "appearance_bias": -0.02050636239103584,
+      "false_zero_minutes": 35,
+      "false_zero_start": 8,
+      "false_zero_appearance": 35,
+      "starter_duration_mae": 8.06455625845639,
+      "starter_duration_bias": 0.2746652797533473,
+      "cameo_duration_mae": 11.348577503737458,
+      "expected_starts": 11022.000000000011,
+      "actual_starts": 11022,
+      "role_duration_change": 0.0
+    },
+    "news_all_starter_duration": {
+      "minute_mae": 11.05728134275753,
+      "minute_rmse": 20.51178316395033,
+      "start_brier": 0.0712572586791648,
+      "start_log_loss": 0.23498666018870643,
+      "appearance_brier": 0.0790335253950801,
+      "appearance_log_loss": 0.28665787772208234,
+      "rows": 39264,
+      "fixtures": 501,
+      "gameweeks": 33,
+      "minute_bias": -0.25947565658237803,
+      "start_bias": 2.791901003602249e-16,
+      "appearance_bias": -0.02050636239103584,
+      "false_zero_minutes": 35,
+      "false_zero_start": 8,
+      "false_zero_appearance": 35,
+      "starter_duration_mae": 8.021670604137253,
+      "starter_duration_bias": 0.35519495347593655,
+      "cameo_duration_mae": 11.348577503737458,
+      "expected_starts": 11022.000000000011,
+      "actual_starts": 11022,
+      "role_duration_change": 4.885286025988059
+    },
+    "chance_all_starter_duration": {
+      "minute_mae": 10.906774904156023,
+      "minute_rmse": 20.286042464856834,
+      "start_brier": 0.07011540956152484,
+      "start_log_loss": 0.23135358615960763,
+      "appearance_brier": 0.07675566953241215,
+      "appearance_log_loss": 0.27798025499853524,
+      "rows": 39264,
+      "fixtures": 501,
+      "gameweeks": 33,
+      "minute_bias": -0.3114579222971991,
+      "start_bias": 3.6737117015943064e-16,
+      "appearance_bias": -0.022895319351814648,
+      "false_zero_minutes": 35,
+      "false_zero_start": 8,
+      "false_zero_appearance": 35,
+      "starter_duration_mae": 8.021670604137253,
+      "starter_duration_bias": 0.35519495347593655,
+      "cameo_duration_mae": 11.348577503737458,
+      "expected_starts": 11022.000000000015,
+      "actual_starts": 11022,
+      "role_duration_change": 4.885286025988059
+    }
+  },
+  "combined_intervals": {
+    "original": {
+      "season_stratified": true,
+      "block_length": 4,
+      "draws": 1000,
+      "metrics": {
+        "minute_mae": {
+          "delta": 0.0,
+          "interval95": [
+            0.0,
+            0.0
+          ]
+        },
+        "minute_rmse": {
+          "delta": 0.0,
+          "interval95": [
+            0.0,
+            0.0
+          ]
+        },
+        "start_brier": {
+          "delta": 0.0,
+          "interval95": [
+            0.0,
+            0.0
+          ]
+        },
+        "start_log_loss": {
+          "delta": 0.0,
+          "interval95": [
+            0.0,
+            0.0
+          ]
+        },
+        "appearance_brier": {
+          "delta": 0.0,
+          "interval95": [
+            0.0,
+            0.0
+          ]
+        },
+        "appearance_log_loss": {
+          "delta": 0.0,
+          "interval95": [
+            0.0,
+            0.0
+          ]
+        },
+        "minute_bias": {
+          "delta": 0.0,
+          "interval95": [
+            0.0,
+            0.0
+          ]
+        }
+      },
+      "warning": "Row-weighted combination; seasons resampled independently; historical periods reused, not independent validation"
+    },
+    "role": {
+      "season_stratified": true,
+      "block_length": 4,
+      "draws": 1000,
+      "metrics": {
+        "minute_mae": {
+          "delta": -0.2121830793402122,
+          "interval95": [
+            -0.2569637976229312,
+            -0.1682826148297555
+          ]
+        },
+        "minute_rmse": {
+          "delta": -0.18466175307857924,
+          "interval95": [
+            -0.2304107907125319,
+            -0.1384799598674909
+          ]
+        },
+        "start_brier": {
+          "delta": -0.0005143603699586663,
+          "interval95": [
+            -0.0008600765256997107,
+            -0.00017450878119573308
+          ]
+        },
+        "start_log_loss": {
+          "delta": -0.0023684205952684556,
+          "interval95": [
+            -0.003737782601423243,
+            -0.0008769724012843748
+          ]
+        },
+        "appearance_brier": {
+          "delta": -0.0024568938795953427,
+          "interval95": [
+            -0.0030908377685855484,
+            -0.001927141769047332
+          ]
+        },
+        "appearance_log_loss": {
+          "delta": 0.003913681763238308,
+          "interval95": [
+            -0.001493923763044337,
+            0.009693703051463306
+          ]
+        },
+        "minute_bias": {
+          "delta": -0.18734935741478098,
+          "interval95": [
+            -0.20871343132598974,
+            -0.16673913525904008
+          ]
+        }
+      },
+      "warning": "Row-weighted combination; seasons resampled independently; historical periods reused, not independent validation"
+    },
+    "role_news_projected": {
+      "season_stratified": true,
+      "block_length": 4,
+      "draws": 1000,
+      "metrics": {
+        "minute_mae": {
+          "delta": -0.5582522747591234,
+          "interval95": [
+            -0.6202395549081703,
+            -0.5023509526508394
+          ]
+        },
+        "minute_rmse": {
+          "delta": -0.4494233330343995,
+          "interval95": [
+            -0.5147813447286815,
+            -0.39021527844946213
+          ]
+        },
+        "start_brier": {
+          "delta": -0.0021880050861745187,
+          "interval95": [
+            -0.002686710363875117,
+            -0.0017554777109748624
+          ]
+        },
+        "start_log_loss": {
+          "delta": -0.0062752879103982195,
+          "interval95": [
+            -0.008460619635878325,
+            -0.004266099250064401
+          ]
+        },
+        "appearance_brier": {
+          "delta": -0.005330874698842247,
+          "interval95": [
+            -0.006166707222793614,
+            -0.0045567471385078665
+          ]
+        },
+        "appearance_log_loss": {
+          "delta": 0.002733658050157295,
+          "interval95": [
+            -0.00437237028752189,
+            0.009695290693198362
+          ]
+        },
+        "minute_bias": {
+          "delta": -0.2524090374391501,
+          "interval95": [
+            -0.2784869769724558,
+            -0.22951590107407668
+          ]
+        }
+      },
+      "warning": "Row-weighted combination; seasons resampled independently; historical periods reused, not independent validation"
+    },
+    "role_source_chance": {
+      "season_stratified": true,
+      "block_length": 4,
+      "draws": 1000,
+      "metrics": {
+        "minute_mae": {
+          "delta": -0.7122583485859977,
+          "interval95": [
+            -0.8826755116272018,
+            -0.596012537010027
+          ]
+        },
+        "minute_rmse": {
+          "delta": -0.678926055829713,
+          "interval95": [
+            -0.9084988472475114,
+            -0.5314205880676831
+          ]
+        },
+        "start_brier": {
+          "delta": -0.0033298542038144724,
+          "interval95": [
+            -0.004585087202969705,
+            -0.0024420754949129957
+          ]
+        },
+        "start_log_loss": {
+          "delta": -0.009908361939497012,
+          "interval95": [
+            -0.013869885507211887,
+            -0.006491846419636511
+          ]
+        },
+        "appearance_brier": {
+          "delta": -0.0076087305615101936,
+          "interval95": [
+            -0.009606904999384084,
+            -0.006166441125802021
+          ]
+        },
+        "appearance_log_loss": {
+          "delta": -0.005943964673389812,
+          "interval95": [
+            -0.016004420306176496,
+            0.0021024020075278652
+          ]
+        },
+        "minute_bias": {
+          "delta": -0.31428401070751166,
+          "interval95": [
+            -0.3620696187490136,
+            -0.27664337397095057
+          ]
+        }
+      },
+      "warning": "Row-weighted combination; seasons resampled independently; historical periods reused, not independent validation"
+    },
+    "role_chance_return_duration": {
+      "season_stratified": true,
+      "block_length": 4,
+      "draws": 1000,
+      "metrics": {
+        "minute_mae": {
+          "delta": -0.7193196744957451,
+          "interval95": [
+            -0.8887244099112537,
+            -0.6044482636094708
+          ]
+        },
+        "minute_rmse": {
+          "delta": -0.6992373825905887,
+          "interval95": [
+            -0.9340437201054785,
+            -0.5512256792240458
+          ]
+        },
+        "start_brier": {
+          "delta": -0.0033298542038144724,
+          "interval95": [
+            -0.004585087202969705,
+            -0.0024420754949129957
+          ]
+        },
+        "start_log_loss": {
+          "delta": -0.009908361939497012,
+          "interval95": [
+            -0.013869885507211887,
+            -0.006491846419636511
+          ]
+        },
+        "appearance_brier": {
+          "delta": -0.0076087305615101936,
+          "interval95": [
+            -0.009606904999384084,
+            -0.006166441125802021
+          ]
+        },
+        "appearance_log_loss": {
+          "delta": -0.005943964673389812,
+          "interval95": [
+            -0.016004420306176496,
+            0.0021024020075278652
+          ]
+        },
+        "minute_bias": {
+          "delta": -0.29514744550009336,
+          "interval95": [
+            -0.34342852446097116,
+            -0.2567026455753297
+          ]
+        }
+      },
+      "warning": "Row-weighted combination; seasons resampled independently; historical periods reused, not independent validation"
+    },
+    "role_return_carry": {
+      "season_stratified": true,
+      "block_length": 4,
+      "draws": 1000,
+      "metrics": {
+        "minute_mae": {
+          "delta": -0.5252180276818947,
+          "interval95": [
+            -0.5966002160816577,
+            -0.45620253288978285
+          ]
+        },
+        "minute_rmse": {
+          "delta": -0.4549837035417461,
+          "interval95": [
+            -0.5529748261568336,
+            -0.368102684905306
+          ]
+        },
+        "start_brier": {
+          "delta": -0.0019211181480563722,
+          "interval95": [
+            -0.0025773031534663407,
+            -0.0013498116614211074
+          ]
+        },
+        "start_log_loss": {
+          "delta": -0.005915507703487366,
+          "interval95": [
+            -0.008528839299001726,
+            -0.0036977889469807755
+          ]
+        },
+        "appearance_brier": {
+          "delta": -0.00692696055598839,
+          "interval95": [
+            -0.007860046825540463,
+            -0.006092552136949775
+          ]
+        },
+        "appearance_log_loss": {
+          "delta": -0.0023387994981172167,
+          "interval95": [
+            -0.009999252854006808,
+            0.005195065289260412
+          ]
+        },
+        "minute_bias": {
+          "delta": -0.16587471409514992,
+          "interval95": [
+            -0.19915887904149174,
+            -0.13533762684497205
+          ]
+        }
+      },
+      "warning": "Row-weighted combination; seasons resampled independently; historical periods reused, not independent validation"
+    },
+    "role_return_duration": {
+      "season_stratified": true,
+      "block_length": 4,
+      "draws": 1000,
+      "metrics": {
+        "minute_mae": {
+          "delta": -0.5653750438507057,
+          "interval95": [
+            -0.628666537195757,
+            -0.5101463643886286
+          ]
+        },
+        "minute_rmse": {
+          "delta": -0.4696263082213541,
+          "interval95": [
+            -0.5393032035141322,
+            -0.4102778215657992
+          ]
+        },
+        "start_brier": {
+          "delta": -0.0021880050861745187,
+          "interval95": [
+            -0.002686710363875117,
+            -0.0017554777109748624
+          ]
+        },
+        "start_log_loss": {
+          "delta": -0.0062752879103982195,
+          "interval95": [
+            -0.008460619635878325,
+            -0.004266099250064401
+          ]
+        },
+        "appearance_brier": {
+          "delta": -0.005330874698842247,
+          "interval95": [
+            -0.006166707222793614,
+            -0.0045567471385078665
+          ]
+        },
+        "appearance_log_loss": {
+          "delta": 0.002733658050157295,
+          "interval95": [
+            -0.00437237028752189,
+            0.009695290693198362
+          ]
+        },
+        "minute_bias": {
+          "delta": -0.23347597630469863,
+          "interval95": [
+            -0.258422581162771,
+            -0.21150457419774743
+          ]
+        }
+      },
+      "warning": "Row-weighted combination; seasons resampled independently; historical periods reused, not independent validation"
+    },
+    "news_all_starter_duration": {
+      "season_stratified": true,
+      "block_length": 4,
+      "draws": 1000,
+      "metrics": {
+        "minute_mae": {
+          "delta": -0.18342996992150695,
+          "interval95": [
+            -0.2642210724161754,
+            -0.0985489214920563
+          ]
+        },
+        "minute_rmse": {
+          "delta": -0.6041790240880758,
+          "interval95": [
+            -0.7321254431675177,
+            -0.48085165003823194
+          ]
+        },
+        "start_brier": {
+          "delta": -0.0021880050861745187,
+          "interval95": [
+            -0.002686710363875117,
+            -0.0017554777109748624
+          ]
+        },
+        "start_log_loss": {
+          "delta": -0.0062752879103982195,
+          "interval95": [
+            -0.008460619635878325,
+            -0.004266099250064401
+          ]
+        },
+        "appearance_brier": {
+          "delta": -0.005330874698842247,
+          "interval95": [
+            -0.006166707222793614,
+            -0.0045567471385078665
+          ]
+        },
+        "appearance_log_loss": {
+          "delta": 0.002733658050157295,
+          "interval95": [
+            -0.00437237028752189,
+            0.009695290693198362
+          ]
+        },
+        "minute_bias": {
+          "delta": -0.17696656627406893,
+          "interval95": [
+            -0.23044791675434534,
+            -0.12918042016643738
+          ]
+        }
+      },
+      "warning": "Row-weighted combination; seasons resampled independently; historical periods reused, not independent validation"
+    },
+    "chance_all_starter_duration": {
+      "season_stratified": true,
+      "block_length": 4,
+      "draws": 1000,
+      "metrics": {
+        "minute_mae": {
+          "delta": -0.3339364085230141,
+          "interval95": [
+            -0.5035908534469785,
+            -0.1994105815736374
+          ]
+        },
+        "minute_rmse": {
+          "delta": -0.8299197231815718,
+          "interval95": [
+            -1.0766956470668738,
+            -0.6327911844679223
+          ]
+        },
+        "start_brier": {
+          "delta": -0.0033298542038144724,
+          "interval95": [
+            -0.004585087202969705,
+            -0.0024420754949129957
+          ]
+        },
+        "start_log_loss": {
+          "delta": -0.009908361939497012,
+          "interval95": [
+            -0.013869885507211887,
+            -0.006491846419636511
+          ]
+        },
+        "appearance_brier": {
+          "delta": -0.0076087305615101936,
+          "interval95": [
+            -0.009606904999384084,
+            -0.006166441125802021
+          ]
+        },
+        "appearance_log_loss": {
+          "delta": -0.005943964673389812,
+          "interval95": [
+            -0.016004420306176496,
+            0.0021024020075278652
+          ]
+        },
+        "minute_bias": {
+          "delta": -0.22894883198889,
+          "interval95": [
+            -0.3042847992259615,
+            -0.16431201042180626
+          ]
+        }
+      },
+      "warning": "Row-weighted combination; seasons resampled independently; historical periods reused, not independent validation"
+    }
+  },
+  "club_seasons_evaluated": 40,
+  "development_club_slices": 20,
+  "required_model_rows": 200,
+  "total_club_model_phase_rows": 540,
+  "total_error_cases": 5400
+}
