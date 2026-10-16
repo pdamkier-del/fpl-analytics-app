@@ -1,0 +1,230 @@
+{
+  "B_D vs B": {
+    "season_stratified": true,
+    "block_length": 4,
+    "draws": 1000,
+    "metrics": {
+      "minute_mae": {
+        "delta": 0.03339103049714964,
+        "interval95": [
+          -0.0022785874875834266,
+          0.07674437179534674
+        ]
+      },
+      "minute_rmse": {
+        "delta": 0.0018446389995325774,
+        "interval95": [
+          -0.07428816202741154,
+          0.08523774031646382
+        ]
+      },
+      "start_brier": {
+        "delta": 0.0005077112397336436,
+        "interval95": [
+          9.986989539549285e-05,
+          0.001009945426304015
+        ]
+      },
+      "start_log_loss": {
+        "delta": 0.0012676466879429915,
+        "interval95": [
+          0.00021743414116648515,
+          0.002492757631587597
+        ]
+      },
+      "appearance_brier": {
+        "delta": -0.0013062188016910864,
+        "interval95": [
+          -0.0018761133377582593,
+          -0.0008271239877664065
+        ]
+      },
+      "appearance_log_loss": {
+        "delta": -0.0036094672551894025,
+        "interval95": [
+          -0.005092829892754483,
+          -0.0023028196021925547
+        ]
+      },
+      "minute_bias": {
+        "delta": 0.06525407185719076,
+        "interval95": [
+          0.049738836497019885,
+          0.08310683433047103
+        ]
+      }
+    },
+    "warning": "Row-weighted combination; seasons resampled independently; historical periods reused, not independent validation"
+  },
+  "A_B vs B": {
+    "season_stratified": true,
+    "block_length": 4,
+    "draws": 1000,
+    "metrics": {
+      "minute_mae": {
+        "delta": 0.34874315441684445,
+        "interval95": [
+          0.29072074808370274,
+          0.40256177237457147
+        ]
+      },
+      "minute_rmse": {
+        "delta": 0.007430365207614642,
+        "interval95": [
+          -0.06335689142412856,
+          0.07272159692016737
+        ]
+      },
+      "start_brier": {
+        "delta": 0.0016211763079434505,
+        "interval95": [
+          0.001163123077045877,
+          0.0020422057493945356
+        ]
+      },
+      "start_log_loss": {
+        "delta": 0.004078041255464765,
+        "interval95": [
+          0.0027994261130163045,
+          0.005375650943496526
+        ]
+      },
+      "appearance_brier": {
+        "delta": -0.0019773768389017427,
+        "interval95": [
+          -0.0024482359903958703,
+          -0.0015481910327058337
+        ]
+      },
+      "appearance_log_loss": {
+        "delta": -0.006002309843027964,
+        "interval95": [
+          -0.007182650290870835,
+          -0.004855811700780232
+        ]
+      },
+      "minute_bias": {
+        "delta": -0.0025376328416069627,
+        "interval95": [
+          -0.008959146077671832,
+          0.0032680217105005346
+        ]
+      }
+    },
+    "warning": "Row-weighted combination; seasons resampled independently; historical periods reused, not independent validation"
+  },
+  "B_C vs B": {
+    "season_stratified": true,
+    "block_length": 4,
+    "draws": 1000,
+    "metrics": {
+      "minute_mae": {
+        "delta": 0.28821982584857864,
+        "interval95": [
+          0.24548765537271605,
+          0.3343898425429187
+        ]
+      },
+      "minute_rmse": {
+        "delta": -0.1910695216216176,
+        "interval95": [
+          -0.2598995965628764,
+          -0.12156261443268827
+        ]
+      },
+      "start_brier": {
+        "delta": 0.0,
+        "interval95": [
+          0.0,
+          0.0
+        ]
+      },
+      "start_log_loss": {
+        "delta": 0.0,
+        "interval95": [
+          0.0,
+          0.0
+        ]
+      },
+      "appearance_brier": {
+        "delta": 0.0,
+        "interval95": [
+          0.0,
+          0.0
+        ]
+      },
+      "appearance_log_loss": {
+        "delta": 0.0,
+        "interval95": [
+          0.0,
+          0.0
+        ]
+      },
+      "minute_bias": {
+        "delta": -0.15132906424182513,
+        "interval95": [
+          -0.20247085802128656,
+          -0.10793734885100426
+        ]
+      }
+    },
+    "warning": "Row-weighted combination; seasons resampled independently; historical periods reused, not independent validation"
+  },
+  "A_C vs A": {
+    "season_stratified": true,
+    "block_length": 4,
+    "draws": 1000,
+    "metrics": {
+      "minute_mae": {
+        "delta": 0.33136400054511483,
+        "interval95": [
+          0.2876889110890605,
+          0.3813997781032109
+        ]
+      },
+      "minute_rmse": {
+        "delta": -0.08903541014625205,
+        "interval95": [
+          -0.1661604886906871,
+          -0.007075580662982442
+        ]
+      },
+      "start_brier": {
+        "delta": 0.0,
+        "interval95": [
+          0.0,
+          0.0
+        ]
+      },
+      "start_log_loss": {
+        "delta": 0.0,
+        "interval95": [
+          0.0,
+          0.0
+        ]
+      },
+      "appearance_brier": {
+        "delta": 0.0,
+        "interval95": [
+          0.0,
+          0.0
+        ]
+      },
+      "appearance_log_loss": {
+        "delta": 0.0,
+        "interval95": [
+          0.0,
+          0.0
+        ]
+      },
+      "minute_bias": {
+        "delta": -0.06821070139068114,
+        "interval95": [
+          -0.12021835041463814,
+          -0.021379133687566214
+        ]
+      }
+    },
+    "warning": "Row-weighted combination; seasons resampled independently; historical periods reused, not independent validation"
+  }
+}
