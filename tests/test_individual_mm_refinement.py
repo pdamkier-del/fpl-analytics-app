@@ -92,3 +92,14 @@ def test_history_at_cutoff_is_not_known():
     f,*_=build_features(b,r,c)
     assert f.iloc[1].history_n==0
     assert pd.isna(f.iloc[1].max_history_known_at)
+
+
+def test_physical_workload_follows_identity_across_known_club_moves():
+    from research_individual_mm_refinement import physical_load
+    b,r,c=source_rows();c.loc[0,'team_id']=2
+    c.loc[1,'kickoff_at']=b.loc[1,'cutoff']+pd.Timedelta(hours=2)
+    b.loc[1,'cutoff']=b.loc[0,'cutoff']+pd.Timedelta(days=3)
+    result=physical_load(b,c)
+    assert result.loc[1,'minutes_7d']==90
+    assert result.loc[1,'minutes_14d']==90
+    assert result.loc[1,'rest_days']>0

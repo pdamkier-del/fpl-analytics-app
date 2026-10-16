@@ -135,6 +135,34 @@ def design(f):
     return np.c_[a,missing.astype(float),pos]
 
 
+def physical_load(frame,core):
+    """Known player workload follows verified identity across PL club moves.
+
+    Normal-role/duration histories remain club-specific; foreign/cup games
+    are missing, not invented zero activity.
+    """
+    f=frame.copy();h=core.copy()
+    f['physical_last_known_at']=pd.Series(pd.NaT,index=f.index,dtype='datetime64[ns, UTC]')
+    h['kickoff_at']=pd.to_datetime(h.kickoff_at,utc=True,format='mixed')
+    h['known_at']=h.kickoff_at+pd.to_timedelta(np.where(h.season.eq('2024-25'),4,3),unit='h')
+    histories={(s,p):g.sort_values('known_at')for(s,p),g in h.groupby(['season','player_uuid'])}
+    day=86400*10**9
+    for key,idx in f.groupby(['season','player_uuid']).groups.items():
+        g=histories[key];cut=pd.to_datetime(f.loc[idx,'cutoff'],utc=True).astype('int64').to_numpy()
+        known=g.known_at.astype('int64').to_numpy();kick=g.kickoff_at.astype('int64').to_numpy()
+        hi=np.searchsorted(known,cut,side='left');cum=np.r_[0.,g.minutes.to_numpy(float).cumsum()]
+        clocks=np.full(len(idx),np.iinfo(np.int64).min,dtype=np.int64);present=hi>0;clocks[present]=known[hi[present]-1]
+        f.loc[idx,'physical_last_known_at']=pd.to_datetime(clocks,utc=True)
+        for days in [7,14]:
+            lo=np.minimum(np.searchsorted(kick,cut-days*day,side='right'),hi)
+            f.loc[idx,'minutes_'+str(days)+'d']=cum[hi]-cum[lo]
+        p=g[g.minutes.gt(0)];pknown=p.known_at.astype('int64').to_numpy();pkick=p.kickoff_at.astype('int64').to_numpy()
+        n=np.searchsorted(pknown,cut,side='left');rest=np.full(len(idx),np.nan);ok=n>0
+        rest[ok]=(cut[ok]-pkick[n[ok]-1])/day;f.loc[idx,'rest_days']=rest
+    if not(f.physical_last_known_at.isna()|f.physical_last_known_at.lt(pd.to_datetime(f.cutoff,utc=True))).all():raise ValueError('Workload leakage')
+    return f
+
+
 def duration_distribution(mean,residual_counts,personal_counts,*,cameo=False):
     """Discrete bounded posterior mixture; strength5 reused from existing duration prior."""
     low=1 if cameo else 0
@@ -256,6 +284,7 @@ def main():
         f,hs,hc=build_features(base,role,core)
         with cache.with_suffix('.tmp').open('wb')as output:np.savez_compressed(output,signature=np.asarray(signature),frame=np.frombuffer(encode_frame(f),dtype=np.uint8),hs=hs,hc=hc)
         cache.with_suffix('.tmp').replace(cache)
+    f=physical_load(f,core)
     print('Validated prior-only features',len(f),'cache reused',hit,flush=True)
     raw,log=prequential(f,hs,hc);choice,tuning=select(f,raw)
     arms={'best_existing':compose(f.copy())}
@@ -314,7 +343,7 @@ def main():
     for name,rows in [('overall_metrics',overall),('club_metrics',clubrows),('group_metrics',groups),('calibration',calibration),('paired_intervals',cirows),('top_errors',worst)]:pd.DataFrame(rows).to_csv(OUT/(name+'.csv.gz'if name=='group_metrics'else name+'.csv'),index=False,compression={'method':'gzip','mtime':0}if name=='group_metrics'else None)
     log.to_csv(OUT/'fit_cutoffs.csv',index=False);tuning.to_csv(OUT/'development_selection.csv',index=False)
     # Clean prior-only features separate from the truth/prediction archive.
-    cols=KEY+['team_id','gw','cutoff','kickoff_at','known_at','news_eligible','news_state','news_effective_at','return_active','return_prior_p','return_prior_s','return_prior_games','return_kind','prior_type','prior_three_full_starts','single_short_after_three_full','max_history_known_at']+NUM
+    cols=KEY+['team_id','gw','cutoff','kickoff_at','known_at','news_eligible','news_state','news_effective_at','return_active','return_prior_p','return_prior_s','return_prior_games','return_kind','prior_type','prior_three_full_starts','single_short_after_three_full','max_history_known_at','physical_last_known_at']+NUM
     feature=f[cols].drop(columns=['known_at'])
     feature.to_csv(OUT/'prior_only_features.csv.gz',index=False,compression={'method':'gzip','mtime':0})
     distribution=[]
