@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Read-only renderer and paired uncertainty postprocessing; no model tuning."""
 from pathlib import Path
-import json
+import json,hashlib
 import numpy as np
 import pandas as pd
 
@@ -35,6 +35,16 @@ def main():
     contrasts={k:dict(mean=float(paired[k].mean()),interval95=block_ci(paired,k)) for k in ['delta_crps','delta_logloss']}
     paired['coverage_delta']=paired.shortest80_inside.astype(int)-paired.central80_inside.astype(int)
     contrasts['shortest_minus_central_coverage80']=dict(mean=float(paired.coverage_delta.mean()),interval95=block_ci(paired,'coverage_delta'))
+    xp=x.pivot(index=['season','gw','fixture_uuid','team_id'],columns='mode',values='correct').reset_index()
+    for label,values in [('correct',xp.combined-xp.B),('exact11',xp.combined.eq(11).astype(int)-xp.B.eq(11).astype(int)),('atleast10',xp.combined.ge(10).astype(int)-xp.B.ge(10).astype(int))]:
+        xp['difference']=values
+        contrasts['xi_combined_minus_B_'+label]=dict(mean=float(values.mean()),interval95=block_ci(xp,'difference'))
+    assignments=pd.read_csv(OUT/'xi_assignments.csv.gz')
+    ledger=pd.read_csv(ROOT/'analysis/results/reproducible-role-v1/classified_starters.csv',usecols=['fixture_uuid','team_id','player_uuid','final_role'])
+    assigned=assignments.merge(ledger,on=['fixture_uuid','team_id','player_uuid'],how='left',validate='many_to_one')
+    assigned['actual_starter']=assigned.final_role.notna();assigned['correct_role']=assigned.slot.eq(assigned.final_role)
+    role_scores=assigned.groupby('slot').agg(predicted=('player_uuid','size'),starter_hits=('actual_starter','sum'),exact_role_hits=('correct_role','sum'),starter_accuracy=('actual_starter','mean'),exact_role_accuracy=('correct_role','mean')).reset_index()
+    role_scores.to_csv(OUT/'position_role_errors.csv',index=False)
     (OUT/'probabilistic_paired_intervals.json').write_text(json.dumps(contrasts,indent=2)+'\n')
     pooled=m.query("season=='ALL' and club=='ALL' and group=='ALL'")
     groups=m.query("season=='ALL' and club=='ALL' and mode=='combined' and group!='ALL'")
@@ -105,7 +115,9 @@ B vs best still improves31/40 point estimates and worsens9. Unadjusted club harm
 
 All compared XI observations are the same **660 2025/26 team-fixtures**. Original/best/B comparators are explicitly unconstrained raw top11 as in PR11, not claimed legal 1GK references. Combined hard-constrained assignments are stored in `xi_assignments.csv.gz`. Exact11 and >=10 match the previous15.303%/43.939% references; average correct9.148485 vs B9.119697. Equivalent detailed2024/25 classified role evidence is **Not Available**, so these XI rates are not reported for both seasons or all39,264 rows.
 
-Formation agreement against the sufficient same-source post-match classified ledger: **{100*formation_accuracy:.3f}%**. This is source-relative formation agreement, not independently verified in-match tactical ground truth. Slot correctness is retained perfixture in `xi_comparison.csv`; the full11/10/9/… histogram is in `xi_hit_distribution.csv`. Truth labels never enter the pre-cutoff selector.
+Formation agreement against the sufficient same-source post-match classified ledger: **{100*formation_accuracy:.3f}%**. This is source-relative formation agreement, not independently verified in-match tactical ground truth. Slot correctness is retained perfixture in `xi_comparison.csv`; the full11/10/9/… histogram is in `xi_hit_distribution.csv`. Truth labels never enter the pre-cutoff selector. Paired4-GW XI intervals are in the contrasts below; these small XI point gains are not automatically robust improvements.
+
+{table(role_scores)}
 
 ## E. Probabilistic validation — gate not passed
 
@@ -154,5 +166,8 @@ PYTHONPATH=src:scripts python -m pytest -q tests/test_mm_candidate.py tests/test
 All actual model inputs and output hashes are in `manifest.json`. Gzip container content, decoded arrays and numerical differences must be distinguished. The completion checkpoint records clean-CI reproduction rather than assuming it.
 '''
     dest=ROOT/'docs/research/2026-10-17-mm-integrated-preview.md';dest.parent.mkdir(parents=True,exist_ok=True);dest.write_text(text)
+    manifest=json.loads((OUT/'manifest.json').read_text())
+    manifest['outputs']={p.name:hashlib.sha256(p.read_bytes()).hexdigest() for p in sorted(OUT.iterdir()) if p.is_file() and p.name!='manifest.json'}
+    (OUT/'manifest.json').write_text(json.dumps(manifest,sort_keys=True,indent=2)+'\n')
     print('Report',dest)
 if __name__=='__main__':main()

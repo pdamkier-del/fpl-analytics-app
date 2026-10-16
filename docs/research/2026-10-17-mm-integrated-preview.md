@@ -124,7 +124,30 @@ B vs best still improves31/40 point estimates and worsens9. Unadjusted club harm
 
 All compared XI observations are the same **660 2025/26 team-fixtures**. Original/best/B comparators are explicitly unconstrained raw top11 as in PR11, not claimed legal 1GK references. Combined hard-constrained assignments are stored in `xi_assignments.csv.gz`. Exact11 and >=10 match the previous15.303%/43.939% references; average correct9.148485 vs B9.119697. Equivalent detailed2024/25 classified role evidence is **Not Available**, so these XI rates are not reported for both seasons or all39,264 rows.
 
-Formation agreement against the sufficient same-source post-match classified ledger: **68.485%**. This is source-relative formation agreement, not independently verified in-match tactical ground truth. Slot correctness is retained perfixture in `xi_comparison.csv`; the full11/10/9/… histogram is in `xi_hit_distribution.csv`. Truth labels never enter the pre-cutoff selector.
+Formation agreement against the sufficient same-source post-match classified ledger: **68.485%**. This is source-relative formation agreement, not independently verified in-match tactical ground truth. Slot correctness is retained perfixture in `xi_comparison.csv`; the full11/10/9/… histogram is in `xi_hit_distribution.csv`. Truth labels never enter the pre-cutoff selector. Paired4-GW XI intervals are in the contrasts below; these small XI point gains are not automatically robust improvements.
+
+| slot   |   predicted |   starter_hits |   exact_role_hits |   starter_accuracy |   exact_role_accuracy |
+|:-------|------------:|---------------:|------------------:|-------------------:|----------------------:|
+| CAM    |         423 |            348 |               219 |           0.822695 |              0.517730 |
+| CB     |         127 |            107 |                78 |           0.842520 |              0.614173 |
+| CM     |         127 |            112 |                58 |           0.881890 |              0.456693 |
+| DM     |          21 |             15 |                 8 |           0.714286 |              0.380952 |
+| GK     |         660 |            620 |               620 |           0.939394 |              0.939394 |
+| LAM    |         493 |            377 |               237 |           0.764706 |              0.480730 |
+| LB     |         533 |            437 |               370 |           0.819887 |              0.694184 |
+| LCB    |         660 |            575 |               515 |           0.871212 |              0.780303 |
+| LCM    |         254 |            211 |               120 |           0.830709 |              0.472441 |
+| LDM    |         398 |            338 |               194 |           0.849246 |              0.487437 |
+| LW     |         134 |            101 |                51 |           0.753731 |              0.380597 |
+| LWB    |         127 |            108 |                86 |           0.850394 |              0.677165 |
+| RAM    |         493 |            383 |               254 |           0.776876 |              0.515213 |
+| RB     |         533 |            453 |               366 |           0.849906 |              0.686679 |
+| RCB    |         660 |            565 |               486 |           0.856061 |              0.736364 |
+| RCM    |         254 |            206 |               112 |           0.811024 |              0.440945 |
+| RDM    |         398 |            329 |               193 |           0.826633 |              0.484925 |
+| RW     |         134 |            103 |                51 |           0.768657 |              0.380597 |
+| RWB    |         127 |            102 |                74 |           0.803150 |              0.582677 |
+| ST     |         704 |            551 |               506 |           0.782670 |              0.718750 |
 
 ## E. Probabilistic validation — gate not passed
 
@@ -162,6 +185,27 @@ The numerical exact-mean repair has CRPS delta **0.000005910** and minute-loglos
     "interval95": [
       -0.03191629015603103,
       -0.025833488484336073
+    ]
+  },
+  "xi_combined_minus_B_correct": {
+    "mean": 0.02878787878787879,
+    "interval95": [
+      -0.004664491298527441,
+      0.06212121212121212
+    ]
+  },
+  "xi_combined_minus_B_exact11": {
+    "mean": 0.015151515151515152,
+    "interval95": [
+      0.0030303030303030303,
+      0.030677206229353465
+    ]
+  },
+  "xi_combined_minus_B_atleast10": {
+    "mean": 0.016666666666666666,
+    "interval95": [
+      0.0030303030303030303,
+      0.03048780487804878
     ]
   }
 }
