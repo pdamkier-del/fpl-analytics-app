@@ -1,0 +1,61 @@
+name: MM club priority research, no full MM simulation
+on:
+  push:
+    branches: [research-role-injury-club-audit-20261016]
+    paths:
+      - scripts/experimental_club_match_importance.py
+      - tests/test_club_match_importance.py
+      - .github/workflows/mm-club-importance.yml
+  workflow_dispatch:
+permissions:
+  contents: write
+env:
+  PYTHONPATH: src:scripts:.
+  OPENBLAS_NUM_THREADS: '1'
+jobs:
+  club-importance:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: pip install -r requirements-model-checkpoint.txt -r requirements-model-tests.txt requests
+      - name: Research and existing MM source regressions only
+        run: python -m pytest tests/test_club_match_importance.py tests/test_mm_competition_rotation.py tests/test_mm_all_clubs.py tests/test_mm_probability_robustness.py tests/test_mm_role_injury_integration.py tests/test_research_role_injury_club_audit.py tests/test_team_news_history.py tests/test_team_news_audit.py -q
+      - name: Restore immutable sources, no MM run
+        run: |
+          python scripts/restore_core_checkpoint.py
+          python scripts/restore_2024_25_data_checkpoint.py
+          python scripts/archive_role_injury_mm.py --restore work/priority-mm-source
+          cp work/priority-mm-source/results/predictions.npz analysis/results/role-injury-mm-20261016/
+          sha256sum analysis/results/role-injury-mm-20261016/predictions.npz > work/priority-baseline.sha256
+      - name: Execute priority models and chronological validation, not MM simulation
+        run: python scripts/experimental_club_match_importance.py
+      - name: Check no production or frozen prediction changes
+        run: |
+          sha256sum --check work/priority-baseline.sha256
+          git diff --exit-code 4f34321bb45b1aedf073aa0de6d29d9c7a35416f HEAD -- src
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: mm-club-importance-research
+          path: analysis/results/mm-club-importance-20261016/
+      - name: Preserve allowlisted public research results
+        run: |
+          git config user.name 'FPL MM research evidence'
+          git config user.email 'research-evidence@users.noreply.github.com'
+          git fetch origin research-role-injury-club-audit-20261016
+          if ! git diff --quiet "$GITHUB_SHA" origin/research-role-injury-club-audit-20261016 -- scripts/experimental_club_match_importance.py; then exit 0; fi
+          git worktree add -b priority-evidence /tmp/priority-evidence origin/research-role-injury-club-audit-20261016
+          mkdir -p /tmp/priority-evidence/analysis/results/mm-club-importance-20261016
+          for name in match_samples.csv individual_role_features.csv.gz validation_metrics.csv validation_predictions.csv.gz calibration.csv pre_match_features.csv.gz hyperparameter_selection.csv observed_club_priorities.csv club_priorities.csv monthly_priorities.csv source_manifest.json content_manifest.json; do
+            cp "analysis/results/mm-club-importance-20261016/$name" "/tmp/priority-evidence/analysis/results/mm-club-importance-20261016/$name"
+          done
+          git -C /tmp/priority-evidence add analysis/results/mm-club-importance-20261016
+          if git -C /tmp/priority-evidence diff --cached --quiet; then exit 0; fi
+          git -C /tmp/priority-evidence commit -m 'Preserve learned club-priority validation and gated pre-match features'
+          git -C /tmp/priority-evidence push origin HEAD:research-role-injury-club-audit-20261016
