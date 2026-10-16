@@ -1,0 +1,70 @@
+name: MM-only role injury walk-forward and club validation
+on:
+  push:
+    branches: [research-role-injury-club-audit-20261016]
+    paths:
+      - scripts/experimental_role_injury_mm.py
+      - scripts/validate_role_injury_mm.py
+      - scripts/verify_mm_archive_push_times.py
+      - scripts/archive_role_injury_mm.py
+      - tests/test_mm_role_injury_integration.py
+      - .github/workflows/mm-role-injury-validation.yml
+  workflow_dispatch:
+permissions:
+  contents: write
+  actions: read
+env:
+  PYTHONPATH: src:scripts:.
+  OPENBLAS_NUM_THREADS: '1'
+  OMP_NUM_THREADS: '1'
+jobs:
+  mm-only:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: pip install -r requirements-model-checkpoint.txt -r requirements-model-tests.txt requests
+      - name: MM, role, source and temporal regressions only
+        run: python -m pytest tests/test_mm_role_injury_integration.py tests/test_research_role_injury_club_audit.py tests/test_team_news_history.py tests/test_team_news_audit.py -q
+      - run: |
+          git fetch origin 6d875a65251fb62f691dc0386ea81aeb29d27c0f
+          python scripts/restore_role_mm_source.py
+          python scripts/restore_core_checkpoint.py
+          python scripts/restore_team_news_audit.py
+      - uses: actions/download-artifact@v4
+        with:
+          github-token: ${{ github.token }}
+          run-id: '38921917263'
+          name: verified-mm-news-2024
+          path: work/news-2024
+      - name: Recover independent historical push clocks
+        run: python scripts/verify_mm_archive_push_times.py
+      - name: Historical MM only, fixed cohorts and no parameter tuning
+        run: python scripts/validate_role_injury_mm.py
+      - name: Verify locked production sources unchanged
+        run: |
+          git diff --exit-code 4f34321bb45b1aedf073aa0de6d29d9c7a35416f HEAD -- src/fpl_v1_1_model
+          python scripts/archive_role_injury_mm.py
+          python scripts/archive_role_injury_mm.py --restore work/verified-mm-capsule
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: role-injury-mm-complete
+          path: |
+            analysis/results/role-injury-mm-20261016/
+            checkpoints/role_injury_mm_20261016/
+      - name: Preserve public MM evidence on research branch
+        run: |
+          git config user.name 'FPL research evidence'
+          git config user.email 'research-evidence@users.noreply.github.com'
+          git checkout -b mm-evidence-publication
+          git add analysis/results/role-injury-mm-20261016/report.json analysis/results/role-injury-mm-20261016/summary.json analysis/results/role-injury-mm-20261016/coverage.csv analysis/results/role-injury-mm-20261016/source_manifest.json checkpoints/role_injury_mm_20261016/
+          git commit -m 'Preserve verified MM-only role injury data, club results and source clocks'
+          git fetch origin research-role-injury-club-audit-20261016
+          git rebase origin/research-role-injury-club-audit-20261016
+          git push origin HEAD:research-role-injury-club-audit-20261016

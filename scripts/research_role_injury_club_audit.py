@@ -44,10 +44,16 @@ class Evidence:
             raise ValueError("Missing identity, club or source")
         if self.state not in STATES:
             raise ValueError("Unrecognized status")
-        for key in ("effective_at", "published_at", "captured_at"):
+        for key in ("effective_at", "captured_at"):
             instant(getattr(self, key))
-        if instant(self.published_at) > instant(self.captured_at):
+        # Publication may be genuinely unknown while an immutable snapshot's
+        # historical existence is independently verified. Never invent it.
+        if self.published_at:
+            instant(self.published_at)
+        if self.published_at and instant(self.published_at) > instant(self.captured_at):
             raise ValueError("Capture precedes publication")
+        for value in (self.return_earliest,self.return_latest):
+            if value:instant(value)
         if self.return_earliest and self.return_latest:
             if instant(self.return_earliest) > instant(self.return_latest):
                 raise ValueError("Reversed return window")
@@ -55,12 +61,13 @@ class Evidence:
             raise ValueError("Invalid provenance")
         return self
 
-def asof_status(records, cutoff, player_uuid):
+def asof_status(records, cutoff, player_uuid, club_id=None):
     """Last time-visible observation; unresolved same-clock conflicts → UNKNOWN."""
     cut = instant(cutoff)
     visible = [r.validate() for r in records
                if r.player_uuid == player_uuid
-               and max(instant(r.published_at), instant(r.captured_at)) < cut
+               and (club_id is None or r.club_id==club_id)
+               and max(instant(r.published_at)if r.published_at else instant(r.captured_at), instant(r.captured_at)) < cut
                and instant(r.effective_at) <= cut]
     if not visible:
         return {"state": "UNKNOWN", "evidence": 0, "source": None}
