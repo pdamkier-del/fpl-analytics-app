@@ -21,3 +21,7 @@ Completed read-only audit in `scripts/validate_mm_probability_robustness.py`; re
 4-GW block MAE delta, source chance versus primary: -0.1118 [-0.1367,-0.0872] / -0.1752 [-0.4256,-0.0358]. The 2025 gain is weaker late in the season. 35 exact-zero appearance forecasts conflict with actual play; three suspension cases reveal GW-wide gating into the second DGW fixture (Jones GW25, Nketiah/Guéhi GW32). Raw suspension day/month matches that later match, but no complete verified expiry timestamp has been invented or injected. Fixture-scoped authoritative suspension data remain a priority.
 
 Initial follow-up CI missed the requests dependency (fixed); compressed gzip bytes differed between environments, so exact reproduction compares decompressed JSON bytes and CSV bytes while retaining frozen-input/production hash checks. Final dedicated workflow run 38927430361 passed all 38 tests, exact JSON/CSV reproduction, frozen prediction SHA and unchanged production checks. Production is unchanged.
+
+## Superseding all-club evaluation
+
+The full requested club audit is complete: read [2026-10-16-mm-all-clubs-complete.md](2026-10-16-mm-all-clubs-complete.md). It includes all40evaluation club-seasons, 9MM arms, 540 club/model/phase records, 5,400 per-model largest-error rows, return matches1–3, temporal intervals and isolated duration ablations. Do not restart the earlier source/framework work.
