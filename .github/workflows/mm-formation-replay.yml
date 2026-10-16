@@ -1,0 +1,45 @@
+name: MM role and formation historical replay
+on:
+  push:
+    branches: [research-mm-formation-replay-20261017]
+    paths:
+      - scripts/research_mm_formation_replay.py
+      - .github/workflows/mm-formation-replay.yml
+  workflow_dispatch:
+permissions:
+  contents: write
+env:
+  PYTHONPATH: src:scripts:.
+  OPENBLAS_NUM_THREADS: '1'
+jobs:
+  replay:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: pip install -r requirements-model-checkpoint.txt -r requirements-model-tests.txt requests
+      - name: Verify frozen B and historical role capsules
+        run: |
+          test -f analysis/results/individual-mm-refinement-20261016/predictions.npz
+          test -f analysis/results/reproducible-role-v1/classified_starters.csv
+          sha256sum analysis/results/individual-mm-refinement-20261016/predictions.npz analysis/results/reproducible-role-v1/classified_starters.csv > /tmp/inputs.sha
+      - name: Run matched 2025-26 formation and MM-error replay
+        run: python scripts/research_mm_formation_replay.py
+      - name: Check historical inputs unchanged
+        run: sha256sum --check /tmp/inputs.sha
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: mm-formation-role-replay
+          path: analysis/results/mm-formation-replay-20261017/
+      - name: Preserve computed audit outputs
+        run: |
+          git config user.name 'FPL MM research evidence'
+          git config user.email 'research-evidence@users.noreply.github.com'
+          git add analysis/results/mm-formation-replay-20261017/
+          if git diff --cached --quiet; then exit 0; fi
+          git commit -m 'Preserve historical position and formation MM replay'
+          git push origin HEAD:research-mm-formation-replay-20261017
