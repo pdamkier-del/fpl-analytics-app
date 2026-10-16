@@ -4,7 +4,7 @@
 
 ## Hvad kontrollen ændrer i vores vurdering
 
-Den GW-specifikke FPL-chance som fremmødeloft forbedrer fortsat minut-MAE, selv når usikkerheden beregnes på hele gameweeks i sammenhængende blokke. Men 2025/26-gevinsten er ujævnt fordelt over sæsonen, og FPL-statusser har dokumenterede modstridende kampudfald. Dermed er der stadig ikke grundlag for en produktionsgodkendelse eller en påstand om perfekt tilgængelighed.
+Den GW-specifikke FPL-chance som fremmødeloft forbedrer fortsat minut-MAE, selv når usikkerheden beregnes på hele gameweeks i sammenhængende blokke. Samlet spille-Brier forbedres, men den negative spillechance-bias bliver større; lavere gennemsnitsfejl betyder altså ikke perfekt kalibrering. Men 2025/26-gevinsten er ujævnt fordelt over sæsonen, og FPL-statusser har dokumenterede modstridende kampudfald. Dermed er der stadig ikke grundlag for en produktionsgodkendelse eller en påstand om perfekt tilgængelighed.
 
 Den lille ekstra gevinst fra bevarede startminutter er robust i 2025/26, men ikke dokumenteret i 2024/25. Det er en fordel ved betinget startvarighed, ikke et bevis for, at en raskmeldt spiller automatisk skal have sin gamle startchance.
 
@@ -144,3 +144,5 @@ PYTHONPATH=src:scripts OPENBLAS_NUM_THREADS=1 python scripts/validate_mm_probabi
 ```
 
 Alle tal/reliability-bins og bloklængder findes i `analysis/results/mm-probability-robustness-20261016/report.json.gz` (JSON efter gzip-udpakning), `reliability.csv` og `endpoint_conflicts.csv`. Ingen nye forecasts eller private managerdata er publiceret.
+
+[GitHub Actions-kørsel 38927430361](https://github.com/pdamkier-del/fpl-analytics-app/actions/runs/38927430361) er bestået: 38 tests, genskabelse fra permanent kapsel, præcis JSON-/CSV-indholdsreproduktion, uændrede prediction-bytes og uændret produktionskode. Se `reproduction.json` for hashes. Den første kørsel manglede HTTP-testafhængigheden requests; det blev rettet. Den næste sammenlignede gzip-repræsentationer på tværs af codec-versioner. Den endelige kontrol sammenligner udpakket JSON byte for byte uden afrunding eller tolerancer; kompressionen er ikke en del af modelresultatet.

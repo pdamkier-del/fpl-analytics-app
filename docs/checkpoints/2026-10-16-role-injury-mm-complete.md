@@ -13,3 +13,11 @@ Read [the results](../research/2026-10-16-role-injury-mm-results.md) before cont
 Restore using `scripts/archive_role_injury_mm.py --restore DESTINATION`; archive and member hashes are checked. Sources, MM reference, detailed predictions and profiles are in `checkpoints/role_injury_mm_20261016/`. Readable per-club results, coverage and reproduction manifest are in `analysis/results/role-injury-mm-20261016/`. Frozen MM reference is PR #4 commit `6d875a65251fb62f691dc0386ea81aeb29d27c0f`. Workflows use permanent source evidence rather than expiring artifacts.
 
 Next gate: new prospective/unused MM evaluation; independently calibrated FPL availability interpretation; verified medical/training returns and historical outcome-publication clocks. Do not run PM/TS for this MM-only task. Do not replace baseline or claim full live certification.
+
+## Follow-up probability and temporal robustness
+
+Completed read-only audit in `scripts/validate_mm_probability_robustness.py`; report `docs/research/2026-10-16-mm-probability-robustness.md`; full gzip JSON + reliability/endpoint CSVs in `analysis/results/mm-probability-robustness-20261016/`. 38 focused tests pass locally. Seven existing arms audited; no new model fitting, simulations or prediction edits.
+
+4-GW block MAE delta, source chance versus primary: -0.1118 [-0.1367,-0.0872] / -0.1752 [-0.4256,-0.0358]. The 2025 gain is weaker late in the season. 35 exact-zero appearance forecasts conflict with actual play; three suspension cases reveal GW-wide gating into the second DGW fixture (Jones GW25, Nketiah/Guéhi GW32). Raw suspension day/month matches that later match, but no complete verified expiry timestamp has been invented or injected. Fixture-scoped authoritative suspension data remain a priority.
+
+Initial follow-up CI missed the requests dependency (fixed); compressed gzip bytes differed between environments, so exact reproduction compares decompressed JSON bytes and CSV bytes while retaining frozen-input/production hash checks. Final dedicated workflow run 38927430361 passed all 38 tests, exact JSON/CSV reproduction, frozen prediction SHA and unchanged production checks. Production is unchanged.
