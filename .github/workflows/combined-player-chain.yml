@@ -1,0 +1,50 @@
+name: Combined player MM to PM v2 research
+on:
+  push:
+    branches: [combined-player-mm-pm-20261016]
+    paths:
+      - 'scripts/run_combined_player_chain.py'
+      - '.github/workflows/combined-player-chain.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+  actions: read
+jobs:
+  combined-player-replay:
+    runs-on: ubuntu-latest
+    timeout-minutes: 360
+    env:
+      GH_TOKEN: ${{ github.token }}
+      PYTHONUNBUFFERED: '1'
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install model runtime
+        run: python -m pip install numpy pandas scipy scikit-learn
+      - name: Restore verified historical Core
+        run: python scripts/restore_core_checkpoint.py
+      - name: Retrieve frozen MM and PM research inputs
+        run: |
+          mkdir -p work/dynamic-source
+          gh run download 38729720330 --repo "${{ github.repository }}" --dir work/dynamic-source \
+            --pattern 'player-pm-v2-202*-*-*'
+          python - <<'PY'
+          from pathlib import Path
+          root=Path('work/dynamic-source')
+          inputs=list(root.rglob('*_inputs.jsonl.gz'))
+          print('Frozen inputs:',len(inputs))
+          if len(inputs)!=16: raise SystemExit('Expected exactly 16 source shards')
+          PY
+      - name: Run integrated historical MM and PM v2 comparison
+        run: python scripts/run_combined_player_chain.py --run
+      - name: Preserve reports
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: combined-player-chain-reports
+          path: |
+            analysis/results/dynamic-pm-v2-20261015/*.json
+            analysis/results/dynamic-pm-v2-20261015/*_completion.json
+          if-no-files-found: warn
