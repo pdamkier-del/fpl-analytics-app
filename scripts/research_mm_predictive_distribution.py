@@ -19,21 +19,21 @@ CANDIDATES=[6.,10.,15.,22.,30.]
 GRID=np.arange(1.,91.)
 KEY=['season','fixture_uuid','player_uuid']
 
-def conditional(mu,sigma):
+def conditional(mu,sigma,minimum=1):
     """Discrete bounded support 1..90 with exactly the supplied conditional mean.
 
     For starter minutes recorded as 0, duration support uses 1..90, so the
     p(start)*s identity remains within <1 minute only for s<1 (quarantined).
     """
-    v=np.clip(np.asarray(mu,float),1.,90.)
-    z=-.5*((GRID[None,:]-v[:,None])/float(sigma))**2
+    grid=np.arange(float(minimum),91.)\n    v=np.clip(np.asarray(mu,float),float(minimum),90.)
+    z=-.5*((grid[None,:]-v[:,None])/float(sigma))**2
     lo=np.full(len(v),-8.)
     hi=np.full(len(v),8.)
     for _ in range(33):
         shift=(lo+hi)/2
         logits=z+shift[:,None]*GRID[None,:]
         probs=np.exp(logits-logsumexp(logits,axis=1,keepdims=True))
-        means=(probs*GRID[None,:]).sum(axis=1)
+        means=(probs*grid[None,:]).sum(axis=1)
         low=means<v
         lo[low]=shift[low];hi[~low]=shift[~low]
     mid=(lo+hi)/2
@@ -44,9 +44,9 @@ def conditional(mu,sigma):
 def pred_masses(batch,starter_sigma,cameo_sigma):
     p=np.clip(batch.p.to_numpy(float),0,1)
     q=np.clip(batch.q.to_numpy(float),0,1)
-    st=conditional(batch.s.to_numpy(float),starter_sigma)
-    ca=conditional(batch.c.to_numpy(float),cameo_sigma)
-    masses=p[:,None]*st+((1-p)*q)[:,None]*ca
+    st=conditional(batch.s.to_numpy(float),starter_sigma,minimum=0)
+    ca=conditional(batch.c.to_numpy(float),cameo_sigma,minimum=1)
+    masses=p[:,None]*st\n    masses[:,1:]+=((1-p)*q)[:,None]*ca
     result=np.column_stack(((1-p)*(1-q),masses))
     if not np.allclose(result.sum(axis=1),1,atol=1e-7):raise ValueError('Not normalized')
     return result
@@ -125,7 +125,7 @@ def main():
     top=output[output['mode']=='role_dependent'].copy()
     top['ae']=(top.x-top.minutes).abs()
     top.sort_values('ae',ascending=False).head(200).to_csv(OUT/'top200_uncertain_cases.csv',index=False)
-    doc=dict(scope='MM-only distribution model, original B p/q/s/c preserved',evaluation_rows=39264,train_scope='2024/25 GW14-21 only, role dispersion selected solely here',evaluated_seasons='2024/25 GW22-38; 2025/26 GW6-38',selected_sigma={r:{k:chosen[(r,k)]for k in ['starter','cameo']} for r in ROLES},limitations=['Outcome publication chronology uses inherited proxies','Historical research periods reused: not independent holdout','0 minute starter duration has special support caveat','Conditional distribution shape is a candidate, not certified predictive coverage','Exact minute logloss uses rounded actual minutes; retained 0 minute events'],production_unchanged=True,point_models_untouched=True)
+    doc=dict(scope='MM-only distribution model, original B p/q/s/c preserved',evaluation_rows=39264,train_scope='2024/25 GW14-21 only, role dispersion selected solely here',evaluated_seasons='2024/25 GW22-38; 2025/26 GW6-38',selected_sigma={r:{k:chosen[(r,k)]for k in ['starter','cameo']} for r in ROLES},limitations=['Outcome publication chronology uses inherited proxies','Historical research periods reused: not independent holdout','Starting duration permits 0 and cameo duration is positive','Conditional distribution shape is a candidate, not certified predictive coverage','Exact minute logloss uses rounded actual minutes; retained 0 minute events'],production_unchanged=True,point_models_untouched=True)
     (OUT/'summary.json').write_text(json.dumps(doc,indent=2)+'\n')
     print((OUT/'summary.json').read_text())
     print(summary.to_string(index=False))
