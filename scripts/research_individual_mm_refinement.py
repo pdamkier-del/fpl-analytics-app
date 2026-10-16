@@ -56,7 +56,8 @@ def build_features(base,role,core):
     core['known_at']=core.kickoff_at+pd.to_timedelta(np.where(core.season.eq('2024-25'),4,3),unit='h')
     keys=base[KEY+['news_eligible','news_state']].copy()
     verified=core.merge(keys,on=KEY,how='left',validate='one_to_one')
-    verified['role_available']=verified.news_eligible.eq(True)&verified.news_state.isin(['AVAILABLE','RETURNED_AVAILABLE'])
+    conflict=verified.news_eligible.eq(True)&verified.news_state.isin(['OUT','SUSPENDED'])&(verified.started.eq(1)|verified.minutes.gt(0))
+    verified['role_available']=((verified.news_eligible.eq(True)&verified.news_state.isin(['AVAILABLE','RETURNED_AVAILABLE']))|verified.started.eq(1)|verified.minutes.gt(0))&~conflict
     histories={(s,p,int(t)):g.sort_values(['known_at','fixture_uuid'])for(s,p,t),g in verified.groupby(['season','player_uuid','team_id'])}
     role_history=base.copy();role_history['cutoff']=pd.to_datetime(role_history.cutoff,utc=True,format='mixed')
     role_history=role_history[role_history.news_eligible&role_history.news_state.isin(['AVAILABLE','RETURNED_AVAILABLE'])]
@@ -169,7 +170,8 @@ def prequential(f,hs,hc):
             new.loc[fixed,'p']=0.
             out['B:'+str(alpha)][ix]=project(new).p.to_numpy()
         for alpha in [1.,10.,100.]:
-            for mode,target,hist,condition,minimum in [('s','s',hs,f.y.eq(1),100),('c','c',hc,f.y.eq(0)&f.minutes.gt(0),50)]:
+            reliable=~(f.news_eligible&f.news_state.isin(['OUT','SUSPENDED']))
+            for mode,target,hist,condition,minimum in [('s','s',hs,f.y.eq(1)&reliable,100),('c','c',hc,f.y.eq(0)&f.minutes.gt(0)&reliable,50)]:
                 ids=train[condition.iloc[train].to_numpy()]
                 if len(ids)<minimum:continue
                 model=make_pipeline(StandardScaler(),Ridge(alpha=alpha,solver='lsqr',tol=1e-12))

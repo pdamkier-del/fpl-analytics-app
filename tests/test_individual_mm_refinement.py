@@ -34,6 +34,19 @@ def test_unverified_absence_never_updates_normal_role():
     assert hs[1].sum()==hc[1].sum()==0
 
 
+def test_known_past_participation_is_role_evidence_without_inventing_health():
+    b,r,c=source_rows(('UNKNOWN','AVAILABLE'),(90,90));f,hs,hc=build_features(b,r,c)
+    assert f.iloc[1].history_n>0
+    assert f.iloc[1].stable_p>.8
+    assert hs[1,90]>0
+
+
+def test_hard_source_outcome_conflict_is_not_normal_role_training_evidence():
+    b,r,c=source_rows(('OUT','AVAILABLE'),(90,90));f,hs,hc=build_features(b,r,c)
+    assert f.iloc[1].history_n==0
+    assert hs[1].sum()==0
+
+
 def test_return_requires_explicit_available_not_actual_appearance():
     b,r,c=source_rows(('AVAILABLE','OUT','UNKNOWN'),(90,0,90));f,*_=build_features(b,r,c)
     assert not f.iloc[-1].return_active
