@@ -21,7 +21,8 @@ KEY=['season','fixture_uuid','player_uuid']
 
 def conditional(mu,sigma,minimum=1):
     """Mean-matched conditional minutes on 0..90 for starts, 1..90 for cameos."""
-    grid=np.arange(float(minimum),91.)\n    v=np.clip(np.asarray(mu,float),float(minimum),90.)
+    grid=np.arange(float(minimum),91.)
+    v=np.clip(np.asarray(mu,float),float(minimum),90.)
     z=-.5*((grid[None,:]-v[:,None])/float(sigma))**2
     lo=np.full(len(v),-8.)
     hi=np.full(len(v),8.)
@@ -42,7 +43,8 @@ def pred_masses(batch,starter_sigma,cameo_sigma):
     q=np.clip(batch.q.to_numpy(float),0,1)
     st=conditional(batch.s.to_numpy(float),starter_sigma,minimum=0)
     ca=conditional(batch.c.to_numpy(float),cameo_sigma,minimum=1)
-    masses=p[:,None]*st\n    masses[:,1:]+=((1-p)*q)[:,None]*ca
+    masses=p[:,None]*st
+    masses[:,1:]+=((1-p)*q)[:,None]*ca
     masses[:,0]+=(1-p)*(1-q)
     if not np.allclose(masses.sum(axis=1),1,atol=1e-7):raise ValueError('Not normalized')
     return masses
