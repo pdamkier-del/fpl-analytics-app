@@ -20,24 +20,20 @@ GRID=np.arange(1.,91.)
 KEY=['season','fixture_uuid','player_uuid']
 
 def conditional(mu,sigma,minimum=1):
-    """Discrete bounded support 1..90 with exactly the supplied conditional mean.
-
-    For starter minutes recorded as 0, duration support uses 1..90, so the
-    p(start)*s identity remains within <1 minute only for s<1 (quarantined).
-    """
+    """Mean-matched conditional minutes on 0..90 for starts, 1..90 for cameos."""
     grid=np.arange(float(minimum),91.)\n    v=np.clip(np.asarray(mu,float),float(minimum),90.)
     z=-.5*((grid[None,:]-v[:,None])/float(sigma))**2
     lo=np.full(len(v),-8.)
     hi=np.full(len(v),8.)
     for _ in range(33):
         shift=(lo+hi)/2
-        logits=z+shift[:,None]*GRID[None,:]
+        logits=z+shift[:,None]*grid[None,:]
         probs=np.exp(logits-logsumexp(logits,axis=1,keepdims=True))
         means=(probs*grid[None,:]).sum(axis=1)
         low=means<v
         lo[low]=shift[low];hi[~low]=shift[~low]
     mid=(lo+hi)/2
-    logits=z+mid[:,None]*GRID[None,:]
+    logits=z+mid[:,None]*grid[None,:]
     probs=np.exp(logits-logsumexp(logits,axis=1,keepdims=True))
     return probs
 
@@ -47,9 +43,9 @@ def pred_masses(batch,starter_sigma,cameo_sigma):
     st=conditional(batch.s.to_numpy(float),starter_sigma,minimum=0)
     ca=conditional(batch.c.to_numpy(float),cameo_sigma,minimum=1)
     masses=p[:,None]*st\n    masses[:,1:]+=((1-p)*q)[:,None]*ca
-    result=np.column_stack(((1-p)*(1-q),masses))
-    if not np.allclose(result.sum(axis=1),1,atol=1e-7):raise ValueError('Not normalized')
-    return result
+    masses[:,0]+=(1-p)*(1-q)
+    if not np.allclose(masses.sum(axis=1),1,atol=1e-7):raise ValueError('Not normalized')
+    return masses
 
 def score(masses,actual):
     y=np.rint(actual).astype(int)
