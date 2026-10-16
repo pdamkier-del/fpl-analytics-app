@@ -1,0 +1,42 @@
+name: Research role and injury audit checks
+on:
+  push:
+    branches: [research-role-injury-club-audit-20261016]
+    paths:
+      - 'scripts/research_role_injury_club_audit.py'
+      - 'scripts/run_frozen_mm_club_report.py'
+      - 'tests/test_research_role_injury_club_audit.py'
+      - '.github/workflows/research-role-injury-checks.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  checks:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: python -m pip install pandas numpy
+      - run: PYTHONPATH=.:src:scripts python -m unittest discover -s tests -p 'test_research_role_injury_club_audit.py' -v
+      - name: Smoke test club evaluation with toy frozen rows
+        run: |
+          PYTHONPATH=scripts python - <<'PY'
+          import pandas as pd
+          from scripts.run_frozen_mm_club_report import run
+          rows=[]
+          for mode,x in [('original',80),('role_start',88)]:
+              rows.append(dict(season='2025-26',fixture_uuid='fx1',player_uuid='p1',
+                               team_id=10,minutes=90,gw=12,mode=mode,x=x))
+          pd.DataFrame(rows).to_csv('/tmp/frozen.csv',index=False)
+          report=run('/tmp/frozen.csv','/tmp/team-report.json')
+          assert len(report)==1 and report[0]['delta_mae']==-8,report
+          PY
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: role-injury-club-audit-smoke
+          path: /tmp/team-report.json
+          if-no-files-found: ignore
