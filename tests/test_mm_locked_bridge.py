@@ -159,3 +159,27 @@ def test_complete_B_PM_TS_entry_with_explicit_synthetic_six_GW_inputs():
     assert seal_document(doc)['content_sha256']==doc['content_sha256']
     assert all(p['name'].startswith('Synthetic ') and p['club'].startswith('Synthetic club') for p in doc['players'])
     assert 'scripts/run_mm_locked_preview.py' in doc['code_sha256']
+
+
+def test_candidate_sampler_preserves_B_endpoint_means_without_touching_locked_PM():
+    from mm_locked_bridge import sample_candidate_minutes
+    rng=np.random.default_rng(123)
+    assert sample_candidate_minutes(rng,p=1.,q=0.,s=90.,c=10.) == (90,0,90)
+    assert sample_candidate_minutes(rng,p=0.,q=1.,s=10.,c=90.) == (90,0,90)
+    assert sample_candidate_minutes(rng,p=0.,q=0.,s=90.,c=90.) == (0,90,90)
+    assert float(locked_sampler_expectation(1.,0.,90.,10.)) < 87.
+
+
+def test_candidate_sampler_rejects_invalid_inputs_and_keeps_event_contract():
+    from mm_locked_bridge import sample_candidate_minutes
+    rng=np.random.default_rng(7)
+    for p,q,s,c in [(-.1,.2,80.,20.),(.7,1.1,80.,20.),
+                    (.5,.2,float('nan'),20.),(.5,.2,80.,91.),
+                    (.5,.2,80.,0.)]:
+        with pytest.raises(ValueError):
+            sample_candidate_minutes(rng,p=p,q=q,s=s,c=c)
+    for _ in range(24):
+        minutes,entry,exit=sample_candidate_minutes(rng,p=.6,q=.4,s=77.,c=65.)
+        assert 0<=minutes<=90 and 0<=entry<=90 and 0<=exit<=90
+        assert minutes==0 or ((entry==0 and exit==minutes) or
+                              (exit==90 and entry==90-minutes))
