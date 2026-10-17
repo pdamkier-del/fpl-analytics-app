@@ -183,3 +183,29 @@ def test_candidate_sampler_rejects_invalid_inputs_and_keeps_event_contract():
         assert 0<=minutes<=90 and 0<=entry<=90 and 0<=exit<=90
         assert minutes==0 or ((entry==0 and exit==minutes) or
                               (exit==90 and entry==90-minutes))
+
+
+def test_optional_candidate_sampler_reaches_real_joint_simulator_and_restores_hook():
+    """Research hook reaches original simulation; production hook is untouched."""
+    from unittest.mock import patch
+    import fpl_v1_1_model.joint_simulator as joint
+    from mm_locked_bridge import sample_candidate_minutes
+    a=joint.PlayerSimInput(player_id='a',team='home',position='MID',
+        p_start=1.,p_cameo_given_bench=0.,start_minutes_mean=90.,
+        cameo_minutes_mean=10.)
+    b=joint.PlayerSimInput(player_id='b',team='away',position='MID',
+        p_start=0.,p_cameo_given_bench=0.,start_minutes_mean=60.,
+        cameo_minutes_mean=10.)
+    fixture=joint.MatchSimInput(home_team='home',away_team='away',
+        lambda_home_goals=0.,lambda_away_goals=0.,players=(a,b))
+    original=joint._sample_minutes
+    def research_hook(rng,player):
+        return sample_candidate_minutes(rng,p=player.p_start,
+            q=player.p_cameo_given_bench,s=player.start_minutes_mean,
+            c=player.cameo_minutes_mean)
+    with patch.object(joint,'_sample_minutes',research_hook):
+        result=joint.simulate_many(fixture,n=30,seed=5)
+    assert joint._sample_minutes is original
+    assert result['a']['expected_minutes']==90.
+    assert result['b']['expected_minutes']==0.
+    assert float(locked_sampler_expectation(1.,0.,90.,10.))<87.
