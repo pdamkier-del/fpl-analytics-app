@@ -9,6 +9,7 @@ from datetime import datetime,timezone
 import argparse,gzip,hashlib,json
 from mm_candidate_forecast import seal_document
 from fpl_v1_1_model.forecast_snapshot import require_snapshot
+from restore_current_b_role_ledger import validate as validate_ledger
 ROOT=Path(__file__).resolve().parents[1]
 
 def write(path,obj):
@@ -16,7 +17,7 @@ def write(path,obj):
     path.parent.mkdir(parents=True,exist_ok=True);path.write_bytes(b)
     return hashlib.sha256(b).hexdigest()
 
-def publish(source,out):
+def publish(source,out,inputs=ROOT/'work/current-B-inputs'):
     source=Path(source);out=Path(out)
     f=json.loads((source/'forecast.json').read_text());m=json.loads((source/'mm.json').read_text());audit=json.loads((source/'pm-audit.json').read_text())
     require_snapshot(f)
@@ -43,6 +44,11 @@ def publish(source,out):
         forecast_file_sha256=write(out/'forecast.json',f),mm_file_sha256=write(out/'mm.json',m),
         uncertainty_intervals_validated=False,minute_sampler='locked',
         status='diagnostic_not_certified',risk_inputs_archived=True,TS_risk_parameters_changed=False)
+    ledger=(Path(inputs)/'role-ledger.csv.gz').read_bytes()
+    index['role_ledger_file']='role-ledger.csv.gz'
+    index['role_ledger_sha256']=hashlib.sha256(ledger).hexdigest()
+    index['role_ledger_rows']=len(validate_ledger(index,ledger))
+    (out/'role-ledger.csv.gz').write_bytes(ledger)
     write(out/'pm-audit.json',audit)
     write(out/'index.json',index)
     packed=gzip.compress((source/'mm.json').read_bytes(),mtime=0)
@@ -51,4 +57,4 @@ def publish(source,out):
     archive.write_bytes(packed)
     print(json.dumps(index,indent=2));return index
 if __name__=='__main__':
-    p=argparse.ArgumentParser();p.add_argument('--source',type=Path,default=ROOT/'work/current-B-output');p.add_argument('--out',type=Path,default=ROOT/'app/mm-preview/current');a=p.parse_args();publish(a.source,a.out)
+    p=argparse.ArgumentParser();p.add_argument('--source',type=Path,default=ROOT/'work/current-B-output');p.add_argument('--out',type=Path,default=ROOT/'app/mm-preview/current');p.add_argument('--inputs',type=Path,default=ROOT/'work/current-B-inputs');a=p.parse_args();publish(a.source,a.out,a.inputs)

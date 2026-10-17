@@ -60,8 +60,10 @@ jobs:
           PY
       - name: Capture current official data and rebuild unchanged original chain twice
         run: python scripts/locked_numerical_runtime.py scripts/run_current_diagnostic_pipeline.py --source-chain-only
-      - name: Produce authentic PR4 to PR8 to PR9 B input contract
-        run: python scripts/locked_numerical_runtime.py scripts/build_current_b_inputs.py
+      - name: Restore verified public role memory and produce authentic PR4 to PR8 to PR9 B inputs
+        run: |
+          python scripts/restore_current_b_role_ledger.py
+          python scripts/locked_numerical_runtime.py scripts/build_current_b_inputs.py --role-ledger work/previous-B-role-ledger.csv.gz
       - name: Run real six-GW B to locked PM twice without a fabricated manager
         run: |
           python scripts/locked_numerical_runtime.py scripts/run_mm_locked_preview.py --history work/current-B-inputs/history.csv.gz --target work/current-B-inputs/target.csv.gz --roles work/current-B-inputs/roles.csv.gz --provenance work/current-B-inputs/provenance.json --pm-input work/current-B-inputs/pm.csv.gz --bootstrap work/current-B-inputs/bootstrap.json --fixtures work/current-B-inputs/fixtures.json --bps-audit work/current-B-inputs/bps-audit.json --out work/current-B-output
