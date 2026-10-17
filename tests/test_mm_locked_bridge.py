@@ -209,3 +209,19 @@ def test_optional_candidate_sampler_reaches_real_joint_simulator_and_restores_ho
     assert result['a']['expected_minutes']==90.
     assert result['b']['expected_minutes']==0.
     assert float(locked_sampler_expectation(1.,0.,90.,10.))<87.
+
+
+@pytest.mark.parametrize('arm,mu',[
+    ('start',0.),('start',1.),('start',15.),('start',75.),('start',90.),
+    ('cameo',1.),('cameo',5.),('cameo',30.),('cameo',60.),('cameo',90.)
+])
+def test_candidate_conditional_distribution_exact_mean(arm,mu):
+    """Deterministic PMF check independent of random sampling."""
+    from mm_locked_bridge import _candidate_duration_pmf
+    probs=_candidate_duration_pmf(arm,mu)
+    assert probs.shape==(91,)
+    assert np.isfinite(probs).all() and (probs>=0).all()
+    assert abs(float(probs.sum())-1.)<1e-12
+    assert abs(float(probs@np.arange(91))-mu)<1e-6
+    if arm=='cameo':
+        assert probs[0]==0
