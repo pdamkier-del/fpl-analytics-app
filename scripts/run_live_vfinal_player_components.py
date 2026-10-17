@@ -71,7 +71,8 @@ def run(horizon_end=None):
     if result.duplicated(keys).any():raise ValueError('Duplicated player event output')
     if ((result.live_eligibility_applied)&(result.expected_minutes>1e-8)).any():
         raise ValueError('Hard-out current GW still has minutes')
-    result.to_csv(OUT,index=False,compression='gzip')
+    from audit_capture_io import write_frame
+    write_frame(OUT,result)
     audit={'classification':'FROZEN_VFINAL_PLAYER_EVENT_COMPONENTS_NOT_COMPLETE_PM',
          'origin_gw':gw,'player_fixture_rows':len(result),
          'gws':sorted(map(int,result.target_gw.unique())),

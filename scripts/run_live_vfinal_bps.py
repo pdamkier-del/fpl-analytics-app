@@ -71,7 +71,8 @@ def main():
     models=load_models()
     out=calculate(pd.read_csv(a.target),pd.read_csv(a.ledger),models['bps'],models['bpsvar'],bounds)
     a.out.parent.mkdir(parents=True,exist_ok=True)
-    out.to_csv(a.out,index=False,compression='gzip')
+    from audit_capture_io import write_frame
+    write_frame(a.out,out)
     WORK.mkdir(parents=True,exist_ok=True)
     report={'classification':'FROZEN_BPS_COMPONENT_ONLY_NO_LIVE_XP',
         'rows':len(out),'origin_gw':int(out.target_gw.min()),

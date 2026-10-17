@@ -64,7 +64,8 @@ def main():
     model=json.loads(MODEL.read_text())
     result=apply(*inputs,model,args.origin)
     out=BASE/'vfinal_live_penalty_inputs.csv.gz'
-    result.to_csv(out,index=False,compression='gzip')
+    from audit_capture_io import write_frame
+    write_frame(out,result)
     audit={'status':'FROZEN_PENALTY_INPUT_ONLY_NOT_VFINAL_XP',
         'origin_gw':args.origin,'rows':len(result),
         'frozen_function':'vfinal_replay_state.penalty_state',
