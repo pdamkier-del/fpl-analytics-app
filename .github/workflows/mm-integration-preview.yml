@@ -11,6 +11,7 @@ on:
       - scripts/mm_locked_bridge.py
       - scripts/run_mm_locked_preview.py
       - scripts/replay_mm_locked_pm.py
+      - scripts/replay_mm_candidate_sampler.py
       - scripts/capture_mm_prospective.py
       - tests/test_mm_locked_bridge.py
       - tests/test_mm_prospective_capture.py
@@ -60,6 +61,9 @@ jobs:
         run: python scripts/report_mm_integration_preview.py
       - name: Historical B to unchanged PM replay, 144 fixtures and paired reproduction
         run: python scripts/replay_mm_locked_pm.py
+      - name: Isolated candidate duration sampler paired smoke replay (GW22 only)
+        if: github.ref_name == 'research-mm-pmf-sampler-bridge-20261017'
+        run: python scripts/replay_mm_candidate_sampler.py --gws 22
       - name: Preserve all production code, forecasts and frozen inputs
         run: |
           git diff --exit-code 56d637ad52502ffd8fd1de85216b6e6aafade62f -- src service model analysis/results/individual-mm-refinement-20261016
