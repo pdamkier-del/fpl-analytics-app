@@ -108,7 +108,7 @@ def build(out,role_cache,ledger_path=None):
     skeleton=roster_build(bootstrap,fixtures,receipt,cutoff=cut.isoformat())
     mapping=pm[['fpl_element','player_uuid']].drop_duplicates()
     target=pm[['season','gw','target_gw','fixture_uuid','player_uuid','team_id','pos','cutoff','fpl_element','target_kickoff',
-        'p_start','mm_q_sub','start_minutes_mean','mm_sub_minutes','team_news_state']].copy()
+        'p_start','mm_q_sub','start_minutes_mean','mm_sub_minutes','team_news_state','team_news_availability_cap']].copy()
     for dest,src in [('new_p_start','p_start'),('new_start_minutes','start_minutes_mean'),('new_q_sub','mm_q_sub'),('new_sub_minutes','mm_sub_minutes')]:target[dest]=target[src]
     obs=current_observations(cut,bootstrap)
     target=prefix_features(target,obs)
@@ -130,9 +130,24 @@ def build(out,role_cache,ledger_path=None):
     if len(old):old=old[pd.to_datetime(old.cutoff,utc=True,format='mixed').lt(cut)]
     # Only origin rows update latent availability state. Future fixture rows have
     # UNKNOWN news and must never establish a fictitious known-healthy role.
-    combined=pd.concat([old,target],ignore_index=True)
-    carried=carry_normal_role(combined,True).iloc[len(old):].reset_index(drop=True)
-    target=bounded_news(carried,chance=True,project=True)
+    target['upstream_s']=target.s
+    origin_rows=target[target.gw.eq(origin)].copy()
+    if origin_rows.duplicated(['player_uuid','team_id']).any() and (origin_rows.news_eligible&origin_rows.news_state.eq('SUSPENDED')).any():
+        raise ValueError('Fixture-scoped suspension evidence required for current DGW')
+    raw_old=old.copy()
+    if len(raw_old):
+        raw_old['p']=raw_old.p_role
+        raw_old['s']=raw_old.upstream_s
+    # The known current-origin news controls the latent episode. Future UNKNOWN
+    # rows must not become the first row of a lexical fixture-ID group.
+    carried=carry_normal_role(pd.concat([raw_old,origin_rows],ignore_index=True),True).iloc[len(raw_old):].reset_index(drop=True)
+    fields=['normal_role_p','normal_role_s','normal_role_asof']
+    normal=carried[['player_uuid','team_id']+fields].drop_duplicates(['player_uuid','team_id'])
+    target=target.merge(normal,on=['player_uuid','team_id'],how='left',validate='many_to_one')
+    by_key=carried.set_index(['fixture_uuid','player_uuid'])
+    for i,row in target[target.gw.eq(origin)].iterrows():
+        target.loc[i,'s']=float(by_key.loc[(row.fixture_uuid,row.player_uuid),'s'])
+    target=bounded_news(target,chance=True,project=True)
     if target.projection_infeasible.any():raise ValueError('Current availability cannot support a legal expected XI')
     target=target.drop(columns=[c for c in ['history_n','last_started','team_rest_days','minutes_14d'] if c in target])
     target=prior_features(target,obs,old)
@@ -160,7 +175,9 @@ def build(out,role_cache,ledger_path=None):
     write_frame(out/'roles.csv.gz',classified)
     for name,obj in [('provenance.json',provenance),('bootstrap.json',bootstrap),('fixtures.json',fixtures),('bps-audit.json',json.loads((WORK/'live_bps_source_audit.json').read_text()))]:
         (out/name).write_text(json.dumps(obj,allow_nan=False,indent=2)+'\n')
-    write_frame(out/'role-ledger.csv.gz',target[target.gw.eq(origin)])
+    ledger_cols=['season','fixture_uuid','player_uuid','team_id','gw','cutoff','pos','p','p_role','upstream_s','s','q','c','x','news_eligible','news_state','news_chance','news_medical_out','news_effective_at']
+    ledger=pd.concat([old.reindex(columns=ledger_cols),target[target.gw.eq(origin)][ledger_cols]],ignore_index=True)
+    write_frame(out/'role-ledger.csv.gz',ledger)
     report=dict(rows=len(target),players=target.player_uuid.nunique(),fixtures=target.fixture_uuid.nunique(),gws=sorted(target.gw.unique().tolist()),cutoff=cut.isoformat(),upstream_variant=provenance['upstream_variant'],locked_model_active=False)
     (out/'report.json').write_text(json.dumps(report,indent=2)+'\n');print(json.dumps(report),flush=True)
     return report

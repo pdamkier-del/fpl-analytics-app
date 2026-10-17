@@ -95,7 +95,9 @@ def run_pipeline(history,target,roles,provenance,pm,bootstrap,bps_audit,manager=
     # when a source expectation exists. Make that contract explicit rather
     # than depending on an incidental upstream column.
     display['expected_minutes']=display.control_xmins
-    display['live_eligibility_applied']=display.v4_workload_start_p_start.eq(0)&display.v4_p_cameo_given_bench.eq(0)
+    hard_source=predicted.set_index(['fixture_uuid','player_uuid'])
+    aligned=hard_source.reindex(pd.MultiIndex.from_frame(display[['fixture_uuid','player_uuid']]))
+    display['live_eligibility_applied']=(aligned.news_eligible&aligned.news_state.isin(['OUT','SUSPENDED'])).to_numpy()
     payload=build(display,xp,bootstrap,bps_audit)
     mean_lookup={(str(r.fixture_uuid),str(r.player_uuid)):float(mu) for r,mu in zip(joined.itertuples(),means)}
     for player in payload['players']:
