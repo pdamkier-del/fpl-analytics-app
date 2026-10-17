@@ -243,3 +243,11 @@ def test_locked_PM_remains_default_and_candidate_hook_is_reverted_after_errors()
     assert joint._sample_minutes is original
     with pytest.raises(ValueError,match='Unknown minute sampler'):
         simulate(pd.DataFrame(),minute_sampler='typo')
+
+
+def test_candidate_sampler_accepts_only_machine_precision_boundary_residual():
+    from mm_locked_bridge import sample_candidate_minutes,_candidate_duration_pmf
+    rng=np.random.default_rng(123)
+    assert sample_candidate_minutes(rng,p=1.+1e-15,q=0.,s=90.+1e-14,c=10.)==(90,0,90)
+    with pytest.raises(ValueError):sample_candidate_minutes(rng,p=1.,q=0.,s=90.001,c=10.)
+    with pytest.raises(ValueError):_candidate_duration_pmf('invalid',70.)

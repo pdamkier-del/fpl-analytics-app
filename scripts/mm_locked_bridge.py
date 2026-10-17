@@ -139,6 +139,7 @@ def code_identity(root):
 def _candidate_duration_pmf(arm, mu):
     """Exact (unrounded input) conditional mean; cache repeated draws only."""
     from mm_candidate import minute_masses
+    if arm not in ('start','cameo'):raise ValueError('Unknown conditional duration arm')
     f = pd.DataFrame([dict(p=1. if arm == 'start' else 0.,
                            q=1. if arm == 'cameo' else 0.,
                            s=mu if arm == 'start' else 0.,
@@ -160,8 +161,11 @@ def sample_candidate_minutes(rng, *, p, q, s, c):
     from mm_candidate import minute_masses
     for name, v, upper in [('p', p, 1), ('q', q, 1),
                             ('s', s, 90), ('c', c, 90)]:
-        if not np.isfinite(v) or v < 0 or v > upper:
+        if not np.isfinite(v) or v < -1e-10 or v > upper+1e-10:
             raise ValueError('Invalid B minute input: ' + name)
+    # The upstream contract permits machine-precision boundary residuals.
+    # Do not reject 90.00000000000001, or change genuine out-of-support input.
+    p,q,s,c=float(np.clip(p,0,1)),float(np.clip(q,0,1)),float(np.clip(s,0,90)),float(np.clip(c,0,90))
     if q > 0 and c < 1:
         raise ValueError('Positive cameo probability requires positive minutes')
     if p > 0 and s < 0:

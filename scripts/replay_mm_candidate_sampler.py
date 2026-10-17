@@ -31,7 +31,14 @@ def main():
     source=ROOT/'analysis/results/individual-mm-refinement-20261016/predictions.npz'
     mm=load_frame(source)
     mm=mm[mm.season.eq('2025-26') & mm['mode'].eq('B') & mm.gw.isin(a.gws)]
-    # Do not duplicate position columns if frozen B already supplies pos.\n    key=['fixture_uuid','player_uuid']\n    pm_keys=pm[key+(['pos'] if 'pos' not in mm else [])]\n    common=mm.merge(pm_keys,on=key,validate='one_to_one')\n    if 'pos' in mm:\n        actual_pos=common[key+['pos']].merge(pm[key+['pos']],on=key,suffixes=('_B','_PM'),validate='one_to_one')\n        if not actual_pos.pos_B.replace('GKP','GK').eq(actual_pos.pos_PM.replace('GKP','GK')).all():\n            raise ValueError('Frozen B and PM positions disagree')
+    # Do not duplicate position columns if frozen B already supplies pos.
+    key=['fixture_uuid','player_uuid']
+    pm_keys=pm[key+(['pos'] if 'pos' not in mm else [])]
+    common=mm.merge(pm_keys,on=key,validate='one_to_one')
+    if 'pos' in mm:
+        actual_pos=common[key+['pos']].merge(pm[key+['pos']],on=key,suffixes=('_B','_PM'),validate='one_to_one')
+        if not actual_pos.pos_B.replace('GKP','GK').eq(actual_pos.pos_PM.replace('GKP','GK')).all():
+            raise ValueError('Frozen B and PM positions disagree')
     if not len(common) or pm.fixture_uuid.nunique()==0:
         raise ValueError('No matched frozen MM/PM replay fixtures')
     result=simulate_candidate_pair(pm,common,season='2025-26')
@@ -41,7 +48,12 @@ def main():
             raise ValueError('Different player cohort across sampler arms: '+arm)
     if set(result.arm)!={'locked_sampler','candidate_PMF'}:
         raise ValueError('Missing sampler arm')
-    # Recheck that a whole historical fixture is reproduced with the same seed.\n    first=sorted(pm.fixture_uuid.unique())[0]\n    again=simulate_candidate_pair(pm[pm.fixture_uuid.eq(first)],common[common.fixture_uuid.eq(first)],season='2025-26')\n    left=result[result.fixture_uuid.eq(first)].reset_index(drop=True)\n    pd.testing.assert_frame_equal(left[again.columns],again,check_exact=True)\n    if original!=code_identity(ROOT):
+    # Recheck that a whole historical fixture is reproduced with the same seed.
+    first=sorted(pm.fixture_uuid.unique())[0]
+    again=simulate_candidate_pair(pm[pm.fixture_uuid.eq(first)],common[common.fixture_uuid.eq(first)],season='2025-26')
+    left=result[result.fixture_uuid.eq(first)].reset_index(drop=True)
+    pd.testing.assert_frame_equal(left[again.columns],again,check_exact=True)
+    if original!=code_identity(ROOT):
         raise ValueError('Locked production model changed')
     truth=read_frozen_table(FROZEN,'targets')
     actual=result.merge(truth[['fixture_uuid','player_uuid','total_points']],on=['fixture_uuid','player_uuid'],validate='many_to_one')
@@ -57,7 +69,8 @@ def main():
     result.to_csv(out/'paired_sampler.csv.gz',index=False,compression={'method':'gzip','mtime':0})
     summary=dict(scope='reused_historical_research',season='2025-26',gws=sorted(a.gws),
         matched_rows=len(common),fixtures=int(pm.fixture_uuid.nunique()),draws=400,
-        production_changed=False,PM_math_changed=False,TS_math_changed=False,\n        first_fixture_exact_reproduction=True,
+        production_changed=False,PM_math_changed=False,TS_math_changed=False,
+        first_fixture_exact_reproduction=True,
         certification='NOT CERTIFIED: prior reused cohort, 400-draw Monte Carlo, uncalibrated PMF',
         arms=stats)
     (out/'summary.json').write_text(json.dumps(summary,indent=2,allow_nan=False)+'\n')

@@ -1,7 +1,7 @@
 name: MM integrated preview validation
 on:
   push:
-    branches: [integration-mm-preview-20261017, integration-mm-final-chain-20261017, research-mm-pmf-sampler-bridge-20261017]
+    branches: [integration-mm-preview-20261017, integration-mm-final-chain-20261017, research-mm-pmf-sampler-bridge-20261017, integration-mm-live-20261017]
     paths:
       - scripts/mm_candidate*.py
       - scripts/build_mm_integration_preview.py
@@ -43,6 +43,8 @@ jobs:
         with:
           python-version: '3.12'
       - run: pip install -r requirements-model-checkpoint.txt -r requirements-model-tests.txt requests tabulate==0.10.0
+      - name: Compile integration entry points before expensive replays
+        run: python -m compileall -q scripts/replay_mm_candidate_sampler.py scripts/run_mm_locked_preview.py scripts/mm_locked_bridge.py
       - name: Check official MM roster and genuine B feature boundary
         run: python -m pytest -q tests/test_current_mm_roster.py tests/test_assemble_current_b_roster.py
       - name: MM-only regression, source, identity and leakage tests
@@ -68,7 +70,7 @@ jobs:
       - name: Historical B to unchanged PM replay, 144 fixtures and paired reproduction
         run: python scripts/replay_mm_locked_pm.py
       - name: Isolated candidate duration sampler paired smoke replay (GW22 only)
-        if: github.ref_name == 'research-mm-pmf-sampler-bridge-20261017'
+        if: contains(github.ref_name, 'sampler') || github.ref_name == 'integration-mm-live-20261017'
         run: python scripts/replay_mm_candidate_sampler.py --gws 22
       - name: Preserve all production code, forecasts and frozen inputs
         run: |
