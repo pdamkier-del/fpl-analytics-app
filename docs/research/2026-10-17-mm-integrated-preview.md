@@ -2,13 +2,15 @@
 
 **PREVIEW READY – NOT YET CERTIFIED. No lock or production model activation.**
 
+Latest completion verification: [browser/deployment evidence and exact numerical tolerances](../checkpoints/2026-10-17-mm-integrated-preview-complete.md). The latest clean CI B-runtime difference is 2.03748e-7 (absolute tolerance1e-6); the exact zero below refers to the earlier local run.
+
 Draft PR #15. Preview: https://pdamkier-del.github.io/fpl-analytics-app/mm-preview/
 
 ## A. Architecture and verified reuse
 
 PR #4 supplies historical individual MM identities/positions and role design; PR #8 supplies source caps, normal-role and existing return-duration protection. PR #9 supplies the selected B calibrator. PR #10/#12 supply error/cohort evidence; PR #11 supplies prior-only detailed roles and formation assignment. PR #13 supplies the fixed development-selected sigma30 PMF. PR #14 supplies the integration stop gates. None of these research PRs was merged into production.
 
-`mm_candidate.py` is the shared preview contract/formation/PMF implementation. `mm_candidate_forecast.py` fits the original B calibrator using previous known labels only. `replay_mm_candidate_calibration.py` refitted this real inference entry point at every evaluation origin: **39,264 forecasts, maximum absolute difference 0** across p/q/s/c/x against PR #9. The bug caught during integration was temporary q-capping being carried across both projection passes; the final runtime correctly retains PR9's projected p and reuses the original upstream q on its final pass.
+`mm_candidate.py` is the shared preview contract/formation/PMF implementation. `mm_candidate_forecast.py` fits the original B calibrator using previous known labels only. `replay_mm_candidate_calibration.py` refitted this real inference entry point at every evaluation origin: **39,264 forecasts, maximum absolute difference 0 in the earlier local run** across p/q/s/c/x against PR #9. The bug caught during integration was temporary q-capping being carried across both projection passes; the final runtime correctly retains PR9's projected p and reuses the original upstream q on its final pass.
 
 No PM, FPL scoring, TS or chips executed. All production `src`, `service`, `model` and frozen B inputs are checked unchanged against `56d637a` in CI. This branch stacks narrowly on #14; a future production change must selectively port reviewed dependencies rather than merge the whole research stack.
 
