@@ -17,6 +17,12 @@ from research_individual_mm_refinement import design, project, NUM
 from mm_candidate import FormationSelector, build_contract, VERSION, validate_frame
 
 
+def seal_document(doc):
+    doc={k:v for k,v in doc.items() if k!='content_sha256'}
+    doc['content_sha256']=hashlib.sha256(json.dumps(doc,sort_keys=True,separators=(',',':'),allow_nan=False).encode()).hexdigest()
+    return doc
+
+
 def infer_B(history, target, provenance):
     forbidden={'y','minutes','started','actual_formation','observed_minutes','outcome_known_at'}
     if forbidden & set(target):raise ValueError('Target outcomes forbidden')
@@ -57,14 +63,23 @@ def register(doc, directory, now=None):
     """Immutable local preregistration; never relabel a historical replay as live."""
     now=now or datetime.now(timezone.utc)
     if doc['scope']!='prospective_preview':raise ValueError('Not a prospective forecast')
-    if any(pd.Timestamp(r['forecast_at'])<=pd.Timestamp(now) for r in doc['players']):
-        raise ValueError('Cannot register after deadline')
+    if 'content_sha256' in doc and seal_document(doc)['content_sha256']!=doc['content_sha256']:
+        raise ValueError('MM document checksum mismatch')
+    deadline=doc.get('origin_deadline')
+    if not deadline:raise ValueError('Explicit official origin deadline required')
+    clocks=[pd.Timestamp(now),pd.Timestamp(deadline)]+[pd.Timestamp(r['forecast_at']) for r in doc['players']]
+    if any(t.tzinfo is None for t in clocks):raise ValueError('Timezone required')
+    if pd.Timestamp(now)>=pd.Timestamp(deadline):raise ValueError('Cannot register after deadline')
+    if not doc['players'] or any(pd.Timestamp(r['forecast_at'])>pd.Timestamp(now) for r in doc['players']):
+        raise ValueError('Forecast cutoff is in the future or roster missing')
     content=json.dumps(doc,sort_keys=True,separators=(',',':'),allow_nan=False).encode()
     digest=hashlib.sha256(content).hexdigest()
     directory=Path(directory);directory.mkdir(parents=True,exist_ok=True)
     path=directory/(digest+'.json')
     with path.open('xb') as out:out.write(content)
-    return dict(path=str(path),sha256=digest,registered_at=now.isoformat(),model_version=VERSION,deadline_correct=bool(doc.get('deadline_correct',False)))
+    receipt=dict(path=str(path),sha256=digest,registered_at=now.isoformat(),origin_deadline=deadline,model_version=VERSION,deadline_correct=bool(doc.get('deadline_correct',False)))
+    with path.with_suffix('.receipt.json').open('x') as out:json.dump(receipt,out,sort_keys=True,indent=2)
+    return receipt
 
 
 def main():
@@ -74,9 +89,11 @@ def main():
     selector=FormationSelector(pd.read_csv(args.roles))
     doc=build_contract(forecast,selector,scope='prospective_preview',source_hash=hashlib.sha256(args.target.read_bytes()).hexdigest(),model_data_at=provenance['data_at'])
     doc['calibration']=calibration;doc['deadline_correct']=False
+    doc['origin_deadline']=provenance['origin_deadline']
     doc['provenance']=provenance
     # An immutable code identity accompanies every preregistered forecast.
     doc['code_sha256']={p.name:hashlib.sha256(p.read_bytes()).hexdigest() for p in [Path(__file__),Path(__file__).with_name('mm_candidate.py'),Path(__file__).with_name('research_individual_mm_refinement.py')]}
+    doc=seal_document(doc)
     print(json.dumps(register(doc,args.register),indent=2))
 
 

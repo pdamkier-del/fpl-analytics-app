@@ -1,0 +1,81 @@
+{
+  "scope": "historical_replay",
+  "season": "2025-26",
+  "gws": [
+    22,
+    23,
+    24,
+    25,
+    26,
+    27,
+    28,
+    29,
+    30,
+    31,
+    32,
+    33,
+    34,
+    35,
+    36,
+    37,
+    38
+  ],
+  "fixtures": 144,
+  "matched_players": 11794,
+  "B_rows_outside_PM": 2193,
+  "draws": 400,
+  "seed": 93000000,
+  "first_fixture_exact_reproduction": true,
+  "locked_model_active": false,
+  "production_changed": false,
+  "PM_math_changed": false,
+  "TS_math_changed": false,
+  "MM_source_sha256": "a7f4ed43d2ee0d0bdf03a72c8d2d18e7be924b6beb4db2c013a47422570f4f44",
+  "locked_code_sha256": {
+    "src/fpl_v1_1_model/joint_simulator.py": "1794b9081264dde34cc5170e2358501cbe4a7e694ae0d011c3d2b2d35e66a6aa",
+    "src/fpl_v1_1_model/phase4b.py": "0ed9955bec53077b135c50687325be0d83976be6ce27917ca311e5007b3fc0fa",
+    "src/fpl_v1_1_model/paired_joint.py": "f3eda1cc3e1bf326c74c09b150212883a389b02f1b3744ec82369e2e3c876ad6",
+    "scripts/run_vfinal_integrated.py": "92add803a307cc17dc1daa7c3dbbc69a63e10a4b9ff45fe986dcc48f2996b1c3",
+    "src/fpl_xpts/transfer_planner.py": "1b424db371b1ec86d30f1162528437d20637fa6e10dcdf6a667d987b95ec6f04",
+    "scripts/run_live_locked_ts.py": "608fb3e18a59e89dea9476e6a403c7fc9c9cf63a80635b83a9859d7fb169678b",
+    "scripts/run_joint_fh_wc_stopping_replay.py": "829c5ace1fc24c9d78343a046cd7902a6316d5bd90d6b094ce78fe8b8f40a161"
+  },
+  "mean_delta": {
+    "xpts": -0.0029587078175343402,
+    "xmins": -0.005758801815824076,
+    "p_start": -7.907303210828655e-17,
+    "simulated_minutes": -0.012389774461590631
+  },
+  "max_abs_delta_xpts": 5.0825,
+  "minute_sampler_mean_delta": {
+    "B_minutes": -0.7280641841081568,
+    "production_minutes": -0.71229598258625
+  },
+  "minute_sampler_B_high_minutes_mean_delta": -3.0145196445204574,
+  "minute_sampler_mean_matches_MM": false,
+  "diagnostic_xP_metrics": {
+    "old": {
+      "mae": 0.9182414787179922,
+      "rmse": 1.8456199526969563,
+      "bias": 0.017724690520603697
+    },
+    "B": {
+      "mae": 0.881044598948618,
+      "rmse": 1.8110521750381823,
+      "bias": 0.014765982703069353
+    }
+  },
+  "paired_delta_xP_interval95": {
+    "mae": [
+      -0.045809260862540835,
+      -0.0276149490817402
+    ],
+    "rmse": [
+      -0.045844565604585344,
+      -0.023318951590036413
+    ]
+  },
+  "TS_status": "Not Available: historical PM rows are single-GW forecasts at different origins, not six GWs known at one origin.",
+  "live_status": "Not Available: current PR8 role/chance/return-duration feature bridge not verified.",
+  "certification": "Reused research period; no independent validation. PMF remains separate experimental output; locked PM duration sampler unchanged."
+}
