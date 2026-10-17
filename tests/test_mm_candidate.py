@@ -85,12 +85,20 @@ def test_target_labels_rejected_before_training():
 
 
 def test_register_refuses_late_forecast_or_overwrite(tmp_path):
-    doc={'scope':'prospective_preview','players':[{'forecast_at':'2026-10-20T10:00:00Z'}]}
-    early=datetime(2026,10,19,tzinfo=timezone.utc)
+    doc={'scope':'prospective_preview','origin_deadline':'2026-10-20T10:00:00Z','players':[{'forecast_at':'2026-10-19T09:00:00Z'}]}
+    early=datetime(2026,10,19,10,tzinfo=timezone.utc)
     result=register(doc,tmp_path,early)
     assert json.loads(open(result['path']).read())==doc
     with pytest.raises(FileExistsError):register(doc,tmp_path,early)
     with pytest.raises(ValueError,match='after deadline'):register(doc,tmp_path,datetime(2026,10,21,tzinfo=timezone.utc))
+
+
+def test_register_needs_real_deadline_and_rejects_future_cutoff(tmp_path):
+    early=datetime(2026,10,19,tzinfo=timezone.utc)
+    doc={'scope':'prospective_preview','players':[{'forecast_at':'2026-10-20T09:00:00Z'}]}
+    with pytest.raises(ValueError,match='deadline'):register(doc,tmp_path,early)
+    doc['origin_deadline']='2026-10-21T10:00:00Z'
+    with pytest.raises(ValueError,match='future'):register(doc,tmp_path,early)
 
 
 def test_missing_and_malformed_input_fail_closed():

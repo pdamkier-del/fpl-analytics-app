@@ -1,13 +1,19 @@
 name: MM integrated preview validation
 on:
   push:
-    branches: [integration-mm-preview-20261017]
+    branches: [integration-mm-preview-20261017, integration-mm-final-chain-20261017]
     paths:
       - scripts/mm_candidate*.py
       - scripts/build_mm_integration_preview.py
       - scripts/replay_mm_candidate_calibration.py
       - scripts/publish_mm_preview.py
       - scripts/report_mm_integration_preview.py
+      - scripts/mm_locked_bridge.py
+      - scripts/run_mm_locked_preview.py
+      - scripts/replay_mm_locked_pm.py
+      - scripts/capture_mm_prospective.py
+      - tests/test_mm_locked_bridge.py
+      - tests/test_mm_prospective_capture.py
       - tests/test_mm_candidate.py
       - app/mm-preview/**
       - .github/workflows/mm-integration-preview.yml
@@ -23,7 +29,7 @@ env:
 jobs:
   validation:
     runs-on: ubuntu-latest
-    timeout-minutes: 35
+    timeout-minutes: 60
     steps:
       - uses: actions/checkout@v4
         with:
@@ -39,27 +45,36 @@ jobs:
           tests/test_mm_all_clubs.py tests/test_mm_probability_robustness.py
           tests/test_mm_role_injury_integration.py tests/test_research_role_injury_club_audit.py
           tests/test_team_news_history.py tests/test_team_news_audit.py
+      - name: Locked PM, TS, private service and prospective registration regressions
+        run: >-
+          python -m pytest -q tests/test_mm_locked_bridge.py tests/test_mm_prospective_capture.py
+          tests/test_live_locked_ts_bridge.py tests/test_private_manager_service.py
+          tests/test_run_live_vfinal_joint_simulation.py
       - name: Refit B at every evaluation origin with identical previous-label cutoffs
         run: python scripts/replay_mm_candidate_calibration.py
       - name: Execute six-arm common pipeline and full probabilistic/XI evaluation
         run: python scripts/build_mm_integration_preview.py
       - name: Generate scientific report and paired probabilistic intervals
         run: python scripts/report_mm_integration_preview.py
+      - name: Historical B to unchanged PM replay, 144 fixtures and paired reproduction
+        run: python scripts/replay_mm_locked_pm.py
       - name: Preserve all production code, forecasts and frozen inputs
         run: |
           git diff --exit-code 56d637ad52502ffd8fd1de85216b6e6aafade62f -- src service model analysis/results/individual-mm-refinement-20261016
           node --check app/mm-preview/preview.js
+          node --check app/mm-preview/chain.js
       - uses: actions/upload-artifact@v4
         with:
           name: mm-integration-preview-evidence
           path: |
             analysis/results/mm-integration-preview-20261017/
+            analysis/results/mm-locked-chain-20261017/
             app/mm-preview/
       - name: Preserve only public MM evidence on integration branch
         run: |
           git config user.name 'FPL MM integration evidence'
           git config user.email 'mm-evidence@users.noreply.github.com'
-          git add analysis/results/mm-integration-preview-20261017/
+          git add analysis/results/mm-integration-preview-20261017/ analysis/results/mm-locked-chain-20261017/
           if git diff --cached --quiet; then exit 0; fi
           git commit -m 'Preserve integrated MM replay, runtime parity and calibration gates'
-          git push origin HEAD:integration-mm-preview-20261017
+          git push origin HEAD:${{ github.ref_name }}

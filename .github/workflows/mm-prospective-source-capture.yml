@@ -1,0 +1,32 @@
+name: Capture public predeadline MM source evidence
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: '17 * * * *'
+  push:
+    branches: [main]
+    paths: [.github/workflows/mm-prospective-source-capture.yml]
+permissions:
+  contents: read
+concurrency:
+  group: mm-prospective-source-evidence
+  cancel-in-progress: false
+jobs:
+  capture:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: integration-mm-final-chain-20261017
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Capture public sources; disclose missing B forecast producer
+        run: python scripts/capture_mm_prospective.py --out work/mm-prospective-source-evidence
+      - uses: actions/upload-artifact@v4
+        with:
+          name: public-mm-source-evidence-${{ github.run_id }}
+          path: work/mm-prospective-source-evidence/
+          retention-days: 90
+          compression-level: 9
