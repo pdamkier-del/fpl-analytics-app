@@ -76,10 +76,15 @@ def run_pipeline(history,target,roles,provenance,pm,bootstrap,bps_audit,manager=
     joined=attach_mm(pm,predicted)
     if not joined.target_gw.eq(joined.gw).all():raise ValueError('PM target GW mismatch')
     xp,audit=simulate(joined,minute_sampler=minute_sampler)
-    means=locked_sampler_expectation(joined.v4_workload_start_p_start,joined.v4_p_cameo_given_bench,
-        joined.v4_start_minutes_mean,joined.v4_cameo_minutes_mean)
+    # Analytical expectation must correspond to the selected duration kernel.
+    if minute_sampler=='candidate_B':
+        means=joined.v4_workload_start_xmins.to_numpy(float).copy()
+    else:
+        means=locked_sampler_expectation(joined.v4_workload_start_p_start,joined.v4_p_cameo_given_bench,
+            joined.v4_start_minutes_mean,joined.v4_cameo_minutes_mean)
     audit['MM_to_PM_mean_max_abs_difference']=float(np.max(np.abs(means-joined.v4_workload_start_xmins)))
     audit['MM_to_PM_mean_consistent']=bool(audit['MM_to_PM_mean_max_abs_difference']<=1e-6)
+    audit['MM_to_PM_mean_basis']='exact B conditional PMF' if minute_sampler=='candidate_B' else 'original clipped Gaussian'
     # Display/export exposure is B. Simulator propensities were calculated from
     # untouched PM controls; export must not falsely label those controls as B.
     display=joined.copy()
