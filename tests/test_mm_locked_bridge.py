@@ -153,3 +153,9 @@ def test_complete_B_PM_TS_entry_with_explicit_synthetic_six_GW_inputs():
     assert plan['forecast_sha256']==forecast['forecast_sha256']
     assert forecast['model']=='B_locked_PM_preview' and not forecast['locked_model_active']
     assert audit['point_components_reconciled']
+    assert not audit['MM_to_PM_mean_consistent']
+    assert any('rounded/clipped' in b for b in forecast['blockers'])
+    from mm_candidate_forecast import seal_document
+    assert seal_document(doc)['content_sha256']==doc['content_sha256']
+    assert all(p['name'].startswith('Synthetic ') and p['club'].startswith('Synthetic club') for p in doc['players'])
+    assert 'scripts/run_mm_locked_preview.py' in doc['code_sha256']

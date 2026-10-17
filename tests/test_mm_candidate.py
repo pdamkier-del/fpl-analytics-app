@@ -4,7 +4,7 @@ import numpy as np
 import pandas as pd
 import pytest
 from mm_candidate import FormationSelector,minute_masses,intervals,validate_frame,build_contract
-from mm_candidate_forecast import infer_B,register
+from mm_candidate_forecast import infer_B,register,seal_document
 
 
 def roster():
@@ -119,3 +119,10 @@ def test_canonical_identity_names_include_reserves_and_prefer_registry(tmp_path)
     names=canonical_names(path,history)
     assert names['test-reserve']=='Test Reserve'
     assert names['test-starter']=='Test Starter'
+
+
+def test_registration_checks_the_final_metadata_checksum(tmp_path):
+    doc=seal_document(dict(scope='prospective_preview',origin_deadline='2026-10-20T10:00:00Z',
+        players=[dict(forecast_at='2026-10-19T09:00:00Z')],calibration={'alpha':10}))
+    doc['calibration']['alpha']=20
+    with pytest.raises(ValueError,match='checksum'):register(doc,tmp_path,datetime(2026,10,19,10,tzinfo=timezone.utc))

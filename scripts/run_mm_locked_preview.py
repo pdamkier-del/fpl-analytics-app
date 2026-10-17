@@ -10,7 +10,7 @@ import argparse,hashlib,json
 import numpy as np
 import pandas as pd
 from mm_candidate import FormationSelector,build_contract
-from mm_candidate_forecast import infer_B,register
+from mm_candidate_forecast import infer_B,register,seal_document
 from mm_locked_bridge import attach_mm,run_current_ts,code_identity,locked_sampler_expectation
 from run_live_vfinal_joint_simulation import simulate
 from build_live_vfinal_desktop import build
@@ -60,6 +60,15 @@ def run_pipeline(history,target,roles,provenance,pm,bootstrap,bps_audit,manager=
     doc=build_contract(predicted,FormationSelector(roles),scope='prospective_preview',
         source_hash=provenance['source_manifest_sha256'],model_data_at=provenance['data_at'])
     doc.update(origin_deadline=provenance['origin_deadline'],calibration=calibration,deadline_correct=False)
+    ids=pm[['player_uuid','fpl_element']].drop_duplicates().set_index('player_uuid').fpl_element.to_dict()
+    names={int(t['id']):t['name'] for t in bootstrap['teams']}
+    for row in doc['players']:
+        pid=int(ids[row['player_id']]);row.update(fpl_element=pid,name=official[pid]['web_name'],club=names[row['club_id']])
+    root=Path(__file__).resolve().parents[1]
+    doc['code_sha256']=code_identity(root)
+    for name in ['mm_candidate.py','mm_candidate_forecast.py','research_individual_mm_refinement.py','mm_locked_bridge.py','run_mm_locked_preview.py']:
+        doc['code_sha256']['scripts/'+name]=hashlib.sha256((root/'scripts'/name).read_bytes()).hexdigest()
+    doc=seal_document(doc)
     joined=attach_mm(pm,predicted)
     if not joined.target_gw.eq(joined.gw).all():raise ValueError('PM target GW mismatch')
     xp,audit=simulate(joined)
@@ -96,6 +105,7 @@ def run_pipeline(history,target,roles,provenance,pm,bootstrap,bps_audit,manager=
         source_workflow=provenance.get('source_workflow'),recommendations={'transfers':{'status':'Not Available: private manager state required'}})
     payload=seal_forecast(payload)
     plan=run_current_ts(payload,manager) if manager is not None else None
+    if pd.Timestamp.now(tz='UTC')>=deadline:raise ValueError('Deadline passed during computation; discard result')
     return doc,payload,plan,audit
 
 
