@@ -59,7 +59,7 @@ jobs:
           c.SELECTOR=p;c.restore()
           PY
       - name: Capture current official data and rebuild unchanged original chain twice
-        run: python scripts/locked_numerical_runtime.py scripts/run_current_diagnostic_pipeline.py
+        run: python scripts/locked_numerical_runtime.py scripts/run_current_diagnostic_pipeline.py --source-chain-only
       - name: Produce authentic PR4 to PR8 to PR9 B input contract
         run: python scripts/locked_numerical_runtime.py scripts/build_current_b_inputs.py
       - name: Run real six-GW B to locked PM twice without a fabricated manager
