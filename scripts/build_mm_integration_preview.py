@@ -5,11 +5,12 @@ No PM/TS code, no source collection and no alteration of production forecasts.
 Only the already selected PR9 B and PR13 sigma30 are used. No evaluation tuning.
 """
 from pathlib import Path
-import gzip,hashlib,json
+import gzip,hashlib,json,sqlite3
 import numpy as np
 import pandas as pd
 from individual_mm_evidence import load_frame
 from archive_role_injury_mm import restore
+from restore_core_checkpoint import restore as restore_core
 from mm_candidate import KEY, VERSION, CONTRACT, FormationSelector, build_contract, minute_masses, intervals
 from validate_mm_all_clubs import temporal_ci
 from research_mm_predictive_distribution import score
@@ -31,6 +32,15 @@ def clean(v):
 def save(path,obj):
     path.parent.mkdir(parents=True,exist_ok=True)
     path.write_text(json.dumps(clean(obj),ensure_ascii=False,sort_keys=True,indent=2,allow_nan=False)+'\n')
+
+
+def canonical_names(database, ledger):
+    """Verified identity lookup also covers reserves absent from starter roles."""
+    with sqlite3.connect('file:'+str(database)+'?mode=ro',uri=True) as db:
+        named=dict(db.execute('SELECT player_uuid,canonical_name FROM players WHERE canonical_name IS NOT NULL'))
+    for row in ledger[['player_uuid','player']].dropna().drop_duplicates('player_uuid').itertuples(index=False):
+        named.setdefault(str(row.player_uuid),str(row.player))
+    return named
 
 
 def summary(g):
@@ -58,10 +68,15 @@ def main():
     f=f.merge(features[add],on=KEY,validate='many_to_one')
     ledger=pd.read_csv(HISTORY,low_memory=False);ledger['season']='2025-26'
     selector=FormationSelector(ledger)
-    named=ledger[['player_uuid','player']].drop_duplicates('player_uuid').set_index('player_uuid').player.to_dict()
+    # Identity only: no PM/FPL-point tables are read or simulated.
+    database=ROOT/'work/mm-preview-identities.sqlite3'
+    restore_core(database)
+    named=canonical_names(database,ledger)
     clubs=pd.read_csv(SOURCE/'club_metrics.csv')[['season','team_id','club']].drop_duplicates()
     clubnames={(r.season,int(r.team_id)):r.club for r in clubs.itertuples()}
     b=f[f['mode']=='B'].sort_values(KEY).reset_index(drop=True)
+    if set(b.player_uuid)-set(named):raise ValueError('Unresolved canonical player names')
+    pd.DataFrame([dict(player_uuid=k,name=named[k]) for k in sorted(set(b.player_uuid))]).to_csv(OUT/'player_identity_names.csv',index=False)
     for col in ['p','q','s','c','x']:
         if not np.isfinite(b[col]).all():raise ValueError('Nonfinite B')
     # All common-pipeline arms go through build_contract, including mean check.
@@ -171,7 +186,7 @@ def main():
     decision=dict(status='PREVIEW READY – NOT YET CERTIFIED',model_version=VERSION,contract=CONTRACT,evaluation_rows=len(b),club_seasons=int(b[['season','team_id']].drop_duplicates().shape[0]),legal_xi_team_fixtures=all_expected,mean_max_abs_residual=float(uu.mean_residual.abs().max()),crps_vs_pr13_delta=float((comparable.crps_new-comparable.crps_old).mean()),logloss_vs_pr13_delta=float((comparable.logloss_new-comparable.logloss_old).mean()),uncertainty=overall_u,production_changed=False,locked_model_active=False,independent_holdout_available=False,live_B_forecast_available=False,forecast_arms=['original','best_existing','B','B_XI','B_PMF','combined'],point_forecast_invariance='B == B_XI == B_PMF == combined for every p/q/s/c/x',blockers=['No untouched independently validated MM evaluation period','Historical label/role availability uses kickoff+3/4h proxies','35 historical applicable hard-source contradictions retained, never softened','Three prior B club-risk flags remain; no posthoc per-club switch','Distribution remains experimental; interval mass/discreteness explicitly reported','Equivalent classified formation ledger for 2024/25 unavailable','Fresh current-season B feature/provenance bridge is not verified; current recommendations Not Available'],references={str(n):'https://github.com/pdamkier-del/fpl-analytics-app/pull/'+str(n) for n in [4,8,9,10,11,12,13,14]})
     save(OUT/'decision.json',decision)
     save(APP/'index.json',dict(**decision,snapshots=snapshots,generated_from=source_hash,clubs=[dict(season=k[0],id=k[1],name=v) for k,v in sorted(clubnames.items())]))
-    save(OUT/'manifest.json',dict(model_version=VERSION,inputs={str(p.relative_to(ROOT)):sha(p) for p in [SOURCE/'predictions.npz',SOURCE/'prior_only_features.csv.gz',HISTORY]},outputs={p.name:sha(p) for p in sorted(OUT.iterdir()) if p.is_file() and p.name!='manifest.json'},app_payloads={str(p.relative_to(APP)):sha(p) for p in sorted((APP/'data').glob('*.gz'))}))
+    save(OUT/'manifest.json',dict(model_version=VERSION,inputs={str(p.relative_to(ROOT)):sha(p) for p in [SOURCE/'predictions.npz',SOURCE/'prior_only_features.csv.gz',HISTORY,ROOT/'model/checkpoints/phase5e_core/PARTS_MANIFEST.json']},outputs={p.name:sha(p) for p in sorted(OUT.iterdir()) if p.is_file() and p.name!='manifest.json'},app_payloads={str(p.relative_to(APP)):sha(p) for p in sorted((APP/'data').glob('*.gz'))}))
     print(json.dumps(clean(decision),indent=2))
 
 

@@ -98,3 +98,16 @@ def test_missing_and_malformed_input_fail_closed():
     with pytest.raises(ValueError):validate_frame(f)
     f=roster();f.loc[0,'x']+=1
     with pytest.raises(ValueError,match='expectation'):validate_frame(f)
+
+
+def test_canonical_identity_names_include_reserves_and_prefer_registry(tmp_path):
+    import sqlite3
+    from build_mm_integration_preview import canonical_names
+    path=tmp_path/'identity-test.sqlite3'
+    with sqlite3.connect(path) as db:
+        db.execute('CREATE TABLE players(player_uuid TEXT,canonical_name TEXT)')
+        db.executemany('INSERT INTO players VALUES (?,?)',[('test-reserve','Test Reserve'),('test-starter','Test Starter')])
+    history=pd.DataFrame([dict(player_uuid='test-starter',player='Short name')])
+    names=canonical_names(path,history)
+    assert names['test-reserve']=='Test Reserve'
+    assert names['test-starter']=='Test Starter'
