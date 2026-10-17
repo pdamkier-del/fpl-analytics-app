@@ -138,7 +138,8 @@ def main():
     pd.DataFrame(contract_rows).to_csv(OUT/'contract_rows.csv.gz',index=False,compression={'method':'gzip','mtime':0})
     xx=pd.DataFrame(xi);xx.to_csv(OUT/'xi_comparison.csv',index=False)
     pd.DataFrame(assignment_rows).to_csv(OUT/'xi_assignments.csv.gz',index=False,compression={'method':'gzip','mtime':0})
-    xx.groupby(['mode','correct']).size().rename('count').reset_index().to_csv(OUT/'xi_hit_distribution.csv',index=False)
+    xi_grid=pd.MultiIndex.from_product([sorted(xx['mode'].unique()),range(12)],names=['mode','correct'])
+    xx.groupby(['mode','correct']).size().reindex(xi_grid,fill_value=0).rename('count').reset_index().to_csv(OUT/'xi_hit_distribution.csv',index=False)
     uu=pd.concat(uncertainty,ignore_index=True);uu.to_csv(OUT/'uncertainty_rows.csv.gz',index=False,compression={'method':'gzip','mtime':0})
     numeric=['crps','logloss','p0','observed0']+[c for c in uu if c.endswith(('_inside','_width','_model_mass'))]
     us=[]
@@ -148,11 +149,15 @@ def main():
     pd.DataFrame(us).to_csv(OUT/'uncertainty_summary.csv',index=False)
     bb=pd.concat(bands,ignore_index=True)
     bb.groupby(['season','role','band']).agg(n=('actual','size'),predicted=('probability','mean'),observed=('actual','mean'),brier=('probability',lambda x:0.)).drop(columns='brier').reset_index().to_csv(OUT/'minute_band_calibration.csv',index=False)
-    metrics=[];errors=[];cal=[];interval_rows=[]
+    metrics=[];errors=[];cal=[];interval_rows=[];gw_metrics=[]
     allarms={k:g.copy() for k,g in f.groupby('mode')}
     for k in ['B_XI','B_PMF','combined']:allarms[k]=b.copy()
     for mode,g in allarms.items():
         g['abs_error']=(g.x-g.minutes).abs()
+        for (season,gw),gg in g.groupby(['season','gw']):
+            gw_metrics.append(dict(mode=mode,season=season,gw=int(gw),club='ALL',**summary(gg)))
+            for team,tg in gg.groupby('team_id'):
+                gw_metrics.append(dict(mode=mode,season=season,gw=int(gw),club=clubnames[(season,int(team))],**summary(tg)))
         for season,sg in [('ALL',g)]+list(g.groupby('season')):
             metrics.append(dict(mode=mode,season=season,club='ALL',group='ALL',**summary(sg)))
             if season!='ALL':
@@ -172,6 +177,7 @@ def main():
         if mode in ['original','best_existing','B']:
             g.sort_values('abs_error',ascending=False).head(100).to_csv(OUT/(mode+'_top100.csv'),index=False)
     pd.DataFrame(metrics).to_csv(OUT/'metrics.csv',index=False)
+    pd.DataFrame(gw_metrics).to_csv(OUT/'metrics_by_gw.csv',index=False)
     pd.DataFrame(errors).to_csv(OUT/'error_bands.csv',index=False)
     pd.DataFrame(cal).to_csv(OUT/'start_calibration.csv',index=False)
     for season,sg in b.groupby('season'):

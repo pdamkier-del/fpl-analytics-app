@@ -62,9 +62,16 @@ def simulate_pair(pm, mm, *, season, seed=93000000, draws=400):
     result=[]
     for i,(fixture,base) in enumerate(pm.groupby('fixture_uuid',sort=True)):
         changed=candidate[candidate.fixture_uuid.eq(fixture)]
+        frozen_nonminute=None
         for arm,frame in [('production_minutes',base),('B_minutes',changed)]:
             inp,_=make_vfinal_input(frame)
             inp=replace(inp,bps_rules=season)
+            nonminute=asdict(inp)
+            for player in nonminute['players']:
+                for field in ['p_start','p_cameo_given_bench','start_minutes_mean','cameo_minutes_mean']:
+                    del player[field]
+            if frozen_nonminute is None:frozen_nonminute=nonminute
+            elif nonminute!=frozen_nonminute:raise ValueError('Bridge changed PM rates or non-minute simulator inputs')
             expected=frame.set_index('player_uuid')
             # Inspect the final simulator object, not just renamed table fields.
             for p in inp.players:

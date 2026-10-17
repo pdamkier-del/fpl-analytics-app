@@ -16,7 +16,7 @@ from run_live_vfinal_joint_simulation import simulate
 from build_live_vfinal_desktop import build
 
 
-def run_pipeline(history,target,roles,provenance,pm,bootstrap,bps_audit,manager=None):
+def run_pipeline(history,target,roles,provenance,pm,bootstrap,bps_audit,manager=None,*,fixtures):
     from fpl_v1_1_model.forecast_snapshot import seal_forecast
     now=pd.Timestamp.now(tz='UTC')
     cut=pd.Timestamp(provenance['data_at'])
@@ -25,14 +25,31 @@ def run_pipeline(history,target,roles,provenance,pm,bootstrap,bps_audit,manager=
     deadline=pd.Timestamp(provenance['origin_deadline'])
     if deadline<=now:raise ValueError('Official forecast deadline expired')
     if not pd.to_datetime(target.cutoff,utc=True).eq(cut).all():raise ValueError('Feature cutoff mismatch')
+    for name,obj in [('bootstrap',bootstrap),('fixtures',fixtures)]:
+        digest=hashlib.sha256(json.dumps(obj,sort_keys=True,separators=(',',':'),allow_nan=False).encode()).hexdigest()
+        if provenance.get(name+'_sha256')!=digest:raise ValueError('Official source checksum mismatch: '+name)
+        observed=pd.Timestamp(provenance[name+'_observed_at'])
+        if observed.tzinfo is None or observed>=cut:raise ValueError('Official source observed after cutoff')
     if set(target.season)!={'2026-27'}:raise ValueError('Wrong current season')
     event=next(e for e in bootstrap['events'] if e.get('is_next'))
     if pd.Timestamp(event['deadline_time'])!=deadline:raise ValueError('Official deadline mismatch')
     gws=list(range(int(event['id']),min(39,int(event['id'])+6)))
     if sorted(set(target.gw))!=gws:raise ValueError('Missing full six-GW target inputs')
+    if (target.gw.gt(gws[0])&target.news_eligible).any():raise ValueError('Current GW news cap reused in future GW')
+    schedule={f'live-2026-27-fpl-{int(f["id"])}':f for f in fixtures if f.get('event') in gws}
+    if set(pm.fixture_uuid)!=set(schedule):raise ValueError('Official six-GW fixture coverage mismatch')
+    for fx,g in pm.groupby('fixture_uuid'):
+        f=schedule[fx]
+        if f.get('started') or not f.get('kickoff_time'):raise ValueError('Started/undated target fixture')
+        if not g.gw.eq(f['event']).all() or not g.home_team_id.eq(f['team_h']).all() or not g.away_team_id.eq(f['team_a']).all():
+            raise ValueError('Official fixture identity mismatch')
+        if not pd.to_datetime(g.target_kickoff,utc=True).eq(pd.Timestamp(f['kickoff_time'])).all():
+            raise ValueError('Official kickoff mismatch')
     # Explicit source membership per fixture, not merely equal table lengths.
     official={int(p['id']):p for p in bootstrap['elements']}
     if pm.duplicated(['fixture_uuid','fpl_element']).any():raise ValueError('Duplicate FPL identity')
+    mapping=pm[['fpl_element','player_uuid']].drop_duplicates()
+    if mapping.fpl_element.duplicated().any() or mapping.player_uuid.duplicated().any():raise ValueError('Ambiguous FPL/UUID mapping')
     for _,g in pm.groupby('fixture_uuid'):
         for tid,team in g.groupby('team_id'):
             expected={pid for pid,p in official.items() if int(p['team'])==int(tid)}
@@ -52,6 +69,10 @@ def run_pipeline(history,target,roles,provenance,pm,bootstrap,bps_audit,manager=
     for src,dest in [('v4_workload_start_p_start','control_p_start'),
                      ('v4_workload_start_xmins','control_xmins'),
                      ('v4_p_cameo_given_bench','p_cameo_given_bench')]:display[dest]=display[src]
+    # The unchanged desktop exporter names the prediction column with _sim
+    # when a source expectation exists. Make that contract explicit rather
+    # than depending on an incidental upstream column.
+    display['expected_minutes']=display.control_xmins
     display['live_eligibility_applied']=display.v4_workload_start_p_start.eq(0)&display.v4_p_cameo_given_bench.eq(0)
     payload=build(display,xp,bootstrap,bps_audit)
     # Blank GWs are explicit zeros only for a club with no fixture at that GW.
@@ -73,7 +94,7 @@ def run_pipeline(history,target,roles,provenance,pm,bootstrap,bps_audit,manager=
 
 def main():
     p=argparse.ArgumentParser()
-    for n in ['history','target','roles','provenance','pm-input','bootstrap','bps-audit','out']:
+    for n in ['history','target','roles','provenance','pm-input','bootstrap','fixtures','bps-audit','out']:
         p.add_argument('--'+n,type=Path,required=True)
     p.add_argument('--manager',type=Path);a=p.parse_args()
     root=Path(__file__).resolve().parents[1]
@@ -81,7 +102,7 @@ def main():
         raise ValueError('Private plans must stay under untracked work/, never app/ or public evidence')
     doc,payload,plan,audit=run_pipeline(pd.read_csv(a.history),pd.read_csv(a.target),pd.read_csv(a.roles),
         json.loads(a.provenance.read_text()),pd.read_csv(a.pm_input),json.loads(a.bootstrap.read_text()),
-        json.loads(a.bps_audit.read_text()),json.loads(a.manager.read_text()) if a.manager else None)
+        json.loads(a.bps_audit.read_text()),json.loads(a.manager.read_text()) if a.manager else None,fixtures=json.loads(a.fixtures.read_text()))
     a.out.mkdir(parents=True,exist_ok=True)
     for name,obj in [('mm.json',doc),('forecast.json',payload),('pm-audit.json',audit)]:
         (a.out/name).write_text(json.dumps(obj,sort_keys=True,allow_nan=False)+'\n')
