@@ -156,3 +156,49 @@ not deemed verified solely because the cron exists.
   No comparison tolerance was relaxed to disguise the difference.
 
 Final publication/run/browser verification is recorded below after deployment.
+
+## Same-cutoff current comparison after source-cap hardening
+
+Successful hardened source run:
+https://github.com/pdamkier-del/fpl-analytics-app/actions/runs/39054182018
+Cutoff **2026-10-17T17:39:27.623816Z**. The 26,461 KiB public evidence artifact
+`12109371181` has ZIP SHA-256
+`275e2d830503619f6a77473154bce323011e4f99b1da63cf2f7bc60a35dd4a94`.
+
+`analysis/replay_current_mm_integration.py` restores each original minute input
+from that artifact, replaces only p/q/s/c/x with its actual B contract, and runs
+both unchanged-PM arms over all 60 fixtures with identical seed/draw budgets.
+The B arm reproduces every published xP exactly (maximum difference zero).
+`analysis/results/current-mm-live-comparison-20261017/report.json` records the
+complete comparison summary, code hashes and all 120 XI overlaps. Reproduction
+also writes the full 4,002-row paired CSV. No actual manager is involved.
+
+| GW8 player | Original xM | B xM | Original P(start) | B P(start) | Original xP | B xP |
+|---|---:|---:|---:|---:|---:|---:|
+| Haaland | 77.8033 | 75.3964 | 96.7196% | 93.5282% | 6.2225 | 5.9575 |
+| Saka | 83.6289 | 83.5350 | 93.7524% | 93.6426% | 5.8025 | 6.5100 |
+| Palmer, Chelsea | 84.5713 | 83.3486 | 93.8355% | 92.3634% | 4.2250 | 4.0825 |
+| João Pedro | 78.2207 | 75.3080 | 88.7579% | 85.4185% | 3.6750 | 4.3250 |
+
+Mean xM change is +0.09516 and mean xP change +0.002368 per player-fixture;
+largest absolute xP change is 1.42. XI overlap is 11/11 for 66 club-fixtures,
+10/11 for 48, 9/11 for six (mean 10.5). Every original and B XI has 11 players.
+The generic leading GW8 point scorer changes from Haaland to Saka; this is not
+a personal captain recommendation without a manager squad.
+
+The changes include team-event interactions and 400-draw Monte Carlo noise;
+identical random seeds do not imply event-aligned random numbers. A player can
+gain simulated xP while losing a small amount of xM. These are forecast
+differences, not demonstrated gains in future predictive precision.
+
+The client integration verifier passes on all actual 667 × six-GW records,
+4,002 fixture identities, 120 legal club XIs and 175 zero-minute/zero-point
+hard-unavailable rows. It verifies every public file checksum, appearance and
+minute expectations, hidden unvalidated intervals, expired deadlines and
+changed-price rejection. The standalone B catalogue is derived from its own
+verified official bootstrap; an outdated production catalogue cannot block a
+fresh preview. Actual CI run/code provenance replaces the local-only label.
+
+This source capture has **1,204 complete BPS action rows and 679 quarantined
+rows**. Missing actions remain unknown, not zero-filled. These are current
+counts, not the earlier GW7 audit's 334 rows.

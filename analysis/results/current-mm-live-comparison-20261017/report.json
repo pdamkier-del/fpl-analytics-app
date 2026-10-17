@@ -1,0 +1,991 @@
+{
+  "scope": "same_cutoff_forecast_comparison_not_accuracy_validation",
+  "cutoff": "2026-10-17T17:39:27.623816+00:00",
+  "gws": [
+    8,
+    9,
+    10,
+    11,
+    12,
+    13
+  ],
+  "players": 667,
+  "fixtures": 60,
+  "matched_rows": 4002,
+  "locked_model_active": false,
+  "minute_sampler": "locked",
+  "PM_parameters_changed": false,
+  "TS_parameters_changed": false,
+  "code_sha256": {
+    "src/fpl_v1_1_model/joint_simulator.py": "1794b9081264dde34cc5170e2358501cbe4a7e694ae0d011c3d2b2d35e66a6aa",
+    "src/fpl_v1_1_model/phase4b.py": "0ed9955bec53077b135c50687325be0d83976be6ce27917ca311e5007b3fc0fa",
+    "src/fpl_v1_1_model/paired_joint.py": "f3eda1cc3e1bf326c74c09b150212883a389b02f1b3744ec82369e2e3c876ad6",
+    "scripts/run_vfinal_integrated.py": "92add803a307cc17dc1daa7c3dbbc69a63e10a4b9ff45fe986dcc48f2996b1c3",
+    "src/fpl_xpts/transfer_planner.py": "1b424db371b1ec86d30f1162528437d20637fa6e10dcdf6a667d987b95ec6f04",
+    "scripts/run_live_locked_ts.py": "608fb3e18a59e89dea9476e6a403c7fc9c9cf63a80635b83a9859d7fb169678b",
+    "scripts/run_joint_fh_wc_stopping_replay.py": "829c5ace1fc24c9d78343a046cd7902a6316d5bd90d6b094ce78fe8b8f40a161"
+  },
+  "published_B_xP_max_residual": 0.0,
+  "examples": [
+    {
+      "name": "Saka",
+      "club": "Arsenal",
+      "xmins_original": 83.62892297450557,
+      "xmins_B": 83.53503778658005,
+      "p_start_original": 0.9375237232330116,
+      "p_start_B": 0.9364258918903062,
+      "xpts_original": 5.8025,
+      "xpts_B": 6.51,
+      "delta_xpts": 0.7074999999999996
+    },
+    {
+      "name": "Haaland",
+      "club": "Man City",
+      "xmins_original": 77.80334878979437,
+      "xmins_B": 75.39644191899959,
+      "p_start_original": 0.9671963449694232,
+      "p_start_B": 0.9352817234547238,
+      "xpts_original": 6.2225,
+      "xpts_B": 5.9575,
+      "delta_xpts": -0.26500000000000057
+    },
+    {
+      "name": "Jo\u00e3o Pedro",
+      "club": "Chelsea",
+      "xmins_original": 78.22071180976559,
+      "xmins_B": 75.30804107960142,
+      "p_start_original": 0.8875786389135799,
+      "p_start_B": 0.8541850554353887,
+      "xpts_original": 3.675,
+      "xpts_B": 4.325,
+      "delta_xpts": 0.6500000000000004
+    },
+    {
+      "name": "Palmer",
+      "club": "Chelsea",
+      "xmins_original": 84.57134594082638,
+      "xmins_B": 83.34856747445728,
+      "p_start_original": 0.9383547047702095,
+      "p_start_B": 0.9236344226852933,
+      "xpts_original": 4.225,
+      "xpts_B": 4.0825,
+      "delta_xpts": -0.14250000000000007
+    },
+    {
+      "name": "Palmer",
+      "club": "Ipswich Town",
+      "xmins_original": 1.0570282918883238,
+      "xmins_B": 0.5531685183958343,
+      "p_start_original": 0.0129123857043966,
+      "p_start_B": 0.006448458841226181,
+      "xpts_original": 0.045,
+      "xpts_B": 0.005,
+      "delta_xpts": -0.04
+    }
+  ],
+  "mean_delta_xM": 0.09515735820221038,
+  "mean_delta_xP": 0.0023675662168915535,
+  "max_abs_delta_xP": 1.4199999999999997,
+  "origin_leading_xP_original": [
+    {
+      "name": "Haaland",
+      "club": "Man City",
+      "xpts_original": 6.2225
+    },
+    {
+      "name": "Saka",
+      "club": "Arsenal",
+      "xpts_original": 5.8025
+    },
+    {
+      "name": "B.Fernandes",
+      "club": "Man Utd",
+      "xpts_original": 5.6225
+    },
+    {
+      "name": "\u00d8degaard",
+      "club": "Arsenal",
+      "xpts_original": 5.5125
+    },
+    {
+      "name": "Calafiori",
+      "club": "Arsenal",
+      "xpts_original": 5.2475
+    }
+  ],
+  "origin_leading_xP_B": [
+    {
+      "name": "Saka",
+      "club": "Arsenal",
+      "xpts_B": 6.51
+    },
+    {
+      "name": "Haaland",
+      "club": "Man City",
+      "xpts_B": 5.9575
+    },
+    {
+      "name": "B.Fernandes",
+      "club": "Man Utd",
+      "xpts_B": 5.54
+    },
+    {
+      "name": "Gro\u00df",
+      "club": "Brighton",
+      "xpts_B": 5.495
+    },
+    {
+      "name": "Thiago",
+      "club": "Brentford",
+      "xpts_B": 5.455
+    }
+  ],
+  "XI_changes": [
+    {
+      "fixture": "live-2026-27-fpl-100",
+      "club": 6,
+      "original_count": 11,
+      "B_count": 11,
+      "shared": 11
+    },
+    {
+      "fixture": "live-2026-27-fpl-100",
+      "club": 20,
+      "original_count": 11,
+      "B_count": 11,
+      "shared": 11
+    },
+    {
+      "fixture": "live-2026-27-fpl-101",
+      "club": 2,
+      "original_count": 11,
+      "B_count": 11,
+      "shared": 9
+    },
+    {
+      "fixture": "live-2026-27-fpl-101",
+      "club": 20,
+      "original_count": 11,
+      "B_count": 11,
+      "shared": 11
+    },
+    {
+      "fixture": "live-2026-27-fpl-102",
+      "club": 3,
+      "original_count": 11,
+      "B_count": 11,
+      "shared": 11
+    },
+    {
+      "fixture": "live-2026-27-fpl-102",
+      "club": 18,
+      "original_count": 11,
+      "B_count": 11,
+      "shared": 11
+    },
+    {
+      "fixture": "live-2026-27-fpl-103",
+      "club": 4,
+      "original_count": 11,
+      "B_count": 11,
+      "shared": 10
+    },
+    {
+      "fixture": "live-2026-27-fpl-103",
+      "club": 9,
+      "original_count": 11,
+      "B_count": 11,
+      "shared": 10
+    },
+    {
+      "fixture": "live-2026-27-fpl-104",
+      "club": 6,
+      "original_count": 11,
+      "B_count": 11,
+      "shared": 11
+    },
+    {
+      "fixture": "live-2026-27-fpl-104",
+      "club": 13,
+      "original_count": 11,
+      "B_count": 11,
+      "shared": 11
+    },
+    {
+      "fixture": "live-2026-27-fpl-105",
+      "club": 7,
+      "original_count": 11,
+      "B_count": 11,
+      "shared": 10
+    },
+    {
+      "fixture": "live-2026-27-fpl-105",
+      "club": 8,
+      "original_count": 11,
+      "B_count": 11,
+      "shared": 10
+    },
+    {
+      "fixture": "live-2026-27-fpl-106",
+      "club": 5,
+      "original_count": 11,
+      "B_count": 11,
+      "shared": 11
+    },
+    {
+      "fixture": "live-2026-27-fpl-106",
+      "club": 11,
+      "original_count": 11,
+      "B_count": 11,
+      "shared": 11
+    },
+    {
+      "fixture": "live-2026-27-fpl-107",
+      "club": 14,
+      "original_count": 11,
+      "B_count": 11,
+      "shared": 11
+    },
+    {
+      "fixture": "live-2026-27-fpl-107",
+      "club": 16,
+      "original_count": 11,
+      "B_count": 11,
+      "shared": 11
+    },
+    {
+      "fixture": "live-2026-27-fpl-108",
+      "club": 10,
+      "original_count": 11,
+      "B_count": 11,
+      "shared": 10
+    },
+    {
+      "fixture": "live-2026-27-fpl-108",
+      "club": 15,
+      "original_count": 11,
+      "B_count": 11,
+      "shared": 11
+    },
+    {
+      "fixture": "live-2026-27-fpl-109",
+      "club": 1,
+      "original_count": 11,
+      "B_count": 11,
+      "shared": 10
+    },
+    {
+      "fixture": "live-2026-27-fpl-109",
+      "club": 17,
+      "original_count": 11,
+      "B_count": 11,
+      "shared": 10
+    },
+    {
+      "fixture": "live-2026-27-fpl-110",
+      "club": 12,
+      "original_count": 11,
+      "B_count": 11,
+      "shared": 10
+    },
+    {
+      "fixture": "live-2026-27-fpl-110",
+      "club": 19,
+      "original_count": 11,
+      "B_count": 11,
+      "shared": 11
+    },
+    {
+      "fixture": "live-2026-27-fpl-111",
+      "club": 1,
+      "original_count": 11,
+      "B_count": 11,
+      "shared": 10
+    },
+    {
+      "fixture": "live-2026-27-fpl-111",
+      "club": 15,
+      "original_count": 11,
+      "B_count": 11,
+      "shared": 11
+    },
+    {
+      "fixture": "live-2026-27-fpl-112",
+      "club": 5,
+      "original_count": 11,
+      "B_count": 11,
+      "shared": 11
+    },
+    {
+      "fixture": "live-2026-27-fpl-112",
+      "club": 17,
+      "original_count": 11,
+      "B_count": 11,
+      "shared": 10
+    },
+    {
+      "fixture": "live-2026-27-fpl-113",
+      "club": 8,
+      "original_count": 11,
+      "B_count": 11,
+      "shared": 10
+    },
+    {
+      "fixture": "live-2026-27-fpl-113",
+      "club": 11,
+      "original_count": 11,
+      "B_count": 11,
+      "shared": 11
+    },
+    {
+      "fixture": "live-2026-27-fpl-114",
+      "club": 9,
+      "original_count": 11,
+      "B_count": 11,
+      "shared": 10
+    },
+    {
+      "fixture": "live-2026-27-fpl-114",
+      "club": 14,
+      "original_count": 11,
+      "B_count": 11,
+      "shared": 11
+    },
+    {
+      "fixture": "live-2026-27-fpl-115",
+      "club": 3,
+      "original_count": 11,
+      "B_count": 11,
+      "shared": 11
+    },
+    {
+      "fixture": "live-2026-27-fpl-115",
+      "club": 10,
+      "original_count": 11,
+      "B_count": 11,
+      "shared": 10
+    },
+    {
+      "fixture": "live-2026-27-fpl-116",
+      "club": 2,
+      "original_count": 11,
+      "B_count": 11,
+      "shared": 9
+    },
+    {
+      "fixture": "live-2026-27-fpl-116",
+      "club": 12,
+      "original_count": 11,
+      "B_count": 11,
+      "shared": 10
+    },
+    {
+      "fixture": "live-2026-27-fpl-117",
+      "club": 7,
+      "original_count": 11,
+      "B_count": 11,
+      "shared": 10
+    },
+    {
+      "fixture": "live-2026-27-fpl-117",
+      "club": 13,
+      "original_count": 11,
+      "B_count": 11,
+      "shared": 11
+    },
+    {
+      "fixture": "live-2026-27-fpl-118",
+      "club": 4,
+      "original_count": 11,
+      "B_count": 11,
+      "shared": 10
+    },
+    {
+      "fixture": "live-2026-27-fpl-118",
+      "club": 16,
+      "original_count": 11,
+      "B_count": 11,
+      "shared": 11
+    },
+    {
+      "fixture": "live-2026-27-fpl-119",
+      "club": 6,
+      "original_count": 11,
+      "B_count": 11,
+      "shared": 11
+    },
+    {
+      "fixture": "live-2026-27-fpl-119",
+      "club": 18,
+      "original_count": 11,
+      "B_count": 11,
+      "shared": 11
+    },
+    {
+      "fixture": "live-2026-27-fpl-120",
+      "club": 19,
+      "original_count": 11,
+      "B_count": 11,
+      "shared": 11
+    },
+    {
+      "fixture": "live-2026-27-fpl-120",
+      "club": 20,
+      "original_count": 11,
+      "B_count": 11,
+      "shared": 11
+    },
+    {
+      "fixture": "live-2026-27-fpl-121",
+      "club": 2,
+      "original_count": 11,
+      "B_count": 11,
+      "shared": 9
+    },
+    {
+      "fixture": "live-2026-27-fpl-121",
+      "club": 9,
+      "original_count": 11,
+      "B_count": 11,
+      "shared": 10
+    },
+    {
+      "fixture": "live-2026-27-fpl-122",
+      "club": 3,
+      "original_count": 11,
+      "B_count": 11,
+      "shared": 11
+    },
+    {
+      "fixture": "live-2026-27-fpl-122",
+      "club": 5,
+      "original_count": 11,
+      "B_count": 11,
+      "shared": 11
+    },
+    {
+      "fixture": "live-2026-27-fpl-123",
+      "club": 1,
+      "original_count": 11,
+      "B_count": 11,
+      "shared": 10
+    },
+    {
+      "fixture": "live-2026-27-fpl-123",
+      "club": 4,
+      "original_count": 11,
+      "B_count": 11,
+      "shared": 10
+    },
+    {
+      "fixture": "live-2026-27-fpl-124",
+      "club": 6,
+      "original_count": 11,
+      "B_count": 11,
+      "shared": 11
+    },
+    {
+      "fixture": "live-2026-27-fpl-124",
+      "club": 8,
+      "original_count": 11,
+      "B_count": 11,
+      "shared": 10
+    },
+    {
+      "fixture": "live-2026-27-fpl-125",
+      "club": 7,
+      "original_count": 11,
+      "B_count": 11,
+      "shared": 10
+    },
+    {
+      "fixture": "live-2026-27-fpl-125",
+      "club": 12,
+      "original_count": 11,
+      "B_count": 11,
+      "shared": 10
+    },
+    {
+      "fixture": "live-2026-27-fpl-126",
+      "club": 11,
+      "original_count": 11,
+      "B_count": 11,
+      "shared": 11
+    },
+    {
+      "fixture": "live-2026-27-fpl-126",
+      "club": 18,
+      "original_count": 11,
+      "B_count": 11,
+      "shared": 11
+    },
+    {
+      "fixture": "live-2026-27-fpl-127",
+      "club": 14,
+      "original_count": 11,
+      "B_count": 11,
+      "shared": 11
+    },
+    {
+      "fixture": "live-2026-27-fpl-127",
+      "club": 20,
+      "original_count": 11,
+      "B_count": 11,
+      "shared": 11
+    },
+    {
+      "fixture": "live-2026-27-fpl-128",
+      "club": 13,
+      "original_count": 11,
+      "B_count": 11,
+      "shared": 11
+    },
+    {
+      "fixture": "live-2026-27-fpl-128",
+      "club": 15,
+      "original_count": 11,
+      "B_count": 11,
+      "shared": 11
+    },
+    {
+      "fixture": "live-2026-27-fpl-129",
+      "club": 16,
+      "original_count": 11,
+      "B_count": 11,
+      "shared": 11
+    },
+    {
+      "fixture": "live-2026-27-fpl-129",
+      "club": 17,
+      "original_count": 11,
+      "B_count": 11,
+      "shared": 10
+    },
+    {
+      "fixture": "live-2026-27-fpl-130",
+      "club": 10,
+      "original_count": 11,
+      "B_count": 11,
+      "shared": 10
+    },
+    {
+      "fixture": "live-2026-27-fpl-130",
+      "club": 19,
+      "original_count": 11,
+      "B_count": 11,
+      "shared": 11
+    },
+    {
+      "fixture": "live-2026-27-fpl-71",
+      "club": 1,
+      "original_count": 11,
+      "B_count": 11,
+      "shared": 10
+    },
+    {
+      "fixture": "live-2026-27-fpl-71",
+      "club": 9,
+      "original_count": 11,
+      "B_count": 11,
+      "shared": 10
+    },
+    {
+      "fixture": "live-2026-27-fpl-72",
+      "club": 2,
+      "original_count": 11,
+      "B_count": 11,
+      "shared": 9
+    },
+    {
+      "fixture": "live-2026-27-fpl-72",
+      "club": 15,
+      "original_count": 11,
+      "B_count": 11,
+      "shared": 11
+    },
+    {
+      "fixture": "live-2026-27-fpl-73",
+      "club": 6,
+      "original_count": 11,
+      "B_count": 11,
+      "shared": 10
+    },
+    {
+      "fixture": "live-2026-27-fpl-73",
+      "club": 19,
+      "original_count": 11,
+      "B_count": 11,
+      "shared": 11
+    },
+    {
+      "fixture": "live-2026-27-fpl-74",
+      "club": 7,
+      "original_count": 11,
+      "B_count": 11,
+      "shared": 10
+    },
+    {
+      "fixture": "live-2026-27-fpl-74",
+      "club": 10,
+      "original_count": 11,
+      "B_count": 11,
+      "shared": 10
+    },
+    {
+      "fixture": "live-2026-27-fpl-75",
+      "club": 8,
+      "original_count": 11,
+      "B_count": 11,
+      "shared": 11
+    },
+    {
+      "fixture": "live-2026-27-fpl-75",
+      "club": 17,
+      "original_count": 11,
+      "B_count": 11,
+      "shared": 10
+    },
+    {
+      "fixture": "live-2026-27-fpl-76",
+      "club": 4,
+      "original_count": 11,
+      "B_count": 11,
+      "shared": 11
+    },
+    {
+      "fixture": "live-2026-27-fpl-76",
+      "club": 11,
+      "original_count": 11,
+      "B_count": 11,
+      "shared": 11
+    },
+    {
+      "fixture": "live-2026-27-fpl-77",
+      "club": 12,
+      "original_count": 11,
+      "B_count": 11,
+      "shared": 10
+    },
+    {
+      "fixture": "live-2026-27-fpl-77",
+      "club": 18,
+      "original_count": 11,
+      "B_count": 11,
+      "shared": 11
+    },
+    {
+      "fixture": "live-2026-27-fpl-78",
+      "club": 5,
+      "original_count": 11,
+      "B_count": 11,
+      "shared": 11
+    },
+    {
+      "fixture": "live-2026-27-fpl-78",
+      "club": 14,
+      "original_count": 11,
+      "B_count": 11,
+      "shared": 11
+    },
+    {
+      "fixture": "live-2026-27-fpl-79",
+      "club": 3,
+      "original_count": 11,
+      "B_count": 11,
+      "shared": 11
+    },
+    {
+      "fixture": "live-2026-27-fpl-79",
+      "club": 16,
+      "original_count": 11,
+      "B_count": 11,
+      "shared": 11
+    },
+    {
+      "fixture": "live-2026-27-fpl-80",
+      "club": 13,
+      "original_count": 11,
+      "B_count": 11,
+      "shared": 11
+    },
+    {
+      "fixture": "live-2026-27-fpl-80",
+      "club": 20,
+      "original_count": 11,
+      "B_count": 11,
+      "shared": 10
+    },
+    {
+      "fixture": "live-2026-27-fpl-81",
+      "club": 2,
+      "original_count": 11,
+      "B_count": 11,
+      "shared": 9
+    },
+    {
+      "fixture": "live-2026-27-fpl-81",
+      "club": 10,
+      "original_count": 11,
+      "B_count": 11,
+      "shared": 10
+    },
+    {
+      "fixture": "live-2026-27-fpl-82",
+      "club": 3,
+      "original_count": 11,
+      "B_count": 11,
+      "shared": 11
+    },
+    {
+      "fixture": "live-2026-27-fpl-82",
+      "club": 13,
+      "original_count": 11,
+      "B_count": 11,
+      "shared": 11
+    },
+    {
+      "fixture": "live-2026-27-fpl-83",
+      "club": 4,
+      "original_count": 11,
+      "B_count": 11,
+      "shared": 10
+    },
+    {
+      "fixture": "live-2026-27-fpl-83",
+      "club": 18,
+      "original_count": 11,
+      "B_count": 11,
+      "shared": 11
+    },
+    {
+      "fixture": "live-2026-27-fpl-84",
+      "club": 6,
+      "original_count": 11,
+      "B_count": 11,
+      "shared": 11
+    },
+    {
+      "fixture": "live-2026-27-fpl-84",
+      "club": 16,
+      "original_count": 11,
+      "B_count": 11,
+      "shared": 11
+    },
+    {
+      "fixture": "live-2026-27-fpl-85",
+      "club": 7,
+      "original_count": 11,
+      "B_count": 11,
+      "shared": 10
+    },
+    {
+      "fixture": "live-2026-27-fpl-85",
+      "club": 20,
+      "original_count": 11,
+      "B_count": 11,
+      "shared": 11
+    },
+    {
+      "fixture": "live-2026-27-fpl-86",
+      "club": 11,
+      "original_count": 11,
+      "B_count": 11,
+      "shared": 11
+    },
+    {
+      "fixture": "live-2026-27-fpl-86",
+      "club": 12,
+      "original_count": 11,
+      "B_count": 11,
+      "shared": 10
+    },
+    {
+      "fixture": "live-2026-27-fpl-87",
+      "club": 1,
+      "original_count": 11,
+      "B_count": 11,
+      "shared": 10
+    },
+    {
+      "fixture": "live-2026-27-fpl-87",
+      "club": 14,
+      "original_count": 11,
+      "B_count": 11,
+      "shared": 11
+    },
+    {
+      "fixture": "live-2026-27-fpl-88",
+      "club": 5,
+      "original_count": 11,
+      "B_count": 11,
+      "shared": 11
+    },
+    {
+      "fixture": "live-2026-27-fpl-88",
+      "club": 15,
+      "original_count": 11,
+      "B_count": 11,
+      "shared": 11
+    },
+    {
+      "fixture": "live-2026-27-fpl-89",
+      "club": 9,
+      "original_count": 11,
+      "B_count": 11,
+      "shared": 10
+    },
+    {
+      "fixture": "live-2026-27-fpl-89",
+      "club": 17,
+      "original_count": 11,
+      "B_count": 11,
+      "shared": 10
+    },
+    {
+      "fixture": "live-2026-27-fpl-90",
+      "club": 8,
+      "original_count": 11,
+      "B_count": 11,
+      "shared": 10
+    },
+    {
+      "fixture": "live-2026-27-fpl-90",
+      "club": 19,
+      "original_count": 11,
+      "B_count": 11,
+      "shared": 11
+    },
+    {
+      "fixture": "live-2026-27-fpl-91",
+      "club": 1,
+      "original_count": 11,
+      "B_count": 11,
+      "shared": 10
+    },
+    {
+      "fixture": "live-2026-27-fpl-91",
+      "club": 11,
+      "original_count": 11,
+      "B_count": 11,
+      "shared": 11
+    },
+    {
+      "fixture": "live-2026-27-fpl-92",
+      "club": 4,
+      "original_count": 11,
+      "B_count": 11,
+      "shared": 10
+    },
+    {
+      "fixture": "live-2026-27-fpl-92",
+      "club": 5,
+      "original_count": 11,
+      "B_count": 11,
+      "shared": 11
+    },
+    {
+      "fixture": "live-2026-27-fpl-93",
+      "club": 8,
+      "original_count": 11,
+      "B_count": 11,
+      "shared": 10
+    },
+    {
+      "fixture": "live-2026-27-fpl-93",
+      "club": 14,
+      "original_count": 11,
+      "B_count": 11,
+      "shared": 11
+    },
+    {
+      "fixture": "live-2026-27-fpl-94",
+      "club": 7,
+      "original_count": 11,
+      "B_count": 11,
+      "shared": 10
+    },
+    {
+      "fixture": "live-2026-27-fpl-94",
+      "club": 9,
+      "original_count": 11,
+      "B_count": 11,
+      "shared": 10
+    },
+    {
+      "fixture": "live-2026-27-fpl-95",
+      "club": 10,
+      "original_count": 11,
+      "B_count": 11,
+      "shared": 10
+    },
+    {
+      "fixture": "live-2026-27-fpl-95",
+      "club": 17,
+      "original_count": 11,
+      "B_count": 11,
+      "shared": 10
+    },
+    {
+      "fixture": "live-2026-27-fpl-96",
+      "club": 3,
+      "original_count": 11,
+      "B_count": 11,
+      "shared": 11
+    },
+    {
+      "fixture": "live-2026-27-fpl-96",
+      "club": 12,
+      "original_count": 11,
+      "B_count": 11,
+      "shared": 10
+    },
+    {
+      "fixture": "live-2026-27-fpl-97",
+      "club": 13,
+      "original_count": 11,
+      "B_count": 11,
+      "shared": 11
+    },
+    {
+      "fixture": "live-2026-27-fpl-97",
+      "club": 19,
+      "original_count": 11,
+      "B_count": 11,
+      "shared": 11
+    },
+    {
+      "fixture": "live-2026-27-fpl-98",
+      "club": 2,
+      "original_count": 11,
+      "B_count": 11,
+      "shared": 9
+    },
+    {
+      "fixture": "live-2026-27-fpl-98",
+      "club": 16,
+      "original_count": 11,
+      "B_count": 11,
+      "shared": 11
+    },
+    {
+      "fixture": "live-2026-27-fpl-99",
+      "club": 15,
+      "original_count": 11,
+      "B_count": 11,
+      "shared": 11
+    },
+    {
+      "fixture": "live-2026-27-fpl-99",
+      "club": 18,
+      "original_count": 11,
+      "B_count": 11,
+      "shared": 11
+    }
+  ],
+  "manager_TS": "Not Available: no actual manager record in this environment",
+  "limitations": [
+    "Forecast differences are not observed accuracy gains.",
+    "Independent validation is unavailable.",
+    "Unchanged locked sampler retains the disclosed MM/PM expectation gap."
+  ]
+}
