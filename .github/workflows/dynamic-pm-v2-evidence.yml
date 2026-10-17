@@ -1,0 +1,78 @@
+name: Dynamic PM v2 reliability diagnosis and evidence
+on:
+  push:
+    branches: [model-audit-optimization-20261012]
+    paths:
+      - scripts/postprocess_dynamic_pm_v2.py
+      - .github/workflows/dynamic-pm-v2-evidence.yml
+  workflow_dispatch:
+permissions:
+  contents: read
+  actions: read
+concurrency:
+  group: dynamic-pm-v2-evidence-${{ github.ref }}
+  cancel-in-progress: true
+env:
+  PYTHONPATH: src:scripts
+  OPENBLAS_NUM_THREADS: '1'
+  OMP_NUM_THREADS: '1'
+jobs:
+  evidence:
+    runs-on: ubuntu-latest
+    timeout-minutes: 180
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: pip install -r requirements-model-checkpoint.txt requests
+      - name: Wait for pinned controlled matrix
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          python - <<'PY'
+          import os,time,requests
+          url='https://api.github.com/repos/pdamkier-del/fpl-analytics-app/actions/runs/38772814007'
+          for attempt in range(300):
+              r=requests.get(url,headers={'Authorization':'Bearer '+os.environ['GH_TOKEN']},timeout=30);r.raise_for_status();d=r.json()
+              assert d['head_sha']=='72b61e46e9144dd74992fe32dc18bd36f9d05396'
+              if d['status']=='completed':
+                  assert d['conclusion']=='success',d['conclusion'];break
+              print('Awaiting controlled matrix',d['status'],flush=True);time.sleep(30)
+          else:raise SystemExit('Pinned matrix still incomplete; refuse partial evidence')
+          PY
+      - uses: actions/download-artifact@v4
+        with:
+          github-token: ${{ github.token }}
+          run-id: '38772814007'
+          pattern: dynamic-pm-*
+          merge-multiple: true
+          path: analysis/results/dynamic-pm-v2-20261015
+      - uses: actions/download-artifact@v4
+        with:
+          github-token: ${{ github.token }}
+          run-id: '38729720330'
+          pattern: player-pm-v2-20*
+          merge-multiple: true
+          path: work/dynamic-source
+      - name: Reuse completed unchanged six-seed simulations
+        uses: actions/download-artifact@v4
+        with:
+          github-token: ${{ github.token }}
+          run-id: '38774188162'
+          name: dynamic-pm-complete-evidence
+          path: analysis/results/dynamic-pm-v2-20261015
+      - run: python scripts/postprocess_dynamic_pm_v2.py --stage diagnose
+      - run: python scripts/locked_numerical_runtime.py scripts/postprocess_dynamic_pm_v2.py --stage mc
+        if: ${{ hashFiles('analysis/results/dynamic-pm-v2-20261015/monte_carlo_report.json') == '' }}
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: dynamic-pm-complete-evidence
+          path: |
+            analysis/results/dynamic-pm-v2-20261015/*report.json
+            analysis/results/dynamic-pm-v2-20261015/selection.json
+            analysis/results/dynamic-pm-v2-20261015/summary.json
+          retention-days: 90
+      - name: Export exact JSON with original hashes
+        run: python scripts/postprocess_dynamic_pm_v2.py --stage export

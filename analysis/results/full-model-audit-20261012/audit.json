@@ -1,0 +1,387 @@
+{
+  "classification": "READ_ONLY_FULL_CHAIN_AUDIT",
+  "base_commit": "2b1983a",
+  "source_cutoff": "2026-10-12T10:45:27.093744+00:00",
+  "source_workflow": "https://github.com/pdamkier-del/fpl-analytics-app/actions/runs/38238230716",
+  "input_checksums": {
+    "vfinal_live_full_simulator_input.csv.gz": "482d581173d9f22b389e400ce3d22f8a59ebcba67024006b1d4bb9aecaa9a5ae",
+    "live_vfinal_fixture_xp.csv.gz": "17426cce46ae631f785886a290688eca05c7221a1b0df3c2022ae82e9bac2879",
+    "player_fixture_observations.csv.gz": "420c83934b467b34825813fbc3444fb719ba4622e3ab0ae01431b6a397ff482b",
+    "observed_team_xg_history.csv.gz": "48dbe72ab194973c7551a3e35ec35e686ad3b24da34a2ba5032f06b4b0025469",
+    "reconstructed_training_features.csv.gz": "072b7dffe82024573f2de709e252f7bebca2b5abdb0c33fd2ca44293fec8af80"
+  },
+  "locked_model_active": false,
+  "focus": {
+    "Haaland": {
+      "fpl_id": 411,
+      "observed_games": 6,
+      "starts": 6,
+      "minutes": 529.0,
+      "forecast": [
+        {
+          "gw": 7,
+          "p_start": 0.8382304242200972,
+          "mm_xmins": 68.30182426262957,
+          "conditional_start_minutes": 80.27730395306997,
+          "simulated_minutes": 68.5475,
+          "xp": 5.92,
+          "components": {
+            "appearance_points": 1.77,
+            "goal_points": 3.05,
+            "assist_points": 0.24,
+            "cs_points": 0.0,
+            "save_points": 0.0,
+            "dc_points": 0.01,
+            "negative_points": -0.1275,
+            "gc_points": 0.0,
+            "penalty_save_points": 0.0,
+            "expected_bonus": 0.9775
+          },
+          "penalty_miss_subcomponent": -0.015,
+          "goal_mu": 0.7703635160042906,
+          "assist_mu": 0.1018402011833662
+        },
+        {
+          "gw": 8,
+          "p_start": 0.8338267722443992,
+          "mm_xmins": 67.97583067239793,
+          "conditional_start_minutes": 80.27730395306997,
+          "simulated_minutes": 66.6775,
+          "xp": 4.6225,
+          "components": {
+            "appearance_points": 1.7075,
+            "goal_points": 2.13,
+            "assist_points": 0.195,
+            "cs_points": 0.0,
+            "save_points": 0.0,
+            "dc_points": 0.025,
+            "negative_points": -0.1225,
+            "gc_points": 0.0,
+            "penalty_save_points": 0.0,
+            "expected_bonus": 0.6875
+          },
+          "penalty_miss_subcomponent": -0.005,
+          "goal_mu": 0.6101513872577365,
+          "assist_mu": 0.0806174783223203
+        },
+        {
+          "gw": 9,
+          "p_start": 0.8338267722443992,
+          "mm_xmins": 67.97583067239793,
+          "conditional_start_minutes": 80.27730395306997,
+          "simulated_minutes": 69.0925,
+          "xp": 5.3325,
+          "components": {
+            "appearance_points": 1.7425,
+            "goal_points": 2.69,
+            "assist_points": 0.18,
+            "cs_points": 0.0,
+            "save_points": 0.0,
+            "dc_points": 0.01,
+            "negative_points": -0.15,
+            "gc_points": 0.0,
+            "penalty_save_points": 0.0,
+            "expected_bonus": 0.86
+          },
+          "penalty_miss_subcomponent": -0.005,
+          "goal_mu": 0.7071899662307415,
+          "assist_mu": 0.0934388955970473
+        },
+        {
+          "gw": 10,
+          "p_start": 0.8338267722443992,
+          "mm_xmins": 67.97583067239793,
+          "conditional_start_minutes": 80.27730395306997,
+          "simulated_minutes": 67.6375,
+          "xp": 4.455,
+          "components": {
+            "appearance_points": 1.745,
+            "goal_points": 1.94,
+            "assist_points": 0.135,
+            "cs_points": 0.0,
+            "save_points": 0.0,
+            "dc_points": 0.055,
+            "negative_points": -0.165,
+            "gc_points": 0.0,
+            "penalty_save_points": 0.0,
+            "expected_bonus": 0.745
+          },
+          "penalty_miss_subcomponent": -0.005,
+          "goal_mu": 0.5573759500066403,
+          "assist_mu": 0.0736444176075636
+        },
+        {
+          "gw": 11,
+          "p_start": 0.8338267722443992,
+          "mm_xmins": 67.97583067239793,
+          "conditional_start_minutes": 80.27730395306997,
+          "simulated_minutes": 67.575,
+          "xp": 5.3,
+          "components": {
+            "appearance_points": 1.7325,
+            "goal_points": 2.67,
+            "assist_points": 0.1875,
+            "cs_points": 0.0,
+            "save_points": 0.0,
+            "dc_points": 0.025,
+            "negative_points": -0.18,
+            "gc_points": 0.0,
+            "penalty_save_points": 0.0,
+            "expected_bonus": 0.865
+          },
+          "penalty_miss_subcomponent": -0.025,
+          "goal_mu": 0.7124737345853731,
+          "assist_mu": 0.0941370241102088
+        },
+        {
+          "gw": 12,
+          "p_start": 0.8338267722443992,
+          "mm_xmins": 67.97583067239793,
+          "conditional_start_minutes": 80.27730395306997,
+          "simulated_minutes": 70.2925,
+          "xp": 3.695,
+          "components": {
+            "appearance_points": 1.79,
+            "goal_points": 1.42,
+            "assist_points": 0.12,
+            "cs_points": 0.0,
+            "save_points": 0.0,
+            "dc_points": 0.025,
+            "negative_points": -0.13,
+            "gc_points": 0.0,
+            "penalty_save_points": 0.0,
+            "expected_bonus": 0.47
+          },
+          "penalty_miss_subcomponent": -0.025,
+          "goal_mu": 0.3824356607842514,
+          "assist_mu": 0.0505300802994539
+        }
+      ]
+    },
+    "Saka": {
+      "fpl_id": 12,
+      "observed_games": 6,
+      "starts": 6,
+      "minutes": 506.0,
+      "forecast": [
+        {
+          "gw": 7,
+          "p_start": 0.954422101282508,
+          "mm_xmins": 85.25503510312943,
+          "conditional_start_minutes": 88.97181742193612,
+          "simulated_minutes": 82.8275,
+          "xp": 5.74,
+          "components": {
+            "appearance_points": 1.9525,
+            "goal_points": 2.0375,
+            "assist_points": 0.69,
+            "cs_points": 0.325,
+            "save_points": 0.0,
+            "dc_points": 0.17,
+            "negative_points": -0.2075,
+            "gc_points": 0.0,
+            "penalty_save_points": 0.0,
+            "expected_bonus": 0.7725
+          },
+          "penalty_miss_subcomponent": -0.035,
+          "goal_mu": 0.3958277462182005,
+          "assist_mu": 0.229730592929927
+        },
+        {
+          "gw": 8,
+          "p_start": 0.9510082277356032,
+          "mm_xmins": 84.97664085515355,
+          "conditional_start_minutes": 88.97181742193612,
+          "simulated_minutes": 80.2225,
+          "xp": 6.2375,
+          "components": {
+            "appearance_points": 1.9025,
+            "goal_points": 2.5,
+            "assist_points": 0.735,
+            "cs_points": 0.34,
+            "save_points": 0.0,
+            "dc_points": 0.185,
+            "negative_points": -0.22,
+            "gc_points": 0.0,
+            "penalty_save_points": 0.0,
+            "expected_bonus": 0.795
+          },
+          "penalty_miss_subcomponent": -0.06,
+          "goal_mu": 0.4688541661382914,
+          "assist_mu": 0.271448156322675
+        },
+        {
+          "gw": 9,
+          "p_start": 0.9510082277356032,
+          "mm_xmins": 84.97664085515355,
+          "conditional_start_minutes": 88.97181742193612,
+          "simulated_minutes": 80.5225,
+          "xp": 4.9475,
+          "components": {
+            "appearance_points": 1.91,
+            "goal_points": 1.65,
+            "assist_points": 0.4725,
+            "cs_points": 0.39,
+            "save_points": 0.0,
+            "dc_points": 0.15,
+            "negative_points": -0.22,
+            "gc_points": 0.0,
+            "penalty_save_points": 0.0,
+            "expected_bonus": 0.595
+          },
+          "penalty_miss_subcomponent": -0.065,
+          "goal_mu": 0.3539710844483136,
+          "assist_mu": 0.2049353620048496
+        },
+        {
+          "gw": 10,
+          "p_start": 0.9510082277356032,
+          "mm_xmins": 84.97664085515355,
+          "conditional_start_minutes": 88.97181742193612,
+          "simulated_minutes": 81.86,
+          "xp": 6.61,
+          "components": {
+            "appearance_points": 1.9275,
+            "goal_points": 2.575,
+            "assist_points": 0.7725,
+            "cs_points": 0.4825,
+            "save_points": 0.0,
+            "dc_points": 0.155,
+            "negative_points": -0.2,
+            "gc_points": 0.0,
+            "penalty_save_points": 0.0,
+            "expected_bonus": 0.8975
+          },
+          "penalty_miss_subcomponent": -0.025,
+          "goal_mu": 0.505165489463835,
+          "assist_mu": 0.2924709870496351
+        },
+        {
+          "gw": 11,
+          "p_start": 0.9510082277356032,
+          "mm_xmins": 84.97664085515355,
+          "conditional_start_minutes": 88.97181742193612,
+          "simulated_minutes": 80.975,
+          "xp": 6.4225,
+          "components": {
+            "appearance_points": 1.915,
+            "goal_points": 2.575,
+            "assist_points": 0.7425,
+            "cs_points": 0.38,
+            "save_points": 0.0,
+            "dc_points": 0.155,
+            "negative_points": -0.1575,
+            "gc_points": 0.0,
+            "penalty_save_points": 0.0,
+            "expected_bonus": 0.8125
+          },
+          "penalty_miss_subcomponent": -0.01,
+          "goal_mu": 0.5351426431588047,
+          "assist_mu": 0.3098265822218466
+        },
+        {
+          "gw": 12,
+          "p_start": 0.9510082277356032,
+          "mm_xmins": 84.97664085515355,
+          "conditional_start_minutes": 88.97181742193612,
+          "simulated_minutes": 81.9125,
+          "xp": 6.2075,
+          "components": {
+            "appearance_points": 1.93,
+            "goal_points": 2.4625,
+            "assist_points": 0.6975,
+            "cs_points": 0.34,
+            "save_points": 0.0,
+            "dc_points": 0.175,
+            "negative_points": -0.1525,
+            "gc_points": 0.0,
+            "penalty_save_points": 0.0,
+            "expected_bonus": 0.755
+          },
+          "penalty_miss_subcomponent": -0.03,
+          "goal_mu": 0.4511340595893138,
+          "assist_mu": 0.2611889102714358
+        }
+      ]
+    },
+    "Chelsea": {
+      "games": 6.0,
+      "xg": 8.51,
+      "goals": 15.0,
+      "tau50_factor": 1.1109212100495642,
+      "forecast": [
+        {
+          "gw": 7,
+          "original_lambda": 1.342868819888325,
+          "tau50_shadow_lambda": 1.4918214543281683
+        },
+        {
+          "gw": 8,
+          "original_lambda": 1.4180842606513095,
+          "tau50_shadow_lambda": 1.5753798827949945
+        },
+        {
+          "gw": 9,
+          "original_lambda": 1.527247201705947,
+          "tau50_shadow_lambda": 1.6966513093639817
+        },
+        {
+          "gw": 10,
+          "original_lambda": 1.3174999566143584,
+          "tau50_shadow_lambda": 1.4636386460422715
+        },
+        {
+          "gw": 11,
+          "original_lambda": 1.391413517313821,
+          "tau50_shadow_lambda": 1.5457507883335901
+        },
+        {
+          "gw": 12,
+          "original_lambda": 1.28323855178228,
+          "tau50_shadow_lambda": 1.4255769247282208
+        }
+      ]
+    }
+  },
+  "current_bps_quality": {
+    "verified_player_match_rows": 1204,
+    "quarantined_rows": 617,
+    "missing_fields": {
+      "chances_created": 113,
+      "dispossessed": 118,
+      "was_fouled": 292,
+      "accurate_passes_percent": 18,
+      "tackles_won": 284
+    }
+  },
+  "training_rows": 3775,
+  "training_gws": [
+    1,
+    2,
+    3,
+    4,
+    5,
+    6
+  ],
+  "baseline_duration_constants": {
+    "ROLE_H": 1.3150986300759975,
+    "DUR_H": 0.32192611540889443,
+    "LI": 0.03186876473704488,
+    "LS": 0.6645162300313383
+  },
+  "structural_checks": {
+    "expected_starters_max_error": 1.1297629498585593e-12,
+    "minute_mean_bias": -0.8068152250637121,
+    "worst_minute_mean_bias": -3.9680310309682625,
+    "player_fixture_rows_with_cameo_mean_above_old_sampler_support": 6,
+    "independent_starts_not_exact_realized_xi": true,
+    "mean_p_exact_realized_11_starts": 0.259064467338849,
+    "mean_p_more_than_11_starts": 0.37241481684786115
+  },
+  "restrictions": [
+    "Historical availability uses documented kickoff proxies, not recovered publication clocks",
+    "2025/26 GW22-38 has been reused for previous model decisions",
+    "MM vNext is a shadow minute model, not the minute source of original PM/TS",
+    "2125-point benchmark reproduces its ledger but archived GW6-38 forecasts contain only current-GW targets, not a six-GW horizon"
+  ]
+}

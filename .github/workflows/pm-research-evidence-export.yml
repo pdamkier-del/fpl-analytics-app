@@ -1,0 +1,60 @@
+name: Preserve completed PM research reports
+on:
+  push:
+    branches: [model-audit-optimization-20261012]
+    paths: [.github/workflows/pm-research-evidence-export.yml]
+  workflow_dispatch:
+permissions:
+  contents: read
+  actions: read
+jobs:
+  reports:
+    runs-on: ubuntu-latest
+    timeout-minutes: 180
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/github-script@v7
+        with:
+          script: |
+            for (let i=0; i<330; i++) {
+              const r=await github.rest.actions.getWorkflowRun({...context.repo,run_id:38717540912});
+              if(r.data.head_sha!=='08ff78a066b341d56e07087d9c4536a6a05fc1c2')throw new Error('Unexpected source code');
+              if(r.data.status==='completed') {
+                if(r.data.conclusion!=='success')throw new Error('Source PM research failed; no success evidence exported');
+                return;
+              }
+              await new Promise(resolve=>setTimeout(resolve,30000));
+            }
+            throw new Error('Source PM research has not finished');
+      - uses: actions/download-artifact@v4
+        with:
+          github-token: ${{ github.token }}
+          run-id: '38717540912'
+          pattern: pm-conversion-*
+          merge-multiple: true
+          path: work/results
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: |
+          pip install -r requirements-model-checkpoint.txt
+          python scripts/restore_core_checkpoint.py
+          PYTHONPATH=src:scripts python scripts/postprocess_pm_conversion.py
+      - run: |
+          python - <<'PY'
+          from pathlib import Path
+          import json,hashlib
+          reports=[]
+          for p in Path('work/results').rglob('*.json'):
+              if p.name in ['2024-25_locked_report.json','2024-25_mm_report.json','2025-26_locked_report.json','2025-26_mm_report.json','current_conversion_report.json']:
+                  reports.append(p)
+          assert len(reports)==5,[str(p) for p in reports]
+          for p in sorted(reports):
+              print(json.dumps(dict(file=p.name,sha256=hashlib.sha256(p.read_bytes()).hexdigest(),source_run=38717540912,source_commit='08ff78a066b341d56e07087d9c4536a6a05fc1c2',report=json.loads(p.read_text())),indent=2))
+          PY
+      - uses: actions/upload-artifact@v4
+        with:
+          name: verified-pm-reports
+          retention-days: 90
+          path: work/results/*report.json
+

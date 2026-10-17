@@ -1,0 +1,57 @@
+{
+  "classification": "PM_RESEARCH_VALIDATION_NOT_PRODUCTION_APPROVAL",
+  "numeric_source_commit": "08ff78a066b341d56e07087d9c4536a6a05fc1c2",
+  "numeric_workflow": 38717540912,
+  "numeric_workflow_conclusion": "success",
+  "additional_workflow": 38720669600,
+  "additional_workflow_conclusion": "success",
+  "full_audit_workflow": 38720239913,
+  "full_audit_commit": "7c16891702d89fdbd0c4c9da633c20491c83cba3",
+  "full_audit_conclusion": "success",
+  "local_regressions": {
+    "passed": 519,
+    "seconds": 21.76,
+    "command": "OPENBLAS_NUM_THREADS=1 OMP_NUM_THREADS=1 PYTHONPATH=src:scripts python -m pytest tests -q"
+  },
+  "five_original_report_hashes_verified": true,
+  "locked_mm_arms_reproduce_locked_reference": true,
+  "experimental_mm_arms_use_own_unchanged_pm_reference": true,
+  "all_current_components_sum": true,
+  "files": [
+    {
+      "file": "2024-25_locked_report.json",
+      "sha256": "60cff60ecd87a963270ba36777c905cd0664dd97de3e0a51636f8ffbb334bf9d",
+      "source_hash_matches": true
+    },
+    {
+      "file": "2024-25_mm_report.json",
+      "sha256": "65a749e3775393811a4e549c83847fc07ed886b49b0bdea4744e549fc8e1b9ec",
+      "source_hash_matches": true
+    },
+    {
+      "file": "2025-26_locked_report.json",
+      "sha256": "c5dc2835a4e737886ffd6da4d2cff67e445ce5f5e95a360380b2f61d0620bdd0",
+      "source_hash_matches": true
+    },
+    {
+      "file": "2025-26_mm_report.json",
+      "sha256": "97c3f1ccccf575a2cc1351e17cc8f71e155b39033f2eb73577a87dccfd73ca0f",
+      "source_hash_matches": true
+    },
+    {
+      "file": "current_conversion_report.json",
+      "sha256": "678a179492493797bb995e7f2436ea5e3c041035043e239553d2e81a987bd08a",
+      "source_hash_matches": true
+    },
+    {
+      "file": "additional_calibration_report.json",
+      "sha256": "da5ebd9fa379946e529691163d161fbacfaa1232fbcfad81605cd5f591c8f8d0",
+      "source_run": 38720669600,
+      "postprocessing_only": true
+    }
+  ],
+  "protected_production_paths_changed_since_pm_start": [],
+  "protected_comparison": "75e6ad9...9c7ecbb2dc1398fb425104f44096782c48324d81",
+  "candidate_promoted": false,
+  "locked_model_active": false
+}

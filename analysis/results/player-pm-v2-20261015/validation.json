@@ -1,0 +1,161 @@
+{
+  "classification": "PLAYER_PM_V2_COMPLETED_RESEARCH_NOT_PRODUCTION_APPROVAL",
+  "primary_run": 38729720330,
+  "primary_commit": "852f23790ebb4769272b5c8e02b8b30a1794551a",
+  "matrix_jobs_passed": 18,
+  "fixture_arms": {
+    "seasons": 2,
+    "mm_arms": 2,
+    "fixtures_each": 330
+  },
+  "historical_match_draws": 1584000,
+  "draws_per_model_fixture": 400,
+  "locked_mm_references_exact": true,
+  "experimental_mm_uses_own_unchanged_pm_reference": true,
+  "report_hashes_verified": 9,
+  "current_component_sums_verified": true,
+  "regressions": {
+    "passed": 532,
+    "seconds": 22.58,
+    "workflow": 38766320676
+  },
+  "workflow_states": {
+    "38729720330": {
+      "head": "852f23790ebb4769272b5c8e02b8b30a1794551a",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    "38730402769": {
+      "head": "3725a6458c315005fbaf9bfe03f739fd3767a07c",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    "38731011885": {
+      "head": "9579bbe1b5bd8be8f820d3e2d5b7f97908c30f79",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    "38766320676": {
+      "head": "c6bb60bab3437b336d0bc8df83ec79858ac552b9",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    "38766320490": {
+      "head": "c6bb60bab3437b336d0bc8df83ec79858ac552b9",
+      "status": "in_progress",
+      "conclusion": null
+    },
+    "38766116114": {
+      "head": "ed27477ee0a1413208d3c85f91a1296470713a74",
+      "status": "completed",
+      "conclusion": "success"
+    }
+  },
+  "original_production_paths_changed": [],
+  "compare_base": "adf948fc805a4816d3f04a48db09107e7c5446f2",
+  "compare_head": "c6bb60bab3437b336d0bc8df83ec79858ac552b9",
+  "change_scope": [
+    {
+      "path": ".github/workflows/player-pm-v2-evidence.yml",
+      "status": "added"
+    },
+    {
+      "path": ".github/workflows/player-pm-v2-mechanisms.yml",
+      "status": "added"
+    },
+    {
+      "path": ".github/workflows/player-pm-v2-research.yml",
+      "status": "added"
+    },
+    {
+      "path": "analysis/results/player-pm-v2-20261015/2024-25_locked_report.json",
+      "status": "added"
+    },
+    {
+      "path": "analysis/results/player-pm-v2-20261015/2024-25_mm_report.json",
+      "status": "added"
+    },
+    {
+      "path": "analysis/results/player-pm-v2-20261015/2025-26_locked_report.json",
+      "status": "added"
+    },
+    {
+      "path": "analysis/results/player-pm-v2-20261015/2025-26_mm_report.json",
+      "status": "added"
+    },
+    {
+      "path": "analysis/results/player-pm-v2-20261015/analytic_report.json",
+      "status": "added"
+    },
+    {
+      "path": "analysis/results/player-pm-v2-20261015/current_player_report.json",
+      "status": "added"
+    },
+    {
+      "path": "analysis/results/player-pm-v2-20261015/data_audit.json",
+      "status": "added"
+    },
+    {
+      "path": "analysis/results/player-pm-v2-20261015/evidence_manifest.json",
+      "status": "added"
+    },
+    {
+      "path": "analysis/results/player-pm-v2-20261015/selection.json",
+      "status": "added"
+    },
+    {
+      "path": "analysis/results/player-pm-v2-20261015/summary.json",
+      "status": "added"
+    },
+    {
+      "path": "analysis/results/player-pm-v2-20261015/verified_current_action_profiles.json",
+      "status": "added"
+    },
+    {
+      "path": "docs/audits/2026-10-15-player-pm-v2.md",
+      "status": "added"
+    },
+    {
+      "path": "scripts/audit_player_pm_v2_profiles.py",
+      "status": "added"
+    },
+    {
+      "path": "scripts/postprocess_player_pm_v2.py",
+      "status": "added"
+    },
+    {
+      "path": "scripts/report_player_pm_v2_focus.py",
+      "status": "added"
+    },
+    {
+      "path": "scripts/research_player_pm_v2.py",
+      "status": "added"
+    },
+    {
+      "path": "src/fpl_v1_1_model/experimental_player_pm.py",
+      "status": "added"
+    },
+    {
+      "path": "tests/test_experimental_player_pm.py",
+      "status": "added"
+    },
+    {
+      "path": "tests/test_player_pm_v2_attribution.py",
+      "status": "added"
+    },
+    {
+      "path": "tests/test_player_pm_v2_source_supplement.py",
+      "status": "added"
+    }
+  ],
+  "candidate_promoted": false,
+  "locked_model_active": false,
+  "promotion_allowed": false,
+  "limitations": [
+    "No untouched independent whole-model holdout",
+    "Historical publication clocks use proxy availability",
+    "Legal joint-XI interaction remains to be tested with both PMs",
+    "No full historical six-GW candidate TS replay",
+    "No private manager inputs or production deployment"
+  ]
+}

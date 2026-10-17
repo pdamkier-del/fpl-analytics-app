@@ -1,0 +1,232 @@
+{
+  "classification": "PREDEADLINE_DYNAMIC_GATE_DEVELOPMENT_SELECTION",
+  "source_run": 38729720330,
+  "source_commit": "852f23790ebb4769272b5c8e02b8b30a1794551a",
+  "base_profile": "Frozen prior PM v2 hierarchy365days, strength5; prior selection reused2024GW6-21",
+  "development": "2024GW6-13 warm prefix, GW14-21 chronological validation; all fitted labels known<deadline",
+  "objective": "team xG quasi-Poisson deviance, no target lineup/minutes/results used in gate inputs",
+  "grid": [
+    {
+      "config": {
+        "name": "fixed",
+        "family": "fixed"
+      },
+      "xg_deviance": 0.3478689354870165,
+      "mae": 0.5800974895408559,
+      "mean_w": 0.75
+    },
+    {
+      "config": {
+        "name": "minutes_5",
+        "family": "minutes",
+        "k": 5
+      },
+      "xg_deviance": 0.34783832064392883,
+      "mae": 0.579886165287672,
+      "mean_w": 0.7431809972963311
+    },
+    {
+      "config": {
+        "name": "minutes_20",
+        "family": "minutes",
+        "k": 20
+      },
+      "xg_deviance": 0.3463745321241022,
+      "mae": 0.5795498636815506,
+      "mean_w": 0.4670322716399795
+    },
+    {
+      "config": {
+        "name": "minutes_80",
+        "family": "minutes",
+        "k": 80
+      },
+      "xg_deviance": 0.3474938082226292,
+      "mae": 0.5818972573371016,
+      "mean_w": 0.19620961421631386
+    },
+    {
+      "config": {
+        "name": "detailed_5",
+        "family": "detailed",
+        "k": 5
+      },
+      "xg_deviance": 0.34727515814838567,
+      "mae": 0.579697071685921,
+      "mean_w": 0.7330944048533131
+    },
+    {
+      "config": {
+        "name": "detailed_20",
+        "family": "detailed",
+        "k": 20
+      },
+      "xg_deviance": 0.3458685039019648,
+      "mae": 0.5792419076003552,
+      "mean_w": 0.455749157541593
+    },
+    {
+      "config": {
+        "name": "detailed_80",
+        "family": "detailed",
+        "k": 80
+      },
+      "xg_deviance": 0.34721688314178717,
+      "mae": 0.5816502202452036,
+      "mean_w": 0.18975831512902414
+    },
+    {
+      "config": {
+        "name": "uncertainty_1",
+        "family": "uncertainty",
+        "k": 1
+      },
+      "xg_deviance": 0.35136229635102095,
+      "mae": 0.5823579586789875,
+      "mean_w": 0.9798202850567463
+    },
+    {
+      "config": {
+        "name": "uncertainty_4",
+        "family": "uncertainty",
+        "k": 4
+      },
+      "xg_deviance": 0.35040932769159033,
+      "mae": 0.5815565362559906,
+      "mean_w": 0.9244977016358689
+    },
+    {
+      "config": {
+        "name": "uncertainty_16",
+        "family": "uncertainty",
+        "k": 16
+      },
+      "xg_deviance": 0.3480599689542343,
+      "mae": 0.5799014923795848,
+      "mean_w": 0.7583157599682602
+    },
+    {
+      "config": {
+        "name": "covariance_0.5",
+        "family": "covariance",
+        "k": 0.5
+      },
+      "xg_deviance": 0.34687232058740525,
+      "mae": 0.581343442480017,
+      "mean_w": 0.579713331250963
+    },
+    {
+      "config": {
+        "name": "covariance_1.0",
+        "family": "covariance",
+        "k": 1.0
+      },
+      "xg_deviance": 0.3469561887141375,
+      "mae": 0.5831563069136315,
+      "mean_w": 0.76291000079739
+    },
+    {
+      "config": {
+        "name": "learned_False_0.1",
+        "family": "learned",
+        "hierarchical": false,
+        "k": 0.1
+      },
+      "xg_deviance": 0.34986281263864033,
+      "mae": 0.5795715149897428,
+      "mean_w": 0.7090639088095152
+    },
+    {
+      "config": {
+        "name": "learned_False_1.0",
+        "family": "learned",
+        "hierarchical": false,
+        "k": 1.0
+      },
+      "xg_deviance": 0.34866068268342637,
+      "mae": 0.5803759487070197,
+      "mean_w": 0.7371537210877424
+    },
+    {
+      "config": {
+        "name": "learned_False_10.0",
+        "family": "learned",
+        "hierarchical": false,
+        "k": 10.0
+      },
+      "xg_deviance": 0.3480318004906226,
+      "mae": 0.580287477607656,
+      "mean_w": 0.7493690000128143
+    },
+    {
+      "config": {
+        "name": "learned_True_0.1",
+        "family": "learned",
+        "hierarchical": true,
+        "k": 0.1
+      },
+      "xg_deviance": 0.3485243933346345,
+      "mae": 0.5790328724587684,
+      "mean_w": 0.6967492623230508
+    },
+    {
+      "config": {
+        "name": "learned_True_1.0",
+        "family": "learned",
+        "hierarchical": true,
+        "k": 1.0
+      },
+      "xg_deviance": 0.34851110243733446,
+      "mae": 0.5804621658459792,
+      "mean_w": 0.7226769972854943
+    },
+    {
+      "config": {
+        "name": "learned_True_10.0",
+        "family": "learned",
+        "hierarchical": true,
+        "k": 10.0
+      },
+      "xg_deviance": 0.34804235159544444,
+      "mae": 0.5803256139986217,
+      "mean_w": 0.7489349469580008
+    }
+  ],
+  "chosen": {
+    "amount": {
+      "name": "detailed_20",
+      "family": "detailed",
+      "k": 20
+    },
+    "uncertainty": {
+      "name": "uncertainty_16",
+      "family": "uncertainty",
+      "k": 16
+    },
+    "covariance": {
+      "name": "covariance_0.5",
+      "family": "covariance",
+      "k": 0.5
+    },
+    "learned": {
+      "name": "learned_False_10.0",
+      "family": "learned",
+      "hierarchical": false,
+      "k": 10.0
+    }
+  },
+  "selected": "amount",
+  "limitations": [
+    "Reused research seasons; no pristine holdout",
+    "Historical publication clocks remain kickoff+3/4h proxies",
+    "Frozen player profile hyperparameters selected in preceding 2024 development; no change to baseline",
+    "Gate training uses analytic expected-exposure xG forecasts, not full-simulator point loss",
+    "Profile variance is conditional EB and omits correlated role/MM/context uncertainty",
+    "All arms retain IDENTICAL original legacy own-goal/CS and special-assist scoring; no mixed correctness flags",
+    "Legal XI reuses existing sampler; vacancies may persist; survival zero-minute starter draws use existing one-minute floor",
+    "Return-from-absence proxy is not verified injury evidence",
+    "No complete six-GW candidate TS replay; locked2125 benchmark unchanged"
+  ],
+  "locked_model_active": false,
+  "promotion_allowed": false
+}

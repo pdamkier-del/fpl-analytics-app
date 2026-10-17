@@ -12,6 +12,11 @@ PUBLIC='https://pdamkier-del.github.io/fpl-analytics-app/'
 app=Flask(__name__);app.config['MAX_CONTENT_LENGTH']=32768
 jobs={};lock=threading.Lock();TTL=3600
 
+def require_forecast_snapshot(forecast,expected):
+    sys.path.insert(0,str(ROOT/'src'))
+    from fpl_v1_1_model.forecast_snapshot import require_snapshot
+    return require_snapshot(forecast,expected)
+
 def get_public(name):
     with urlopen(Request(PUBLIC+name,headers={'Cache-Control':'no-cache','User-Agent':'FPLAnalyticsPrivateCompute/1'}),timeout=30) as r:return r.read()
 def verify_current_window(forecast,bootstrap,now=None):
@@ -21,7 +26,11 @@ def verify_current_window(forecast,bootstrap,now=None):
     cutoff=datetime.fromisoformat(forecast['data_asof'].replace('Z','+00:00'))
     limit=forecast.get('freshness_limit_hours')
     if not isinstance(limit,(int,float)) or not 0<limit<=24 or not cutoff<=now<=cutoff+timedelta(hours=limit):raise ValueError('Forecast freshness expired')
-    return verify(forecast,bootstrap,now)
+    gw=verify(forecast,bootstrap,now)
+    sys.path.insert(0,str(ROOT/'src'))
+    from fpl_v1_1_model.forecast_snapshot import require_official_catalog
+    require_official_catalog(forecast,bootstrap.get('elements'))
+    return gw
 def verify_official_now(forecast):
     with urlopen(Request('https://fantasy.premierleague.com/api/bootstrap-static/',headers={'Cache-Control':'no-cache'}),timeout=30) as r:bootstrap=json.load(r)
     return verify_current_window(forecast,bootstrap)
@@ -69,11 +78,12 @@ def create():
     cleanup()
     body=request.get_json(silent=True)
     if not isinstance(body,dict) or not isinstance(body.get('state'),dict) or not isinstance(body.get('forecast_cutoff'),str):return jsonify(error='Ugyldigt manager-state'),400
+    if not isinstance(body.get('forecast_sha256'),str) or not re.fullmatch('[a-f0-9]{64}',body['forecast_sha256']):return jsonify(error='Forecastets indholds-id mangler. Opdatér appen og prøv igen.'),400
     identifier=body.get('request_id');key=body.get('request_key')
     if identifier is not None or key is not None:
         if not isinstance(identifier,str) or not re.fullmatch('[a-f0-9]{32}',identifier) or not isinstance(key,str) or not re.fullmatch('[A-Za-z0-9_-]{43}',key):return jsonify(error='Ugyldig privat jobkvittering'),400
     else:identifier=secrets.token_hex(16);key=secrets.token_urlsafe(32)
-    signature=hashlib.sha256(json.dumps({'state':body['state'],'forecast_cutoff':body['forecast_cutoff']},sort_keys=True,ensure_ascii=False,separators=(',',':')).encode()).hexdigest()
+    signature=hashlib.sha256(json.dumps({'state':body['state'],'forecast_cutoff':body['forecast_cutoff'],'forecast_sha256':body['forecast_sha256']},sort_keys=True,ensure_ascii=False,separators=(',',':')).encode()).hexdigest()
     with lock:
         existing=jobs.get(identifier)
         if existing:
@@ -88,13 +98,15 @@ def create():
             forecast=json.loads(get_public('vfinal-diagnostic.json'))
             official=json.loads(get_public('current-players.json'))
             if forecast['data_asof']!=body['forecast_cutoff'] or forecast['gws'][0]!=official['next_gw']:raise ValueError('Forecast changed')
+            require_forecast_snapshot(forecast,body['forecast_sha256'])
             verify_official_now(forecast)
             (directory/'input.json').write_text(json.dumps(dict(forecast=forecast,state=body['state'])))
             if forecast.get('tc_scenarios'):(directory/'tc.csv.gz').write_bytes(get_public('tc-samples.csv.gz'))
             completed=subprocess.run([sys.executable,str(ROOT/'scripts/locked_numerical_runtime.py'),str(ROOT/'service/manager_job.py'),str(directory)],stdout=subprocess.DEVNULL,stderr=subprocess.DEVNULL,timeout=1800)
             if completed.returncode!=0:raise ValueError('Original computation rejected input')
+            require_forecast_snapshot(forecast,body['forecast_sha256'])
             verify_official_now(forecast)
-            if json.loads(get_public('vfinal-diagnostic.json'))['data_asof']!=forecast['data_asof']:raise ValueError('Forecast changed during calculation')
+            require_forecast_snapshot(json.loads(get_public('vfinal-diagnostic.json')),body['forecast_sha256'])
             jobs[identifier]['status']='completed'
         except subprocess.TimeoutExpired:
             jobs[identifier]['status']='failed';jobs[identifier]['failure']='timeout'

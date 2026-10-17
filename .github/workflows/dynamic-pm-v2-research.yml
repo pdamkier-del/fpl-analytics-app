@@ -1,0 +1,116 @@
+name: Dynamic PM v2 controlled research
+on:
+  push:
+    branches: [model-audit-optimization-20261012]
+    paths:
+      - src/fpl_v1_1_model/experimental_dynamic_pm.py
+      - scripts/research_dynamic_pm_v2.py
+      - tests/test_experimental_dynamic_pm.py
+      - .github/workflows/dynamic-pm-v2-research.yml
+  workflow_dispatch:
+permissions:
+  contents: read
+  actions: read
+concurrency:
+  group: dynamic-pm-v2-${{ github.ref }}
+  cancel-in-progress: false
+env:
+  PYTHONPATH: src:scripts
+  OPENBLAS_NUM_THREADS: '1'
+  OMP_NUM_THREADS: '1'
+  PYTHONHASHSEED: '0'
+jobs:
+  selection:
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: pip install -r requirements-model-checkpoint.txt -r requirements-model-tests.txt requests
+      - run: |
+          python -m pytest tests -q
+          python scripts/restore_core_checkpoint.py
+      - uses: actions/download-artifact@v4
+        with:
+          github-token: ${{ github.token }}
+          run-id: '38729720330'
+          pattern: player-pm-v2-20*
+          merge-multiple: true
+          path: work/dynamic-source
+      - name: Select reliability gates on earlier development only
+        run: python scripts/locked_numerical_runtime.py scripts/research_dynamic_pm_v2.py --stage select
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: dynamic-pm-selection
+          path: analysis/results/dynamic-pm-v2-20261015/
+          retention-days: 90
+  replay:
+    needs: selection
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+    strategy:
+      max-parallel: 16
+      fail-fast: false
+      matrix:
+        season: ['2024-25','2025-26']
+        context:
+          - {mm: locked, layout: independent}
+          - {mm: locked, layout: legal}
+          - {mm: mm, layout: legal}
+        shard: [0,1,2,3,4,5]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: pip install -r requirements-model-checkpoint.txt -r requirements-model-tests.txt requests
+      - run: python scripts/restore_core_checkpoint.py
+      - uses: actions/download-artifact@v4
+        with:
+          github-token: ${{ github.token }}
+          run-id: '38729720330'
+          pattern: player-pm-v2-20*
+          merge-multiple: true
+          path: work/dynamic-source
+      - uses: actions/download-artifact@v4
+        with:
+          name: dynamic-pm-selection
+          path: analysis/results/dynamic-pm-v2-20261015
+      - name: Controlled common-seed replay
+        run: python scripts/locked_numerical_runtime.py scripts/research_dynamic_pm_v2.py --stage replay --season '${{ matrix.season }}' --mm '${{ matrix.context.mm }}' --layout '${{ matrix.context.layout }}' --shard '${{ matrix.shard }}'
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: dynamic-pm-${{ matrix.season }}-${{ matrix.context.mm }}-${{ matrix.context.layout }}-${{ matrix.shard }}
+          path: |
+            analysis/results/dynamic-pm-v2-20261015/${{ matrix.season }}_${{ matrix.context.mm }}_${{ matrix.context.layout }}_${{ matrix.shard }}_*
+            analysis/results/dynamic-pm-v2-20261015/cache_${{ matrix.season }}_${{ matrix.context.mm }}_${{ matrix.context.layout }}_${{ matrix.shard }}/
+          retention-days: 90
+  aggregate:
+    needs: replay
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: pip install -r requirements-model-checkpoint.txt -r requirements-model-tests.txt requests
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: dynamic-pm-*
+          merge-multiple: true
+          path: analysis/results/dynamic-pm-v2-20261015
+      - run: python scripts/research_dynamic_pm_v2.py --stage aggregate
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: dynamic-pm-final-reports
+          path: |
+            analysis/results/dynamic-pm-v2-20261015/*report.json
+            analysis/results/dynamic-pm-v2-20261015/selection.json
+            analysis/results/dynamic-pm-v2-20261015/summary.json
+          retention-days: 90

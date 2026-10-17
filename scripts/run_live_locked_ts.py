@@ -10,6 +10,7 @@ from fpl_xpts.season_replay import ReplayState,OwnedPlayer,valid_squad
 from fpl_xpts.transfer_planner import plan_transfer_path,execute_first_action,clone_state,projected_manager_score
 from fpl_xpts.optimize import plan_squad
 from run_joint_fh_wc_stopping_replay import cfg
+from fpl_v1_1_model.forecast_snapshot import forecast_digest
 CHIPS={'wildcard','free_hit','bench_boost','triple_captain'}
 
 def integer(x,name,lo,hi):
@@ -42,6 +43,8 @@ def project(payload):
     positions={1:'GKP',2:'DEF',3:'MID',4:'FWD'};meta=[];rows=[]
     first=min(payload['gws'])
     for p in payload['players']:
+        if sorted(w['gw'] for w in p['weeks'])!=sorted(payload['gws']):
+            raise ValueError('Incomplete or duplicate player forecast horizon; explicit blank-GW rows required')
         meta.append({'id':p['id'],'web_name':p['name'],'position':positions[p['position']], 'team':p['team_id'],'price_tenths':p['price_tenths']})
         for w in p['weeks']:
             rows.append({'id':p['id'],'web_name':p['name'],'position':positions[p['position']],
@@ -68,6 +71,7 @@ def run(payload,raw,include_chips=False,tc_samples=None):
     baseline_value=sum(w*r['expected_score'] for w,r in zip(cfg().weights,baseline))
     result={'locked_model_active':False,'ts_status':'diagnostic' if diagnostic else 'verified',
         'chips_status':'Not Available','ts_ran':True,'chips_ran':False,'forecast_cutoff':payload['data_asof'],
+        'forecast_sha256':forecast_digest(payload),
         'gw':gw,'origin_deadline':deadline,'manager_state_source':raw['source'],
         'manager_state_sha256':hashlib.sha256(json.dumps(raw,sort_keys=True,ensure_ascii=False,separators=(',',':')).encode()).hexdigest(),
         'plan':asdict(planned),'transfers':transfers,

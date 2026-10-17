@@ -1,0 +1,45 @@
+name: Player PM v2 error attribution and mechanism checks
+on:
+  push:
+    branches: [model-audit-optimization-20261012]
+    paths: [.github/workflows/player-pm-v2-mechanisms.yml]
+  workflow_dispatch:
+permissions:
+  contents: read
+  actions: read
+env:
+  PYTHONPATH: src:scripts
+  OPENBLAS_NUM_THREADS: '1'
+  OMP_NUM_THREADS: '1'
+jobs:
+  mechanisms:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: pip install -r requirements-model-checkpoint.txt -r requirements-model-tests.txt requests
+      - run: |
+          python -m pytest tests -q
+          python scripts/restore_core_checkpoint.py
+      - uses: actions/github-script@v7
+        with:
+          script: |
+            const r=await github.rest.actions.getWorkflowRun({...context.repo,run_id:38729720330});
+            if(r.data.conclusion!=='success'||r.data.head_sha!=='852f23790ebb4769272b5c8e02b8b30a1794551a')throw new Error('Unverified source matrix');
+      - uses: actions/download-artifact@v4
+        with:
+          github-token: ${{ github.token }}
+          run-id: '38729720330'
+          pattern: player-pm-v2-20*
+          merge-multiple: true
+          path: work/pmv2-replays
+      - run: python scripts/locked_numerical_runtime.py scripts/postprocess_player_pm_v2.py
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: player-pm-v2-mechanisms
+          path: analysis/results/player-pm-v2-20261015/mechanism_report.json
+          retention-days: 90

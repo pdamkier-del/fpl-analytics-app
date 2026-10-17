@@ -34,33 +34,17 @@ const club=p.team,position=['','GK','DEF','MID','FWD'][p.position],w=p.weeks[0];
 document.title=p.name+' · FPL Analytics';$('crumb').textContent='My Team / '+p.name;$('name').textContent=p.name;$('meta').textContent=club+' · '+position;$('clubBadge').textContent=club;
 $('heroFace').innerHTML=window.FPL_ASSETS?window.FPL_ASSETS.faceHTML({id:p.id,player_code:op?.code,player:p.name,club} ,'asset-face-lg'):'';
 $('price').textContent='£'+n(p.price_tenths/10,1)+'m';$('status').textContent='Officiel status: '+(op?.status||'Not Available')+(valid.usable?' · Diagnostisk · cutoff '+f.data_asof:' · Prognose: Not Available · '+valid.reason);
-let nextRows=new Map(),mmVnext=false;
-try{
- const response=await fetch('mm-vnext-6gw.json',{cache:'no-store'});
- if(response.ok){
-   const shadow=await response.json();
-   if(valid.usable && shadow.classification==='EXPERIMENTAL_MEDICAL_RETURN_MM_VNEXT_COMPARE_NOT_FINAL' &&
-      shadow.production_xp_unchanged===true && shadow.source_observed_at===f.data_asof &&
-      shadow.player_week_rows===667*6 && shadow.rows.length===shadow.player_week_rows){
-     nextRows=new Map(shadow.rows.filter(r=>r.id===id).map(r=>[r.gw,r]));
-     mmVnext=p.weeks.every(x=>nextRows.has(x.gw));
-   }
- }
-}catch{/* Keep original if experimental source is unavailable */ }
-const mmFor=gw=>mmVnext?nextRows.get(gw):null;
-const nextFirst=mmFor(w.gw);
-const shownXm=nextFirst&&w.fixtures.length===1?nextFirst.vnext_xmins:w.xmins;
-const shownStart=nextFirst&&w.fixtures.length===1?nextFirst.vnext_p_start:
- (w.fixtures.length===1?w.fixtures[0].p_start:null);
+const shownXm=w.xmins;
+const shownStart=w.fixtures.length===1?w.fixtures[0].p_start:null;
 const start=w.fixtures.length===1?w.fixtures[0].p_start:null;
 const six=p.weeks.reduce((v,x)=>v+x.xpts,0);
 const card=(title,value,note)=>'<div class="card"><div class="label">'+title+'</div><div class="value">'+value+'</div><div class="note">'+note+'</div></div>';
 if(!$('playerRoles'))$('summary').insertAdjacentHTML('afterend','<section class="panel" id="playerRoles"><h2>Positioner & konkurrenter</h2><p>Indlæser dokumenterede roller …</p></section>');
 (async()=>{try{const rs=await fetch('club-lineups.json',{cache:'no-store',signal:AbortSignal.timeout(15000)}),source=rs.ok?await rs.json():null,xi=FplCatalogData.clubLineup(o,f,source,valid.usable,p.team_id);$('playerRoles').innerHTML='<h2>Positioner & konkurrenter</h2>'+FplRolesView.profile(xi,id,position);}catch{$('playerRoles').innerHTML='<h2>Positioner & konkurrenter</h2><p>Not Available: rolledata kunne ikke hentes.</p>';}})();
-$('summary').innerHTML=card('Næste GW xP',n(w.xpts),'Oprindelig PM · GW '+w.gw)+card('6 GW xP',n(six),'Original vFinal')+card('Forventede minutter',n(shownXm,0),mmVnext?'MM vNext · næste GW':'Original MM · næste GW')+card('Startchance',pct(shownStart),mmVnext?'MM vNext · næste GW':'Original MM · næste GW')+card('Pris','£'+n(p.price_tenths/10,1),'Officiel FPL-pris');
-$('gwStrip').innerHTML=p.weeks.map(x=>'<div class="gw"><div class="gw-top">GW '+x.gw+'</div><div class="gw-xp">'+n(x.xpts)+' xP</div><div class="gw-mini">'+n(x.fixtures.length===1?(mmFor(x.gw)?.vnext_xmins??x.xmins):x.xmins,0)+' min · '+(x.fixtures.length===1?pct(mmFor(x.gw)?.vnext_p_start??x.fixtures[0].p_start):'–')+' start</div></div>').join('');
+$('summary').innerHTML=card('Næste GW xP',n(w.xpts),'Oprindelig PM · GW '+w.gw)+card('6 GW xP',n(six),'Original vFinal')+card('Forventede minutter',n(shownXm,0),'Original MM · næste GW')+card('Startchance',pct(shownStart),'Original MM · næste GW')+card('Pris','£'+n(p.price_tenths/10,1),'Officiel FPL-pris');
+$('gwStrip').innerHTML=p.weeks.map(x=>'<div class="gw"><div class="gw-top">GW '+x.gw+'</div><div class="gw-xp">'+n(x.xpts)+' xP</div><div class="gw-mini">'+n(x.xmins,0)+' min · '+(x.fixtures.length===1?pct(x.fixtures[0].p_start):'–')+' start</div></div>').join('');
 const mx=Math.max(1,...p.weeks.map(x=>x.xpts));$('chart').innerHTML=valid.usable?p.weeks.map(x=>'<div class="bar-col"><div class="bar-val">'+n(x.xpts,1)+'</div><div class="bar" style="height:'+Math.max(4,x.xpts/mx*165)+'px"></div><div class="bar-label">GW '+x.gw+'</div></div>').join(''):'<p>Not Available: aktuelt gyldigt forecast mangler.</p>';
-$('drivers').innerHTML='<h3>Kampe og prognosekomponenter</h3><p><a href="mm-vnext.html?player='+id+'">Se gammel og ny MM</a> <small>'+(mmVnext?'MM vNext vises for xMin/P(start). ':'MM vNext er ikke klar for dette datacheckpoint. ')+'xP kommer stadig fra den oprindelige PM og er ikke genberegnet med nye minutter.</small></p><div class="scroll"><table><tr><th>GW</th><th>Modstander</th><th>FDR</th><th>xP (oprindelig)</th><th>xMin (MM vNext*)</th><th>P(start) (MM vNext*)</th></tr>'+p.weeks.flatMap(w=>w.fixtures.map(q=>{const match=matches.get(Number(q.fixture_uuid.split('-').pop())),home=match?.home===p.team_id,op=teams.get(home?match?.away:match?.home);return '<tr><td>'+w.gw+'</td><td>'+esc(op?.name||'Not Available')+(match?(home?' (H)':' (A)'):'')+'</td><td>'+esc(match?(home?match.difficulty_home:match.difficulty_away):'Not Available')+'</td><td>'+n(q.xpts)+'</td><td>'+n(mmFor(w.gw)?.vnext_xmins??q.xmins,0)+'</td><td>'+pct(mmFor(w.gw)?.vnext_p_start??q.p_start)+'</td></tr>'})).join('')+'</table></div><h3>Originale pointkomponenter · næste GW</h3>'+Object.entries(w.fixtures.reduce((sum,q)=>{for(const [key,v] of Object.entries(q.components||{}))sum[key]=(sum[key]||0)+v;return sum},{})).map(([key,value])=>'<p>'+esc(key)+': <strong>'+n(value)+'</strong></p>').join('');
+$('drivers').innerHTML='<h3>Kampe og prognosekomponenter</h3><p><a href="mm-vnext.html?player='+id+'">Se gammel og ny MM</a> <small>Alle hovedtal bruger samme originale MM → vFinal-snapshot. MM vNext er et separat eksperiment og indgår ikke i disse xP.</small></p><div class="scroll"><table><tr><th>GW</th><th>Modstander</th><th>FDR</th><th>xP (oprindelig)</th><th>xMin (Original MM)</th><th>P(start) (Original MM)</th></tr>'+p.weeks.flatMap(w=>w.fixtures.map(q=>{const match=matches.get(Number(q.fixture_uuid.split('-').pop())),home=match?.home===p.team_id,op=teams.get(home?match?.away:match?.home);return '<tr><td>'+w.gw+'</td><td>'+esc(op?.name||'Not Available')+(match?(home?' (H)':' (A)'):'')+'</td><td>'+esc(match?(home?match.difficulty_home:match.difficulty_away):'Not Available')+'</td><td>'+n(q.xpts)+'</td><td>'+n(q.xmins,0)+'</td><td>'+pct(q.p_start)+'</td></tr>'})).join('')+'</table></div><h3>Originale pointkomponenter · næste GW</h3>'+Object.entries(w.fixtures.reduce((sum,q)=>{for(const [key,v] of Object.entries(q.components||{}))sum[key]=(sum[key]||0)+v;return sum},{})).map(([key,value])=>'<p>'+esc(key)+': <strong>'+n(value)+'</strong></p>').join('');
 const choices=f.players.filter(x=>x.id!==id&&x.position===p.position).sort((a,b)=>b.weeks.reduce((v,w)=>v+w.xpts,0)-a.weeks.reduce((v,w)=>v+w.xpts,0));
 $('compareSelect').innerHTML=choices.map(x=>'<option value="'+x.id+'">'+esc(x.name)+' · '+esc(x.team)+'</option>').join('');
 function compare(x){const q=x.weeks[0];return '<div class="compare-card"><div class="compare-head">'+esc(x.name)+'</div><div class="metric">Pris <strong>£'+n(x.price_tenths/10,1)+'</strong></div><div class="metric">GW xP <strong>'+n(q.xpts)+'</strong></div><div class="metric">6 GW xP <strong>'+n(x.weeks.reduce((v,w)=>v+w.xpts,0))+'</strong></div><div class="metric">Minutter <strong>'+n(q.xmins,0)+'</strong></div></div>'}

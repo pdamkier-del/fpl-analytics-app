@@ -1,0 +1,56 @@
+{
+  "classification": "REUSED_COMPONENT_DIAGNOSTIC_NOT_INDEPENDENT",
+  "season": "2025-26",
+  "cohort": "archived integrated vFinal GW22-38; not locked 2125 six-GW TS replay",
+  "draws": 400,
+  "seed": 39092501,
+  "fixtures": 144,
+  "metrics": {
+    "all": {
+      "rows": 11794,
+      "original": {
+        "mae": 0.9190692301170086,
+        "rmse": 1.846165038170835,
+        "bias": 0.0181463032050195
+      },
+      "candidate": {
+        "mae": 0.9194219518399185,
+        "rmse": 1.84990385250224,
+        "bias": 0.013136128539935562
+      }
+    },
+    "GW22_30": {
+      "rows": 6467,
+      "original": {
+        "mae": 0.9277439307252204,
+        "rmse": 1.8349235497089884,
+        "bias": 0.024476573372506576
+      },
+      "candidate": {
+        "mae": 0.9278475336322869,
+        "rmse": 1.8372291863541654,
+        "bias": 0.021036029070666463
+      }
+    },
+    "GW31_38": {
+      "rows": 5327,
+      "original": {
+        "mae": 0.9085381077529567,
+        "rmse": 1.8597209332954203,
+        "bias": 0.010461329078280457
+      },
+      "candidate": {
+        "mae": 0.9091932607471372,
+        "rmse": 1.8651752028707094,
+        "bias": 0.0035456166697953747
+      }
+    }
+  },
+  "paired_mae_delta": 0.0003527217229099533,
+  "fixture_block_bootstrap_95_ci": [
+    -0.002355597520906363,
+    0.003051225085932908
+  ],
+  "promotion_allowed": false,
+  "locked_model_active": false
+}

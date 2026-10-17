@@ -1,0 +1,535 @@
+{
+  "protocol": {
+    "classification": "PLAYER_PM_V2_PREKICKOFF_DEVELOPMENT_SELECTION_NOT_FULL_PM",
+    "development": "2024-25 GW6-21",
+    "objective": "Mean team xG quasi-Poisson deviance; no target minutes/xG used in predictors",
+    "selected": {
+      "simple": {
+        "name": "simple_d365.0_n5.0",
+        "family": "simple",
+        "half": 365.0,
+        "strength": 5.0,
+        "hierarchical": false,
+        "anchor_weight": 0.0,
+        "creativity": 0.0,
+        "finishing": true
+      },
+      "hier": {
+        "name": "hier_d365.0_n5.0",
+        "family": "hier",
+        "half": 365.0,
+        "strength": 5.0,
+        "hierarchical": true,
+        "anchor_weight": 0.0,
+        "creativity": 0.0,
+        "finishing": true
+      },
+      "hybrid": {
+        "name": "hybrid_h0.25_b0.25",
+        "family": "hybrid",
+        "half": 365.0,
+        "strength": 5.0,
+        "hierarchical": true,
+        "anchor_weight": 0.25,
+        "creativity": 0.25,
+        "finishing": true
+      }
+    },
+    "experimental_mm_candidate": "hybrid",
+    "development_scores": {
+      "hier_d180.0_n20.0": {
+        "xg": {
+          "mae": 0.6191492672942437,
+          "rmse": 0.8265236471178686,
+          "bias": 0.002690097566220449,
+          "deviance": 0.4126355744329671
+        },
+        "goals": {
+          "mae": 0.9310269008879891,
+          "rmse": 1.1694389081455892,
+          "bias": 0.04194156227040753,
+          "deviance": 1.0842545007042392
+        }
+      },
+      "hier_d180.0_n5.0": {
+        "xg": {
+          "mae": 0.613475036855727,
+          "rmse": 0.8141193975249862,
+          "bias": 0.00022554899253550794,
+          "deviance": 0.39902266089343047
+        },
+        "goals": {
+          "mae": 0.9244752937806915,
+          "rmse": 1.1609085593710362,
+          "bias": 0.03897199928494002,
+          "deviance": 1.0703216875622559
+        }
+      },
+      "hier_d180.0_n80.0": {
+        "xg": {
+          "mae": 0.6436160979568815,
+          "rmse": 0.8574822566582527,
+          "bias": -0.004998713762130357,
+          "deviance": 0.4455942977842613
+        },
+        "goals": {
+          "mae": 0.947383333934956,
+          "rmse": 1.1938114060683576,
+          "bias": 0.034646459416916256,
+          "deviance": 1.1208663366115326
+        }
+      },
+      "hier_d365.0_n20.0": {
+        "xg": {
+          "mae": 0.6149603193793838,
+          "rmse": 0.8211770016875536,
+          "bias": 0.004501538859668051,
+          "deviance": 0.4071530085434137
+        },
+        "goals": {
+          "mae": 0.9281669419519808,
+          "rmse": 1.165206656777216,
+          "bias": 0.04111415166019905,
+          "deviance": 1.0781239534442815
+        }
+      },
+      "hier_d365.0_n5.0": {
+        "xg": {
+          "mae": 0.6125427838678259,
+          "rmse": 0.8108186865307373,
+          "bias": -0.0006902006583633715,
+          "deviance": 0.39594678361319186
+        },
+        "goals": {
+          "mae": 0.9227414289341712,
+          "rmse": 1.1581176493295715,
+          "bias": 0.03530742975207937,
+          "deviance": 1.0666369897193306
+        }
+      },
+      "hier_d365.0_n80.0": {
+        "xg": {
+          "mae": 0.63815954612289,
+          "rmse": 0.8509294776168679,
+          "bias": -0.00398151575014361,
+          "deviance": 0.43865547853670867
+        },
+        "goals": {
+          "mae": 0.9438288894594404,
+          "rmse": 1.1891439824023413,
+          "bias": 0.03317474327049823,
+          "deviance": 1.1141672688633422
+        }
+      },
+      "original": {
+        "xg": {
+          "mae": 0.6229796544928493,
+          "rmse": 0.8259649825866555,
+          "bias": -0.02989612210101928,
+          "deviance": 0.4101647694464299
+        },
+        "goals": {
+          "mae": 0.9217240038187717,
+          "rmse": 1.172479060481303,
+          "bias": 0.005512682930427259,
+          "deviance": 1.0845233742682698
+        }
+      },
+      "simple_d365.0_n20.0": {
+        "xg": {
+          "mae": 0.6271608266442661,
+          "rmse": 0.833795390599397,
+          "bias": 0.012612679833915364,
+          "deviance": 0.4208228136371495
+        },
+        "goals": {
+          "mae": 0.9369752751372421,
+          "rmse": 1.1766898710680054,
+          "bias": 0.049482667338886864,
+          "deviance": 1.096189535499133
+        }
+      },
+      "simple_d365.0_n5.0": {
+        "xg": {
+          "mae": 0.6131340446632222,
+          "rmse": 0.8140339292798103,
+          "bias": 0.013225913463089736,
+          "deviance": 0.3994495129367641
+        },
+        "goals": {
+          "mae": 0.9263768048077229,
+          "rmse": 1.1618549689716273,
+          "bias": 0.049436534414376836,
+          "deviance": 1.0726394161197832
+        }
+      },
+      "simple_d365.0_n80.0": {
+        "xg": {
+          "mae": 0.6473792158942865,
+          "rmse": 0.8619887679608135,
+          "bias": -0.002297140283349666,
+          "deviance": 0.4505412790699327
+        },
+        "goals": {
+          "mae": 0.9505977761713451,
+          "rmse": 1.1984932493877671,
+          "bias": 0.03499846770826122,
+          "deviance": 1.1283112841071286
+        }
+      },
+      "hybrid_h0.25_b0.0": {
+        "xg": {
+          "mae": 0.6108270524591796,
+          "rmse": 0.8100468466112646,
+          "bias": -0.007991681019027317,
+          "deviance": 0.39476268565107897
+        },
+        "goals": {
+          "mae": 0.9194815363886363,
+          "rmse": 1.1584377299394226,
+          "bias": 0.02813633963320491,
+          "deviance": 1.0661096767491274
+        }
+      },
+      "hybrid_h0.25_b0.25": {
+        "xg": {
+          "mae": 0.6114962366314178,
+          "rmse": 0.809255839018089,
+          "bias": -0.004912873702013852,
+          "deviance": 0.3934819950150997
+        },
+        "goals": {
+          "mae": 0.9215537012233752,
+          "rmse": 1.157955478859962,
+          "bias": 0.031035511892226423,
+          "deviance": 1.0653690952141952
+        }
+      },
+      "hybrid_h0.5_b0.0": {
+        "xg": {
+          "mae": 0.6125183641401486,
+          "rmse": 0.8123365963704039,
+          "bias": -0.015293161379691354,
+          "deviance": 0.39664804862083675
+        },
+        "goals": {
+          "mae": 0.9182594810620875,
+          "rmse": 1.1608775552507806,
+          "bias": 0.020965249514330472,
+          "deviance": 1.068545728461257
+        }
+      },
+      "hybrid_h0.5_b0.25": {
+        "xg": {
+          "mae": 0.6112175241931838,
+          "rmse": 0.8102109040979464,
+          "bias": -0.012880451296379505,
+          "deviance": 0.394035163517454
+        },
+        "goals": {
+          "mae": 0.918683045634659,
+          "rmse": 1.159505152693235,
+          "bias": 0.023198959173217033,
+          "deviance": 1.0664743344137424
+        }
+      },
+      "hybrid_h0.75_b0.0": {
+        "xg": {
+          "mae": 0.6172384333333766,
+          "rmse": 0.8176622155394156,
+          "bias": -0.022594641740355317,
+          "deviance": 0.40171835619930907
+        },
+        "goals": {
+          "mae": 0.9188265763845553,
+          "rmse": 1.165423812225463,
+          "bias": 0.013794159395456062,
+          "deviance": 1.074030399962873
+        }
+      },
+      "hybrid_h0.75_b0.25": {
+        "xg": {
+          "mae": 0.614152380838286,
+          "rmse": 0.8142782089164414,
+          "bias": -0.020848028890745177,
+          "deviance": 0.3977732766285229
+        },
+        "goals": {
+          "mae": 0.9184417235859959,
+          "rmse": 1.1632067485185407,
+          "bias": 0.015362406454207639,
+          "deviance": 1.0706282601802264
+        }
+      }
+    },
+    "audit": {
+      "rows_by_season": {
+        "2022-23": 26505,
+        "2023-24": 29725,
+        "2024-25": 27283,
+        "2025-26": 29747
+      },
+      "excluded_2022_early_placeholder_rows": 8491,
+      "missing_fields": {
+        "npxg": 113260,
+        "shots": 113260,
+        "shots_on_target": 113260,
+        "big_chances_created": 113260
+      },
+      "source_publication_certified": false,
+      "availability": "kickoff+4h; 2025/26 +3h, matching archived MM/PM adapter proxies",
+      "team_identity": "(season, team_id), never team_id alone across seasons",
+      "fields": {
+        "sub_on_second": {
+          "non_null": 0,
+          "rows": 104769
+        },
+        "sub_off_second": {
+          "non_null": 0,
+          "rows": 104769
+        },
+        "xg": {
+          "non_null": 104769,
+          "rows": 104769
+        },
+        "npxg": {
+          "non_null": 0,
+          "rows": 104769
+        },
+        "xa": {
+          "non_null": 104769,
+          "rows": 104769
+        },
+        "shots": {
+          "non_null": 0,
+          "rows": 104769
+        },
+        "shots_on_target": {
+          "non_null": 0,
+          "rows": 104769
+        },
+        "big_chances_created": {
+          "non_null": 0,
+          "rows": 104769
+        },
+        "tackles": {
+          "non_null": 29747,
+          "rows": 104769
+        },
+        "recoveries": {
+          "non_null": 29747,
+          "rows": 104769
+        },
+        "defcon_count": {
+          "non_null": 29747,
+          "rows": 104769
+        },
+        "bps": {
+          "non_null": 104769,
+          "rows": 104769
+        }
+      },
+      "canonical_players": 1573,
+      "roles": {
+        "MID": 46169,
+        "DEF": 34631,
+        "FWD": 12338,
+        "GK": 11631
+      },
+      "source_tables": [
+        "raw_fetch_manifest",
+        "schema_registry",
+        "ingestion_quarantine",
+        "players",
+        "player_id_mapping",
+        "player_registrations",
+        "fixtures",
+        "fixture_schedule_snapshots",
+        "player_fixture_observations",
+        "player_fixture_point_components",
+        "team_fixture_observations",
+        "player_state_snapshots",
+        "set_piece_role_snapshots",
+        "news_statements",
+        "career_penalties"
+      ],
+      "set_piece_by_season": [
+        {
+          "season": "2023-24",
+          "rows": 88530
+        },
+        {
+          "season": "2026-27",
+          "rows": 1986
+        }
+      ],
+      "player_source_names": [
+        {
+          "season": "2022-23",
+          "source_name": "vaastav_historical_core",
+          "rows": 18014
+        },
+        {
+          "season": "2023-24",
+          "source_name": "vaastav_historical_core",
+          "rows": 29725
+        },
+        {
+          "season": "2024-25",
+          "source_name": "vaastav_historical_core",
+          "rows": 27283
+        },
+        {
+          "season": "2025-26",
+          "source_name": "vaastav_historical_core",
+          "rows": 29747
+        }
+      ],
+      "raw_sources_prior_audit": "docs/audits/2026-10-15-goal-assist-model-research.md: native 2024 shotmaps, source disagreement, missing failed-shot creator links; raw performance-ledger features already used by original allocator"
+    },
+    "limitations": [
+      "Reused development seasons, no pristine independent holdout",
+      "Historical publication uses kickoff+3/4h proxies, not source availability certification",
+      "Broad FPL roles only; no verified temporal tactical role or set-piece orders",
+      "All-xG contains penalties; finishing is effective calibration not isolated NPG skill",
+      "No failed-shot creator/receiver links: team creative elasticity is not pair chemistry",
+      "Original independent-XI, own-goal and special-assist limitations retained to isolate PM",
+      "Conditional EB/quasi-Poisson intervals omit parameter/context/MM uncertainty",
+      "Fixture bootstrap does not include all Monte Carlo uncertainty",
+      "No historical six-GW candidate TS replay or live certification"
+    ],
+    "locked_model_active": false,
+    "promotion_allowed": false
+  },
+  "results": {
+    "2024-25_GW22-38": {
+      "hier_d365.0_n5.0": {
+        "xg": {
+          "mae": 0.5885885183259246,
+          "rmse": 0.7272982254186576,
+          "bias": 0.06195511591683199,
+          "deviance": 0.371749667487743
+        },
+        "goals": {
+          "mae": 0.8921507919792222,
+          "rmse": 1.1223552739328138,
+          "bias": 0.06361043150394569,
+          "deviance": 1.0620276436475244
+        }
+      },
+      "hybrid_h0.25_b0.25": {
+        "xg": {
+          "mae": 0.5867912066928549,
+          "rmse": 0.725596461842618,
+          "bias": 0.06780939147481317,
+          "deviance": 0.3696169072292857
+        },
+        "goals": {
+          "mae": 0.8927547852989358,
+          "rmse": 1.1226021911060216,
+          "bias": 0.06960998861707036,
+          "deviance": 1.0625503895358535
+        }
+      },
+      "original": {
+        "xg": {
+          "mae": 0.5840201846153997,
+          "rmse": 0.7308364436721458,
+          "bias": 0.07435253179860532,
+          "deviance": 0.37789230564253184
+        },
+        "goals": {
+          "mae": 0.8993895359096535,
+          "rmse": 1.1321865634562949,
+          "bias": 0.06856305811439481,
+          "deviance": 1.0775353608291989
+        }
+      },
+      "simple_d365.0_n5.0": {
+        "xg": {
+          "mae": 0.5876446657954265,
+          "rmse": 0.7244896633133893,
+          "bias": 0.07072876483732439,
+          "deviance": 0.37292578790813247
+        },
+        "goals": {
+          "mae": 0.8903224486122042,
+          "rmse": 1.1188655027483185,
+          "bias": 0.07228638054665132,
+          "deviance": 1.0599885419550488
+        }
+      }
+    },
+    "2025-26_GW6-38": {
+      "hier_d365.0_n5.0": {
+        "xg": {
+          "mae": 0.5880939982194583,
+          "rmse": 0.7412662496768508,
+          "bias": -0.02644134827003228,
+          "deviance": 0.3795513384793173
+        },
+        "goals": {
+          "mae": 0.8742470067196505,
+          "rmse": 1.0663245329513362,
+          "bias": 0.06175373749309105,
+          "deviance": 1.0477692500969975
+        }
+      },
+      "hybrid_h0.25_b0.25": {
+        "xg": {
+          "mae": 0.586420831127144,
+          "rmse": 0.7406077237670444,
+          "bias": -0.021030965973265547,
+          "deviance": 0.37884715639114797
+        },
+        "goals": {
+          "mae": 0.8737205130676183,
+          "rmse": 1.067475912455925,
+          "bias": 0.06726936061507069,
+          "deviance": 1.0485282891071457
+        }
+      },
+      "original": {
+        "xg": {
+          "mae": 0.5854096717101226,
+          "rmse": 0.746080022811715,
+          "bias": -0.0518496090891675,
+          "deviance": 0.3860520486657145
+        },
+        "goals": {
+          "mae": 0.8802862310640805,
+          "rmse": 1.0709206785049015,
+          "bias": 0.03501402727446886,
+          "deviance": 1.0558001378675888
+        }
+      },
+      "simple_d365.0_n5.0": {
+        "xg": {
+          "mae": 0.5913438520663683,
+          "rmse": 0.7411684111159681,
+          "bias": -0.00866630270524038,
+          "deviance": 0.38065773658688534
+        },
+        "goals": {
+          "mae": 0.8784392654377491,
+          "rmse": 1.0653767009574822,
+          "bias": 0.07986394784028547,
+          "deviance": 1.0482188264485488
+        }
+      }
+    }
+  },
+  "limitations": [
+    "Reused development seasons, no pristine independent holdout",
+    "Historical publication uses kickoff+3/4h proxies, not source availability certification",
+    "Broad FPL roles only; no verified temporal tactical role or set-piece orders",
+    "All-xG contains penalties; finishing is effective calibration not isolated NPG skill",
+    "No failed-shot creator/receiver links: team creative elasticity is not pair chemistry",
+    "Original independent-XI, own-goal and special-assist limitations retained to isolate PM",
+    "Conditional EB/quasi-Poisson intervals omit parameter/context/MM uncertainty",
+    "Fixture bootstrap does not include all Monte Carlo uncertainty",
+    "No historical six-GW candidate TS replay or live certification"
+  ],
+  "locked_model_active": false,
+  "promotion_allowed": false
+}

@@ -1,0 +1,339 @@
+{
+  "classification": "COMPLETED_PLAYER_PM_V2_MECHANISM_ABLATIONS_NOT_PRODUCTION",
+  "source_run": 38729720330,
+  "source_commit": "852f23790ebb4769272b5c8e02b8b30a1794551a",
+  "point_error_attribution": {
+    "2024-25": {
+      "locked": {
+        "hier": {
+          "base_mae": 0.9477937809996184,
+          "candidate_mae": 0.9518323159099581,
+          "delta": 0.004038534910339675,
+          "components": {
+            "appearance_points": 5.8838108561501593e-05,
+            "goal_points": -0.0028689766113745387,
+            "assist_points": -0.0013468476529617237,
+            "cs_points": 0.007314720087449961,
+            "save_points": 0.0001010516402924126,
+            "dc_points": -1.8591830015548252e-17,
+            "negative_points": -0.00022497123356528002,
+            "gc_points": 0.0006715177473762113,
+            "penalty_save_points": 3.008227200331148e-05,
+            "expected_bonus": 0.0003031205525578411
+          },
+          "warning": "Algebraic prediction-error attribution, not causal effect; includes changed RNG realization of unchanged components"
+        },
+        "hybrid": {
+          "base_mae": 0.9477937809996184,
+          "candidate_mae": 0.9495469286531859,
+          "delta": 0.0017531476535674884,
+          "components": {
+            "appearance_points": 0.00016101239681935215,
+            "goal_points": -0.0015762421043706675,
+            "assist_points": -0.0014789600782447027,
+            "cs_points": 0.00459435163484192,
+            "save_points": 3.162793796343183e-07,
+            "dc_points": 8.238559746226359e-18,
+            "negative_points": -2.0377839549906644e-05,
+            "gc_points": -9.278159311541307e-05,
+            "penalty_save_points": 2.0345439460299127e-05,
+            "expected_bonus": 0.0001454835183469622
+          },
+          "warning": "Algebraic prediction-error attribution, not causal effect; includes changed RNG realization of unchanged components"
+        },
+        "simple": {
+          "base_mae": 0.9477937809996184,
+          "candidate_mae": 0.9521089278901181,
+          "delta": 0.0043151468904997214,
+          "components": {
+            "appearance_points": 0.00028387156846714054,
+            "goal_points": -0.0017603659090496173,
+            "assist_points": -0.000754811413310066,
+            "cs_points": 0.005903968405370555,
+            "save_points": 1.808424628914407e-05,
+            "dc_points": -1.8944281769397514e-18,
+            "negative_points": 3.987527479515859e-05,
+            "gc_points": 0.0002674129285441668,
+            "penalty_save_points": -1.4826674660736821e-05,
+            "expected_bonus": 0.00033193846405398485
+          },
+          "warning": "Algebraic prediction-error attribution, not causal effect; includes changed RNG realization of unchanged components"
+        }
+      },
+      "mm": {
+        "hybrid": {
+          "base_mae": 0.9327981686379244,
+          "candidate_mae": 0.9331037771842807,
+          "delta": 0.0003056085463563063,
+          "components": {
+            "appearance_points": -6.191475445576359e-05,
+            "goal_points": 0.00037934130920588166,
+            "assist_points": 0.0005759447502770579,
+            "cs_points": 0.0013794153449246981,
+            "save_points": 0.00014266274231935981,
+            "dc_points": -1.8503717077085934e-18,
+            "negative_points": 1.4825312040035888e-06,
+            "gc_points": -0.0016833560436765372,
+            "penalty_save_points": -2.833705782962392e-05,
+            "expected_bonus": -0.0003996302756127665
+          },
+          "warning": "Algebraic prediction-error attribution, not causal effect; includes changed RNG realization of unchanged components"
+        }
+      }
+    },
+    "2025-26": {
+      "locked": {
+        "hier": {
+          "base_mae": 0.9291726556825567,
+          "candidate_mae": 0.9298982185863376,
+          "delta": 0.0007255629037808964,
+          "components": {
+            "appearance_points": 0.00025953600599993486,
+            "goal_points": -0.0001772632654881639,
+            "assist_points": 1.3806593014508473e-05,
+            "cs_points": 0.0005912810668822016,
+            "save_points": -2.629137017395834e-05,
+            "dc_points": 7.988623600362279e-05,
+            "negative_points": -5.635818683909795e-05,
+            "gc_points": -0.00023363260209085078,
+            "penalty_save_points": 6.293859529363527e-05,
+            "expected_bonus": 0.00021165983117906424
+          },
+          "warning": "Algebraic prediction-error attribution, not causal effect; includes changed RNG realization of unchanged components"
+        },
+        "hybrid": {
+          "base_mae": 0.9291726556825567,
+          "candidate_mae": 0.9295282694292595,
+          "delta": 0.00035561374670278756,
+          "components": {
+            "appearance_points": 0.00012225897851781694,
+            "goal_points": -0.00024180355845844728,
+            "assist_points": 0.00027086598621252545,
+            "cs_points": 0.0003793957374226396,
+            "save_points": -3.0025858349762654e-05,
+            "dc_points": -1.7781369973744022e-05,
+            "negative_points": -8.197010407054087e-05,
+            "gc_points": -0.00039592150748444464,
+            "penalty_save_points": 3.953364862132404e-05,
+            "expected_bonus": 0.00031106179426542086
+          },
+          "warning": "Algebraic prediction-error attribution, not causal effect; includes changed RNG realization of unchanged components"
+        },
+        "simple": {
+          "base_mae": 0.9291726556825567,
+          "candidate_mae": 0.9307590121946557,
+          "delta": 0.0015863565120990408,
+          "components": {
+            "appearance_points": 0.0002382658977425547,
+            "goal_points": 0.0011066820760950637,
+            "assist_points": 0.0002297251788057828,
+            "cs_points": -0.00037921574838125114,
+            "save_points": 3.6356193534411874e-05,
+            "dc_points": 0.00032726626909794184,
+            "negative_points": -8.97851781868719e-05,
+            "gc_points": -0.0004309410946610255,
+            "penalty_save_points": 8.737569151289257e-05,
+            "expected_bonus": 0.0004606272265395405
+          },
+          "warning": "Algebraic prediction-error attribution, not causal effect; includes changed RNG realization of unchanged components"
+        }
+      },
+      "mm": {
+        "hybrid": {
+          "base_mae": 0.923461810466761,
+          "candidate_mae": 0.9269758973966896,
+          "delta": 0.003514086929928606,
+          "components": {
+            "appearance_points": 9.296217818140014e-05,
+            "goal_points": 0.0029201656445291546,
+            "assist_points": 0.0018854521069867575,
+            "cs_points": -0.0008006727175751271,
+            "save_points": 3.415013316003851e-05,
+            "dc_points": 0.0001390375524038961,
+            "negative_points": 0.00011499957221315047,
+            "gc_points": -0.0011539513852102438,
+            "penalty_save_points": -3.8053915705982554e-05,
+            "expected_bonus": 0.0003199977609455631
+          },
+          "warning": "Algebraic prediction-error attribution, not causal effect; includes changed RNG realization of unchanged components"
+        }
+      }
+    }
+  },
+  "finishing_on_off_analytic": {
+    "2024-25": {
+      "on": {
+        "sides": 342,
+        "mae": 0.909415707929853,
+        "poisson_deviance": 1.0834560935121238
+      },
+      "off": {
+        "sides": 342,
+        "mae": 0.9069914244489857,
+        "poisson_deviance": 1.0831154953498559
+      }
+    },
+    "2025-26": {
+      "on": {
+        "sides": 660,
+        "mae": 0.8846892805757975,
+        "poisson_deviance": 1.0456788581748633
+      },
+      "off": {
+        "sides": 660,
+        "mae": 0.8855649665753429,
+        "poisson_deviance": 1.04684323053275
+      }
+    }
+  },
+  "lineup_intensity_jensen": [
+    {
+      "season": "2024-25",
+      "fixture": "28c64b14-b699-531d-94c6-8420d53f9bef",
+      "gw": 22,
+      "team": 16,
+      "draws": 1000,
+      "mean_goal_intensity": 2.228477777471475,
+      "sd_goal_intensity": 0.30761461445133975,
+      "mean_exp_minus_intensity": 0.11284595929939951,
+      "exp_minus_mean_intensity": 0.10769223697820693,
+      "jensen_difference": 0.005153722321192586,
+      "p_exact_11": 0.255,
+      "p_over_11": 0.403
+    },
+    {
+      "season": "2024-25",
+      "fixture": "28c64b14-b699-531d-94c6-8420d53f9bef",
+      "gw": 22,
+      "team": 17,
+      "draws": 1000,
+      "mean_goal_intensity": 0.694989818185821,
+      "sd_goal_intensity": 0.11328622179338202,
+      "mean_exp_minus_intensity": 0.502264585920164,
+      "exp_minus_mean_intensity": 0.4990795294942963,
+      "jensen_difference": 0.003185056425867694,
+      "p_exact_11": 0.213,
+      "p_over_11": 0.39
+    },
+    {
+      "season": "2024-25",
+      "fixture": "36a9cfc1-ab51-54d1-bca6-bb4371b29a2e",
+      "gw": 22,
+      "team": 11,
+      "draws": 1000,
+      "mean_goal_intensity": 0.9885785419714064,
+      "sd_goal_intensity": 0.18102067967997848,
+      "mean_exp_minus_intensity": 0.37813721408725703,
+      "exp_minus_mean_intensity": 0.3721052472639965,
+      "jensen_difference": 0.006031966823260515,
+      "p_exact_11": 0.196,
+      "p_over_11": 0.397
+    },
+    {
+      "season": "2024-25",
+      "fixture": "36a9cfc1-ab51-54d1-bca6-bb4371b29a2e",
+      "gw": 22,
+      "team": 9,
+      "draws": 1000,
+      "mean_goal_intensity": 1.532647838066981,
+      "sd_goal_intensity": 0.21679013983352827,
+      "mean_exp_minus_intensity": 0.22103153158619052,
+      "exp_minus_mean_intensity": 0.21596307433451487,
+      "jensen_difference": 0.005068457251675651,
+      "p_exact_11": 0.244,
+      "p_over_11": 0.353
+    },
+    {
+      "season": "2025-26",
+      "fixture": "023de701-eaf3-5114-aa37-a0a4c6f0399c",
+      "gw": 6,
+      "team": 18,
+      "draws": 1000,
+      "mean_goal_intensity": 1.5494748764470805,
+      "sd_goal_intensity": 0.2143890912425455,
+      "mean_exp_minus_intensity": 0.2173281093088599,
+      "exp_minus_mean_intensity": 0.21235945950617507,
+      "jensen_difference": 0.004968649802684827,
+      "p_exact_11": 0.237,
+      "p_over_11": 0.397
+    },
+    {
+      "season": "2025-26",
+      "fixture": "023de701-eaf3-5114-aa37-a0a4c6f0399c",
+      "gw": 6,
+      "team": 20,
+      "draws": 1000,
+      "mean_goal_intensity": 0.9392685777779283,
+      "sd_goal_intensity": 0.14228581358184028,
+      "mean_exp_minus_intensity": 0.39491236420036285,
+      "exp_minus_mean_intensity": 0.39091365375208215,
+      "jensen_difference": 0.003998710448280707,
+      "p_exact_11": 0.201,
+      "p_over_11": 0.418
+    },
+    {
+      "season": "2025-26",
+      "fixture": "081a14ec-0dc8-5586-8eee-1c3713d0e737",
+      "gw": 6,
+      "team": 11,
+      "draws": 1000,
+      "mean_goal_intensity": 0.9445136915681008,
+      "sd_goal_intensity": 0.17381629009671587,
+      "mean_exp_minus_intensity": 0.3947625033948378,
+      "exp_minus_mean_intensity": 0.38886863502240143,
+      "jensen_difference": 0.005893868372436384,
+      "p_exact_11": 0.221,
+      "p_over_11": 0.39
+    },
+    {
+      "season": "2025-26",
+      "fixture": "081a14ec-0dc8-5586-8eee-1c3713d0e737",
+      "gw": 6,
+      "team": 4,
+      "draws": 1000,
+      "mean_goal_intensity": 1.2244571637314938,
+      "sd_goal_intensity": 0.19024905915468784,
+      "mean_exp_minus_intensity": 0.299272720192842,
+      "exp_minus_mean_intensity": 0.2939172059462231,
+      "jensen_difference": 0.005355514246618898,
+      "p_exact_11": 0.234,
+      "p_over_11": 0.374
+    }
+  ],
+  "source_sha256": {
+    "2024-25_locked_0_predictions.csv.gz": "d2c9f51cab5898693a18334752f2083e8270d777c92710b7df4bb8220bab8cc2",
+    "2024-25_locked_1_predictions.csv.gz": "6254279bc134343c300fabc237aa6c7ee1412d5253337f0d76919d82c7404dad",
+    "2024-25_locked_2_predictions.csv.gz": "c3a5c043c265998c952aac42343c7006cc614a2647c68082ecc85f7655c9913e",
+    "2024-25_locked_3_predictions.csv.gz": "ed3265fbe18a83ca247b61a3a54980f4185f4587717a71fabad0f2208e4de76f",
+    "2024-25_mm_0_predictions.csv.gz": "54d7c11a615c3350e35c26df574958cfa0063b2926ec5a401d40681ce733ac82",
+    "2024-25_mm_1_predictions.csv.gz": "9edfe2ed96db0e7ca5c96ec8bdd3df8f6c51a9e04cfa616662b1a4f5f49eab23",
+    "2024-25_mm_2_predictions.csv.gz": "48b1ffc96941a962e3d25f2604d03353f6d1d08e40a54450e6d7cd0b1d781bc0",
+    "2024-25_mm_3_predictions.csv.gz": "ffe36302d269ce2317446be769d3e9648b34dfd6097c7fc9a8884bc753cfefbb",
+    "2024-25_locked_0_inputs.jsonl.gz": "79463e71fe6535ba5f1741412742bbaa7d8d59877f67985b85fcb64050676da0",
+    "2024-25_locked_1_inputs.jsonl.gz": "37f5c542b0917bfff1ef908d17ee00337e23fb34329e7e6c0761697bed45a3ab",
+    "2024-25_locked_2_inputs.jsonl.gz": "1f7c6ae4ea9888a694051975a46497cc8ff759e911f19f6431afa3a98d2d0130",
+    "2024-25_locked_3_inputs.jsonl.gz": "05936149b4a0def38688d6ffb6a4ed1035058b6a6b125d18fd2dd64718a76c14",
+    "2025-26_locked_0_predictions.csv.gz": "8e299751dd84d4d32d705e6cc0f6b8f37ea1482336f3677db6e593d076052656",
+    "2025-26_locked_1_predictions.csv.gz": "db005b9ec576e07148195c68906d5f5e72515384b32324757701bf1ecf10afb7",
+    "2025-26_locked_2_predictions.csv.gz": "634412ec167d38d2b32a9b39dc7cb040db267310ac474a9671599757715b4ca2",
+    "2025-26_locked_3_predictions.csv.gz": "39f33c31d7244dedd613608a2fe09d6ff42ce476d17d1f15b7cf17251f8aa2ea",
+    "2025-26_mm_0_predictions.csv.gz": "bbe73fef9f0abbf3315067e48f435eff8c6992c3bf8fd6f908bd64fe725038da",
+    "2025-26_mm_1_predictions.csv.gz": "080e12ce3cd31a091e2285dcf537a8c6bd4ecbabf203b4c91ed3bffb7293606e",
+    "2025-26_mm_2_predictions.csv.gz": "78f1e1ae58b8cd87443eb4e1596aa774d5530ca6f0392ed66bdb4f89b94bdde0",
+    "2025-26_mm_3_predictions.csv.gz": "f7962ef6143987e69e2f81c739d0724db35638cd72b5e1b5d02b2f0f3ae444fc",
+    "2025-26_locked_0_inputs.jsonl.gz": "ac100f17e81d8b63ea0098b10e10b7bbd6267ac7be9df4801bfb663c1f5dfc55",
+    "2025-26_locked_1_inputs.jsonl.gz": "3196016502002f7df49d93188806cd5164797c704ab339b1bc6e5696171fc832",
+    "2025-26_locked_2_inputs.jsonl.gz": "df6cb1a9b20f2dd5fb10bd22bd2f83b10ea11e30c209367850b13457c4a840eb",
+    "2025-26_locked_3_inputs.jsonl.gz": "c363c01338e5bbd31db906a0449dfc2d7c2b999bb40c350c1a72ac568169369e"
+  },
+  "limitations": [
+    "No hyperparameters retuned from evaluation",
+    "Shapley is exact error attribution, not causal explanation",
+    "Finishing on/off uses analytic expected-MM exposures, not full point-model replay; not a claim of xP gain",
+    "Jensen mechanism uses first two evaluation fixtures per season, not a representative selected-error cohort",
+    "Exp(-intensity) is a Poisson no-goal diagnostic, not a full player clean-sheet probability including minutes, correlated on-pitch status and original penalty mechanics",
+    "Original independent XI physics retained; illegal starting counts expose a limitation, not newly certified lineups"
+  ],
+  "locked_model_active": false,
+  "promotion_allowed": false
+}

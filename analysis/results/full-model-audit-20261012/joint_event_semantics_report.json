@@ -1,0 +1,49 @@
+{
+  "classification": "READ_ONLY_EVENT_SEMANTICS_AUDIT",
+  "focus": [
+    {
+      "player": "Haaland",
+      "gw": 7,
+      "xp": 5.92,
+      "goal_mu_input": 0.7703635160042906,
+      "goal_points": 3.05,
+      "penalty_goal_points": 0.07,
+      "ordinary_goal_points": 2.98,
+      "goal_rate90_input": 0.6715064183886992,
+      "lambda_pen": 0.0779009126466753,
+      "pen_weight": 0.1474019815179263,
+      "pen_conversion": 0.6666666666666666
+    },
+    {
+      "player": "Saka",
+      "gw": 7,
+      "xp": 5.74,
+      "goal_mu_input": 0.3958277462182005,
+      "goal_points": 2.0375,
+      "penalty_goal_points": 0.25,
+      "ordinary_goal_points": 1.7875,
+      "goal_rate90_input": 0.4655692715674011,
+      "lambda_pen": 0.0779009126466753,
+      "pen_weight": 0.9097227747051492,
+      "pen_conversion": 0.6793900797822924
+    }
+  ],
+  "own_goal": {
+    "classification": "SYNTHETIC_FORENSIC_PROBE_ONLY",
+    "minutes": 90,
+    "own_goals": 1,
+    "goals_conceded": 0,
+    "clean_sheet": 1,
+    "contradiction": true
+  },
+  "discipline_exposure_diagnostic": {
+    "expected_minutes": 45,
+    "p_play": 0.5,
+    "probability_from_mean_exposure": 0.09516258196404048,
+    "unconditional_simulated_probability": 0.04758129098202024,
+    "interpretation": "The exposure-derived fixture probability is applied only after appearance; possible extra attenuation requiring conditional-hazard backtesting."
+  },
+  "penalty_note": "Team penalty goal mass is subtracted from ordinary team goals, so total-goal double counting is not confirmed. Ordinary player weights still come from inclusive goal/xG rates; penalty-taker redistribution needs separate npxG/source/calibration validation.",
+  "promotion_allowed": false,
+  "locked_model_active": false
+}

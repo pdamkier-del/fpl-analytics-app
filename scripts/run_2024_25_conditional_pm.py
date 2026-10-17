@@ -100,7 +100,16 @@ def penalty_history_2024(obs,fixtures,tmap):
                          attempts=float(attempts),scored=float(max(0,attempts-missed))))
     return pd.DataFrame(rows)
 
-def penalty_state(origin,state,phist,fixtures,summary):
+def penalty_state(origin,state,phist,fixtures,summary,*,cutoff=None):
+    # Exposure is all known completed fixture sides, not positive-penalty sides.
+    # Final historical schedule/publication clocks remain documented proxies.
+    if fixtures.id.duplicated().any():raise ValueError('Duplicate penalty exposure fixtures')
+    if cutoff is None:
+        eligible=fixtures[pd.to_numeric(fixtures.event,errors='coerce').lt(int(origin))].copy()
+    else:
+        known=pd.to_datetime(fixtures.kickoff_time,utc=True,errors='coerce')+pd.Timedelta(hours=4)
+        eligible=fixtures[known.lt(pd.Timestamp(cutoff))].copy()
+    if len(phist):phist=phist[phist.fixture_id.isin(set(eligible.id.astype(int)))].copy()
     half=float(summary['selected']['taker_half_life']);tau=float(summary['selected']['occurrence_tau'])
     tc=float(summary['selected']['conversion_tau']);decay=2**(-1/half)
     attempts=defaultdict(float);scored=defaultdict(float)
@@ -116,6 +125,9 @@ def penalty_state(origin,state,phist,fixtures,summary):
     ps={str(r.player_uuid):(attempts[str(r.player_uuid)],(scored[str(r.player_uuid)]+tc*lgconv)/(attempts[str(r.player_uuid)]+tc))
         for r in state.itertuples(index=False)}
     awarded=defaultdict(lambda:[0.,0.]);conceded=defaultdict(lambda:[0.,0.]);league=[0.,0.]
+    for fixture in eligible.itertuples(index=False):
+        for team in (int(fixture.team_h),int(fixture.team_a)):
+            awarded[team][1]+=1;conceded[team][1]+=1;league[1]+=1
     if len(phist):
         by=phist[phist.gw<int(origin)].groupby(['gw','fixture_id','team_id'],as_index=False).attempts.sum()
         fxside={int(r.id):(int(r.team_h),int(r.team_a)) for r in fixtures.itertuples()}
@@ -124,8 +136,8 @@ def penalty_state(origin,state,phist,fixtures,summary):
             if not sides:continue
             t=int(r.team_id);o=sides[1] if t==sides[0] else sides[0] if t==sides[1] else None
             if o is None:continue
-            awarded[t][0]+=float(r.attempts);awarded[t][1]+=1
-            conceded[o][0]+=float(r.attempts);conceded[o][1]+=1;league[0]+=float(r.attempts);league[1]+=1
+            awarded[t][0]+=float(r.attempts)
+            conceded[o][0]+=float(r.attempts);league[0]+=float(r.attempts)
     lg=league[0]/league[1] if league[1] else .12
     def lam(t,o):
         a,n=awarded[int(t)];c,m=conceded[int(o)]
@@ -191,7 +203,7 @@ def main():
         lambdas=fit_team_latent(hist_team,fx[['match_id','home_team_id','away_team_id']],origin)
         past=ph[ph.available_at<=cutoff].copy()
         goals=float(past.goals.sum());assist_prob=min(1.,max(.5,float(past.fpl_assists.sum())/goals)) if goals>0 else .7
-        ps,plam=penalty_state(origin,state,pens,fixtures,models['pen'])
+        ps,plam=penalty_state(origin,state,pens,fixtures,models['pen'],cutoff=cutoff)
         bmean=state.set_index('player_uuid').bg_mean_rate90.to_dict();bsd=state.set_index('player_uuid').bg_sd90.to_dict()
         origin_count=0
         for fixture_index,fr in enumerate(fx.itertuples(index=False)):

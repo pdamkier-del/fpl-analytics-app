@@ -1,0 +1,92 @@
+name: Preserve player PM v2 evidence and focus
+on:
+  push:
+    branches: [model-audit-optimization-20261012]
+    paths: [.github/workflows/player-pm-v2-evidence.yml]
+  workflow_dispatch:
+permissions:
+  contents: read
+  actions: read
+env:
+  PYTHONPATH: src:scripts
+  OPENBLAS_NUM_THREADS: '1'
+  OMP_NUM_THREADS: '1'
+jobs:
+  reports:
+    runs-on: ubuntu-latest
+    timeout-minutes: 180
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/github-script@v7
+        with:
+          script: |
+            for(let i=0;i<240;i++) {
+              const r=await github.rest.actions.getWorkflowRun({...context.repo,run_id:38729720330});
+              if(r.data.head_sha!=='852f23790ebb4769272b5c8e02b8b30a1794551a')throw new Error('Wrong research source');
+              const j=await github.rest.actions.listJobsForWorkflowRun({...context.repo,run_id:38729720330,per_page:100});
+              const s=j.data.jobs.find(x=>x.name==='selection');
+              if(s && s.status==='completed') {
+                if(s.conclusion!=='success')throw new Error('Source selection failed');
+                return;
+              }
+              await new Promise(resolve=>setTimeout(resolve,30000));
+            }
+            throw new Error('Selection did not complete');
+      - uses: actions/download-artifact@v4
+        with:
+          github-token: ${{ github.token }}
+          run-id: '38729720330'
+          name: player-pm-v2-selection
+          path: analysis/results/player-pm-v2-20261015
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: |
+          pip install -r requirements-model-checkpoint.txt requests
+          python scripts/restore_core_checkpoint.py
+          python scripts/current_diagnostic_checkpoint.py restore
+          python scripts/locked_numerical_runtime.py scripts/report_player_pm_v2_focus.py
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: player-pm-v2-public-focus
+          path: |
+            analysis/results/player-pm-v2-20261015/current_player_report.json
+            analysis/results/player-pm-v2-20261015/current_player_predictions.csv.gz
+          retention-days: 90
+      - uses: actions/github-script@v7
+        with:
+          script: |
+            for(let i=0;i<240;i++) {
+              const r=await github.rest.actions.getWorkflowRun({...context.repo,run_id:38729720330});
+              if(r.data.status==='completed') {
+                if(r.data.conclusion!=='success')throw new Error('Research matrix failed; no complete-success export');
+                return;
+              }
+              await new Promise(resolve=>setTimeout(resolve,30000));
+            }
+            throw new Error('Research matrix unfinished');
+      - uses: actions/download-artifact@v4
+        with:
+          github-token: ${{ github.token }}
+          run-id: '38729720330'
+          name: player-pm-v2-final-reports
+          path: work/player-pm-v2-final
+      - name: Export numerical reports with original byte hashes
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          import json,hashlib
+          paths=list(Path('work/player-pm-v2-final').glob('*.json'))
+          paths+=[Path('analysis/results/player-pm-v2-20261015/current_player_report.json')]
+          for p in sorted(paths):
+              if p.name=='matrix_report.json':continue
+              print(json.dumps(dict(file=p.name,sha256=hashlib.sha256(p.read_bytes()).hexdigest(),source_run=38729720330,source_commit='852f23790ebb4769272b5c8e02b8b30a1794551a',report=json.loads(p.read_text())),indent=2))
+          PY
+      - uses: actions/upload-artifact@v4
+        with:
+          name: verified-player-pm-v2-reports
+          path: |
+            work/player-pm-v2-final/*.json
+            analysis/results/player-pm-v2-20261015/current_player_report.json
+          retention-days: 90

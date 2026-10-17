@@ -28,7 +28,7 @@ def test_private_job_requires_capability_and_expires(tmp_path):
 def test_busy_job_refuses_second_compute(tmp_path):
     jobs['running-example']={'key':'key','created':time.time(),'status':'running','directory':tmp_path}
     with app.test_client() as c:
-        response=c.post('/plans',json={'state':{},'forecast_cutoff':'test'},headers={'Origin':ORIGIN})
+        response=c.post('/plans',json={'state':{},'forecast_cutoff':'test','forecast_sha256':'a'*64},headers={'Origin':ORIGIN})
         assert response.status_code==429
     del jobs['running-example']
 
@@ -79,7 +79,8 @@ def test_service_checks_fresh_official_window_without_changing_model():
     import pytest
     from service.app import verify_current_window
     f=dict(model='original_locked_vFinal_diagnostic',locked_model_active=False,gws=list(range(7,13)),origin_deadline='2026-10-17T10:00:00Z',data_asof='2026-10-11T09:00:00Z',freshness_limit_hours=24)
-    b={'events':[dict(id=7,is_next=True,deadline_time=f['origin_deadline'])]}
+    f['players']=[dict(id=1,price_tenths=50,team_id=1,position=4)]
+    b={'events':[dict(id=7,is_next=True,deadline_time=f['origin_deadline'])],'elements':[dict(id=1,now_cost=50,team=1,element_type=4)]}
     assert verify_current_window(f,b,datetime(2026,10,11,10,tzinfo=timezone.utc))==7
     with pytest.raises(ValueError,match='freshness'):verify_current_window(f,b,datetime(2026,10,12,10,tzinfo=timezone.utc))
     b['events'][0]['id']=8
@@ -96,10 +97,11 @@ def test_worker_timeout_removes_private_input_and_returns_safe_failure(monkeypat
     monkeypatch.setattr(api.tempfile,'mkdtemp',lambda **kwargs:str(tmp_path))
     monkeypatch.setattr(api,'get_public',lambda name:json.dumps({'data_asof':'cutoff','gws':[7]} if name=='vfinal-diagnostic.json' else {'next_gw':7}).encode())
     monkeypatch.setattr(api,'verify_official_now',lambda forecast:7)
+    monkeypatch.setattr(api,'require_forecast_snapshot',lambda forecast,expected:expected)
     def timeout(*args,**kwargs):raise subprocess.TimeoutExpired('private worker',1800)
     monkeypatch.setattr(api.subprocess,'run',timeout)
     with app.test_client() as c:
-        response=c.post('/plans',json={'state':{'private':'test-only'},'forecast_cutoff':'cutoff'},headers={'Origin':ORIGIN})
+        response=c.post('/plans',json={'state':{'private':'test-only'},'forecast_cutoff':'cutoff','forecast_sha256':'a'*64},headers={'Origin':ORIGIN})
         receipt=response.get_json();identifier=receipt['id']
         try:
             assert response.status_code==202
@@ -119,7 +121,7 @@ def test_lost_submission_receipt_resumes_same_private_job(monkeypatch,tmp_path):
     monkeypatch.setattr(api.threading,'Thread',DeferredThread)
     monkeypatch.setattr(api,'original_runtime_ready',lambda:True)
     monkeypatch.setattr(api.tempfile,'mkdtemp',lambda **kwargs:str(tmp_path))
-    body={'state':{'synthetic':'privacy test only'},'forecast_cutoff':'cutoff','request_id':'a'*32,'request_key':'b'*43}
+    body={'state':{'synthetic':'privacy test only'},'forecast_cutoff':'cutoff','forecast_sha256':'a'*64,'request_id':'a'*32,'request_key':'b'*43}
     with app.test_client() as c:
         try:
             first=c.post('/plans',json=body,headers={'Origin':ORIGIN})
@@ -137,5 +139,37 @@ def test_malformed_private_submission_capability_is_rejected(monkeypatch):
     import service.app as api
     monkeypatch.setattr(api,'original_runtime_ready',lambda:True)
     with app.test_client() as c:
-        response=c.post('/plans',json={'state':{},'forecast_cutoff':'test','request_id':'too-short','request_key':'guess'},headers={'Origin':ORIGIN})
+        response=c.post('/plans',json={'state':{},'forecast_cutoff':'test','forecast_sha256':'a'*64,'request_id':'too-short','request_key':'guess'},headers={'Origin':ORIGIN})
         assert response.status_code==400
+
+def test_worker_rejects_same_cutoff_content_change(monkeypatch,tmp_path):
+    import json
+    import service.app as api
+    from fpl_v1_1_model.forecast_snapshot import seal_forecast
+    forecast=seal_forecast({'data_asof':'cutoff','gws':[7],'players':[{'xp':5}]})
+    updated=seal_forecast({**forecast,'players':[{'xp':6}]})
+    feeds=iter([forecast,updated]);calls=[]
+    class ImmediateThread:
+        def __init__(self,target,**kwargs):self.target=target
+        def start(self):self.target()
+    monkeypatch.setattr(api.threading,'Thread',ImmediateThread)
+    monkeypatch.setattr(api,'original_runtime_ready',lambda:True)
+    monkeypatch.setattr(api.tempfile,'mkdtemp',lambda **kwargs:str(tmp_path))
+    monkeypatch.setattr(api,'get_public',lambda name:json.dumps(next(feeds) if name=='vfinal-diagnostic.json' else {'next_gw':7}).encode())
+    monkeypatch.setattr(api,'verify_official_now',lambda forecast:7)
+    def compute(*args,**kwargs):
+        calls.append(True)
+        (tmp_path/'result.json').write_text('{"synthetic":true}')
+        return type('Result',(),{'returncode':0})()
+    monkeypatch.setattr(api.subprocess,'run',compute)
+    with app.test_client() as c:
+        r=c.post('/plans',json={'state':{'synthetic':'validation only'},'forecast_cutoff':'cutoff','forecast_sha256':forecast['forecast_sha256']},headers={'Origin':ORIGIN})
+        receipt=r.get_json()
+        try:
+            assert calls==[True]
+            result=c.get('/plans/'+receipt['id'],headers={'X-Plan-Key':receipt['key']})
+            assert result.status_code==422
+            assert result.get_json()['status']=='failed'
+            assert 'synthetic' not in result.get_data(as_text=True)
+            assert not (tmp_path/'input.json').exists()
+        finally:jobs.pop(receipt['id'],None)

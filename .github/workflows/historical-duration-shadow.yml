@@ -1,0 +1,76 @@
+name: Historical duration PM shadow
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [model-audit-optimization-20261012]
+    paths:
+      - scripts/audit_historical_duration_candidate.py
+      - scripts/audit_historical_duration_score.py
+      - .github/workflows/historical-duration-shadow.yml
+
+permissions:
+  contents: read
+  actions: read
+
+jobs:
+  paired-replay:
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    env:
+      PYTHONPATH: src:scripts
+      OPENBLAS_NUM_THREADS: '1'
+      OMP_NUM_THREADS: '1'
+      PYTHONHASHSEED: '0'
+      OPENBLAS_CORETYPE: NEHALEM
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: pip install -r requirements-model-checkpoint.txt requests
+      - uses: actions/checkout@v4
+        with:
+          ref: 952b809ad78eb08f2130c0aec683f30e6fa2e686
+          path: work/benchmark-source
+      - run: python scripts/restore_core_checkpoint.py --out work/benchmark-source/work/core.sqlite3
+      - uses: actions/download-artifact@v4
+        with:
+          github-token: ${{ github.token }}
+          run-id: '37612845586'
+          name: final-locked-chain-gw1-38
+          path: work/benchmark-artifact
+      - name: Rebuild original GW1 warm history, without altering locked code
+        working-directory: work/benchmark-source
+        run: |
+          python scripts/reproduce_pstart_v2_fixture_minutes.py --db work/core.sqlite3 --out analysis/results/v2-reproduced-final-gw1 --min-gw 1
+          python scripts/build_reproducible_role_benchmark.py --db work/core.sqlite3 --baseline analysis/results/v2-reproduced-final-gw1/pstart_v2_fixture_holdout_2025_26.csv --cutoffs analysis/results/workload-recovered-v4/authoritative_deadlines.csv --out analysis/results/reproducible-role-final-gw1
+          python scripts/build_workload_features.py --db work/core.sqlite3 --features analysis/results/reproducible-role-final-gw1/all_feature_predictions.csv.gz --out analysis/results/workload-final-gw1
+          cp analysis/results/reproducible-role-final-gw1/all_feature_predictions.csv.gz analysis/results/reproducible-role-v1/all_feature_predictions.csv.gz
+          cp analysis/results/workload-final-gw1/all_features.csv.gz analysis/results/workload-recovered-v4/all_features.csv.gz
+          cp analysis/results/workload-final-gw1/official_player_minutes.csv analysis/results/workload-recovered-v4/official_player_minutes.csv
+          cp analysis/results/workload-final-gw1/team_match_coverage.csv analysis/results/workload-recovered-v4/team_match_coverage.csv
+      - name: Prepare duration-only candidate from independently selected half-life
+        run: python scripts/audit_historical_duration_candidate.py --db work/benchmark-source/work/core.sqlite3 --mm work/benchmark-artifact/locked-mm-final-gw6-38/locked_mm_predictions.csv.gz --out work/historical-duration-shadow
+      - name: Paired original point-model replay with original seeds
+        working-directory: work/benchmark-source
+        run: |
+          python scripts/run_rolling_vfinal_gw6_38.py --db work/core.sqlite3 --source analysis/results/workload-final-gw1/all_features.csv.gz --mm ../benchmark-artifact/locked-mm-final-gw6-38/locked_mm_predictions.csv.gz --out analysis/results/historical-pm-original-reproduced
+          python scripts/run_rolling_vfinal_gw6_38.py --db work/core.sqlite3 --source analysis/results/workload-final-gw1/all_features.csv.gz --mm ../historical-duration-shadow/candidate_mm.csv.gz --out analysis/results/historical-pm-duration-h3
+      - name: Require exact archived replay before scoring candidate
+        run: python scripts/audit_historical_duration_score.py --archive work/benchmark-artifact/rolling-vfinal-final-gw6-38 --original work/benchmark-source/analysis/results/historical-pm-original-reproduced --candidate work/benchmark-source/analysis/results/historical-pm-duration-h3 --db work/benchmark-source/work/core.sqlite3 --out analysis/results/full-model-audit-20261012/historical_duration_pm_report.json
+      - name: Reproduce unchanged historical TS benchmark (incomplete archived horizon)
+        working-directory: work/benchmark-source
+        run: |
+          python scripts/run_ts_v3_final_chain_gw6.py --vfinal analysis/results/historical-pm-original-reproduced/rolling_vfinal_forecast.csv.gz --out analysis/results/historical-ts-original-reproduced
+          python -c "import json; from pathlib import Path; s=json.loads(Path('analysis/results/historical-ts-original-reproduced/summary.json').read_text()); assert (s['total_points'],s['transfers'],s['hit_points'])==(2125,44,28),s"
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: historical-duration-shadow-evidence
+          path: |
+            work/historical-duration-shadow
+            work/benchmark-source/analysis/results/historical-pm-*
+            work/benchmark-source/analysis/results/historical-ts-original-reproduced
+            analysis/results/full-model-audit-20261012/historical_duration_pm_report.json
+          retention-days: 90

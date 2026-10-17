@@ -1,0 +1,151 @@
+name: Isolated finishing and assist PM research
+on:
+  push:
+    branches: [model-audit-optimization-20261012]
+    paths:
+      - scripts/research_pm_conversion.py
+      - scripts/replay_pm_conversion.py
+      - scripts/diagnose_pm_conversion.py
+      - src/fpl_v1_1_model/experimental_pm_conversion.py
+      - tests/test_experimental_pm_conversion.py
+      - .github/workflows/pm-conversion-research.yml
+  workflow_dispatch:
+concurrency:
+  group: pm-conversion-${{ github.ref }}
+  cancel-in-progress: true
+permissions:
+  contents: read
+  actions: read
+env:
+  PYTHONPATH: src:scripts
+  OPENBLAS_NUM_THREADS: '1'
+  OMP_NUM_THREADS: '1'
+  PYTHONHASHSEED: '0'
+  OPENBLAS_CORETYPE: NEHALEM
+jobs:
+  selection:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: pip install -r requirements-model-checkpoint.txt -r requirements-model-tests.txt requests
+      - run: |
+          python -m pytest tests -q
+          python scripts/restore_core_checkpoint.py
+      - uses: actions/download-artifact@v4
+        with:
+          github-token: ${{ github.token }}
+          run-id: '38565961308'
+          pattern: mm-original-pm-*
+          merge-multiple: true
+          path: work/original-pm
+      - uses: actions/download-artifact@v4
+        with:
+          github-token: ${{ github.token }}
+          run-id: '38565961308'
+          name: mm-component-inputs-and-results
+          path: analysis/results
+      - name: Select on earlier pre-kickoff forecasts only
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          import subprocess,sys
+          paths={s:list(Path('work/original-pm').rglob(f'mm-pm-{s}/inputs.jsonl.gz')) for s in ['2024-25','2025-26']}
+          assert all(len(x)==1 for x in paths.values()),paths
+          subprocess.run([sys.executable,'scripts/locked_numerical_runtime.py','scripts/research_pm_conversion.py','--inputs2024',str(paths['2024-25'][0]),'--inputs2025',str(paths['2025-26'][0])],check=True)
+          PY
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: pm-conversion-selected-inputs
+          retention-days: 90
+          path: |
+            analysis/results/pm-research-20261015/*.json
+            analysis/results/pm-research-20261015/*.csv.gz
+  full-pm:
+    needs: selection
+    strategy:
+      fail-fast: false
+      matrix:
+        season: ['2024-25', '2025-26']
+        arm: ['locked', 'mm']
+    runs-on: ubuntu-latest
+    timeout-minutes: 180
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: pip install -r requirements-model-checkpoint.txt requests
+      - run: python scripts/restore_core_checkpoint.py
+      - uses: actions/download-artifact@v4
+        with:
+          name: pm-conversion-selected-inputs
+          path: analysis/results/pm-research-20261015
+      - uses: actions/download-artifact@v4
+        with:
+          github-token: ${{ github.token }}
+          run-id: '38565961308'
+          name: mm-original-pm-${{ matrix.season }}
+          path: work/original-pm
+      - uses: actions/download-artifact@v4
+        with:
+          github-token: ${{ github.token }}
+          run-id: '38565961308'
+          name: mm-component-inputs-and-results
+          path: analysis/results
+      - name: Reconcile original reference then replay isolated candidates
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          import subprocess,sys
+          season='${{ matrix.season }}';paths=list(Path('work/original-pm').rglob(f'mm-pm-{season}/inputs.jsonl.gz'))
+          assert len(paths)==1,paths
+          subprocess.run([sys.executable,'scripts/locked_numerical_runtime.py','scripts/replay_pm_conversion.py','--inputs',str(paths[0]),'--season',season,'--arm','${{ matrix.arm }}','--workers','2'],check=True)
+          PY
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: pm-conversion-${{ matrix.season }}-${{ matrix.arm }}
+          retention-days: 90
+          path: |
+            analysis/results/pm-research-20261015/*_report.json
+            analysis/results/pm-research-20261015/*_predictions.csv.gz
+            analysis/results/pm-research-20261015/*_inputs.jsonl.gz
+            analysis/results/pm-research-20261015/cache_*
+  diagnostics:
+    needs: selection
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: pip install -r requirements-model-checkpoint.txt requests
+      - run: |
+          python scripts/restore_core_checkpoint.py
+          python scripts/current_diagnostic_checkpoint.py restore
+      - uses: actions/download-artifact@v4
+        with:
+          name: pm-conversion-selected-inputs
+          path: analysis/results/pm-research-20261015
+      - uses: actions/download-artifact@v4
+        with:
+          github-token: ${{ github.token }}
+          run-id: '38712316437'
+          name: mm-current-pm-focus
+          path: work/current-focus
+      - run: |
+          python scripts/locked_numerical_runtime.py scripts/diagnose_pm_conversion.py --inputs work/current-focus/current_pm_focus_inputs.jsonl.gz
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: pm-conversion-current-focus
+          retention-days: 90
+          path: |
+            analysis/results/pm-research-20261015/current_conversion_report.json
+            analysis/results/pm-research-20261015/current_conversion_focus.csv.gz
