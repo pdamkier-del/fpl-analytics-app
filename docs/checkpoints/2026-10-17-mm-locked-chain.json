@@ -1,31 +1,91 @@
 {
   "status": "NOT READY",
-  "production_MM_activated": false,
+  "verified_at": "2026-10-17",
+  "branch": "integration-mm-final-chain-20261017",
+  "validated_code_commit": "243612f107ebeedf1ee1f10846c513c364fa9154",
+  "main_gateway_commit": "c6ff22b1115f97db204b2ded4b4d10859bbe17b0",
+  "published_preview_commit": "9c2c09a560fb2545f2a847d7189b92e8e850f372",
   "locked_model_active": false,
-  "PR": "https://github.com/pdamkier-del/fpl-analytics-app/pull/16",
-  "latest_validated_source": "574e61964bcf7526beba13079deef418853ff224",
-  "next_source_under_validation": "566bcc2bb2a707fca8c9edb4b2a8242bf8f3bbf2",
-  "local_python_tests": 641,
-  "full_synthetic_B_PM_TS_test": "passed: real inference,400-draw simulator,96 players,sixGWs,original TS,private state unchanged; no personal validation claim",
-  "historical_PM": {
-    "player_fixtures": 11794,
+  "production_model_changed": false,
+  "tests": {
+    "python_suite_passed": 643,
+    "focused_mm_passed": 91,
+    "downstream_privacy_passed": 39,
+    "run": "https://github.com/pdamkier-del/fpl-analytics-app/actions/runs/39019030796",
+    "conclusion": "success"
+  },
+  "deployment": {
+    "run": "https://github.com/pdamkier-del/fpl-analytics-app/actions/runs/39019066592",
+    "conclusion": "success",
+    "production_non_preview_files_byte_identical": 88,
+    "preview": "https://pdamkier-del.github.io/fpl-analytics-app/mm-preview/",
+    "historical_chain": "https://pdamkier-del.github.io/fpl-analytics-app/mm-preview/chain.html"
+  },
+  "historical_mm": {
+    "rows": 39264,
+    "original_mae": 11.240711312679037,
+    "B_mae": 10.40835810002517,
+    "original_rmse": 21.115962188038406,
+    "B_rmse": 20.172026032780614,
+    "independent_holdout": false,
+    "runtime_max_absolute_reference_error": 2.0374774578613142e-7,
+    "tolerance": 0.000001
+  },
+  "historical_pm": {
+    "rows": 11794,
     "fixtures": 144,
-    "period": "2025/26 GW22-38; reused",
-    "draws": 400,
-    "same_fixture_exact_repeat": true
+    "draws_per_arm": 400,
+    "old_mae": 0.9182414787179922,
+    "B_mae": 0.881044598948618,
+    "old_rmse": 1.8456199526969563,
+    "B_rmse": 1.8110521750381823,
+    "excluded_B_rows": 2193,
+    "independent_holdout": false,
+    "historical_six_GW_TS_replay": false
   },
-  "prospective_source_capture": {
-    "push_run": 39016234854,
-    "source_only": true,
-    "B_forecasts_registered": 0,
-    "scheduled_run_verified": false
+  "technical_e2e": {
+    "synthetic_fixture": true,
+    "real_B_PM_TS_calls": true,
+    "personal_manager_plan_verified": false
   },
-  "pending": [
-    "final exact-source CI and Pages deployment",
-    "desktop/mobile final UI recheck",
-    "real current PR8 feature producer and B forecast",
-    "current personal candidate backend integration",
-    "untouched prospective validation",
-    "experimental PMF calibration and inherited source gates"
-  ]
+  "sampler_coherence": {
+    "mean_PM_minus_B_minutes": -0.7280641841081568,
+    "mean_difference_B_xM_above_60": -3.0145196445204574,
+    "certain_starter_input_90_PM_expected_minutes": 86.01,
+    "unchanged_locked_PM": true
+  },
+  "source_capture": {
+    "run": "https://github.com/pdamkier-del/fpl-analytics-app/actions/runs/39019066599",
+    "push_success": true,
+    "scheduled_execution_verified": false,
+    "cron": "17 * * * *",
+    "status": "BLOCKED_CURRENT_B_FEATURES",
+    "forecasts_registered": 0
+  },
+  "browser": {
+    "desktop": true,
+    "mobile_width_390_iframe": true,
+    "physical_mobile_device": false,
+    "checks": [
+      "checksum-verified historical PM rows",
+      "player popup",
+      "11-player expected XI with one GK",
+      "Pitch/List",
+      "search, filters, sorting, reload",
+      "mobile document has no horizontal overflow"
+    ],
+    "app_origin_javascript_errors": 0
+  },
+  "artifact": {
+    "id": 12095548452,
+    "name": "mm-integration-preview-evidence",
+    "github_reported_sha256": "b1533c92ac782469c5c80490e5a9443c8a8fe58df85d2c10854d96bf0088d8ab",
+    "independently_downloaded_and_hashed": false
+  },
+  "blockers": [
+    "Locked PM rounded/clipped duration law does not preserve B conditional duration means.",
+    "Verified current PR8-to-B feature producer and candidate private backend/app manager route are missing; no actual current personal B plan verified.",
+    "No untouched independent/prospective evaluation; experimental PMF calibration and inherited source/formation coverage gates remain."
+  ],
+  "private_manager_data_published": false
 }

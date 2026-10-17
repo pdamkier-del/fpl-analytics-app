@@ -193,3 +193,11 @@ node --check app/mm-preview/chain.js
 
 PR16 builds on PR15. CI, deployment, browser verification and exact commit
 identities are recorded in `docs/checkpoints/2026-10-17-mm-locked-chain.json`.
+
+## Final publication verification — 2026-10-17
+
+Validated code: `243612f107ebeedf1ee1f10846c513c364fa9154`. [Final CI](https://github.com/pdamkier-del/fpl-analytics-app/actions/runs/39019030796) passed all **643** Python tests, including the real synthetic B→PM→TS regression, and completed the historical MM and paired PM replays. Runtime B reference parity was within 1e-6 (maximum absolute residual 2.0374774578613142e-7); this is numerical tolerance, not bitwise equality.
+
+[Protected Pages deployment](https://github.com/pdamkier-del/fpl-analytics-app/actions/runs/39019066592) succeeded. Published preview commit: `9c2c09a560fb2545f2a847d7189b92e8e850f372`; all 88 non-preview production files remained byte-identical. The public MM and historical PM pages were rechecked on desktop and in a 390px browser iframe: player popup, legal expected XI, Pitch/List, filters/sorting/reload and table scrolling worked, with no app-origin JavaScript errors. This was not a physical mobile-device test.
+
+The source-capture push run succeeded but registered **zero forecasts** (`BLOCKED_CURRENT_B_FEATURES`). The new hourly scheduled execution has not yet been witnessed. Source capture is not prospective prediction. No personal/current B forecast or six-GW historical TS replay is claimed. Status remains **NOT READY** because of the sampler-mean mismatch, missing current producer/backend route and outstanding validation/source gates. Production remains unchanged and `locked_model_active=false`.
