@@ -7,6 +7,8 @@ This script never certifies MM/TS/chips or publishes app output.
 """
 from __future__ import annotations
 import argparse,hashlib,json,sys
+from contextlib import nullcontext
+from unittest.mock import patch
 from dataclasses import replace
 from pathlib import Path
 import numpy as np,pandas as pd
@@ -72,8 +74,26 @@ def select_scope(frame,scope):
         return frame[frame.fixture_uuid.eq(first)].copy()
     return frame.copy()
 
-def simulate(frame,draws=400,seed=93000000,fixture_seed_offsets=None):
+def simulate(frame,draws=400,seed=93000000,fixture_seed_offsets=None,*,minute_sampler='locked'):
+    if minute_sampler not in ('locked','candidate_B'):
+        raise ValueError('Unknown minute sampler')
+    if minute_sampler=='candidate_B':
+        # Research-only explicit opt-in. Never change locked simulator globally
+        # outside this scoped single-threaded call or in a production service.
+        from mm_locked_bridge import sample_candidate_minutes
+        import fpl_v1_1_model.joint_simulator as joint
+        def candidate_hook(rng,p):
+            return sample_candidate_minutes(rng,p=p.p_start,q=p.p_cameo_given_bench,
+                s=p.start_minutes_mean,c=p.cameo_minutes_mean)
+        ctx=patch.object(joint,'_sample_minutes',candidate_hook)
+    else:
+        ctx=nullcontext()
     audit=validate(frame)
+    with ctx:
+        return _simulate_fixtures(frame,draws,seed,fixture_seed_offsets,audit,minute_sampler)
+
+
+def _simulate_fixtures(frame,draws,seed,fixture_seed_offsets,audit,minute_sampler):
     rows=[]
     for i,(fx,g) in enumerate(frame.groupby('fixture_uuid',sort=True)):
         # make_vfinal_input imports original frozen event simulator adapter.
@@ -94,7 +114,8 @@ def simulate(frame,draws=400,seed=93000000,fixture_seed_offsets=None):
                          'xpts_fixture':x,'expected_minutes':float(s['expected_minutes']),
                          **{c:float(s[c]) for c in POINT_COMPONENTS},
                          'penalty_miss_points':float(s['penalty_miss_points'])})
-    audit.update({'classification':'LOCKED_VFINAL_SIMULATED_DIAGNOSTIC_NOT_CHAIN_CERTIFIED',
+    audit.update({'minute_sampler':minute_sampler,
+                  'classification':'LOCKED_VFINAL_SIMULATED_DIAGNOSTIC_NOT_CHAIN_CERTIFIED' if minute_sampler=='locked' else 'RESEARCH_B_DURATION_PMF_NOT_CERTIFIED',
                   'draws_per_fixture':draws,'xpts_calculated':True,
                   'locked_model_active':False,'ts_and_chips_ran':False})
     audit['point_components_reconciled']=True
@@ -105,19 +126,22 @@ def main():
     p.add_argument('--input',type=Path,required=True)
     p.add_argument('--out',type=Path,default=BASE/'live_vfinal_fixture_xp.csv.gz')
     p.add_argument('--draws',type=int,default=400)
+    p.add_argument('--minute-sampler',choices=['locked','candidate_B'],default='locked')
     p.add_argument("--scope",choices=["one-match","one-gw","six-gw"],default="six-gw")
     a=p.parse_args()
     if a.draws!=400:raise ValueError('Locked Monte Carlo draws are exactly 400')
     frame=pd.read_csv(a.input,low_memory=False)
     fixture_seeds={fx:i for i,fx in enumerate(sorted(frame.fixture_uuid.unique()))}
     frame=select_scope(frame,a.scope)
-    predicted,audit=simulate(frame,draws=a.draws,fixture_seed_offsets=fixture_seeds)
+    predicted,audit=simulate(frame,draws=a.draws,fixture_seed_offsets=fixture_seeds,minute_sampler=a.minute_sampler)
     audit["scope"]=a.scope
     audit["hard_unavailable_positive_minutes"]=0
     hard=frame.get("live_eligibility_applied",pd.Series(False,index=frame.index)).fillna(False).astype(bool)
     actual=predicted.merge(frame.loc[hard,["fixture_uuid","player_uuid"]],on=["fixture_uuid","player_uuid"])
     if not actual.empty and (actual.expected_minutes.ne(0).any() or actual.xpts_fixture.ne(0).any()):raise ValueError("Hard-unavailable simulated minutes/points")
     a.out.parent.mkdir(parents=True,exist_ok=True)
+    if a.minute_sampler!='locked' and (a.out.resolve().is_relative_to(ROOT/'app') or not a.out.resolve().is_relative_to(ROOT/'work')):
+        raise ValueError('Experimental PM outputs must remain under untracked work/')
     predicted.to_csv(a.out,index=False,compression='gzip')
     WORK.mkdir(parents=True,exist_ok=True)
     audit['source_sha256']=hashlib.sha256(a.input.read_bytes()).hexdigest()
