@@ -16,8 +16,12 @@ from run_live_vfinal_joint_simulation import simulate
 from build_live_vfinal_desktop import build
 
 
-def run_pipeline(history,target,roles,provenance,pm,bootstrap,bps_audit,manager=None,*,fixtures):
+def run_pipeline(history,target,roles,provenance,pm,bootstrap,bps_audit,manager=None,*,fixtures,minute_sampler='locked'):
     from fpl_v1_1_model.forecast_snapshot import seal_forecast
+    if minute_sampler not in ('locked','candidate_B'):
+        raise ValueError('Unknown MM-to-PM sampler')
+    if minute_sampler!='locked' and manager is not None:
+        raise ValueError('Unvalidated candidate minute sampler cannot create personal TS recommendations')
     now=pd.Timestamp.now(tz='UTC')
     cut=pd.Timestamp(provenance['data_at'])
     if cut.tzinfo is None or cut>now or now-cut>pd.Timedelta(hours=24):
@@ -71,7 +75,7 @@ def run_pipeline(history,target,roles,provenance,pm,bootstrap,bps_audit,manager=
     doc=seal_document(doc)
     joined=attach_mm(pm,predicted)
     if not joined.target_gw.eq(joined.gw).all():raise ValueError('PM target GW mismatch')
-    xp,audit=simulate(joined)
+    xp,audit=simulate(joined,minute_sampler=minute_sampler)
     means=locked_sampler_expectation(joined.v4_workload_start_p_start,joined.v4_p_cameo_given_bench,
         joined.v4_start_minutes_mean,joined.v4_cameo_minutes_mean)
     audit['MM_to_PM_mean_max_abs_difference']=float(np.max(np.abs(means-joined.v4_workload_start_xmins)))
@@ -89,7 +93,10 @@ def run_pipeline(history,target,roles,provenance,pm,bootstrap,bps_audit,manager=
     display['live_eligibility_applied']=display.v4_workload_start_p_start.eq(0)&display.v4_p_cameo_given_bench.eq(0)
     payload=build(display,xp,bootstrap,bps_audit)
     payload['minute_sampler_audit']={k:v for k,v in audit.items() if k.startswith('MM_to_PM_')}
-    if not audit['MM_to_PM_mean_consistent']:
+    payload['minute_sampler_audit']['sampler']=minute_sampler
+    if minute_sampler!='locked':
+        payload['blockers'].append('Experimental candidate B minute distribution: historical calibration gate not passed; no live TS activation.')
+    if minute_sampler=='locked' and not audit['MM_to_PM_mean_consistent']:
         payload['blockers'].append('Locked PM rounded/clipped duration sampler does not preserve B conditional means; integration remains diagnostic. No silent PM sampler replacement.')
     # Blank GWs are explicit zeros only for a club with no fixture at that GW.
     present={int(t):set(map(int,g.target_gw)) for t,g in pm.groupby('team_id')}
@@ -113,13 +120,15 @@ def main():
     p=argparse.ArgumentParser()
     for n in ['history','target','roles','provenance','pm-input','bootstrap','fixtures','bps-audit','out']:
         p.add_argument('--'+n,type=Path,required=True)
-    p.add_argument('--manager',type=Path);a=p.parse_args()
+    p.add_argument('--manager',type=Path)
+    p.add_argument('--minute-sampler',choices=['locked','candidate_B'],default='locked')
+    a=p.parse_args()
     root=Path(__file__).resolve().parents[1]
     if a.manager and (a.out.resolve().is_relative_to(root/'app') or not a.out.resolve().is_relative_to(root/'work')):
         raise ValueError('Private plans must stay under untracked work/, never app/ or public evidence')
     doc,payload,plan,audit=run_pipeline(pd.read_csv(a.history),pd.read_csv(a.target),pd.read_csv(a.roles),
         json.loads(a.provenance.read_text()),pd.read_csv(a.pm_input),json.loads(a.bootstrap.read_text()),
-        json.loads(a.bps_audit.read_text()),json.loads(a.manager.read_text()) if a.manager else None,fixtures=json.loads(a.fixtures.read_text()))
+        json.loads(a.bps_audit.read_text()),json.loads(a.manager.read_text()) if a.manager else None,fixtures=json.loads(a.fixtures.read_text()),minute_sampler=a.minute_sampler)
     a.out.mkdir(parents=True,exist_ok=True)
     for name,obj in [('mm.json',doc),('forecast.json',payload),('pm-audit.json',audit)]:
         (a.out/name).write_text(json.dumps(obj,sort_keys=True,allow_nan=False)+'\n')
