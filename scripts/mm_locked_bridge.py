@@ -132,3 +132,39 @@ def code_identity(root):
            'src/fpl_xpts/transfer_planner.py','scripts/run_live_locked_ts.py',
            'scripts/run_joint_fh_wc_stopping_replay.py']
     return {p:hashlib.sha256((root/p).read_bytes()).hexdigest() for p in paths}
+
+
+def sample_candidate_minutes(rng, *, p, q, s, c):
+    """RESEARCH ONLY: draw PR13/B exact-mean conditional minutes.
+
+    Preserves separate start/cameo events, the original (minutes, entrance,
+    departure) tuple contract, and the B expectation. Unlike the locked PM
+    Gaussian clip, cameo minutes may exceed 45. This is NOT a production
+    sampler, has NOT passed calibration/prospective gates, and must never
+    silently replace joint_simulator._sample_minutes.
+    """
+    from mm_candidate import minute_masses
+    for name, v, upper in [('p', p, 1), ('q', q, 1),
+                            ('s', s, 90), ('c', c, 90)]:
+        if not np.isfinite(v) or v < 0 or v > upper:
+            raise ValueError('Invalid B minute input: ' + name)
+    if q > 0 and c < 1:
+        raise ValueError('Positive cameo probability requires positive minutes')
+    if p > 0 and s < 0:
+        raise ValueError('Invalid starter duration')
+    if rng.random() < p:
+        arm, mu = 'start', s
+    elif rng.random() < q:
+        arm, mu = 'cameo', c
+    else:
+        return 0, 90, 90
+    # Each conditional distribution is generated with PR13's fixed sigma
+    # and the original endpoint repair, not a second/fitted probability model.
+    f = pd.DataFrame([dict(p=1. if arm == 'start' else 0.,
+                           q=1. if arm == 'cameo' else 0.,
+                           s=mu if arm == 'start' else 0.,
+                           c=mu if arm == 'cameo' else 1.,
+                           x=mu)])
+    probs = minute_masses(f)[0]
+    m = int(rng.choice(np.arange(91), p=probs))
+    return (m, 0, m) if arm == 'start' else (m, 90-m, 90)
