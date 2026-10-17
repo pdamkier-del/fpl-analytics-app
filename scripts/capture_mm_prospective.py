@@ -41,5 +41,10 @@ def main():
     out=a.out/digest;out.mkdir(parents=True,exist_ok=False)
     for n,obj in [('receipt.json',receipt),('bootstrap.json',bootstrap),('fixtures.json',fixtures)]:
         (out/n).write_text(json.dumps(obj,sort_keys=True,allow_nan=False)+'\n')
-    print(json.dumps(receipt))
+    # Derive a source-backed current fixture roster after the capture clock.
+    # This is NOT a B feature pack or forecast; missing roles stay unavailable.
+    from build_current_mm_roster import build,canonical
+    roster=build(bootstrap,fixtures,receipt,cutoff=datetime.now(timezone.utc).isoformat())
+    (out/'official-roster.json').write_bytes(canonical(roster)+b'\n')
+    print(json.dumps(dict(receipt=receipt,roster_rows=roster['roster_rows'],model_ready=False)))
 if __name__=='__main__':main()

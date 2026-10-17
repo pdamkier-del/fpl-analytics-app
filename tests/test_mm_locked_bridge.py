@@ -159,3 +159,87 @@ def test_complete_B_PM_TS_entry_with_explicit_synthetic_six_GW_inputs():
     assert seal_document(doc)['content_sha256']==doc['content_sha256']
     assert all(p['name'].startswith('Synthetic ') and p['club'].startswith('Synthetic club') for p in doc['players'])
     assert 'scripts/run_mm_locked_preview.py' in doc['code_sha256']
+
+
+def test_candidate_sampler_preserves_B_endpoint_means_without_touching_locked_PM():
+    from mm_locked_bridge import sample_candidate_minutes
+    rng=np.random.default_rng(123)
+    assert sample_candidate_minutes(rng,p=1.,q=0.,s=90.,c=10.) == (90,0,90)
+    assert sample_candidate_minutes(rng,p=0.,q=1.,s=10.,c=90.) == (90,0,90)
+    assert sample_candidate_minutes(rng,p=0.,q=0.,s=90.,c=90.) == (0,90,90)
+    assert float(locked_sampler_expectation(1.,0.,90.,10.)) < 87.
+
+
+def test_candidate_sampler_rejects_invalid_inputs_and_keeps_event_contract():
+    from mm_locked_bridge import sample_candidate_minutes
+    rng=np.random.default_rng(7)
+    for p,q,s,c in [(-.1,.2,80.,20.),(.7,1.1,80.,20.),
+                    (.5,.2,float('nan'),20.),(.5,.2,80.,91.),
+                    (.5,.2,80.,0.)]:
+        with pytest.raises(ValueError):
+            sample_candidate_minutes(rng,p=p,q=q,s=s,c=c)
+    for _ in range(24):
+        minutes,entry,exit=sample_candidate_minutes(rng,p=.6,q=.4,s=77.,c=65.)
+        assert 0<=minutes<=90 and 0<=entry<=90 and 0<=exit<=90
+        assert minutes==0 or ((entry==0 and exit==minutes) or
+                              (exit==90 and entry==90-minutes))
+
+
+def test_optional_candidate_sampler_reaches_real_joint_simulator_and_restores_hook():
+    """Research hook reaches original simulation; production hook is untouched."""
+    from unittest.mock import patch
+    import fpl_v1_1_model.joint_simulator as joint
+    from mm_locked_bridge import sample_candidate_minutes
+    a=joint.PlayerSimInput(player_id='a',team='home',position='MID',
+        p_start=1.,p_cameo_given_bench=0.,start_minutes_mean=90.,
+        cameo_minutes_mean=10.)
+    b=joint.PlayerSimInput(player_id='b',team='away',position='MID',
+        p_start=0.,p_cameo_given_bench=0.,start_minutes_mean=60.,
+        cameo_minutes_mean=10.)
+    fixture=joint.MatchSimInput(home_team='home',away_team='away',
+        lambda_home_goals=0.,lambda_away_goals=0.,players=(a,b))
+    original=joint._sample_minutes
+    def research_hook(rng,player):
+        return sample_candidate_minutes(rng,p=player.p_start,
+            q=player.p_cameo_given_bench,s=player.start_minutes_mean,
+            c=player.cameo_minutes_mean)
+    with patch.object(joint,'_sample_minutes',research_hook):
+        result=joint.simulate_many(fixture,n=30,seed=5)
+    assert joint._sample_minutes is original
+    assert result['a']['expected_minutes']==90.
+    assert result['b']['expected_minutes']==0.
+    assert float(locked_sampler_expectation(1.,0.,90.,10.))<87.
+
+
+@pytest.mark.parametrize('arm,mu',[
+    ('start',0.),('start',1.),('start',15.),('start',75.),('start',90.),
+    ('cameo',1.),('cameo',5.),('cameo',30.),('cameo',60.),('cameo',90.)
+])
+def test_candidate_conditional_distribution_exact_mean(arm,mu):
+    """Deterministic PMF check independent of random sampling."""
+    from mm_locked_bridge import _candidate_duration_pmf
+    probs=_candidate_duration_pmf(arm,mu)
+    assert probs.shape==(91,)
+    assert np.isfinite(probs).all() and (probs>=0).all()
+    assert abs(float(probs.sum())-1.)<1e-12
+    assert abs(float(probs@np.arange(91))-mu)<1e-6
+    if arm=='cameo':
+        assert probs[0]==0
+
+
+def test_candidate_B_opt_in_rejects_private_manager_before_data_read():
+    from run_mm_locked_preview import run_pipeline
+    with pytest.raises(ValueError,match='cannot create personal TS recommendations'):
+        run_pipeline(None,None,None,None,None,None,None,manager={'private':'state'},
+                     fixtures=None,minute_sampler='candidate_B')
+
+
+def test_locked_PM_remains_default_and_candidate_hook_is_reverted_after_errors():
+    import fpl_v1_1_model.joint_simulator as joint
+    from run_live_vfinal_joint_simulation import simulate
+    original=joint._sample_minutes
+    with pytest.raises(ValueError,match='Missing frozen simulator fields'):
+        simulate(pd.DataFrame(),minute_sampler='candidate_B')
+    assert joint._sample_minutes is original
+    with pytest.raises(ValueError,match='Unknown minute sampler'):
+        simulate(pd.DataFrame(),minute_sampler='typo')
