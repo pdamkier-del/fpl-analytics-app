@@ -72,7 +72,8 @@ def main():
     a=p.parse_args()
     joined=assemble(pd.read_csv(a.base),pd.read_csv(a.penalty),pd.read_csv(a.bps),horizon_end=a.horizon_end)
     a.out.parent.mkdir(parents=True,exist_ok=True)
-    joined.to_csv(a.out,index=False,compression='gzip')
+    from audit_capture_io import write_frame
+    write_frame(a.out,joined)
     WORK.mkdir(parents=True,exist_ok=True)
     report={'classification':'COMPLETE_LIVE_INPUT_READY_FOR_FROZEN_SIMULATOR_NOT_FULL_CHAIN_CERTIFIED',
             'rows':len(joined),'gws':sorted(map(int,joined.target_gw.unique())),

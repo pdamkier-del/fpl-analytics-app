@@ -44,11 +44,23 @@ def main():
     for k in ['data_asof','checksums','gws','model']:
         if live.get(k)!=frozen.get(k):raise ValueError('Production publication changed; rerun preview against newest artifact')
     source=ROOT/'app/mm-preview';dest=SITE/'mm-preview'
+    # Preserve prior public forecast evidence; a refresh must not silently
+    # discard the prospective records needed for later independent validation.
+    prior_history=dest/'current/history';new_history=source/'current/history'
+    if prior_history.exists():
+        new_history.mkdir(parents=True,exist_ok=True)
+        for old in prior_history.iterdir():
+            if not old.is_file():raise ValueError('Unexpected forecast history path')
+            new=new_history/old.name
+            if new.exists() and new.read_bytes()!=old.read_bytes():raise ValueError('Immutable forecast history differs')
+            if not new.exists():shutil.copy2(old,new)
     if dest.exists():shutil.rmtree(dest)
     shutil.copytree(source,dest)
     after=hashes(SITE)
     if before!=after:raise ValueError('Preview altered a production file')
-    evidence=dict(preview_source_commit=os.environ.get('PREVIEW_SOURCE_SHA',os.environ['GITHUB_SHA']),production_run=run['id'],production_artifact=artifact['id'],production_files=len(before),production_files_identical=True,locked_model_active=False,preview_scope='historical_replay',production_sha256=before)
+    current=source/'current/index.json'
+    scope=json.loads(current.read_text())['scope'] if current.exists() else 'historical_replay'
+    evidence=dict(preview_source_commit=os.environ.get('PREVIEW_SOURCE_SHA',os.environ['GITHUB_SHA']),production_run=run['id'],production_artifact=artifact['id'],production_files=len(before),production_files_identical=True,locked_model_active=False,preview_scope=scope,production_sha256=before)
     (dest/'publication.json').write_text(json.dumps(evidence,sort_keys=True,indent=2)+'\n')
     # Keep this isolated new path in future normal forecast publications. No
     # production scripts, model files or existing web assets enter this commit.
@@ -61,7 +73,7 @@ def main():
     subprocess.run(['git','config','user.name','FPL MM preview publisher'],cwd=livework,check=True)
     subprocess.run(['git','config','user.email','mm-preview@users.noreply.github.com'],cwd=livework,check=True)
     subprocess.run(['git','add','app/mm-preview'],cwd=livework,check=True)
-    subprocess.run(['git','commit','-m','Publish isolated historical MM integration preview [skip ci]'],cwd=livework,check=True)
+    subprocess.run(['git','commit','-m','Publish isolated diagnostic MM integration preview [skip ci]'],cwd=livework,check=True)
     subprocess.run(['git','push','origin','HEAD:free-github-static-20261010'],cwd=livework,check=True)
     print(json.dumps({k:v for k,v in evidence.items() if k!='production_sha256'},indent=2))
 if __name__=='__main__':main()

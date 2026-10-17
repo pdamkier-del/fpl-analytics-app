@@ -1,0 +1,101 @@
+name: Current B MM to locked PM and private TS preview
+on:
+  workflow_call:
+    inputs:
+      source_ref:
+        required: true
+        type: string
+  workflow_dispatch:
+  push:
+    branches: [integration-mm-live-20261017]
+    paths:
+      - scripts/**
+      - service/app.py
+      - app/mm-preview/**
+      - tests/test_current_b_features.py
+      - tests/test_mm_preview_service.py
+      - tests/test_B_preview_contract.js
+      - .github/workflows/mm-current-live-preview.yml
+permissions:
+  contents: read
+  actions: read
+concurrency:
+  group: current-B-MM-preview
+  cancel-in-progress: false
+env:
+  PYTHONPATH: src:scripts:.
+  OPENBLAS_NUM_THREADS: '1'
+jobs:
+  current:
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          ref: ${{ inputs.source_ref || github.sha }}
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: pip install -r requirements-model-checkpoint.txt -r requirements-model-tests.txt requests tabulate==0.10.0
+      - name: Compile inputs and run complete model/privacy regression suite
+        run: |
+          python -m compileall -q scripts/current_b_features.py scripts/build_current_b_inputs.py scripts/prepare_mm_role_training.py scripts/replay_mm_candidate_sampler.py scripts/run_mm_locked_preview.py scripts/publish_current_b_preview.py
+          python -m pytest -q tests
+          node tests/test_B_preview_contract.js
+          node tests/test_B_preview_jobs.js
+          node --check app/mm-preview/live.js
+          node --check app/mm-preview/preview.js
+      - name: Restore verified original MM and historical role source data
+        run: |
+          python scripts/restore_core_checkpoint.py --out work/core.sqlite3
+          python scripts/archive_role_injury_mm.py --restore work/mm-integration-source
+          python scripts/restore_2024_25_data_checkpoint.py
+      - name: Rebuild original PR4 role features and reproduce frozen references
+        run: |
+          python scripts/locked_numerical_runtime.py scripts/prepare_mm_role_training.py
+          python scripts/locked_numerical_runtime.py scripts/validate_current_b_features.py
+      - name: Restore latest checksum-verified current public source checkpoint
+        run: |
+          python - <<'PY'
+          import urllib.request
+          from pathlib import Path
+          import current_diagnostic_checkpoint as c
+          p=Path('work/current-selector.json')
+          p.write_bytes(urllib.request.urlopen('https://raw.githubusercontent.com/pdamkier-del/fpl-analytics-app/free-github-static-20261010/model/checkpoints/current-diagnostic.json',timeout=60).read())
+          c.SELECTOR=p;c.restore()
+          PY
+      - name: Capture current official data and rebuild unchanged original chain twice
+        run: python scripts/locked_numerical_runtime.py scripts/run_current_diagnostic_pipeline.py --source-chain-only
+      - name: Restore verified public role memory and produce authentic PR4 to PR8 to PR9 B inputs
+        run: |
+          python scripts/restore_current_b_role_ledger.py
+          python scripts/locked_numerical_runtime.py scripts/build_current_b_inputs.py --role-ledger work/previous-B-role-ledger.csv.gz
+      - name: Run real six-GW B to locked PM twice without a fabricated manager
+        run: |
+          python scripts/locked_numerical_runtime.py scripts/run_mm_locked_preview.py --history work/current-B-inputs/history.csv.gz --target work/current-B-inputs/target.csv.gz --roles work/current-B-inputs/roles.csv.gz --provenance work/current-B-inputs/provenance.json --pm-input work/current-B-inputs/pm.csv.gz --bootstrap work/current-B-inputs/bootstrap.json --fixtures work/current-B-inputs/fixtures.json --bps-audit work/current-B-inputs/bps-audit.json --out work/current-B-output
+          python scripts/locked_numerical_runtime.py scripts/run_mm_locked_preview.py --history work/current-B-inputs/history.csv.gz --target work/current-B-inputs/target.csv.gz --roles work/current-B-inputs/roles.csv.gz --provenance work/current-B-inputs/provenance.json --pm-input work/current-B-inputs/pm.csv.gz --bootstrap work/current-B-inputs/bootstrap.json --fixtures work/current-B-inputs/fixtures.json --bps-audit work/current-B-inputs/bps-audit.json --out work/current-B-repeat
+          cmp work/current-B-output/forecast.json work/current-B-repeat/forecast.json
+          cmp work/current-B-output/mm.json work/current-B-repeat/mm.json
+      - name: Export isolated current preview and preserve locked mathematics
+        run: |
+          python scripts/publish_current_b_preview.py
+          git diff --exit-code 3ad8fc5f2eabe0a62fec494d896320d288ece2d5 -- src model service/manager_job.py
+      - uses: actions/upload-artifact@v4
+        with:
+          name: mm-current-live-preview
+          path: app/mm-preview/
+          retention-days: 1
+      - uses: actions/upload-artifact@v4
+        if: always() && github.event_name != 'schedule'
+        with:
+          name: current-B-public-input-and-validation-evidence
+          path: |
+            work/current-B-inputs/
+            work/current-B-role-training/manifest.json
+            work/current-B-role-training/feature-parity.json
+            work/current-B-output/
+            work/current-B-repeat/
+            work/live-final-model/source_manifest.json
+            work/live-final-model/canonical_raw_rebuild.json
+          retention-days: 90

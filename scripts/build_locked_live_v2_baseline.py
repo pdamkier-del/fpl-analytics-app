@@ -153,7 +153,9 @@ def build(target=None, past=None, persist=True):
         raise ValueError("Baseline broke fixture/player identity")
     if persist and any(x in result for x in ("y","outcome_known_at","minutes")):
         raise ValueError("Future target labels entered output")
-    if persist: result.to_csv(OUTPUT,index=False,compression="gzip")
+    if persist:
+        from audit_capture_io import write_frame
+        write_frame(OUTPUT,result)
     report={
         "classification":"frozen_v2_MM_baseline_features_only_NOT_final_MM_or_PM",
         "origin_gw":origin,

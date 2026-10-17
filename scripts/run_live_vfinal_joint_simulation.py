@@ -142,7 +142,8 @@ def main():
     actual=predicted.merge(frame.loc[hard,["fixture_uuid","player_uuid"]],on=["fixture_uuid","player_uuid"])
     if not actual.empty and (actual.expected_minutes.ne(0).any() or actual.xpts_fixture.ne(0).any()):raise ValueError("Hard-unavailable simulated minutes/points")
     a.out.parent.mkdir(parents=True,exist_ok=True)
-    predicted.to_csv(a.out,index=False,compression='gzip')
+    from audit_capture_io import write_frame
+    write_frame(a.out,predicted)
     WORK.mkdir(parents=True,exist_ok=True)
     audit['source_sha256']=hashlib.sha256(a.input.read_bytes()).hexdigest()
     audit_name=('live_vfinal_simulation_audit.json' if a.scope=='six-gw' else 'live_vfinal_simulation_'+a.scope+'.json')

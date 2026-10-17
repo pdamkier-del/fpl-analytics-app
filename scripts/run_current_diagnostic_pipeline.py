@@ -1,12 +1,15 @@
 #!/usr/bin/env python3
 """Fresh verified sources -> unchanged original chain -> reproducible diagnostic."""
-import hashlib,json,os,subprocess,sys
+import argparse,hashlib,json,os,subprocess,sys
 from datetime import datetime,timezone
 from pathlib import Path
 ROOT=Path(__file__).resolve().parents[1];sys.path.insert(0,str(ROOT/'scripts'))
 from verify_canonical_raw_rebuild import execute
 W=ROOT/'work/live-final-model';B=ROOT/'data_v1_1/derived/live_locked_inputs/2026-27-v1'
 def main():
+    parser=argparse.ArgumentParser()
+    parser.add_argument('--source-chain-only',action='store_true',help='Build verified source/PM chain only; do not compute old-MM TC or synthetic manager examples for the separate B preview')
+    args=parser.parse_args()
     execute('collect_current_locked_inputs')
     m=json.loads((W/'source_manifest.json').read_text())
     # An explicitly wrong-season FA inventory already blocked that source in
@@ -40,8 +43,10 @@ def main():
     audit=json.loads((W/'canonical_raw_rebuild.json').read_text())
     receipt=dict(cutoff=m['observed_at'],source_workflow='https://github.com/'+os.environ['GITHUB_REPOSITORY']+'/actions/runs/'+os.environ['GITHUB_RUN_ID'],checksums={name:hashlib.sha256((B/name).read_bytes()).hexdigest() for name in ['vfinal_live_full_simulator_input.csv.gz','live_vfinal_fixture_xp.csv.gz']},reproducibility=dict(two_raw_rebuilds_exact=audit['passed']),source_limitations=['Historical availability times remain unverified kickoff + 4h proxies.','Partial BPS and historical MM coverage prevent full certification.']+['Excluded source: '+str(e) for e in permitted])
     (W/'publication_provenance.json').write_text(json.dumps(receipt,indent=2)+'\n')
-    execute('build_live_vfinal_desktop');execute('run_live_tc_scenarios');execute('build_live_vfinal_desktop')
-    execute('validate_live_manager_chain')
+    execute('build_live_vfinal_desktop')
+    if not args.source_chain_only:
+        execute('run_live_tc_scenarios');execute('build_live_vfinal_desktop')
+        execute('validate_live_manager_chain')
     # Recheck official next deadline after expensive original simulation.
     import urllib.request
     current=json.load(urllib.request.urlopen('https://fantasy.premierleague.com/api/bootstrap-static/',timeout=30))

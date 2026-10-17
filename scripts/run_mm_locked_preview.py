@@ -95,8 +95,16 @@ def run_pipeline(history,target,roles,provenance,pm,bootstrap,bps_audit,manager=
     # when a source expectation exists. Make that contract explicit rather
     # than depending on an incidental upstream column.
     display['expected_minutes']=display.control_xmins
-    display['live_eligibility_applied']=display.v4_workload_start_p_start.eq(0)&display.v4_p_cameo_given_bench.eq(0)
+    hard_source=predicted.set_index(['fixture_uuid','player_uuid'])
+    aligned=hard_source.reindex(pd.MultiIndex.from_frame(display[['fixture_uuid','player_uuid']]))
+    display['live_eligibility_applied']=(aligned.news_eligible&aligned.news_state.isin(['OUT','SUSPENDED'])).to_numpy()
     payload=build(display,xp,bootstrap,bps_audit)
+    mean_lookup={(str(r.fixture_uuid),str(r.player_uuid)):float(mu) for r,mu in zip(joined.itertuples(),means)}
+    for player in payload['players']:
+        for week in player['weeks']:
+            for fixture in week['fixtures']:
+                fixture['pm_analytic_minutes']=mean_lookup[(fixture['fixture_uuid'],player['player_uuid'])]
+            week['pm_analytic_minutes']=sum(x['pm_analytic_minutes'] for x in week['fixtures'])
     payload['minute_sampler_audit']={k:v for k,v in audit.items() if k.startswith('MM_to_PM_')}
     payload['minute_sampler_audit']['sampler']=minute_sampler
     if minute_sampler!='locked':
@@ -109,7 +117,7 @@ def run_pipeline(history,target,roles,provenance,pm,bootstrap,bps_audit,manager=
         for gw in gws:
             if not any(w['gw']==gw for w in p['weeks']):
                 if gw in present[p['team_id']]:raise ValueError('Missing player fixture forecast')
-                p['weeks'].append(dict(gw=gw,xpts=0.,xmins=0.,p_play=0.,unavailable=False,fixtures=[]))
+                p['weeks'].append(dict(gw=gw,xpts=0.,xmins=0.,p_play=0.,pm_analytic_minutes=0.,unavailable=False,fixtures=[]))
         p['weeks'].sort(key=lambda w:w['gw'])
     if {p['id'] for p in payload['players']}!=set(official):raise ValueError('Current player coverage incomplete')
     payload.update(model='B_locked_PM_preview',scope='prospective_preview',gws=gws,
