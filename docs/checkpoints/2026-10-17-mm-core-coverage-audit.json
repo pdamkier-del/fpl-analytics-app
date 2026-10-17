@@ -1,0 +1,33 @@
+{
+  "classification": "MM-only source coverage audit",
+  "sqlite_sha256": "a4742428fb0c9943ff3ee565f765eb98d733a1690180c566d6df794786ef409f",
+  "verified_against_parts_manifest_before_interruption": true,
+  "query": "SELECT season,count(*),min(kickoff_at),max(kickoff_at) FROM player_fixture_observations WHERE is_final=1 GROUP BY season",
+  "rows": [
+    [
+      "2022-23",
+      26505,
+      "2022-08-05T19:00:00Z",
+      "2023-05-28T15:30:00Z"
+    ],
+    [
+      "2023-24",
+      29725,
+      "2023-08-11T19:00:00Z",
+      "2024-05-19T15:00:00Z"
+    ],
+    [
+      "2024-25",
+      27283,
+      "2024-08-16T19:00:00Z",
+      "2025-05-25T15:00:00Z"
+    ],
+    [
+      "2025-26",
+      29747,
+      "2025-08-15T19:00:00Z",
+      "2026-05-24T15:00:00Z"
+    ]
+  ],
+  "conclusion": "Older archive seasons are not later chronological holdouts for B's 2024/25 parameter selection; no untouched later frozen B evaluation period is established."
+}
