@@ -177,3 +177,48 @@ def sample_candidate_minutes(rng, *, p, q, s, c):
     probs = _candidate_duration_pmf(arm, float(mu))
     m = int(rng.choice(np.arange(91), p=probs))
     return (m, 0, m) if arm == 'start' else (m, 90-m, 90)
+
+
+def simulate_candidate_pair(pm, mm, *, season, seed=93000000, draws=400):
+    """RESEARCH ONLY: paired legacy sampler vs exact-B conditional PMF.
+
+    Reuses the original joint match simulator under an explicitly scoped,
+    process-global patch of its minute hook. Must run single-threaded; never
+    invoke this in a server, scheduled production forecast or private manager
+    endpoint. Both arms have identical non-minute model inputs and seed/draw
+    budget. This ablation does not certify calibration or TS performance.
+    """
+    from contextlib import nullcontext
+    from unittest.mock import patch
+    import fpl_v1_1_model.joint_simulator as joint
+    from run_vfinal_integrated import make_vfinal_input
+    from run_live_vfinal_joint_simulation import POINT_COMPONENTS
+    from dataclasses import replace
+
+    if draws != 400:
+        raise ValueError('Locked replay draw budget is 400')
+    if season not in ('2025-26', '2026-27'):
+        raise ValueError('Unknown scoring season')
+    candidate = attach_mm(pm, mm)
+    results = []
+    for i, (fixture, frame) in enumerate(candidate.groupby('fixture_uuid', sort=True)):
+        sim_inp, _ = make_vfinal_input(frame)
+        sim_inp = replace(sim_inp, bps_rules=season)
+        for arm in ('locked_sampler', 'candidate_PMF'):
+            def candidate_hook(rng, player):
+                return sample_candidate_minutes(
+                    rng, p=player.p_start, q=player.p_cameo_given_bench,
+                    s=player.start_minutes_mean, c=player.cameo_minutes_mean)
+            context = nullcontext() if arm == 'locked_sampler' else patch.object(
+                joint, '_sample_minutes', candidate_hook)
+            with context:
+                sim = joint.simulate_many(sim_inp, n=draws, seed=seed+i)
+            for pid, row in sorted(sim.items()):
+                source = frame.set_index('player_uuid').loc[pid]
+                if abs(sum(row[k] for k in POINT_COMPONENTS)-row['xPts']) > 1e-8:
+                    raise ValueError('Unreconciled PM component scores')
+                results.append(dict(fixture_uuid=fixture, player_uuid=pid, arm=arm,
+                    gw=int(source.gw), xpts=float(row['xPts']),
+                    sampled_minutes=float(row['expected_minutes']),
+                    target_xmins=float(source.v4_workload_start_xmins)))
+    return pd.DataFrame(results)
