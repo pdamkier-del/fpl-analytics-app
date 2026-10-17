@@ -225,3 +225,21 @@ def test_candidate_conditional_distribution_exact_mean(arm,mu):
     assert abs(float(probs@np.arange(91))-mu)<1e-6
     if arm=='cameo':
         assert probs[0]==0
+
+
+def test_candidate_B_opt_in_rejects_private_manager_before_data_read():
+    from run_mm_locked_preview import run_pipeline
+    with pytest.raises(ValueError,match='cannot create personal TS recommendations'):
+        run_pipeline(None,None,None,None,None,None,None,manager={'private':'state'},
+                     fixtures=None,minute_sampler='candidate_B')
+
+
+def test_locked_PM_remains_default_and_candidate_hook_is_reverted_after_errors():
+    import fpl_v1_1_model.joint_simulator as joint
+    from run_live_vfinal_joint_simulation import simulate
+    original=joint._sample_minutes
+    with pytest.raises(ValueError,match='Missing frozen simulator fields'):
+        simulate(pd.DataFrame(),minute_sampler='candidate_B')
+    assert joint._sample_minutes is original
+    with pytest.raises(ValueError,match='Unknown minute sampler'):
+        simulate(pd.DataFrame(),minute_sampler='typo')
