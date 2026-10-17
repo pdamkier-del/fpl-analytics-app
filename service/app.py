@@ -14,7 +14,10 @@ jobs={};lock=threading.Lock();TTL=3600
 
 def require_forecast_snapshot(forecast,expected):
     sys.path.insert(0,str(ROOT/'src'))
-    from fpl_v1_1_model.forecast_snapshot import require_snapshot
+    from fpl_v1_1_model.forecast_snapshot import require_snapshot,forecast_digest
+    # Original clients predate content seals; preserve their API while binding
+    # the server-side computation to the full content, not just its cutoff.
+    if expected is None:return forecast_digest(forecast)
     return require_snapshot(forecast,expected)
 
 def get_public(name):
@@ -82,12 +85,13 @@ def create(preview=False):
     cleanup()
     body=request.get_json(silent=True)
     if not isinstance(body,dict) or not isinstance(body.get('state'),dict) or not isinstance(body.get('forecast_cutoff'),str):return jsonify(error='Ugyldigt manager-state'),400
-    if not isinstance(body.get('forecast_sha256'),str) or not re.fullmatch('[a-f0-9]{64}',body['forecast_sha256']):return jsonify(error='Forecastets indholds-id mangler. Opdatér appen og prøv igen.'),400
+    if preview or body.get('forecast_sha256') is not None:
+        if not isinstance(body.get('forecast_sha256'),str) or not re.fullmatch('[a-f0-9]{64}',body['forecast_sha256']):return jsonify(error='Forecastets indholds-id mangler. Opdatér appen og prøv igen.'),400
     identifier=body.get('request_id');key=body.get('request_key')
     if identifier is not None or key is not None:
         if not isinstance(identifier,str) or not re.fullmatch('[a-f0-9]{32}',identifier) or not isinstance(key,str) or not re.fullmatch('[A-Za-z0-9_-]{43}',key):return jsonify(error='Ugyldig privat jobkvittering'),400
     else:identifier=secrets.token_hex(16);key=secrets.token_urlsafe(32)
-    signature=hashlib.sha256(json.dumps({'state':body['state'],'forecast_cutoff':body['forecast_cutoff'],'forecast_sha256':body['forecast_sha256'],'preview':preview},sort_keys=True,ensure_ascii=False,separators=(',',':')).encode()).hexdigest()
+    signature=hashlib.sha256(json.dumps({'state':body['state'],'forecast_cutoff':body['forecast_cutoff'],'forecast_sha256':body.get('forecast_sha256'),'preview':preview},sort_keys=True,ensure_ascii=False,separators=(',',':')).encode()).hexdigest()
     with lock:
         existing=jobs.get(identifier)
         if existing:
@@ -103,17 +107,24 @@ def create(preview=False):
             forecast=json.loads(get_public(forecast_path))
             official=json.loads(get_public('current-players.json'))
             if forecast['data_asof']!=body['forecast_cutoff'] or forecast['gws'][0]!=official['next_gw']:raise ValueError('Forecast changed')
-            require_forecast_snapshot(forecast,body['forecast_sha256'])
+            expected_content=require_forecast_snapshot(forecast,body.get('forecast_sha256'))
             if preview:verify_official_now(forecast,preview=True)
             else:verify_official_now(forecast)
             (directory/'input.json').write_text(json.dumps(dict(forecast=forecast,state=body['state'])))
             if forecast.get('tc_scenarios'):(directory/'tc.csv.gz').write_bytes(get_public('mm-preview/current/tc-samples.csv.gz' if preview else 'tc-samples.csv.gz'))
             completed=subprocess.run([sys.executable,str(ROOT/'scripts/locked_numerical_runtime.py'),str(ROOT/'service/manager_job.py'),str(directory)],stdout=subprocess.DEVNULL,stderr=subprocess.DEVNULL,timeout=1800)
             if completed.returncode!=0:raise ValueError('Original computation rejected input')
-            require_forecast_snapshot(forecast,body['forecast_sha256'])
+            require_forecast_snapshot(forecast,body.get('forecast_sha256'))
             if preview:verify_official_now(forecast,preview=True)
             else:verify_official_now(forecast)
-            require_forecast_snapshot(json.loads(get_public(forecast_path)),body['forecast_sha256'])
+            latest_content=require_forecast_snapshot(json.loads(get_public(forecast_path)),body.get('forecast_sha256'))
+            if latest_content!=expected_content:raise ValueError('Forecast content changed during calculation')
+            if preview:
+                # Presentation identity only; original worker/TS decisions stay unchanged.
+                result=json.loads((directory/'result.json').read_text())
+                result['forecast_sha256']=expected_content
+                result['forecast_variant']='B_locked_PM_preview'
+                (directory/'result.json').write_text(json.dumps(result,allow_nan=False))
             jobs[identifier]['status']='completed'
         except subprocess.TimeoutExpired:
             jobs[identifier]['status']='failed';jobs[identifier]['failure']='timeout'

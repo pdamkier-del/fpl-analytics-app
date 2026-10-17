@@ -63,3 +63,17 @@ def test_candidate_source_failure_never_falls_back_to_original(monkeypatch,tmp_p
             assert c.get('/plans/'+receipt['id'],headers={'X-Plan-Key':receipt['key']}).status_code==422
             assert paths==['mm-preview/current/forecast.json']
         finally:api.jobs.pop(receipt['id'],None)
+
+
+def test_original_clients_without_content_id_remain_compatible_but_preview_requires_one(monkeypatch,tmp_path):
+    class Deferred:
+        def __init__(self,target,**kwargs):pass
+        def start(self):pass
+    monkeypatch.setattr(api.threading,'Thread',Deferred)
+    monkeypatch.setattr(api.tempfile,'mkdtemp',lambda **kw:str(tmp_path))
+    body=dict(state={},forecast_cutoff='synthetic')
+    with api.app.test_client() as c:
+        assert c.post('/preview/plans',json=body,headers={'Origin':api.ORIGIN}).status_code==400
+        result=c.post('/plans',json=body,headers={'Origin':api.ORIGIN})
+        assert result.status_code==202
+        api.jobs.pop(result.get_json()['id'],None)
