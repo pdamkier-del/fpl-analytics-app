@@ -1,0 +1,53 @@
+name: Refresh isolated current B preview
+on:
+  schedule:
+    - cron: '17 * * * *'
+  workflow_dispatch:
+permissions:
+  contents: write
+  actions: read
+  pages: write
+  id-token: write
+env:
+  PREVIEW_SOURCE_SHA: a8bc6437b38376e9ad3e599544d6787f713c4f5e
+jobs:
+  current:
+    uses: pdamkier-del/fpl-analytics-app/.github/workflows/mm-current-live-preview.yml@a8bc6437b38376e9ad3e599544d6787f713c4f5e
+    with:
+      source_ref: a8bc6437b38376e9ad3e599544d6787f713c4f5e
+    permissions:
+      contents: read
+      actions: read
+  preview:
+    needs: current
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    concurrency:
+      group: fpl-pages-publication
+      cancel-in-progress: false
+    environment:
+      name: github-pages
+      url: https://pdamkier-del.github.io/fpl-analytics-app/mm-preview/live.html
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ env.PREVIEW_SOURCE_SHA }}
+          fetch-depth: 0
+      - uses: actions/download-artifact@v4
+        with:
+          name: mm-current-live-preview
+          path: .mm-preview-evidence
+      - name: Use only this successful computation's public B preview
+        run: cp -R .mm-preview-evidence/. app/mm-preview/
+      - name: Publish preview alone; preserve every production asset
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: python scripts/publish_mm_preview.py
+      - uses: actions/configure-pages@v5
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: .mm-preview-site
+          name: mm-current-preview-pages-${{ github.run_id }}
+      - uses: actions/deploy-pages@v4
+        with:
+          artifact_name: mm-current-preview-pages-${{ github.run_id }}
