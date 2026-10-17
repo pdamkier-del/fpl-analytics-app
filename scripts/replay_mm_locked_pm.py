@@ -22,9 +22,25 @@ def main():
     common=b.merge(pm[['fixture_uuid','player_uuid','pos']],on=['fixture_uuid','player_uuid'],validate='one_to_one')
     before=code_identity(ROOT)
     result=pd.read_csv(OUT/'paired_pm.csv.gz',float_precision='round_trip') if a.render_only else simulate_pair(pm,common,season='2025-26')
+    if a.render_only and 'sampler_expected_minutes' not in result:
+        from mm_locked_bridge import attach_mm,locked_sampler_expectation
+        frames={'production_minutes':pm,'B_minutes':attach_mm(pm,common)}
+        parts=[]
+        for arm,g in result.groupby('arm',sort=False):
+            inputs=frames[arm].set_index(['fixture_uuid','player_uuid']).reindex(pd.MultiIndex.from_frame(g[['fixture_uuid','player_uuid']]))
+            g=g.copy();g['sampler_expected_minutes']=locked_sampler_expectation(inputs.v4_workload_start_p_start,inputs.v4_p_cameo_given_bench,inputs.v4_start_minutes_mean,inputs.v4_cameo_minutes_mean)
+            parts.append(g)
+        result=pd.concat(parts).sort_values(['fixture_uuid','arm','player_uuid'],key=lambda s:s.map({'production_minutes':0,'B_minutes':1}) if s.name=='arm' else s).reset_index(drop=True)
+    expected=set(map(tuple,common[['fixture_uuid','player_uuid']].to_numpy()))
+    if set(result.arm)!={'production_minutes','B_minutes'}:raise ValueError('Incomplete PM arms')
+    for _,g in result.groupby('arm'):
+        if len(g)!=len(expected) or set(map(tuple,g[['fixture_uuid','player_uuid']].to_numpy()))!=expected:
+            raise ValueError('PM replay cohort changed')
     # Re-run one complete paired fixture with the identical seed/budget.
     first=sorted(pm.fixture_uuid.unique())[0]
     again=simulate_pair(pm[pm.fixture_uuid.eq(first)],common[common.fixture_uuid.eq(first)],season='2025-26')
+    if set(result)!=set(again):raise ValueError('PM result schema changed')
+    result=result[again.columns]
     pd.testing.assert_frame_equal(result[result.fixture_uuid.eq(first)].reset_index(drop=True),again,check_exact=True)
     if before!=code_identity(ROOT):raise ValueError('Locked code changed')
     OUT.mkdir(parents=True,exist_ok=True)
@@ -57,6 +73,9 @@ def main():
         MM_source_sha256=hashlib.sha256(frozen.read_bytes()).hexdigest(),locked_code_sha256=before,
         mean_delta={c:float(wide['delta_'+c].mean()) for c in ['xpts','xmins','p_start','simulated_minutes']},
         max_abs_delta_xpts=float(wide.delta_xpts.abs().max()),
+        minute_sampler_mean_delta={arm:float((g.sampler_expected_minutes-g.xmins).mean()) for arm,g in result.groupby('arm')},
+        minute_sampler_B_high_minutes_mean_delta=float((result.loc[result.arm.eq('B_minutes')&result.xmins.gt(60),'sampler_expected_minutes']-result.loc[result.arm.eq('B_minutes')&result.xmins.gt(60),'xmins']).mean()),
+        minute_sampler_mean_matches_MM=False,
         diagnostic_xP_metrics=point_metrics,paired_delta_xP_interval95=ci,
         TS_status='Not Available: historical PM rows are single-GW forecasts at different origins, not six GWs known at one origin.',
         live_status='Not Available: current PR8 role/chance/return-duration feature bridge not verified.',
@@ -75,5 +94,8 @@ def main():
     packed=gzip.compress(json.dumps(dict(summary=summary,players=rows),allow_nan=False,separators=(',',':')).encode(),mtime=0)
     (app/'pm-chain.json.gz').write_bytes(packed)
     (app/'pm-chain-index.json').write_text(json.dumps(dict(url='pm-chain.json.gz',sha256=hashlib.sha256(packed).hexdigest(),scope='historical_replay',rows=len(rows)))+'\n')
+    (OUT/'manifest.json').write_text(json.dumps(dict(scope='historical_replay',input_MM=summary['MM_source_sha256'],
+        locked_code_sha256=before,outputs={p.name:hashlib.sha256(p.read_bytes()).hexdigest() for p in sorted(OUT.iterdir()) if p.is_file() and p.name!='manifest.json'},
+        app_payload_sha256=hashlib.sha256(packed).hexdigest()),indent=2)+'\n')
     print(json.dumps(summary,indent=2))
 if __name__=='__main__':main()

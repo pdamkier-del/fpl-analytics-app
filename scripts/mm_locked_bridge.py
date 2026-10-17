@@ -18,6 +18,20 @@ MINUTE_FIELDS = dict(p='v4_workload_start_p_start',
                      c='v4_cameo_minutes_mean', x='v4_workload_start_xmins')
 
 
+def locked_sampler_expectation(p,q,s,c):
+    """Exact mean of the unchanged rounded/clipped Gaussian duration sampler.
+
+    Diagnostic only: do not invert/reparameterize B or silently fix the PM.
+    For clipped integer K in [1,U], E[K]=1+sum(k=2..U) P(Z>=k-.5).
+    Continuous Gaussian draws have zero probability of rounding ties.
+    """
+    from scipy.special import ndtr
+    p,q,s,c=np.broadcast_arrays(p,q,s,c)
+    start=1+ndtr((s[...,None]-(np.arange(2,91)-.5))/10.).sum(axis=-1)
+    cameo=1+ndtr((c[...,None]-(np.arange(2,46)-.5))/7.).sum(axis=-1)
+    return p*start+(1-p)*q*cameo
+
+
 def attach_mm(pm, mm):
     """Exact identity/cutoff join; never fill missing players from another MM."""
     mm = validate_frame(mm)
@@ -92,6 +106,7 @@ def simulate_pair(pm, mm, *, season, seed=93000000, draws=400):
                 result.append(dict(fixture_uuid=fixture,player_uuid=pid,gw=int(r.gw),
                     arm=arm,xpts=float(s['xPts']),simulated_minutes=float(s['expected_minutes']),
                     xmins=float(r.v4_workload_start_xmins),p_start=float(r.v4_workload_start_p_start),
+                    sampler_expected_minutes=float(locked_sampler_expectation(r.v4_workload_start_p_start,r.v4_p_cameo_given_bench,r.v4_start_minutes_mean,r.v4_cameo_minutes_mean)),
                     **{c:float(s[c]) for c in POINT_COMPONENTS}))
     return pd.DataFrame(result)
 

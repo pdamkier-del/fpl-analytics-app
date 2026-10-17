@@ -5,7 +5,7 @@ from dataclasses import asdict
 import numpy as np
 import pandas as pd
 import pytest
-from mm_locked_bridge import attach_mm,run_current_ts
+from mm_locked_bridge import attach_mm,run_current_ts,locked_sampler_expectation
 from fpl_v1_1_model.forecast_snapshot import seal_forecast
 
 
@@ -47,6 +47,14 @@ def test_hard_zero_minutes_reach_adapter_without_losing_conditional_role():
     assert out.loc[0,'v4_start_minutes_mean']==80
     assert out.loc[0,'v4_workload_start_xmins']==0
     assert out.loc[0,'v4_workload_start_p_start']==out.loc[0,'v4_p_cameo_given_bench']==0
+
+
+def test_locked_PM_clipping_is_a_real_mean_mismatch_not_MC_noise():
+    mean=float(locked_sampler_expectation(1.,0.,90.,15.))
+    assert 86.0<mean<86.1  # Not 90 despite input mean90; preserve/report this.
+    assert locked_sampler_expectation(0.,0.,90.,15.)==0
+    cameo=float(locked_sampler_expectation(0.,1.,80.,60.))
+    assert 44.8<cameo<45.  # Existing PM clips cameos at45, unlike B's support90.
 
 
 def ts_fixture():

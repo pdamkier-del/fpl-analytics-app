@@ -11,7 +11,7 @@ import numpy as np
 import pandas as pd
 from mm_candidate import FormationSelector,build_contract
 from mm_candidate_forecast import infer_B,register
-from mm_locked_bridge import attach_mm,run_current_ts,code_identity
+from mm_locked_bridge import attach_mm,run_current_ts,code_identity,locked_sampler_expectation
 from run_live_vfinal_joint_simulation import simulate
 from build_live_vfinal_desktop import build
 
@@ -63,6 +63,10 @@ def run_pipeline(history,target,roles,provenance,pm,bootstrap,bps_audit,manager=
     joined=attach_mm(pm,predicted)
     if not joined.target_gw.eq(joined.gw).all():raise ValueError('PM target GW mismatch')
     xp,audit=simulate(joined)
+    means=locked_sampler_expectation(joined.v4_workload_start_p_start,joined.v4_p_cameo_given_bench,
+        joined.v4_start_minutes_mean,joined.v4_cameo_minutes_mean)
+    audit['MM_to_PM_mean_max_abs_difference']=float(np.max(np.abs(means-joined.v4_workload_start_xmins)))
+    audit['MM_to_PM_mean_consistent']=bool(audit['MM_to_PM_mean_max_abs_difference']<=1e-6)
     # Display/export exposure is B. Simulator propensities were calculated from
     # untouched PM controls; export must not falsely label those controls as B.
     display=joined.copy()
@@ -75,6 +79,9 @@ def run_pipeline(history,target,roles,provenance,pm,bootstrap,bps_audit,manager=
     display['expected_minutes']=display.control_xmins
     display['live_eligibility_applied']=display.v4_workload_start_p_start.eq(0)&display.v4_p_cameo_given_bench.eq(0)
     payload=build(display,xp,bootstrap,bps_audit)
+    payload['minute_sampler_audit']={k:v for k,v in audit.items() if k.startswith('MM_to_PM_')}
+    if not audit['MM_to_PM_mean_consistent']:
+        payload['blockers'].append('Locked PM rounded/clipped duration sampler does not preserve B conditional means; integration remains diagnostic. No silent PM sampler replacement.')
     # Blank GWs are explicit zeros only for a club with no fixture at that GW.
     present={int(t):set(map(int,g.target_gw)) for t,g in pm.groupby('team_id')}
     for p in payload['players']:

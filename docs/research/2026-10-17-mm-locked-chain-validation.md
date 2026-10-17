@@ -4,8 +4,8 @@ Status: **NOT READY** for the requested live MM → PM → TS activation.
 
 The historical preview and isolated current entry point are functional. This is
 not a claim that a verified current B feature producer, candidate backend route
-or a real personal six-GW calculation has been completed. No new MM was fitted
-or selected in this round. Production remains unchanged; locked_model_active=false.
+or a real personal six-GW calculation has been completed. No new MM specification or hyperparameters were selected in this round. The
+existing fixed B calibrator is refitted chronologically at the same50 origins. Production remains unchanged; locked_model_active=false.
 
 ## Reused architecture
 
@@ -95,6 +95,31 @@ zero xM. These UUIDs are not interchangeable. Haaland's historical GW7 B xM is
 82.496388, not a manual90-minute override. These are 2025/26 examples and must
 not be presented as today's GW7 forecast.
 
+## Confirmed MM→PM mean mismatch: activation blocker
+
+The unchanged PM draws rounded Gaussian starter durations (sd10, clipped1–90)
+and cameo durations (sd7, clipped1–45). A supplied conditional mean is not the
+mean after clipping. For a certain starter with input90, PM E[min] is about86.01.
+For a cameo input60 the PM mean is below45. This is a mathematical discrepancy,
+not Monte Carlo noise and not a player-specific issue.
+
+For a clipped integer duration K in[1,U], the exact mean is
+1 + sum(k=2..U) Phi((mu-(k-.5))/sigma). Mixing the starter/cameo means with
+B's p and q yields the analytical PM E[min]. The regression tests this identity.
+
+Across11,794 matched B rows, analytical PM E[min]−B xM averages−0.728064 minute;
+for B xM>60 it averages−3.014520 minutes. The corresponding previous-vFinal
+average is−0.712296. Sampled means additionally contain400-draw Monte Carlo
+variation. Both input xM and analytical PM minutes are shown in the preview.
+
+The adapter intentionally preserves the locked PM sampler and records this
+failed coherence gate. It does not reparameterize B, alter sampler variances,
+clip B's output or substitute the experimental PMF without approval/validation.
+An explicitly reviewed MM-owned sampling interface is needed to resolve this
+boundary. Therefore independent validation is **not** the only remaining block.
+The point metrics above are a controlled minute-parameter ablation conditional
+on frozen PM inputs, not a raw-source complete pipeline certification.
+
 ## Six-GW technical test and current-data gate
 
 The current entry point validates source hashes and observation clocks,
@@ -142,9 +167,11 @@ execution in the delivery checkpoint.
 2. Real current B→PM→TS run and isolated candidate backend/app manager route,
    once those inputs exist. No private manager state was obtained or published
    in this round; synthetic tests do not verify the user's personal plan.
-3. Untouched prospective observations with preregistered witnessed predictions.
-4. PMF calibration/proper-score gate and existing club-risk flags.
-5. 35 historical hard-source appearance conflicts, incomplete medical/return
+3. MM/PM minute-distribution coherence: the unchanged PM clipping loses the
+   supplied conditional mean; no certified unified duration interface exists.
+4. Untouched prospective observations with preregistered witnessed predictions.
+5. PMF calibration/proper-score gate and existing club-risk flags.
+6. 35 historical hard-source appearance conflicts, incomplete medical/return
    coverage, historical known-at proxies, and absent2024/25 formation ledger.
 
 No production activation or scientific certification is justified. Existing
