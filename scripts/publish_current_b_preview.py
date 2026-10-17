@@ -8,7 +8,7 @@ from pathlib import Path
 from datetime import datetime,timezone
 import argparse,gzip,hashlib,json
 from mm_candidate_forecast import seal_document
-from fpl_v1_1_model.forecast_snapshot import require_snapshot
+from fpl_v1_1_model.forecast_snapshot import require_snapshot,require_official_catalog
 from restore_current_b_role_ledger import validate as validate_ledger
 ROOT=Path(__file__).resolve().parents[1]
 
@@ -31,6 +31,15 @@ def publish(source,out,inputs=ROOT/'work/current-B-inputs'):
     mmkeys={(r['fixture_id'],r['player_id']) for r in m['players']}
     expected={(x['fixture_uuid'],p['player_uuid']) for p in f['players'] for w in p['weeks'] for x in w['fixtures']}
     if mmkeys!=expected:raise ValueError('Public MM and PM identity coverage mismatch')
+    bootstrap=json.loads((Path(inputs)/'bootstrap.json').read_text())
+    provenance=json.loads((Path(inputs)/'provenance.json').read_text())
+    raw=json.dumps(bootstrap,sort_keys=True,separators=(',',':'),allow_nan=False).encode()
+    if hashlib.sha256(raw).hexdigest()!=provenance['bootstrap_sha256']:raise ValueError('Official catalogue source changed')
+    require_official_catalog(f,bootstrap['elements'])
+    next_gw=next(e['id'] for e in bootstrap['events'] if e.get('is_next'))
+    if next_gw!=f['gws'][0]:raise ValueError('Official catalogue GW mismatch')
+    catalogue=dict(source='Official FPL snapshot used by this forecast',fetched_at=provenance['bootstrap_observed_at'],next_gw=next_gw,
+        players=[dict(id=p['id'],team=p['team'],position=p['element_type'],price=p['now_cost']/10) for p in bootstrap['elements']])
     # Probabilities of start/appearance remain; unvalidated duration intervals
     # and PMF bands are not presented as quantitative live uncertainty.
     for r in m['players']:
@@ -49,6 +58,8 @@ def publish(source,out,inputs=ROOT/'work/current-B-inputs'):
     index['role_ledger_sha256']=hashlib.sha256(ledger).hexdigest()
     index['role_ledger_rows']=len(validate_ledger(index,ledger))
     (out/'role-ledger.csv.gz').write_bytes(ledger)
+    index['catalogue_file']='catalogue.json'
+    index['catalogue_sha256']=write(out/'catalogue.json',catalogue)
     write(out/'pm-audit.json',audit)
     write(out/'index.json',index)
     packed=gzip.compress((source/'mm.json').read_bytes(),mtime=0)

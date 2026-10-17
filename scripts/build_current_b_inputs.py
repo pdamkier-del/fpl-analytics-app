@@ -6,7 +6,7 @@ selected bands_h42.0_C1.0 model and applies the existing PR8 carry/cap rules.
 The first prospective role ledger has no fabricated pre-injury latent state.
 """
 from pathlib import Path
-import argparse,gzip,hashlib,json
+import argparse,gzip,hashlib,json,os,subprocess
 import numpy as np
 import pandas as pd
 from individual_mm_evidence import load_frame
@@ -104,7 +104,11 @@ def build(out,role_cache,ledger_path=None):
     if not fixture_sources:raise ValueError('Missing actual fixture acquisition receipt')
     fixture_at=fixture_sources[-1]['observed_at']
     receipt_at=max(pd.Timestamp(manifest['bootstrap_observed_at']),pd.Timestamp(fixture_at))
-    receipt=capture(bootstrap,fixtures,observed_at=receipt_at.isoformat(),workflow='local-input-rebuild-not-CI-witnessed')
+    workflow='local-input-rebuild-not-CI-witnessed'
+    if os.environ.get('GITHUB_RUN_ID'):
+        revision=subprocess.check_output(['git','rev-parse','HEAD'],cwd=ROOT,text=True).strip()
+        workflow=f"https://github.com/{os.environ['GITHUB_REPOSITORY']}/actions/runs/{os.environ['GITHUB_RUN_ID']}@{revision}"
+    receipt=capture(bootstrap,fixtures,observed_at=receipt_at.isoformat(),workflow=workflow)
     skeleton=roster_build(bootstrap,fixtures,receipt,cutoff=cut.isoformat())
     mapping=pm[['fpl_element','player_uuid']].drop_duplicates()
     target=pm[['season','gw','target_gw','fixture_uuid','player_uuid','team_id','pos','cutoff','fpl_element','target_kickoff',
