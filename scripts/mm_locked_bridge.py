@@ -7,6 +7,7 @@ goal/assist/DefCon rates. No rescaling of simulated xP is used here.
 """
 import hashlib
 import json
+from functools import lru_cache
 from dataclasses import asdict
 import numpy as np
 import pandas as pd
@@ -134,6 +135,19 @@ def code_identity(root):
     return {p:hashlib.sha256((root/p).read_bytes()).hexdigest() for p in paths}
 
 
+@lru_cache(maxsize=8192)
+def _candidate_duration_pmf(arm, mu):
+    """Exact (unrounded input) conditional mean; cache repeated draws only."""
+    from mm_candidate import minute_masses
+    f = pd.DataFrame([dict(p=1. if arm == 'start' else 0.,
+                           q=1. if arm == 'cameo' else 0.,
+                           s=mu if arm == 'start' else 0.,
+                           c=mu if arm == 'cameo' else 1., x=mu)])
+    probs = minute_masses(f)[0]
+    probs.setflags(write=False)
+    return probs
+
+
 def sample_candidate_minutes(rng, *, p, q, s, c):
     """RESEARCH ONLY: draw PR13/B exact-mean conditional minutes.
 
@@ -160,11 +174,6 @@ def sample_candidate_minutes(rng, *, p, q, s, c):
         return 0, 90, 90
     # Each conditional distribution is generated with PR13's fixed sigma
     # and the original endpoint repair, not a second/fitted probability model.
-    f = pd.DataFrame([dict(p=1. if arm == 'start' else 0.,
-                           q=1. if arm == 'cameo' else 0.,
-                           s=mu if arm == 'start' else 0.,
-                           c=mu if arm == 'cameo' else 1.,
-                           x=mu)])
-    probs = minute_masses(f)[0]
+    probs = _candidate_duration_pmf(arm, float(mu))
     m = int(rng.choice(np.arange(91), p=probs))
     return (m, 0, m) if arm == 'start' else (m, 90-m, 90)
