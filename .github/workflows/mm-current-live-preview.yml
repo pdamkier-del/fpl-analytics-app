@@ -43,6 +43,7 @@ jobs:
           python -m compileall -q scripts/current_b_features.py scripts/build_current_b_inputs.py scripts/prepare_mm_role_training.py scripts/replay_mm_candidate_sampler.py scripts/run_mm_locked_preview.py scripts/publish_current_b_preview.py
           python -m pytest -q tests
           node tests/test_B_preview_contract.js
+          node tests/test_B_preview_jobs.js
           node --check app/mm-preview/live.js
           node --check app/mm-preview/preview.js
       - name: Restore verified original MM and historical role source data
