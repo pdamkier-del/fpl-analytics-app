@@ -52,7 +52,8 @@ def run(horizon_end=None):
         raise ValueError('Nonfinite frozen team-strength predictions')
     if (~targets[['lambda_home_goals','lambda_away_goals']].apply(lambda x:x.between(.05,5))).any().any():
         raise ValueError('Out-of-contract team goal lambdas')
-    targets.to_csv(OUT,index=False,compression='gzip')
+    from audit_capture_io import write_frame
+    write_frame(OUT,targets)
     audit={'classification':'UNCHANGED_FROZEN_VFINAL_TEAM_LATENT_INPUT_NOT_FULL_PM',
            'season':'2026-27','origin_gw':origin,'historical_team_fixture_sides':len(history),
            'fixture_predictions':len(targets),'future_gws':sorted(map(int,targets.gw.unique())),

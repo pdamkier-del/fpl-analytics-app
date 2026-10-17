@@ -84,7 +84,8 @@ def main():
     inputs["mm"]=pd.concat([gated,future],ignore_index=True)
     joined=combine(**inputs)
     args.out.parent.mkdir(parents=True,exist_ok=True)
-    joined.to_csv(args.out,index=False,compression="gzip")
+    from audit_capture_io import write_frame
+    write_frame(args.out,joined)
     evidence={"classification":"INCOMPLETE_VFINAL_SIMULATOR_INPUT_NO_XP",
        "origin_gw":int(joined.target_gw.min()),"rows":len(joined),
        "fixtures":int(joined.fixture_uuid.nunique()),
