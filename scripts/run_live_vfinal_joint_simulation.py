@@ -130,6 +130,8 @@ def main():
     p.add_argument("--scope",choices=["one-match","one-gw","six-gw"],default="six-gw")
     a=p.parse_args()
     if a.draws!=400:raise ValueError('Locked Monte Carlo draws are exactly 400')
+    if a.minute_sampler!='locked' and (a.out.resolve().is_relative_to(ROOT/'app') or not a.out.resolve().is_relative_to(ROOT/'work')):
+        raise ValueError('Experimental PM outputs must remain under untracked work/')
     frame=pd.read_csv(a.input,low_memory=False)
     fixture_seeds={fx:i for i,fx in enumerate(sorted(frame.fixture_uuid.unique()))}
     frame=select_scope(frame,a.scope)
@@ -140,12 +142,13 @@ def main():
     actual=predicted.merge(frame.loc[hard,["fixture_uuid","player_uuid"]],on=["fixture_uuid","player_uuid"])
     if not actual.empty and (actual.expected_minutes.ne(0).any() or actual.xpts_fixture.ne(0).any()):raise ValueError("Hard-unavailable simulated minutes/points")
     a.out.parent.mkdir(parents=True,exist_ok=True)
-    if a.minute_sampler!='locked' and (a.out.resolve().is_relative_to(ROOT/'app') or not a.out.resolve().is_relative_to(ROOT/'work')):
-        raise ValueError('Experimental PM outputs must remain under untracked work/')
     predicted.to_csv(a.out,index=False,compression='gzip')
     WORK.mkdir(parents=True,exist_ok=True)
     audit['source_sha256']=hashlib.sha256(a.input.read_bytes()).hexdigest()
-    (WORK/('live_vfinal_simulation_audit.json' if a.scope=='six-gw' else 'live_vfinal_simulation_'+a.scope+'.json')).write_text(json.dumps(audit,indent=2)+'\n')
+    audit_name=('live_vfinal_simulation_audit.json' if a.scope=='six-gw' else 'live_vfinal_simulation_'+a.scope+'.json')
+    if a.minute_sampler!='locked':
+        audit_name='experimental_B_sampler_'+audit_name
+    (WORK/audit_name).write_text(json.dumps(audit,indent=2)+'\n')
     print(json.dumps(audit))
 if __name__=='__main__':main()
 
