@@ -79,7 +79,8 @@ def test_service_checks_fresh_official_window_without_changing_model():
     import pytest
     from service.app import verify_current_window
     f=dict(model='original_locked_vFinal_diagnostic',locked_model_active=False,gws=list(range(7,13)),origin_deadline='2026-10-17T10:00:00Z',data_asof='2026-10-11T09:00:00Z',freshness_limit_hours=24)
-    b={'events':[dict(id=7,is_next=True,deadline_time=f['origin_deadline'])]}
+    f['players']=[dict(id=1,price_tenths=50,team_id=1,position=4)]
+    b={'events':[dict(id=7,is_next=True,deadline_time=f['origin_deadline'])],'elements':[dict(id=1,now_cost=50,team=1,element_type=4)]}
     assert verify_current_window(f,b,datetime(2026,10,11,10,tzinfo=timezone.utc))==7
     with pytest.raises(ValueError,match='freshness'):verify_current_window(f,b,datetime(2026,10,12,10,tzinfo=timezone.utc))
     b['events'][0]['id']=8
