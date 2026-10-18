@@ -28,3 +28,13 @@ def test_missing_fixture_rejected():
     p,a=sample();a['fixture_uuid']='different'
     with pytest.raises(ValueError,match='Missing observed'):
         audit(p,a,'2025-26','B')
+
+def test_actual_bonus_and_nonbonus_when_frozen_truth_has_bonus():
+    p,a=sample()
+    p.loc[0,'expected_bonus']=0.5
+    a['bonus']=2.
+    rows=audit(p,a,'2025-26','B')
+    bonus=next(x for x in rows if x['component']=='expected_bonus')
+    nonbonus=next(x for x in rows if x['component']=='nonbonus_points')
+    assert bonus['status']=='VALID' and bonus['mae']==1.5
+    assert nonbonus['status']=='VALID' and nonbonus['mae']==0.5
