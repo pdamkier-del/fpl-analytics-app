@@ -58,6 +58,7 @@ class MatchSimInput:
     away_penalty_conversion: float=0.78
     p_penalty_save_given_miss: float=0.0
     bps_rules: str="2026-27"
+    experimental_joint_goalkeepers: bool=False
 
 @dataclass
 class PlayerSimResult:
@@ -111,6 +112,35 @@ def simulate_match(inp:MatchSimInput,rng:Any)->dict[str,PlayerSimResult]:
     ps=list(inp.players); out={p.player_id:PlayerSimResult() for p in ps}; intervals={}
     for p in ps:
         m,a,b=_sample_minutes(rng,p); out[p.player_id].minutes=m; out[p.player_id].started=int(m>0 and a==0); intervals[p.player_id]=(a,b)
+
+    # Opt-in research arm only; locked production remains byte-compatible by default.
+    # Sample a single GK starter and conditional replacement. No two keepers
+    # can be on the pitch at once. Missing keeper coverage raises loudly.
+    if inp.experimental_joint_goalkeepers:
+        for team in (inp.home_team,inp.away_team):
+            gks=[p for p in ps if p.team==team and p.is_keeper]
+            if not gks:
+                raise ValueError('Joint GK coverage requires a complete team roster: '+team)
+            starter=_weighted_choice(rng,gks,[p.p_start for p in gks])
+            if starter is None:
+                raise ValueError('No positive GK start probability for '+team)
+            remaining=[p for p in gks if p.player_id!=starter.player_id]
+            # A GK normally completes the match. The model's existing
+            # starter-duration expectation informs a rare substitution,
+            # but a replacement is allowed only with an eligible reserve.
+            sub=None
+            if remaining and starter.start_minutes_mean < 90:
+                prob=max(0.,min(1.,(90.-starter.start_minutes_mean)/90.))
+                if rng.random()<prob:
+                    sub=_weighted_choice(rng,remaining,[max(0.,p.p_cameo_given_bench) for p in remaining])
+            starter_duration=90
+            if sub is not None:
+                starter_duration=int(np.clip(round(rng.normal(starter.start_minutes_mean,7.)),1,89))
+            for p in gks:
+                a,b=(0,starter_duration) if p.player_id==starter.player_id else ((starter_duration,90) if sub is not None and p.player_id==sub.player_id else (90,90))
+                intervals[p.player_id]=(a,b)
+                out[p.player_id].minutes=b-a
+                out[p.player_id].started=int(p.player_id==starter.player_id)
 
     # Shared penalty process. Expected scored-penalty mass is removed from the
     # ordinary team-goal Poisson before explicit penalties are simulated, so
