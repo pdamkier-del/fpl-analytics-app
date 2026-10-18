@@ -30,6 +30,7 @@ def build(root=ROOT):
             text = text.replace('o.fetched_at!==fx.fetched_at', 'o.snapshot_sha256!==fx.snapshot_sha256')
             text = text.replace('official.fetched_at!==fixtures.fetched_at', 'official.snapshot_sha256!==fixtures.snapshot_sha256')
             if src.name == 'catalog-data.js':
+                text = text.replace('JSON.stringify(source.checksums)!==JSON.stringify(forecast.checksums)', 'source.forecast_sha256!==forecast.forecast_sha256')
                 text = text.replace('xp,xmins:valid?', 'xp,pplay:usable?number(first?.p_play):null,xmins:valid?')
                 text = text.replace('number(r.matches)>0', '(number(r.matches)>0||number(r.share)>0)')
             if src.name == 'roles-view.js':
@@ -41,6 +42,7 @@ def build(root=ROOT):
                 # Preview must not treat synthetic validation fixtures as actual teams.
                 text = text.replace('if(!raw||raw.season', 'if(!raw||raw.validation_only===true||raw.season')
                 text = text.replace("report.supports_idempotent_submit!==true", "(report.supports_idempotent_submit!==true||report.supports_mm_preview!==true)")
+                text = text.replace('job.forecast_cutoff!==forecast.data_asof', '(job.forecast_cutoff&&job.forecast_cutoff!==forecast.data_asof)')
                 text = text.replace("if(!r.ok){sessionStorage.removeItem('fpl-private-B-preview-job');", "if(!r.ok){if([404,410,422].includes(r.status))sessionStorage.removeItem('fpl-private-B-preview-job');")
                 text = text.replace("if(d.status==='completed'){", "if(d.status==='failed'){sessionStorage.removeItem('fpl-private-B-preview-job');throw Error(d.error||'Python-beregningen fejlede. Dit hold er bevaret.')}if(d.status==='completed'){const latest=await window.FplBExistingApp.forecast();if(latest.forecast_sha256!==forecast.forecast_sha256){sessionStorage.removeItem('fpl-private-B-preview-job');throw Error('Nyt forecast er publiceret. Genindlæs og genberegn; dit hold er bevaret.')}")
             if src.suffix == '.html':
@@ -67,7 +69,7 @@ def source_data(bootstrap, fixtures, provenance, forecast, mm):
         home_score=f['team_h_score'], away_score=f['team_a_score'],
         difficulty_home=f['team_h_difficulty'], difficulty_away=f['team_a_difficulty']) for f in fixtures])
     lineups = dict(source='B_MM_assignment', cutoff=forecast['data_asof'],
-                   checksums=forecast.get('checksums'), locked_model_active=False, fixtures=[])
+                   forecast_sha256=forecast['forecast_sha256'], locked_model_active=False, fixtures=[])
     for team in mm['teams']:
         rows = [p for p in mm['players'] if p['club_id'] == team['club_id'] and p['fixture_id'] == team['fixture_id']]
         selected = sorted((p for p in rows if p['expected_xi']), key=lambda p: p['slot_index'])
