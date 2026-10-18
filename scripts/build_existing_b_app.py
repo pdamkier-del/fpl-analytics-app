@@ -29,6 +29,9 @@ def build(root=ROOT):
             text = text.replace('Original MM', 'Individuel MM B').replace('originale MM → vFinal', 'MM B → låst vFinal')
             if src.name == 'catalog-data.js':
                 text = text.replace('xp,xmins:valid?', 'xp,pplay:usable?number(first?.p_play):null,xmins:valid?')
+                text = text.replace('number(r.matches)>0', '(number(r.matches)>0||number(r.share)>0)')
+            if src.name == 'roles-view.js':
+                text = text.replace('esc(r.matches)', "esc(r.matches??'Not Available')")
             if src.name == 'classic-catalog.js':
                 text = text.replace("['pstart','Avg P(start)']", "['pstart','Avg P(start)'],['pplay','P(spiller) næste GW']")
                 text = text.replace("if(key==='pstart')", "if(key==='pstart'||key==='pplay')")
@@ -80,7 +83,8 @@ def source_data(bootstrap, fixtures, provenance, forecast, mm):
             formation=team['formation'], layers=layers, players=[dict(id=p['fpl_element'],
                 selected=p['expected_xi'], unavailable=p['availability'] in ['OUT', 'SUSPENDED'] and p['xmins'] == 0,
                 role=p['slot'] or p['primary_role'] or 'UNKNOWN',
-                observed_roles=[dict(role=k, matches=v) for k,v in p.get('role_probabilities', {}).items()]) for p in rows]))
+                # B exports weighted shares, not raw counts of past starts.
+                observed_roles=[dict(role=k, matches=None, share=v) for k,v in p.get('role_probabilities', {}).items()]) for p in rows]))
     return {'current-players.json': official, 'live-fixtures.json': schedule, 'club-lineups.json': lineups}
 
 

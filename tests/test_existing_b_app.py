@@ -35,6 +35,7 @@ def test_official_snapshot_and_existing_xi_are_translated_without_inference():
     assert [len(x) for x in xi['layers']] == [1,3,4,2,1]
     assert sum(p['selected'] for p in xi['players']) == 11
     assert d['club-lineups.json']['source'] == 'B_MM_assignment'
+    assert xi['players'][0]['observed_roles'][0] == {'role':'GK','matches':None,'share':1}
 
 
 def test_live_adapter_never_writes_private_storage_or_calls_model():
