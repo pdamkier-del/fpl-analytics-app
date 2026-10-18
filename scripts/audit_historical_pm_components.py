@@ -39,6 +39,10 @@ def audit(predictions,truth,season,arm):
     q=p.merge(truth,on=keys,how='inner',validate='one_to_one',suffixes=('','_actual'))
     if len(q)!=len(p):raise ValueError('Missing observed player-fixture total')
     rows=[]
+    # Archived joint-simulator targets expose observed bonus as a raw 0-3
+    # FPL point value, unlike the other point components.
+    if 'bonus' in q and 'expected_bonus_actual' not in q:
+        q['expected_bonus_actual']=q['bonus']
     for name in PRED:
         observed=OBS[name]
         if observed not in q or q[observed].isna().any():
@@ -49,6 +53,9 @@ def audit(predictions,truth,season,arm):
                 **metrics(q[observed],q[name])))
     if 'total_points_actual' not in q:
         raise ValueError('Observed total points overwritten or absent')
+    if 'bonus' in q and q['bonus'].notna().all():
+        rows.append(dict(season=season,arm=arm,component='nonbonus_points',status='VALID',
+                         **metrics(q.total_points_actual-q.bonus,q.xp-q.expected_bonus)))
     rows.append(dict(season=season,arm=arm,component='total_xP',status='VALID',
                      **metrics(q.total_points_actual,q.xp)))
     return rows
