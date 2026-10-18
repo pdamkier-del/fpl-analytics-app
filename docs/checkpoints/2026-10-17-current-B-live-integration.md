@@ -280,3 +280,37 @@ intervals. Remaining functional verification: an actual current manager-state
 calculation and real mobile interaction. Full current-half B TC
 coverage remains unavailable, so its future timing is Not Available/manual.
 Production B activation is deliberately not performed.
+
+## 2026-10-18 — existing classic app uses B in isolated preview
+
+Executable integration source: `41161e4521a371bc4d0ddd94e2ed6d9dda13e6e1`.
+Main schedule/publication pin: `730a29dceb35fa6ca7ccc18b8d125f34209b64cb`.
+Existing UI is reused under `mm-preview/app/`; only display contracts,
+snapshot identity and isolated private-plan routing are adapted. Production
+PM sampling/math, TS/chips and manager worker are unchanged. Actual local
+manager state/prices retain their original key; recommendations remain separate.
+
+- CI **39129816821 success**: **684 Python tests +36 JS checks**, authentic
+  B feature parity, exact raw rebuilds, current B→locked PM one match
+  (**66 rows**), one GW (**667 rows**), six GW (**4002 rows/60 fixtures**),
+  two byte-identical full forecast/MM outputs, protected-code diff clean.
+- Cutoff **2026-10-18T13:08:01.101996Z**, GW8–13,667 players; sealed forecast
+  `c77e040bbe29ffdf0130faac94e10c6c59e123298925b4494b9c01bf34f109f8`.
+- Pages **39129820245 success**, persisted preview commit `940ddb1`;
+  all **88 non-preview files** of the current production artifact unchanged.
+- Public browser: classic navigation, player search/horizon/profile, Chelsea
+  3-4-2-1 XI, fixtures, missing-manager My Team/Transfers/Chips and Model tree.
+  Actual public B rows also pass the original XI renderer for all20 clubs.
+  Haaland GW8:82.88xM,79.69 PM E[min],96.3% appearance,5.74xP; six-GW33.57.
+  No app JS error observed; unrelated extension metadata errors excluded.
+- URL: https://pdamkier-del.github.io/fpl-analytics-app/mm-preview/app/my-team-classic.html?ui=fef499563f07e0c1
+
+Remaining: actual current manager state is unavailable in the test browser;
+no user transfer recommendation is claimed. The normal browser's same-origin
+saved state is reused, never inferred from the old GW7 backup. Some preview
+team-goal/per-match-history fields are Not Available: the former legacy
+fixture-expectations source is deliberately not mixed into B, and the latter
+requires a matching display snapshot. Existing model tree remains the original
+reference explanation, not a newly certified B-calibration explanation.
+Physical mobile interaction and independent certification remain unverified.
+`locked_model_active=false`; production B remains inactive. No further research.
