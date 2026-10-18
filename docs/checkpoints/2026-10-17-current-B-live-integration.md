@@ -151,17 +151,18 @@ not deemed verified solely because the cron exists.
 - No independent untouched evaluation period, complete historical source timing
   certification, or validated probabilistic minute intervals are available.
 - BPS incompleteness remains quarantined; no missing values are invented.
-- The original production's separate TC extension job has a floating-point
-  comparison failure; the new B preview deliberately does not reuse old-MM TC.
-  No comparison tolerance was relaxed to disguise the difference.
+- An earlier original-production TC extension run failed a floating-point
+  comparison; later original scheduled forecast runs succeeded. That earlier
+  failure is not evidence of a current continuous outage. The B preview does
+  not reuse old-MM TC scenarios and no tolerance was relaxed.
 
-Final publication/run/browser verification is recorded below after deployment.
+Final publication/run/browser verification is recorded below.
 
 ## Same-cutoff current comparison after source-cap hardening
 
 Successful hardened source run:
 https://github.com/pdamkier-del/fpl-analytics-app/actions/runs/39054182018
-Cutoff **2026-10-17T17:39:27.623816Z**. The 26,461 KiB public evidence artifact
+Cutoff **2026-10-17T17:39:27.623816Z**. The public evidence artifact
 `12109371181` has ZIP SHA-256
 `275e2d830503619f6a77473154bce323011e4f99b1da63cf2f7bc60a35dd4a94`.
 
@@ -202,3 +203,57 @@ fresh preview. Actual CI run/code provenance replaces the local-only label.
 This source capture has **1,204 complete BPS action rows and 679 quarantined
 rows**. Missing actions remain unknown, not zero-filled. These are current
 counts, not the earlier GW7 audit's 334 rows.
+
+
+## Final scheduled publication verification — 2026-10-18
+
+Code pin: `8579df2de908cbed307c8e3bd69b0167dddc0ea2`.
+Current source cutoff **2026-10-18T05:58:19.587177Z**, GW8–13, origin deadline
+**2026-10-23T17:30Z**. All 667 players, 60 fixtures and 4,002 player-fixture
+records are present. Forecast SHA-256:
+`5688d08c5ed5251d2a66c1c0325867177105f9e836c59ff6cda60e66f57a8ae6`.
+
+Four actual scheduled B refresh/publication runs are verified successful:
+39102061804, 39084921121, 39077768949 and 39067312204.
+Latest: https://github.com/pdamkier-del/fpl-analytics-app/actions/runs/39102061804
+The current compute job (117600181898) passed **673 Python tests**, **10 JS
+contract tests**, **7 JS job-client tests**, raw exact reproduction, original
+role/NUM parity and byte-identical repeat B/PM forecasts. Publication job
+117602206059 verified **88 non-preview production files byte-identical** and
+persisted the isolated preview. The public cumulative role ledger now contains
+4,002 records. Cron remains `17 * * * *` on main, pinned to the code above;
+actual launches were delayed and do not demonstrate guaranteed hourly service.
+
+Browser verified:
+https://pdamkier-del.github.io/fpl-analytics-app/mm-preview/live.html?ui=20261017-1
+The page reports the new cutoff and SHA verification. Player table, sorting,
+filters, club XI and six-GW popup work. João Pedro's popup carries the same
+cutoff, B p/q/s/c and unavailable uncertainty intervals. Current GW8 Haaland:
+xM **82.68**, PM E[min] **79.50**, P(start) **92.2%**, P(plays) **96.0%**,
+xP **6.32**, six-GW xP **34.89**. These are refreshed forecasts, not accuracy
+results or targets to preserve. No application console errors were observed;
+an unrelated Chrome extension metadata error was present.
+
+Actual mobile end-to-end interaction is still **not verified**. Responsive CSS
+inspection is not substituted for a real mobile test. No actual manager state
+is present in this browser: personal transfers/captain are not verified.
+The existing manager local-storage record is read-only to this preview.
+
+Private service verification on a clearly labelled legal validation fixture
+is recorded separately below. It is never the user's personal result.
+
+### Private remote calculation status at this checkpoint
+
+The deployed server accepted a validation-only legal 15-player public-roster
+state against the current sealed B forecast. A result request without the
+private capability was correctly rejected (404). The original Python
+calculation is still running at this checkpoint; completion is **not claimed**.
+Local full original-Python TS/FH/WC/BB validation has passed, but is not
+substituted for a completed deployed-service job.
+
+Remaining certification gates: independent/prospective observations,
+historical source timing and BPS coverage; no calibrated public minute
+intervals. Remaining functional verification: actual manager-state calculation,
+completed remote job and real mobile interaction. Full current-half B TC
+coverage remains unavailable, so its future timing is Not Available/manual.
+Production B activation is deliberately not performed.
