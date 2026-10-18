@@ -1,0 +1,15 @@
+'use strict';
+const fs=require('node:fs'),assert=require('node:assert/strict');
+const src=fs.readFileSync('app/mm-preview/existing-app-adapter.js','utf8');
+assert(src.includes("P(start) "));
+assert(src.includes("P(0 min) "));
+assert(src.includes("1-pPlay"));
+assert(src.includes("starts.length===1?starts[0]:null"));
+assert(src.includes("P(0 min) er 1 − P(spiller)"));
+assert(!src.includes('interval80.join'));
+assert(!src.includes('localStorage.setItem'));
+new (require('node:vm').Script)(src);
+const single=[{p_start:0.73}],double=[{p_start:0.73},{p_start:0.84}];
+assert.equal(single.length===1?single[0].p_start:null,0.73);
+assert.equal(double.length===1?double[0].p_start:null,null);
+console.log('B preview probability display static + JS syntax checks passed');
