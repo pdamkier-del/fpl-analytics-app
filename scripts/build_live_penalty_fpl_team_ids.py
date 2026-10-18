@@ -25,7 +25,8 @@ def main():
     fixtures=json.loads((WORK/'fixtures.json').read_text())
     output=build(boot,fixtures)
     BASE.mkdir(parents=True,exist_ok=True)
-    output.to_csv(BASE/'verified_penalty_team_ids.csv.gz',index=False,compression='gzip')
+    from audit_capture_io import write_frame
+    write_frame(BASE/'verified_penalty_team_ids.csv.gz',output)
     print(json.dumps({'classification':'VERIFIED_FPL_TEAM_ID_NAMESPACE_NOT_PENALTY_EVIDENCE',
       'team_count':len(output),'mapping':'official FPL team id == FPL team code',
       'penalty_attempts_verified':False,'live_xp_certified':False}))

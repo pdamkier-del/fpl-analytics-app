@@ -47,7 +47,8 @@ def main():
     history=pd.read_csv(a.history,low_memory=False)
     result,audit=derive(frame,history)
     a.out.parent.mkdir(parents=True,exist_ok=True)
-    result.to_csv(a.out,index=False,compression='gzip')
+    from audit_capture_io import write_frame
+    write_frame(a.out,result)
     WORK.mkdir(parents=True,exist_ok=True)
     (WORK/'live_assist_prior_provenance.json').write_text(json.dumps(audit,indent=2)+'\n')
     print(json.dumps(audit))

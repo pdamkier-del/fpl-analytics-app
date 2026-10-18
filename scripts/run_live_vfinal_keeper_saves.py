@@ -99,7 +99,8 @@ def build():
         raise ValueError('Missing expected keeper saves for future target')
     if not np.isfinite(pred.lambda_saves.to_numpy(float)).all():
         raise ValueError('Invalid predicted saves')
-    pred.to_csv(OUT,index=False,compression='gzip')
+    from audit_capture_io import write_frame
+    write_frame(OUT,pred)
     report={'classification':'FROZEN_KEEPER_SAVE_COMPONENT_ON_ARCHIVED_2026_SOT_NOT_FULL_PM',
        'official_provisionally_finished_fixture_ids':provisional,'provisional_source_not_final_fpl_certification':True,'origin_gw':origin,'archived_pl_matches':len(captured),
        'training_team_fixture_sides':len(h),'team_ids':int(h.team_id.nunique()),
