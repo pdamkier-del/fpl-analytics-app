@@ -119,12 +119,15 @@ def create(preview=False):
             else:verify_official_now(forecast)
             latest_content=require_forecast_snapshot(json.loads(get_public(forecast_path)),body.get('forecast_sha256'))
             if latest_content!=expected_content:raise ValueError('Forecast content changed during calculation')
+            # Keep validation provenance across the unchanged original worker.
+            # A test squad must never be accepted as an actual personal plan.
+            result=json.loads((directory/'result.json').read_text())
+            result['validation_only']=body['state'].get('validation_only') is True
             if preview:
                 # Presentation identity only; original worker/TS decisions stay unchanged.
-                result=json.loads((directory/'result.json').read_text())
                 result['forecast_sha256']=expected_content
                 result['forecast_variant']='B_locked_PM_preview'
-                (directory/'result.json').write_text(json.dumps(result,allow_nan=False))
+            (directory/'result.json').write_text(json.dumps(result,allow_nan=False))
             jobs[identifier]['status']='completed'
         except subprocess.TimeoutExpired:
             jobs[identifier]['status']='failed';jobs[identifier]['failure']='timeout'
