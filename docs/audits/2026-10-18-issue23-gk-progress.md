@@ -157,3 +157,25 @@ The full six-GW diagnostic execution was repeated with the same immutable
 inputs. `cmp` passed for both forecast.json and mm.json; both registered MM
 snapshots have SHA256
 `8bccf457a58dcfe7f84bebee1782c8be6a9416889e3673bc395d4cd99b4945a1`.
+
+## Approved browser trust and successful live verification
+
+The user explicitly approved the platform proxy CA installation on 2026-10-18.
+The CA is trusted in the browser's local NSS stores. Chromium required write
+access to initialize its NSS database, so the approved browser check was run
+with that filesystem access and TLS verification enabled. Public Pages returned
+HTTP200. The page verified its snapshot checksums and rendered the actual
+Penders row: xM78.00, PM E[min]77.44, p_start100.0%, GW xP3.96, six-GW xP6.39.
+This verifies the existing deployed preview, not a new joint-GK deployment.
+
+GitHub API and official FPL API access now work. A new direct bootstrap request
+confirms the same Chelsea statuses: Martinez injured/chance0, Sanchez and
+Jorgensen unavailable on loans, Penders available. The remaining source gap is
+an independently evidenced full available goalkeeper squad/reserve set; the FPL
+player listing itself does not certify that a sole known available keeper has
+no unlisted eligible replacement. Source checks to the official Chelsea men's
+squad and Premier League squad pages both failed CONNECT with403. Required
+additional domains `www.chelseafc.com` and `www.premierleague.com` were saved
+additively in the environment draft. Existing domains and presets were retained.
+The saved draft must be applied through environment settings before these
+source operations can be retried. No new CA approval is needed.
