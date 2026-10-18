@@ -244,16 +244,39 @@ is recorded separately below. It is never the user's personal result.
 
 ### Private remote calculation status at this checkpoint
 
-The deployed server accepted a validation-only legal 15-player public-roster
-state against the current sealed B forecast. A result request without the
-private capability was correctly rejected (404). The original Python
-calculation is still running at this checkpoint; completion is **not claimed**.
-Local full original-Python TS/FH/WC/BB validation has passed, but is not
-substituted for a completed deployed-service job.
+The deployed server completed a validation-only legal 15-player public-roster
+state against the sealed B forecast on 2026-10-18. A result request without the
+private capability was correctly rejected (404). The completed original Python
+result has six GW actions, 15 lineup rows, one captain and one vice-captain;
+TS and FH/WC/BB ran. TC scenarios remain Not Available. The actual deployed
+result also passes the app plan renderer, including the actual-squad versus
+proposed-plan sections. This is not a personal recommendation or a test of the
+user's current manager-state. A metadata-only receipt is saved in
+`analysis/results/current-mm-live-comparison-20261017/private-service-verification.json`.
+
+The completed worker test identified missing propagation of the validation-only
+label. A controller-only fix now preserves it through the unchanged worker;
+both true and false cases have parametrized tests. Preview manager input also
+rejects validation-only squads. Controller commit `e5ac3bf84038605bb2888ca81c76b217d7747735`,
+Render deploy `dep-dba78cu1egvs739ks950`, confirmed live. No private capabilities,
+squads, purchase prices or full results are committed.
+
+The new preview view separates the original worker's current-squad XI from
+the unexecuted transfer proposal, shows original returned GW/horizon totals,
+repairs result navigation to the same snapshot, and styles the pitch/bank
+sections responsively. Horizon validation also supports the truncated season
+end; it does not change TS. Local full suite **674 passed**, plus **28 JS
+preview checks** (10 contract, 7 job recovery, 11 personal view). Existing classic
+manager, portable private import and new-GW draft-preservation tests also pass.
+
+A private archived manager backup was located and read without public export.
+It applies to GW7, not the present GW8 forecast. Updating GW, transfers, bank,
+FT, chips or observation time is not inferred. The app preserves the saved
+squad/prices and explains which current facts require manual confirmation.
 
 Remaining certification gates: independent/prospective observations,
 historical source timing and BPS coverage; no calibrated public minute
-intervals. Remaining functional verification: actual manager-state calculation,
-completed remote job and real mobile interaction. Full current-half B TC
+intervals. Remaining functional verification: an actual current manager-state
+calculation and real mobile interaction. Full current-half B TC
 coverage remains unavailable, so its future timing is Not Available/manual.
 Production B activation is deliberately not performed.
