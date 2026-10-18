@@ -7,6 +7,7 @@ goal/assist/DefCon rates. No rescaling of simulated xP is used here.
 """
 import hashlib
 import json
+from functools import lru_cache
 from dataclasses import asdict
 import numpy as np
 import pandas as pd
@@ -132,3 +133,92 @@ def code_identity(root):
            'src/fpl_xpts/transfer_planner.py','scripts/run_live_locked_ts.py',
            'scripts/run_joint_fh_wc_stopping_replay.py']
     return {p:hashlib.sha256((root/p).read_bytes()).hexdigest() for p in paths}
+
+
+@lru_cache(maxsize=8192)
+def _candidate_duration_pmf(arm, mu):
+    """Exact (unrounded input) conditional mean; cache repeated draws only."""
+    from mm_candidate import minute_masses
+    f = pd.DataFrame([dict(p=1. if arm == 'start' else 0.,
+                           q=1. if arm == 'cameo' else 0.,
+                           s=mu if arm == 'start' else 0.,
+                           c=mu if arm == 'cameo' else 1., x=mu)])
+    probs = minute_masses(f)[0]
+    probs.setflags(write=False)
+    return probs
+
+
+def sample_candidate_minutes(rng, *, p, q, s, c):
+    """RESEARCH ONLY: draw PR13/B exact-mean conditional minutes.
+
+    Preserves separate start/cameo events, the original (minutes, entrance,
+    departure) tuple contract, and the B expectation. Unlike the locked PM
+    Gaussian clip, cameo minutes may exceed 45. This is NOT a production
+    sampler, has NOT passed calibration/prospective gates, and must never
+    silently replace joint_simulator._sample_minutes.
+    """
+    from mm_candidate import minute_masses
+    for name, v, upper in [('p', p, 1), ('q', q, 1),
+                            ('s', s, 90), ('c', c, 90)]:
+        if not np.isfinite(v) or v < 0 or v > upper:
+            raise ValueError('Invalid B minute input: ' + name)
+    if q > 0 and c < 1:
+        raise ValueError('Positive cameo probability requires positive minutes')
+    if p > 0 and s < 0:
+        raise ValueError('Invalid starter duration')
+    if rng.random() < p:
+        arm, mu = 'start', s
+    elif rng.random() < q:
+        arm, mu = 'cameo', c
+    else:
+        return 0, 90, 90
+    # Each conditional distribution is generated with PR13's fixed sigma
+    # and the original endpoint repair, not a second/fitted probability model.
+    probs = _candidate_duration_pmf(arm, float(mu))
+    m = int(rng.choice(np.arange(91), p=probs))
+    return (m, 0, m) if arm == 'start' else (m, 90-m, 90)
+
+
+def simulate_candidate_pair(pm, mm, *, season, seed=93000000, draws=400):
+    """RESEARCH ONLY: paired legacy sampler vs exact-B conditional PMF.
+
+    Reuses the original joint match simulator under an explicitly scoped,
+    process-global patch of its minute hook. Must run single-threaded; never
+    invoke this in a server, scheduled production forecast or private manager
+    endpoint. Both arms have identical non-minute model inputs and seed/draw
+    budget. This ablation does not certify calibration or TS performance.
+    """
+    from contextlib import nullcontext
+    from unittest.mock import patch
+    import fpl_v1_1_model.joint_simulator as joint
+    from run_vfinal_integrated import make_vfinal_input
+    from run_live_vfinal_joint_simulation import POINT_COMPONENTS
+    from dataclasses import replace
+
+    if draws != 400:
+        raise ValueError('Locked replay draw budget is 400')
+    if season not in ('2025-26', '2026-27'):
+        raise ValueError('Unknown scoring season')
+    candidate = attach_mm(pm, mm)
+    results = []
+    for i, (fixture, frame) in enumerate(candidate.groupby('fixture_uuid', sort=True)):
+        sim_inp, _ = make_vfinal_input(frame)
+        sim_inp = replace(sim_inp, bps_rules=season)
+        for arm in ('locked_sampler', 'candidate_PMF'):
+            def candidate_hook(rng, player):
+                return sample_candidate_minutes(
+                    rng, p=player.p_start, q=player.p_cameo_given_bench,
+                    s=player.start_minutes_mean, c=player.cameo_minutes_mean)
+            context = nullcontext() if arm == 'locked_sampler' else patch.object(
+                joint, '_sample_minutes', candidate_hook)
+            with context:
+                sim = joint.simulate_many(sim_inp, n=draws, seed=seed+i)
+            for pid, row in sorted(sim.items()):
+                source = frame.set_index('player_uuid').loc[pid]
+                if abs(sum(row[k] for k in POINT_COMPONENTS)-row['xPts']) > 1e-8:
+                    raise ValueError('Unreconciled PM component scores')
+                results.append(dict(fixture_uuid=fixture, player_uuid=pid, arm=arm,
+                    gw=int(source.gw), xpts=float(row['xPts']),
+                    sampled_minutes=float(row['expected_minutes']),
+                    target_xmins=float(source.v4_workload_start_xmins)))
+    return pd.DataFrame(results)
