@@ -30,7 +30,9 @@ def export():
         k=(r['fixture_id'],r['player_id']);p=points.loc[k]
         before.append(dict(fixture_uuid=k[0],player_uuid=k[1],p=r['p_start'],xm=r['xmins'],pm=float(locked_sampler_expectation(r['p_start'],r['p_sub_given_not_start'],r['start_minutes'],r['sub_minutes'])),sampled_pm=float(p.minutes),xp=float(p.xpts)))
     index=dict(model=VERSION,forecast_sha256=dump(out/'forecast.json',forecast),mm_sha256=dump(out/'gk-mm.json',mm),before_sha256=dump(out/'before.json',dict(players=before)))
-    dump(out/'evidence.json',dict(model=VERSION,historical=historical,uncertainty=uncertainty,stages=stages,ts=ts,
+    hierarchy=json.loads((ROOT/'work/joint-gk-hierarchy/summary.json').read_text())
+    if hierarchy['activated'] or hierarchy['supported']:raise ValueError('Hierarchy candidate needs an explicit integration decision')
+    index['evidence_sha256']=dump(out/'evidence.json',dict(hierarchy_trial=hierarchy,model=VERSION,historical=historical,uncertainty=uncertainty,stages=stages,ts=ts,
         deterministic_repeat=True,production_changed=False,intervals_independently_certified=False,
         official_sources=forecast['official_gk_evidence']))
     dump(out/'index.json',index)
