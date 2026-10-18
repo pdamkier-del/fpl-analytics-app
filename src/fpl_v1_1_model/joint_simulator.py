@@ -124,7 +124,7 @@ def simulate_match(inp:MatchSimInput,rng:Any)->dict[str,PlayerSimResult]:
             starter=_weighted_choice(rng,gks,[p.p_start for p in gks])
             if starter is None:
                 raise ValueError('No positive GK start probability for '+team)
-            remaining=[p for p in gks if p.player_id!=starter.player_id]
+            remaining=[p for p in gks if p.player_id!=starter.player_id and p.p_cameo_given_bench>0]
             # A GK normally completes the match. The model's existing
             # starter-duration expectation informs a rare substitution,
             # but a replacement is allowed only with an eligible reserve.
