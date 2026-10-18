@@ -1,3 +1,9 @@
+# Superseded initial issue23 setup record
+
+The completed implementation and live publication are documented in
+[Joint GK v1](2026-10-18-joint-gk-v1.md). Entries below describe earlier setup
+state; their access/publication blockers have since been resolved.
+
 # Issue 23: joint GK safety correction (not released)
 
 Based on PR22 c60b6bd, which includes PR18. Production remains inactive and the
