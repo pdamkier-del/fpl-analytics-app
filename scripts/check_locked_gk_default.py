@@ -1,12 +1,17 @@
 #!/usr/bin/env python3
 """Exact seeded locked-default parity against the retained original PM source."""
 from dataclasses import asdict
-import subprocess,sys,types
+import subprocess,sys,types,inspect
 import numpy as np
 from fpl_v1_1_model import joint_simulator as current
 REFERENCE='49b5a82976a264da51624bac98990d371116a488'
 def check():
     source=subprocess.check_output(['git','show',REFERENCE+':src/fpl_v1_1_model/joint_simulator.py'],text=True)
+    tail='    # Shared penalty process.'
+    current_source=inspect.getsource(current).replace('    if trace is not None: trace["intervals"]=dict(intervals)\n','')
+    assert source[source.index(tail):].rstrip()==current_source[current_source.index(tail):].rstrip(), 'Locked event/scoring/aggregate logic changed'
+    changed=subprocess.check_output(['git','diff','--name-only',REFERENCE,'--','src'],text=True).splitlines()
+    assert set(changed)<={'src/fpl_v1_1_model/joint_simulator.py'}, changed
     legacy=types.ModuleType('fpl_v1_1_model._gk_legacy_validation');legacy.__package__='fpl_v1_1_model';sys.modules[legacy.__name__]=legacy;exec(source,legacy.__dict__)
     def fixture(m):
         return m.MatchSimInput('H','A',1.7,1.2,tuple(m.PlayerSimInput(pid,team,pos,.8,.2,80.,20.,goal_weight=1.,assist_weight=1.,is_keeper=pos=='GK',lambda_saves=3.)for team in ['H','A']for pid,pos in[(team+'k','GK'),(team+'f','FWD')]))
