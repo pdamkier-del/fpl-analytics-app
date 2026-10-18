@@ -20,9 +20,10 @@ def test_strict_separation_of_models_scope_and_minute_sampler():
         with pytest.raises(ValueError):api.verify_current_window({**f,**mutation},official(f),preview=True)
     with pytest.raises(ValueError):api.verify_current_window(f,official(f),datetime.fromisoformat(f['origin_deadline'])+timedelta(seconds=1),preview=True)
 
-def test_real_private_candidate_TS_job_and_capability_without_public_state(monkeypatch,tmp_path):
+@pytest.mark.parametrize('validation_only',[False,True])
+def test_real_private_candidate_TS_job_and_capability_without_public_state(monkeypatch,tmp_path,validation_only):
     from service.manager_job import calculate
-    f,s=candidate();paths=[]
+    f,s=candidate();s['validation_only']=validation_only;paths=[]
     class Immediate:
         def __init__(self,target,**kwargs):self.target=target
         def start(self):self.target()
@@ -46,6 +47,7 @@ def test_real_private_candidate_TS_job_and_capability_without_public_state(monke
             plan=r.get_json()['plan'];assert plan['calculation_runtime']=='original_locked_python'
             assert len(plan['plan']['path'])==6 and len(plan['lineup'])==15
             assert plan['forecast_sha256']==f['forecast_sha256'] and not plan['locked_model_active']
+            assert plan['validation_only'] is validation_only
             assert not (tmp_path/'input.json').exists()
             assert paths==['mm-preview/current/forecast.json','current-players.json','mm-preview/current/forecast.json']
         finally:api.jobs.pop(receipt['id'],None)
