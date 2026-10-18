@@ -13,5 +13,17 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: '3.12'
-      - run: pip install numpy pandas scipy pytest
-      - run: PYTHONPATH=src:scripts:. python -m pytest -q tests/test_joint_goalkeeper_coverage.py tests/test_mm_locked_bridge.py
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - run: pip install -r requirements-model-checkpoint.txt -r requirements-model-tests.txt requests tabulate==0.10.0
+      - name: Run complete Python and preview/privacy regression checks
+        env:
+          PYTHONPATH: src:scripts:.
+          OPENBLAS_NUM_THREADS: '1'
+        run: |
+          python -m pytest -q tests
+          node tests/test_B_preview_contract.js
+          node tests/test_B_preview_jobs.js
+          node tests/test_B_personal_view.js
+          node tests/test_existing_B_adapter.js
