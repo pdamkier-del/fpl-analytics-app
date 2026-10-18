@@ -27,15 +27,17 @@ def test_official_snapshot_and_existing_xi_are_translated_without_inference():
         club_id=1,fixture_id='f1',expected_xi=True,slot_index=i,slot=slot,gw=8,
         fpl_element=i+1,availability='UNKNOWN',xmins=80,primary_role=slot,role_probabilities={slot:1})
         for i,slot in enumerate(slots)])
-    f = dict(gws=[8],season='2026-27',data_asof='2026-10-18T07:00:00Z',checksums={},
+    f = dict(gws=[8],season='2026-27',data_asof='2026-10-18T07:00:00Z',forecast_sha256='same',checksums={},
              players=[dict(weeks=[dict(fixtures=[dict(fixture_uuid='f1',kickoff='2026-10-24T12:00:00Z')])])])
-    d = source_data(dict(elements=players,teams=[dict(id=1,name='Club')]),[],dict(bootstrap_observed_at='2026-10-18T06:59:00Z'),f,mm)
+    d = source_data(dict(elements=players,teams=[dict(id=1,name='Club')]),[],dict(bootstrap_observed_at='2026-10-18T06:59:00Z',fixtures_observed_at='2026-10-18T06:58:00Z'),f,mm)
     assert d['current-players.json']['players'][0]['price'] == 5
     xi = d['club-lineups.json']['fixtures'][0]
     assert [len(x) for x in xi['layers']] == [1,3,4,2,1]
     assert sum(p['selected'] for p in xi['players']) == 11
     assert d['club-lineups.json']['source'] == 'B_MM_assignment'
     assert xi['players'][0]['observed_roles'][0] == {'role':'GK','matches':None,'share':1}
+    assert d['live-fixtures.json']['fetched_at'] == '2026-10-18T06:58:00Z'
+    assert d['current-players.json']['snapshot_sha256'] == d['live-fixtures.json']['snapshot_sha256']
 
 
 def test_live_adapter_never_writes_private_storage_or_calls_model():

@@ -27,6 +27,8 @@ def build(root=ROOT):
             text = text.replace('fpl-wait-for-forecast', 'fpl-B-wait-for-forecast')
             text = text.replace("service.url+'/plans',{method:'POST'", "service.url+'/preview/plans',{method:'POST'")
             text = text.replace('Original MM', 'Individuel MM B').replace('originale MM → vFinal', 'MM B → låst vFinal')
+            text = text.replace('o.fetched_at!==fx.fetched_at', 'o.snapshot_sha256!==fx.snapshot_sha256')
+            text = text.replace('official.fetched_at!==fixtures.fetched_at', 'official.snapshot_sha256!==fixtures.snapshot_sha256')
             if src.name == 'catalog-data.js':
                 text = text.replace('xp,xmins:valid?', 'xp,pplay:usable?number(first?.p_play):null,xmins:valid?')
                 text = text.replace('number(r.matches)>0', '(number(r.matches)>0||number(r.share)>0)')
@@ -55,10 +57,11 @@ def build(root=ROOT):
 def source_data(bootstrap, fixtures, provenance, forecast, mm):
     """Translate official raw fields and already selected XI; no model logic."""
     official = dict(fetched_at=provenance['bootstrap_observed_at'], next_gw=forecast['gws'][0],
+                    snapshot_sha256=forecast['forecast_sha256'], events=bootstrap.get('events',[]),
                     season=forecast['season'], teams={str(t['id']): t for t in bootstrap['teams']},
                     players=[dict(p, position=p['element_type'], price=p['now_cost']/10)
                              for p in bootstrap['elements']])
-    schedule = dict(fetched_at=official['fetched_at'], fixtures=[dict(
+    schedule = dict(fetched_at=provenance['fixtures_observed_at'], snapshot_sha256=forecast['forecast_sha256'], fixtures=[dict(
         id=f['id'], gw=f['event'], home=f['team_h'], away=f['team_a'],
         kickoff=f['kickoff_time'], finished=f['finished'], started=f['started'],
         home_score=f['team_h_score'], away_score=f['team_a_score'],
