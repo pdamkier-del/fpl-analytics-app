@@ -1,0 +1,26 @@
+name: B preview uncertainty presentation checks
+on:
+  push:
+    branches: [integration-b-uncertainty-display-20261018]
+    paths:
+      - app/mm-preview/existing-app-adapter.js
+      - app/mm-preview/live.js
+      - tests/test_B_uncertainty_display.js
+      - .github/workflows/b-uncertainty-display.yml
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  browser-contract:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - run: |
+          node --check app/mm-preview/existing-app-adapter.js
+          node --check app/mm-preview/live.js
+          node tests/test_B_uncertainty_display.js
+          node tests/test_existing_B_adapter.js
+          node tests/test_B_preview_contract.js
