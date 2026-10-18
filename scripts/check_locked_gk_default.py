@@ -1,0 +1,18 @@
+#!/usr/bin/env python3
+"""Exact seeded locked-default parity against the retained original PM source."""
+from dataclasses import asdict
+import subprocess,sys,types
+import numpy as np
+from fpl_v1_1_model import joint_simulator as current
+REFERENCE='49b5a82976a264da51624bac98990d371116a488'
+def check():
+    source=subprocess.check_output(['git','show',REFERENCE+':src/fpl_v1_1_model/joint_simulator.py'],text=True)
+    legacy=types.ModuleType('fpl_v1_1_model._gk_legacy_validation');legacy.__package__='fpl_v1_1_model';sys.modules[legacy.__name__]=legacy;exec(source,legacy.__dict__)
+    def fixture(m):
+        return m.MatchSimInput('H','A',1.7,1.2,tuple(m.PlayerSimInput(pid,team,pos,.8,.2,80.,20.,goal_weight=1.,assist_weight=1.,is_keeper=pos=='GK',lambda_saves=3.)for team in ['H','A']for pid,pos in[(team+'k','GK'),(team+'f','FWD')]))
+    for seed in range(100):
+        a=current.simulate_match(fixture(current),np.random.default_rng(seed));b=legacy.simulate_match(fixture(legacy),np.random.default_rng(seed))
+        assert {k:asdict(v)for k,v in a.items()}=={k:asdict(v)for k,v in b.items()},seed
+    assert current.simulate_many(fixture(current),n=100,seed=27)==legacy.simulate_many(fixture(legacy),n=100,seed=27)
+    print('Original locked PM: exact seeded parity, all fields,100 fixtures and100-draw aggregate.')
+if __name__=='__main__':check()

@@ -10,6 +10,8 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
       - uses: actions/setup-python@v5
         with:
           python-version: '3.12'
@@ -27,3 +29,5 @@ jobs:
           node tests/test_B_preview_jobs.js
           node tests/test_B_personal_view.js
           node tests/test_existing_B_adapter.js
+          node tests/test_joint_gk_contract.js
+          python scripts/check_locked_gk_default.py

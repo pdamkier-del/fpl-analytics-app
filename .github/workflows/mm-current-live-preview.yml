@@ -7,7 +7,7 @@ on:
         type: string
   workflow_dispatch:
   push:
-    branches: [integration-mm-live-20261017]
+    branches: [integration-mm-live-20261017, experiment-goalkeeper-coverage-20261018]
     paths:
       - scripts/**
       - service/app.py
@@ -88,7 +88,19 @@ jobs:
           node --check app/mm-preview/existing-app-adapter.js
           node --check app/mm-preview/app/classic-manager.js
           node --check app/mm-preview/app/weekly-app.js
-          git diff --exit-code 3ad8fc5f2eabe0a62fec494d896320d288ece2d5 -- src model service/manager_job.py
+          python scripts/check_locked_gk_default.py
+          git diff --exit-code 3ad8fc5f2eabe0a62fec494d896320d288ece2d5 -- model service/manager_job.py
+      - name: Validate and export the explicit joint GK preview
+        run: |
+          python scripts/capture_gk_official_evidence.py
+          python scripts/locked_numerical_runtime.py scripts/replay_joint_gk.py
+          python scripts/locked_numerical_runtime.py scripts/check_gk_uncertainty.py
+          python scripts/locked_numerical_runtime.py scripts/run_joint_gk_preview.py --out work/joint-gk-current
+          python scripts/locked_numerical_runtime.py scripts/run_joint_gk_preview.py --out work/joint-gk-repeat --no-baseline
+          python scripts/locked_numerical_runtime.py scripts/validate_joint_gk_stages.py
+          python scripts/export_joint_gk_preview.py
+          node tests/test_joint_gk_contract.js
+          node --check app/mm-preview/gk/app.js
       - uses: actions/upload-artifact@v4
         with:
           name: mm-current-live-preview
@@ -106,4 +118,8 @@ jobs:
             work/current-B-repeat/
             work/live-final-model/source_manifest.json
             work/live-final-model/canonical_raw_rebuild.json
+            work/joint-gk-current/
+            work/joint-gk-repeat/
+            work/joint-gk-historical/
+            work/gk-official-evidence/
           retention-days: 90

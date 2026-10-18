@@ -64,16 +64,27 @@ def main():
     (dest/'publication.json').write_text(json.dumps(evidence,sort_keys=True,indent=2)+'\n')
     # Keep this isolated new path in future normal forecast publications. No
     # production scripts, model files or existing web assets enter this commit.
-    livework=WORK/'live'
+    # Preserve the existing checkout; use a temporary Git index to overlay only
+    # public preview blobs on the live tree. No worktree, reset or force push.
+    import tempfile
     subprocess.run(['git','fetch','origin','free-github-static-20261010'],cwd=ROOT,check=True)
-    subprocess.run(['git','worktree','add','--detach',str(livework),'FETCH_HEAD'],cwd=ROOT,check=True)
-    destination=livework/'app/mm-preview'
-    if destination.exists():shutil.rmtree(destination)
-    shutil.copytree(dest,destination)
-    subprocess.run(['git','config','user.name','FPL MM preview publisher'],cwd=livework,check=True)
-    subprocess.run(['git','config','user.email','mm-preview@users.noreply.github.com'],cwd=livework,check=True)
-    subprocess.run(['git','add','app/mm-preview'],cwd=livework,check=True)
-    subprocess.run(['git','commit','-m','Publish isolated diagnostic MM integration preview [skip ci]'],cwd=livework,check=True)
-    subprocess.run(['git','push','origin','HEAD:free-github-static-20261010'],cwd=livework,check=True)
+    parent=subprocess.check_output(['git','rev-parse','FETCH_HEAD'],cwd=ROOT,text=True).strip()
+    with tempfile.TemporaryDirectory(prefix='preview-index-',dir=WORK) as scratch:
+        env=dict(os.environ,GIT_INDEX_FILE=str(Path(scratch)/'index'))
+        subprocess.run(['git','read-tree',parent],cwd=ROOT,env=env,check=True)
+        old=subprocess.check_output(['git','ls-files','-z','app/mm-preview'],cwd=ROOT,env=env)
+        subprocess.run(['git','update-index','--force-remove','-z','--stdin'],input=old,cwd=ROOT,env=env,check=True)
+        entries=[]
+        for path in sorted(dest.rglob('*')):
+            if path.is_symlink():raise ValueError('Public preview must not contain symlinks')
+            if not path.is_file():continue
+            rel='app/mm-preview/'+path.relative_to(dest).as_posix()
+            if '\n' in rel or '\t' in rel:raise ValueError('Unsafe public preview path')
+            blob=subprocess.check_output(['git','hash-object','-w',str(path)],cwd=ROOT,text=True).strip()
+            entries.append('100644 '+blob+'\t'+rel+'\n')
+        subprocess.run(['git','update-index','--index-info'],input=''.join(entries),text=True,cwd=ROOT,env=env,check=True)
+        tree=subprocess.check_output(['git','write-tree'],cwd=ROOT,env=env,text=True).strip()
+        commit=subprocess.check_output(['git','-c','user.name=FPL MM preview publisher','-c','user.email=mm-preview@users.noreply.github.com','commit-tree',tree,'-p',parent],input='Publish isolated validated B preview [skip ci]\n',cwd=ROOT,env=env,text=True).strip()
+        subprocess.run(['git','push','origin',commit+':free-github-static-20261010'],cwd=ROOT,check=True)
     print(json.dumps({k:v for k,v in evidence.items() if k!='production_sha256'},indent=2))
 if __name__=='__main__':main()

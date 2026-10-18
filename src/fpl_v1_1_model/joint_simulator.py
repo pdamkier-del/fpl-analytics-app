@@ -43,6 +43,7 @@ class PlayerSimInput:
     save_bucket_tilts: tuple[float,float,float,float,float]|None=None
     penalty_weight: float=0.0
     penalty_conversion: float=0.78
+    goalkeeper_start_pmf: tuple[float,...]|None=None
 
 @dataclass(frozen=True)
 class MatchSimInput:
@@ -61,6 +62,7 @@ class MatchSimInput:
     experimental_joint_goalkeepers: bool=False
     # Explicit evidence supplied by the caller, never inferred from one player.
     verified_goalkeeper_roster_teams: tuple[str,...]=()
+    experimental_joint_starters: bool=False
 
 @dataclass
 class PlayerSimResult:
@@ -120,6 +122,12 @@ def validate_joint_goalkeepers(gks, team, verified_teams):
                 or not 0 <= p.p_start <= 1 or not 0 <= p.p_cameo_given_bench <= 1
                 or not 1 <= p.start_minutes_mean <= 90):
             raise ValueError('Invalid joint goalkeeper parameters: ' + p.player_id)
+        if p.goalkeeper_start_pmf is not None:
+            mass = np.asarray(p.goalkeeper_start_pmf)
+            if mass.shape != (91,) or not np.isfinite(mass).all() or (mass < 0).any() or mass[0] != 0 or not np.isclose(mass.sum(), 1, atol=1e-10, rtol=0):
+                raise ValueError('Invalid goalkeeper duration PMF')
+            if not np.isclose(mass @ np.arange(91), p.start_minutes_mean, atol=1e-8, rtol=0):
+                raise ValueError('Goalkeeper duration mean mismatch')
         if p.p_start > 0 and p.start_minutes_mean < 90:
             if not any(q.player_id != p.player_id and q.p_cameo_given_bench > 0 for q in gks):
                 raise ValueError('Not Available: no eligible replacement for ' + p.player_id)
@@ -143,14 +151,37 @@ def joint_goalkeeper_expected_minutes(gks, team, verified_teams):
     return means
 
 
-def simulate_match(inp:MatchSimInput,rng:Any)->dict[str,PlayerSimResult]:
+def simulate_match(inp:MatchSimInput,rng:Any,*,trace=None)->dict[str,PlayerSimResult]:
     if inp.lambda_home_goals<0 or inp.lambda_away_goals<0: raise ValueError("goal means must be non-negative")
     ps=list(inp.players); out={p.player_id:PlayerSimResult() for p in ps}; intervals={}
+    selected = None
+    if inp.experimental_joint_starters:
+        if not inp.experimental_joint_goalkeepers:
+            raise ValueError('Joint XI requires the joint goalkeeper kernel')
+        from .experimental_correctness_simulator import round_pair
+        selected = set()
+        for team in (inp.home_team, inp.away_team):
+            field = [p for p in ps if p.team == team and not p.is_keeper]
+            values = np.array([p.p_start for p in field], dtype=float)
+            if not np.isfinite(values).all() or np.any((values < 0) | (values > 1)) or not np.isclose(values.sum(), 10, atol=1e-8, rtol=0):
+                raise ValueError('Outfield start mass must equal ten')
+            while True:
+                free = np.flatnonzero((values > 0) & (values < 1))
+                if len(free) < 2: break
+                round_pair(values, int(free[0]), int(free[1]), rng)
+            chosen = [p.player_id for p, v in zip(field, values) if v > .5]
+            if len(chosen) != 10: raise AssertionError('Joint XI did not select ten outfield starters')
+            selected.update(chosen)
     for p in ps:
-        m,a,b=_sample_minutes(rng,p); out[p.player_id].minutes=m; out[p.player_id].started=int(m>0 and a==0); intervals[p.player_id]=(a,b)
+        if inp.experimental_joint_goalkeepers and p.is_keeper:
+            continue
+        if selected is None:
+            m,a,b=_sample_minutes(rng,p)
+        else:
+            from dataclasses import replace
+            m,a,b=_sample_minutes(rng,replace(p,p_start=float(p.player_id in selected)))
+        out[p.player_id].minutes=m; out[p.player_id].started=int(m>0 and a==0); intervals[p.player_id]=(a,b)
 
-    # Opt-in research arm only. Fail closed on incomplete/uncertain rosters;
-    # callers must include an explicitly modelled unknown keeper if necessary.
     if inp.experimental_joint_goalkeepers:
         for team in (inp.home_team, inp.away_team):
             gks = [p for p in ps if p.team == team and p.is_keeper]
@@ -158,10 +189,11 @@ def simulate_match(inp:MatchSimInput,rng:Any)->dict[str,PlayerSimResult]:
             starter = _weighted_choice(rng, gks, [p.p_start for p in gks])
             remaining = [p for p in gks if p.player_id != starter.player_id
                          and p.p_cameo_given_bench > 0]
-            # Reuse the existing shadow duration kernel: same sigma as locked
-            # PM, with its location corrected to preserve the supplied mean.
-            from .experimental_mean_preserving_minutes import draw_duration
-            duration = draw_duration(rng, starter.start_minutes_mean, 10.)
+            if starter.goalkeeper_start_pmf is not None:
+                duration = int(rng.choice(91, p=starter.goalkeeper_start_pmf))
+            else:
+                from .experimental_mean_preserving_minutes import draw_duration
+                duration = draw_duration(rng, starter.start_minutes_mean, 10.)
             sub = (_weighted_choice(rng, remaining, [p.p_cameo_given_bench for p in remaining])
                    if duration < 90 else None)
             for p in gks:
@@ -171,6 +203,10 @@ def simulate_match(inp:MatchSimInput,rng:Any)->dict[str,PlayerSimResult]:
                 intervals[p.player_id] = (a, b)
                 out[p.player_id].minutes = b - a
                 out[p.player_id].started = int(p.player_id == starter.player_id)
+            if sum(out[p.player_id].minutes for p in gks) != 90:
+                raise AssertionError('Goalkeeper coverage is not ninety minutes')
+            if inp.experimental_joint_starters and sum(out[p.player_id].started for p in ps if p.team == team) != 11:
+                raise AssertionError('Joint XI does not have eleven starters')
 
     # Shared penalty process. Expected scored-penalty mass is removed from the
     # ordinary team-goal Poisson before explicit penalties are simulated, so
@@ -284,6 +320,7 @@ def simulate_match(inp:MatchSimInput,rng:Any)->dict[str,PlayerSimResult]:
     bonus=allocate_bonus_points(bps)
     for pid,b in bonus.items():
         if out[pid].minutes>0: out[pid].bonus=b; out[pid].points+=b
+    if trace is not None: trace["intervals"]=dict(intervals)
     return out
 
 def simulate_many(inp:MatchSimInput,n:int=20_000,seed:int=26092026)->dict[str,dict[str,float]]:
