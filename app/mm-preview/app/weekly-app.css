@@ -1,0 +1,95 @@
+:root{--pl:#37003c;--green:#007d51;--paper:#f6f4f8;--line:#e4dce8}*{box-sizing:border-box}body{margin:0;font:15px system-ui;background:var(--paper);color:#25192d}a{color:var(--pl)}header{background:var(--pl);color:white;padding:18px 24px;display:flex;justify-content:space-between;align-items:center}header a{color:white;text-decoration:none;font-size:22px;font-weight:800}header small{display:block;color:#dccde4}#weekly-main nav{display:flex;gap:6px;background:white;padding:10px 16px;overflow-x:auto;position:sticky;top:0;z-index:10;border-bottom:1px solid var(--line)}#weekly-main nav a{white-space:nowrap;text-decoration:none;border-radius:8px;padding:10px 13px}#weekly-main nav a[aria-current=page]{background:var(--pl);color:white}main{max-width:1200px;margin:auto;padding:22px 20px 60px}h1{font-size:28px}h2{font-size:21px}.panel,.metric{background:white;border:1px solid var(--line);border-radius:14px;padding:18px;margin:16px 0}.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px}.metric{margin:0}.metric strong{display:block;font-size:27px;margin-top:6px}.muted,small{color:#66586e;line-height:1.6}.notice{background:#fff0ce;border-radius:9px;padding:13px;line-height:1.6}.good{color:var(--green)}button,.button{border:0;border-radius:8px;padding:11px 16px;background:var(--pl);color:white;font:inherit;cursor:pointer;text-decoration:none;display:inline-block}button:disabled{opacity:.5;cursor:wait}input,select{font:inherit;max-width:100%;padding:10px;border:1px solid #d2c5d8;border-radius:8px}.toolbar{display:flex;align-items:center;gap:10px;flex-wrap:wrap}.scroll{overflow:auto}table{border-collapse:collapse;width:100%}th,td{padding:11px 9px;text-align:left;border-bottom:1px solid var(--line);white-space:nowrap}th{font-size:12px}.identity{display:flex;align-items:center;gap:9px}.portrait{height:48px;width:38px;object-fit:contain}.fallback{width:38px;height:48px;display:grid;place-items:center;background:#eee4f3;border-radius:8px;font-weight:bold}.fixture{display:grid;grid-template-columns:1fr 1fr;gap:15px}.fpl-pitch{background:repeating-linear-gradient(0deg,#107d53 0,#107d53 65px,#148b5c 65px,#148b5c 130px);padding:20px 6px;border-radius:14px}.pitch-row,.bench-row{display:flex;justify-content:center;gap:10px;margin:15px 0}.player-card{display:flex;flex-direction:column;align-items:center;text-align:center;background:#fff;border-radius:9px;padding:9px 5px;flex:0 1 145px;min-width:0}.player-card strong{font-size:13px;overflow-wrap:anywhere}.player-shirt{background:var(--pl);color:white;border-radius:7px;padding:8px;margin-bottom:4px}.player-card small{font-size:11px}.bench-row{background:#ece4ef;border-radius:10px;padding:10px}details{padding:10px 0}summary{cursor:pointer;font-weight:bold}pre{white-space:pre-wrap;overflow-wrap:anywhere;background:#f3eef6;padding:12px;border-radius:8px}.model-branches{padding-left:14px;border-left:2px solid #d2bfdc;margin:8px 0}.model-branches details{padding:8px}.error{color:#a1253d}.back{margin-bottom:15px;display:block}@media(max-width:600px){header{padding:14px}header a{font-size:19px}header small{font-size:10px}main{padding:15px 10px 40px}#weekly-main nav{padding:6px;gap:2px}#weekly-main nav a{padding:10px;font-size:13px}.panel{padding:12px}.pitch-row,.bench-row{gap:4px}.player-card{padding:6px 2px}.player-card strong{font-size:10px}.player-card small{font-size:9px}.player-shirt{padding:5px}.fpl-pitch{padding:8px 2px}.fixture{grid-template-columns:1fr}.grid{grid-template-columns:1fr 1fr}.metric{padding:12px}.metric strong{font-size:21px}td,th{padding:9px 6px}.portrait{height:38px;width:29px}}
+
+[hidden]{display:none!important}
+
+/* FPL-inspired squad view, standalone visuals; no original FPL assets copied */
+.squad-display{background:#fff;border-radius:16px;overflow:hidden;border:1px solid var(--line);margin:16px 0;box-shadow:0 4px 18px #22002b12}
+.squad-heading{display:flex;justify-content:space-between;align-items:center;padding:14px 18px;background:#37003c;color:#fff;gap:12px}
+.squad-heading h2{font-size:19px;margin:0;color:#fff}.squad-heading strong{font-size:20px}
+.squad-display .fpl-pitch{position:relative;overflow:hidden;background:repeating-linear-gradient(0deg,#08774b 0px,#08774b 100px,#108555 100px,#108555 200px);border-radius:0;padding:22px 12px 26px;isolation:isolate}
+.squad-display .fpl-pitch:before{content:"";position:absolute;inset:12px;border:2px solid #ffffff55;border-radius:1px;pointer-events:none;z-index:-1}
+.squad-display .pitch-circle{position:absolute;width:140px;height:140px;border:2px solid #ffffff55;border-radius:50%;left:50%;top:50%;transform:translate(-50%,-50%);z-index:-1}
+.squad-display .pitch-row{min-height:124px;align-items:center;gap:clamp(3px,2vw,20px);margin:3px 0;display:flex}
+.squad-display .player-card{background:transparent;border:0;box-shadow:none;padding:5px 2px;flex:0 1 150px;color:#fff;gap:0}
+.kit-wrap{position:relative;margin:0 auto 5px;width:58px;height:57px;display:flex;justify-content:center}
+.kit-shirt{position:relative;display:grid;place-items:center;width:46px;height:54px;clip-path:polygon(20% 0,34% 5%,66% 5%,80% 0,100% 17%,88% 39%,76% 32%,76% 100%,24% 100%,24% 32%,12% 39%,0 17%);background:linear-gradient(135deg,#f3f5fa 0 49%,#d2dded 50%);color:#260e37;border:1px solid #ffffff99;filter:drop-shadow(0 2px 2px #0005);font-weight:900;font-size:10px;text-shadow:none}
+.role-pin{position:absolute;right:-4px;top:0;border-radius:50%;background:#00ff87;color:#37003c;display:grid;place-items:center;width:21px;height:21px;font-size:11px;font-weight:900;border:2px solid #fff}
+.squad-display .player-name{background:#fff;color:#290531;border-radius:5px 5px 0 0;font-size:12px;font-weight:800;padding:5px 5px 3px;width:100%;overflow:hidden;white-space:nowrap;text-overflow:ellipsis}
+.squad-display .player-points{background:#e7ffef;color:#17563a;font-size:11px;font-weight:750;padding:4px 2px;border-radius:0 0 5px 5px;width:100%}
+.squad-display .player-card small{color:#f0fff6;text-shadow:0 1px 2px #003b24;font-size:10px}
+.squad-display .bench-label{background:#efebf1;padding:10px 14px;color:#37003c;font-size:11px;letter-spacing:.12em;font-weight:900;text-align:center}
+.squad-display .bench-row{border-radius:0;background:#f3eef6;margin:0;gap:clamp(4px,2vw,20px);padding:14px 10px;align-items:start}
+.squad-display .bench-row .player-name{box-shadow:0 2px 4px #0001}.squad-display .bench-row .player-card small{color:#6d6173;text-shadow:none}
+.squad-display .squad-caption{margin:0;padding:12px 16px;color:#65586d;font-size:12px}
+@media(max-width:600px){.squad-display .fpl-pitch{padding:14px 4px 18px}.squad-display .pitch-row{min-height:112px;gap:3px;margin:0}.squad-display .player-card{min-width:0;max-width:20%;padding:3px 1px}.squad-display .kit-wrap{width:40px;height:46px;margin-bottom:4px}.squad-display .kit-shirt{width:37px;height:43px;font-size:8px}.squad-display .role-pin{right:-2px;width:18px;height:18px;font-size:10px}.squad-display .player-name{font-size:10px;padding:5px 1px 3px}.squad-display .player-points{font-size:10px}.squad-display .player-card small{font-size:9px}.squad-display .bench-row{padding:12px 5px;gap:4px}.squad-heading h2{font-size:16px}.squad-heading strong{font-size:16px}}
+
+/* Editable actual team — independent of locked optimiser */
+.squad-display .lineup-click{cursor:pointer;font:inherit;appearance:none}
+.squad-display .lineup-click:hover .player-name,.squad-display .lineup-click[aria-pressed="true"] .player-name{background:#00ff87;color:#37003c}
+.squad-display .lineup-click:focus-visible{outline:3px solid #00ff87;outline-offset:3px}
+.lineup-controls{padding:14px;background:#f5f1f6;display:flex;gap:10px;flex-wrap:wrap;align-items:end}
+.lineup-controls label{display:flex;flex-direction:column;gap:5px;font-size:12px;font-weight:700;flex:1 1 160px;color:#37003c}
+.lineup-controls select{width:100%;background:white}
+.lineup-controls button{flex:1 1 auto}
+@media(max-width:600px){.lineup-controls{padding:10px;gap:8px}.lineup-controls label{flex-basis:42%}.lineup-controls button{flex-basis:40%;padding:10px 5px;font-size:12px}}
+
+/* FPL pitch metric selector and refined compact player cards */
+.pitch-settings{display:flex;justify-content:flex-end;align-items:center;gap:12px;padding:10px 15px;background:#f5f1f6;border-bottom:1px solid #e0d8e3}
+.pitch-metric-label{display:flex;align-items:center;gap:10px;font-size:12px;font-weight:750;color:#37003c}
+.pitch-metric-label select{padding:8px 12px;background:#fff;border-radius:8px;font-weight:650;min-width:170px}
+.squad-display .player-card{min-width:0;transition:transform .12s ease}
+.squad-display .lineup-click:active{transform:scale(.97)}
+.squad-display .player-points{white-space:nowrap;font-variant-numeric:tabular-nums}
+.squad-display .bench-row .player-card{flex:0 1 150px}
+@media(max-width:600px){.pitch-settings{justify-content:stretch;padding:8px}.pitch-metric-label{width:100%;justify-content:space-between}.pitch-metric-label select{min-width:0;max-width:58%;font-size:12px}.squad-display .bench-row .player-card{max-width:24%}}
+
+/* Existing forecast model powers the detailed pitch; no separate calculations */
+.lineup-score{display:grid;grid-template-columns:1fr 1fr;gap:1px;background:#d7cadd;border-top:1px solid #ded4e2}
+.lineup-score>div{background:#fff;padding:13px 16px;display:flex;flex-direction:column;gap:3px}
+.lineup-score small{font-size:11px}.lineup-score strong{color:#37003c;font-size:24px;font-variant-numeric:tabular-nums}
+.selected-player-details{padding:15px 16px;border-bottom:1px solid #e5dce8;background:#fff}
+.selected-player-heading{display:flex;justify-content:space-between;gap:8px;align-items:center}.selected-player-heading h3{margin:0;font-size:18px}
+.player-week-grid{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:6px}
+.player-week-grid>div{background:#f5f0f7;padding:8px 3px;text-align:center;border-radius:7px;display:flex;flex-direction:column;gap:3px}
+.player-week-grid span{color:#087849;font-weight:800;font-variant-numeric:tabular-nums}.player-week-grid small{font-size:10px}
+@media(max-width:600px){.lineup-score strong{font-size:18px}.lineup-score>div{padding:10px}.selected-player-details{padding:12px 9px}.player-week-grid{gap:3px}.player-week-grid>div{padding:6px 1px;font-size:10px}.player-week-grid small{font-size:9px}.selected-player-heading a{font-size:12px}}
+
+/* Original My Team layout: formation on the left, player inspector and controls on the right. */
+.classic-squad .classic-team-layout{display:grid;grid-template-columns:minmax(0,1.45fr) minmax(300px,.75fr);align-items:start;gap:12px;padding:12px;background:#f6f4f8}
+.classic-squad .classic-field{min-width:0;border-radius:13px;overflow:hidden;background:#fff;border:1px solid #e5dce8}
+.classic-squad .classic-side{position:sticky;top:72px;min-width:0;background:#fff;border:1px solid #e5dce8;border-radius:13px;overflow:hidden}
+.classic-side-title{background:#37003c;color:#fff;padding:13px 15px;font-weight:800}
+.classic-squad .selected-player-details{border-bottom:1px solid #e6ddea}
+.classic-squad .lineup-controls{flex-direction:column;align-items:stretch;background:#fff}
+.classic-squad .lineup-controls label,.classic-squad .lineup-controls button{width:100%;flex:0 0 auto}
+.classic-squad .lineup-score{grid-template-columns:1fr 1fr}
+.classic-squad .fpl-pitch{min-height:495px;display:flex;flex-direction:column;justify-content:space-around}
+.classic-squad .pitch-row{min-height:95px}
+@media(max-width:800px){.classic-squad .classic-team-layout{grid-template-columns:minmax(0,1fr);padding:6px;gap:8px}.classic-squad .classic-side{position:static}.classic-squad .lineup-controls{flex-direction:row}.classic-squad .lineup-controls label,.classic-squad .lineup-controls button{flex:1 1 42%;width:auto}.classic-squad .fpl-pitch{min-height:455px}.classic-squad .pitch-row{min-height:90px}}
+
+/* Faithful CSS rules copied from original my-team-live.html, scoped to My Team. */
+.legacy-team .layout{display:grid;grid-template-columns:minmax(0,1.3fr) minmax(290px,.7fr);gap:14px}
+.legacy-team .pitch{background:repeating-linear-gradient(0deg,#087a49 0,#087a49 90px,#0a8550 90px,#0a8550 180px);padding:20px 8px;border-radius:16px;min-height:530px;display:flex;flex-direction:column;justify-content:space-around;gap:13px}
+.legacy-team .line{display:flex;gap:5px;justify-content:center;align-items:center;min-height:90px}
+.legacy-team .player{background:#fff;border-radius:10px;padding:7px 5px;width:105px;max-width:22%;text-align:center;border:2px solid transparent;color:#24152a;cursor:pointer;min-height:73px;overflow:hidden}
+.legacy-team .player.selected{border-color:#fecd29;box-shadow:0 0 0 2px #402b41}
+.legacy-team .player small{display:block;font-size:10px;color:#685c6d}
+.legacy-team .player .xp{font-weight:800;color:#087849}
+.legacy-team .panel{background:white;border:1px solid #e6ddea;border-radius:15px;padding:14px;margin-bottom:14px}
+.legacy-team .panel h2{font-size:17px;margin:0 0 12px}
+.legacy-team .bench{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:7px}
+.legacy-team .bench .player{max-width:none;width:100%}
+.legacy-team .details{font-size:12px;color:#6c5d73;line-height:1.5}
+.legacy-team .controls{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin:10px 0}
+.legacy-team .controls button{cursor:pointer}
+.legacy-team .controls button.primary{background:#37003c;color:#fff}
+.legacy-team .choices{max-height:360px;overflow:auto;border:1px solid #eee;border-radius:9px}
+.legacy-team .choice{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:10px;border-bottom:1px solid #eee;cursor:pointer}
+.legacy-team .choice:hover{background:#f4f0f6}
+.legacy-team .choice small{font-size:11px;color:#746778}
+.legacy-team .row{display:flex;gap:10px;justify-content:space-between;flex-wrap:wrap}
+.legacy-team .pill{border-radius:8px;padding:6px 9px;background:#efebf1;font-size:12px;font-weight:750}
+.legacy-team .tiny{font-size:12px;color:#766b79}
+.legacy-team .legacy-sidebar{align-self:stretch}
+@media(max-width:800px){.legacy-team .layout{grid-template-columns:1fr}.legacy-team .pitch{min-height:480px}.legacy-team .player{width:92px;font-size:12px}.legacy-team .bench{gap:4px}}
+@media(max-width:430px){.legacy-team .player{font-size:10px;padding:5px 1px;min-height:66px}.legacy-team .player small{font-size:9px}.legacy-team .pitch{padding:14px 3px}.legacy-team .line{gap:3px}}

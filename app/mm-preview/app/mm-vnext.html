@@ -1,0 +1,86 @@
+<!doctype html>
+<html lang="da">
+<head><script src="../existing-app-adapter.js?v=1"></script><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>MM vNext · Sammenlign forventede minutter</title>
+<link rel="stylesheet" href="design-v2.css?v=2">
+<style>
+:root{--ink:#16202a;--muted:#61717e;--line:#e6eaee;--green:#087b52;--surface:#fff}
+*{box-sizing:border-box}body{margin:0;background:#f5f7f9;color:var(--ink);font:15px/1.55 Inter,system-ui,-apple-system,sans-serif}
+header{background:#13242f;color:#fff;padding:34px max(20px,calc((100% - 1080px)/2))}
+header h1{font-size:clamp(27px,4vw,38px);margin:10px 0 4px;letter-spacing:-.04em}header a{color:#76ddaa}
+header p{max-width:800px;color:#cad6dc}main{max-width:1120px;margin:auto;padding:20px 16px 100px}
+section{background:var(--surface);border:1px solid var(--line);padding:20px;border-radius:15px;margin-bottom:18px}
+.notice{border-left:4px solid #c28d24;background:#fff9e9;color:#604c23}
+.controls{display:flex;flex-wrap:wrap;align-items:center;gap:10px;margin:14px 0}
+.controls label{font-size:12px;font-weight:700;color:var(--muted);display:flex;flex-direction:column;gap:5px}
+input,select{font:inherit;padding:10px 12px;border-radius:9px;border:1px solid #d7dfe5;background:#fff;min-height:44px}
+input{min-width:240px;flex:1}.table-scroll{overflow-x:auto}table{border-collapse:collapse;width:100%;min-width:760px}
+th,td{text-align:left;padding:12px 10px;border-bottom:1px solid var(--line);font-variant-numeric:tabular-nums}
+th{color:#52616e;font-size:12px;background:#f8fafb;position:sticky;top:0}td.num,th.num{text-align:right}
+td span.flag{font-weight:700;color:var(--green);font-size:12px}
+.positive{color:#087b52;font-weight:700}.negative{color:#b15132;font-weight:700}
+.small{color:var(--muted);font-size:12px}.stats{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
+.stats article{padding:14px;background:#f6f8f9;border-radius:10px}
+.stats strong{display:block;font-size:24px}.stats small{font-size:11px;color:var(--muted)}
+#loading{font-weight:600}.error{color:#a33445}a{color:#0b7655}
+@media(max-width:660px){main{padding:12px 9px 80px}section{padding:14px}.stats{grid-template-columns:repeat(2,minmax(0,1fr))}input{min-width:120px;width:100%}}
+</style>
+</head>
+<body>
+<header><a href="overview.html">← Dashboard</a> · <a href="mm-diagnostic.html">Oprindelig MM</a>
+<h1>MM vNext – minutprognoser</h1>
+<p>Sammenlign de forventede minutter fra den eksisterende MM med et eksperiment, der anerkender dokumenteret tilbagevenden efter skade inden beregning af den forventede startopstilling.</p>
+</header>
+<main>
+<section class="notice"><strong>Eksperimentel MM – ikke nye xP.</strong>
+<p>Kun P(start) og xMin i denne side beregnes med MM vNext. Spillerprofiler, forventede FPL-point, transfers, PM, TS og chipstrategier bruger stadig den oprindelige verificerede beregning. Den nye variant er ikke uafhængigt sæsoncertificeret, og kampstatus for fremtidige gameweeks er ukendt.</p></section>
+<section>
+<div class="stats"><article><small>Prognoseperiode</small><strong id="weeks">—</strong></article>
+<article><small>Dokumenterede tilbagevendere</small><strong id="returners">—</strong></article>
+<article><small>Spilleruger ændret mindst 1 minut</small><strong id="changed">—</strong></article></div>
+<p id="loading" role="status">Indlæser sammenligningen…</p>
+<div class="controls"><label>Gameweek<select id="week"></select></label><label>Spiller eller klub<input id="search" type="search" placeholder="Søg navn eller klub"></label><label>Sortering<select id="sort"><option value="delta">Største forskel</option><option value="vnext">Flest xMin – vNext</option><option value="name">Navn</option></select></label></div>
+<div class="table-scroll"><table><thead><tr><th>Spiller</th><th>Klub</th><th class="num">P(start) original</th><th class="num">P(start) vNext</th><th class="num">xMin original</th><th class="num">xMin vNext</th><th class="num">Forskel</th></tr></thead><tbody id="body"><tr><td colspan="7">Henter…</td></tr></tbody></table></div><p class="small" id="count"></p></section>
+<section><h2>Hvorfor ændres tallene?</h2>
+<p>Hvis spilleren var registreret <strong>OUT eller DOUBT</strong>, missede én kamp, siden er vendt tilbage til startopstillingen og har tidligere starterhistorik, giver vNext en moderat positiv korrektion (+0,4 på logit-skalaen) til P(start). Korrektionen sker <strong>inden</strong> rolle- og startopstillingsberegningen, som fortsat skal fordele præcis 11 forventede startere.</p>
+<p>En enkelt tidlig udskiftning ved stor føring ændrer endnu ikke modellen: Den regel er fortsat eksperimentel. xMin for en tilbagevendende stjernespiller er derfor ikke automatisk 90 minutter.</p>
+<p class="small" id="asof"></p><p><a href="vfinal-diagnostic.html">Vis originale xP og pointkomponenter</a></p></section>
+</main>
+<script>
+(()=>{'use strict';
+const $=s=>document.getElementById(s), esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const params=new URLSearchParams(location.search);let result;
+function draw(){
+  if(!result)return;
+  const gw=Number($('week').value),q=$('search').value.trim().toLocaleLowerCase('da');
+  let rows=result.rows.filter(x=>x.gw===gw && (!q||(x.name+' '+x.team).toLocaleLowerCase('da').includes(q)));
+  const sort=$('sort').value;rows.sort((a,b)=>sort==='name'?a.name.localeCompare(b.name,'da'):sort==='vnext'?b.vnext_xmins-a.vnext_xmins:Math.abs(b.delta_xmins)-Math.abs(a.delta_xmins));
+  $('body').innerHTML=rows.map(x=>{
+    const n=x.delta_xmins>0?'+':'',style=x.delta_xmins>0?'positive':x.delta_xmins<0?'negative':'';
+    return '<tr><td><a href="player.html?id='+x.id+'">'+esc(x.name)+'</a>'+ (x.medical_return?' <span class="flag">Tilbage efter skade</span>':'')+
+      '</td><td>'+esc(x.team)+'</td><td class="num">'+(100*x.locked_p_start).toFixed(1)+'%</td><td class="num">'+(100*x.vnext_p_start).toFixed(1)+'%</td>'+
+      '<td class="num">'+x.locked_xmins.toFixed(1)+'</td><td class="num">'+x.vnext_xmins.toFixed(1)+'</td>'+
+      '<td class="num '+style+'">'+n+x.delta_xmins.toFixed(1)+'</td></tr>'
+  }).join('')||'<tr><td colspan="7">Ingen spillere matcher søgningen.</td></tr>';
+  $('count').textContent=rows.length+' spillere · Eksperimentel minutprognose, ikke ny xP.';
+}
+Promise.all([fetch('mm-vnext-6gw.json',{cache:'no-store'}),fetch('vfinal-diagnostic.json',{cache:'no-store'})])
+.then(rs=>{if(rs.some(r=>!r.ok))throw Error('MM vNext eller originalprognosen er endnu ikke publiceret');return Promise.all(rs.map(r=>r.json()))})
+.then(([x,baseline])=>{
+  if(x.classification!=='EXPERIMENTAL_MEDICAL_RETURN_MM_VNEXT_COMPARE_NOT_FINAL' || x.locked_model_active!==false ||
+     x.production_xp_unchanged!==true || x.player_week_rows!==x.rows.length || x.rows.length!==667*6)
+    throw Error('MM vNext validering mislykkedes');
+  if(x.source_observed_at!==baseline.data_asof)throw Error('Data er fra forskellige tidspunkter. Genindlæs siden efter næste deployment.');
+  result=x;
+  $('week').innerHTML=x.gws.map(z=>'<option value="'+z+'">GW '+z+'</option>').join('');
+  $('weeks').textContent='GW '+x.gws[0]+'–'+x.gws.at(-1);
+  $('returners').textContent=x.medically_returned_players;
+  $('changed').textContent=x.impacted_player_weeks_at_least_1_min;
+  $('loading').textContent='Opdateret MM vNext er klar til sammenligning.';
+  $('asof').textContent='Fælles datacheckpoint: '+new Date(x.source_observed_at).toLocaleString('da-DK')+'. Valgt skadekorrektion: +0,4 logit.';
+  const id=Number(params.get('player'));if(id && x.rows.some(r=>r.id===id))$('search').value=x.rows.find(r=>r.id===id).name;
+  draw();
+}).catch(e=>{$('loading').textContent=e.message;$('loading').classList.add('error');$('body').innerHTML='<tr><td colspan="7">'+esc(e.message)+'</td></tr>';});
+for(const id of ['week','search','sort'])$(id).addEventListener(id==='search'?'input':'change',draw);
+})();
+</script><script src="design-v2.js?v=2"></script></body></html>

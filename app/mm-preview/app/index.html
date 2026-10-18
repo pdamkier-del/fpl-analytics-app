@@ -1,0 +1,252 @@
+<!doctype html>
+<html><head><script src="../existing-app-adapter.js?v=1"></script><meta http-equiv="refresh" content="0; url=my-team-classic.html"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Clubs · FPL Analytics</title><link rel="stylesheet" href="assets.css">
+<style>
+:root{--bg:#f4f6f8;--panel:#fff;--ink:#101820;--muted:#6d7882;--line:#e4e9ed;--green:#087a52;--green2:#16a06d;--soft:#eaf7f1;--nav:#0b1720;--nav2:#172733;--blue:#3156d8;--amber:#a86600;--shadow:0 10px 32px rgba(15,29,40,.06)}
+*{box-sizing:border-box}body{margin:0;font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;background:var(--bg);color:var(--ink)}a{text-decoration:none;color:inherit}
+.app{display:grid;grid-template-columns:228px 1fr;min-height:100vh}.sidebar{background:var(--nav);color:#fff;padding:24px 16px;position:sticky;top:0;height:100vh}.brand{display:flex;align-items:center;gap:12px;font-weight:850;font-size:18px;margin:0 8px 28px}.logo{width:36px;height:36px;border-radius:12px;background:linear-gradient(135deg,#61ddb0,#16845e);display:grid;place-items:center;color:#05251a;font-size:13px}.nav-title{font-size:10px;letter-spacing:.15em;text-transform:uppercase;color:#708797;margin:22px 12px 8px}.nav a{display:block;margin:3px 0;padding:11px 12px;border-radius:9px;color:#9cafbb;font-size:14px}.nav a.active,.nav a:hover{background:var(--nav2);color:#fff}.sidebar-foot{position:absolute;left:20px;right:20px;bottom:22px;color:#728998;font-size:11px;line-height:1.55}
+.main{padding:28px 34px 52px;min-width:0}.topbar{display:flex;align-items:center;justify-content:space-between;gap:16px;margin-bottom:22px}.crumb,.muted,.subtitle{color:var(--muted)}.crumb{font-size:13px}.top-actions{display:flex;gap:9px;align-items:center}.select,.search{border:1px solid var(--line);background:#fff;border-radius:10px;padding:9px 12px;color:var(--ink)}.badge{font-size:11px;padding:7px 10px;border-radius:999px;background:var(--soft);color:var(--green);border:1px solid #c5e8d8;font-weight:800}
+.club-head{display:flex;align-items:center;gap:15px;margin-bottom:18px}.crest{width:58px;height:58px;border-radius:17px;background:linear-gradient(145deg,#174e9b,#123367);color:#fff;display:grid;place-items:center;font-weight:900;box-shadow:var(--shadow)}h1{margin:0 0 4px;font-size:29px}.head-meta{display:flex;gap:8px;flex-wrap:wrap;margin-top:7px}.pill{font-size:11px;background:#fff;border:1px solid var(--line);border-radius:999px;padding:5px 8px;color:#56616b}
+.tabs{display:flex;gap:6px;border-bottom:1px solid var(--line);margin-bottom:18px}.tab{all:unset;cursor:pointer;padding:12px 15px;font-size:13px;font-weight:800;color:var(--muted);border-bottom:2px solid transparent}.tab.active{color:var(--green);border-color:var(--green)}
+.view{display:none}.view.active{display:block}.panel{background:#fff;border:1px solid var(--line);border-radius:15px;box-shadow:var(--shadow)}.panel-head{padding:16px 18px;border-bottom:1px solid var(--line);display:flex;align-items:center;justify-content:space-between;gap:12px}.panel-title{font-weight:850}.panel-sub{font-size:11px;color:var(--muted);margin-top:2px}.panel-body{padding:18px}
+.lineup-layout{display:grid;grid-template-columns:minmax(520px,1.35fr) minmax(280px,.65fr);gap:16px;margin-bottom:16px}.pitch{min-height:570px;border-radius:18px;padding:25px 18px;position:relative;overflow:hidden;background:
+linear-gradient(rgba(255,255,255,.08),rgba(255,255,255,.08)),
+repeating-linear-gradient(90deg,#14734f 0,#14734f 12.5%,#11704b 12.5%,#11704b 25%);border:1px solid #0c6745}
+.pitch:before{content:"";position:absolute;inset:18px;border:1px solid rgba(255,255,255,.42);border-radius:2px;pointer-events:none}.pitch:after{content:"";position:absolute;left:50%;top:18px;bottom:18px;width:1px;background:rgba(255,255,255,.35);pointer-events:none}
+.pitch-center{position:absolute;width:105px;height:105px;border:1px solid rgba(255,255,255,.36);border-radius:50%;left:calc(50% - 52px);top:calc(50% - 52px);pointer-events:none}
+.line-row{position:relative;z-index:2;display:flex;justify-content:space-around;align-items:center;gap:10px;margin:18px auto}.line-row.gk{margin-top:4px}.player-node{width:118px;text-align:center;cursor:pointer}.shirt{width:48px;height:50px;margin:0 auto 6px;border-radius:15px 15px 11px 11px;background:#fff;box-shadow:0 5px 15px rgba(0,0,0,.18);display:grid;place-items:center;color:#123;position:relative;font-size:10px;font-weight:900}.shirt:before,.shirt:after{content:"";position:absolute;top:6px;width:15px;height:23px;background:#fff;border-radius:8px}.shirt:before{left:-8px;transform:rotate(24deg)}.shirt:after{right:-8px;transform:rotate(-24deg)}.node-card{background:rgba(8,24,19,.83);color:#fff;border:1px solid rgba(255,255,255,.18);border-radius:9px;padding:6px 7px;box-shadow:0 6px 14px rgba(0,0,0,.14)}.node-name{font-size:11px;font-weight:850;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.node-min{font-size:11px;color:#8ce0bb;font-weight:850;margin-top:2px}.node-role{font-size:9px;color:#c9d8d1;margin-top:2px}.competitor{font-size:9px;color:#d9e3de;margin-top:4px;padding-top:4px;border-top:1px solid rgba(255,255,255,.15);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.xi-side{display:grid;gap:12px;align-content:start}.summary-card{border:1px solid var(--line);background:#fff;border-radius:14px;padding:15px}.summary-label{font-size:11px;color:var(--muted);font-weight:800;text-transform:uppercase;letter-spacing:.04em}.summary-value{font-size:24px;font-weight:900;margin-top:4px}.summary-note{font-size:11px;color:var(--muted);margin-top:4px;line-height:1.4}.why-list{display:grid;gap:8px;margin-top:11px}.why{display:flex;justify-content:space-between;gap:14px;font-size:12px;padding:8px 0;border-bottom:1px solid #edf0f2}.why:last-child{border-bottom:0}.why strong{white-space:nowrap}.model-link{display:flex;align-items:center;justify-content:space-between;padding:11px 12px;border:1px solid var(--line);border-radius:11px;font-size:12px;font-weight:800;margin-top:8px}.model-link:hover{border-color:#a9d9c5;background:#f6fbf8}
+.toolbar{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;margin:14px 0}.segmented{display:inline-flex;background:#e9edef;border-radius:10px;padding:4px}.segmented button{border:0;background:transparent;border-radius:8px;padding:8px 12px;font-weight:800;color:#66717b;cursor:pointer}.segmented button.active{background:#fff;color:#182129;box-shadow:0 1px 5px rgba(0,0,0,.1)}
+.table-wrap{background:#fff;border:1px solid var(--line);border-radius:14px;overflow:auto}table{width:100%;border-collapse:separate;border-spacing:0;min-width:1120px;font-size:12px}th{position:sticky;top:0;background:#f8fafb;padding:10px;text-transform:uppercase;font-size:10px;letter-spacing:.04em;color:#5c6871;border-bottom:1px solid var(--line);text-align:right;cursor:pointer}td{padding:11px 10px;border-bottom:1px solid #edf0f2;text-align:right;white-space:nowrap}th:first-child,td:first-child{text-align:left}tr:hover td{background:#fbfcfc}.player{display:flex;align-items:center;gap:8px;font-weight:800}.avatar{width:30px;height:30px;border-radius:50%;background:#edf1f4;display:grid;place-items:center;color:#5d6972;font-size:9px}.pos{font-size:9px;font-weight:850;background:#eef1f3;border-radius:5px;padding:3px 5px}.green{color:var(--green);font-weight:850}.blue{color:var(--blue);font-weight:800}.status{font-size:9px;padding:4px 7px;border-radius:999px;background:#eaf7f1;color:#08704c}.injured{background:#fdeaea;color:#a43838}.doubtful{background:#fff0d9;color:#985e08}.cards{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin:14px 0}.card{background:#fff;border:1px solid var(--line);border-radius:13px;padding:15px}.card-label{font-size:11px;color:var(--muted);font-weight:800}.card-value{font-size:22px;font-weight:900;margin-top:3px}.fixture-row{display:grid;grid-template-columns:repeat(6,minmax(115px,1fr));gap:9px;margin:14px 0}.fixture{background:#fff;border:1px solid var(--line);border-radius:11px;padding:11px}.fixture.next{border-color:#58be96;background:#f5fbf8}.gw{font-size:10px;color:var(--muted);font-weight:850}.opp{font-weight:850;margin-top:5px}.score{font-size:11px;color:var(--muted);margin-top:3px}
+.fixture-grid-v2{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}.fixture-card-v2{background:#fff;border:1px solid var(--line);border-radius:14px;padding:14px;box-shadow:var(--shadow);cursor:default}.fixture-card-v2.finished{cursor:pointer}.fixture-card-v2.finished:hover{transform:translateY(-1px);box-shadow:0 10px 28px rgba(17,31,44,.09)}.fixture-card-top{display:flex;justify-content:space-between;align-items:center;gap:8px}.fixture-date{font-size:10px;color:var(--muted);font-weight:750}.fdr{font-size:10px;font-weight:900;border-radius:999px;padding:5px 8px;color:#fff}.fdr1{background:#00a65a}.fdr2{background:#50b848}.fdr3{background:#7b7f86}.fdr4{background:#e67e22}.fdr5{background:#c0392b}.fixture-teams{display:grid;grid-template-columns:1fr auto 1fr;align-items:center;gap:10px;margin:12px 0}.fixture-team{display:flex;align-items:center;gap:8px;font-size:12px;font-weight:900}.fixture-team.away{justify-content:flex-end;text-align:right}.fixture-score-v2{font-size:22px;font-weight:950}.fixture-meta-v2{display:flex;justify-content:space-between;gap:8px;border-top:1px solid var(--line);padding-top:9px;font-size:10px;color:var(--muted)}.fixture-meta-v2 strong{color:var(--ink)}
+.notice{font-size:11px;color:var(--muted);line-height:1.5;margin-top:10px}
+@media(max-width:1150px){.lineup-layout{grid-template-columns:1fr}.cards{grid-template-columns:repeat(2,1fr)}}@media(max-width:820px){.app{grid-template-columns:78px 1fr}.sidebar{padding:20px 10px}.brand span,.nav a span,.nav-title,.sidebar-foot{display:none}.brand{margin-left:9px}.nav a{width:42px;text-align:center;margin:5px auto}.main{padding:20px 16px}.pitch{min-height:520px;padding:18px 8px}.player-node{width:90px}.fixture-row{grid-template-columns:repeat(2,1fr)}.fixture-grid-v2{grid-template-columns:1fr}.cards{grid-template-columns:1fr}}
+.expert-node{position:absolute;z-index:4;width:110px;max-width:23%;text-align:center;transform:translate(-50%,-50%);pointer-events:auto}
+.expert-node .expert-shirt{width:34px;height:36px;border-radius:9px 9px 6px 6px;background:#fff;margin:0 auto 4px;display:grid;place-items:center;font-size:13px;font-weight:850;color:#17432d;box-shadow:0 3px 9px rgba(0,0,0,.22)}
+.expert-node .expert-name{font-size:10px;font-weight:800;background:rgba(5,29,20,.90);border:1px solid rgba(255,255,255,.35);color:#fff;padding:5px 4px;border-radius:7px;line-height:1.2;overflow-wrap:anywhere}
+.expert-reference{background:#fff7e5;border:1px solid #e1cda0;border-radius:8px;padding:9px 11px;font-size:11px;color:#644d2c;line-height:1.5}
+.pitch.expert-formation{height:650px;min-height:650px}
+.pitch.no-fake-xi{background:#f0f5f4;border-color:#b6c6c3;color:#304941}
+.pitch.no-fake-xi:before,.pitch.no-fake-xi:after,.pitch.no-fake-xi .pitch-center{display:none}
+.pitch.no-fake-xi .line-row{display:none}
+.no-lineup-notice{background:#fff;border:1px solid #dce8e2;border-radius:13px;padding:26px;max-width:520px;line-height:1.8;margin:75px auto;color:#355248}
+@media(max-width:540px){.expert-node{width:84px}.expert-node .expert-name{font-size:9px}.pitch.expert-formation{min-height:640px}}
+</style><link rel="stylesheet" href="design-v2.css?v=2"></head>
+<body><div class="app">
+<aside class="sidebar"><div class="brand"><div class="logo">xP</div><span>FPL Analytics</span></div><div class="nav-title">Workspace</div><div class="nav"><a href="overview.html"><span>Overview</span></a><a href="rankings.html"><span>Player Rankings</span></a><a href="index.html" class="active"><span>Clubs</span></a><a href="my-team.html"><span>My Team</span></a><a href="team-optimizer.html"><span>Transfer & Team Optimizer</span></a></div><div class="nav-title">Models</div><div class="nav"><a href="models.html"><span>Model Explorer</span></a><a href="replay.html"><span>Replay & Audit</span></a></div><div class="sidebar-foot">Published model data<br>Auto-update enabled.</div></aside>
+<main class="main"><div class="topbar"><div class="crumb" id="crumb">Clubs</div><div class="top-actions"><select id="clubSelect" class="select"></select><span class="badge">FORECAST-KILDE: se versionsmærke</span></div></div>
+<div class="club-head"><div class="crest" id="crest">CHE</div><div><h1 id="clubName">Chelsea</h1><div class="subtitle">P(start)-oversigt, spillerprognoser og historiske resultater</div><div class="head-meta"><span class="pill" id="nextFix">Next fixture —</span><span class="pill" id="modelStamp">Model —</span></div></div></div>
+<div class="tabs"><button class="tab active" data-view="lineup">Startchancer</button><button class="tab" data-view="forecast">Forecast</button><button class="tab" data-view="recent">Recent Stats</button><button class="tab" data-view="fixtures">Fixtures</button></div>
+
+<section id="lineup" class="view active"><div class="lineup-layout"><div class="panel"><div class="panel-head"><div><div class="panel-title">Startchancer og FPL-positioner</div><div class="panel-sub" id="lineupSub">Aktuelle rolledata mangler; viser ikke en taktisk formation.</div></div><span class="badge" id="formationBadge">Afventer rolledata</span></div><div class="panel-body" style="padding:12px"><div class="pitch" id="pitch"><div class="pitch-center"></div></div></div></div>
+<div class="xi-side"><div class="summary-card"><div class="summary-label">Expected XI minutes</div><div class="summary-value" id="xiMinutes">—</div><div class="summary-note">Sum af xMins for de viste spillere; ikke en bekræftet start-XI.</div></div><div class="summary-card"><div class="summary-label">Lineup uncertainty</div><div class="summary-value" id="uncertainty">—</div><div class="summary-note">Andel af de viste spillere med P(start) under 80 %.</div></div><div class="summary-card"><div class="summary-label">Verificerede rollekampe</div><div class="why-list" id="roleBattles"></div></div></div></div></section>
+
+<section id="forecast" class="view"><div class="toolbar"><div class="segmented" id="forecastPeriods"><button data-h="1">Next GW</button><button data-h="3" class="active">Next 3 GW</button><button data-h="6">Next 6 GW</button></div><input id="forecastSearch" class="search" placeholder="Search player…"></div><div class="fixture-row" id="forecastFixtures"></div><div class="cards" id="forecastSummary"></div><div class="table-wrap"><table id="forecastTable"><thead><tr><th>Player</th><th>Pos</th><th>Rolleprior (q / H)</th><th>Price</th><th>Status</th><th>P(start)</th><th>xMins</th><th>xG</th><th>xA</th><th>xGI</th><th>xPts</th><th>xPts/£m</th></tr></thead><tbody></tbody></table></div></section>
+
+<section id="recent" class="view"><div class="toolbar"><div class="segmented" id="statsPeriods"><button data-n="3" class="active">Last 3 GW</button><button data-n="6">Last 6 GW</button><button data-n="all">Season</button></div><input id="statsSearch" class="search" placeholder="Search player…"></div><div class="fixture-row" id="statsFixtures"></div><div class="cards" id="statsSummary"></div><div class="table-wrap"><table id="statsTable" style="min-width:1450px"><thead><tr><th>Player</th><th>Pos</th><th>Min</th><th>Pts</th><th>Goals</th><th>xG</th><th>Assists</th><th>xA</th><th>xGI</th><th>CS</th><th>xGC</th><th>DefCon</th><th>Saves</th><th>Bonus</th><th>BPS</th></tr></thead><tbody></tbody></table></div></section>
+<section id="fixtures" class="view"><div class="fixture-grid-v2" id="fixtureBody"></div></section>
+</main></div>
+<script src="data.js"></script><script src="role-data.js"></script><script src="expert-lineups.js"></script><script src="match-data.js"></script><script src="assets.js"></script><script>
+const D=window.FPL_DATA||{clubs:[],forecasts:[],actuals:[],fixtures:[],meta:{}},M=window.FPL_MATCH_DATA||{matches:[]};
+const R=window.FPL_ROLE_DATA||{players:[],expected_lineups:[],current_xi_certified:false};
+const EXPERT=window.FPL_EXPERT_LINEUPS||{lineups:[],official_next_gw:null};
+const ROLE_MAP=new Map((R.players||[]).map(row=>[Number(row.id),row]));
+const roleEvidence=p=>ROLE_MAP.get(Number(p.id));
+function rolePrior(p){
+ const x=roleEvidence(p);
+ if(!x||!x.primary_role)return '<span title="Ingen dokumenteret rollehøjst historik">—</span>';
+ const q=Number(x.q?.[x.primary_role]||0),h=x.H?.[x.primary_role];
+ const source=x.role_source==='current_season_confirmed'?'2026/27':'2025/26-prior';
+ return '<span title="'+esc(source+' · '+x.role_source+' · evidens '+x.evidence)+
+   '">'+esc(x.primary_role)+' · q '+Math.round(q*100)+'%'+
+   (h==null?' · H ukendt':' · H '+Number(h).toFixed(2))+
+   ' <small style="color:#808e92">('+source+')</small></span>';
+}
+
+const esc=s=>String(s??'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
+const num=(x,d=1)=>x==null||Number.isNaN(Number(x))?'—':Number(x).toFixed(d);const pct=x=>x==null?'—':Math.round(Number(x)*100)+'%';
+const sum=(a,k)=>a.reduce((s,x)=>s+Number(x?.[k]||0),0);const initials=s=>(String(s||'?').split(/\s+/).filter(Boolean).map(x=>x[0]).join('').slice(0,2)||'?').toUpperCase();
+let club=new URLSearchParams(location.search).get('club')||'CHE',H=3,statN='3';
+const sel=document.getElementById('clubSelect');D.clubs.forEach(c=>sel.insertAdjacentHTML('beforeend',`<option value="${c.code}" ${c.code===club?'selected':''}>${esc(c.name)} (${c.code})</option>`));
+const ci=()=>D.clubs.find(c=>c.code===club)||{code:club,name:club};const ps=()=>D.forecasts.filter(p=>p.club===club);const cfx=()=>D.fixtures.filter(f=>f.home===club||f.away===club).sort((a,b)=>(a.gw||99)-(b.gw||99));
+function statusHTML(p){const s=(p.status||'Available');let c=s.toLowerCase();if(!['injured','doubtful'].includes(c))c='';return `<span class="status ${c}">${esc(s)}</span>`}
+function nextG(p){return p?.gws?.[0]||{}}function hagg(p,h){const g=(p?.gws||[]).slice(0,h);return{xmins:sum(g,'xmins'),xg:sum(g,'xg'),xa:sum(g,'xa'),xpts:sum(g,'xpts')}}
+function attachSort(t){t.querySelectorAll('th').forEach((th,i)=>th.onclick=()=>{const b=t.tBodies[0],r=[...b.rows],asc=th.dataset.asc!=='1';th.dataset.asc=asc?'1':'0';r.sort((a,c)=>{const x=a.cells[i]?.innerText.replace(/[%£m]/g,''),y=c.cells[i]?.innerText.replace(/[%£m]/g,''),nx=parseFloat(x),ny=parseFloat(y);return !isNaN(nx)&&!isNaN(ny)?(asc?nx-ny:ny-nx):(asc?String(x).localeCompare(y):String(y).localeCompare(x))});r.forEach(x=>b.appendChild(x))})}
+/* Tactical role assignment is only valid when supplied by a real model
+   with 11 unique, known role slots. Never manufacture RB/CAM/ST from FPL MID/DEF. */
+function expectedLineup(){
+ const targetGw=Number(D.meta?.next_gw);
+ const explicit=R.current_xi_certified?(R.expected_lineups||[]).find(x=>x.club===club&&Number(x.gw)===targetGw):null;
+ const roleSet=new Set(['GK','RB','RWB','RCB','CB','LCB','LB','LWB',
+   'RDM','DM','LDM','RCM','CM','LCM','CAM','RAM','LAM','RW','LW','SS','ST']);
+ const assigned=explicit?.players?.map(p=>p.role||p.assigned_role)||[];
+ const valid=explicit?.players?.length===11 &&
+   new Set(explicit.players.map(p=>Number(p.id))).size===11 &&
+   assigned.every(role=>roleSet.has(role)) &&
+   assigned.filter(role=>role==='GK').length===1 &&
+   explicit.players.every(p=>D.forecasts.some(f=>Number(f.id)===Number(p.id)&&f.club===club));
+ if(valid){
+   return {formation:explicit.formation||'XI med roller',
+     players:explicit.players.map(z=>{const p=D.forecasts.find(x=>Number(x.id)===Number(z.id));
+       return {...p,_role:z.role||z.assigned_role,_competitor:z.competitor||null,
+         _xmins:z.xmins??nextG(p).xmins,_pstart:z.pstart??nextG(p).pstart};
+     }),fallback:false};
+ }
+ const all=[...ps()].filter(p=>p?.id!=null).sort((a,b)=>
+       Number(nextG(b).pstart||0)-Number(nextG(a).pstart||0));
+ const keeper=all.find(p=>['GK','GKP'].includes(p.pos));
+ const outfield=all.filter(p=>!['GK','GKP'].includes(p.pos));
+ // A position-grouped P(start) shortlist is NOT a tactical predicted XI.
+ const xi=[...(keeper?[keeper]:[]),...outfield.slice(0,keeper?10:11)];
+ return {formation:'FPL-grupper · ingen formation',
+   players:xi.map(p=>({...p,_role:null,_competitor:null,
+     _xmins:nextG(p).xmins,_pstart:nextG(p).pstart})),
+   fallback:true};
+}
+function competitorFor(p,L){
+ // Same FPL position is not evidence of competing for the same tactical slot.
+ if(L.fallback||!p._role||!p._competitor)return null;
+ return p._competitor;
+}
+function currentExpertLineup(){
+ const officialGw=Number(R.official_next_gw||EXPERT.official_next_gw);
+ const source=EXPERT.lineups?.find(x=>x.club===club&&Number(x.gw)===officialGw);
+ if(!source||source.players?.length!==11||
+   new Set(source.players.map(x=>x.name)).size!==11)return null;
+ const last=Date.parse(source.updated);
+ const observed=Date.parse(EXPERT.observed_at_utc);
+ if(!Number.isFinite(last)||!Number.isFinite(observed)||
+   observed-last>14*86400000||last>observed+3600000)return null;
+ return source;
+}
+function renderExpertLineup(x){
+ const pitch=document.getElementById('pitch');
+ pitch.classList.add('expert-formation');
+ pitch.classList.remove('no-fake-xi');
+ const rows=x.players.map((p,i)=>{
+   const left=Math.max(10,Math.min(90,Number(p.x)));
+   const top=Math.max(8,Math.min(92,Number(p.y)));
+   return `<div class="expert-node" style="left:${left}%;top:${top}%">
+       <div class="expert-shirt">${i===0?'GK':'⚽'}</div>
+       <div class="expert-name">${esc(p.name)}</div>
+     </div>`;
+ }).join('');
+ pitch.innerHTML='<div class="pitch-center"></div>'+rows;
+ document.getElementById('formationBadge').textContent='Ekstern forventet XI · GW'+x.gw;
+ const historic=(R.team_formations||[]).find(t=>t.club===club);
+ const prior=historic?' · 25/26 formationshistorik: '+historic.observed_latest_formation:'';
+ document.getElementById('lineupSub').textContent=
+   'Fantasy Football Pundit · opdateret '+x.updated+' · ikke MM-model'+prior;
+ document.getElementById('xiMinutes').textContent='—';
+ document.getElementById('uncertainty').textContent='—';
+ document.getElementById('roleBattles').innerHTML=
+   '<div class="expert-reference"><strong>Ekstern forventet XI:</strong> placeringerne er hentet fra '+
+   '<a target="_blank" rel="noopener noreferrer" href="'+
+   esc(EXPERT.source_url||'https://www.fantasyfootballpundit.com/fantasy-premier-league-team-news/')+
+   '">Fantasy Football Pundit</a> og er <strong>ikke</strong> vores MM-prognose. '+
+   'Dette vises, fordi aktuel taktisk rolle-XI og P(start) endnu ikke er verificeret. '+
+   (historic?'Seneste dokumenterede formationshistorik: '+esc(historic.observed_latest_formation)+
+      ' ('+esc(historic.latest_observed_season||'historisk')+').':'')+
+   '</div>';
+}
+function renderPitch(){
+ const L=expectedLineup(),xi=L.players;
+ const outside=currentExpertLineup();
+ if(L.fallback&&outside){renderExpertLineup(outside);return;}
+ const earlyPitch=document.getElementById('pitch');
+ earlyPitch.classList.remove('expert-formation');
+ if(L.fallback){
+   earlyPitch.classList.add('no-fake-xi');
+   const hist=(R.team_formations||[]).find(t=>t.club===club);
+   document.getElementById('formationBadge').textContent='Ingen verificeret forventet XI';
+   document.getElementById('lineupSub').textContent=
+     'Ingen opdateret taktisk start-XI for GW'+(R.official_next_gw||'—')+
+     (hist?' · sidste dokumenterede formation '+hist.observed_latest_formation+
+       ' ('+hist.latest_observed_season+')':'');
+   earlyPitch.innerHTML='<div class="no-lineup-notice"><strong>Forventet XI ikke tilgængelig.</strong><p>Vi har ikke verificeret '+
+     'en aktuel formation og de 11 startere. Historiske roller vises i spillertabellen, '+
+     'men vi indsætter ikke vilkårlige spillere på en taktisk bane.</p></div>';
+   document.getElementById('xiMinutes').textContent='—';
+   document.getElementById('uncertainty').textContent='—';
+   document.getElementById('roleBattles').innerHTML=
+     '<div class="notice">Rollepriorer og senest observeret formation er historik, ikke en '+
+     'forventet aktuel start-XI. Ingen opstilling udledes fra bare FPL-positioner.</div>';
+   return;
+ }
+ earlyPitch.classList.remove('no-fake-xi');
+ document.getElementById('formationBadge').textContent=L.fallback?'Ingen taktisk XI':L.formation;
+ document.getElementById('lineupSub').textContent=L.fallback?
+   `GW${D.meta?.next_gw||'—'} · højeste P(start) sorteret efter FPL-position (IKKE taktiske roller eller forudsagt formation). MM-rolledata mangler.`:
+   `GW${D.meta?.next_gw||'—'} · dokumenteret rolletildeling fra aktuel model.`;
+ const pitch=document.getElementById('pitch');
+ // The locked XI optimizer returns one GK then formation slots in tactical
+ // back-to-front order. Honor that exact slot ordering for ANY legal shape.
+ const formationLayers=String(L.formation).split('-').map(Number);
+ const validShape=!L.fallback && formationLayers.length>=2 && formationLayers.length<=5 &&
+   formationLayers.every(n=>Number.isInteger(n)&&n>0) &&
+   formationLayers.reduce((sum,n)=>sum+n,0)===10 &&
+   xi.length===11 && xi[0]._role==='GK';
+ const rows=[];
+ if(validShape){
+   let start=1;
+   for(const n of formationLayers){
+     rows.push(xi.slice(start,start+n).reverse());
+     start+=n;
+   }
+   rows.reverse();
+   rows.push([xi[0]]);
+ }else{
+   // No spatial layout without all 11 valid expected slot assignments.
+   rows.push(...['FWD','MID','DEF','GK'].map(pos=>
+     xi.filter(p=>p.pos===pos||(pos==='GK'&&p.pos==='GKP'))).filter(x=>x.length));
+ }
+ // Any explicit role not found in the formation template is rendered, never silently lost.
+ const used=new Set(rows.flat().map(p=>Number(p.id)));
+ const extras=xi.filter(p=>!used.has(Number(p.id)));
+ if(extras.length)rows.unshift(extras);
+ const showRole=p=>{
+  if(!L.fallback)return p._role;
+  const x=roleEvidence(p),tag=x?.primary_role?
+    ' · 25/26-prior: '+x.primary_role+' ('+Math.round(Number(x.q?.[x.primary_role]||0)*100)+'%)':'';
+  return 'FPL: '+(p.pos==='GKP'?'GK':p.pos)+tag;
+ };
+ pitch.innerHTML='<div class="pitch-center"></div>'+
+   rows.map((row,ri)=>`<div class="line-row ${ri===rows.length-1?'gk':''}">${row.map(p=>{
+     const c=competitorFor(p,L);
+     return `<div class="player-node" onclick="location.href='player.html?id=${Number(p.id)}'">
+     ${window.FPL_ASSETS?window.FPL_ASSETS.faceHTML(p,'asset-face-pitch'):
+       `<div class="shirt">${esc(L.fallback?p.pos:p._role)}</div>`}
+     <div class="node-card"><div class="node-name">${esc(p.player)}</div>
+     <div class="node-min">${num(p._xmins,0)} xMins · ${pct(p._pstart)}</div>
+     <div class="node-role">${esc(showRole(p))}</div>
+     ${c?`<div class="competitor">↳ ${esc(c.name||c.player)} · ${num(c.xmins,0)}m</div>`:''}
+     </div></div>`}).join('')}</div>`).join('');
+ document.getElementById('xiMinutes').textContent=num(
+   xi.reduce((acc,p)=>acc+Number(p._xmins||0),0),0);
+ const uncertain=xi.filter(p=>Number(p._pstart||0)<.8).length;
+ document.getElementById('uncertainty').textContent=`${uncertain}/${xi.length||11}`;
+ if(L.fallback){
+   const historic=(R.players||[]).filter(x=>x.primary_role&&x.role_source==='prior_season_same_club').length;
+   document.getElementById('roleBattles').innerHTML=
+     '<div class="notice">2026/27-rolle-XI kan ikke certificeres: aktuelle bekræftede taktiske opstillinger mangler. '+
+     'Historiske q/H vises særskilt som 2025/26-priors ('+historic+' spillerprofiler i datalaget), '+
+     'ikke som verificerede aktuelle roller eller rollekampe.</div>';
+ }else{
+   const battles=xi.map(p=>{const c=competitorFor(p,L);
+     return {p,c,gap:Number(p._pstart||0)-Number(c?.pstart||0)};})
+     .filter(x=>x.c).sort((a,b)=>a.gap-b.gap).slice(0,4);
+   document.getElementById('roleBattles').innerHTML=battles.map(x=>
+     `<div class="why"><span>${esc(x.p._role)} · ${esc(x.p.player)}</span>
+     <strong>${esc(x.c.name||x.c.player)} ${num(x.c.xmins,0)}m</strong></div>`
+   ).join('')||'<div class="notice">Ingen verificerede rollekonkurrenter i de aktuelle data.</div>';
+ }
+}
+function renderHead(){const c=ci();document.getElementById('crest').innerHTML=window.FPL_ASSETS?window.FPL_ASSETS.badgeHTML(c.code,'asset-badge-lg'):c.code;document.getElementById('clubName').textContent=c.name;document.getElementById('crumb').textContent='Clubs / '+c.name;const nf=cfx().find(f=>!f.finished);document.getElementById('nextFix').textContent=nf?`GW${nf.gw} · ${nf.home===club?nf.away:nf.home} (${nf.home===club?'H':'A'})`:'No upcoming fixture';document.getElementById('modelStamp').textContent=(D.meta?.model_version||'Ukendt forecast')+' · rollekilde '+(R.current_tactical_lineups_found>0?'historik + 26/27':'2025/26-prior')}
+function renderForecast(){let arr=ps(),q=document.getElementById('forecastSearch').value.toLowerCase();arr=arr.filter(p=>!q||p.player.toLowerCase().includes(q)).sort((a,b)=>hagg(b,H).xpts-hagg(a,H).xpts);const fx=(arr[0]?.gws||[]).slice(0,H);document.getElementById('forecastFixtures').innerHTML=fx.map((g,i)=>`<div class="fixture ${i===0?'next':''}"><div class="gw">GW${g.gw}</div><div class="opp">${esc(g.fixture||'—')}</div><div class="score">${num(g.xpts,1)} xPts reference</div></div>`).join('');document.querySelector('#forecastTable tbody').innerHTML=arr.map(p=>{const a=hagg(p,H),g=nextG(p);return `<tr onclick="location.href='player.html?id=${p.id}'" style="cursor:pointer"><td><div class="player">${window.FPL_ASSETS?window.FPL_ASSETS.faceHTML(p):`<div class="avatar">${initials(p.player)}</div>`}<span>${esc(p.player)}</span></div></td><td><span class="pos">${p.pos}</span></td><td>${rolePrior(p)}</td><td>£${num(p.price,1)}</td><td>${statusHTML(p)}</td><td>${pct(g.pstart)}</td><td class="green">${num(a.xmins,1)}</td><td>${num(a.xg,2)}</td><td>${num(a.xa,2)}</td><td>${num(a.xg+a.xa,2)}</td><td class="green">${num(a.xpts,2)}</td><td>${p.price?num(a.xpts/p.price,2):'—'}</td></tr>`}).join('');const top=arr[0],ta=top?hagg(top,H):{};document.getElementById('forecastSummary').innerHTML=`<div class="card"><div class="card-label">Top projected</div><div class="card-value">${esc(top?.player||'—')}</div></div><div class="card"><div class="card-label">Top xPts</div><div class="card-value">${num(ta.xpts,1)}</div></div><div class="card"><div class="card-label">Top xMins</div><div class="card-value">${num(Math.max(...arr.map(p=>hagg(p,H).xmins),0),0)}</div></div><div class="card"><div class="card-label">Horizon</div><div class="card-value">${H} GW</div></div>`}
+function renderRecent(){const allgw=[...new Set(D.actuals.map(a=>a.gw))].sort((a,b)=>a-b),gws=statN==='all'?allgw:allgw.slice(-Number(statN)),q=document.getElementById('statsSearch').value.toLowerCase(),acts=D.actuals.filter(a=>a.club===club&&gws.includes(a.gw));const mp=new Map();acts.forEach(a=>{if(!mp.has(a.id))mp.set(a.id,[]);mp.get(a.id).push(a)});const rows=[...mp].map(([id,a])=>({p:D.forecasts.find(x=>x.id===id)||a[0],a})).filter(x=>!q||x.p.player.toLowerCase().includes(q)).sort((x,y)=>sum(y.a,'points')-sum(x.a,'points'));document.querySelector('#statsTable tbody').innerHTML=rows.map(({p,a})=>`<tr onclick="location.href='player.html?id=${p.id}'" style="cursor:pointer"><td><div class="player">${window.FPL_ASSETS?window.FPL_ASSETS.faceHTML(p):`<div class="avatar">${initials(p.player)}</div>`}<span>${esc(p.player)}</span></div></td><td><span class="pos">${p.pos}</span></td><td>${num(sum(a,'minutes'),0)}</td><td><strong>${num(sum(a,'points'),0)}</strong></td><td>${num(sum(a,'goals'),0)}</td><td class="green">${num(sum(a,'xg'),2)}</td><td>${num(sum(a,'assists'),0)}</td><td class="green">${num(sum(a,'xa'),2)}</td><td>${num(sum(a,'xgi'),2)}</td><td>${num(sum(a,'clean_sheets'),0)}</td><td>${num(sum(a,'xgc'),2)}</td><td>${num(sum(a,'defcon'),0)}</td><td>${num(sum(a,'saves'),0)}</td><td>${num(sum(a,'bonus'),0)}</td><td>${num(sum(a,'bps'),0)}</td></tr>`).join('');const fs=cfx().filter(f=>f.finished&&gws.includes(f.gw));document.getElementById('statsFixtures').innerHTML=fs.map(f=>`<div class="fixture"><div class="gw">GW${f.gw}</div><div class="opp">${f.home===club?f.away:f.home} (${f.home===club?'H':'A'})</div><div class="score">${f.home_score}–${f.away_score}</div></div>`).join('');document.getElementById('statsSummary').innerHTML=`<div class="card"><div class="card-label">Rows</div><div class="card-value">${acts.length}</div></div><div class="card"><div class="card-label">Goals</div><div class="card-value">${num(sum(acts,'goals'),0)}</div></div><div class="card"><div class="card-label">xG</div><div class="card-value">${num(sum(acts,'xg'),1)}</div></div><div class="card"><div class="card-label">xA</div><div class="card-value">${num(sum(acts,'xa'),1)}</div></div>`}
+function fixtureForecast(f){const rows=ps().map(p=>({p,g:(p.gws||[]).find(g=>Number(g.gw)===Number(f.gw))})).filter(x=>x.g).sort((a,b)=>Number(b.g.xpts||0)-Number(a.g.xpts||0));return {top:rows[0],cs:rows.find(x=>x.g.team_cs!=null)?.g.team_cs}}
+function fixtureDate(f,m){const raw=m?.kickoff_time||f.kickoff_time||f.kickoff;if(!raw)return 'GW'+f.gw;try{return 'GW'+f.gw+' · '+new Date(raw).toLocaleString('da-DK',{day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'})}catch(e){return 'GW'+f.gw}}
+function renderFixtures(){document.getElementById('fixtureBody').innerHTML=cfx().map(f=>{const h=f.home===club,fdr=Number(h?f.home_fdr:f.away_fdr)||3,m=M.matches.find(x=>Number(x.gw)===Number(f.gw)&&x.home===f.home&&x.away===f.away),href=m?`match-centre.html?match_id=${encodeURIComponent(m.match_id)}`:`match-centre.html?gw=${encodeURIComponent(f.gw)}&home=${encodeURIComponent(f.home)}&away=${encodeURIComponent(f.away)}`,ff=fixtureForecast(f),hs=m?.home_score??f.home_score,as=m?.away_score??f.away_score;return`<div class="fixture-card-v2 ${f.finished?'finished':''}" ${f.finished?`onclick="location.href='${href}'"`:''}><div class="fixture-card-top"><div class="fixture-date">${fixtureDate(f,m)}</div><span class="fdr fdr${Math.min(5,Math.max(1,fdr))}">FDR ${fdr}</span></div><div class="fixture-teams"><div class="fixture-team">${window.FPL_ASSETS?FPL_ASSETS.badgeHTML(f.home,'asset-badge'):''}<span>${esc(f.home)}</span></div><div class="fixture-score-v2">${f.finished?`${hs}–${as}`:'vs'}</div><div class="fixture-team away"><span>${esc(f.away)}</span>${window.FPL_ASSETS?FPL_ASSETS.badgeHTML(f.away,'asset-badge'):''}</div></div><div class="fixture-meta-v2">${f.finished?`<span><strong>Full time</strong> · Match Centre →</span><span>xG ${m?.stats?.xg?num(m.stats.xg[0],2)+'–'+num(m.stats.xg[1],2):'—'}</span>`:`<span><strong>${h?'Home':'Away'}</strong> · upcoming</span><span>${ff.top?esc(ff.top.p.player)+' '+num(ff.top.g.xpts,1)+' xPts':'—'} · CS ${ff.cs==null?'—':Math.round(Number(ff.cs)*100)+'%'}</span>`}</div></div>`}).join('')}
+function render(){renderHead();renderPitch();renderForecast();renderRecent();renderFixtures()}
+sel.onchange=()=>{club=sel.value;history.replaceState(null,'',`?club=${club}`);render()};document.getElementById('forecastSearch').oninput=renderForecast;document.getElementById('statsSearch').oninput=renderRecent;document.getElementById('forecastPeriods').onclick=e=>{if(e.target.tagName==='BUTTON'){[...e.currentTarget.children].forEach(x=>x.classList.remove('active'));e.target.classList.add('active');H=Number(e.target.dataset.h);renderForecast()}};document.getElementById('statsPeriods').onclick=e=>{if(e.target.tagName==='BUTTON'){[...e.currentTarget.children].forEach(x=>x.classList.remove('active'));e.target.classList.add('active');statN=e.target.dataset.n;renderRecent()}};document.querySelectorAll('.tab').forEach(t=>t.onclick=()=>{document.querySelectorAll('.tab').forEach(x=>x.classList.remove('active'));document.querySelectorAll('.view').forEach(x=>x.classList.remove('active'));t.classList.add('active');document.getElementById(t.dataset.view).classList.add('active')});render();attachSort(document.getElementById('forecastTable'));attachSort(document.getElementById('statsTable'));
+</script><script src="nav.js"></script><script src="design-v2.js?v=2"></script></body></html>

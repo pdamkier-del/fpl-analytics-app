@@ -1,0 +1,242 @@
+(()=>{
+  const D=window.FPL_DATA;
+  if(!D||!Array.isArray(D.forecasts)) return;
+  const css=`
+  .brand-link{color:inherit;text-decoration:none}.global-player-jump{margin:0 8px 20px;position:relative}.global-player-jump .jump-label{font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:#6f8797;margin:0 2px 6px}.global-player-jump input{width:100%;border:1px solid #2a3a45;background:#13232e;color:#fff;border-radius:9px;padding:9px 10px;font-size:12px;outline:none}.global-player-jump input:focus{border-color:#58d6a3;box-shadow:0 0 0 2px rgba(88,214,163,.12)}.global-player-jump input::placeholder{color:#8296a3}.global-results{display:none;position:absolute;left:0;right:0;top:56px;z-index:100;background:#fff;color:#17212a;border:1px solid #dfe5e8;border-radius:11px;box-shadow:0 14px 35px rgba(0,0,0,.18);max-height:330px;overflow:auto}.global-results.open{display:block}.jump-result{display:flex;justify-content:space-between;gap:10px;padding:10px 11px;border-bottom:1px solid #edf0f2;cursor:pointer}.jump-result:last-child{border-bottom:0}.jump-result:hover,.jump-result.active{background:#f3faf7}.jump-name{font-size:12px;font-weight:800}.jump-meta{font-size:10px;color:#6a747d;margin-top:2px}.jump-xp{font-size:11px;color:#0b7a53;font-weight:850;white-space:nowrap}.player-jumpable{cursor:pointer;transition:transform .12s ease,box-shadow .12s ease}.player-jumpable:hover{transform:translateY(-1px);box-shadow:0 7px 18px rgba(17,31,44,.10)}.player-link-hint{font-size:10px;color:#0b7a53;font-weight:750;margin-left:4px}.player-nav-actions{display:flex;align-items:center;gap:8px;flex-wrap:wrap}.player-nav-actions a{display:inline-flex;align-items:center;gap:5px;text-decoration:none}.club-inline-link{color:#3156d8;text-decoration:none;font-weight:750}.club-inline-link:hover{text-decoration:underline}.clickable[title]{position:relative}.clickable[title] td:first-child .player:after{content:'Open';font-size:9px;color:#0b7a53;background:#e8f6f0;border-radius:999px;padding:3px 6px;margin-left:3px;font-weight:800;opacity:0}.clickable[title]:hover td:first-child .player:after{opacity:1}
+  @media(max-width:980px){.global-player-jump{display:none}}
+  `;
+  const st=document.createElement('style');st.textContent=css;document.head.appendChild(st);
+
+  // Make the brand a reliable way home.
+  const brand=document.querySelector('.brand');
+  if(brand && brand.parentElement?.tagName!=='A'){
+    const a=document.createElement('a');a.href='overview.html';a.className='brand-link';
+    brand.parentNode.insertBefore(a,brand);a.appendChild(brand);
+  }
+
+  // Global player search in sidebar.
+  const sidebar=document.querySelector('.sidebar');
+  if(sidebar && !document.getElementById('globalPlayerSearch')){
+    const box=document.createElement('div');box.className='global-player-jump';
+    box.innerHTML=`<div class="jump-label">Jump to player</div><input id="globalPlayerSearch" autocomplete="off" placeholder="Search 562 players…"><div id="globalPlayerResults" class="global-results"></div>`;
+    const brandLink=sidebar.querySelector('.brand-link')||sidebar.querySelector('.brand');
+    brandLink.insertAdjacentElement('afterend',box);
+    const input=box.querySelector('input'), results=box.querySelector('.global-results');
+    let shown=[];let active=-1;
+    const norm=s=>String(s||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase();
+    const render=()=>{
+      const q=norm(input.value.trim());
+      if(!q){results.classList.remove('open');results.innerHTML='';shown=[];active=-1;return;}
+      shown=D.forecasts.filter(p=>norm(`${p.player} ${p.full_name||''} ${p.club}`).includes(q)).sort((a,b)=>(b.xpts6||0)-(a.xpts6||0)).slice(0,8);
+      results.innerHTML=shown.length?shown.map((p,i)=>`<div class="jump-result" data-i="${i}"><div><div class="jump-name">${p.player}</div><div class="jump-meta">${p.club} · ${p.pos} · £${Number(p.price||0).toFixed(1)}m</div></div><div class="jump-xp">${Number(p.xpts6||0).toFixed(1)} xPts</div></div>`).join(''):`<div class="jump-result"><div class="jump-meta">No players found</div></div>`;
+      results.classList.add('open');active=-1;
+      results.querySelectorAll('[data-i]').forEach(el=>el.addEventListener('click',()=>location.href=`player.html?id=${shown[Number(el.dataset.i)].id}`));
+    };
+    input.addEventListener('input',render);
+    input.addEventListener('keydown',e=>{
+      const els=[...results.querySelectorAll('[data-i]')];
+      if(e.key==='ArrowDown'&&els.length){e.preventDefault();active=Math.min(active+1,els.length-1)}
+      else if(e.key==='ArrowUp'&&els.length){e.preventDefault();active=Math.max(active-1,0)}
+      else if(e.key==='Enter'&&shown.length){e.preventDefault();const i=active>=0?active:0;location.href=`player.html?id=${shown[i].id}`;return}
+      else if(e.key==='Escape'){results.classList.remove('open');input.blur();return}
+      else return;
+      els.forEach((x,i)=>x.classList.toggle('active',i===active));
+    });
+    document.addEventListener('click',e=>{if(!box.contains(e.target))results.classList.remove('open')});
+    document.addEventListener('keydown',e=>{if((e.ctrlKey||e.metaKey)&&e.key.toLowerCase()==='k'){e.preventDefault();input.focus();input.select()}});
+  }
+
+  // Make already-clickable table rows visibly discoverable.
+  document.querySelectorAll('tr.clickable').forEach(r=>{if(!r.title)r.title='Open player profile'});
+
+  // Turn My Team player cards / bench items into profile links when we can match a player.
+  const alias={'dcl':'Calvert-Lewin','b fernandes':'B.Fernandes','bruno fernandes':'B.Fernandes'};
+  const normalizeName=s=>String(s||'').replace(/\b[CcVv]\b/g,'').replace(/[^A-Za-zÀ-ÿ. -]/g,' ').replace(/\s+/g,' ').trim().toLowerCase();
+  const findPlayer=name=>{
+    let q=normalizeName(name); if(alias[q]) q=normalizeName(alias[q]);
+    return D.forecasts.find(p=>normalizeName(p.player)===q)||D.forecasts.find(p=>normalizeName(p.full_name)===q)||D.forecasts.find(p=>normalizeName(p.player).includes(q)||q.includes(normalizeName(p.player)));
+  };
+  document.querySelectorAll('.player-card').forEach(card=>{
+    const nameEl=card.querySelector('.name'); if(!nameEl)return;
+    const clone=nameEl.cloneNode(true);clone.querySelectorAll('.tag').forEach(x=>x.remove());
+    const p=findPlayer(clone.textContent);
+    if(p){card.classList.add('player-jumpable');card.title=`Open ${p.player}`;card.addEventListener('click',()=>location.href=`player.html?id=${p.id}`)}
+  });
+  document.querySelectorAll('.bench-item').forEach(item=>{
+    const name=(item.querySelector('span')?.textContent||'').split('·')[0].trim();const p=findPlayer(name);
+    if(p){item.classList.add('player-jumpable');item.title=`Open ${p.player}`;item.addEventListener('click',()=>location.href=`player.html?id=${p.id}`)}
+  });
+
+  // On any player profile, add previous/next navigation and club shortcut.
+  const playerName=document.getElementById('playerName');
+  if(playerName){
+    const id=Number(new URLSearchParams(location.search).get('id')||411);const current=D.forecasts.find(x=>x.id===id)||D.forecasts[0];
+    const ordered=[...D.forecasts].sort((a,b)=>(b.xpts6||0)-(a.xpts6||0));const idx=ordered.findIndex(x=>x.id===current.id);
+    const prev=ordered[(idx-1+ordered.length)%ordered.length], next=ordered[(idx+1)%ordered.length];
+    const pageHead=document.querySelector('.page-head');const oldBack=pageHead?.querySelector('a.ghost');
+    if(pageHead){
+      const actions=document.createElement('div');actions.className='player-nav-actions';
+      actions.innerHTML=`<a class="ghost" href="player.html?id=${prev.id}" title="Previous in 6GW ranking">← ${prev.player}</a><a class="ghost" href="index.html?club=${current.club}">${current.club} club</a><a class="ghost" href="rankings.html">All players</a><a class="ghost" href="player.html?id=${next.id}" title="Next in 6GW ranking">${next.player} →</a>`;
+      if(oldBack)oldBack.replaceWith(actions);else pageHead.appendChild(actions);
+    }
+    const meta=document.getElementById('playerMeta');
+    if(meta){
+      const html=meta.innerHTML;meta.innerHTML=html.replace(new RegExp(`^${current.club}`),`<a class="club-inline-link" href="index.html?club=${current.club}">${current.club}</a>`);
+    }
+  }
+})();
+(()=>{
+  const file=(location.pathname.split('/').pop()||'overview.html').toLowerCase();
+  const sidebar=document.querySelector('.sidebar'); if(!sidebar)return;
+  const titles=[...sidebar.querySelectorAll('.nav-title')];
+  const workspaceTitle=[...sidebar.querySelectorAll('.nav-title')].find(x=>x.textContent.trim().toLowerCase()==='workspace');
+  if(workspaceTitle){
+    const nav=workspaceTitle.nextElementSibling;
+    if(nav?.classList.contains('nav') && !nav.querySelector('a[href="team-optimizer.html"]')){
+      const opt=document.createElement('a');opt.href='team-optimizer.html';opt.innerHTML='<span>Team Optimizer</span>';
+      const transfer=nav.querySelector('a[href="transfer-planner.html"]');if(transfer)nav.insertBefore(opt,transfer);else nav.appendChild(opt);
+    }
+  }
+  const modelTitle=titles.find(x=>x.textContent.trim().toLowerCase()==='model');
+  if(modelTitle){
+    const nav=modelTitle.nextElementSibling;
+    if(nav?.classList.contains('nav') && !nav.querySelector('a[href="model-lab.html"]')){
+      const lab=document.createElement('a');lab.href='model-lab.html';lab.innerHTML='<span>Model Lab</span>';
+      const replay=nav.querySelector('a[href="replay.html"]'); if(replay)nav.insertBefore(lab,replay); else nav.appendChild(lab);
+    }
+  }
+  sidebar.querySelectorAll('.nav a').forEach(a=>a.classList.toggle('active',(a.getAttribute('href')||'').toLowerCase()===file));
+  const foot=sidebar.querySelector('.sidebar-foot'); if(foot && location.protocol.startsWith('http')) foot.innerHTML='Local desktop app<br/>Real 2026/27 data connected.<br/>Model versions saved locally.';
+})();
+(()=>{
+ if((location.pathname.split('/').pop()||'').toLowerCase()!=='model-status.html')return;
+ const main=document.querySelector('.main'); if(!main||document.getElementById('modelLabCTA'))return;
+ const panel=document.createElement('div'); panel.id='modelLabCTA'; panel.className='panel'; panel.style.marginTop='16px';
+ panel.innerHTML='<div class="panel-head">Editable mathematics</div><div class="panel-body"><div style="font-size:13px;color:var(--muted);line-height:1.55;margin-bottom:12px">Model parameters and versions now live outside the frontend. Changes can be saved as new versions and compared in replay rather than overwriting the baseline.</div><a class="ghost" href="model-lab.html">Open Model Lab →</a></div>';
+ main.appendChild(panel);
+})();
+
+(()=>{
+ const sidebar=document.querySelector('.sidebar');if(!sidebar)return;
+ const wt=[...sidebar.querySelectorAll('.nav-title')].find(x=>x.textContent.trim().toLowerCase()==='workspace'),nav=wt?.nextElementSibling;if(!nav)return;
+ let opt=nav.querySelector('a[href="team-optimizer.html"]');
+ if(!opt){opt=document.createElement('a');opt.href='team-optimizer.html';const old=nav.querySelector('a[href="transfer-planner.html"]');if(old)nav.insertBefore(opt,old);else nav.appendChild(opt)}
+ opt.innerHTML='<span>Transfer & Team Optimizer</span>';
+ nav.querySelectorAll('a[href="transfer-planner.html"]').forEach(x=>x.remove());
+ const file=(location.pathname.split('/').pop()||'overview.html').toLowerCase();nav.querySelectorAll('a').forEach(a=>a.classList.toggle('active',(a.getAttribute('href')||'').toLowerCase()===file));
+})();
+
+(()=>{
+  const sidebar=document.querySelector('.sidebar');if(!sidebar)return;
+  let title=[...sidebar.querySelectorAll('.nav-title')].find(x=>['model','models'].includes(x.textContent.trim().toLowerCase()));
+  if(!title){
+    title=document.createElement('div');title.className='nav-title';title.textContent='Models';
+    sidebar.querySelector('.sidebar-foot')?.insertAdjacentElement('beforebegin',title);
+    const nav=document.createElement('div');nav.className='nav';title.insertAdjacentElement('afterend',nav);
+  }
+  title.textContent='Models';
+  const nav=title.nextElementSibling;if(!nav?.classList.contains('nav'))return;
+  const legacy=[...nav.querySelectorAll('a')];
+  let explorer=nav.querySelector('a[href="models.html"]');
+  if(!explorer){explorer=document.createElement('a');explorer.href='models.html';explorer.innerHTML='<span>Model Explorer</span>';nav.prepend(explorer)}
+  const replay=nav.querySelector('a[href="replay.html"]');if(replay)replay.innerHTML='<span>Replay & Audit</span>';
+  const file=(location.pathname.split('/').pop()||'overview.html').toLowerCase();
+  nav.querySelectorAll('a').forEach(a=>a.classList.toggle('active',(a.getAttribute('href')||'').toLowerCase()===file));
+})();
+(()=>{
+  if((location.pathname.split('/').pop()||'').toLowerCase()!=='player.html')return;
+  const D=window.FPL_DATA;if(!D)return;
+  const id=Number(new URLSearchParams(location.search).get('id')||0),p=D.forecasts.find(x=>x.id===id)||D.forecasts[0];if(!p)return;
+  const g=p.gws?.[0]||{};
+  const anchor=document.querySelector('.summary-grid');if(!anchor||document.getElementById('playerModelPath'))return;
+  const panel=document.createElement('div');panel.id='playerModelPath';panel.className='panel';panel.style.margin='0 0 16px';
+  const role=g.assigned_role||g.role||p.assigned_role||'—';
+  const hierarchy=g.role_hierarchy_rank||p.role_hierarchy_rank||'—';
+  const rating=g.rating_recent??p.rating_recent;
+  const mi=g.match_importance??p.match_importance;
+  const fmt=x=>x==null?'—':Number(x).toFixed(2);
+  panel.innerHTML=`<div class="panel-head">Why this forecast?</div><div class="panel-body">
+    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px">
+      <a href="models.html#minutes" style="border:1px solid var(--line);border-radius:11px;padding:12px;text-decoration:none;color:inherit"><div class="card-label">Minute Model</div><div style="font-weight:900;margin:5px 0">${Number(g.xmins||0).toFixed(1)} xMins · ${g.pstart==null?'—':Math.round(g.pstart*100)+'%'} start</div><div class="card-note">Role ${role} · hierarchy ${hierarchy}${rating==null?'':' · rating '+fmt(rating)}${mi==null?'':' · importance '+fmt(mi)}</div></a>
+      <a href="models.html#points" style="border:1px solid var(--line);border-radius:11px;padding:12px;text-decoration:none;color:inherit"><div class="card-label">Point Model</div><div style="font-weight:900;margin:5px 0">${fmt(g.xpts)} xPts</div><div class="card-note">xG ${fmt(g.xg)} · xA ${fmt(g.xa)} · CS ${g.team_cs==null?'—':Math.round(g.team_cs*100)+'%'}</div></a>
+      <a href="models.html#transfers" style="border:1px solid var(--line);border-radius:11px;padding:12px;text-decoration:none;color:inherit"><div class="card-label">Transfer Model</div><div style="font-weight:900;margin:5px 0">${fmt(p.xpts6)} xPts / 6GW</div><div class="card-note">See how future value enters transfer planning →</div></a>
+    </div></div>`;
+  anchor.insertAdjacentElement('afterend',panel);
+})();
+
+/* Keep forecast test page discoverable throughout the installed desktop app. */
+(()=>{
+  const file=(location.pathname.split('/').pop()||'overview.html').toLowerCase();
+  for(const navigation of document.querySelectorAll('.sidebar .nav')){
+    const links=[...navigation.querySelectorAll('a')];
+    if(!links.some(a=>(a.getAttribute('href')||'').toLowerCase()==='my-team.html'))continue;
+    let target=links.find(a=>(a.getAttribute('href')||'').toLowerCase()==='forecast-center.html');
+    if(!target){
+      target=document.createElement('a');
+      target.href='forecast-center.html';
+      target.textContent='Forecast & Chips';
+      const anchor=links.find(a=>(a.getAttribute('href')||'').toLowerCase()==='my-team.html');
+      anchor.insertAdjacentElement('afterend',target);
+    }
+    if(file==='forecast-center.html') target.classList.add('active');
+  }
+})();
+
+/* Shared iPhone PWA installation and FPL-style bottom navigation. */
+(()=>{
+  if(!document.querySelector('link[rel="manifest"]')){
+    const m=document.createElement('link');m.rel='manifest';m.href='manifest.webmanifest';document.head.appendChild(m);
+  }
+  if(!document.querySelector('meta[name="theme-color"]')){
+    const m=document.createElement('meta');m.name='theme-color';m.content='#37003c';document.head.appendChild(m);
+  }
+  if(!document.querySelector('meta[name="apple-mobile-web-app-capable"]')){
+    const m=document.createElement('meta');m.name='apple-mobile-web-app-capable';m.content='yes';document.head.appendChild(m);
+  }
+  if(location.protocol==='https:'&&'serviceWorker'in navigator) navigator.serviceWorker.register('./sw.js').catch(()=>{});
+  const current=(location.pathname.split('/').pop()||'overview.html').toLowerCase();
+  const tabs=[['my-team.html','⚽','My Team'],['team-optimizer.html','⇄','Transfers'],['forecast-center.html','◴','Forecast'],['rankings.html','★','Rankings'],['mobile.html','☰','Menu']];
+  const style=document.createElement('style');
+  style.textContent='@media(max-width:790px){body{padding-bottom:calc(68px + env(safe-area-inset-bottom))!important}.fpl-bottomnav{position:fixed;bottom:0;left:0;right:0;z-index:99999;display:grid;grid-template-columns:repeat(5,minmax(0,1fr));background:#37003c;color:#fff;box-shadow:0 -4px 18px #0002;padding-bottom:env(safe-area-inset-bottom)}.fpl-bottomnav a{min-height:62px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;color:#e9ddec;text-decoration:none;font:600 10px system-ui,sans-serif}.fpl-bottomnav a strong{font-size:21px;font-weight:600}.fpl-bottomnav a[aria-current=page]{color:#00ff87;background:#ffffff13}}@media(min-width:791px){.fpl-bottomnav{display:none}}';
+  document.head.appendChild(style);
+  if(!document.querySelector('.fpl-bottomnav')){
+    const nav=document.createElement('nav');nav.className='fpl-bottomnav';nav.setAttribute('aria-label','Mobil navigation');
+    for(const [href,icon,label] of tabs){const a=document.createElement('a');a.href=href;if(href===current)a.setAttribute('aria-current','page');const s=document.createElement('strong');s.textContent=icon;const t=document.createElement('span');t.textContent=label;a.append(s,t);nav.appendChild(a)}
+    document.body.appendChild(nav);
+  }
+})();
+
+/* Mobile ergonomics: respect iPhone safe areas and keep wide FPL tables scrollable. */
+(()=>{
+ const s=document.createElement('style');
+ s.textContent=`@media(max-width:790px){
+ html{max-width:100%;overflow-x:hidden;-webkit-text-size-adjust:100%}
+ body{max-width:100%;overflow-x:hidden}
+ .app,.layout,.main,main,.content,.page,.panel,.card{min-width:0;max-width:100%}
+ .main,main{padding-left:max(12px,env(safe-area-inset-left))!important;padding-right:max(12px,env(safe-area-inset-right))!important}
+ .table-wrap,[class*="table-wrap"]{max-width:100%;overflow-x:auto!important;-webkit-overflow-scrolling:touch}
+ img{max-width:100%}
+ input,select,textarea{max-width:100%;font-size:max(16px,1em)}
+ button,a,select{touch-action:manipulation}
+ .fpl-bottomnav a{min-width:0}
+ .fpl-bottomnav a span{white-space:nowrap}
+ }
+ @media(max-width:380px){.fpl-bottomnav a{font-size:9px}.fpl-bottomnav a strong{font-size:19px}}`;
+ document.head.appendChild(s);
+})();
+
+/* Official current fixtures independent of archived model season. */
+(()=>{for(const nav of document.querySelectorAll('.sidebar .nav')){if(nav.querySelector('a[href="fixtures-live.html"]'))continue;let a=document.createElement('a');a.href='fixtures-live.html';a.textContent='Fixtures & Results (Live)';let target=nav.querySelector('a[href="overview.html"]');if(target)target.insertAdjacentElement('afterend',a);else if(nav.querySelector('a[href="index.html"]'))nav.appendChild(a)}})();
+
+/* Verified current-season directory and match results are separate from old model snapshots. */
+(()=>{for(const n of document.querySelectorAll('.sidebar .nav')){const target=n.querySelector('a[href="overview.html"]');if(!target)continue;for(const [href,label] of [['current-players.html','Aktuelle spillere'],['fixtures-live.html','Seneste kampe']]){if(n.querySelector('a[href="'+href+'"]'))continue;const a=document.createElement('a');a.href=href;a.textContent=label;target.insertAdjacentElement('afterend',a)}}})();
+
+(()=>{for(const n of document.querySelectorAll('.sidebar .nav')){if(n.querySelector('a[href="live-model-status.html"]'))continue;const anchor=n.querySelector('a[href="overview.html"]');if(anchor){let a=document.createElement('a');a.href='live-model-status.html';a.textContent='Datakvalitet & Modelstatus';anchor.insertAdjacentElement('afterend',a)}}})();
+
+(()=>{for(const n of document.querySelectorAll('.sidebar .nav')){if(n.querySelector('a[href="forecast-history.html"]'))continue;const a=document.createElement('a');a.href='forecast-history.html';a.textContent='Spillerforecast (xP)';const anchor=n.querySelector('a[href="overview.html"]');if(anchor)anchor.insertAdjacentElement('afterend',a)}})();
+
+(()=>{for(const n of document.querySelectorAll('.sidebar .nav')){if(n.querySelector('a[href="forecast-live.html"]'))continue;const anchor=n.querySelector('a[href="overview.html"]');if(anchor){const a=document.createElement('a');a.href='forecast-live.html';a.textContent='Aktuel FPL xP';anchor.insertAdjacentElement('afterend',a)}}})();
+
+(()=>{for(const n of document.querySelectorAll('.sidebar .nav')){if(n.querySelector('a[href="my-team-live.html"]'))continue;const anchor=n.querySelector('a[href="my-team.html"]')||n.querySelector('a[href="overview.html"]');if(anchor){const a=document.createElement('a');a.href='my-team-live.html';a.textContent='Aktuelt My Team · FPL';anchor.insertAdjacentElement('afterend',a)}}})();
+
+(()=>{for(const n of document.querySelectorAll('.sidebar .nav')){if(n.querySelector('a[href="own-forecast.html"]'))continue;const anchor=n.querySelector('a[href="forecast-live.html"]')||n.querySelector('a[href="overview.html"]');if(anchor){const a=document.createElement('a');a.href='own-forecast.html';a.textContent='Vores egne xP · 6 GW';anchor.insertAdjacentElement('afterend',a)}}})();

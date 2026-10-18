@@ -1,0 +1,1 @@
+window.FPL_ROLE_DATA={schema_version:1,season:null,model:"not_generated",current_tactical_lineups_found:0,historical_tactical_lineups_found:0,current_xi_certified:false,warnings:["Publisher has not generated current role evidence yet."],players:[],expected_lineups:[]};
