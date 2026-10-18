@@ -1,0 +1,17 @@
+name: Experimental goalkeeper 90-minute coverage tests
+on:
+  push:
+    branches: [experiment-goalkeeper-coverage-20261018]
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: pip install numpy pandas scipy
+      - run: PYTHONPATH=src:scripts:. python -m pytest -q tests/test_joint_goalkeeper_coverage.py tests/test_mm_locked_bridge.py
