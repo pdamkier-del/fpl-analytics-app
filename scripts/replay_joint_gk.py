@@ -11,7 +11,7 @@ from individual_mm_evidence import load_frame
 from build_current_b_inputs import historical_B_training
 from research_individual_mm_refinement import design
 from run_vfinal_integrated import build_final_frame
-from mm_locked_bridge import attach_mm
+from mm_locked_bridge import attach_mm,locked_sampler_expectation
 from gk_joint_bridge import observations
 from run_joint_gk_preview import run,write,ROOT
 
@@ -46,7 +46,7 @@ def main():
         if k not in details:continue
         actual=truth.loc[k];before=basex.loc[k];new=details[k]
         pred.append(dict(fixture_uuid=k[0],player_uuid=k[1],gw=int(actual.gw),actual_start=float(actual.y),actual_minutes=float(actual.minutes),
-            before_p=float(actual.p),after_p=new['p'],before_minutes=before.minutes,after_minutes=new['x'],before_xp=before.xpts,after_xp=r.xpts_fixture))
+            before_p=float(actual.p),after_p=new['p'],before_minutes=float(locked_sampler_expectation(actual.p,actual.q,actual.s,actual.c)),before_sampled_minutes=before.minutes,after_minutes=new['x'],before_xp=before.xpts,after_xp=r.xpts_fixture))
     result=pd.DataFrame(pred)
     import sqlite3
     with sqlite3.connect(f'file:{ROOT/"work/core.sqlite3"}?mode=ro',uri=True)as db:
@@ -63,7 +63,7 @@ def main():
     result.assign(error=abs(result.after_xp-result.total_points)).nlargest(20,'error').to_csv(out/'failure-cases.csv',index=False)
     write(out/'summary.json',dict(scope='past-only matched replay on reused research period; not independent certification',season='2025-26',gws=list(range(22,39)),
         fixtures=int(result.fixture_uuid.nunique()),metrics=metrics,team_fixtures=len(audit),all_team_gk_minutes_90=all(abs(a['analytic_gk_minutes']-90)<1e-8 for a in audit),
-        baseline='same B MM through original locked PM sampler',candidate='B-GK-joint-empirical-v1 plus dependent joint XI starts',production_changed=False,
+        minute_metric_basis='analytic expectation for both arms; xP uses paired400-draw budgets',baseline='same B MM through original locked PM sampler',candidate='B-GK-joint-empirical-v1 plus dependent joint XI starts',production_changed=False,
         source_clock_limitation='Historical outcomes known-at inherits kickoff+3h proxy; strict news cutoffs preserved; this period was previously used for research'))
     print(json.dumps(metrics,indent=2),flush=True)
 if __name__=='__main__':main()
