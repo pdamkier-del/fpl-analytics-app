@@ -60,6 +60,13 @@ def publish(source,out,inputs=ROOT/'work/current-B-inputs'):
     (out/'role-ledger.csv.gz').write_bytes(ledger)
     index['catalogue_file']='catalogue.json'
     index['catalogue_sha256']=write(out/'catalogue.json',catalogue)
+    from build_existing_b_app import build as build_existing_app,source_data
+    fixtures=json.loads((Path(inputs)/'fixtures.json').read_text())
+    if hashlib.sha256(json.dumps(fixtures,sort_keys=True,separators=(',',':'),allow_nan=False).encode()).hexdigest()!=provenance['fixtures_sha256']:
+        raise ValueError('Official fixture source changed')
+    index['existing_app_data_sha256']=write(out/'existing-app-data.json',dict(
+        forecast_sha256=f['forecast_sha256'],documents=source_data(bootstrap,fixtures,provenance,f,m)))
+    build_existing_app()
     write(out/'pm-audit.json',audit)
     write(out/'index.json',index)
     packed=gzip.compress((source/'mm.json').read_bytes(),mtime=0)

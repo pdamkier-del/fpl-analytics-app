@@ -83,6 +83,9 @@ jobs:
       - name: Export isolated current preview and preserve locked mathematics
         run: |
           python scripts/publish_current_b_preview.py
+          node --check app/mm-preview/existing-app-adapter.js
+          node --check app/mm-preview/app/classic-manager.js
+          node --check app/mm-preview/app/weekly-app.js
           git diff --exit-code 3ad8fc5f2eabe0a62fec494d896320d288ece2d5 -- src model service/manager_job.py
       - uses: actions/upload-artifact@v4
         with:
