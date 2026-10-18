@@ -120,3 +120,40 @@ branch or research PR was created. Full Python and JS CI was added at commit
 7b2b902; run https://github.com/pdamkier-del/fpl-analytics-app/actions/runs/39149557375
 was in progress when first inspected. Local pass results do not establish its
 remote conclusion.
+
+## Fresh local B chain execution
+
+The missing 2024/25 input archive was restored with the repository's checksummed
+restore command. PR4 role-training reconstruction completed: both frozen season
+references reproduced within 1e-6. Current NUM feature parity also passed.
+Authentic B inputs were rebuilt for 667 players, 60 fixtures, GW8-13 at the
+restored current source cutoff `2026-10-18T14:00:39.615446+00:00`.
+
+`verify_current_b_stages.py` passed the real one-match (66 player-fixture rows)
+and full-GW8 (667 rows, 10 matches) checks. The unmodified locked B->PM six-GW
+entry point then completed 4,002 player-fixture rows, 60 fixtures, 400 draws each,
+with point components reconciled. This validates the existing diagnostic chain,
+not the new joint GK kernel. Its MM/PM maximum analytic minute discrepancy is
+3.934590524959731, so its mean-consistency gate remains false. Personalized TS
+was not run: no actual private manager state was supplied, and no manager was
+fabricated. Production stays inactive.
+
+On this fresh B run Penders GW8 remains p_start=1, xM=78,
+PM analytic minutes=77.43978449733301, sampled minutes=77.81, xP=3.94. These
+numbers differ from the recovered deployed snapshot above because the source
+cutoff/seed indexing is a different run; they are not a joint-model improvement.
+
+CI for commit 995c6b1 completed successfully:
+https://github.com/pdamkier-del/fpl-analytics-app/actions/runs/39149720827
+
+A direct Playwright navigation to the public Pages host failed certificate
+validation. Automatic approval review rejected importing the platform proxy CA
+into the browser's persistent trust store, citing the broader TLS trust change.
+No TLS checks were disabled and no workaround was used after that rejection.
+Explicit user approval is pending separately. The network policy still requires
+the saved domain changes to be applied before API/deploy access can be checked.
+
+The full six-GW diagnostic execution was repeated with the same immutable
+inputs. `cmp` passed for both forecast.json and mm.json; both registered MM
+snapshots have SHA256
+`8bccf457a58dcfe7f84bebee1782c8be6a9416889e3673bc395d4cd99b4945a1`.
