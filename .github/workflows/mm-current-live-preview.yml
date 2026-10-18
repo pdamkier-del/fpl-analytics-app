@@ -21,7 +21,9 @@ permissions:
   actions: read
 concurrency:
   group: current-B-MM-preview
-  cancel-in-progress: false
+  # Superseded development pushes must not delay the latest verified preview.
+  # Scheduled/reusable refreshes still finish; failed/cancelled runs never publish.
+  cancel-in-progress: ${{ github.event_name == 'push' }}
 env:
   PYTHONPATH: src:scripts:.
   OPENBLAS_NUM_THREADS: '1'
