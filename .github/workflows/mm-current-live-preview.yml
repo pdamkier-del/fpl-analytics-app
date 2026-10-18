@@ -44,6 +44,7 @@ jobs:
           python -m pytest -q tests
           node tests/test_B_preview_contract.js
           node tests/test_B_preview_jobs.js
+          node tests/test_B_personal_view.js
           node --check app/mm-preview/live.js
           node --check app/mm-preview/preview.js
       - name: Restore verified original MM and historical role source data
