@@ -76,6 +76,7 @@ jobs:
           python scripts/locked_numerical_runtime.py scripts/build_current_b_inputs.py --role-ledger work/previous-B-role-ledger.csv.gz
       - name: Run real six-GW B to locked PM twice without a fabricated manager
         run: |
+          python scripts/locked_numerical_runtime.py scripts/verify_current_b_stages.py
           python scripts/locked_numerical_runtime.py scripts/run_mm_locked_preview.py --history work/current-B-inputs/history.csv.gz --target work/current-B-inputs/target.csv.gz --roles work/current-B-inputs/roles.csv.gz --provenance work/current-B-inputs/provenance.json --pm-input work/current-B-inputs/pm.csv.gz --bootstrap work/current-B-inputs/bootstrap.json --fixtures work/current-B-inputs/fixtures.json --bps-audit work/current-B-inputs/bps-audit.json --out work/current-B-output
           python scripts/locked_numerical_runtime.py scripts/run_mm_locked_preview.py --history work/current-B-inputs/history.csv.gz --target work/current-B-inputs/target.csv.gz --roles work/current-B-inputs/roles.csv.gz --provenance work/current-B-inputs/provenance.json --pm-input work/current-B-inputs/pm.csv.gz --bootstrap work/current-B-inputs/bootstrap.json --fixtures work/current-B-inputs/fixtures.json --bps-audit work/current-B-inputs/bps-audit.json --out work/current-B-repeat
           cmp work/current-B-output/forecast.json work/current-B-repeat/forecast.json
