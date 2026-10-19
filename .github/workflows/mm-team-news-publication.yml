@@ -1,0 +1,15 @@
+name: Refresh dashboard team news
+on:
+  schedule:
+    - cron: '*/15 * * * *'
+  workflow_dispatch:
+permissions:
+  contents: write
+  actions: read
+  pages: write
+  id-token: write
+jobs:
+  news:
+    uses: pdamkier-del/fpl-analytics-app/.github/workflows/mm-team-news.yml@652f88c62f6392a514ea7d349b06d6f121538e93
+    with:
+      source_ref: 652f88c62f6392a514ea7d349b06d6f121538e93
