@@ -9,12 +9,12 @@ permissions:
   pages: write
   id-token: write
 env:
-  PREVIEW_SOURCE_SHA: 150695746949e5f405b3af944e4b53e2f96c2af4
+  PREVIEW_SOURCE_SHA: 6f1b2f7694422d4502d49c01f93a56476ca7fb16
 jobs:
   current:
-    uses: pdamkier-del/fpl-analytics-app/.github/workflows/mm-current-live-preview.yml@150695746949e5f405b3af944e4b53e2f96c2af4
+    uses: pdamkier-del/fpl-analytics-app/.github/workflows/mm-current-live-preview.yml@6f1b2f7694422d4502d49c01f93a56476ca7fb16
     with:
-      source_ref: 150695746949e5f405b3af944e4b53e2f96c2af4
+      source_ref: 6f1b2f7694422d4502d49c01f93a56476ca7fb16
     permissions:
       contents: read
       actions: read

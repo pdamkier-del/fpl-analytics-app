@@ -10,7 +10,7 @@ permissions:
   pages: write
   id-token: write
 env:
-  PREVIEW_SOURCE_SHA: 150695746949e5f405b3af944e4b53e2f96c2af4
+  PREVIEW_SOURCE_SHA: 6f1b2f7694422d4502d49c01f93a56476ca7fb16
 jobs:
   verified-artifact:
     runs-on: ubuntu-latest
@@ -30,7 +30,7 @@ jobs:
           end=time.monotonic()+1800
           while time.monotonic()<end:
               runs=get('actions/runs?per_page=100')['workflow_runs']
-              matches=[r for r in runs if r['head_sha']==os.environ['PREVIEW_SOURCE_SHA'] and r['path']=='.github/workflows/mm-current-live-preview.yml']
+              matches=[r for r in runs if r['head_sha']==os.environ['PREVIEW_SOURCE_SHA'] and r['path']=='.github/workflows/mm-desktop-probabilities.yml']
               if matches and matches[0]['status']=='completed' and matches[0]['conclusion']!='success':raise SystemExit('Exact-source MM validation failed')
               busy=[r for r in runs if r['path'] in ['.github/workflows/free-pages.yml','.github/workflows/current-diagnostic-forecast.yml'] and r['status'] in ['queued','in_progress','waiting','pending']]
               if matches and matches[0]['conclusion']=='success' and not busy:
@@ -58,7 +58,7 @@ jobs:
           fetch-depth: 0
       - uses: actions/download-artifact@v4
         with:
-          name: mm-current-live-preview
+          name: mm-desktop-probabilities-preview
           path: .mm-preview-evidence
           run-id: ${{ needs.verified-artifact.outputs.run }}
           github-token: ${{ github.token }}
