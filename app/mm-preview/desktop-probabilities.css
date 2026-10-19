@@ -1,0 +1,15 @@
+/* Additive components inherit the desktop app's existing palette and cards. */
+.fpl-probabilities{margin-top:14px;color:var(--ink,#171b20)}
+.fpl-probabilities .prob-toolbar{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}
+.fpl-probabilities .prob-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin:14px 0}
+.fpl-probabilities .card{background:var(--panel,#fff);border:1px solid var(--line,#e3e6e9);border-radius:12px;padding:14px;box-shadow:var(--shadow,none)}
+.fpl-probabilities .label{font-size:11px;color:var(--muted,#6f7780)}
+.fpl-probabilities .value{font-size:22px;font-weight:900;color:var(--green,#087a52);margin-top:5px}
+.fpl-probabilities .prob-note{font-size:12px;line-height:1.6;color:var(--muted,#6f7780)}
+.fpl-probabilities select,.fpl-probabilities button{font:inherit;border:1px solid var(--line,#e3e6e9);border-radius:8px;background:var(--panel,#fff);color:var(--ink,#171b20);padding:9px 12px;min-height:40px}
+.fpl-probabilities .prob-fixture{border-top:1px solid var(--line,#e3e6e9);padding-top:12px;margin-top:12px}
+.fpl-probability-dialog{background:var(--panel,#fff);color:var(--ink,#171b20);border:1px solid var(--line,#e3e6e9);border-radius:16px;width:min(850px,calc(100vw - 32px));max-height:88vh;overflow:auto;padding:20px;box-shadow:var(--shadow,0 8px 28px #111f2c22)}
+.fpl-probability-dialog::backdrop{background:#0c172099}
+.fpl-probability-dialog .prob-toolbar{position:sticky;top:-20px;background:var(--panel,#fff);z-index:2;padding:12px 0}
+@media(max-width:650px){.fpl-probabilities .prob-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.fpl-probabilities .value{font-size:20px}}
+.sheet-back .sheet:has(.fpl-probabilities){max-height:88vh;overflow:auto}

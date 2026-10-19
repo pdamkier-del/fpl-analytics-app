@@ -1,0 +1,86 @@
+name: Validate existing desktop app probability integration
+on:
+  push:
+    branches: [experiment-goalkeeper-coverage-20261018]
+    paths:
+      - app/mm-preview/existing-app-adapter.js
+      - app/mm-preview/desktop-probabilities.*
+      - scripts/integrate_desktop_probabilities.py
+      - scripts/export_joint_gk_preview.py
+      - analysis/verify_desktop_probabilities.cjs
+      - .github/workflows/mm-desktop-probabilities.yml
+  workflow_dispatch:
+permissions:
+  contents: read
+  actions: read
+env:
+  PYTHONPATH: src:scripts:.
+  OPENBLAS_NUM_THREADS: '1'
+  MODEL_RUN: '39263489281'
+  MODEL_SOURCE: 150695746949e5f405b3af944e4b53e2f96c2af4
+jobs:
+  desktop:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Require previously validated model and unchanged numerical code
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          python - <<'PY'
+          import json,os,subprocess
+          r=json.loads(subprocess.check_output(['gh','api','repos/pdamkier-del/fpl-analytics-app/actions/runs/'+os.environ['MODEL_RUN']]))
+          assert r['conclusion']=='success' and r['head_sha']==os.environ['MODEL_SOURCE'] and r['path']=='.github/workflows/mm-current-live-preview.yml'
+          PY
+          git diff --exit-code "$MODEL_SOURCE" -- src model service scripts/gk_joint_bridge.py scripts/gk_solo_role.py scripts/pm_preview_distributions.py scripts/run_joint_gk_preview.py scripts/mm_candidate_forecast.py scripts/mm_locked_bridge.py
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - run: pip install -r requirements-model-checkpoint.txt -r requirements-model-tests.txt requests tabulate==0.10.0
+      - name: Regression and unchanged private manager contracts
+        run: |
+          python -m pytest -q tests
+          node tests/test_existing_B_adapter.js
+          node tests/test_B_preview_contract.js
+          node tests/test_B_preview_jobs.js
+          node tests/test_B_personal_view.js
+          node tests/test_preview_distributions.js
+          python scripts/check_locked_gk_default.py
+      - uses: actions/download-artifact@v4
+        with:
+          name: mm-current-live-preview
+          path: .validated-model
+          run-id: ${{ env.MODEL_RUN }}
+          github-token: ${{ github.token }}
+      - name: Integrate into original desktop templates without recomputing forecasts
+        run: |
+          cp app/mm-preview/existing-app-adapter.js /tmp/desktop-adapter.js
+          cp -R .validated-model/. app/mm-preview/
+          cp /tmp/desktop-adapter.js app/mm-preview/existing-app-adapter.js
+          python scripts/integrate_desktop_probabilities.py
+          cmp .validated-model/gk/forecast.json app/mm-preview/gk/forecast.json
+          cmp .validated-model/gk/gk-mm.json app/mm-preview/gk/gk-mm.json
+          cmp .validated-model/current/forecast.json app/mm-preview/current/forecast.json
+      - name: Exercise the actual desktop layout, player cards and private My Team sheet
+        run: |
+          npm install --prefix "$RUNNER_TEMP/fpl-browser" playwright@1.56.1
+          export NODE_PATH="$RUNNER_TEMP/fpl-browser/node_modules"
+          export BROWSER_PATH="$(command -v google-chrome)"
+          node analysis/verify_desktop_probabilities.cjs > desktop-browser.json
+          cat desktop-browser.json
+      - uses: actions/upload-artifact@v4
+        with:
+          name: mm-desktop-probabilities-preview
+          path: app/mm-preview/
+          retention-days: 90
+      - uses: actions/upload-artifact@v4
+        with:
+          name: desktop-probabilities-browser-validation
+          path: desktop-browser.json
+          retention-days: 90

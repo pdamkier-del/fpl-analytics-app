@@ -38,5 +38,7 @@ def export():
         deterministic_repeat=True,production_changed=False,intervals_independently_certified=False,
         official_sources=forecast['official_gk_evidence']))
     dump(out/'index.json',index)
+    from integrate_desktop_probabilities import integrate
+    integrate(ROOT)
     print(json.dumps(index,indent=2))
 if __name__=='__main__':export()
