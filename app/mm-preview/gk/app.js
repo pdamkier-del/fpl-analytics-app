@@ -11,10 +11,13 @@
   $('status').textContent=FplJointGK.VERSION+' · '+f.players.length+' spillere · '+f.fixtures+' kampe · SHA-256 verificeret';
   $('quality').textContent='Originale MM/PM-kilder: '+f.component_source_asof.original_B_PM+' · officiel målmandstrup: '+f.component_source_asof.official_GK_roster+'. GK-sampleren og den fælles startudvælgelse er ændret eksplicit i denne preview.';
   $('gw').replaceChildren(...f.gws.map(g=>{const e=make('option','GW '+g);e.value=g;return e;}));
+  $('panel-gw').replaceChildren(...Array.from($('gw').options,o=>o.cloneNode(true)));
+  $('close-panel').onclick=()=>$('player-panel').close();
+  $('panel-gw').onchange=()=>{$('gw').value=$('panel-gw').value;draw();};
   const clubs=new Map(f.players.map(p=>[p.team_id,p.team]));for(const[id,name]of[...clubs].sort((a,b)=>a[1].localeCompare(b[1]))){const e=make('option',name);e.value=id;$('club').append(e);}
   let selected=null;
   function compare(p){
-   selected=p;const gw=Number($('gw').value),w=p.weeks.find(w=>w.gw===gw),box=$('comparison');
+   selected=p;$('panel-gw').value=$('gw').value;if(!$('player-panel').open)$('player-panel').showModal();const gw=Number($('gw').value),w=p.weeks.find(w=>w.gw===gw),box=$('comparison');
    box.replaceChildren(make('h3',p.name+' · '+p.team+' · GW '+gw));
    if(!w.fixtures.length)box.append(make('p','Ingen kamp i denne GW.'));
    for(const x of w.fixtures){
@@ -37,7 +40,7 @@
   }
   function draw(){FplJointGK.validate(f,m);const gw=Number($('gw').value),q=$('search').value.toLocaleLowerCase('da');const rows=f.players.filter(p=>(!$('position').value||p.position===Number($('position').value))&&(!$('club').value||p.team_id===Number($('club').value))&&p.name.toLocaleLowerCase('da').includes(q)).map(p=>({p,w:p.weeks.find(w=>w.gw===gw)})).sort((a,b)=>b.w.xpts-a.w.xpts);
    $('rows').replaceChildren(...rows.map(({p,w})=>{const tr=document.createElement('tr'),name=document.createElement('td'),button=make('button',p.name);button.onclick=()=>compare(p);name.append(button);tr.append(name);const values=[p.team,fmt(w.xpts),fmt(w.xmins),w.fixtures.map(x=>pct(mm.get(x.fixture_uuid+'|'+p.player_uuid)?.p_start??x.distribution?.p_start)).join(' / ')||'Ingen kamp',fmt(p.weeks.reduce((s,w)=>s+w.xpts,0))];for(const value of values)tr.append(make('td',value));return tr;}));
-   if(rows.length===1)compare(rows[0].p);else if(selected&&rows.some(x=>x.p===selected))compare(selected);else{selected=null;$('comparison').replaceChildren(make('p','Vælg en spiller for at se minut- og pointchancer.'));}
+   if(selected&&$('player-panel').open&&rows.some(x=>x.p===selected))compare(selected);else{selected=null;$('player-panel').close();}
   }
   const e=f.official_gk_evidence;$('sources').replaceChildren(make('span','Chelsea: '+e.first_team_goalkeepers.map(p=>p.name).join(', ')+'. Ikke i FPL: '+e.unlisted_competitors.join(', ')+'. '));for(const source of Object.values(e.sources)){const a=make('a',new URL(source.url).hostname+' · officiel kilde');a.href=source.url;a.target='_blank';a.rel='noopener';$('sources').append(a,document.createTextNode(' · '));}
   const review=e.hierarchy_review;if(review)$('sources').prepend(make('p','Officielle kampoplysninger: Penders var eneste GK-reserve mod Everton og afløste Martínez. Alonso udtrykker fuld tillid. Sharman-Lowe og Slonina var ikke i kamptruppen; deres næste tilgængelighed er ikke bekræftet. Registrering alene giver ikke en stor startchance.'));
