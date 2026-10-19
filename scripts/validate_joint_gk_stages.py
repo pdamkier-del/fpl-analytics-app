@@ -26,6 +26,7 @@ def main():
         xp,_,audit,_=run(chosen,p,obs,season='2026-27',incomplete_teams=partial,offsets=offsets,role_policy=policy)
         for r in xp.itertuples():
             old=expected[(r.fixture_uuid,r.player_uuid)]
+            if r.distribution!=old['distribution']:raise ValueError('PM distributions differ across scopes')
             if abs(r.xpts_fixture-old['xpts'])>1e-10 or abs(r.expected_minutes-old['simulated_minutes'])>1e-10:raise ValueError('Stage differs from six-GW computation')
         stages.append(dict(scope=scope,fixtures=chosen.fixture_uuid.nunique(),rows=len(xp),exact_full_horizon_comparison=True,all_gk_team_minutes_90=True))
         print('Validated',scope,flush=True)

@@ -1,6 +1,14 @@
 'use strict';
 (function(root){
  const VERSION='B-GK-role-aware-v2';
+ function distribution(d){
+  const keys=['p_start','p_zero','p_cameo','p_60_plus','p_90','p_2_plus','p_5_plus','p_10_plus'];
+  if(!d||!Number.isInteger(d.draws)||d.draws<=0||keys.some(k=>!Number.isFinite(d[k])||d[k]<-1e-9||d[k]>1+1e-9))throw Error('Ugyldige PM-sandsynligheder');
+  if(Math.abs(d.p_zero+d.p_cameo+d.p_start-1)>1e-8||d.p_90>d.p_60_plus+1e-8||d.p_60_plus>1-d.p_zero+1e-8||d.p_10_plus>d.p_5_plus||d.p_5_plus>d.p_2_plus)throw Error('PM-sandsynligheder stemmer ikke');
+  if(d.minute_bins?.length!==4||d.minute_bins.some(x=>!Number.isFinite(x)||x<0||x>1)||Math.abs(d.minute_bins.reduce((a,b)=>a+b,0)-1)>1e-8||Math.abs(d.minute_bins[0]-d.p_zero)>1e-8||Math.abs(d.minute_bins[3]-d.p_90)>1e-8||Math.abs(d.minute_bins[2]+d.minute_bins[3]-d.p_60_plus)>1e-8)throw Error('Ugyldig minutfordeling');
+  if(d.points_interval80?.length!==2||d.points_interval80.some(x=>!Number.isFinite(x))||d.points_interval80[0]>d.points_interval80[1]||!Number.isFinite(d.pm_expected_minutes)||d.pm_expected_minutes<0||d.pm_expected_minutes>90)throw Error('Ugyldigt PM-interval');
+  return d;
+ }
  function validate(f,m,now=Date.now()){
   if(f.model!==VERSION||f.locked_model_active!==false||f.minute_sampler_audit?.sampler!==VERSION)throw Error('Forkert GK-previewversion');
   if(!Array.isArray(f.players)||!f.players.length||new Set(f.players.map(p=>p.id)).size!==f.players.length)throw Error('Ufuldstændig spillerliste');
@@ -11,6 +19,7 @@
   const groups=new Map();
   for(const p of f.players)for(const w of p.weeks)for(const x of w.fixtures){
    if(!Number.isFinite(x.xpts)||!Number.isFinite(x.xmins))throw Error('Manglende forecast');
+   if(x.distribution)distribution(x.distribution);
    if(p.position!==1)continue;
    const r=mm.get(x.fixture_uuid+'|'+p.player_uuid),v=r?.minute_pmf;
    if(!r||v?.length!==91||v.some(p=>!Number.isFinite(p)||p<0)||Math.abs(v.reduce((a,b)=>a+b,0)-1)>1e-8)throw Error('Ugyldig målmandsfordeling');
@@ -23,5 +32,5 @@
   return mm;
  }
  function interval(r){return r? r.interval80.join('–'):'Not Available';}
- const api={VERSION,validate,interval};root.FplJointGK=api;if(typeof module!=='undefined')module.exports=api;
+ const api={VERSION,validate,interval,distribution};root.FplJointGK=api;if(typeof module!=='undefined')module.exports=api;
 })(typeof window==='undefined'?globalThis:window);

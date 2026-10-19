@@ -1,0 +1,30 @@
+"""Preview summaries use the actual PM draws without changing locked results."""
+import numpy as np
+import fpl_v1_1_model.joint_simulator as sim
+
+
+def test_preview_probabilities_reconcile_with_actual_draws_and_locked_output(monkeypatch):
+    player=sim.PlayerSimInput('rotation','H','MID',.45,.65,72,18,goal_weight=1,assist_weight=1)
+    away=sim.PlayerSimInput('away','A','FWD',1,0,90,15,goal_weight=1)
+    inp=sim.MatchSimInput('H','A',1.5,1.2,(player,away))
+    locked=sim.simulate_many(inp,n=300,seed=19)
+    actual=[]
+    original=sim.simulate_match
+    def capture(*args,**kwargs):
+        result=original(*args,**kwargs)
+        actual.append(result['rotation'])
+        return result
+    monkeypatch.setattr(sim,'simulate_match',capture)
+    preview=sim.simulate_many(inp,n=300,seed=19,include_distributions=True)
+    for pid,row in preview.items():
+        assert {k:v for k,v in row.items() if k!='distribution'}==locked[pid]
+    d=preview['rotation']['distribution']
+    assert np.isclose(d['p_cameo'],np.mean([r.minutes>0 and not r.started for r in actual]))
+    assert np.isclose(d['p_zero']+d['p_cameo']+d['p_start'],1)
+    assert np.isclose(sum(d['minute_bins']),1)
+    assert 0<=d['p_90']<=d['p_60_plus']<=1-d['p_zero']<=1
+    assert d['p_2_plus']==np.mean([r.points>=2 for r in actual])
+    assert d['p_5_plus']==np.mean([r.points>=5 for r in actual])
+    assert d['p_10_plus']==np.mean([r.points>=10 for r in actual])
+    assert d['points_interval80']==list(np.quantile([r.points for r in actual],[.1,.9]))
+    assert 0<d['p_start']<1 and 0<d['p_cameo']<1 and 0<d['p_zero']<1

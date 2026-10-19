@@ -36,7 +36,7 @@ def run(frame,predicted,obs,*,season,draws=400,incomplete_teams=(),seed=93000000
         original_inp=inp
         inp,moments,teams=prepare(inp,mm,history,incomplete_teams=incomplete_teams,role_policy=role_policy,season=season)
         for team in teams: audit.append(dict(fixture_uuid=fx,**team,history_rows=history.rows,last_label_known_at=history.latest,cutoff=cut))
-        sim=simulate_many(inp,n=draws,seed=seed+(offsets[fx] if offsets is not None else i))
+        sim=simulate_many(inp,n=draws,seed=seed+(offsets[fx] if offsets is not None else i),include_distributions=True)
         if paired_v1 is not None:
             old,old_moments,_=prepare(original_inp,mm,history,incomplete_teams=incomplete_teams)
             old_sim=sim if old.players==inp.players else simulate_many(old,n=draws,seed=seed+(offsets[fx] if offsets is not None else i))
@@ -51,7 +51,7 @@ def run(frame,predicted,obs,*,season,draws=400,incomplete_teams=(),seed=93000000
             if (fx,pid) in raw.index and str(raw.loc[(fx,pid),'pos'])in('GK','GKP'):
                 details[(fx,pid)]=moments[pid]
             rows.append(dict(fixture_uuid=fx,player_uuid=pid,gw=int(g.gw.iloc[0]),xpts_fixture=s['xPts'],expected_minutes=s['expected_minutes'],
-                **{k:s[k] for k in POINT_COMPONENTS},penalty_miss_points=s['penalty_miss_points']))
+                **{k:s[k] for k in POINT_COMPONENTS},penalty_miss_points=s['penalty_miss_points'],distribution=s['distribution']))
         for team in (inp.home_team,inp.away_team):
             keepers=[p for p in inp.players if p.team==team and p.is_keeper]
             if abs(sum(sim[p.player_id]['expected_minutes'] for p in keepers)-90)>1e-8:raise AssertionError('Sampled GK coverage failure')
@@ -111,9 +111,11 @@ def current(inputs,out,*,paired=True):
     aligned=pred.set_index(KEY).reindex(pd.MultiIndex.from_frame(display[KEY]))
     display['live_eligibility_applied']=(aligned.news_eligible&aligned.news_state.isin(['OUT','SUSPENDED'])).to_numpy()
     payload=build(display,xp,bootstrap,json.loads((inputs/'bps-audit.json').read_text()))
+    distributions=xp.set_index(KEY)['distribution'].to_dict()
     for p in payload['players']:
         for w in p['weeks']:
             for f in w['fixtures']:
+                f['distribution']=distributions[(f['fixture_uuid'],p['player_uuid'])]
                 d=details.get((f['fixture_uuid'],p['player_uuid']))
                 if d:
                     f.update(p_60_plus=d['p60'],p_90=d['p90'],pm_analytic_minutes=d['x'],goalkeeper_model=VERSION)
