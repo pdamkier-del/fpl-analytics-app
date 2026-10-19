@@ -13,14 +13,17 @@ def main():
     source=ROOT/'work/joint-gk-current';inputs=ROOT/'work/current-B-inputs'
     payload=json.loads((source/'forecast.json').read_text())
     h=pd.read_csv(inputs/'history.csv.gz',low_memory=False);t=pd.read_csv(inputs/'target.csv.gz',low_memory=False);prov=json.loads((inputs/'provenance.json').read_text())
-    pred,_=infer_B(h,t,prov);frame=attach_mm(pd.read_csv(inputs/'pm.csv.gz',low_memory=False),pred);offsets={fx:i for i,fx in enumerate(sorted(frame.fixture_uuid.unique()))}
+    from gk_solo_role import mark_horizon_absences
+    pred,_=infer_B(h,t,prov);pred=mark_horizon_absences(pred,json.loads((inputs/'bootstrap.json').read_text()));frame=attach_mm(pd.read_csv(inputs/'pm.csv.gz',low_memory=False),pred);offsets={fx:i for i,fx in enumerate(sorted(frame.fixture_uuid.unique()))}
     origin=frame.gw.min();first=frame[frame.gw.eq(origin)].sort_values(['target_kickoff','fixture_uuid']).iloc[0].fixture_uuid
     expected={(x['fixture_uuid'],p['player_uuid']):x for p in payload['players']for w in p['weeks']for x in w['fixtures']}
     evidence=payload['official_gk_evidence'];partial=(evidence['team_id'],)if evidence['unlisted_competitors']else()
+    from gk_solo_role import load_policy
+    policy=load_policy(ROOT,h)
     stages=[];obs=observations(ROOT)
     for scope,mask in [('one-match',frame.fixture_uuid.eq(first)),('one-gw',frame.gw.eq(origin))]:
         chosen=frame[mask];p=pred[pred.fixture_uuid.isin(chosen.fixture_uuid)]
-        xp,_,audit,_=run(chosen,p,obs,season='2026-27',incomplete_teams=partial,offsets=offsets)
+        xp,_,audit,_=run(chosen,p,obs,season='2026-27',incomplete_teams=partial,offsets=offsets,role_policy=policy)
         for r in xp.itertuples():
             old=expected[(r.fixture_uuid,r.player_uuid)]
             if abs(r.xpts_fixture-old['xpts'])>1e-10 or abs(r.expected_minutes-old['simulated_minutes'])>1e-10:raise ValueError('Stage differs from six-GW computation')

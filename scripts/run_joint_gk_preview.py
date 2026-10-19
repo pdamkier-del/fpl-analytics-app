@@ -20,7 +20,7 @@ ROOT=Path(__file__).resolve().parents[1]
 KEY=['fixture_uuid','player_uuid']
 
 
-def run(frame,predicted,obs,*,season,draws=400,incomplete_teams=(),seed=93000000,paired=False,offsets=None):
+def run(frame,predicted,obs,*,season,draws=400,incomplete_teams=(),seed=93000000,paired=False,offsets=None,role_policy=None,paired_v1=None):
     rows=[];baseline=[];details={};audit=[]
     raw=predicted.set_index(KEY)
     caches={}
@@ -33,9 +33,17 @@ def run(frame,predicted,obs,*,season,draws=400,incomplete_teams=(),seed=93000000
             base=simulate_many(inp,n=draws,seed=seed+(offsets[fx] if offsets is not None else i))
             for pid,s in base.items():baseline.append(dict(fixture_uuid=fx,player_uuid=pid,xpts=s['xPts'],minutes=s['expected_minutes']))
         mm=raw.loc[fx].reset_index()
-        inp,moments,teams=prepare(inp,mm,history,incomplete_teams=incomplete_teams)
+        original_inp=inp
+        inp,moments,teams=prepare(inp,mm,history,incomplete_teams=incomplete_teams,role_policy=role_policy,season=season)
         for team in teams: audit.append(dict(fixture_uuid=fx,**team,history_rows=history.rows,last_label_known_at=history.latest,cutoff=cut))
         sim=simulate_many(inp,n=draws,seed=seed+(offsets[fx] if offsets is not None else i))
+        if paired_v1 is not None:
+            old,old_moments,_=prepare(original_inp,mm,history,incomplete_teams=incomplete_teams)
+            old_sim=sim if old.players==inp.players else simulate_many(old,n=draws,seed=seed+(offsets[fx] if offsets is not None else i))
+            for p in original_inp.players:
+                if p.is_keeper:
+                    d=old_moments[p.player_id]
+                    paired_v1.append(dict(fixture_uuid=fx,player_uuid=p.player_id,p=d['p'],xm=d['x'],pm=d['x'],p60=d['p60'],p90=d['p90'],xp=old_sim[p.player_id]['xPts']))
         if i%10==0:print('Joint GK fixture',i+1,'/',frame.fixture_uuid.nunique(),fx,flush=True)
         for pid,s in sim.items():
             if not np.isclose(sum(s[k]for k in POINT_COMPONENTS),s['xPts'],atol=1e-8):raise AssertionError('Unreconciled points')
@@ -72,8 +80,12 @@ def current(inputs,out,*,paired=True):
             if old[pid].get(key)!=new[pid].get(key):raise ValueError('Official catalogue/news changed: rebuild current B inputs: '+str(pid)+' '+key)
     if datetime.now(timezone.utc)-datetime.fromisoformat(evidence['observed_at'])>pd.Timedelta(hours=24):raise ValueError('Stale squad evidence')
     incomplete=(evidence['team_id'],) if evidence['unlisted_competitors'] else ()
-    pred,_=infer_B(h,t,prov);pm=pd.read_csv(inputs/'pm.csv.gz',low_memory=False);joined=attach_mm(pm,pred)
-    xp,details,audit,baseline=run(joined,pred,observations(ROOT),season='2026-27',incomplete_teams=incomplete,paired=paired)
+    from gk_solo_role import mark_horizon_absences
+    pred,_=infer_B(h,t,prov);pred=mark_horizon_absences(pred,fresh);pm=pd.read_csv(inputs/'pm.csv.gz',low_memory=False);joined=attach_mm(pm,pred)
+    from gk_solo_role import load_policy
+    policy=load_policy(ROOT,h);v1=[] if paired else None
+    xp,details,audit,baseline=run(joined,pred,observations(ROOT),season='2026-27',incomplete_teams=incomplete,paired=paired,role_policy=policy,paired_v1=v1)
+    if paired:write(out/'before-v1.json',dict(players=v1))
     display=joined.copy();updated=pred.copy();mmrows=[]
     for index,r in updated.iterrows():
         key=(r.fixture_uuid,r.player_uuid)
@@ -100,10 +112,10 @@ def current(inputs,out,*,paired=True):
                 d=details.get((f['fixture_uuid'],p['player_uuid']))
                 if d:
                     f.update(p_60_plus=d['p60'],p_90=d['p90'],pm_analytic_minutes=d['x'],goalkeeper_model=VERSION)
-    payload.update(official_gk_status={str(p['id']):{k:p.get(k) for k in ['status','news','chance_of_playing_next_round']} for p in fresh['elements'] if p['element_type']==1},data_asof=max(prov['data_at'],evidence['observed_at']),component_source_asof={'original_B_PM':prov['data_at'],'official_GK_roster':evidence['observed_at']},official_gk_evidence=evidence,model=VERSION,scope='prospective_preview',minute_sampler_audit={'sampler':VERSION,'goalkeeper_MM_to_PM_mean_consistent':True},
+    payload.update(goalkeeper_role_fit=policy.receipt,gk_horizon_absences=[{k:p.get(k)for k in ['id','web_name','news']}for p in fresh['elements']if p['id']in set(pred.loc[pred.role_horizon_absence,'fpl_element'])],official_gk_status={str(p['id']):{k:p.get(k) for k in ['status','news','chance_of_playing_next_round']} for p in fresh['elements'] if p['element_type']==1},data_asof=max(prov['data_at'],evidence['observed_at']),component_source_asof={'original_B_PM':prov['data_at'],'official_GK_roster':evidence['observed_at']},official_gk_evidence=evidence,model=VERSION,scope='prospective_preview',minute_sampler_audit={'sampler':VERSION,'goalkeeper_MM_to_PM_mean_consistent':True},
         parts={'mm':'experimental_GK','pm_vfinal':'experimental_joint_GK','ts':'original_unchanged'},gk_team_fixtures=audit)
     payload['blockers'].append('Experimental joint GK/11-starter sampler; not production-certified. Unlisted competitors are pooled, not individual FPL forecasts.')
-    payload['code_sha256']={name:hashlib.sha256((ROOT/name).read_bytes()).hexdigest() for name in ['scripts/gk_joint_bridge.py','scripts/run_joint_gk_preview.py','scripts/mm_candidate_forecast.py','src/fpl_v1_1_model/joint_simulator.py']}
+    payload['code_sha256']={name:hashlib.sha256((ROOT/name).read_bytes()).hexdigest() for name in ['scripts/gk_joint_bridge.py','scripts/run_joint_gk_preview.py','scripts/mm_candidate_forecast.py','scripts/gk_solo_role.py','src/fpl_v1_1_model/joint_simulator.py']}
     payload['input_sha256']={name:hashlib.sha256((inputs/name).read_bytes()).hexdigest() for name in ['pm.csv.gz','history.csv.gz','target.csv.gz','provenance.json']}
     payload=seal_forecast(payload)
     write(out/'baseline-mm.json',dict(players=[dict(fixture_id=r.fixture_uuid,player_id=r.player_uuid,p_start=float(r.p),xmins=float(r.x),start_minutes=float(r.s),p_sub_given_not_start=float(r.q),sub_minutes=float(r.c))for r in pred.itertuples()]));

@@ -30,9 +30,11 @@ def export():
         k=(r['fixture_id'],r['player_id']);p=points.loc[k]
         before.append(dict(fixture_uuid=k[0],player_uuid=k[1],p=r['p_start'],xm=r['xmins'],pm=float(locked_sampler_expectation(r['p_start'],r['p_sub_given_not_start'],r['start_minutes'],r['sub_minutes'])),sampled_pm=float(p.minutes),xp=float(p.xpts)))
     index=dict(model=VERSION,forecast_sha256=dump(out/'forecast.json',forecast),mm_sha256=dump(out/'gk-mm.json',mm),before_sha256=dump(out/'before.json',dict(players=before)))
-    hierarchy=json.loads((ROOT/'work/joint-gk-hierarchy/summary.json').read_text())
-    if hierarchy['activated'] or hierarchy['supported']:raise ValueError('Hierarchy candidate needs an explicit integration decision')
-    index['evidence_sha256']=dump(out/'evidence.json',dict(hierarchy_trial=hierarchy,model=VERSION,historical=historical,uncertainty=uncertainty,stages=stages,ts=ts,
+    role=json.loads((ROOT/'work/joint-gk-role-validation/summary.json').read_text())
+    if not role['accepted']or not role['all_gk_team_minutes_90']or not role['pm_all_gk_minutes_90']:raise ValueError('Role correction validation gate failed')
+    v1=json.loads((source/'before-v1.json').read_text())
+    index['before_v1_sha256']=dump(out/'before-v1.json',dict(model='B-GK-joint-empirical-v1',**v1))
+    index['evidence_sha256']=dump(out/'evidence.json',dict(role_validation=role,model=VERSION,v1_reference_historical=historical,v1_reference_uncertainty=uncertainty,stages=stages,ts=ts,
         deterministic_repeat=True,production_changed=False,intervals_independently_certified=False,
         official_sources=forecast['official_gk_evidence']))
     dump(out/'index.json',index)

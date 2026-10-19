@@ -1,4 +1,4 @@
-"""Explicit B-GK preview v1. No production activation or fitted hyperparameter search.
+"""Explicit B-GK preview: v1 joint minutes plus optional v2 role allocation.
 
 Reuse B's start calibration and its strength-five empirical duration shrinkage.
 The pooled unlisted keeper is a competing outcome, not a fabricated FPL player.
@@ -10,7 +10,7 @@ import numpy as np
 import pandas as pd
 from fpl_v1_1_model.joint_simulator import PlayerSimInput, validate_joint_goalkeepers
 
-VERSION = 'B-GK-joint-empirical-v1'
+VERSION = 'B-GK-role-aware-v2'
 UNKNOWN = '__unlisted_goalkeeper__:'
 SUPPORT = np.arange(91)
 
@@ -33,6 +33,7 @@ def observations(root):
 class DurationHistory:
     def __init__(self, obs, cutoff):
         cutoff = pd.Timestamp(cutoff)
+        self.cutoff = cutoff
         past = obs[pd.to_datetime(obs.known_at,utc=True,format='mixed').lt(cutoff) & obs.started.eq(1) & obs.minutes.between(1,90)].copy()
         if len(past) < 100: raise ValueError('Not Available: fewer than100 prior goalkeeper starts')
         age = (cutoff-pd.to_datetime(past.known_at,utc=True,format='mixed')).dt.total_seconds()/86400
@@ -72,7 +73,7 @@ def marginals(keepers):
     return answer
 
 
-def prepare(inp, rows, duration, *, incomplete_teams=()):
+def prepare(inp, rows, duration, *, incomplete_teams=(), role_policy=None, season=None):
     """Add an explicit reserve/competitor pool and return exact MM marginals.
 
     B projected start probabilities remain for multiple represented viable GKs.
@@ -81,6 +82,8 @@ def prepare(inp, rows, duration, *, incomplete_teams=()):
     on already-normalized features cannot undo that missing-competitor bias.
     Historical capsules without that upstream field retain their stored raw B
     calibration; the replay records any marginal change.
+    V2 optionally reallocates unsupported outsider mass when verified role
+    history establishes one fully available candidate. Otherwise retain v1.
     Unlisted keepers are never attached to guessed individual FPL identities.
     """
     by = rows.set_index('player_uuid')
@@ -88,6 +91,8 @@ def prepare(inp, rows, duration, *, incomplete_teams=()):
     moments = {}; teams = []
     for team in (inp.home_team,inp.away_team):
         original = [p for p in inp.players if p.is_keeper and p.team == team]
+        horizon_out={p.player_id for p in original if role_policy is not None and bool(by.loc[p.player_id].get('role_horizon_absence',False))}
+        original=[replace(p,p_start=0.,p_cameo_given_bench=0.)if p.player_id in horizon_out else p for p in original]
         viable = [p for p in original if p.p_start > 0 or p.p_cameo_given_bench > 0]
         partial = len(viable) <= 1 or str(team) in set(map(str,incomplete_teams))
         weights = {}
@@ -95,12 +100,18 @@ def prepare(inp, rows, duration, *, incomplete_teams=()):
             raw = float(by.loc[p.player_id].get('new_p_start',by.loc[p.player_id].get('unprojected_p',p.p_start))) if partial else p.p_start
             if p not in viable: raw = 0.
             # Preserve explicit predeadline availability caps.
-            cap = float(by.loc[p.player_id].get('availability_cap',1.))
+            cap = 0. if p.player_id in horizon_out else float(by.loc[p.player_id].get('availability_cap',1.))
             weights[p.player_id] = min(max(raw,0.),cap)
         total = sum(weights.values())
         if total > 1:
             weights = {pid:v/total for pid,v in weights.items()}
         missing = max(0.,1-sum(weights.values()))
+        role_context={'applied':False,'reason':'v1_reference'}
+        if role_policy is not None:
+            team_rows=rows[rows.player_uuid.isin([p.player_id for p in original])].copy()
+            role_context_rows=team_rows.copy()
+            role_context_rows.loc[role_context_rows.player_uuid.isin(horizon_out),'availability_cap']=0.
+            weights,missing,role_context=role_policy.allocate(season,team,role_context_rows,duration.cutoff,weights,missing)
         if not viable and missing != 1: raise ValueError('Invalid empty goalkeeper set')
         players = []
         for p in original:
@@ -131,7 +142,7 @@ def prepare(inp, rows, duration, *, incomplete_teams=()):
                 x=float(f@SUPPORT),p60=float(f[60:].sum()),p90=float(f[90]),p_play=appearance,pmf=f.tolist())
         teams.append(dict(team=str(team),known_viable=len(viable),unlisted_start_probability=missing,
             unlisted_expected_minutes=moments[pool.player_id]['x'],partial_roster=partial,start_source='original_MM_before_roster_projection' if partial and 'new_p_start' in rows else 'B_calibrated_marginals',
-            analytic_gk_minutes=sum(moments[p.player_id]['x'] for p in players)))
+            role_allocation=role_context,horizon_absent=sorted(horizon_out),analytic_gk_minutes=sum(moments[p.player_id]['x'] for p in players)))
         output.extend(players)
     return replace(inp,players=tuple(output),experimental_joint_goalkeepers=True,
         verified_goalkeeper_roster_teams=(inp.home_team,inp.away_team),experimental_joint_starters=True),moments,teams
