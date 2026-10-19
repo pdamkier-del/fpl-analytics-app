@@ -13,7 +13,7 @@ def inject(out):
         text=text.replace(old,"throw Error(FplPlannerExperience.diagnose(state,forecast).join(' ')||'Kontrollér holdets oplysninger.')")
         if name=='weekly-app.js':
             old="document.getElementById('compute')?.addEventListener('click',compute);dashboardNews.afterRender();"
-            new=old+"FplPlannerExperience.mount({forecast,people,state,plan,busy,usable});"
+            new=old+"FplPlannerExperience.mount({forecast,people,state,plan,busy,usable:usable&&dashboardNews.status().aligned});"
         else:
             old="function render(){onChange();feedback();"
             new="function render(){onChange();FplPlannerExperience.mount(snapshot());feedback();"
