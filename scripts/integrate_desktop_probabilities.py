@@ -36,6 +36,20 @@ def integrate(root=ROOT):
     inject(out)
     from integrate_planner_experience import inject as planner_inject
     planner_inject(out)
+    # The same origin already serves earlier app versions. Content-derived
+    # queries prevent cached old adapters from hiding newly added history APIs.
+    import re
+    def version_asset(match,page):
+        attr,quote,url=match.groups()
+        target=(page.parent/url.split('?')[0].split('#')[0]).resolve()
+        if not target.is_file() or target.suffix not in {'.js','.css'}:return match.group(0)
+        if not target.is_relative_to(base.resolve()):return match.group(0)
+        checksum=hashlib.sha256(target.read_bytes()).hexdigest()[:16]
+        return attr+'='+quote+url.split('?')[0]+'?asset='+checksum+quote
+    for page in out.glob('*.html'):
+        text=page.read_text()
+        text=re.sub(r"(src|href)=([\"'])([^\"']+)(?:\2)",lambda m:version_asset(m,page),text)
+        page.write_text(text)
     print('Integrated validated probabilities into existing desktop layout:',f['forecast_sha256'])
 
 if __name__=='__main__':integrate()
