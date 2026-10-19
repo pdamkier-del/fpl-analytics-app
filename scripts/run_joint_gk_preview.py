@@ -84,6 +84,11 @@ def current(inputs,out,*,paired=True):
     pred,_=infer_B(h,t,prov);pred=mark_horizon_absences(pred,fresh);pm=pd.read_csv(inputs/'pm.csv.gz',low_memory=False);joined=attach_mm(pm,pred)
     from gk_solo_role import load_policy
     policy=load_policy(ROOT,h);v1=[] if paired else None
+    role_evidence=policy.squads.sort_values(['season','team_id','kick','player_uuid']).to_csv(index=False).encode()
+    policy.receipt['squad_evidence_sha256']=hashlib.sha256(role_evidence).hexdigest()
+    import gzip
+    out.mkdir(parents=True,exist_ok=True)
+    (out/'role-squad-evidence.csv.gz').write_bytes(gzip.compress(role_evidence,mtime=0))
     xp,details,audit,baseline=run(joined,pred,observations(ROOT),season='2026-27',incomplete_teams=incomplete,paired=paired,role_policy=policy,paired_v1=v1)
     if paired:write(out/'before-v1.json',dict(players=v1))
     display=joined.copy();updated=pred.copy();mmrows=[]

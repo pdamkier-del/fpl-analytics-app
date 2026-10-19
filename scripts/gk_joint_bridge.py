@@ -141,7 +141,7 @@ def prepare(inp, rows, duration, *, incomplete_teams=(), role_policy=None, seaso
             moments[p.player_id] = dict(p=p.p_start,q=float(np.clip(q,0,1)),s=float(start@SUPPORT),c=max(1.,c),
                 x=float(f@SUPPORT),p60=float(f[60:].sum()),p90=float(f[90]),p_play=appearance,pmf=f.tolist())
         teams.append(dict(team=str(team),known_viable=len(viable),unlisted_start_probability=missing,
-            unlisted_expected_minutes=moments[pool.player_id]['x'],partial_roster=partial,start_source='original_MM_before_roster_projection' if partial and 'new_p_start' in rows else 'B_calibrated_marginals',
+            unlisted_expected_minutes=moments[pool.player_id]['x'],partial_roster=partial,start_source='verified_sole_candidate_role'if role_context.get('applied')else('original_MM_before_roster_projection' if partial and 'new_p_start' in rows else 'B_calibrated_marginals'),
             role_allocation=role_context,horizon_absent=sorted(horizon_out),analytic_gk_minutes=sum(moments[p.player_id]['x'] for p in players)))
         output.extend(players)
     return replace(inp,players=tuple(output),experimental_joint_goalkeepers=True,
