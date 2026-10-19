@@ -6,7 +6,7 @@
   if(forecast?.freshness_limit_hours!==undefined){const cutoff=Date.parse(forecast.data_asof),limit=forecast.freshness_limit_hours;if(!Number.isFinite(cutoff)||!Number.isFinite(limit)||limit<=0||now<cutoff||now-cutoff>limit*3600000)return {usable:false,reason:'Not Available: forecast er for gammel. En ny verificeret kørsel kræves.'};}
   if(now>=deadline)return {usable:false,reason:'Historisk diagnostik: GW '+origin+' er udløbet. Ny forecast kræves.'};
   if(!official||official.next_gw!==origin)return {usable:false,reason:'Not Available: forecast-GW og den officielle næste GW stemmer ikke overens'};
-  if(forecast.model==='B_locked_PM_preview'){
+  if(['B_locked_PM_preview','B-GK-role-aware-v2'].includes(forecast.model)){
    if(!Array.isArray(forecast.players)||!forecast.players.length||!Array.isArray(official.players)||!official.players.length)return {usable:false,reason:'Not Available: spillerkatalog kan ikke verificeres'};
    const catalogue=new Map(official.players.map(p=>[p.id,p]));
    if(catalogue.size!==official.players.length||catalogue.size!==forecast.players.length||new Set(forecast.players.map(p=>p.id)).size!==forecast.players.length)return {usable:false,reason:'Not Available: spillertruppen er ændret. Nyt forecast kræves.'};
