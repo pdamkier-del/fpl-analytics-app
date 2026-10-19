@@ -9,7 +9,7 @@
   const fx=s?.historical_fixtures||f,v=base.view(s,s?.historical_catalogue||o,fx),byid=new Map((fx?.fixtures||[]).map(f=>[f.id,f]));return {...v,fixtureDetails:(f,expanded)=>v.fixtureDetails(byid.get(f.id)||f,expanded)};
  }};
  let ready=null;
- function load(){if(!ready)ready=FplBExistingApp.history().catch(e=>{ready=null;throw e;});return ready;}
+ function load(){if(!ready)ready=FplBExistingApp.history().then(h=>{setTimeout(()=>{ready=null},60000);return h;}).catch(e=>{ready=null;throw e;});return ready;}
  function nav(){if(document.getElementById('history-nav'))return;const host=document.getElementById('summary')||document.getElementById('rankSummary');if(!host)return;const el=document.createElement('nav');el.id='history-nav';el.className='panel history-nav';el.setAttribute('aria-label','Spillerdata');el.innerHTML=document.getElementById('summary')?'<a href="#recent">Tidligere kampe og statistik</a> · <a href="#summary">Kommende xP og minutter</a> · <a href="#drivers">Hvorfor denne prognose?</a>':'<a href="players-classic.html?mode=recent&recent=6">Spillere · seneste seks GW</a> · <a href="players-classic.html?mode=stats">Sæsontal</a> · <a href="players-classic.html?mode=forecast&horizon=6">Kommende seks GW</a>';host.before(el);}
  async function club(){const select=document.getElementById('clubSelect');if(!select)return;const id=Number(select.value);if(!id||document.getElementById('clubDetails')?.hidden)return;
   let host=document.getElementById('club-history-explorer');if(!host){host=document.createElement('section');host.id='club-history-explorer';host.className='panel history-explorer';document.getElementById('clubDetails').prepend(host);}host.innerHTML='<p>Indlæser verificeret kamphistorik…</p>';
