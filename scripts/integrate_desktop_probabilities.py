@@ -34,6 +34,8 @@ def integrate(root=ROOT):
         path.write_text(text)
     from integrate_dashboard_news import inject
     inject(out)
+    from integrate_planner_experience import inject as planner_inject
+    planner_inject(out)
     print('Integrated validated probabilities into existing desktop layout:',f['forecast_sha256'])
 
 if __name__=='__main__':integrate()

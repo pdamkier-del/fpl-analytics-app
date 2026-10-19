@@ -13,6 +13,14 @@ on:
       - scripts/publish_dashboard_news.py
       - scripts/publish_mm_preview.py
       - app/mm-preview/dashboard-team-news.*
+      - app/mm-preview/planner-experience.*
+      - app/mm-preview/history-explorer.js
+      - scripts/integrate_planner_experience.py
+      - scripts/collect_preview_history.py
+      - tests/test_planner_experience.js
+      - tests/test_preview_history.py
+      - analysis/verify_planner_experience.cjs
+      - analysis/verify_history_explorer.cjs
       - analysis/prepare_dashboard_news_test.py
       - analysis/verify_dashboard_news.cjs
       - tests/test_dashboard*
@@ -25,8 +33,8 @@ permissions:
 env:
   PYTHONPATH: src:scripts:.
   OPENBLAS_NUM_THREADS: '1'
-  MODEL_RUN: '39263489281'
-  MODEL_SOURCE: 150695746949e5f405b3af944e4b53e2f96c2af4
+  MODEL_RUN: '39307888361'
+  MODEL_SOURCE: 652f88c62f6392a514ea7d349b06d6f121538e93
 jobs:
   desktop:
     runs-on: ubuntu-latest
@@ -69,10 +77,14 @@ jobs:
           run-id: ${{ env.MODEL_RUN }}
           github-token: ${{ github.token }}
       - name: Integrate into original desktop templates without recomputing forecasts
+        env:
+          GH_TOKEN: ${{ github.token }}
         run: |
-          cp app/mm-preview/existing-app-adapter.js /tmp/desktop-adapter.js
+          mkdir -p /tmp/desktop-ui
+          cp app/mm-preview/*.js app/mm-preview/*.css /tmp/desktop-ui/
           cp -R .validated-model/. app/mm-preview/
-          cp /tmp/desktop-adapter.js app/mm-preview/existing-app-adapter.js
+          cp /tmp/desktop-ui/* app/mm-preview/
+          python scripts/collect_preview_history.py
           python scripts/collect_dashboard_news.py
           python scripts/integrate_desktop_probabilities.py
           cmp .validated-model/gk/forecast.json app/mm-preview/gk/forecast.json
@@ -87,6 +99,11 @@ jobs:
           cat desktop-browser.json
           python analysis/prepare_dashboard_news_test.py --forecast app/mm-preview/current/forecast.json --out "$RUNNER_TEMP/dashboard-private-fixture.json"
           export DASHBOARD_TEST_FIXTURE="$RUNNER_TEMP/dashboard-private-fixture.json"
+          node tests/test_planner_experience.js
+          node analysis/verify_planner_experience.cjs > planner-browser.json
+          cat planner-browser.json
+          node analysis/verify_history_explorer.cjs > history-browser.json
+          cat history-browser.json
           node analysis/verify_dashboard_news.cjs > dashboard-browser.json
           cat dashboard-browser.json
       - uses: actions/upload-artifact@v4
@@ -100,4 +117,6 @@ jobs:
           path: |
             desktop-browser.json
             dashboard-browser.json
+            planner-browser.json
+            history-browser.json
           retention-days: 90

@@ -94,7 +94,10 @@ jobs:
           python scripts/check_locked_gk_default.py
           git diff --exit-code 3ad8fc5f2eabe0a62fec494d896320d288ece2d5 -- model service/manager_job.py
       - name: Validate and export the explicit joint GK preview
+        env:
+          GH_TOKEN: ${{ github.token }}
         run: |
+          python scripts/collect_preview_history.py
           python scripts/capture_gk_official_evidence.py
           python scripts/locked_numerical_runtime.py scripts/replay_joint_gk.py
           python scripts/locked_numerical_runtime.py scripts/check_gk_uncertainty.py
