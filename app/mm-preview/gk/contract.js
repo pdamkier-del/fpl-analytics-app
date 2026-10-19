@@ -1,6 +1,6 @@
 'use strict';
 (function(root){
- const VERSION='B-GK-joint-empirical-v1';
+ const VERSION='B-GK-role-aware-v2';
  function validate(f,m,now=Date.now()){
   if(f.model!==VERSION||f.locked_model_active!==false||f.minute_sampler_audit?.sampler!==VERSION)throw Error('Forkert GK-previewversion');
   if(!Array.isArray(f.players)||!f.players.length||new Set(f.players.map(p=>p.id)).size!==f.players.length)throw Error('Ufuldstændig spillerliste');
