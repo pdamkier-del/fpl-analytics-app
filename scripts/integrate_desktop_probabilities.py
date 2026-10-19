@@ -32,6 +32,8 @@ def integrate(root=ROOT):
         for asset in ['classic-catalog.js','forecast-window.js']:
             text=text.replace('src="'+asset+'?','src="'+asset+'?desktop-probabilities=2&').replace('src="'+asset+'"','src="'+asset+'?desktop-probabilities=2"')
         path.write_text(text)
+    from integrate_dashboard_news import inject
+    inject(out)
     print('Integrated validated probabilities into existing desktop layout:',f['forecast_sha256'])
 
 if __name__=='__main__':integrate()

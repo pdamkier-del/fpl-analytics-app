@@ -1,0 +1,48 @@
+name: Refresh public FPL availability news only
+on:
+  workflow_call:
+    inputs:
+      source_ref:
+        required: true
+        type: string
+permissions:
+  contents: write
+  actions: read
+  pages: write
+  id-token: write
+jobs:
+  news:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    concurrency:
+      group: fpl-pages-publication
+      cancel-in-progress: false
+    environment:
+      name: github-pages
+      url: https://pdamkier-del.github.io/fpl-analytics-app/mm-preview/app/overview.html#dashboard
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          ref: ${{ inputs.source_ref }}
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: pip install requests==2.32.3
+      - name: Refresh official public news, preserve all UI, model and production files
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: python scripts/publish_dashboard_news.py
+      - uses: actions/configure-pages@v5
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: .mm-preview-site
+          name: team-news-pages-${{ github.run_id }}
+      - uses: actions/deploy-pages@v4
+        with:
+          artifact_name: team-news-pages-${{ github.run_id }}
+      - uses: actions/upload-artifact@v4
+        with:
+          name: dashboard-news-publication-proof
+          path: work/dashboard-news-publication.json
+          retention-days: 90

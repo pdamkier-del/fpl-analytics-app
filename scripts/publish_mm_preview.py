@@ -43,7 +43,9 @@ def main():
     frozen=json.loads((SITE/'vfinal-diagnostic.json').read_text())
     for k in ['data_asof','checksums','gws','model']:
         if live.get(k)!=frozen.get(k):raise ValueError('Production publication changed; rerun preview against newest artifact')
-    source=ROOT/'app/mm-preview';dest=SITE/'mm-preview'
+    source=Path(os.environ.get('MM_PREVIEW_SOURCE_DIR',ROOT/'app/mm-preview'));dest=SITE/'mm-preview'
+    from dashboard_news_publication import retain_latest
+    retain_latest(source,dest)
     # Preserve prior public forecast evidence; a refresh must not silently
     # discard the prospective records needed for later independent validation.
     prior_history=dest/'current/history';new_history=source/'current/history'

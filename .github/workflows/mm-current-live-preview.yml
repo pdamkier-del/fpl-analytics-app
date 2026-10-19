@@ -45,6 +45,7 @@ jobs:
           python -m compileall -q scripts/current_b_features.py scripts/build_current_b_inputs.py scripts/prepare_mm_role_training.py scripts/replay_mm_candidate_sampler.py scripts/run_mm_locked_preview.py scripts/publish_current_b_preview.py
           python -m pytest -q tests
           node tests/test_preview_distributions.js
+          node tests/test_dashboard_team_news.js
           node tests/test_joint_gk_contract.js
           node tests/test_B_preview_contract.js
           node tests/test_B_preview_jobs.js

@@ -1,0 +1,20 @@
+const assert=require('node:assert/strict'),N=require('../app/mm-preview/dashboard-team-news.js');
+const now=Date.parse('2026-10-19T19:00:00Z');
+const player=(id,status='a')=>({id,name:id===1?'Haaland':'Other',team:1,position:4,price_tenths:100,status,news:'',news_added:null,chance_of_playing_next_round:null,chance_of_playing_this_round:null});
+const news={schema:'fpl-dashboard-availability-v1',source_url:'https://fantasy.premierleague.com/api/bootstrap-static/',observed_at:'2026-10-19T18:55:00Z',next_gw:8,deadline:'2026-10-23T15:00:00Z',players:[player(1),player(2)]};
+const official={players:news.players.map(p=>({...p,price:p.price_tenths/10}))},forecast={gws:[8,9],data_asof:'2026-10-19T18:00:00Z',forecast_sha256:'current'},state={gw:8,observed_at:'2026-10-19T17:00:00Z',squad:[{id:1}]};
+const context={news,official,forecast,state,stateValid:true,usable:true};
+let r=N.evaluate(context,now);assert(r.canCompute);assert.equal(r.rows.length,1);assert.equal(r.rows[0].name,'Haaland');assert.equal(r.phase,'can_compute');
+const injured=structuredClone(news);Object.assign(injured.players[0],{status:'d',news:'Knock. Further assessment required.',news_added:'2026-10-19T18:30:00Z',chance_of_playing_next_round:50});r=N.evaluate({...context,news:injured},now);assert.equal(r.rows[0].label,'Tvivlsom');assert.equal(r.phase,'waiting_forecast');assert(!r.canCompute&&!r.planReady);assert(N.html(r).includes('50 %'));assert(!N.html(r).includes('class="team-news-status">Skadet'));
+const target=structuredClone(news);target.players[1].status='i';r=N.evaluate({...context,news:target},now);assert.equal(r.rows.length,1);assert(!r.canCompute);assert(!N.html(r).includes('Other'));
+for(const at of ['2026-10-19T17:00:00Z','2026-10-19T20:00:00Z']){r=N.evaluate({...context,news:{...news,observed_at:at}},now);assert.equal(r.phase,'news_unavailable');assert(!r.canCompute);}
+r=N.evaluate({...context,state:{...state,gw:7}},now);assert.equal(r.phase,'update_state');assert(!r.canCompute);
+r=N.evaluate({...context,state:{...state,observed_at:'2026-10-19T18:30:00Z'}},now);assert.equal(r.phase,'waiting_forecast');assert(!r.canCompute);
+r=N.evaluate({...context,news:{...news,next_gw:9}},now);assert.equal(r.phase,'waiting_forecast');assert(!r.canCompute);
+const plan={ts_ran:true,locked_model_active:false,forecast_sha256:'current',gw:8};r=N.evaluate({...context,plan},now);assert(r.planReady);r=N.evaluate({...context,plan:{...plan,forecast_sha256:'old'}},now);assert(!r.planReady);
+r=N.evaluate({...context,plan,news:injured},now);assert(!r.planReady);
+r=N.evaluate({...context,state:null},now);assert.equal(r.phase,'missing_team');assert(!r.canCompute);
+const unsafe=structuredClone(injured);unsafe.players[0].news='<img src=x onerror=alert(1)>';assert(N.html(N.evaluate({...context,news:unsafe},now)).includes('&lt;img'));assert(!N.html(N.evaluate({...context,news:unsafe},now)).includes('<img'));
+const status=N.evaluate(context,now),request={status,enabled:true,busy:false,hasJob:false,signature:'same',now};assert(N.shouldRequest(request));assert(!N.shouldRequest({...request,attempt:{signature:'same',at:now-1000}}));assert(N.shouldRequest({...request,signature:'new',attempt:{signature:'same',at:now-1000}}));for(const change of [{enabled:false},{busy:true},{hasJob:true},{status:{...status,canCompute:false}},{status:{...status,planReady:true}}])assert(!N.shouldRequest({...request,...change}));
+assert.notDeepEqual(N.identity(player(1)),N.identity({...player(1),chance_of_playing_next_round:0}));
+console.log('Team news: owned-only feed, official doubt status, news/model gating, no stale plan, next-GW/state guards, escaping and automatic request deduplication passed');
