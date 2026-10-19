@@ -323,7 +323,7 @@ def simulate_match(inp:MatchSimInput,rng:Any,*,trace=None)->dict[str,PlayerSimRe
     if trace is not None: trace["intervals"]=dict(intervals)
     return out
 
-def simulate_many(inp:MatchSimInput,n:int=20_000,seed:int=26092026,*,include_distributions:bool=False)->dict[str,dict[str,float]]:
+def simulate_many(inp:MatchSimInput,n:int=20_000,seed:int=26092026)->dict[str,dict[str,float]]:
     if n<=0: raise ValueError("n must be positive")
     rng=np.random.default_rng(seed); samples={p.player_id:[] for p in inp.players}; nonbonus={p.player_id:[] for p in inp.players}; bonuses={p.player_id:[] for p in inp.players}; mins={p.player_id:[] for p in inp.players}
     aux={p.player_id:{"start":0,"return":0,"ten":0,"cs":0,"bonus1":0,"bonus2":0,"bonus3":0,"appearance_pts":0.0,"goal_pts":0.0,"assist_pts":0.0,"cs_pts":0.0,"save_pts":0.0,"dc_pts":0.0,"negative_pts":0.0,"gc_pts":0.0,"penalty_miss_pts":0.0,"penalty_save_pts":0.0} for p in inp.players}
@@ -351,17 +351,6 @@ def simulate_many(inp:MatchSimInput,n:int=20_000,seed:int=26092026,*,include_dis
         ans[p.player_id]={"xPts":float(a.mean()),"xPts_nonbonus":float(np.mean(nonbonus[p.player_id])),"expected_bonus":float(np.mean(bonuses[p.player_id])),"median":float(np.median(a)),"p10":float(np.quantile(a,.10)),"p90":float(np.quantile(a,.90)),
             "expected_minutes":float(np.mean(mins[p.player_id])),"p_start":aux[p.player_id]["start"]/n,"p_attacking_return":aux[p.player_id]["return"]/n,"p_10_plus":aux[p.player_id]["ten"]/n,"p_clean_sheet_award":aux[p.player_id]["cs"]/n,"p_bonus_1":aux[p.player_id]["bonus1"]/n,"p_bonus_2":aux[p.player_id]["bonus2"]/n,"p_bonus_3":aux[p.player_id]["bonus3"]/n,
             "appearance_points":aux[p.player_id]["appearance_pts"]/n,"goal_points":aux[p.player_id]["goal_pts"]/n,"assist_points":aux[p.player_id]["assist_pts"]/n,"cs_points":aux[p.player_id]["cs_pts"]/n,"save_points":aux[p.player_id]["save_pts"]/n,"dc_points":aux[p.player_id]["dc_pts"]/n,"negative_points":aux[p.player_id]["negative_pts"]/n,"gc_points":aux[p.player_id]["gc_pts"]/n,"penalty_miss_points":aux[p.player_id]["penalty_miss_pts"]/n,"penalty_save_points":aux[p.player_id]["penalty_save_pts"]/n}
-        if include_distributions:
-            minutes=np.asarray(mins[p.player_id])
-            ans[p.player_id]["distribution"]={
-                "draws":n,"p_start":aux[p.player_id]["start"]/n,
-                "p_zero":float(np.mean(minutes==0)),
-                "p_cameo":float(np.mean(minutes>0))-aux[p.player_id]["start"]/n,
-                "p_60_plus":float(np.mean(minutes>=60)),"p_90":float(np.mean(minutes==90)),
-                "minute_bins":[float(np.mean(minutes==0)),float(np.mean((minutes>0)&(minutes<60))),float(np.mean((minutes>=60)&(minutes<90))),float(np.mean(minutes==90))],
-                "p_2_plus":float(np.mean(a>=2)),"p_5_plus":float(np.mean(a>=5)),"p_10_plus":float(np.mean(a>=10)),
-                "points_interval80":[float(np.quantile(a,.1)),float(np.quantile(a,.9))],
-                "pm_expected_minutes":float(minutes.mean())}
     return ans
 
 

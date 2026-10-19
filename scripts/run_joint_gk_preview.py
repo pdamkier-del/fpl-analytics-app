@@ -15,12 +15,13 @@ from mm_locked_bridge import attach_mm
 from run_vfinal_integrated import make_vfinal_input
 from run_live_vfinal_joint_simulation import POINT_COMPONENTS
 from fpl_v1_1_model.joint_simulator import simulate_many
+from pm_preview_distributions import simulate_with_distributions
 from fpl_v1_1_model.forecast_snapshot import seal_forecast
 ROOT=Path(__file__).resolve().parents[1]
 KEY=['fixture_uuid','player_uuid']
 
 
-def run(frame,predicted,obs,*,season,draws=400,incomplete_teams=(),seed=93000000,paired=False,offsets=None,role_policy=None,paired_v1=None):
+def run(frame,predicted,obs,*,season,draws=400,incomplete_teams=(),seed=93000000,paired=False,offsets=None,role_policy=None,paired_v1=None,distributions=False):
     rows=[];baseline=[];details={};audit=[]
     raw=predicted.set_index(KEY)
     caches={}
@@ -36,7 +37,7 @@ def run(frame,predicted,obs,*,season,draws=400,incomplete_teams=(),seed=93000000
         original_inp=inp
         inp,moments,teams=prepare(inp,mm,history,incomplete_teams=incomplete_teams,role_policy=role_policy,season=season)
         for team in teams: audit.append(dict(fixture_uuid=fx,**team,history_rows=history.rows,last_label_known_at=history.latest,cutoff=cut))
-        sim=simulate_many(inp,n=draws,seed=seed+(offsets[fx] if offsets is not None else i),include_distributions=True)
+        sim=(simulate_with_distributions if distributions else simulate_many)(inp,n=draws,seed=seed+(offsets[fx] if offsets is not None else i))
         if paired_v1 is not None:
             old,old_moments,_=prepare(original_inp,mm,history,incomplete_teams=incomplete_teams)
             old_sim=sim if old.players==inp.players else simulate_many(old,n=draws,seed=seed+(offsets[fx] if offsets is not None else i))
@@ -51,7 +52,7 @@ def run(frame,predicted,obs,*,season,draws=400,incomplete_teams=(),seed=93000000
             if (fx,pid) in raw.index and str(raw.loc[(fx,pid),'pos'])in('GK','GKP'):
                 details[(fx,pid)]=moments[pid]
             rows.append(dict(fixture_uuid=fx,player_uuid=pid,gw=int(g.gw.iloc[0]),xpts_fixture=s['xPts'],expected_minutes=s['expected_minutes'],
-                **{k:s[k] for k in POINT_COMPONENTS},penalty_miss_points=s['penalty_miss_points'],distribution=s['distribution']))
+                **{k:s[k] for k in POINT_COMPONENTS},penalty_miss_points=s['penalty_miss_points'],**({'distribution':s['distribution']} if distributions else {})))
         for team in (inp.home_team,inp.away_team):
             keepers=[p for p in inp.players if p.team==team and p.is_keeper]
             if abs(sum(sim[p.player_id]['expected_minutes'] for p in keepers)-90)>1e-8:raise AssertionError('Sampled GK coverage failure')
@@ -89,7 +90,7 @@ def current(inputs,out,*,paired=True):
     import gzip
     out.mkdir(parents=True,exist_ok=True)
     (out/'role-squad-evidence.csv.gz').write_bytes(gzip.compress(role_evidence,mtime=0))
-    xp,details,audit,baseline=run(joined,pred,observations(ROOT),season='2026-27',incomplete_teams=incomplete,paired=paired,role_policy=policy,paired_v1=v1)
+    xp,details,audit,baseline=run(joined,pred,observations(ROOT),season='2026-27',incomplete_teams=incomplete,paired=paired,role_policy=policy,paired_v1=v1,distributions=True)
     if paired:write(out/'before-v1.json',dict(players=v1))
     display=joined.copy();updated=pred.copy();mmrows=[]
     for index,r in updated.iterrows():
@@ -122,7 +123,7 @@ def current(inputs,out,*,paired=True):
     payload.update(goalkeeper_role_fit=policy.receipt,gk_horizon_absences=[{k:p.get(k)for k in ['id','web_name','news']}for p in fresh['elements']if p['id']in set(pred.loc[pred.role_horizon_absence,'fpl_element'])],official_gk_status={str(p['id']):{k:p.get(k) for k in ['status','news','chance_of_playing_next_round']} for p in fresh['elements'] if p['element_type']==1},data_asof=max(prov['data_at'],evidence['observed_at']),component_source_asof={'original_B_PM':prov['data_at'],'official_GK_roster':evidence['observed_at']},official_gk_evidence=evidence,model=VERSION,scope='prospective_preview',minute_sampler_audit={'sampler':VERSION,'goalkeeper_MM_to_PM_mean_consistent':True},
         parts={'mm':'experimental_GK','pm_vfinal':'experimental_joint_GK','ts':'original_unchanged'},gk_team_fixtures=audit)
     payload['blockers'].append('Experimental joint GK/11-starter sampler; not production-certified. Unlisted competitors are pooled, not individual FPL forecasts.')
-    payload['code_sha256']={name:hashlib.sha256((ROOT/name).read_bytes()).hexdigest() for name in ['scripts/gk_joint_bridge.py','scripts/run_joint_gk_preview.py','scripts/mm_candidate_forecast.py','scripts/gk_solo_role.py','src/fpl_v1_1_model/joint_simulator.py']}
+    payload['code_sha256']={name:hashlib.sha256((ROOT/name).read_bytes()).hexdigest() for name in ['scripts/gk_joint_bridge.py','scripts/run_joint_gk_preview.py','scripts/mm_candidate_forecast.py','scripts/gk_solo_role.py','src/fpl_v1_1_model/joint_simulator.py','scripts/pm_preview_distributions.py']}
     payload['input_sha256']={name:hashlib.sha256((inputs/name).read_bytes()).hexdigest() for name in ['pm.csv.gz','history.csv.gz','target.csv.gz','provenance.json']}
     payload=seal_forecast(payload)
     write(out/'baseline-mm.json',dict(players=[dict(fixture_id=r.fixture_uuid,player_id=r.player_uuid,p_start=float(r.p),xmins=float(r.x),start_minutes=float(r.s),p_sub_given_not_start=float(r.q),sub_minutes=float(r.c))for r in pred.itertuples()]));

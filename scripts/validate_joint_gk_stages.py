@@ -23,7 +23,7 @@ def main():
     stages=[];obs=observations(ROOT)
     for scope,mask in [('one-match',frame.fixture_uuid.eq(first)),('one-gw',frame.gw.eq(origin))]:
         chosen=frame[mask];p=pred[pred.fixture_uuid.isin(chosen.fixture_uuid)]
-        xp,_,audit,_=run(chosen,p,obs,season='2026-27',incomplete_teams=partial,offsets=offsets,role_policy=policy)
+        xp,_,audit,_=run(chosen,p,obs,season='2026-27',incomplete_teams=partial,offsets=offsets,role_policy=policy,distributions=True)
         for r in xp.itertuples():
             old=expected[(r.fixture_uuid,r.player_uuid)]
             if r.distribution!=old['distribution']:raise ValueError('PM distributions differ across scopes')

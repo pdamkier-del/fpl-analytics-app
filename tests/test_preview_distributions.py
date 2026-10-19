@@ -1,6 +1,7 @@
 """Preview summaries use the actual PM draws without changing locked results."""
 import numpy as np
 import fpl_v1_1_model.joint_simulator as sim
+from pm_preview_distributions import simulate_with_distributions
 
 
 def test_preview_probabilities_reconcile_with_actual_draws_and_locked_output(monkeypatch):
@@ -15,9 +16,11 @@ def test_preview_probabilities_reconcile_with_actual_draws_and_locked_output(mon
         actual.append(result['rotation'])
         return result
     monkeypatch.setattr(sim,'simulate_match',capture)
-    preview=sim.simulate_many(inp,n=300,seed=19,include_distributions=True)
+    preview=simulate_with_distributions(inp,n=300,seed=19)
     for pid,row in preview.items():
         assert {k:v for k,v in row.items() if k!='distribution'}==locked[pid]
+    assert len(actual)==600
+    actual=actual[-300:]
     d=preview['rotation']['distribution']
     assert np.isclose(d['p_cameo'],np.mean([r.minutes>0 and not r.started for r in actual]))
     assert np.isclose(d['p_zero']+d['p_cameo']+d['p_start'],1)
