@@ -11,10 +11,36 @@
   $('status').textContent=FplJointGK.VERSION+' · '+f.players.length+' spillere · '+f.fixtures+' kampe · SHA-256 verificeret';
   $('quality').textContent='Originale MM/PM-kilder: '+f.component_source_asof.original_B_PM+' · officiel målmandstrup: '+f.component_source_asof.official_GK_roster+'. GK-sampleren og den fælles startudvælgelse er ændret eksplicit i denne preview.';
   $('gw').replaceChildren(...f.gws.map(g=>{const e=make('option','GW '+g);e.value=g;return e;}));
+  $('panel-gw').replaceChildren(...Array.from($('gw').options,o=>o.cloneNode(true)));
+  $('close-panel').onclick=()=>$('player-panel').close();
+  $('panel-gw').onchange=()=>{$('gw').value=$('panel-gw').value;draw();};
   const clubs=new Map(f.players.map(p=>[p.team_id,p.team]));for(const[id,name]of[...clubs].sort((a,b)=>a[1].localeCompare(b[1]))){const e=make('option',name);e.value=id;$('club').append(e);}
-  function compare(p){const gw=Number($('gw').value),w=p.weeks.find(w=>w.gw===gw),box=$('comparison');box.replaceChildren(make('h3',p.name+' · GW '+gw));for(const x of w.fixtures){const old=previous.get(x.fixture_uuid+'|'+p.player_uuid)??before.get(x.fixture_uuid+'|'+p.player_uuid),r=mm.get(x.fixture_uuid+'|'+p.player_uuid);box.append(make('p','Samme kildeinput og seedbudget · '+x.fixture_uuid));if(old)box.append(make('p','Før (v1 for GK): xM '+fmt(old.xm)+' · PM E[min] '+fmt(old.pm)+' · P(start) '+pct(old.p)+' · xP '+fmt(old.xp)));box.append(make('p','Efter: xM '+fmt(x.xmins)+' · PM E[min] '+fmt(x.pm_analytic_minutes)+' · P(start) '+pct(r?.p_start)+' · P(60+) '+pct(r?.p_60_plus)+' · P(90) '+pct(r?.p_90)+' · xP '+fmt(x.xpts)));}}
+  let selected=null;
+  function compare(p){
+   selected=p;$('panel-gw').value=$('gw').value;if(!$('player-panel').open)$('player-panel').showModal();const gw=Number($('gw').value),w=p.weeks.find(w=>w.gw===gw),box=$('comparison');
+   box.replaceChildren(make('h3',p.name+' · '+p.team+' · GW '+gw));
+   if(!w.fixtures.length)box.append(make('p','Ingen kamp i denne GW.'));
+   for(const x of w.fixtures){
+    const section=make('section'),d=x.distribution,r=mm.get(x.fixture_uuid+'|'+p.player_uuid);
+    const opponent=f.players.find(other=>other.team_id!==p.team_id&&other.weeks.some(week=>week.fixtures.some(fixture=>fixture.fixture_uuid===x.fixture_uuid)))?.team;
+    section.className='fixture-panel';section.append(make('h4',(opponent?'Mod '+opponent:x.fixture_uuid)+(x.kickoff?' · '+new Date(x.kickoff).toLocaleString('da-DK',{timeZone:'Europe/Copenhagen'}):'')),make('p','xP '+fmt(x.xpts)+' · xM '+fmt(x.xmins)));
+    if(!d){section.append(make('p','Sandsynligheder er endnu ikke tilgængelige for denne kamp.'));box.append(section);continue;}
+    const grid=make('div');grid.className='prob-grid';
+    const fields=[['P(0 minutter)',r?1-r.p_play:d.p_zero],['P(indhop)',r?r.p_play-r.p_start:d.p_cameo],['P(start)',r?.p_start??d.p_start],['P(60+ minutter)',r?.p_60_plus??d.p_60_plus],['P(90 minutter)',r?.p_90??d.p_90],['Mindst 2 point',d.p_2_plus],['Mindst 5 point',d.p_5_plus],['Mindst 10 point',d.p_10_plus]];
+    for(const[label,value]of fields){const card=make('div');card.append(make('span',label),make('strong',pct(value)));grid.append(card);}section.append(grid);
+    section.append(make('p','Centralt 80 % modelinterval: '+d.points_interval80.map(fmt).join(' – ')+' point · PM E[min] '+fmt(r?.xmins??d.pm_expected_minutes)));
+    const bins=r?[1-r.p_play,r.p_play-r.p_60_plus,r.p_60_plus-r.p_90,r.p_90]:d.minute_bins;
+    section.append(make('p','Minutfordeling: '+['0 min','1–59 min','60–89 min','90 min'].map((label,i)=>label+' '+pct(bins[i])).join(' · ')));
+    section.append(make('p','Pointchancer og outfield-minutter: '+d.draws+' fælles PM-simuleringer. Små forskelle i procenter kan skyldes simuleringen. GK-minutter vises fra den præcise fælles fordeling.'));
+    const old=previous.get(x.fixture_uuid+'|'+p.player_uuid);
+    if(old){const detail=make('details');detail.append(make('summary','GK før / efter'),make('p','Før: xM '+fmt(old.xm)+' · P(start) '+pct(old.p)+' · xP '+fmt(old.xp)),make('p','Nu: xM '+fmt(x.xmins)+' · P(start) '+pct(r?.p_start)+' · xP '+fmt(x.xpts)));section.append(detail);}
+    box.append(section);
+   }
+   box.append(make('p','P(start), P(60+) og P(90) overlapper. Minutfordelingens fire grupper summerer til 100 %. Intervallet er et modelestimat, ikke en garanti. Fremtidige skadesreturer er betingede antagelser.'));
+  }
   function draw(){FplJointGK.validate(f,m);const gw=Number($('gw').value),q=$('search').value.toLocaleLowerCase('da');const rows=f.players.filter(p=>(!$('position').value||p.position===Number($('position').value))&&(!$('club').value||p.team_id===Number($('club').value))&&p.name.toLocaleLowerCase('da').includes(q)).map(p=>({p,w:p.weeks.find(w=>w.gw===gw)})).sort((a,b)=>b.w.xpts-a.w.xpts);
-   $('rows').replaceChildren(...rows.map(({p,w})=>{const tr=document.createElement('tr'),name=document.createElement('td'),button=make('button',p.name);button.onclick=()=>compare(p);name.append(button);tr.append(name);const list=w.fixtures.map(x=>mm.get(x.fixture_uuid+'|'+p.player_uuid)),values=[p.team,fmt(w.xmins),p.position===1?fmt(w.fixtures.reduce((s,x)=>s+x.pm_analytic_minutes,0)):'Not Available',w.fixtures.map((x,i)=>pct(list[i]?.p_start??before.get(x.fixture_uuid+'|'+p.player_uuid)?.p)).join(' / '),list.map(r=>pct(r?.p_60_plus)).join(' / '),list.map(r=>pct(r?.p_90)).join(' / '),fmt(w.xpts),fmt(p.weeks.reduce((s,w)=>s+w.xpts,0)),list.map(r=>FplJointGK.interval(r)).join(' / '),p.position===1?(gw===f.gws[0]?({a:'Tilgængelig',i:'Skadet',u:'Ude',s:'Suspenderet',d:'Tvivlsom'}[f.official_gk_status?.[p.id]?.status]||'Not Available')+(f.official_gk_status?.[p.id]?.news?' · '+f.official_gk_status[p.id].news:''):(f.gk_horizon_absences?.some(x=>x.id===p.id)?'Udlånt · udelukket i hele horisonten':'Fremtidigt GW · skadesretur er usikker')):'—'];for(const value of values)tr.append(make('td',value||'Blank GW'));return tr;}));if(rows.length===1)compare(rows[0].p);
+   $('rows').replaceChildren(...rows.map(({p,w})=>{const tr=document.createElement('tr'),name=document.createElement('td'),button=make('button',p.name);button.onclick=()=>compare(p);name.append(button);tr.append(name);const values=[p.team,fmt(w.xpts),fmt(w.xmins),w.fixtures.map(x=>pct(mm.get(x.fixture_uuid+'|'+p.player_uuid)?.p_start??x.distribution?.p_start)).join(' / ')||'Ingen kamp',fmt(p.weeks.reduce((s,w)=>s+w.xpts,0))];for(const value of values)tr.append(make('td',value));return tr;}));
+   if(selected&&$('player-panel').open&&rows.some(x=>x.p===selected))compare(selected);else{selected=null;$('player-panel').close();}
   }
   const e=f.official_gk_evidence;$('sources').replaceChildren(make('span','Chelsea: '+e.first_team_goalkeepers.map(p=>p.name).join(', ')+'. Ikke i FPL: '+e.unlisted_competitors.join(', ')+'. '));for(const source of Object.values(e.sources)){const a=make('a',new URL(source.url).hostname+' · officiel kilde');a.href=source.url;a.target='_blank';a.rel='noopener';$('sources').append(a,document.createTextNode(' · '));}
   const review=e.hierarchy_review;if(review)$('sources').prepend(make('p','Officielle kampoplysninger: Penders var eneste GK-reserve mod Everton og afløste Martínez. Alonso udtrykker fuld tillid. Sharman-Lowe og Slonina var ikke i kamptruppen; deres næste tilgængelighed er ikke bekræftet. Registrering alene giver ikke en stor startchance.'));
