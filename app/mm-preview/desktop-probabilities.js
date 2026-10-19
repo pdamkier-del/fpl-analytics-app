@@ -24,7 +24,7 @@
  }
  function open(id){const player=data?.forecast.players.find(p=>p.id===Number(id));if(!player)return;
   if(!dialog){dialog=make('dialog',undefined,'fpl-probability-dialog');dialog.setAttribute('aria-label','Spillerkort med sandsynligheder');document.body.append(dialog);}
-  const panel=content(player,data.forecast.gws[0]);dialog.replaceChildren(panel);const link=make('a','Åbn det fulde spillerkort →');link.href='player.html?id='+player.id;panel.append(link);dialog.showModal();
+  const panel=content(player,data.forecast.gws[0]);dialog.replaceChildren(panel);const link=make('a','Spillerprofil · tidligere kampe, statistik og prognose →');link.href='player.html?id='+player.id;panel.append(link);dialog.showModal();
  }
  async function init(){
   if(!window.FplBExistingApp)return;

@@ -31,7 +31,7 @@ repeating-linear-gradient(90deg,#14734f 0,#14734f 12.5%,#11704b 12.5%,#11704b 25
 .pitch.no-fake-xi .line-row{display:none}
 .no-lineup-notice{background:#fff;border:1px solid #dce8e2;border-radius:13px;padding:26px;max-width:520px;line-height:1.8;margin:75px auto;color:#355248}
 @media(max-width:540px){.expert-node{width:84px}.expert-node .expert-name{font-size:9px}.pitch.expert-formation{min-height:640px}}
-</style><link rel="stylesheet" href="design-v2.css?v=2"><link rel="stylesheet" href="../desktop-probabilities.css?v=2"><script src="../gk/contract.js?v=2"></script><script defer src="../desktop-probabilities.js?v=2"></script></head>
+</style><link rel="stylesheet" href="design-v2.css?v=2"><link rel="stylesheet" href="../desktop-probabilities.css?v=2"><script src="../gk/contract.js?v=2"></script><script defer src="../desktop-probabilities.js?v=2"></script><link rel="stylesheet" href="../planner-experience.css?v=1"></head>
 <body><div class="app">
 <aside class="sidebar"><div class="brand"><div class="logo">xP</div><span>FPL Analytics</span></div><div class="nav-title">Workspace</div><div class="nav"><a href="overview.html"><span>Overview</span></a><a href="rankings.html"><span>Player Rankings</span></a><a href="index.html" class="active"><span>Clubs</span></a><a href="my-team.html"><span>My Team</span></a><a href="team-optimizer.html"><span>Transfer & Team Optimizer</span></a></div><div class="nav-title">Models</div><div class="nav"><a href="models.html"><span>Model Explorer</span></a><a href="replay.html"><span>Replay & Audit</span></a></div><div class="sidebar-foot">Published model data<br>Auto-update enabled.</div></aside>
 <main class="main"><div class="topbar"><div class="crumb" id="crumb">Clubs</div><div class="top-actions"><select id="clubSelect" class="select"></select><span class="badge">FORECAST-KILDE: se versionsmærke</span></div></div>
@@ -46,7 +46,7 @@ repeating-linear-gradient(90deg,#14734f 0,#14734f 12.5%,#11704b 12.5%,#11704b 25
 <section id="recent" class="view"><div class="toolbar"><div class="segmented" id="statsPeriods"><button data-n="3" class="active">Last 3 GW</button><button data-n="6">Last 6 GW</button><button data-n="all">Season</button></div><input id="statsSearch" class="search" placeholder="Search player…"></div><div class="fixture-row" id="statsFixtures"></div><div class="cards" id="statsSummary"></div><div class="table-wrap"><table id="statsTable" style="min-width:1450px"><thead><tr><th>Player</th><th>Pos</th><th>Min</th><th>Pts</th><th>Goals</th><th>xG</th><th>Assists</th><th>xA</th><th>xGI</th><th>CS</th><th>xGC</th><th>DefCon</th><th>Saves</th><th>Bonus</th><th>BPS</th></tr></thead><tbody></tbody></table></div></section>
 <section id="fixtures" class="view"><div class="fixture-grid-v2" id="fixtureBody"></div></section>
 </main></div>
-<script src="data.js"></script><script src="role-data.js"></script><script src="expert-lineups.js"></script><script src="match-data.js"></script><script src="assets.js"></script><script>
+<script src="data.js"></script><script src="role-data.js"></script><script src="expert-lineups.js"></script><script src="match-data.js"></script><script src="../history-explorer.js?v=1"></script><script src="assets.js"></script><script>
 const D=window.FPL_DATA||{clubs:[],forecasts:[],actuals:[],fixtures:[],meta:{}},M=window.FPL_MATCH_DATA||{matches:[]};
 const R=window.FPL_ROLE_DATA||{players:[],expected_lineups:[],current_xi_certified:false};
 const EXPERT=window.FPL_EXPERT_LINEUPS||{lineups:[],official_next_gw:null};

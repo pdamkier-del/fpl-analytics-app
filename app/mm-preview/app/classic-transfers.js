@@ -4,7 +4,7 @@ const target=document.getElementById('transfer-content'),status=document.getElem
 const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const num=x=>Number.isFinite(x)?x.toFixed(2):'Not Available';
 function draw(){
- const c=FplManagerClient.snapshot();target.replaceChildren();button.disabled=c.busy;
+ const c=FplManagerClient.snapshot();target.replaceChildren();button.disabled=c.busy;FplPlannerExperience.mount(c);
  document.getElementById('appState').textContent='Diagnostisk · cutoff '+c.forecast.data_asof;
  const retry=document.getElementById('transfer-retry');if(retry)retry.hidden=true;
  if(!c.state){status.innerHTML='<strong>Dit faktiske hold mangler i denne browser.</strong><p><a href="overview.html#team">Genindlæs din private backup én gang</a></p>';return}

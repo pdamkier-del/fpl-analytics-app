@@ -14,6 +14,13 @@
   const mm=FplJointGK.validate(f,m);for(const p of f.players)for(const w of p.weeks)for(const x of w.fixtures)FplJointGK.distribution(x.distribution);
   setTimeout(()=>{probabilities=null},60000);return {forecast:f,mm};
  })().catch(e=>{probabilities=null;throw e;});return probabilities;}
+ let historical=null;
+ async function historyData(){if(!historical)historical=(async()=>{
+  const r=await nativeFetch(new URL('history/index.json',base),{cache:'no-store'});if(!r.ok)throw Error('Historikindeks mangler');const i=await r.json();if(i.schema!=='fpl-preview-actual-history-v1')throw Error('Forkert historikkilde');
+  async function doc(name){const r=await nativeFetch(new URL('history/'+name,base),{cache:'no-store'});if(!r.ok)throw Error('Kamphistorik mangler');const b=await r.arrayBuffer();if(await digest(b)!==i.files[name])throw Error('Checksumfejl i kamphistorik');return JSON.parse(new TextDecoder().decode(b));}
+  const [o,f,h]=await Promise.all(['current-players.json','live-fixtures.json','match-results.json'].map(doc));if(o.fetched_at!==f.fetched_at||h.observed_at!==o.fetched_at||h.observed_at!==i.observed_at)throw Error('Historikfiler tilhører forskellige opdateringer');
+  return {...h,historical_catalogue:o,historical_fixtures:f,history_provenance:{production_run:i.production_run,production_artifact:i.production_artifact}};
+ })().catch(e=>{historical=null;throw e;});return historical;}
  let ready=null;
  async function data(){if(!ready)ready=(async()=>{const r=await nativeFetch(new URL('current/index.json',base),{cache:'no-store'});if(!r.ok)throw Error('Aktuelt B-forecast mangler');const i=await r.json();if(i.model!=='B_locked_PM_preview'||i.locked_model_active!==false||i.minute_sampler!=='locked')throw Error('Forkert B-preview-kontrakt');const [f,d]=await Promise.all([checked(i.forecast_file,i.forecast_file_sha256),checked('existing-app-data.json',i.existing_app_data_sha256)]);if(f.forecast_sha256!==i.forecast_sha256||d.forecast_sha256!==i.forecast_sha256)throw Error('B-snapshots er forskellige');setTimeout(()=>{ready=null},60000);if(i.desktop_probabilities&&publicStats){const p=await probabilityData();if(p.forecast.forecast_sha256!==i.desktop_probabilities.forecast_sha256)throw Error('Forskellige sandsynlighedssnapshots');
  const catalogue=new Map(d.documents['current-players.json'].players.map(p=>[p.id,p]));
@@ -24,6 +31,7 @@
   const u=new URL(typeof input==='string'||input instanceof URL?input:input.url,location.href);
   if(u.origin===location.origin&&u.pathname.startsWith(new URL('app/',base).pathname)&&u.pathname.endsWith('.json')){
    const name=u.pathname.split('/').pop();
+   if(name==='match-results.json')return new Response(JSON.stringify(await historyData()),{headers:{'Content-Type':'application/json'}});
    if(name==='vfinal-diagnostic.json'||['current-players.json','live-fixtures.json','club-lineups.json'].includes(name)){
     const d=await data();return new Response(JSON.stringify(name==='vfinal-diagnostic.json'?d.forecast:d.documents[name]),{headers:{'Content-Type':'application/json'}});
    }
@@ -33,7 +41,7 @@
   }
   return nativeFetch(input,options);
  };
- window.FplBExistingApp={probabilities:probabilityData,publicStats,forecast:async()=>{ready=null;return (await data()).forecast;}};
+ window.FplBExistingApp={history:historyData,probabilities:probabilityData,publicStats,forecast:async()=>{ready=null;return (await data()).forecast;}};
  document.addEventListener('DOMContentLoaded',()=>{
   const banner=document.createElement('aside');banner.setAttribute('role','status');banner.style.cssText='position:relative;z-index:20;padding:12px;background:#fff1b8;color:#302600;text-align:center';banner.textContent='PREVIEW · Individuel MM B → uændret låst PM → TS v3. Diagnostisk, ikke certificeret. Dit faktiske hold bevares lokalt; forslag er separate.';document.body.prepend(banner);
   data().then(({forecast:f})=>{if(publicStats&&f.model==='B-GK-role-aware-v2'){banner.textContent='B-preview · FPL Analytics · sandsynligheder i det eksisterende spillerkort';return;}banner.append(document.createTextNode(' Cutoff '+f.data_asof+'. Minutusikkerhedsintervaller: Not Available (ikke valideret).'));

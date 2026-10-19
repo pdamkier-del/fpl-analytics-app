@@ -7,7 +7,7 @@ let latestTeamNews=null,latestTeamNewsError=null;
 function feedback(){if(typeof FplComputeFeedback!=="undefined")FplComputeFeedback.render({message:computeMessage,error:computeError,busy,hasState:!!state,hasPlan:!!plan,usable,stateValid:forecast?stateLegal(state):false})}
 function status(message,error=false){computeMessage=message;computeError=error;feedback();document.querySelectorAll('[data-compute-status]').forEach(el=>{el.textContent=message;el.classList.toggle('error',error)})}
 const setComputeStatus=status;
-function render(){onChange();feedback();window.dispatchEvent(new Event('fpl-plan-updated'))}
+function render(){onChange();FplPlannerExperience.mount(snapshot());feedback();window.dispatchEvent(new Event('fpl-plan-updated'))}
 const ordered=x=>Array.isArray(x)?x.map(ordered):x&&typeof x==='object'?Object.fromEntries(Object.keys(x).sort().map(k=>[k,ordered(x[k])])):x;
 const hash=async raw=>[...new Uint8Array(await crypto.subtle.digest('SHA-256',new TextEncoder().encode(JSON.stringify(ordered(raw)))))].map(x=>x.toString(16).padStart(2,'0')).join('');
 function stateLegal(raw,requireCutoff=true){
@@ -19,7 +19,7 @@ function stateLegal(raw,requireCutoff=true){
 async function readSaved(){try{state=JSON.parse(localStorage.getItem('fpl-manager-state-v1'))}catch{state=null}try{const saved=JSON.parse(localStorage.getItem('fpl-manager-plan-B-preview-v1'));plan=usable&&stateLegal(state)&&saved&&!saved.validation_only&&saved.locked_model_active===false&&saved.ts_ran&&Array.isArray(saved.plan?.path)&&saved.plan.path.length===forecast.gws.length&&saved.plan.path.every((a,i)=>a.gw===forecast.gws[i]&&Number.isInteger(a.official_hit_points)&&a.official_hit_points>=0&&a.official_hit_points%4===0&&Number.isFinite(a.projected_manager_score)&&[a.incoming,a.outgoing].every(ids=>Array.isArray(ids)&&ids.every(id=>people.has(id))))&&Array.isArray(saved.lineup)&&saved.lineup.length===15&&saved.forecast_sha256===forecast.forecast_sha256&&typeof forecast.forecast_sha256==='string'&&saved.forecast_cutoff===forecast.data_asof&&saved.gw===forecast.gws[0]&&saved.manager_state_sha256===await hash(state)?saved:null}catch{plan=null}}
 async function boundedFetch(url,options={},timeout=45000){const controller=new AbortController(),timer=setTimeout(()=>controller.abort(),timeout);try{return await fetch(url,{...options,signal:controller.signal})}catch(e){throw Error(e.name==='AbortError'?'Forbindelsen fik timeout. Dit hold og igangværende job er bevaret; prøv igen.':'Forbindelsen blev afbrudt. Dit hold og igangværende job er bevaret; prøv igen.')}finally{clearTimeout(timer)}}
 async function compute(){if(busy)return;const button=document.getElementById('compute');try{
- if(!stateLegal(state,false))throw Error('Registrér et lovligt faktisk hold og det korrekte observationstidspunkt.');
+ if(!stateLegal(state,false))throw Error(FplPlannerExperience.diagnose(state,forecast).join(' ')||'Kontrollér holdets oplysninger.');
  if(!usable||!stateLegal(state)){sessionStorage.setItem('fpl-B-wait-for-forecast','1');setComputeStatus('Dit hold er gemt. Beregningen afventer et nyt verificeret forecast efter observationen. Den starter automatisk, når forecast er klar, hvis denne side er åben.');return}
  if(!FplTeamNews.evaluate({news:latestTeamNews,official,forecast,state,stateValid:stateLegal(state),usable,error:latestTeamNewsError}).aligned)throw Error(latestTeamNewsError||'Nye FPL-meldinger afventer opdateret MM/PM.');
  if(!service.url)throw Error('Original beregningstjeneste afventer aktivering. Dit gemte hold og importerede plan er bevaret.');

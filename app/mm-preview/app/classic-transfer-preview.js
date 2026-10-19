@@ -12,5 +12,5 @@ if(bank<0||clubCount>3){result.textContent=bank<0?'Ulovligt alternativ: budgette
 function choices(preferred){const p=c.people.get(Number(outgoing.value));incoming.innerHTML=[...c.people.values()].filter(q=>q.position===p.position&&!ids.has(q.id)).sort((a,b)=>a.name.localeCompare(b.name)).map(q=>'<option value="'+q.id+'">'+name(q)+'</option>').join('');if(preferred&&[...incoming.options].some(o=>o.value===preferred))incoming.value=preferred;evaluate()}
 if(previousOut&&[...outgoing.options].some(o=>o.value===previousOut))outgoing.value=previousOut;outgoing.onchange=()=>choices();incoming.onchange=evaluate;choices(previousIn);
 }
-window.addEventListener('fpl-plan-updated',render);window.FplTransferPreview={render};
+window.addEventListener('fpl-plan-updated',()=>{render();FplPlannerExperience.comparison(FplManagerClient.snapshot());});window.FplTransferPreview={render:()=>{render();FplPlannerExperience.comparison(FplManagerClient.snapshot());}};
 })();
