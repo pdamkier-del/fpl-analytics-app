@@ -23,6 +23,7 @@ def inject(out):
     new="if(c.busy&&/^Venter på ledig beregningsplads/.test(message))return {kind:'queued',title:'Venter på ledig beregningsplads',detail:message};"+old
     if text.count(old)!=1:raise ValueError('Queue feedback anchor changed')
     text=text.replace(old,new)
+    text=text.replace("const message=c.message||'';","const message=c.message||'';if(c.error&&/Beregningstjenesten er stadig optaget/.test(message))return {kind:'waiting',title:'Ventetiden er udløbet',detail:message};")
     text=text.replace("c.busy?'Beregning i gang…'","c.busy&&/^Venter på ledig beregningsplads/.test(c.message||'')?'Venter på ledig plads…':c.busy?'Beregning i gang…'")
     feedback.write_text(text)
     for page in out.glob('*.html'):
