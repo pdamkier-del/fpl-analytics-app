@@ -16,3 +16,6 @@ UI source: `65ab05201212e81be82bed59d0fef788fd8a78d0`. CI passed: https://github
 App: https://pdamkier-del.github.io/fpl-analytics-app/mm-preview/app/transfers-classic.html?release=65ab052
 
 Post-deployment Chromium verification passed on desktop and mobile: exact GW errors in waiting feedback, valid newer-state timestamps explained without another confirmation instruction, preserved actual state and TS gains, green action cache refresh/existing-plan display and single mocked missing-plan job. No page errors or real private submissions. The actual user blocker remains awaiting the requested private status text.
+
+
+Subsequent resolution: the user supplied the missing diagnostic, identifying confirmation 20 October 14:45:34 Copenhagen versus model 12:07:05. Full refresh `39425077877` published a planning capture at 14:55:47 and public browser verification cleared that exact time gate. See `2026-10-20-confirmed-squad-refresh.md`.
