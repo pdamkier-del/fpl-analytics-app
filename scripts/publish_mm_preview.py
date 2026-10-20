@@ -18,6 +18,26 @@ def gh(path):
     return json.loads(subprocess.check_output(['gh','api','repos/'+REPO+'/'+path],text=True))
 def hashes(folder):
     return {str(p.relative_to(folder)):hashlib.sha256(p.read_bytes()).hexdigest() for p in folder.rglob('*') if p.is_file() and not p.relative_to(folder).parts[0]=='mm-preview'}
+def require_current_preview(source, fetch=urlopen):
+    """A UI publication must never roll a newer served model snapshot back."""
+    from datetime import datetime
+    from urllib.error import HTTPError
+    from time import time_ns
+    for name in ['current/forecast.json', 'gk/forecast.json']:
+        path=source/name
+        if not path.exists():raise ValueError('Missing preview forecast: '+name)
+        incoming=json.loads(path.read_text())
+        try:
+            with fetch('https://pdamkier-del.github.io/fpl-analytics-app/mm-preview/'+name+'?publication='+str(time_ns()),timeout=60) as response:
+                served=json.load(response)
+        except HTTPError as error:
+            if error.code==404:continue  # First publication only.
+            raise
+        new_time=datetime.fromisoformat(incoming['data_asof'].replace('Z','+00:00'))
+        old_time=datetime.fromisoformat(served['data_asof'].replace('Z','+00:00'))
+        if new_time.tzinfo is None or old_time.tzinfo is None:raise ValueError('Forecast time must include timezone')
+        if new_time<old_time:raise ValueError('Newer B forecast is already public; validate UI against the latest model artifact before publishing')
+
 def main():
     WORK.mkdir(parents=True,exist_ok=True)
     runs=gh('actions/runs?status=success&per_page=100')['workflow_runs']
@@ -44,6 +64,7 @@ def main():
     for k in ['data_asof','checksums','gws','model']:
         if live.get(k)!=frozen.get(k):raise ValueError('Production publication changed; rerun preview against newest artifact')
     source=Path(os.environ.get('MM_PREVIEW_SOURCE_DIR',ROOT/'app/mm-preview'));dest=SITE/'mm-preview'
+    require_current_preview(source)
     from dashboard_news_publication import retain_latest
     retain_latest(source,dest)
     # Preserve prior public forecast evidence; a refresh must not silently

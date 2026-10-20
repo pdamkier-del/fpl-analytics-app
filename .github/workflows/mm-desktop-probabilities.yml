@@ -35,8 +35,9 @@ permissions:
 env:
   PYTHONPATH: src:scripts:.
   OPENBLAS_NUM_THREADS: '1'
-  MODEL_RUN: '39316294660'
-  MODEL_SOURCE: 8bd1353c07d6541c5e7dcb13cb6fe8bdb12fe44d
+  MODEL_RUN: '39405073005'
+  MODEL_SOURCE: 340ef9b16590a37958138c43c4b05e8335e01ef8
+  MODEL_ORIGIN_SHA: 60306e48128710db1735787322e82861690d4832
 jobs:
   desktop:
     runs-on: ubuntu-latest
@@ -50,9 +51,11 @@ jobs:
           GH_TOKEN: ${{ github.token }}
         run: |
           python - <<'PY'
-          import json,os,subprocess
+          import json,os,re,subprocess
           r=json.loads(subprocess.check_output(['gh','api','repos/pdamkier-del/fpl-analytics-app/actions/runs/'+os.environ['MODEL_RUN']]))
-          assert r['conclusion']=='success' and r['head_sha']==os.environ['MODEL_SOURCE'] and r['path']=='.github/workflows/mm-current-live-preview.yml'
+          assert r['conclusion']=='success' and r['head_sha']==os.environ['MODEL_ORIGIN_SHA'] and r['path']=='.github/workflows/mm-current-preview-publication.yml'
+          wrapper=subprocess.check_output(['git','show',r['head_sha']+':'+r['path']],text=True)
+          assert re.search(r'PREVIEW_SOURCE_SHA: ([a-f0-9]{40})',wrapper)[1]==os.environ['MODEL_SOURCE']
           PY
           git diff --exit-code "$MODEL_SOURCE" -- src model service scripts/gk_joint_bridge.py scripts/gk_solo_role.py scripts/pm_preview_distributions.py scripts/run_joint_gk_preview.py scripts/mm_candidate_forecast.py scripts/mm_locked_bridge.py
       - uses: actions/setup-python@v5
