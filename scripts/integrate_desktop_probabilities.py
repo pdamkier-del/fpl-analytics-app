@@ -36,6 +36,8 @@ def integrate(root=ROOT):
     inject(out)
     from integrate_planner_experience import inject as planner_inject
     planner_inject(out)
+    from integrate_transfers_workspace import inject as transfers_inject
+    transfers_inject(out)
     # The same origin already serves earlier app versions. Content-derived
     # queries prevent cached old adapters from hiding newly added history APIs.
     import re
