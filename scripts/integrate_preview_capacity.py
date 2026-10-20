@@ -17,7 +17,9 @@ def inject(out):
  if(plan)return false;return true;
 }});if(response===null){sessionStorage.removeItem('fpl-private-B-preview-job');busy=false;setComputeStatus('Din nyeste plan er allerede klar i denne browser.');render();return;}""".replace('NEWS',news)
         if text.count(old)!=1:raise ValueError('Preview submission anchor changed: '+name)
-        path.write_text(text.replace(old,new))
+        text=text.replace(old,new)
+        text=text.replace("job.submitted=true;sessionStorage.setItem('fpl-private-B-preview-job'","job.started_at=Date.now();job.submitted=true;sessionStorage.setItem('fpl-private-B-preview-job'")
+        path.write_text(text)
     feedback=out/'compute-feedback.js';text=feedback.read_text()
     old="if(c.busy)return {kind:'running'"
     new="if(c.busy&&/^Venter på ledig beregningsplads/.test(message))return {kind:'queued',title:'Venter på ledig beregningsplads',detail:message};"+old
