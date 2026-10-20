@@ -18,7 +18,7 @@ function draw(){
  metrics.innerHTML=c.state?'<div><small>Dit hold</small><strong>'+esc(c.state.squad.length)+' spillere</strong></div><div><small>I banken nu</small><strong>£'+(c.state.bank_tenths/10).toFixed(1)+'</strong></div><div><small>Gratis transfers nu</small><strong>'+esc(c.state.free_transfers)+'</strong></div><a href="my-team-classic.html">Se mit hold →</a>':'<p>Indlæs dit hold for at få en personlig transferplan.</p>';
  if(!c.state){status.innerHTML='<strong>Start med dit hold</strong><p><a href="overview.html#team">Indlæs din private backup →</a></p>';return;}
  if(!c.usable){status.textContent=c.reason;return;}
- if(!c.stateValid){status.innerHTML='<strong>Bekræft dit hold for den næste gameweek</strong><p>Se de konkrete oplysninger, der mangler, under holdstatus ovenfor.</p>';return;}
+ if(!c.stateValid){const issues=FplPlannerExperience.diagnose(c.state,c.forecast);status.innerHTML='<strong>'+esc(issues.length?'Holdoplysninger skal opdateres':'Venter på nye modeldata')+'</strong><p>'+esc(issues.join(' ')||c.reason)+'</p>';return;}
  if(!c.plan){status.textContent=c.busy?'Din plan beregnes. Du kan blive på siden og følge status her.':'Klar til din første plan. Vælg Beregn for at finde transfers, startopstilling og chips over seks gameweeks.';return;}
  const p=c.plan,first=p.plan.path[0];
  status.textContent='Personlig plan klar · GW '+p.gw+' · forslagene ændrer ikke dit gemte hold.';
