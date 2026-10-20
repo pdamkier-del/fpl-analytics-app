@@ -20,6 +20,22 @@ def inject(out):
             # load() returns the snapshot before initial classic page draw.
         if text.count(old)!=1:raise ValueError('Planner rendering anchor changed')
         path.write_text(text.replace(old,new))
+    manager=out/'classic-manager.js';text=manager.read_text()
+    reason="""function waitingReason(){
+ if(!forecast)return '';
+ const issues=FplPlannerExperience.diagnose(state,forecast);if(issues.length)return issues.join(' ');
+ const clock=x=>new Date(x).toLocaleString('da-DK',{timeZone:'Europe/Copenhagen'});
+ if(Date.parse(state.observed_at)>Date.parse(forecast.data_asof))return 'Dit hold er bekræftet '+clock(state.observed_at)+', men modeldata er fra '+clock(forecast.data_asof)+'. Venter på nyere modeldata. Du skal ikke bekræfte holdet igen.';
+ const window=FplForecastWindow.check(forecast,official);if(!window.usable)return window.reason;
+ const news=FplTeamNews.evaluate({news:latestTeamNews,official,forecast,state,stateValid:stateLegal(state,false),usable:true,error:latestTeamNewsError});return news.aligned?'':news.message;
+}
+"""
+    old='function feedback(){'
+    if text.count(old)!=1:raise ValueError('Feedback diagnosis anchor changed')
+    text=text.replace(old,reason+old)
+    text=text.replace('message:computeMessage,error:computeError','message:computeMessage||waitingReason(),error:computeError')
+    text=text.replace('reason:FplForecastWindow.check(forecast,official).reason','reason:waitingReason()||FplForecastWindow.check(forecast,official).reason')
+    manager.write_text(text)
     path=out/'classic-transfers.js';text=path.read_text();old='const c=FplManagerClient.snapshot();target.replaceChildren();button.disabled=c.busy;'
     if text.count(old)!=1:raise ValueError('Transfer page anchor changed')
     text=text.replace(old,old+'FplPlannerExperience.mount(c);')

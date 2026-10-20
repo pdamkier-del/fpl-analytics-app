@@ -13,6 +13,7 @@ def inject(out):
     old = "b.textContent=c.busy?"
     if code.count(old) != 1:
         raise ValueError('Compute button label anchor changed')
+    code=code.replace("title:'Holdet er bevaret · beregning afventer'","title:'Beregningen er ikke startet'")
     feedback.write_text(code.replace(old, "b.textContent=b.hasAttribute('data-latest-plan')&&!c.busy?'Vis nyeste transferplan':c.busy?"))
     page = out/'transfers-classic.html'
     text = page.read_text()
