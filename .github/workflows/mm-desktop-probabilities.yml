@@ -15,6 +15,9 @@ on:
       - app/mm-preview/dashboard-team-news.*
       - app/mm-preview/transfers-workspace.*
       - scripts/integrate_transfers_workspace.py
+      - app/mm-preview/preview-capacity.js
+      - scripts/integrate_preview_capacity.py
+      - tests/test_preview_capacity.js
       - app/mm-preview/planner-experience.*
       - app/mm-preview/history-explorer.js
       - scripts/integrate_planner_experience.py
@@ -35,9 +38,9 @@ permissions:
 env:
   PYTHONPATH: src:scripts:.
   OPENBLAS_NUM_THREADS: '1'
-  MODEL_RUN: '39405073005'
-  MODEL_SOURCE: 340ef9b16590a37958138c43c4b05e8335e01ef8
-  MODEL_ORIGIN_SHA: 60306e48128710db1735787322e82861690d4832
+  MODEL_RUN: '39425077877'
+  MODEL_SOURCE: 65ab05201212e81be82bed59d0fef788fd8a78d0
+  MODEL_ORIGIN_SHA: caec8301f2273bd8bdae6273159778f0f6e28841
 jobs:
   desktop:
     runs-on: ubuntu-latest
@@ -73,6 +76,7 @@ jobs:
           node tests/test_B_preview_jobs.js
           node tests/test_B_personal_view.js
           node tests/test_preview_distributions.js
+          node tests/test_preview_capacity.js
           node tests/test_dashboard_team_news.js
           python scripts/check_locked_gk_default.py
       - uses: actions/download-artifact@v4

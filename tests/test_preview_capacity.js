@@ -1,0 +1,11 @@
+'use strict';
+const assert=require('node:assert/strict'),{submit}=require('../app/mm-preview/preview-capacity.js');
+(async()=>{const body={state:{private:'unchanged'},request_id:'id',request_key:'key'},calls=[],waits=[];let clock=0,checks=0;
+const response=status=>({status,headers:{get:()=>null},text:async()=>''});
+const accepted=await submit({url:'/preview/plans',body,request:async(url,options)=>{calls.push(options.body);return response(calls.length<3?429:202);},onWait:s=>waits.push(s),beforeRetry:async()=>{checks++;return true;},wait:async ms=>{clock+=ms;},now:()=>clock});
+assert.equal(accepted.status,202);assert.equal(calls.length,3);assert.equal(new Set(calls).size,1);assert.deepEqual(JSON.parse(calls[0]),body);assert.deepEqual(waits,[10,15]);assert.equal(checks,2);
+let retries=0;assert.equal(await submit({url:'/',body,request:async()=>{retries++;return response(429);},onWait:()=>{},beforeRetry:async()=>false,wait:async()=>{}}),null);assert.equal(retries,1);
+await assert.rejects(()=>submit({url:'/',body,request:async()=>response(429),onWait:()=>{},beforeRetry:async()=>{throw Error('changed state');},wait:async()=>{}}),/changed state/);
+clock=0;await assert.rejects(()=>submit({url:'/',body,request:async()=>response(503),onWait:()=>{},beforeRetry:async()=>true,wait:async ms=>{clock+=ms;},now:()=>clock,maxWaitMs:1000}),/stadig optaget/);
+assert.equal((await submit({url:'/',body,request:async()=>response(422)})).status,422);
+console.log('PASS: busy retries preserve exact private payload/id, accept once, stop on state change/cached completion, bound waiting and preserve terminal errors.');})().catch(e=>{console.error(e);process.exit(1)});

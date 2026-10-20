@@ -38,6 +38,8 @@ def integrate(root=ROOT):
     planner_inject(out)
     from integrate_transfers_workspace import inject as transfers_inject
     transfers_inject(out)
+    from integrate_preview_capacity import inject as capacity_inject
+    capacity_inject(out)
     # The same origin already serves earlier app versions. Content-derived
     # queries prevent cached old adapters from hiding newly added history APIs.
     import re
