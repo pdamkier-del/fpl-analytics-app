@@ -6,11 +6,13 @@ let forecast,official,people,plan=null,state=null,usable=false,busy=false,servic
 let latestTeamNews=null,latestTeamNewsError=null;
 function waitingReason(){
  if(!forecast)return '';
+ const window=FplForecastWindow.check(forecast,official);if(!window.usable)return window.reason;
+ const news=FplTeamNews.evaluate({news:latestTeamNews,official,forecast,state,stateValid:stateLegal(state,false),usable:true,error:latestTeamNewsError});
+ if(!news.aligned)return news.alignmentReason||news.message;
  const issues=FplPlannerExperience.diagnose(state,forecast);if(issues.length)return issues.join(' ');
  const clock=x=>new Date(x).toLocaleString('da-DK',{timeZone:'Europe/Copenhagen'});
  if(Date.parse(state.observed_at)>Date.parse(forecast.data_asof))return 'Dit hold er bekræftet '+clock(state.observed_at)+', men modeldata er fra '+clock(forecast.data_asof)+'. Venter på nyere modeldata. Du skal ikke bekræfte holdet igen.';
- const window=FplForecastWindow.check(forecast,official);if(!window.usable)return window.reason;
- const news=FplTeamNews.evaluate({news:latestTeamNews,official,forecast,state,stateValid:stateLegal(state,false),usable:true,error:latestTeamNewsError});return news.aligned?'':news.message;
+ return '';
 }
 function feedback(){if(typeof FplComputeFeedback!=="undefined")FplComputeFeedback.render({message:computeMessage||waitingReason(),error:computeError,busy,hasState:!!state,hasPlan:!!plan,usable,stateValid:forecast?stateLegal(state):false})}
 function status(message,error=false){computeMessage=message;computeError=error;feedback();document.querySelectorAll('[data-compute-status]').forEach(el=>{el.textContent=message;el.classList.toggle('error',error)})}
@@ -28,7 +30,7 @@ async function readSaved(){try{state=JSON.parse(localStorage.getItem('fpl-manage
 async function boundedFetch(url,options={},timeout=45000){const controller=new AbortController(),timer=setTimeout(()=>controller.abort(),timeout);try{return await fetch(url,{...options,signal:controller.signal})}catch(e){throw Error(e.name==='AbortError'?'Forbindelsen fik timeout. Dit hold og igangværende job er bevaret; prøv igen.':'Forbindelsen blev afbrudt. Dit hold og igangværende job er bevaret; prøv igen.')}finally{clearTimeout(timer)}}
 async function compute(){if(busy)return;const button=document.getElementById('compute');try{
  if(!stateLegal(state,false))throw Error(FplPlannerExperience.diagnose(state,forecast).join(' ')||'Kontrollér holdets oplysninger.');
- if(!usable||!stateLegal(state)){sessionStorage.setItem('fpl-B-wait-for-forecast','1');setComputeStatus('Dit hold er gemt. Beregningen afventer et nyt verificeret forecast efter observationen. Den starter automatisk, når forecast er klar, hvis denne side er åben.');return}
+ if(!usable||!stateLegal(state)){sessionStorage.setItem('fpl-B-wait-for-forecast','1');setComputeStatus((waitingReason()||'Afventer opdaterede prognoser.')+' Beregningen starter automatisk, når data er klar, hvis denne side er åben.');return}
  if(!FplTeamNews.evaluate({news:latestTeamNews,official,forecast,state,stateValid:stateLegal(state),usable,error:latestTeamNewsError}).aligned)throw Error(latestTeamNewsError||'Nye FPL-meldinger afventer opdateret MM/PM.');
  if(!service.url)throw Error('Original beregningstjeneste afventer aktivering. Dit gemte hold og importerede plan er bevaret.');
  busy=true;if(button)button.disabled=true;document.querySelectorAll('[data-compute]').forEach(b=>b.disabled=true);render();

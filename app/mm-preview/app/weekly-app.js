@@ -100,7 +100,7 @@ function setComputeStatus(message,error=false){computeMessage=message;computeErr
 async function boundedFetch(url,options={},timeout=45000){const controller=new AbortController(),timer=setTimeout(()=>controller.abort(),timeout);try{return await fetch(url,{...options,signal:controller.signal})}catch(e){throw Error(e.name==='AbortError'?'Forbindelsen fik timeout. Dit hold og igangværende job er bevaret; prøv igen.':'Forbindelsen blev afbrudt. Dit hold og igangværende job er bevaret; prøv igen.')}finally{clearTimeout(timer)}}
 async function compute(){if(busy)return;const button=document.getElementById('compute');try{
  if(!stateLegal(state,false))throw Error(FplPlannerExperience.diagnose(state,forecast).join(' ')||'Kontrollér holdets oplysninger.');
- if(!usable||!stateLegal(state)){sessionStorage.setItem('fpl-B-wait-for-forecast','1');setComputeStatus('Dit hold er gemt. Beregningen afventer et nyt verificeret forecast efter observationen. Den starter automatisk, når forecast er klar, hvis denne side er åben.');return}
+ if(!usable||!stateLegal(state)){sessionStorage.setItem('fpl-B-wait-for-forecast','1');setComputeStatus(dashboardNews.status().message+' Beregningen starter automatisk, når data er klar, hvis denne side er åben.');return}
  if(!dashboardNews.status().canCompute)throw Error(dashboardNews.status().message);
  if(!service.url)throw Error('Original beregningstjeneste afventer aktivering. Dit gemte hold og importerede plan er bevaret.');
  busy=true;if(button)button.disabled=true;render();
