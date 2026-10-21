@@ -69,11 +69,12 @@ def test_real_six_gw_worker_reuses_search_and_restores_originals():
     from service.preview_manager_job import calculate
     import fpl_xpts.transfer_planner as planner
     import fpl_xpts.optimize as optimize
-    f,s=unified_fixture();before=copy.deepcopy(s);original=(planner._fast_manager_score,optimize.plan_squad)
+    f,s=unified_fixture();s['bank_tenths']=50
+    before=copy.deepcopy(s);original=(planner._fast_manager_score,optimize.plan_squad)
     result=calculate(f,s)
     assert s==before and original==(planner._fast_manager_score,optimize.plan_squad)
     assert len(result['plan']['path'])==6 and len(result['lineup'])==15
-    assert result['chain_version']==VERSION and not result['chips_ran']
+    assert result['chain_version']==VERSION and result['chips_ran']
     # Field XI:40; keeper3.2 + fallback .4; captain4 =>47.6.
     assert result['current_team']['expected_score']==pytest.approx(47.6)
     assert result['comparison']['hold_squad_without_transfers'][0]['expected_score']==pytest.approx(47.6)
@@ -92,6 +93,16 @@ def test_better_reserve_is_credited_by_fast_search_and_reported_lineup():
     assert b-a==pytest.approx(.2)
 
 
+def test_bench_boost_does_not_double_count_ordinary_reserve_coverage():
+    from run_live_locked_ts import project
+    f,_=unified_fixture();_,origin=project(f)
+    with preview_scoring(f)as scorer:
+        plan=scorer.plan(origin,list(range(1,16)),7)
+        bb=scorer.bench_boost(plan.rows)
+        assert bb.expected_autosub_xp==pytest.approx(.4)
+        assert bb.incremental_xp==pytest.approx(bb.bench_xp-.4)
+
+
 def test_contract_rejects_inconsistent_means_and_scenario_marginals():
     f,_=unified_fixture();assert validate_forecast(f)
     for name in ['points','minutes']:
@@ -107,3 +118,17 @@ def test_private_api_accepts_unified_only_on_preview_route():
     f,_=unified_fixture()
     assert verify_current_window(f,official(f),preview=True)==7
     with pytest.raises(ValueError):verify_current_window(f,official(f),preview=False)
+
+
+def test_captain_fallback_uses_joint_absence_not_marginal_independence():
+    f,_=unified_fixture()
+    for p in f['players']:
+        if p['id']not in (8,9):continue
+        for w in p['weeks']:
+            w.update(xpts=4.,xmins=36.,pm_analytic_minutes=36.,p_play=.4,
+                scenarios={'points':[10,10,0,0,0],'minutes':[90,90,0,0,0]},
+                fixtures=[{'xmins':36.,'pm_analytic_minutes':36.}])
+    f=seal_forecast(f)
+    with preview_scoring(f)as scorer:
+        _,_,captain,vice,_=scorer.decision(7,tuple(range(1,16)))
+    assert captain in (8,9) and vice not in (8,9)

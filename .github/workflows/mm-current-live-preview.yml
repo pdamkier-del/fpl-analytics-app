@@ -107,6 +107,7 @@ jobs:
           python scripts/locked_numerical_runtime.py scripts/run_joint_gk_preview.py --out work/joint-gk-repeat --no-baseline --chain
           python scripts/locked_numerical_runtime.py scripts/validate_joint_gk_stages.py
           python scripts/export_joint_gk_preview.py
+          python scripts/collect_dashboard_news.py
           node tests/test_joint_gk_contract.js
           node --check app/mm-preview/gk/app.js
       - uses: actions/upload-artifact@v4

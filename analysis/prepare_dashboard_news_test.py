@@ -15,7 +15,11 @@ def prepare(forecast_path,out):
         if count:raise ValueError('Could not create legal synthetic UI fixture')
     state=dict(season=f['season'],gw=f['gws'][0],source='SYNTHETIC_DASHBOARD_UI_TEST_NOT_USER_TEAM',observed_at=(datetime.fromisoformat(f['data_asof'].replace('Z','+00:00'))-timedelta(hours=2)).isoformat(),bank_tenths=1000-sum(p['price_tenths']for p in chosen),free_transfers=2,squad=[dict(id=p['id'],purchase_price_tenths=p['price_tenths'])for p in chosen],chips_used={c:[]for c in ['wildcard','free_hit','bench_boost','triple_captain']})
     if state['bank_tenths']<0:raise ValueError('Synthetic fixture over budget')
-    result=run(f,state,include_chips=False);result.update(validation_only=False,forecast_variant='B_locked_PM_preview',forecast_sha256=f['forecast_sha256'])
+    if f.get('chain_version')=='B-MM-PM-TS-v1':
+        from b_preview_ts import preview_scoring
+        with preview_scoring(f):result=run(f,state,include_chips=False)
+    else:result=run(f,state,include_chips=False)
+    result.update(validation_only=False,forecast_variant=f['model'],forecast_sha256=f['forecast_sha256'])
     out=Path(out);out.parent.mkdir(parents=True,exist_ok=True);out.write_text(json.dumps(dict(state=state,result=result),ensure_ascii=False,allow_nan=False))
     print('Prepared private synthetic dashboard test fixture; original TS ran six GWs')
 if __name__=='__main__':

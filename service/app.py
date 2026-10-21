@@ -75,11 +75,15 @@ def original_runtime_ready():
 @app.route('/health')
 def health():
     ready=original_runtime_ready()
+    try:
+        from service.preview_manager_job import calculate as preview_calculate
+        unified_ready=callable(preview_calculate)
+    except (ImportError,OSError,ValueError):unified_ready=False
     return jsonify(status='ready' if ready else 'unavailable',
                    runtime='original_locked_python',locked_model_active=False,
                    supports_idempotent_submit=True,
                    supports_mm_preview=True,
-                   supports_unified_B_chain=True,
+                   supports_unified_B_chain=unified_ready,
                    adapter_sha256=hashlib.sha256((ROOT/'service/app.py').read_bytes()+(ROOT/'service/manager_job.py').read_bytes()).hexdigest()), (200 if ready else 503)
 @app.route('/plans',methods=['POST','OPTIONS'])
 def create(preview=False):

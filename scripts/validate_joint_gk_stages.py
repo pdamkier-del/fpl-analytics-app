@@ -55,9 +55,9 @@ def main(source=None,inputs=None):
     if state!=original or not result['ts_ran'] or len(result['plan']['path'])!=len(payload['gws']):raise ValueError('Original TS chain failed or mutated manager state')
     # Public receipt contains no squad, plan, transfers or manager-state hash.
     write(source/'ts-validation.json',dict(ts_ran=True,horizon_gws=len(payload['gws']),validation_only=True,
-        actual_user_plan=False,manager_state_unchanged=True,chips_ran=False,ts_code_unchanged=not unified,
+        actual_user_plan=False,manager_state_unchanged=True,chips_ran=result['chips_ran'],chips_status=result['chips_status'],ts_code_unchanged=not unified,
         chain_version=payload['model'],forecast_sha256=payload['forecast_sha256'],
-        note='Original TS exercised on actual forecast with an explicit synthetic legal regression state; no personal recommendation published.'))
+        note='Existing six-GW transfer search exercised on actual forecast with an explicit synthetic legal regression state; no personal recommendation published.'))
     print('Original TS complete six-GW regression passed',flush=True)
 if __name__=='__main__':
     import argparse

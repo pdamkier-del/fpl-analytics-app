@@ -12,17 +12,13 @@ from run_live_locked_ts import run,project,parse_state
 
 def calculate(forecast,raw):
     validate_forecast(forecast)
+    from service.manager_job import calculate as original_calculate
     with preview_scoring(forecast) as scorer:
-        result=run(forecast,raw,include_chips=False)
-        meta,origin=project(forecast)
-        state=parse_state(raw,meta,result['gw'],forecast['data_asof'])
-        current=scorer.plan(origin,list(state.squad),result['gw'])
-        result['current_team']={'rows':json.loads(current.rows.to_json(orient='records')),'expected_score':current.expected_score}
+        result=original_calculate(forecast,raw)
     result.update(computed_at=pd.Timestamp.now(tz='UTC').isoformat(),calculation_runtime='B_unified_python',
         forecast_variant=VERSION,chain_version=VERSION,
         scoring_contract='PM shared draws: legal autosubs and conditional captain fallback',
         reason='Six-GW B MM→PM→TS: original transfer search, weights and hit costs; expected score includes legal automatic substitutions and captain fallback from the same PM draws.',
-        chips_status='Not Available: unified B chip-option validation pending',
         validation_only=raw.get('validation_only')is True)
     return result
 

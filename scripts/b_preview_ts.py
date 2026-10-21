@@ -100,12 +100,32 @@ class ScenarioScorer:
             rows.loc[rows.id.eq(pid),'role']=role
         return SquadPlan(rows,score)
 
+    def bench_boost(self,rows):
+        from fpl_xpts.bench_boost_policy import BenchBoostEstimate
+        gw=int(rows.gw.iloc[0]);ids=tuple(sorted(map(int,rows.id)))
+        xi,bench,_,_,_=self.decision(gw,ids)
+        ix={pid:i for i,pid in enumerate(ids)}
+        pts=np.asarray([self.weeks[pid,gw]['scenarios']['points']for pid in ids],float).T
+        play=np.asarray([self.weeks[pid,gw]['scenarios']['minutes']for pid in ids],float).T>0
+        ordinary=autosub_points(pts,play,[POSITIONS[self.players[pid]['position']]for pid in ids],
+            [ix[pid]for pid in xi],[ix[pid]for pid in bench])
+        bench_xp=float(pts[:,[ix[pid]for pid in bench]].sum(axis=1).mean())
+        autosub=float((ordinary-pts[:,[ix[pid]for pid in xi]].sum(axis=1)).mean())
+        return BenchBoostEstimate(bench_xp,autosub,bench_xp-autosub,bench)
+
 
 @contextmanager
 def preview_scoring(forecast):
     """Preview subprocess only; restore all imported aliases on any failure."""
     import fpl_xpts.optimize as optimize
     import fpl_xpts.transfer_planner as planner
+    # Load chip aliases before patching, so every alias is also restored.
+    import fpl_xpts.wildcard_planner_v2
+    import fpl_xpts.wildcard_ts_action
+    import fpl_xpts.chip_planner
+    import fpl_xpts.bench_boost_policy as bb
+    import fpl_xpts.final_chip_coordinator
+    import fpl_xpts.tc_chip_bridge
     scorer=ScenarioScorer(forecast)
     original=optimize.plan_squad
     changes=[]
@@ -118,6 +138,7 @@ def preview_scoring(forecast):
     fast=planner._fast_manager_score
     changes.append((planner,'_fast_manager_score',fast))
     planner._fast_manager_score=lambda ctx,ids,gw:scorer.decision(int(gw),tuple(sorted(map(int,ids))))[-1]
+    changes.append((bb,'evaluate_bench_boost',bb.evaluate_bench_boost));bb.evaluate_bench_boost=scorer.bench_boost
     try:yield scorer
     finally:
         for module,key,value in reversed(changes):setattr(module,key,value)
