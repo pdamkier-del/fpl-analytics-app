@@ -18,3 +18,19 @@ const unsafe=structuredClone(injured);unsafe.players[0].news='<img src=x onerror
 const status=N.evaluate(context,now),request={status,enabled:true,busy:false,hasJob:false,signature:'same',now};assert(N.shouldRequest(request));assert(!N.shouldRequest({...request,attempt:{signature:'same',at:now-1000}}));assert(N.shouldRequest({...request,signature:'new',attempt:{signature:'same',at:now-1000}}));for(const change of [{enabled:false},{busy:true},{hasJob:true},{status:{...status,canCompute:false}},{status:{...status,planReady:true}}])assert(!N.shouldRequest({...request,...change}));
 assert.notDeepEqual(N.identity(player(1)),N.identity({...player(1),chance_of_playing_next_round:0}));
 console.log('Team news: owned-only feed, official doubt status, news/model gating, no stale plan, next-GW/state guards, escaping and automatic request deduplication passed');
+
+// A fresh injury after capture is a forecast dependency, even without a team.
+// Diagnose that dependency separately from personal team confirmation.
+const noTeam=N.evaluate({...context,state:null,news:injured},now);
+assert(!noTeam.aligned);
+assert.match(noTeam.alignmentReason,/Haaland/);
+assert.doesNotMatch(noTeam.alignmentReason,/hold.*bekræft/);
+const changedOwned=N.evaluate({...context,news:injured,usable:false},now);
+assert.match(changedOwned.message,/Haaland/);
+assert.equal(changedOwned.phase,'waiting_forecast');
+const changedTarget=N.evaluate({...context,news:target},now);
+assert.match(changedTarget.alignmentReason,/transferberegningen/);
+assert(!N.html(changedTarget).includes('Other'));
+assert.match(N.evaluate({...context,state:{...state,observed_at:'2026-10-19T18:30:00Z'}},now).message,/ikke bekræfte holdet igen/);
+assert.equal(N.evaluate(context,now).alignmentReason,'');
+console.log('PASS: new official injury and team timestamp waits have distinct reasons; off-squad news stays outside the owned feed.');

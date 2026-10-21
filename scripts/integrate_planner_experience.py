@@ -19,15 +19,21 @@ def inject(out):
             new="function render(){onChange();FplPlannerExperience.mount(snapshot());feedback();"
             # load() returns the snapshot before initial classic page draw.
         if text.count(old)!=1:raise ValueError('Planner rendering anchor changed')
+        if name=='weekly-app.js':
+            waiting="setComputeStatus('Dit hold er gemt. Beregningen afventer et nyt verificeret forecast efter observationen. Den starter automatisk, når forecast er klar, hvis denne side er åben.')"
+            if text.count(waiting)!=1:raise ValueError('Dashboard waiting message anchor changed')
+            text=text.replace(waiting,"setComputeStatus(dashboardNews.status().message+' Beregningen starter automatisk, når data er klar, hvis denne side er åben.')")
         path.write_text(text.replace(old,new))
     manager=out/'classic-manager.js';text=manager.read_text()
     reason="""function waitingReason(){
  if(!forecast)return '';
+ const window=FplForecastWindow.check(forecast,official);if(!window.usable)return window.reason;
+ const news=FplTeamNews.evaluate({news:latestTeamNews,official,forecast,state,stateValid:stateLegal(state,false),usable:true,error:latestTeamNewsError});
+ if(!news.aligned)return news.alignmentReason||news.message;
  const issues=FplPlannerExperience.diagnose(state,forecast);if(issues.length)return issues.join(' ');
  const clock=x=>new Date(x).toLocaleString('da-DK',{timeZone:'Europe/Copenhagen'});
  if(Date.parse(state.observed_at)>Date.parse(forecast.data_asof))return 'Dit hold er bekræftet '+clock(state.observed_at)+', men modeldata er fra '+clock(forecast.data_asof)+'. Venter på nyere modeldata. Du skal ikke bekræfte holdet igen.';
- const window=FplForecastWindow.check(forecast,official);if(!window.usable)return window.reason;
- const news=FplTeamNews.evaluate({news:latestTeamNews,official,forecast,state,stateValid:stateLegal(state,false),usable:true,error:latestTeamNewsError});return news.aligned?'':news.message;
+ return '';
 }
 """
     old='function feedback(){'
@@ -35,6 +41,9 @@ def inject(out):
     text=text.replace(old,reason+old)
     text=text.replace('message:computeMessage,error:computeError','message:computeMessage||waitingReason(),error:computeError')
     text=text.replace('reason:FplForecastWindow.check(forecast,official).reason','reason:waitingReason()||FplForecastWindow.check(forecast,official).reason')
+    old="setComputeStatus('Dit hold er gemt. Beregningen afventer et nyt verificeret forecast efter observationen. Den starter automatisk, når forecast er klar, hvis denne side er åben.')"
+    if text.count(old)!=1:raise ValueError('Waiting forecast message anchor changed')
+    text=text.replace(old,"setComputeStatus((waitingReason()||'Afventer opdaterede prognoser.')+' Beregningen starter automatisk, når data er klar, hvis denne side er åben.')")
     manager.write_text(text)
     path=out/'classic-transfers.js';text=path.read_text();old='const c=FplManagerClient.snapshot();target.replaceChildren();button.disabled=c.busy;'
     if text.count(old)!=1:raise ValueError('Transfer page anchor changed')
