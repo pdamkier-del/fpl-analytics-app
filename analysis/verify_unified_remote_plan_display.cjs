@@ -45,9 +45,15 @@ const {chromium}=require('playwright'),assert=require('node:assert/strict'),fs=r
   assert((await page.locator('#transfer-path').innerText()).includes(''+plan.plan.path.at(-1).gw));
   assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth),true);
   assert.deepEqual(await page.evaluate(()=>JSON.parse(localStorage.getItem('fpl-manager-state-v1'))),displayState);
+  await page.screenshot({path:'/tmp/fpl-ready-remote-plan-'+name+'.png',fullPage:true});
+  await page.goto('https://pdamkier-del.github.io/fpl-analytics-app/mm-preview/app/overview.html#dashboard',{waitUntil:'networkidle'});
+  await page.locator('#dashboard-team-news').waitFor();
+  assert.equal(await page.locator('[data-plan-phase]').getAttribute('data-plan-phase'),'ready');
+  assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth),true);
+  await page.screenshot({path:'/tmp/fpl-ready-dashboard-'+name+'.png',fullPage:true});
   assert.equal(posts,0);assert.deepEqual(errors,[]);
   proof[name]={synthetic_result_rejected_as_personal:true,browser_only_presentation_copy:true,
-   synthetic_only_presentation_state:true,remote_result_numbers_displayed:true,six_GW_path_identical:true,
+   synthetic_only_presentation_state:true,remote_result_numbers_displayed:true,six_GW_path_identical:true,dashboard_plan_ready:true,
    forecast_sha256:plan.forecast_sha256,private_state_unchanged:true,additional_jobs:posts,page_errors:errors};
   await context.close();
  }}finally{await browser.close();}

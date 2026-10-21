@@ -1,0 +1,25 @@
+{
+  "scope": "Same fresh input snapshot: legacy locked baseline versus unified B",
+  "model_run": 39649616623,
+  "forecast_sha256": "d594555c2dbe3bb9e3310e90e7f5a3de9cd1cd4ff28e6cfc63fce75285486ad6",
+  "data_asof": "2026-10-21T18:15:13.438018+00:00",
+  "player": "Mike Penders",
+  "gw": 8,
+  "before": {
+    "p_start": 1.0,
+    "xM": 78.0,
+    "PM_E_minutes": 77.43978449733301,
+    "p_60_plus": 0.9678432252043863,
+    "p_90": 0.1250719356371503,
+    "xP": 3.9975
+  },
+  "after": {
+    "p_start": 0.9975931783798652,
+    "xM": 89.47000016411117,
+    "PM_E_minutes": 89.47000016411117,
+    "p_60_plus": 0.9928078410815899,
+    "p_90": 0.9877073304889182,
+    "xP": 4.03
+  },
+  "note": "Analytic minute probabilities; old P60/P90 derived from the locked rounded Gaussian. xP uses 400 draws. No named-player adjustment or statistically established point gain."
+}
