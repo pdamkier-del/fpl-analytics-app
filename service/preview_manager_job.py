@@ -17,6 +17,7 @@ def calculate(forecast,raw):
         result=original_calculate(forecast,raw)
     result.update(computed_at=pd.Timestamp.now(tz='UTC').isoformat(),calculation_runtime='B_unified_python',
         forecast_variant=VERSION,chain_version=VERSION,
+        forecast_sha256=forecast['forecast_sha256'],
         scoring_contract='PM shared draws: legal autosubs and conditional captain fallback',
         reason='Six-GW B MM→PM→TS: original transfer search, weights and hit costs; expected score includes legal automatic substitutions and captain fallback from the same PM draws.',
         validation_only=raw.get('validation_only')is True)

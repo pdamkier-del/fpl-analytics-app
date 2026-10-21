@@ -13,6 +13,7 @@ concurrency:
   cancel-in-progress: false
 jobs:
   build-and-deploy:
+    if: ${{ !contains(github.event.head_commit.message, '[backend-only]') }}
     runs-on: ubuntu-latest
     timeout-minutes: 20
     outputs:
