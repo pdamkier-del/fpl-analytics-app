@@ -15,30 +15,20 @@ permissions:
   id-token: write
 env:
   PREVIEW_SOURCE_SHA: f492be4795bfd630ba91377d71497e68c1d85934
-  PREVIEW_UI_SHA: 75e43d18cdcde5ffcb9a914c6b64d191f8fe20d0
+  PREVIEW_UI_SHA: 8ff075562d24395028d27f1997b5859dbf3fde0e
 jobs:
   verified:
     if: ${{ inputs.validated_run != '' }}
     runs-on: ubuntu-latest
     steps:
-      - name: Require a successful exact-source model computation
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ env.PREVIEW_UI_SHA }}
+      - name: Require a completed exact-source numerical computation
         env:
           GH_TOKEN: ${{ github.token }}
           VALIDATED_RUN: ${{ inputs.validated_run }}
-        run: |
-          python - <<'PY'
-          import json,os,subprocess
-          value=os.environ['VALIDATED_RUN']
-          if not value.isdigit():raise SystemExit('Invalid validated run ID')
-          prefix='repos/pdamkier-del/fpl-analytics-app/actions/runs/'+value
-          run=json.loads(subprocess.check_output(['gh','api',prefix]))
-          assert run['status']=='completed'and run['conclusion']=='success'
-          assert run['head_sha']==os.environ['PREVIEW_SOURCE_SHA']
-          assert run['path']=='.github/workflows/mm-current-live-preview.yml'
-          artifacts=json.loads(subprocess.check_output(['gh','api',prefix+'/artifacts']))['artifacts']
-          assert len([a for a in artifacts if a['name']=='mm-current-live-preview'and not a['expired']])==1
-          print('Verified exact-source public model artifact:',value)
-          PY
+        run: python scripts/verify_b_publication_artifact.py --run "$VALIDATED_RUN" --source "$PREVIEW_SOURCE_SHA"
   current:
     if: ${{ inputs.validated_run == '' }}
     uses: pdamkier-del/fpl-analytics-app/.github/workflows/mm-current-live-preview.yml@0c622eeb2b3da5c085660bc95e22cf2fd5447593
@@ -92,8 +82,10 @@ jobs:
           git diff --exit-code "$PREVIEW_SOURCE_SHA" -- src model scripts/gk_joint_bridge.py scripts/gk_solo_role.py scripts/pm_preview_distributions.py scripts/run_joint_gk_preview.py scripts/mm_candidate_forecast.py scripts/mm_locked_bridge.py scripts/b_chain_contract.py scripts/b_preview_ts.py scripts/run_live_locked_ts.py scripts/publish_mm_preview.py
           pip install -r requirements-model-checkpoint.txt -r requirements-model-tests.txt requests tabulate==0.10.0
           cp app/mm-preview/desktop-probabilities.css "$RUNNER_TEMP/reviewed-probabilities.css"
+          cp app/mm-preview/dashboard-team-news.js "$RUNNER_TEMP/reviewed-team-news.js"
           cp -R .mm-preview-evidence/. app/mm-preview/
           cp "$RUNNER_TEMP/reviewed-probabilities.css" app/mm-preview/desktop-probabilities.css
+          cp "$RUNNER_TEMP/reviewed-team-news.js" app/mm-preview/dashboard-team-news.js
           python -c "import json;from pathlib import Path;from publish_unified_b_chain import synchronize_audit;synchronize_audit(Path('app/mm-preview/current'),json.loads(Path('app/mm-preview/current/forecast.json').read_text()))"
           python scripts/integrate_desktop_probabilities.py
           cmp .mm-preview-evidence/current/forecast.json app/mm-preview/current/forecast.json
@@ -121,6 +113,7 @@ jobs:
           node analysis/verify_unified_chain.cjs > unified-identity-browser.json
           node analysis/verify_planner_experience.cjs > unified-planner-browser.json
           node analysis/verify_dashboard_news.cjs > unified-news-browser.json
+          node analysis/verify_transfer_wait_reason.cjs > unified-wait-reason-browser.json
           node - <<'JS' > unified-live-readiness-browser.json
           const {chromium}=require('playwright'),assert=require('node:assert/strict');
           (async()=>{
