@@ -3,23 +3,52 @@ on:
   schedule:
     - cron: '17 * * * *'
   workflow_dispatch:
+    inputs:
+      validated_run:
+        description: 'Optional successful exact-source mm-current-live-preview run to publish without recomputation'
+        required: false
+        type: string
 permissions:
   contents: write
   actions: read
   pages: write
   id-token: write
 env:
-  PREVIEW_SOURCE_SHA: 78caed771823c588092d50b78a4fd08d67010e61
+  PREVIEW_SOURCE_SHA: f492be4795bfd630ba91377d71497e68c1d85934
 jobs:
+  verified:
+    if: ${{ inputs.validated_run != '' }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Require a successful exact-source model computation
+        env:
+          GH_TOKEN: ${{ github.token }}
+          VALIDATED_RUN: ${{ inputs.validated_run }}
+        run: |
+          python - <<'PY'
+          import json,os,subprocess
+          value=os.environ['VALIDATED_RUN']
+          if not value.isdigit():raise SystemExit('Invalid validated run ID')
+          prefix='repos/pdamkier-del/fpl-analytics-app/actions/runs/'+value
+          run=json.loads(subprocess.check_output(['gh','api',prefix]))
+          assert run['status']=='completed'and run['conclusion']=='success'
+          assert run['head_sha']==os.environ['PREVIEW_SOURCE_SHA']
+          assert run['path']=='.github/workflows/mm-current-live-preview.yml'
+          artifacts=json.loads(subprocess.check_output(['gh','api',prefix+'/artifacts']))['artifacts']
+          assert len([a for a in artifacts if a['name']=='mm-current-live-preview'and not a['expired']])==1
+          print('Verified exact-source public model artifact:',value)
+          PY
   current:
-    uses: pdamkier-del/fpl-analytics-app/.github/workflows/mm-current-live-preview.yml@78caed771823c588092d50b78a4fd08d67010e61
+    if: ${{ inputs.validated_run == '' }}
+    uses: pdamkier-del/fpl-analytics-app/.github/workflows/mm-current-live-preview.yml@f492be4795bfd630ba91377d71497e68c1d85934
     with:
-      source_ref: 78caed771823c588092d50b78a4fd08d67010e61
+      source_ref: f492be4795bfd630ba91377d71497e68c1d85934
     permissions:
       contents: read
       actions: read
   preview:
-    needs: current
+    needs: [current, verified]
+    if: ${{ always() && !cancelled() && (needs.current.result == 'success' || needs.verified.result == 'success') }}
     runs-on: ubuntu-latest
     timeout-minutes: 15
     concurrency:
@@ -27,16 +56,26 @@ jobs:
       cancel-in-progress: false
     environment:
       name: github-pages
-      url: https://pdamkier-del.github.io/fpl-analytics-app/mm-preview/live.html
+      url: https://pdamkier-del.github.io/fpl-analytics-app/mm-preview/app/transfers-classic.html
     steps:
       - uses: actions/checkout@v4
         with:
           ref: ${{ env.PREVIEW_SOURCE_SHA }}
           fetch-depth: 0
+      - name: Require live isolated B compute capability
+        run: |
+          python - <<'PY'
+          import json,urllib.request
+          with urllib.request.urlopen('https://fpl-analytics-private-manager.onrender.com/health',timeout=90)as response:health=json.load(response)
+          assert health.get('supports_unified_B_chain')is True, 'Unified B backend must be deployed before switching app forecasts'
+          assert health.get('runtime')=='original_locked_python'and health.get('locked_model_active')is False
+          PY
       - uses: actions/download-artifact@v4
         with:
           name: mm-current-live-preview
           path: .mm-preview-evidence
+          run-id: ${{ inputs.validated_run || github.run_id }}
+          github-token: ${{ github.token }}
       - name: Use only this successful computation's public B preview
         run: cp -R .mm-preview-evidence/. app/mm-preview/
       - name: Publish preview alone; preserve every production asset
