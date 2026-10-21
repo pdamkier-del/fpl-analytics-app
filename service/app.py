@@ -25,9 +25,12 @@ def get_public(name):
 def verify_current_window(forecast,bootstrap,now=None,*,preview=False):
     from scripts.verify_official_forecast_window import verify
     now=now or datetime.now(timezone.utc)
-    model='B_locked_PM_preview' if preview else 'original_locked_vFinal_diagnostic'
+    from scripts.b_chain_contract import VERSION,validate_forecast
+    unified=preview and forecast.get('model')==VERSION
+    model=VERSION if unified else ('B_locked_PM_preview' if preview else 'original_locked_vFinal_diagnostic')
     if forecast.get('locked_model_active') is not False or forecast.get('model')!=model:raise ValueError('Invalid forecast contract')
-    if preview and (forecast.get('scope')!='prospective_preview' or not forecast.get('mm_version') or forecast.get('minute_sampler_audit',{}).get('sampler')!='locked'):
+    if unified:validate_forecast(forecast)
+    if preview and not unified and (forecast.get('scope')!='prospective_preview' or not forecast.get('mm_version') or forecast.get('minute_sampler_audit',{}).get('sampler')!='locked'):
         raise ValueError('Current B preview with locked minute sampler required')
     cutoff=datetime.fromisoformat(forecast['data_asof'].replace('Z','+00:00'))
     limit=forecast.get('freshness_limit_hours')
@@ -72,10 +75,15 @@ def original_runtime_ready():
 @app.route('/health')
 def health():
     ready=original_runtime_ready()
+    try:
+        from service.preview_manager_job import calculate as preview_calculate
+        unified_ready=callable(preview_calculate)
+    except (ImportError,OSError,ValueError):unified_ready=False
     return jsonify(status='ready' if ready else 'unavailable',
                    runtime='original_locked_python',locked_model_active=False,
                    supports_idempotent_submit=True,
                    supports_mm_preview=True,
+                   supports_unified_B_chain=unified_ready,
                    adapter_sha256=hashlib.sha256((ROOT/'service/app.py').read_bytes()+(ROOT/'service/manager_job.py').read_bytes()).hexdigest()), (200 if ready else 503)
 @app.route('/plans',methods=['POST','OPTIONS'])
 def create(preview=False):
@@ -112,7 +120,9 @@ def create(preview=False):
             else:verify_official_now(forecast)
             (directory/'input.json').write_text(json.dumps(dict(forecast=forecast,state=body['state'])))
             if forecast.get('tc_scenarios'):(directory/'tc.csv.gz').write_bytes(get_public('mm-preview/current/tc-samples.csv.gz' if preview else 'tc-samples.csv.gz'))
-            completed=subprocess.run([sys.executable,str(ROOT/'scripts/locked_numerical_runtime.py'),str(ROOT/'service/manager_job.py'),str(directory)],stdout=subprocess.DEVNULL,stderr=subprocess.DEVNULL,timeout=1800)
+            from scripts.b_chain_contract import VERSION
+            worker='preview_manager_job.py'if preview and forecast.get('model')==VERSION else 'manager_job.py'
+            completed=subprocess.run([sys.executable,str(ROOT/'scripts/locked_numerical_runtime.py'),str(ROOT/'service'/worker),str(directory)],stdout=subprocess.DEVNULL,stderr=subprocess.DEVNULL,timeout=1800)
             if completed.returncode!=0:raise ValueError('Original computation rejected input')
             require_forecast_snapshot(forecast,body.get('forecast_sha256'))
             if preview:verify_official_now(forecast,preview=True)
@@ -126,7 +136,7 @@ def create(preview=False):
             if preview:
                 # Presentation identity only; original worker/TS decisions stay unchanged.
                 result['forecast_sha256']=expected_content
-                result['forecast_variant']='B_locked_PM_preview'
+                result['forecast_variant']=forecast['model']
             (directory/'result.json').write_text(json.dumps(result,allow_nan=False))
             jobs[identifier]['status']='completed'
         except subprocess.TimeoutExpired:
