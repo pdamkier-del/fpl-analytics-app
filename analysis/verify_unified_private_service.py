@@ -33,6 +33,9 @@ def main():
     ap.add_argument('--out',type=Path,default=Path('/tmp/fpl-unified-private-service-proof.json'));args=ap.parse_args()
     _,f=request(PUBLIC+'mm-preview/current/forecast.json');require_snapshot(f);validate_forecast(f)
     _,health=request(API+'/health');assert health.get('supports_unified_B_chain')is True
+    expected_worker=hashlib.sha256((Path(__file__).resolve().parents[1]/'service/preview_manager_job.py').read_bytes()).hexdigest()
+    if health.get('preview_worker_sha256')!=expected_worker:
+        raise SystemExit('Expected standalone B worker is not deployed; no validation job submitted')
     if args.receipt.exists():
         saved=json.loads(args.receipt.read_text());body=saved['body']
         if body['forecast_sha256']!=f['forecast_sha256']:raise SystemExit('Saved validation receipt belongs to another forecast; no new job submitted')

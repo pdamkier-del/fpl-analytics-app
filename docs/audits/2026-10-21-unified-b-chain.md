@@ -110,6 +110,18 @@ Publication and actual-service check (21 October 2026):
 - Publication [39580113437](https://github.com/pdamkier-del/fpl-analytics-app/actions/runs/39580113437) passed, including 761 Python tests and all four desktop/mobile browser suites. The public app serves canonical forecast `275d8ac1dee7b1687d0a788091c6276e776041521e37383e88377f61431552ff`, cutoff 2026-10-21 09:15:46 UTC. All 88 production asset hashes are preserved.
 - All four suites were repeated against the actual public HTTPS app with TLS verification enabled. Player catalogue/profile, My Team and Transfers use the same forecast; no horizontal overflow or page exceptions, private manager state unchanged. Transfer/news tests intercept private submissions and use an explicitly synthetic local fixture.
 - An additional real remote synthetic request exposed a standalone-worker import error: the HTTP process imported the B adapter successfully, but its child process had no repository root on `sys.path`. Added that path only in the isolated B worker, with an end-to-end subprocess regression removing `PYTHONPATH` and using an unrelated working directory. The whole 762-test suite passes after this repair. A current-data standalone six-GW calculation also completed. No production worker or numerical source changed.
-- The isolated backend correction is ready on the existing live source branch at `45c2c316fb2338dba4fd66dd2ad4ed7c24ed193a`. Its actual Render activation and repeated remote result verification are still pending; public browser success alone does not prove that the remote worker has this last correction. Health now exposes a public worker source hash for deployment verification. No real user plan, private receipt, key or squad is committed or published.
+- The isolated backend correction is ready on the existing live source branch at `45c2c316fb2338dba4fd66dd2ad4ed7c24ed193a`. Render activation was verified at 12:31 CEST by the exact worker SHA-256 `e89e1ec8d7c11674d6d997e43b80c1b9db3bd97f26ea144d42874771a28907d1`. A single explicitly synthetic private remote job completed all six GWs at 12:32 CEST. Independent recomputation verifies its reported scores and captain/vice selection against the shared PM scenarios; unauthorized result access returns 404. This verifies the actual worker in addition to the browser mock suites. Health now exposes a public worker source hash for deployment verification. No real user plan, private receipt, key or squad is committed or published.
 
 Fresh Penders comparison is in `analysis/results/unified-b-chain-20261021/current-before-after.json`. MM xM and analytic PM E[min] now both equal 89.4700; P(start) 99.7593%, P(60+) 99.2808%, P(90) 98.7707%, xP 3.7675. Point estimates use 400 draws and are not a statistically established accuracy gain.
+
+
+The additional unmocked browser readiness check then correctly refused a stale
+forecast: official FPL status for Gourna-Douath and Cho changed from injured/0%
+to doubtful/50% after the captured source. A fresh source/MM/PM/TS rebuild is
+required; neither the public news nor the manager state is rewritten to bypass
+that condition. The refresh workflow can reuse historical gates only from a
+successful archived run with exactly the same checked-out numerical commit.
+It checks the run source/status and gate acceptance and records every reused
+file hash; it still captures official current data and runs both original and
+B six-GW chains afresh, twice. This avoids repeating 35 minutes of unchanged
+historical research while the current availability data ages.
