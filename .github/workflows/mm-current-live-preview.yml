@@ -102,8 +102,9 @@ jobs:
           python scripts/locked_numerical_runtime.py scripts/replay_joint_gk.py
           python scripts/locked_numerical_runtime.py scripts/check_gk_uncertainty.py
           python scripts/locked_numerical_runtime.py scripts/evaluate_solo_gk_roles.py
-          python scripts/locked_numerical_runtime.py scripts/run_joint_gk_preview.py --out work/joint-gk-current
-          python scripts/locked_numerical_runtime.py scripts/run_joint_gk_preview.py --out work/joint-gk-repeat --no-baseline
+          python scripts/locked_numerical_runtime.py scripts/validate_unified_b_history.py --workers 2
+          python scripts/locked_numerical_runtime.py scripts/run_joint_gk_preview.py --out work/joint-gk-current --chain
+          python scripts/locked_numerical_runtime.py scripts/run_joint_gk_preview.py --out work/joint-gk-repeat --no-baseline --chain
           python scripts/locked_numerical_runtime.py scripts/validate_joint_gk_stages.py
           python scripts/export_joint_gk_preview.py
           node tests/test_joint_gk_contract.js
@@ -130,4 +131,5 @@ jobs:
             work/joint-gk-historical/
             work/joint-gk-role-validation/
             work/gk-official-evidence/
+            analysis/results/unified-b-chain-20261021/
           retention-days: 90

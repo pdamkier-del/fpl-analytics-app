@@ -18,7 +18,10 @@ def export():
         if (source/file).read_bytes()!=(repeat/file).read_bytes():raise ValueError('Joint GK repeat differs: '+file)
     forecast=json.loads((source/'forecast.json').read_text());require_snapshot(forecast)
     mm=json.loads((source/'gk-mm.json').read_text());audit=json.loads((source/'gk-audit.json').read_text())
-    if forecast['model']!=VERSION or not audit['point_components_reconciled']:raise ValueError('GK model gate failed')
+    from b_chain_contract import VERSION as CHAIN_VERSION,validate_forecast
+    unified=forecast['model']==CHAIN_VERSION
+    if unified:validate_forecast(forecast)
+    if forecast['model']not in (VERSION,CHAIN_VERSION) or not audit['point_components_reconciled']:raise ValueError('GK model gate failed')
     historical=json.loads((ROOT/'work/joint-gk-historical/summary.json').read_text())
     uncertainty=json.loads((ROOT/'work/joint-gk-historical/uncertainty.json').read_text())
     stages=json.loads((source/'stage-validation.json').read_text());ts=json.loads((source/'ts-validation.json').read_text())
@@ -29,7 +32,7 @@ def export():
     for r in baseline:
         k=(r['fixture_id'],r['player_id']);p=points.loc[k]
         before.append(dict(fixture_uuid=k[0],player_uuid=k[1],p=r['p_start'],xm=r['xmins'],pm=float(locked_sampler_expectation(r['p_start'],r['p_sub_given_not_start'],r['start_minutes'],r['sub_minutes'])),sampled_pm=float(p.minutes),xp=float(p.xpts)))
-    index=dict(model=VERSION,forecast_sha256=dump(out/'forecast.json',forecast),mm_sha256=dump(out/'gk-mm.json',mm),before_sha256=dump(out/'before.json',dict(players=before)))
+    index=dict(model=forecast['model'],forecast_sha256=dump(out/'forecast.json',forecast),mm_sha256=dump(out/'gk-mm.json',mm),before_sha256=dump(out/'before.json',dict(players=before)))
     role=json.loads((ROOT/'work/joint-gk-role-validation/summary.json').read_text())
     if not role['accepted']or not role['all_gk_team_minutes_90']or not role['pm_all_gk_minutes_90']:raise ValueError('Role correction validation gate failed')
     v1=json.loads((source/'before-v1.json').read_text())
@@ -38,6 +41,9 @@ def export():
         deterministic_repeat=True,production_changed=False,intervals_independently_certified=False,
         official_sources=forecast['official_gk_evidence']))
     dump(out/'index.json',index)
+    if unified:
+        from publish_unified_b_chain import publish
+        publish(ROOT,forecast,mm)
     from integrate_desktop_probabilities import integrate
     integrate(ROOT)
     print(json.dumps(index,indent=2))

@@ -9,7 +9,7 @@ import numpy as np
 from fpl_v1_1_model import joint_simulator as simulator
 
 
-def simulate_with_distributions(inp, *, n=400, seed=93000000):
+def simulate_with_distributions(inp, *, n=400, seed=93000000, include_samples=False):
     aggregate=simulator.simulate_many(inp,n=n,seed=seed)
     rng=np.random.default_rng(seed)
     draws={p.player_id:[] for p in inp.players}
@@ -32,4 +32,6 @@ def simulate_with_distributions(inp, *, n=400, seed=93000000):
             'p_2_plus':float(np.mean(points>=2)),'p_5_plus':float(np.mean(points>=5)),'p_10_plus':float(np.mean(points>=10)),
             'points_interval80':[float(np.quantile(points,.1)),float(np.quantile(points,.9))],
             'pm_expected_minutes':float(minutes.mean())}
+        if include_samples:
+            row['scenarios']={'minutes':minutes.astype(int).tolist(),'points':points.astype(int).tolist()}
     return aggregate

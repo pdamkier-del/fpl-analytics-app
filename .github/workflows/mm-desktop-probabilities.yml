@@ -43,6 +43,7 @@ env:
   MODEL_ORIGIN_SHA: caec8301f2273bd8bdae6273159778f0f6e28841
 jobs:
   desktop:
+    if: ${{ !contains(github.event.head_commit.message, '[full-chain]') }}
     runs-on: ubuntu-latest
     timeout-minutes: 15
     steps:

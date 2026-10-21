@@ -10,7 +10,7 @@
   return d;
  }
  function validate(f,m,now=Date.now()){
-  if(f.model!==VERSION||f.locked_model_active!==false||f.minute_sampler_audit?.sampler!==VERSION)throw Error('Forkert GK-previewversion');
+  if(![VERSION,'B-MM-PM-TS-v1'].includes(f.model)||f.locked_model_active!==false||f.minute_sampler_audit?.sampler!==f.model)throw Error('Forkert GK-previewversion');
   if(!Array.isArray(f.players)||!f.players.length||new Set(f.players.map(p=>p.id)).size!==f.players.length)throw Error('Ufuldstændig spillerliste');
   const cuts=Object.values(f.component_source_asof||{});
   if(cuts.length<2||cuts.some(c=>!Number.isFinite(Date.parse(c))||Date.parse(c)>now||now-Date.parse(c)>24*3600000)||now>=Date.parse(f.origin_deadline))throw Error('Not Available: data eller deadline er udløbet');

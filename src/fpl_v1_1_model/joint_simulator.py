@@ -44,6 +44,7 @@ class PlayerSimInput:
     penalty_weight: float=0.0
     penalty_conversion: float=0.78
     goalkeeper_start_pmf: tuple[float,...]|None=None
+    penalty_order: int|None=None
 
 @dataclass(frozen=True)
 class MatchSimInput:
@@ -63,6 +64,8 @@ class MatchSimInput:
     # Explicit evidence supplied by the caller, never inferred from one player.
     verified_goalkeeper_roster_teams: tuple[str,...]=()
     experimental_joint_starters: bool=False
+    experimental_mean_preserving_minutes: bool=False
+    experimental_penalty_hierarchy: bool=False
 
 @dataclass
 class PlayerSimResult:
@@ -175,11 +178,15 @@ def simulate_match(inp:MatchSimInput,rng:Any,*,trace=None)->dict[str,PlayerSimRe
     for p in ps:
         if inp.experimental_joint_goalkeepers and p.is_keeper:
             continue
+        minute_sampler = _sample_minutes
+        if inp.experimental_mean_preserving_minutes:
+            from .experimental_mean_preserving_minutes import sample_minutes
+            minute_sampler = sample_minutes
         if selected is None:
-            m,a,b=_sample_minutes(rng,p)
+            m,a,b=minute_sampler(rng,p)
         else:
             from dataclasses import replace
-            m,a,b=_sample_minutes(rng,replace(p,p_start=float(p.player_id in selected)))
+            m,a,b=minute_sampler(rng,replace(p,p_start=float(p.player_id in selected)))
         out[p.player_id].minutes=m; out[p.player_id].started=int(m>0 and a==0); intervals[p.player_id]=(a,b)
 
     if inp.experimental_joint_goalkeepers:
@@ -227,9 +234,15 @@ def simulate_match(inp:MatchSimInput,rng:Any,*,trace=None)->dict[str,PlayerSimRe
     penalty_events.sort()
     for t,team in penalty_events:
         active=[p for p in ps if p.team==team and intervals[p.player_id][0] <= t < intervals[p.player_id][1] and out[p.player_id].minutes>0]
-        taker=_weighted_choice(rng,active,[p.penalty_weight for p in active])
+        candidates=active
+        if inp.experimental_penalty_hierarchy:
+            ranked=[p for p in active if p.penalty_order is not None and p.penalty_order>0]
+            if ranked:
+                first=min(p.penalty_order for p in ranked)
+                candidates=[p for p in ranked if p.penalty_order==first]
+        taker=_weighted_choice(rng,candidates,[p.penalty_weight for p in candidates])
         if taker is None:
-            taker=_weighted_choice(rng,active,[p.goal_weight for p in active])
+            taker=_weighted_choice(rng,candidates,[p.goal_weight for p in candidates])
         if taker is None:
             continue
         conv=min(1.0,max(0.0,float(taker.penalty_conversion)))

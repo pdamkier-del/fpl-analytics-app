@@ -17,8 +17,16 @@ def integrate(root=ROOT):
     index['desktop_probabilities']={'model':f['model'],'forecast_sha256':f['forecast_sha256']}
     (base/'current/index.json').write_text(json.dumps(index,ensure_ascii=False,sort_keys=True,separators=(',',':'))+'\n')
     out=build(root)
-    # Read-only stats views consume the validated GK-v2 forecast. Private plan
-    # clients retain their existing locked forecast/identity and storage contract.
+    unified=f.get('chain_version')=='B-MM-PM-TS-v1'
+    if unified and index['forecast_sha256']!=f['forecast_sha256']:raise ValueError('Planner and panel forecast mismatch')
+    if unified:
+        # All generated desktop clients accept the same explicit B identity;
+        # source production templates and their contracts remain untouched.
+        for path in out.iterdir():
+            if path.suffix in {'.html','.js'}:
+                text=path.read_text().replace('B_locked_PM_preview','B-MM-PM-TS-v1')
+                text=text.replace('report.supports_mm_preview!==true','report.supports_mm_preview!==true||report.supports_unified_B_chain!==true')
+                path.write_text(text)
     for name in ['classic-catalog.js','forecast-window.js','player.html']:
         path=out/name;text=path.read_text()
         for var in ['f','forecast']:
