@@ -36,6 +36,15 @@ def main():
     expected_worker=hashlib.sha256((Path(__file__).resolve().parents[1]/'service/preview_manager_job.py').read_bytes()).hexdigest()
     if health.get('preview_worker_sha256')!=expected_worker:
         raise SystemExit('Expected standalone B worker is not deployed; no validation job submitted')
+    _,documents=request(PUBLIC+'mm-preview/current/existing-app-data.json')
+    assert documents['forecast_sha256']==f['forecast_sha256']
+    _,official=request('https://fantasy.premierleague.com/api/bootstrap-static/')
+    baseline={p['id']:p for p in documents['documents']['current-players.json']['players']}
+    assert set(baseline)=={p['id']for p in official['elements']}
+    for player in official['elements']:
+        old=baseline[player['id']]
+        if any(old.get(k)!=player.get(k)for k in ['team','status','news','news_added','chance_of_playing_next_round','chance_of_playing_this_round']):
+            raise SystemExit('Official player availability differs from forecast; refresh before submitting validation')
     if args.receipt.exists():
         saved=json.loads(args.receipt.read_text());body=saved['body']
         if body['forecast_sha256']!=f['forecast_sha256']:raise SystemExit('Saved validation receipt belongs to another forecast; no new job submitted')
@@ -82,6 +91,7 @@ def main():
     own=tuple(sorted(r['id']for r in body['state']['squad']))
     assert abs(scorer.decision(f['gws'][0],own)[-1]-result['current_team']['expected_score'])<1e-8
     proof=dict(scope='SYNTHETIC_REMOTE_REGRESSION_NOT_USER_TEAM',actual_user_plan=False,validation_only=True,
+        verified_at=datetime.now().astimezone().isoformat(),
         model=VERSION,forecast_sha256=f['forecast_sha256'],data_asof=f['data_asof'],six_GW_TS_completed=True,
         lineup_players=15,captain_and_vice_verified=True,score_matches_shared_PM_scenarios=True,
         private_key_required=True,official_FPL_actions=False,production_model_changed=False,

@@ -125,3 +125,12 @@ It checks the run source/status and gate acceptance and records every reused
 file hash; it still captures official current data and runs both original and
 B six-GW chains afresh, twice. This avoids repeating 35 minutes of unchanged
 historical research while the current availability data ages.
+
+
+Intraday refresh status at 17:20 CEST:
+
+- Refresh/publication runs 39586643552 and 39610903008 passed, including the additional unmocked browser gate requiring real captured news and forecast alignment. Run 39610903008 published forecast `37f3d0ef09cc5168c2b1e3c9479739edb102ebf7d913784da0df9b7ce3981513`, model cutoff 16:04 CEST and news capture 16:16 CEST.
+- Later official Gibbs-White availability changed; the remote regression preflight correctly refused that older snapshot before submitting a job. Refresh 39620552568 subsequently stopped because Šeško's official news changed during source acquisition. No mixed snapshot was published.
+- Attempt 2 of 39620552568 is queued during GitHub's reported Actions degradation. Its completion is wired to the actual private synthetic six-GW regression and a TLS-verified desktop/mobile display check. This is pending validation, not a completed latest-data delivery.
+- The display helper first asserts that real `validation_only` state/results are rejected as personal plans. It then uses a clearly synthetic browser-only presentation copy, rebinds its state hash and compares all six-GW numerical rows against the unchanged actual remote result. No user state or private capability is published.
+- Main publication additionally requires the exact corrected standalone worker SHA before deployment. Numerical source remains f492be4795bfd630ba91377d71497e68c1d85934 and production assets remain outside the preview overlay.
