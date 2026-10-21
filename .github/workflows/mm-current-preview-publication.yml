@@ -41,9 +41,10 @@ jobs:
           PY
   current:
     if: ${{ inputs.validated_run == '' }}
-    uses: pdamkier-del/fpl-analytics-app/.github/workflows/mm-current-live-preview.yml@f492be4795bfd630ba91377d71497e68c1d85934
+    uses: pdamkier-del/fpl-analytics-app/.github/workflows/mm-current-live-preview.yml@0c622eeb2b3da5c085660bc95e22cf2fd5447593
     with:
       source_ref: f492be4795bfd630ba91377d71497e68c1d85934
+      validated_history_run: '39573140691'
     permissions:
       contents: read
       actions: read
@@ -119,6 +120,21 @@ jobs:
           node analysis/verify_unified_chain.cjs > unified-identity-browser.json
           node analysis/verify_planner_experience.cjs > unified-planner-browser.json
           node analysis/verify_dashboard_news.cjs > unified-news-browser.json
+          node - <<'JS' > unified-live-readiness-browser.json
+          const {chromium}=require('playwright'),assert=require('node:assert/strict');
+          (async()=>{
+            const browser=await chromium.launch({executablePath:process.env.BROWSER_PATH,headless:true,args:['--no-sandbox']});
+            try{
+              const page=await browser.newPage();let posts=0;
+              await page.route('**/plans**',r=>{if(r.request().method()==='POST'){posts++;return r.abort();}return r.continue();});
+              await page.goto(process.env.DESKTOP_URL+'transfers-classic.html',{waitUntil:'networkidle'});
+              await page.locator('#planner-context').waitFor();
+              const result=await page.evaluate(()=>{const s=FplManagerClient.snapshot();return {usable:s.usable,reason:s.reason,forecast_sha256:s.forecast.forecast_sha256,model:s.forecast.model};});
+              assert.equal(result.model,'B-MM-PM-TS-v1');assert.equal(result.usable,true,JSON.stringify(result));assert.equal(posts,0);
+              console.log(JSON.stringify({...result,unmocked_news_and_forecast_aligned:true,real_private_posts:posts},null,2));
+            }finally{await browser.close();}
+          })().catch(e=>{console.error(e);process.exit(1)});
+          JS
           python - <<'PY'
           import json,os
           from pathlib import Path
