@@ -15,7 +15,7 @@ permissions:
   id-token: write
 env:
   PREVIEW_SOURCE_SHA: f492be4795bfd630ba91377d71497e68c1d85934
-  PREVIEW_UI_SHA: 27aa2a970c3c242b1c0eec0c45717f82b95becf2
+  PREVIEW_UI_SHA: 6017ea5bb6c8e46b4582833233d9a9e41226728f
 jobs:
   verified:
     if: ${{ inputs.validated_run != '' }}
@@ -82,9 +82,11 @@ jobs:
           git diff --exit-code "$PREVIEW_SOURCE_SHA" -- src model scripts/gk_joint_bridge.py scripts/gk_solo_role.py scripts/pm_preview_distributions.py scripts/run_joint_gk_preview.py scripts/mm_candidate_forecast.py scripts/mm_locked_bridge.py scripts/b_chain_contract.py scripts/b_preview_ts.py scripts/run_live_locked_ts.py scripts/publish_mm_preview.py
           pip install -r requirements-model-checkpoint.txt -r requirements-model-tests.txt requests tabulate==0.10.0
           cp app/mm-preview/desktop-probabilities.css "$RUNNER_TEMP/reviewed-probabilities.css"
+          cp app/mm-preview/planner-experience.js "$RUNNER_TEMP/reviewed-planner-experience.js"
           cp app/mm-preview/dashboard-team-news.js "$RUNNER_TEMP/reviewed-team-news.js"
           cp -R .mm-preview-evidence/. app/mm-preview/
           cp "$RUNNER_TEMP/reviewed-probabilities.css" app/mm-preview/desktop-probabilities.css
+          cp "$RUNNER_TEMP/reviewed-planner-experience.js" app/mm-preview/planner-experience.js
           cp "$RUNNER_TEMP/reviewed-team-news.js" app/mm-preview/dashboard-team-news.js
           python -c "import json;from pathlib import Path;from publish_unified_b_chain import synchronize_audit;synchronize_audit(Path('app/mm-preview/current'),json.loads(Path('app/mm-preview/current/forecast.json').read_text()))"
           python scripts/integrate_desktop_probabilities.py
