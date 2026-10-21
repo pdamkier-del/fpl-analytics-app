@@ -81,6 +81,22 @@ def test_real_six_gw_worker_reuses_search_and_restores_originals():
     assert result['plan']['path'][0]['projected_manager_score']==pytest.approx(47.6)
 
 
+def test_preview_worker_runs_as_standalone_process_without_pythonpath(tmp_path):
+    import json,os,subprocess,sys
+    from pathlib import Path
+    root=Path(__file__).resolve().parents[1]
+    f,s=unified_fixture();s['bank_tenths']=50
+    (tmp_path/'input.json').write_text(json.dumps(dict(forecast=f,state=s)))
+    env=dict(os.environ);env.pop('PYTHONPATH',None)
+    completed=subprocess.run([sys.executable,str(root/'scripts/locked_numerical_runtime.py'),
+        str(root/'service/preview_manager_job.py'),str(tmp_path)],cwd=tmp_path,
+        env=env,capture_output=True,text=True,timeout=90)
+    assert completed.returncode==0,completed.stderr
+    result=json.loads((tmp_path/'result.json').read_text())
+    assert result['chain_version']==VERSION and len(result['plan']['path'])==6
+    assert result['current_team']['expected_score']==pytest.approx(47.6)
+
+
 def test_better_reserve_is_credited_by_fast_search_and_reported_lineup():
     f,s=unified_fixture()
     with preview_scoring(f)as scorer:

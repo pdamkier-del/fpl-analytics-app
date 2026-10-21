@@ -102,3 +102,14 @@ Evidence: `analysis/results/unified-b-chain-20261021/validation.json`,
 `protocol.json`, `predictions.csv.gz`; executable
 `scripts/validate_unified_b_history.py`. No finishing correction, own-goal/red-card
 physics change or new score-dependent match model is promoted by this work.
+
+
+Publication and actual-service check (21 October 2026):
+
+- Numerical run [39573140691](https://github.com/pdamkier-del/fpl-analytics-app/actions/runs/39573140691) passed. The complete current chain covers 668 players, 60 fixtures, GW8–13 and 400 aligned scenarios, with exact numerical repeatability.
+- Publication [39580113437](https://github.com/pdamkier-del/fpl-analytics-app/actions/runs/39580113437) passed, including 761 Python tests and all four desktop/mobile browser suites. The public app serves canonical forecast `275d8ac1dee7b1687d0a788091c6276e776041521e37383e88377f61431552ff`, cutoff 2026-10-21 09:15:46 UTC. All 88 production asset hashes are preserved.
+- All four suites were repeated against the actual public HTTPS app with TLS verification enabled. Player catalogue/profile, My Team and Transfers use the same forecast; no horizontal overflow or page exceptions, private manager state unchanged. Transfer/news tests intercept private submissions and use an explicitly synthetic local fixture.
+- An additional real remote synthetic request exposed a standalone-worker import error: the HTTP process imported the B adapter successfully, but its child process had no repository root on `sys.path`. Added that path only in the isolated B worker, with an end-to-end subprocess regression removing `PYTHONPATH` and using an unrelated working directory. The whole 762-test suite passes after this repair. A current-data standalone six-GW calculation also completed. No production worker or numerical source changed.
+- The isolated backend correction is ready on the existing live source branch at `45c2c316fb2338dba4fd66dd2ad4ed7c24ed193a`. Its actual Render activation and repeated remote result verification are still pending; public browser success alone does not prove that the remote worker has this last correction. Health now exposes a public worker source hash for deployment verification. No real user plan, private receipt, key or squad is committed or published.
+
+Fresh Penders comparison is in `analysis/results/unified-b-chain-20261021/current-before-after.json`. MM xM and analytic PM E[min] now both equal 89.4700; P(start) 99.7593%, P(60+) 99.2808%, P(90) 98.7707%, xP 3.7675. Point estimates use 400 draws and are not a statistically established accuracy gain.

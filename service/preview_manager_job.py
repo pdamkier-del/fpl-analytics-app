@@ -4,7 +4,7 @@ import sys
 from pathlib import Path
 import pandas as pd
 ROOT=Path(__file__).resolve().parents[1]
-sys.path[:0]=[str(ROOT/'scripts'),str(ROOT/'src')]
+sys.path[:0]=[str(ROOT),str(ROOT/'scripts'),str(ROOT/'src')]
 from b_chain_contract import VERSION,validate_forecast
 from b_preview_ts import preview_scoring
 from run_live_locked_ts import run,project,parse_state

@@ -84,6 +84,7 @@ def health():
                    supports_idempotent_submit=True,
                    supports_mm_preview=True,
                    supports_unified_B_chain=unified_ready,
+                   preview_worker_sha256=hashlib.sha256((ROOT/'service/preview_manager_job.py').read_bytes()).hexdigest() if unified_ready else None,
                    adapter_sha256=hashlib.sha256((ROOT/'service/app.py').read_bytes()+(ROOT/'service/manager_job.py').read_bytes()).hexdigest()), (200 if ready else 503)
 @app.route('/plans',methods=['POST','OPTIONS'])
 def create(preview=False):
