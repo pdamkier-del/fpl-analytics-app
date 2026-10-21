@@ -132,3 +132,24 @@ def test_captain_fallback_uses_joint_absence_not_marginal_independence():
     with preview_scoring(f)as scorer:
         _,_,captain,vice,_=scorer.decision(7,tuple(range(1,16)))
     assert captain in (8,9) and vice not in (8,9)
+
+
+def test_current_audit_describes_canonical_chain_and_quarantines_legacy_audit(tmp_path):
+    import hashlib,json
+    from publish_unified_b_chain import synchronize_audit
+    f,_=unified_fixture()
+    for p in f['players']:
+        for w in p['weeks']:w['fixtures'][0].update(xpts=w['xpts'],components={'appearance':w['xpts']})
+    f=seal_forecast(f)
+    (tmp_path/'index.json').write_text('{}')
+    (tmp_path/'pm-audit.json').write_text('{"MM_to_PM_mean_consistent":false}')
+    synchronize_audit(tmp_path,f)
+    audit=json.loads((tmp_path/'pm-audit.json').read_text())
+    assert audit['MM_to_PM_mean_consistent']and audit['point_components_reconciled']
+    assert audit['forecast_sha256']==f['forecast_sha256']and audit['max_analytic_minute_difference']==0
+    assert json.loads((tmp_path/'reference-locked-pm-audit.json').read_text())['scope']=='reference_only_not_current_forecast'
+    assert json.loads((tmp_path/'index.json').read_text())['pm_audit_sha256']==hashlib.sha256((tmp_path/'pm-audit.json').read_bytes()).hexdigest()
+    before=(tmp_path/'pm-audit.json').read_bytes()
+    f['players'][0]['weeks'][0]['fixtures'][0]['components']['appearance']+=1
+    with pytest.raises(ValueError):synchronize_audit(tmp_path,seal_forecast(f))
+    assert (tmp_path/'pm-audit.json').read_bytes()==before
