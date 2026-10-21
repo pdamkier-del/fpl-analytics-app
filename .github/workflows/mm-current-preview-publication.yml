@@ -70,6 +70,7 @@ jobs:
           import json,urllib.request
           with urllib.request.urlopen('https://fpl-analytics-private-manager.onrender.com/health',timeout=90)as response:health=json.load(response)
           assert health.get('supports_unified_B_chain')is True, 'Unified B backend must be deployed before switching app forecasts'
+          assert health.get('preview_worker_sha256')=='e89e1ec8d7c11674d6d997e43b80c1b9db3bd97f26ea144d42874771a28907d1', 'Tested standalone B worker must be deployed'
           assert health.get('runtime')=='original_locked_python'and health.get('locked_model_active')is False
           PY
       - uses: actions/download-artifact@v4
