@@ -15,6 +15,7 @@ permissions:
   id-token: write
 env:
   PREVIEW_SOURCE_SHA: f492be4795bfd630ba91377d71497e68c1d85934
+  PREVIEW_UI_SHA: 75e43d18cdcde5ffcb9a914c6b64d191f8fe20d0
 jobs:
   verified:
     if: ${{ inputs.validated_run != '' }}
@@ -50,7 +51,7 @@ jobs:
     needs: [current, verified]
     if: ${{ always() && !cancelled() && (needs.current.result == 'success' || needs.verified.result == 'success') }}
     runs-on: ubuntu-latest
-    timeout-minutes: 15
+    timeout-minutes: 30
     concurrency:
       group: fpl-pages-publication
       cancel-in-progress: false
@@ -60,7 +61,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with:
-          ref: ${{ env.PREVIEW_SOURCE_SHA }}
+          ref: ${{ env.PREVIEW_UI_SHA }}
           fetch-depth: 0
       - name: Require live isolated B compute capability
         run: |
@@ -76,8 +77,59 @@ jobs:
           path: .mm-preview-evidence
           run-id: ${{ inputs.validated_run || github.run_id }}
           github-token: ${{ github.token }}
-      - name: Use only this successful computation's public B preview
-        run: cp -R .mm-preview-evidence/. app/mm-preview/
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Require unchanged model mathematics and integrate reviewed UI only
+        env:
+          PYTHONPATH: src:scripts:.
+        run: |
+          git diff --exit-code "$PREVIEW_SOURCE_SHA" -- src model scripts/gk_joint_bridge.py scripts/gk_solo_role.py scripts/pm_preview_distributions.py scripts/run_joint_gk_preview.py scripts/mm_candidate_forecast.py scripts/mm_locked_bridge.py scripts/b_chain_contract.py scripts/b_preview_ts.py scripts/run_live_locked_ts.py scripts/publish_mm_preview.py
+          pip install -r requirements-model-checkpoint.txt -r requirements-model-tests.txt requests tabulate==0.10.0
+          cp app/mm-preview/desktop-probabilities.css "$RUNNER_TEMP/reviewed-probabilities.css"
+          cp -R .mm-preview-evidence/. app/mm-preview/
+          cp "$RUNNER_TEMP/reviewed-probabilities.css" app/mm-preview/desktop-probabilities.css
+          python -c "import json;from pathlib import Path;from publish_unified_b_chain import synchronize_audit;synchronize_audit(Path('app/mm-preview/current'),json.loads(Path('app/mm-preview/current/forecast.json').read_text()))"
+          python scripts/integrate_desktop_probabilities.py
+          cmp .mm-preview-evidence/current/forecast.json app/mm-preview/current/forecast.json
+          cmp .mm-preview-evidence/gk/forecast.json app/mm-preview/gk/forecast.json
+          cmp .mm-preview-evidence/gk/gk-mm.json app/mm-preview/gk/gk-mm.json
+      - name: Verify actual existing desktop and mobile UI before publication
+        env:
+          PYTHONPATH: src:scripts:.
+          OPENBLAS_NUM_THREADS: '1'
+        run: |
+          python -m pytest -q tests
+          node tests/test_existing_B_adapter.js
+          node tests/test_B_preview_contract.js
+          node tests/test_joint_gk_contract.js
+          npm install --prefix "$RUNNER_TEMP/fpl-browser" playwright@1.56.1
+          export NODE_PATH="$RUNNER_TEMP/fpl-browser/node_modules"
+          export BROWSER_PATH="$(command -v google-chrome)"
+          export DESKTOP_URL=http://127.0.0.1:18097/mm-preview/app/
+          export DASHBOARD_TEST_FIXTURE="$RUNNER_TEMP/unified-private-browser-fixture.json"
+          python analysis/prepare_dashboard_news_test.py --forecast app/mm-preview/current/forecast.json --out "$DASHBOARD_TEST_FIXTURE"
+          python -m http.server 18097 --bind 127.0.0.1 --directory app > "$RUNNER_TEMP/unified-browser-http.log" 2>&1 &
+          preview_http_pid=$!
+          trap 'kill "$preview_http_pid"' EXIT
+          node analysis/verify_desktop_probabilities.cjs > unified-desktop-browser.json
+          node analysis/verify_unified_chain.cjs > unified-identity-browser.json
+          node analysis/verify_planner_experience.cjs > unified-planner-browser.json
+          node analysis/verify_dashboard_news.cjs > unified-news-browser.json
+          python - <<'PY'
+          import json,os
+          from pathlib import Path
+          f=json.loads(Path('app/mm-preview/current/forecast.json').read_text())
+          Path('app/mm-preview/chain-publication-sources.json').write_text(json.dumps(dict(model_source=os.environ['PREVIEW_SOURCE_SHA'],ui_source=os.environ['PREVIEW_UI_SHA'],forecast_sha256=f['forecast_sha256'],publication_run=os.environ['GITHUB_RUN_ID'],numerical_forecasts_byte_identical=True,production_model_unchanged=True),sort_keys=True)+'\n')
+          PY
+      - uses: actions/upload-artifact@v4
+        with:
+          name: unified-B-browser-validation
+          path: unified-*-browser.json
+          retention-days: 90
       - name: Publish preview alone; preserve every production asset
         env:
           GH_TOKEN: ${{ github.token }}
