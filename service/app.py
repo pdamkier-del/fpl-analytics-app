@@ -1,4 +1,4 @@
-"""Ephemeral private manager API: no account credentials, payload logging or public plans."""
+"""Private manager API with an isolated B worker; no credentials or public plans."""
 import json,os,secrets,subprocess,threading,time,tempfile,shutil,sys,hashlib,re
 from datetime import datetime,timezone,timedelta
 from functools import lru_cache
