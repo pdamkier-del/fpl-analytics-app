@@ -65,6 +65,6 @@ def inject(out):
         if not any(s in text for s in ['weekly-app.js','classic-manager.js']):continue
         text=text.replace('</head>','<script src="../planner-experience.js?v=1"></script><link rel="stylesheet" href="../planner-experience.css?v=1"></head>')
         for name in ['weekly-app.js','classic-manager.js','classic-transfers.js','transfer-card.js','classic-transfer-preview.js']:
-            text=text.replace('src="'+name+'?', 'src="'+name+'?planner=1&').replace('src="'+name+'"','src="'+name+'?planner=1"')
-        text=text.replace('dashboard-team-news.js?v=1','dashboard-team-news.js?v=planner-1')
+            text=text.replace('src="'+name+'?', 'src="'+name+'?planner=wait-2&').replace('src="'+name+'"','src="'+name+'?planner=wait-2"')
+        text=text.replace('dashboard-team-news.js?v=1','dashboard-team-news.js?v=wait-2')
         page.write_text(text)
