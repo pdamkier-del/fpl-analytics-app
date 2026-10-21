@@ -7,7 +7,7 @@ on:
         type: string
 permissions:
   contents: write
-  actions: read
+  actions: write
   pages: write
   id-token: write
 jobs:
@@ -41,8 +41,14 @@ jobs:
       - uses: actions/deploy-pages@v4
         with:
           artifact_name: team-news-pages-${{ github.run_id }}
+      - name: Request one needed model refresh after new official news
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: python scripts/request_b_refresh.py
       - uses: actions/upload-artifact@v4
         with:
           name: dashboard-news-publication-proof
-          path: work/dashboard-news-publication.json
+          path: |
+            work/dashboard-news-publication.json
+            work/news-model-refresh.json
           retention-days: 90

@@ -134,3 +134,16 @@ Intraday refresh status at 17:20 CEST:
 - Attempt 2 of 39620552568 is queued during GitHub's reported Actions degradation. Its completion is wired to the actual private synthetic six-GW regression and a TLS-verified desktop/mobile display check. This is pending validation, not a completed latest-data delivery.
 - The display helper first asserts that real `validation_only` state/results are rejected as personal plans. It then uses a clearly synthetic browser-only presentation copy, rebinds its state hash and compares all six-GW numerical rows against the unchanged actual remote result. No user state or private capability is published.
 - Main publication additionally requires the exact corrected standalone worker SHA before deployment. Numerical source remains f492be4795bfd630ba91377d71497e68c1d85934 and production assets remain outside the preview overlay.
+
+
+News-triggered recovery (21 October): the news publication now compares the
+verified published model catalogue with its new official news capture. New
+player information, a new GW, or a model source older than six hours can request
+the existing B workflow on main. It refuses duplicate requests while a refresh
+is queued/running and applies a 30-minute retry interval. Eight regression
+checks cover deduplication, bounded retries, unchanged news, verified snapshot
+comparisons and checksum rejection; the full 770-test suite passes. An actual
+read-only preflight against current public artifacts and workflow metadata
+recognized the in-flight refresh and submitted no duplicate job. This recovery
+uses no manager data and cannot alter production or bypass availability gates.
+GitHub service availability still bounds when a queued workflow can execute.
