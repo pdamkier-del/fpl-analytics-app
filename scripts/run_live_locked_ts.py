@@ -10,6 +10,7 @@ from fpl_xpts.season_replay import ReplayState,OwnedPlayer,valid_squad
 from fpl_xpts.transfer_planner import plan_transfer_path,execute_first_action,clone_state,projected_manager_score
 from fpl_xpts.optimize import plan_squad
 from run_joint_fh_wc_stopping_replay import cfg
+from fpl_v1_1_model.forecast_snapshot import forecast_digest
 CHIPS={'wildcard','free_hit','bench_boost','triple_captain'}
 
 def integer(x,name,lo,hi):
@@ -42,14 +43,19 @@ def project(payload):
     positions={1:'GKP',2:'DEF',3:'MID',4:'FWD'};meta=[];rows=[]
     first=min(payload['gws'])
     for p in payload['players']:
+        if sorted(w['gw'] for w in p['weeks'])!=sorted(payload['gws']):
+            raise ValueError('Incomplete or duplicate player forecast horizon; explicit blank-GW rows required')
         meta.append({'id':p['id'],'web_name':p['name'],'position':positions[p['position']], 'team':p['team_id'],'price_tenths':p['price_tenths']})
         for w in p['weeks']:
             rows.append({'id':p['id'],'web_name':p['name'],'position':positions[p['position']],
                 'gw':w['gw'],'origin_gw':first-1,'xpts_mean':w['xpts'],'p_play':w['p_play'],'fixtures':len(w['fixtures'])})
     return pd.DataFrame(meta),pd.DataFrame(rows)
 
-def run(payload,raw,include_chips=False,tc_samples=None):
-    if payload.get('freshness_limit_hours') is not None:
+def run(payload,raw,include_chips=False,tc_samples=None,*,snapshot_at=None):
+    if snapshot_at is not None:
+        from b_snapshot_policy import validate_snapshot
+        validate_snapshot(payload,raw,snapshot_at)
+    if snapshot_at is None and payload.get('freshness_limit_hours') is not None:
         from datetime import datetime,timezone,timedelta
         cutoff=datetime.fromisoformat(payload['data_asof'].replace('Z','+00:00'))
         now=datetime.now(timezone.utc)
@@ -60,7 +66,7 @@ def run(payload,raw,include_chips=False,tc_samples=None):
     if not 1<=gw<=38 or sorted(payload['gws'])!=list(range(gw,min(39,gw+6))):raise ValueError('TS requires the complete original horizon through season end')
     deadline=payload.get('origin_deadline')
     if deadline and pd.Timestamp.now(tz='UTC')>=pd.Timestamp(deadline):raise ValueError('Forecast deadline has passed; fetch a fresh forecast. Historical replay is separate.')
-    state=parse_state(raw,meta,gw,payload['data_asof'])
+    state=parse_state(raw,meta,gw,payload['data_asof'] if snapshot_at is None else snapshot_at)
     diagnostic=not payload.get('locked_model_active',False) or any(payload.get('parts',{}).get(k)!='verified' for k in ('mm','pm_vfinal'))
     planned=plan_transfer_path(state,meta,origin,gw,cfg());after=clone_state(state)
     transfers=execute_first_action(after,planned,meta);lineup=plan_squad(origin,list(after.squad),gw)
@@ -68,6 +74,7 @@ def run(payload,raw,include_chips=False,tc_samples=None):
     baseline_value=sum(w*r['expected_score'] for w,r in zip(cfg().weights,baseline))
     result={'locked_model_active':False,'ts_status':'diagnostic' if diagnostic else 'verified',
         'chips_status':'Not Available','ts_ran':True,'chips_ran':False,'forecast_cutoff':payload['data_asof'],
+        'forecast_sha256':forecast_digest(payload),
         'gw':gw,'origin_deadline':deadline,'manager_state_source':raw['source'],
         'manager_state_sha256':hashlib.sha256(json.dumps(raw,sort_keys=True,ensure_ascii=False,separators=(',',':')).encode()).hexdigest(),
         'plan':asdict(planned),'transfers':transfers,
