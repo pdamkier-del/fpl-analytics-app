@@ -15,7 +15,7 @@ permissions:
   id-token: write
 env:
   PREVIEW_SOURCE_SHA: f492be4795bfd630ba91377d71497e68c1d85934
-  PREVIEW_UI_SHA: 3b7c68fab72f21bcb45cd46e771611c81fdd48cc
+  PREVIEW_UI_SHA: 4eef716a0b697a57e0519caed429d7fa023ece46
 jobs:
   verified:
     if: ${{ inputs.validated_run != '' }}
@@ -89,7 +89,11 @@ jobs:
           cp app/mm-preview/latest-snapshot.js "$RUNNER_TEMP/reviewed-latest-snapshot.js"
           cp app/mm-preview/existing-app-adapter.js "$RUNNER_TEMP/reviewed-existing-adapter.js"
           cp app/mm-preview/gk/contract.js "$RUNNER_TEMP/reviewed-GK-contract.js"
+          cp app/mm-preview/desktop-probabilities.js "$RUNNER_TEMP/reviewed-probabilities.js"
+          cp app/mm-preview/player-match-card.js "$RUNNER_TEMP/reviewed-player-match-card.js"
           cp -R .mm-preview-evidence/. app/mm-preview/
+          cp "$RUNNER_TEMP/reviewed-probabilities.js" app/mm-preview/desktop-probabilities.js
+          cp "$RUNNER_TEMP/reviewed-player-match-card.js" app/mm-preview/player-match-card.js
           cp "$RUNNER_TEMP/reviewed-existing-adapter.js" app/mm-preview/existing-app-adapter.js
           cp "$RUNNER_TEMP/reviewed-GK-contract.js" app/mm-preview/gk/contract.js
           cp "$RUNNER_TEMP/reviewed-latest-snapshot.js" app/mm-preview/latest-snapshot.js
@@ -120,6 +124,7 @@ jobs:
           preview_http_pid=$!
           trap 'kill "$preview_http_pid"' EXIT
           node analysis/verify_desktop_probabilities.cjs > unified-desktop-browser.json
+          node analysis/verify_player_match_card.cjs > unified-player-match-card-browser.json
           node analysis/verify_unified_chain.cjs > unified-identity-browser.json
           node analysis/verify_latest_snapshot.cjs > unified-latest-snapshot-browser.json
           node - <<'JS' > unified-live-readiness-browser.json
