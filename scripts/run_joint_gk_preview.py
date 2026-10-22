@@ -4,6 +4,7 @@
 Does not change a production configuration, manager state, or locked PM/TS.
 """
 from pathlib import Path
+from contextlib import nullcontext
 from dataclasses import replace
 from datetime import datetime,timezone
 import argparse,hashlib,json
@@ -21,7 +22,7 @@ ROOT=Path(__file__).resolve().parents[1]
 KEY=['fixture_uuid','player_uuid']
 
 
-def run(frame,predicted,obs,*,season,draws=400,incomplete_teams=(),seed=93000000,paired=False,offsets=None,role_policy=None,paired_v1=None,distributions=False,chain=False,catalogue=None):
+def run(frame,predicted,obs,*,season,draws=400,incomplete_teams=(),seed=93000000,paired=False,offsets=None,role_policy=None,paired_v1=None,distributions=False,chain=False,catalogue=None,assignment_history=None,assignment_strength=None):
     rows=[];baseline=[];details={};audit=[]
     raw=predicted.set_index(KEY)
     caches={}
@@ -36,6 +37,17 @@ def run(frame,predicted,obs,*,season,draws=400,incomplete_teams=(),seed=93000000
         mm=raw.loc[fx].reset_index()
         original_inp=inp
         inp,moments,teams=prepare(inp,mm,history,incomplete_teams=incomplete_teams,role_policy=role_policy,season=season)
+        role_distributions={}
+        if assignment_history is not None:
+            if not chain:raise ValueError('Joint role assignment requires the unified B chain')
+            from joint_role_bridge import apply_assignment
+            mm=mm.assign(fixture_uuid=fx)
+            corrected,role_distributions,role_audit=apply_assignment(mm,assignment_history,strength=assignment_strength)
+            by=corrected.set_index('player_uuid')
+            inp=replace(inp,players=tuple(p if p.is_keeper else replace(p,p_start=float(by.loc[p.player_id,'p']),
+                p_cameo_given_bench=float(by.loc[p.player_id,'q']))for p in inp.players))
+            for team in teams:
+                team['outfield_role_assignment']=next(a for a in role_audit if a['team_id']==int(team['team']))
         if chain:
             from b_chain_contract import prepare_match,field_marginals
             inp=prepare_match(inp,catalogue)
@@ -45,7 +57,12 @@ def run(frame,predicted,obs,*,season,draws=400,incomplete_teams=(),seed=93000000
                 moments[p.player_id]=dict(p=p.p_start,q=p.p_cameo_given_bench,s=p.start_minutes_mean,c=p.cameo_minutes_mean,
                     x=float(mass@np.arange(91)),p60=float(mass[60:].sum()),p90=float(mass[90]),p_play=float(1-mass[0]),pmf=mass.tolist())
         for team in teams: audit.append(dict(fixture_uuid=fx,**team,history_rows=history.rows,last_label_known_at=history.latest,cutoff=cut))
-        sim=(simulate_with_distributions if distributions else simulate_many)(inp,n=draws,seed=seed+(offsets[fx] if offsets is not None else i),**({'include_samples':True}if chain and distributions else{}))
+        if role_distributions:
+            from fpl_v1_1_model.experimental_joint_role_assignment import role_lineup_sampler
+            scope=role_lineup_sampler(role_distributions)
+        else:scope=nullcontext()
+        with scope:
+            sim=(simulate_with_distributions if distributions else simulate_many)(inp,n=draws,seed=seed+(offsets[fx] if offsets is not None else i),**({'include_samples':True}if chain and distributions else{}))
         if paired_v1 is not None:
             old,old_moments,_=prepare(original_inp,mm,history,incomplete_teams=incomplete_teams)
             old_sim=sim if old.players==inp.players else simulate_many(old,n=draws,seed=seed+(offsets[fx] if offsets is not None else i))
@@ -72,7 +89,7 @@ def write(path,obj):
     path.write_text(json.dumps(obj,sort_keys=True,ensure_ascii=False,allow_nan=False,separators=(',',':'))+'\n')
 
 
-def current(inputs,out,*,paired=True,chain=False,evidence_path=None):
+def current(inputs,out,*,paired=True,chain=False,evidence_path=None,assignment_policy=None):
     from build_live_vfinal_desktop import build
     inputs=Path(inputs);out=Path(out)
     h=pd.read_csv(inputs/'history.csv.gz',low_memory=False);t=pd.read_csv(inputs/'target.csv.gz',low_memory=False)
@@ -99,7 +116,34 @@ def current(inputs,out,*,paired=True,chain=False,evidence_path=None):
     out.mkdir(parents=True,exist_ok=True)
     (out/'role-squad-evidence.csv.gz').write_bytes(gzip.compress(role_evidence,mtime=0))
     catalogue={r.player_uuid:old[int(r.fpl_element)]for r in joined.itertuples()}if chain else None
-    xp,details,audit,baseline=run(joined,pred,observations(ROOT),season='2026-27',incomplete_teams=incomplete,paired=paired,role_policy=policy,paired_v1=v1,distributions=True,chain=chain,catalogue=catalogue)
+    assignment_history=None;role_receipt=None
+    if assignment_policy:
+        from joint_role_bridge import load_assignment_policy
+        from fpl_v1_1_model.experimental_role_assignment_history import AssignmentHistory
+        role_receipt=load_assignment_policy(ROOT,assignment_policy)
+        assignment_history=AssignmentHistory(pd.read_csv(inputs/'roles.csv.gz'))
+        role_receipt={**role_receipt,'excluded_current_role_games':len(assignment_history.excluded),
+            'role_input_sha256':hashlib.sha256((inputs/'roles.csv.gz').read_bytes()).hexdigest()}
+    xp,details,audit,baseline=run(joined,pred,observations(ROOT),season='2026-27',incomplete_teams=incomplete,paired=paired,role_policy=policy,paired_v1=v1,distributions=True,chain=chain,catalogue=catalogue,
+        assignment_history=assignment_history,assignment_strength=role_receipt['strength']if role_receipt else None)
+    if role_receipt and paired:
+        # Matched current control: identical source facts, GK policy, event
+        # rates and seeds, with only the role kernel disabled. The old locked
+        # PM comparison remains a separate legacy reference.
+        control,control_means,_,_=run(joined,pred,observations(ROOT),season='2026-27',incomplete_teams=incomplete,
+            role_policy=policy,chain=True,catalogue=catalogue)
+        before=control.set_index(KEY);after=xp.set_index(KEY);positions=pred.set_index(KEY).pos;comparison=[]
+        for key,d in details.items():
+            old_mean=control_means[key]
+            is_gk=str(positions.loc[key])in ('GK','GKP')
+            if is_gk and any(abs(d[k]-old_mean[k])>1e-10 for k in ['p','q','s','c','x','p60','p90']):
+                raise ValueError('Outfield role assignment changed goalkeeper marginals')
+            if int(before.loc[key,'gw'])==int(joined.gw.min()):
+                comparison.append(dict(fixture_id=key[0],player_id=key[1],
+                    before=dict(p_start=old_mean['p'],xmins=old_mean['x'],pm_analytic_minutes=old_mean['x'],p60=old_mean['p60'],p90=old_mean['p90'],xp=float(before.loc[key,'xpts_fixture'])),
+                    after=dict(p_start=d['p'],xmins=d['x'],pm_analytic_minutes=d['x'],p60=d['p60'],p90=d['p90'],xp=float(after.loc[key,'xpts_fixture']))))
+        write(out/'role-control.json',dict(scope='matched current first-GW role-kernel control',same_source_and_seeds=True,
+            monte_carlo_order_changes=True,goalkeeper_marginals_unchanged=True,players=comparison))
     if paired:write(out/'before-v1.json',dict(players=v1))
     display=joined.copy();updated=pred.copy();mmrows=[]
     for index,r in updated.iterrows():
@@ -139,6 +183,9 @@ def current(inputs,out,*,paired=True,chain=False,evidence_path=None):
     payload['blockers'].append('Experimental joint GK/11-starter sampler; not production-certified. Unlisted competitors are pooled, not individual FPL forecasts.')
     payload['code_sha256']={name:hashlib.sha256((ROOT/name).read_bytes()).hexdigest() for name in ['scripts/gk_joint_bridge.py','scripts/run_joint_gk_preview.py','scripts/mm_candidate_forecast.py','scripts/gk_solo_role.py','src/fpl_v1_1_model/joint_simulator.py','scripts/pm_preview_distributions.py']}
     payload['input_sha256']={name:hashlib.sha256((inputs/name).read_bytes()).hexdigest() for name in ['pm.csv.gz','history.csv.gz','target.csv.gz','provenance.json']}
+    if role_receipt:
+        payload['role_assignment']=role_receipt
+        payload['code_sha256'].update({name:hashlib.sha256((ROOT/name).read_bytes()).hexdigest()for name in ['scripts/joint_role_bridge.py','src/fpl_v1_1_model/experimental_joint_role_assignment.py','src/fpl_v1_1_model/experimental_role_assignment_history.py','src/fpl_v1_1_model/experimental_role_importance.py']})
     if chain:
         from b_chain_contract import VERSION as CHAIN_VERSION,SCENARIOS,validate_forecast
         payload.update(model=CHAIN_VERSION,mm_version=CHAIN_VERSION,chain_version=CHAIN_VERSION,
@@ -160,6 +207,7 @@ def current(inputs,out,*,paired=True,chain=False,evidence_path=None):
 def main():
     ap=argparse.ArgumentParser();ap.add_argument('--inputs',type=Path,default=ROOT/'work/current-B-inputs');ap.add_argument('--out',type=Path,required=True)
     ap.add_argument('--no-baseline',action='store_true');ap.add_argument('--chain',action='store_true');ap.add_argument('--evidence',type=Path)
-    args=ap.parse_args();p=current(args.inputs,args.out,paired=not args.no_baseline,chain=args.chain,evidence_path=args.evidence)
+    ap.add_argument('--role-assignment-policy',type=Path)
+    args=ap.parse_args();p=current(args.inputs,args.out,paired=not args.no_baseline,chain=args.chain,evidence_path=args.evidence,assignment_policy=args.role_assignment_policy)
     print(json.dumps(dict(players=len(p['players']),fixtures=p['fixtures'],gws=p['gws'],forecast_sha256=p['forecast_sha256'])))
 if __name__=='__main__':main()

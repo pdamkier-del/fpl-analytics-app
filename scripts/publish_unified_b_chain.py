@@ -39,6 +39,33 @@ def publish(root,forecast,distribution):
     for r in mm['players']:
         q=moments[r['fixture_id'],r['player_id']]
         r.update({k:q[k]for k in ['p_start','p_sub_given_not_start','start_minutes','sub_minutes','xmins','p_play','p_60_plus','p_90']})
+    if forecast.get('role_assignment'):
+        from joint_role_bridge import load_assignment_policy
+        role_policy=load_assignment_policy(root,root/'analysis/results/joint-role-candidate-20261022/policy.json')
+        evidence=root/'analysis/results/joint-role-candidate-20261022'
+        gate={**gate,'joint_role_assignment':dict(policy=role_policy,
+            mm=json.loads((evidence/'decision.json').read_text()),
+            pm=json.loads((evidence/'pm-decision.json').read_text()))}
+        keeper_ids={p['player_uuid']for p in forecast['players']if p['position']==1}
+        for a in forecast['gk_team_fixtures']:
+            role=a.get('outfield_role_assignment',{})
+            if not role.get('applied'):continue
+            xi=role['representative_lineup'];selected=dict(zip(xi['players'],xi['roles']))
+            squad=[r for r in mm['players']if r['fixture_id']==a['fixture_uuid']and int(r['club_id'])==int(a['team'])]
+            keepers=[r for r in squad if r['player_id']in keeper_ids]
+            if not keepers:raise ValueError('Representative role XI lacks a known keeper')
+            keeper=max(keepers,key=lambda r:r['p_start'])
+            for r in squad:
+                r['expected_xi']=r['player_id']in selected or r is keeper
+                r['formation']=xi['formation'];r['xi_selection_rule']=xi['selection_rule']
+                r['slot']=selected.get(r['player_id'],'GK'if r is keeper else None)
+                r['slot_index']=xi['players'].index(r['player_id'])+1 if r['player_id']in selected else 0 if r is keeper else None
+            for t in mm['teams']:
+                if t['fixture_id']==a['fixture_uuid']and int(t['club_id'])==int(a['team']):
+                    t.update(formation=xi['formation'],formation_distribution=role['formation_weights'],
+                             last_role_known_at=role['max_known_at'],status='joint historical-role assignment distribution',
+                             xi_selection_rule=xi['selection_rule'])
+        mm['role_assignment']=forecast['role_assignment']
     mm.update(model_version=VERSION,data_at=forecast['data_asof'])
     mm=seal_document(mm)
     index.update(model=VERSION,minute_sampler=VERSION,forecast_sha256=forecast['forecast_sha256'],

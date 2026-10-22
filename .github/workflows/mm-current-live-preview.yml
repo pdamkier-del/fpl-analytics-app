@@ -87,15 +87,14 @@ jobs:
           from pathlib import Path
           run_id=os.environ['VALIDATED_HISTORY_RUN']
           assert run_id.isdigit()
-          pinned='f492be4795bfd630ba91377d71497e68c1d85934'
-          assert subprocess.check_output(['git','rev-parse','HEAD'],text=True).strip()==pinned, 'History reuse requires the identical validated source'
+          pinned=subprocess.check_output(['git','rev-parse','HEAD'],text=True).strip()
           run=json.loads(subprocess.check_output(['gh','api','repos/pdamkier-del/fpl-analytics-app/actions/runs/'+run_id]))
           assert run['status']=='completed' and run['conclusion']=='success' and run['head_sha']==pinned
           assert run['path']=='.github/workflows/mm-current-live-preview.yml'
           dest=Path('work/validated-history-artifact')
           subprocess.run(['gh','run','download',run_id,'--name','current-B-public-input-and-validation-evidence','--dir',str(dest)],check=True)
           copied={}
-          for name in ['work/joint-gk-historical','work/joint-gk-role-validation','analysis/results/unified-b-chain-20261021']:
+          for name in ['work/joint-gk-historical','work/joint-gk-role-validation','analysis/results/unified-b-chain-20261021','work/joint-role-replay']:
               source=dest/name
               assert source.is_dir(), 'Missing validated historical artifact: '+name
               for item in source.rglob('*'):
@@ -106,6 +105,8 @@ jobs:
           gate=json.loads(Path('analysis/results/unified-b-chain-20261021/validation.json').read_text())
           roles=json.loads(Path('work/joint-gk-role-validation/summary.json').read_text())
           assert gate['accepted'] and roles['accepted']
+          assert json.loads(Path('work/joint-role-replay/decision.json').read_text())['mm_gate_passed']
+          assert json.loads(Path('work/joint-role-replay/pm-decision.json').read_text())['passed']
           Path('work/historical-validation-reuse.json').write_text(json.dumps(dict(run=int(run_id),numerical_source=pinned,unchanged_historical_files=copied,fresh_current_inputs_reused=False),indent=2)+'\n')
           print('Reused verified historical gates; current official capture and full six-GW simulations still run afresh')
           PYTHON
@@ -141,9 +142,21 @@ jobs:
             python scripts/locked_numerical_runtime.py scripts/check_gk_uncertainty.py
             python scripts/locked_numerical_runtime.py scripts/evaluate_solo_gk_roles.py
             python scripts/locked_numerical_runtime.py scripts/validate_unified_b_history.py --workers 2
+            PYTHONPATH="$PYTHONPATH:analysis" python scripts/locked_numerical_runtime.py analysis/test_joint_role_candidate.py --out work/joint-role-replay --fixed-strength .5
+            PYTHONPATH="$PYTHONPATH:analysis" python scripts/locked_numerical_runtime.py analysis/test_joint_role_pm.py --out work/joint-role-replay --workers 2
           fi
-          python scripts/locked_numerical_runtime.py scripts/run_joint_gk_preview.py --out work/joint-gk-current --chain
-          python scripts/locked_numerical_runtime.py scripts/run_joint_gk_preview.py --out work/joint-gk-repeat --no-baseline --chain
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          from joint_role_bridge import load_assignment_policy
+          root=Path('.').resolve()
+          policy=load_assignment_policy(root,root/'analysis/results/joint-role-candidate-20261022/policy.json')
+          mm=json.loads(Path('work/joint-role-replay/decision.json').read_text())
+          pm=json.loads(Path('work/joint-role-replay/pm-decision.json').read_text())
+          assert mm['mm_gate_passed']and pm['passed']and mm['selected_strength']==policy['strength']
+          PY
+          python scripts/locked_numerical_runtime.py scripts/run_joint_gk_preview.py --out work/joint-gk-current --chain --role-assignment-policy analysis/results/joint-role-candidate-20261022/policy.json
+          python scripts/locked_numerical_runtime.py scripts/run_joint_gk_preview.py --out work/joint-gk-repeat --no-baseline --chain --role-assignment-policy analysis/results/joint-role-candidate-20261022/policy.json
           python scripts/locked_numerical_runtime.py scripts/validate_joint_gk_stages.py
           python scripts/export_joint_gk_preview.py
           python scripts/collect_dashboard_news.py
@@ -171,6 +184,7 @@ jobs:
             work/joint-gk-repeat/
             work/joint-gk-historical/
             work/joint-gk-role-validation/
+            work/joint-role-replay/
             work/gk-official-evidence/
             analysis/results/unified-b-chain-20261021/
           retention-days: 90

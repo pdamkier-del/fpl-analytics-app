@@ -23,11 +23,20 @@ def main(source=None,inputs=None):
     evidence=payload['official_gk_evidence'];partial=(evidence['team_id'],)if evidence['unlisted_competitors']else()
     from gk_solo_role import load_policy
     policy=load_policy(ROOT,h)
+    assignment_history=None;assignment_strength=None
+    if payload.get('role_assignment'):
+        from joint_role_bridge import load_assignment_policy
+        from fpl_v1_1_model.experimental_role_assignment_history import AssignmentHistory
+        receipt=load_assignment_policy(ROOT,ROOT/'analysis/results/joint-role-candidate-20261022/policy.json')
+        if receipt['strength']!=payload['role_assignment']['strength']:raise ValueError('Role policy mismatch')
+        assignment_history=AssignmentHistory(pd.read_csv(inputs/'roles.csv.gz'))
+        assignment_strength=receipt['strength']
     stages=[];obs=observations(ROOT)
     for scope,mask in [('one-match',frame.fixture_uuid.eq(first)),('one-gw',frame.gw.eq(origin))]:
         chosen=frame[mask];p=pred[pred.fixture_uuid.isin(chosen.fixture_uuid)]
         catalogue={r.player_uuid:next(p for p in json.loads((inputs/'bootstrap.json').read_text())['elements']if p['id']==int(r.fpl_element))for r in chosen.itertuples()}if unified else None
-        xp,_,audit,_=run(chosen,p,obs,season='2026-27',incomplete_teams=partial,offsets=offsets,role_policy=policy,distributions=True,chain=unified,catalogue=catalogue)
+        xp,_,audit,_=run(chosen,p,obs,season='2026-27',incomplete_teams=partial,offsets=offsets,role_policy=policy,distributions=True,chain=unified,catalogue=catalogue,
+            assignment_history=assignment_history,assignment_strength=assignment_strength)
         for r in xp.itertuples():
             old=expected[(r.fixture_uuid,r.player_uuid)]
             if r.distribution!=old['distribution']:raise ValueError('PM distributions differ across scopes')

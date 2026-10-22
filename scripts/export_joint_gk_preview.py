@@ -40,6 +40,15 @@ def export():
     index['evidence_sha256']=dump(out/'evidence.json',dict(role_validation=role,model=VERSION,v1_reference_historical=historical,v1_reference_uncertainty=uncertainty,stages=stages,ts=ts,
         deterministic_repeat=True,production_changed=False,intervals_independently_certified=False,
         official_sources=forecast['official_gk_evidence']))
+    if forecast.get('role_assignment'):
+        control=json.loads((source/'role-control.json').read_text())
+        if not control['goalkeeper_marginals_unchanged']or not control['same_source_and_seeds']:
+            raise ValueError('Joint role current comparison is not matched')
+        index['role_control_sha256']=dump(out/'role-control.json',dict(forecast_sha256=forecast['forecast_sha256'],**control))
+        evidence=ROOT/'analysis/results/joint-role-candidate-20261022'
+        index['outfield_role_evidence_sha256']=dump(out/'outfield-role-evidence.json',dict(policy=forecast['role_assignment'],
+            mm=json.loads((evidence/'decision.json').read_text()),pm=json.loads((evidence/'pm-decision.json').read_text()),
+            model_source='same sealed B forecast; production unchanged'))
     dump(out/'index.json',index)
     if unified:
         from publish_unified_b_chain import publish
