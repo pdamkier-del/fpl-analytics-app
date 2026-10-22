@@ -1,0 +1,85 @@
+{
+  "classification": "COMPLETE_SCOPED_REQUIREMENTS_AND_CHAIN_REVIEW_NOT_FULL_MODEL_CERTIFICATION",
+  "checked_at_utc": "2026-10-22T17:27:02.504405+00:00",
+  "forecast_sha256": "053393cc593f7116f6c0758bacf84e97db502e338b685db1c5e68328a5310671",
+  "model": "B-MM-PM-TS-v1",
+  "data_asof": "2026-10-22T13:58:53.898422+00:00",
+  "requirements": 56,
+  "requirement_status_counts": {
+    "funktionstestet": 25,
+    "uafklaret_reference": 1,
+    "delvist": 19,
+    "mangler": 3,
+    "ikke_valideret": 3,
+    "undersøgt": 1,
+    "ikke_indført_efter_test": 3,
+    "kan_ikke_verificeres_privat": 1
+  },
+  "python": {
+    "command": "PYTHONPATH=src:scripts:. OPENBLAS_NUM_THREADS=1 /workspace/fpl-venv/bin/python -m pytest -q tests",
+    "passed": 812,
+    "seconds": 61.67
+  },
+  "javascript": {
+    "suites": 27,
+    "passed": 27,
+    "fixture": "explicit local synthetic state and current served forecast; no private state published"
+  },
+  "browser": {
+    "suites": 9,
+    "viewports": [
+      "desktop",
+      "mobile"
+    ],
+    "all_passed": true,
+    "reports": [
+      "midweek-browser.json",
+      "history-browser.json",
+      "identity-browser.json",
+      "player-card-browser.json",
+      "transfers-browser.json",
+      "readiness-browser.json",
+      "snapshot-browser.json",
+      "dashboard-browser.json",
+      "remote-display-browser.json"
+    ],
+    "unmocked_public_routes": true,
+    "simulated_injury_and_job_flows_labelled": true,
+    "TLS_verification": true
+  },
+  "current_six_GW": {
+    "local": true,
+    "actual_remote_B_worker": true,
+    "actual_user_team": false,
+    "remote_forecast_matches_capture": true
+  },
+  "numerical_rows_checked": 4008,
+  "production_files_checked": 88,
+  "historical_metrics": {
+    "retained_predictions_independently_recomputed": true,
+    "new_historical_simulations": false,
+    "independent_new_holdout": false
+  },
+  "original_TS_default_math_check": true,
+  "issues_resolved_in_test_harness": [
+    "Planner unit suite initially lacked its required fixture environment; rerun all 27 suites with explicit matching synthetic fixture and forecast.",
+    "Legacy dashboard browser expected news blocking; current snapshot mode requires advisory behaviour and health capability. Fixed explicit legacy/snapshot branches and consistent doubtful injury fixture.",
+    "Node fetch ignored proxy; snapshot browser can preload exact captured input documents while Chromium still uses normal verified public HTTPS."
+  ],
+  "unresolved_high_priority": [
+    "Role/importance/alternative-XI feedback is not established end to end.",
+    "Rotation versus role-loss latent inference is not validated/implemented.",
+    "Minute uncertainty and sparse keeper-takeover subgroup lack independent calibration.",
+    "Red-card/own-goal causal event consistency and special FPL assists incomplete.",
+    "Full-season transfer policy and future chip option value not validated.",
+    "Historical source/older-season UI coverage incomplete."
+  ],
+  "unverifiable": [
+    "Actual private user squad and purchase prices, including Ødegaard/Groß",
+    "Original unspecified five-item proposal behind acceptance; not present in available conversation"
+  ],
+  "finishing_candidate_not_enabled": true,
+  "product_code_changed": false,
+  "numerical_model_changed": false,
+  "production_changed": false
+}

@@ -1,0 +1,562 @@
+[
+  {
+    "id": "A01",
+    "stage": "Afgrænsning",
+    "user_request": "Fortsæt fra dit eksisterende arbejde og PR #22. Start ikke forfra.",
+    "requirement": "Eksisterende branch og komponenter genbruges",
+    "status": "funktionstestet",
+    "implementation": "Eksisterende PR #22 branch; B-only entry points",
+    "evidence": "git history; served-chain.json",
+    "remaining_limit": "Ingen ny parallel modelbranch"
+  },
+  {
+    "id": "A02",
+    "stage": "Afgrænsning",
+    "user_request": "ja alle de 5 ting vil jeg gerne have",
+    "requirement": "Identificér alle oprindelige fem forslag",
+    "status": "uafklaret_reference",
+    "implementation": "Samtalen indeholder accepten, men ikke den oprindelige fempunktsliste",
+    "evidence": "Denne kravoversigt",
+    "remaining_limit": "De fem må ikke automatisk erklæres leveret; kendte konkrete ønsker nedenfor kan kontrolleres"
+  },
+  {
+    "id": "D01",
+    "stage": "Data",
+    "user_request": "Test den samlede model på reelle historiske og aktuelle data.",
+    "requirement": "Stabile spiller-, klub- og kampidentiteter",
+    "status": "funktionstestet",
+    "implementation": "FPL code/UUID mapping; strict fixture joins",
+    "evidence": "served-chain.json; Python and JS suites",
+    "remaining_limit": "Kildedækning og publikationscertificering er separate krav"
+  },
+  {
+    "id": "D02",
+    "stage": "Data",
+    "user_request": "Historiske spiller- og kampdata",
+    "requirement": "Nuværende sæsons tidligere PL-kampe tilgængelige",
+    "status": "funktionstestet",
+    "implementation": "history-explorer.js; official match-results history",
+    "evidence": "history-browser.json; player-card-browser.json",
+    "remaining_limit": "Publiceret historik omfatter GW1–7"
+  },
+  {
+    "id": "D03",
+    "stage": "Data",
+    "user_request": "alle gamle data er ikke derinde",
+    "requirement": "Alle relevante ældre sæsoner kan undersøges i appen",
+    "status": "delvist",
+    "implementation": "Historiske sæsoner findes til modelresearch, ikke i den samme offentlige historikvælger",
+    "evidence": "served-chain.json history_scope",
+    "remaining_limit": "Historiske modelarkiver er ikke det samme som brugeradgang til tidligere sæsoner"
+  },
+  {
+    "id": "D04",
+    "stage": "Data",
+    "user_request": "hvis de har spillet i midtugen i CL eller lign.",
+    "requirement": "CL/Europa/pokalkampe med minutter og statistik",
+    "status": "delvist",
+    "implementation": "collect_player_match_context.py; player-match-context.js",
+    "evidence": "midweek-browser.json; served-chain.json",
+    "remaining_limit": "Verificerede registrerede kampe vises; ingen garanti for komplet kildehistorik"
+  },
+  {
+    "id": "D05",
+    "stage": "Data",
+    "user_request": "Skeln mellem at være registreret i klubben og reelt at være tilgængelig",
+    "requirement": "Kamptrupper, skader og udlån adskilles fra registrering",
+    "status": "delvist",
+    "implementation": "GK official evidence, role policy and squad history; FPL news",
+    "evidence": "tests/test_gk_solo_role.py; 2026-10-19-sole-goalkeeper-role-v2.md",
+    "remaining_limit": "Officielle data er tidsstemplede captures; alle positioners faktiske hierarki er ikke certificeret"
+  },
+  {
+    "id": "D06",
+    "stage": "Data",
+    "user_request": "Brug aktuelle, troværdige kilder og dokumentér deres tidsstempler.",
+    "requirement": "Korrekte as-of-tider uden fremtidig information",
+    "status": "delvist",
+    "implementation": "Source manifests, seals, cutoff checks, late-publication tests",
+    "evidence": "served-chain.json; tests/test_europe_rotation_research.py; prior audits",
+    "remaining_limit": "Historiske kickoff+3/4h-proxies og ufuldstændige kildepublikationstider består"
+  },
+  {
+    "id": "D07",
+    "stage": "Data",
+    "user_request": "Håndtér manglende oplysninger som usikkerhed",
+    "requirement": "Ukendt statistik eller deltagelse bliver ikke automatisk nul",
+    "status": "funktionstestet",
+    "implementation": "Explicit missing fields, source context, match-data contracts",
+    "evidence": "tests/test_match_data.js; tests/test_player_match_context.py; midweek-browser.json",
+    "remaining_limit": "Ukendt availability er fortsat en begrænsning for probabilistisk kalibrering"
+  },
+  {
+    "id": "D08",
+    "stage": "Data",
+    "user_request": "kan den opdatere automatisk når man trykker derinde?",
+    "requirement": "Opdateringsknap og brug af seneste verificerede forecast",
+    "status": "delvist",
+    "implementation": "weekly compute; latest_verified_snapshot_v1; refresh jobs",
+    "evidence": "JS suites; snapshot-browser.json; readiness-browser.json",
+    "remaining_limit": "Et klik er ikke bevis på øjeblikkelig fuld modelgenberegning; ældre snapshot kan bruges med synligt tidspunkt"
+  },
+  {
+    "id": "R01",
+    "stage": "Roller/MI",
+    "user_request": "for foden kan også spille højre kant",
+    "requirement": "Flere historiske roller pr. spiller",
+    "status": "funktionstestet",
+    "implementation": "Role profiles and FormationSelector",
+    "evidence": "role-importance audit.json; tests/test_cam_roles.py",
+    "remaining_limit": "Historiske rolleandele er ikke kalibrerede kommende positionssandsynligheder"
+  },
+  {
+    "id": "R02",
+    "stage": "Roller/MI",
+    "user_request": "især med rollerne men er det etableret ordentligt",
+    "requirement": "Alternative kompatible opstillinger påvirker startchancer",
+    "status": "mangler",
+    "implementation": "Detailed selector runs after marginal B inference",
+    "evidence": "2026-10-22-role-importance-wiring.md",
+    "remaining_limit": "Den viste XI giver ikke feedback til marginalerne"
+  },
+  {
+    "id": "R03",
+    "stage": "Roller/MI",
+    "user_request": "det jo bare en der skal komme ind under match importance",
+    "requirement": "Match importance kobles til konkrete roller og kampvalg",
+    "status": "delvist",
+    "implementation": "Importance primitives and earlier role summaries exist",
+    "evidence": "52 role/importance tests; wiring audit",
+    "remaining_limit": "Current detailed selector discards importance weights; target-specific joint role/importance mechanism is not validated"
+  },
+  {
+    "id": "R04",
+    "stage": "Roller/MI",
+    "user_request": "der er en CL kamp tæt",
+    "requirement": "Fremadrettet prioritering mellem PL og kommende Europa-kamp",
+    "status": "ikke_valideret",
+    "implementation": "Existing research modules; no certified complete schedule integration",
+    "evidence": "future_match_importance tests; european-rotation protocol",
+    "remaining_limit": "Rest-before-CL was not validated by the observed-European-history experiment"
+  },
+  {
+    "id": "R05",
+    "stage": "Roller/MI",
+    "user_request": "det er noget vores model skulle regne ud",
+    "requirement": "Skeln probabilistisk mellem rotation, tabt rolle og skade",
+    "status": "mangler",
+    "implementation": "Observed absence reasons shown; separate residual candidate rejected",
+    "evidence": "europe-rotation decision.json; midweek-browser.json",
+    "remaining_limit": "Ingen implementeret og valideret latent årsagsmodel; bekræftet fakta må ikke erstattes af gæt"
+  },
+  {
+    "id": "R06",
+    "stage": "Roller/MI",
+    "user_request": "Foden også kan spille højre kant",
+    "requirement": "Taktisk kompatible alternative XI-scenarier",
+    "status": "delvist",
+    "implementation": "Point XI assignment; joint count-only sampling",
+    "evidence": "role-importance-wiring audit.json",
+    "remaining_limit": "Ti markspillere i et draw beviser ikke en kompatibel formationsfordeling"
+  },
+  {
+    "id": "R07",
+    "stage": "Roller/MI",
+    "user_request": "Ndiaye ... fordi han spillede 90 senest",
+    "requirement": "Seneste PL-kamps indflydelse isoleres",
+    "status": "undersøgt",
+    "implementation": "Frozen B feature ablation with original PM rates",
+    "evidence": "cherki-pm-diagnostic controlled-replay.json",
+    "remaining_limit": "Følsomhedstest dokumenterer ikke, om vægten er korrekt; original upstream er holdt fast"
+  },
+  {
+    "id": "M01",
+    "stage": "MM",
+    "user_request": "startsandsynligheder ... faktiske målmandssituation",
+    "requirement": "Startchancer beregnes og sammenlignes historisk",
+    "status": "delvist",
+    "implementation": "PR4 → PR8 → PR9 B; projected marginals",
+    "evidence": "unified validation.json; GK role validation",
+    "remaining_limit": "Genbrugte forskningsperioder; ikke uafhængig certificering af alle undergrupper"
+  },
+  {
+    "id": "M02",
+    "stage": "MM",
+    "user_request": "Præcis én målmand på banen ad gangen.",
+    "requirement": "Én keeper og samlet 90 minutters dækning",
+    "status": "funktionstestet",
+    "implementation": "Joint GK kernel incl. explicit unlisted pool",
+    "evidence": "served-chain.json; tests/test_joint_gk_contract.js",
+    "remaining_limit": "Den skjulte pulje skal medregnes ved kontrol af summer"
+  },
+  {
+    "id": "M03",
+    "stage": "MM",
+    "user_request": "En ukendt reservemålmand må ikke automatisk få en stor startsandsynlighed",
+    "requirement": "Historisk hierarki dæmper ukendt reservepulje",
+    "status": "delvist",
+    "implementation": "Sole-established keeper role policy",
+    "evidence": "2026-10-19-sole-goalkeeper-role-v2.md",
+    "remaining_limit": "Kun to berørte valideringskampe; ingen påvist takeover-xP-forbedring"
+  },
+  {
+    "id": "M04",
+    "stage": "MM",
+    "user_request": "Kontrollér specifikt Penders hos Chelsea.",
+    "requirement": "Penders og officielle konkurrenter indgår med status",
+    "status": "delvist",
+    "implementation": "Official GK evidence, loan exclusions and current snapshot",
+    "evidence": "served-chain.json; official_gk_evidence in forecast; GK tests",
+    "remaining_limit": "Denne gennemgang kontrollerer det publicerede datagrundlag; er ikke ny selvstændig officiel clearance af hver keeper"
+  },
+  {
+    "id": "M05",
+    "stage": "MM",
+    "user_request": "P(start), P(60+ min), P(90 min)",
+    "requirement": "Gyldige 0/cameo/start/60+/90-sandsynligheder",
+    "status": "delvist",
+    "implementation": "Analytic distributions and UI cards",
+    "evidence": "served-chain.json; probability/browser tests",
+    "remaining_limit": "Matematisk gyldighed er ikke fuld undergruppekalibrering; P(60+) blev marginalt dårligere i tidligere duration-test"
+  },
+  {
+    "id": "M06",
+    "stage": "MM",
+    "user_request": "konkurrerende målmænd, skader ... realistiske minutusikkerheder",
+    "requirement": "Skadesretur og tidligere normalrolle håndteres",
+    "status": "delvist",
+    "implementation": "Source-aware normal-role memory and return/cap logic",
+    "evidence": "test_current_b_role_ledger; test_mm_role_injury_integration",
+    "remaining_limit": "Ikke en fuld fremtidig skade-/restitutionstilstandsmodel"
+  },
+  {
+    "id": "M07",
+    "stage": "MM",
+    "user_request": "den aktuelle seks-GW-kæde",
+    "requirement": "Seks-GW-horisont med korrekte nyhedsgrænser",
+    "status": "delvist",
+    "implementation": "Explicit horizon forecasts; future UNKNOWN news",
+    "evidence": "served-chain.json; remote-private-chain.json",
+    "remaining_limit": "Fremtidige skader og taktiske hierarkiskift modelleres ikke fuldt ud som scenarier"
+  },
+  {
+    "id": "M08",
+    "stage": "MM",
+    "user_request": "realistiske minutusikkerheder",
+    "requirement": "Validerede usikkerhedsintervaller for minutter",
+    "status": "ikke_valideret",
+    "implementation": "Outcome PMFs and experimental intervals exist",
+    "evidence": "forecast blockers and MM uncertainty_status",
+    "remaining_limit": "Ikke uafhængigt kalibrerede intervaller eller parameterusikkerhed"
+  },
+  {
+    "id": "P01",
+    "stage": "PM",
+    "user_request": "Sammenhæng mellem MM's xM og PM's forventede minutter.",
+    "requirement": "Samme analytiske minutforventning i MM og PM",
+    "status": "funktionstestet",
+    "implementation": "Unified mean-preserving sampler",
+    "evidence": "served-chain.json; unified validation.json",
+    "remaining_limit": "400-draw sample means may differ; that is not analytic mismatch"
+  },
+  {
+    "id": "P02",
+    "stage": "PM",
+    "user_request": "lige nu bruger vi meget xG og xA",
+    "requirement": "Mål/assist-prognoser bruger dokumenterede input og roller",
+    "status": "delvist",
+    "implementation": "Shrunk PL attack rates; soft tactical-role and recent performance allocation",
+    "evidence": "deadline component tests; vfinal_replay_components",
+    "remaining_limit": "Datakilder og rollevurdering kan stadig begrænse niveauet; ingen garanti for bedre individuel kalibrering"
+  },
+  {
+    "id": "P03",
+    "stage": "PM",
+    "user_request": "ja få det testet generelt",
+    "requirement": "Individuel afslutningsevne testes generelt",
+    "status": "ikke_indført_efter_test",
+    "implementation": "501-fixture general finishing comparison",
+    "evidence": "2026-10-20-general-finishing-test.md",
+    "remaining_limit": "Ingen sikker forbedring; ikke aktiveret, og ikke en glemt implementering"
+  },
+  {
+    "id": "P04",
+    "stage": "PM",
+    "user_request": "xA ... vægtet gennemsnit af de spillere som er på banen",
+    "requirement": "Modtagernes afslutningsevne testes",
+    "status": "ikke_indført_efter_test",
+    "implementation": "Experimental on-pitch receiver conversion",
+    "evidence": "2026-10-20-general-finishing-test.md",
+    "remaining_limit": "Chance-share proxies, ikke fuldt observeret creator→receiver-netværk; ingen sikker xP-gevinst"
+  },
+  {
+    "id": "P05",
+    "stage": "PM",
+    "user_request": "hvis man score på en svær chanche tæller det mere",
+    "requirement": "Afslutningsniveau pr. skud og sværhedsgrad undersøges",
+    "status": "ikke_indført_efter_test",
+    "implementation": "Bernoulli shot model; difficulty-weighted variants",
+    "evidence": "2026-10-20-shot-level-finishing.md; shot-difficulty-weighting.md",
+    "remaining_limit": "Ikke stabil PM-forbedring; senere sæsondata delvise"
+  },
+  {
+    "id": "P06",
+    "stage": "PM",
+    "user_request": "bare ift ham og palmers stats",
+    "requirement": "Straffesparkstagerhierarki indgår for aktive spillere",
+    "status": "delvist",
+    "implementation": "Official taker hierarchy in unified B",
+    "evidence": "unified chain audit; penalty tests",
+    "remaining_limit": "Occurrence/conversion retained; historical rank source timing partly proxy"
+  },
+  {
+    "id": "P07",
+    "stage": "PM",
+    "user_request": "gennemgår de matematiske modeller",
+    "requirement": "Pointdele, bonus, defensive bidrag og debiteringer hænger sammen",
+    "status": "funktionstestet",
+    "implementation": "Original scoring/BPS/DefCon with reconciled components",
+    "evidence": "served-chain.json; full Python suite",
+    "remaining_limit": "Konsistente pointsummer beviser ikke perfekt hændelsesmodel"
+  },
+  {
+    "id": "P08",
+    "stage": "PM",
+    "user_request": "er der noget vi ikke tager højde for?",
+    "requirement": "Røde kort og selvmål kobles til efterfølgende kampforløb",
+    "status": "mangler",
+    "implementation": "Debits exist; full event-timed causal process absent",
+    "evidence": "joint_simulator.py; model-priorities audit",
+    "remaining_limit": "Departure timestamp and opponent goal-event linkage incomplete"
+  },
+  {
+    "id": "P09",
+    "stage": "PM",
+    "user_request": "gennemgår de matematiske modeller",
+    "requirement": "Alle særlige officielle FPL-assisttyper",
+    "status": "delvist",
+    "implementation": "Generic assist allocation",
+    "evidence": "model-priorities audit; simulator tests",
+    "remaining_limit": "Penalty-winning/rebound/forced-own-goal attribution not fully represented"
+  },
+  {
+    "id": "P10",
+    "stage": "PM",
+    "user_request": "hvor sandsynlige vores PM er",
+    "requirement": "Sandsynligheder og simulationsusikkerhed skelnes",
+    "status": "delvist",
+    "implementation": "Outcome scenarios; event probabilities",
+    "evidence": "player probability cards; paired_uncertainty.json",
+    "remaining_limit": "400 draws; no adaptive precision for close TS decisions; outcome quantiles are not model-confidence intervals"
+  },
+  {
+    "id": "T01",
+    "stage": "TS",
+    "user_request": "vi skulle gerne gå fra MM->PM->TS",
+    "requirement": "Alle visninger og TS bruger samme prognose",
+    "status": "funktionstestet",
+    "implementation": "Sealed unified B forecast and scoped private scorer",
+    "evidence": "identity-browser.json; served-chain.json; remote-private-chain.json",
+    "remaining_limit": "En fælles identitet løser ikke input-/modelbegrænsninger"
+  },
+  {
+    "id": "T02",
+    "stage": "TS",
+    "user_request": "hvorfor kan jeg ikk få min tranfer plan",
+    "requirement": "Lovligt hold, priser, bank, FT, hits og overgang mellem uger",
+    "status": "funktionstestet",
+    "implementation": "Original transfer search; current synthetic six-GW execution",
+    "evidence": "served-chain.json synthetic_six_GW_TS; JS suites",
+    "remaining_limit": "Synthetic prices equal snapshot prices; actual personal purchase-price input remains separate"
+  },
+  {
+    "id": "T03",
+    "stage": "TS",
+    "user_request": "har gross istedet for ødegaard",
+    "requirement": "Dit faktiske hold og Ødegaard bevares korrekt",
+    "status": "kan_ikke_verificeres_privat",
+    "implementation": "Local private storage and import safeguards",
+    "evidence": "private import/backup/confirmation tests",
+    "remaining_limit": "Dit aktuelle lokale browserhold er ikke tilgængeligt her; ingen opfundet rettelse af personlige IDs/priser"
+  },
+  {
+    "id": "T04",
+    "stage": "TS",
+    "user_request": "forslag for næste uge",
+    "requirement": "Autosubs og anfører/vice med samme PM-scenarier",
+    "status": "funktionstestet",
+    "implementation": "ScenarioScorer; legal autosubs; conditional fallback",
+    "evidence": "served-chain.json first_GW_score_recomputed; unified tests",
+    "remaining_limit": "XI selection and bench ordering are still heuristics, not a joint global optimizer"
+  },
+  {
+    "id": "T05",
+    "stage": "TS",
+    "user_request": "Kør ... den aktuelle seks-GW-kæde",
+    "requirement": "Fuld seks-GW-beregning på aktuelle publicerede data",
+    "status": "funktionstestet",
+    "implementation": "Local current TS and one synthetic remote regression",
+    "evidence": "served-chain.json; remote-private-chain.json",
+    "remaining_limit": "Ikke dit personlige hold; ingen officielle FPL-handlinger"
+  },
+  {
+    "id": "T06",
+    "stage": "TS",
+    "user_request": "startopstilling og chips over seks gameweeks",
+    "requirement": "Chipvalg med dokumenteret fremtidig optionsværdi",
+    "status": "delvist",
+    "implementation": "BB/FH/WC use B scorer; original chip timing retained",
+    "evidence": "unified chain audit; chip unit tests",
+    "remaining_limit": "TC/full-half calendar incomplete; no certified full-season chip-optimal policy"
+  },
+  {
+    "id": "T07",
+    "stage": "TS",
+    "user_request": "Test den samlede model på reelle historiske og aktuelle data.",
+    "requirement": "Transferpolitikkens faktiske sæsonafkast valideres",
+    "status": "ikke_valideret",
+    "implementation": "Functional six-GW tests and historical point-model comparisons",
+    "evidence": "unified validation.json full_season_TS_return_test=false",
+    "remaining_limit": "En fungerende plan er ikke dokumentation for bedre sæsonafkast"
+  },
+  {
+    "id": "T08",
+    "stage": "TS",
+    "user_request": "Beregningstjenesten er optaget. Prøv igen om lidt.",
+    "requirement": "Busy/timeout/retry uden tab af hold eller dobbelte jobs",
+    "status": "funktionstestet",
+    "implementation": "Idempotent private capabilities; resume; capacity handling",
+    "evidence": "JS suites; snapshot-browser.json; remote-private-chain.json",
+    "remaining_limit": "Netværks-/driftstid kan ikke garanteres af tests"
+  },
+  {
+    "id": "U01",
+    "stage": "App",
+    "user_request": "ligesom den desktop app jeg allerede har lavet",
+    "requirement": "Samme FPL-app og layout på desktop/mobil",
+    "status": "funktionstestet",
+    "implementation": "Original desktop app with additive B assets",
+    "evidence": "player-card-browser.json; transfers-browser.json; identity-browser.json",
+    "remaining_limit": "Browser assertions and screenshots; ingen ny separat erstatningsapp"
+  },
+  {
+    "id": "U02",
+    "stage": "App",
+    "user_request": "kompakte oversigt med spillerpanel",
+    "requirement": "Kompakt sandsynlighedsoversigt og spillerpanel",
+    "status": "funktionstestet",
+    "implementation": "desktop-probabilities.js",
+    "evidence": "midweek-browser.json; player-card-browser.json",
+    "remaining_limit": "Kalibrering og modelusikkerhed er særskilte M05/M08/P10-krav"
+  },
+  {
+    "id": "U03",
+    "stage": "App",
+    "user_request": "xStats for hver næste kamp og Stats for de tidligere kampe",
+    "requirement": "Per-fixture xP/xMin/mål/assists og tidligere stats",
+    "status": "funktionstestet",
+    "implementation": "player-match-card.js",
+    "evidence": "player-card-browser.json",
+    "remaining_limit": "Projected goals/assists er ikke historisk shot xG/xA; nul og manglende data adskilles"
+  },
+  {
+    "id": "U04",
+    "stage": "App",
+    "user_request": "både for hver spiller og for hvert hold",
+    "requirement": "Spiller- og klubhistorik med navigation til prognoser",
+    "status": "funktionstestet",
+    "implementation": "history-explorer.js and club pages",
+    "evidence": "history-browser.json",
+    "remaining_limit": "Aktuel sæson; tidligere sæsoners UI-dækning er D03"
+  },
+  {
+    "id": "U05",
+    "stage": "App",
+    "user_request": "der skal også stå grund til ikke spillet",
+    "requirement": "Kildebelagt fraværsgrund og tydelig modelvurdering",
+    "status": "delvist",
+    "implementation": "Source-labelled absence and unused-bench reasons",
+    "evidence": "midweek-browser.json; context tests",
+    "remaining_limit": "Model-estimeret rotation er ikke implementeret; ukendt årsag vises som ukendt"
+  },
+  {
+    "id": "U06",
+    "stage": "App",
+    "user_request": "under dashboard ... nyheder ... spillere jeg har på holdet",
+    "requirement": "Holdrelevante nyheder og næste-GW-planstatus",
+    "status": "funktionstestet",
+    "implementation": "dashboard-team-news.js; news source and job client",
+    "evidence": "dashboard-browser.json; JS suites",
+    "remaining_limit": "Scenariet med ny skade er syntetisk i browserflow-testen; faktiske private holddata er ikke læst"
+  },
+  {
+    "id": "U07",
+    "stage": "App",
+    "user_request": "hele transfer siden skal gøres pænere og nemmere at bruge",
+    "requirement": "Effektiv resultatside med centrale tal og spillernes kampe/stats",
+    "status": "funktionstestet",
+    "implementation": "transfer-result-summary.js; workspace UI",
+    "evidence": "transfers-browser.json",
+    "remaining_limit": "Vigtige tal kontrolleres; subjektiv visuel præference kan ikke bevises med tests"
+  },
+  {
+    "id": "U08",
+    "stage": "App",
+    "user_request": "bare ... vise den nyeste når jeg trykker på den grønne",
+    "requirement": "Seneste plan vises og status er forståelig",
+    "status": "funktionstestet",
+    "implementation": "Latest snapshot policy; job resume; timestamp display",
+    "evidence": "snapshot-browser.json; readiness-browser.json; JS suites",
+    "remaining_limit": "En ny prognose kan gøre en gemt plan forældet; der vises ikke en falsk genberegning"
+  },
+  {
+    "id": "U09",
+    "stage": "App",
+    "user_request": "så siger den hvilket tidspunkt den foreslår det ud fra",
+    "requirement": "Prognose-/pris-/beregningstid vises korrekt",
+    "status": "funktionstestet",
+    "implementation": "latest-snapshot.js metadata",
+    "evidence": "readiness-browser.json; snapshot-browser.json",
+    "remaining_limit": "Nyere nyheder vises som advisory og ændrer ikke automatisk eksisterende xP-tal"
+  },
+  {
+    "id": "O01",
+    "stage": "Drift",
+    "user_request": "Bevar produktionen uændret.",
+    "requirement": "Ingen model-/produktionsændringer under audit",
+    "status": "funktionstestet",
+    "implementation": "Read-only tests; original routes; additive B isolation",
+    "evidence": "served-chain.json; source/git diff",
+    "remaining_limit": "88 aktuelle produktionsfiler matcher publiceringskvitteringen; eksterne planlagte dataopdateringer er ikke auditens ændringer"
+  },
+  {
+    "id": "O02",
+    "stage": "Drift",
+    "user_request": "publicér en fungerende B-preview og kontrollér den i browseren",
+    "requirement": "Eksisterende offentlige B-preview fungerer",
+    "status": "funktionstestet",
+    "implementation": "Public GitHub Pages B app",
+    "evidence": "Current desktop/mobile browser reports",
+    "remaining_limit": "Denne audit kræver ingen ny numerisk udgivelse; hidtidig preview testes live"
+  },
+  {
+    "id": "O03",
+    "stage": "Drift",
+    "user_request": "Mit faktiske hold og købspriser bevares",
+    "requirement": "Ingen mutation af privat state eller officielle FPL-handlinger",
+    "status": "funktionstestet",
+    "implementation": "Synthetic browser contexts, private capability protection",
+    "evidence": "identity-browser.json; transfers-browser.json; remote-private-chain.json",
+    "remaining_limit": "Ingen adgang til dit virkelige browserlager; dette garanterer ikke, at dets indhold allerede er korrekt"
+  },
+  {
+    "id": "O04",
+    "stage": "Drift",
+    "user_request": "Rapportér præcist ... implementeret, testet ... blokeret",
+    "requirement": "Sporbar kravliste og testbeviser",
+    "status": "funktionstestet",
+    "implementation": "Denne oversigt plus samlet audit og maskinlæsbare kvitteringer",
+    "evidence": "requirements.json; report.md; verification-summary.json",
+    "remaining_limit": "Uklar reference A02 og manglende bevis må ikke blive til grøn status"
+  }
+]

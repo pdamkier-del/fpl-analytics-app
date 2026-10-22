@@ -5,9 +5,10 @@ const ordered=x=>Array.isArray(x)?x.map(ordered):x&&typeof x==='object'?Object.f
 const seal=n=>{const {content_sha256,...body}=n;return {...body,content_sha256:crypto.createHash('sha256').update(JSON.stringify(ordered(body))).digest('hex')};};
 (async()=>{
  const base=process.env.DESKTOP_URL,fixture=JSON.parse(fs.readFileSync(process.env.DASHBOARD_TEST_FIXTURE));
- const f=await(await fetch(new URL('../current/forecast.json',base))).json();
- const docs=await(await fetch(new URL('../current/existing-app-data.json',base))).json();
- const template=await(await fetch(new URL('../news/availability.json',base))).json();
+ async function source(path){return process.env.SNAPSHOT_TEST_DATA_DIR?JSON.parse(fs.readFileSync(process.env.SNAPSHOT_TEST_DATA_DIR+'/'+path)):await(await fetch(new URL('../'+path,base))).json();}
+ const f=await source('current/forecast.json');
+ const docs=await source('current/existing-app-data.json');
+ const template=await source('news/availability.json');
  assert(Date.parse(fixture.state.observed_at)>Date.parse(f.data_asof),'Fixture must reproduce a later team observation');
  const matching={...template,observed_at:new Date().toISOString(),players:docs.documents['current-players.json'].players.map(p=>({
   id:p.id,name:p.web_name,team:p.team,position:p.position,price_tenths:Math.round(p.price*10),status:p.status,
