@@ -1,0 +1,11 @@
+# Prioritize completed B transfer results
+
+Presentation-only changes to the established transfer workspace. Put the recommendation, returned team xP after official hits, gains against the original no-transfer baseline, incoming/outgoing player minutes and start probabilities first. Show all 11 proposed starters, captain/vice badges and an expandable bench preserving returned bench order. Clicking a player opens the existing probability/history card. Show a compact six-GW action/score/bank/FT timeline; retain original detailed lineup, horizon, chips, comparisons and manual alternatives.
+
+Move duplicate state/data panels below the result, retaining actual model/compute timestamps near the recommendation. Preserve placement when the original client remounts its context after computation. Ongoing computation and invalid-input/error states retain existing feedback.
+
+Risk cards show current checksum-verified FPL news when available, with its fetch timestamp; news failure falls back to the explicitly labelled forecast catalogue. Mark any fixture start probability below 80% as a rotation cue, explicitly a display rule, not a new model estimate or calibrated confidence. Also surface blank gameweeks/missing start probabilities. Prioritize availability warnings, captain and start-XI concerns over bench rotation. Newer news is explicitly advisory to a snapshot plan, never silently incorporated into its scores.
+
+No MM/PM/TS calculations, stored manager state, returned lineup membership or probabilities change. Team-score and weekly-score displays subtract only returned official hits; future actions remain provisional. Existing budget and comparison values remain original TS output.
+
+Local desktop/mobile browser checks use a synthetic private fixture and intercepted fresh injury news. Assert exact returned plan equality, correct score after hits, XI/captain counts, six-GW count, visible new injury advisory, original details/alternatives, player-card opening, no overflow and unchanged actual-state storage; no private job or official FPL action is submitted. Verify metadata placement even after remounting the original planner context. Publication and public-browser receipts follow below.
