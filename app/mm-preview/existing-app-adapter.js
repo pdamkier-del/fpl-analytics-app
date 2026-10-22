@@ -11,7 +11,7 @@
   async function load(file,key){const r=await nativeFetch(new URL('gk/'+file,base),{cache:'no-store'});if(!r.ok)throw Error('Sandsynlighedsdata mangler');const bytes=await r.arrayBuffer();if(await digest(bytes)!==i[key])throw Error('Checksumfejl i sandsynligheder');return JSON.parse(new TextDecoder().decode(bytes));}
   const [f,m,e]=await Promise.all([load('forecast.json','forecast_sha256'),load('gk-mm.json','mm_sha256'),load('evidence.json','evidence_sha256')]);
   if(!e.role_validation?.accepted||!e.deterministic_repeat||!e.stages?.passed)throw Error('Sandsynligheder er ikke valideret');
-  const mm=FplJointGK.validate(f,m);for(const p of f.players)for(const w of p.weeks)for(const x of w.fixtures)FplJointGK.distribution(x.distribution);
+  const mm=FplJointGK.validate(f,m,Date.now(),{latestVerifiedSnapshot:window.FplLatestSnapshot?.enabled===true});for(const p of f.players)for(const w of p.weeks)for(const x of w.fixtures)FplJointGK.distribution(x.distribution);
   setTimeout(()=>{probabilities=null},60000);return {forecast:f,mm};
  })().catch(e=>{probabilities=null;throw e;});return probabilities;}
  let historical=null;

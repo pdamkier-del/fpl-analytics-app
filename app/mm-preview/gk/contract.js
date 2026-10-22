@@ -9,11 +9,11 @@
   if(d.points_interval80?.length!==2||d.points_interval80.some(x=>!Number.isFinite(x))||d.points_interval80[0]>d.points_interval80[1]||!Number.isFinite(d.pm_expected_minutes)||d.pm_expected_minutes<0||d.pm_expected_minutes>90)throw Error('Ugyldigt PM-interval');
   return d;
  }
- function validate(f,m,now=Date.now()){
+ function validate(f,m,now=Date.now(),options={}){
   if(![VERSION,'B-MM-PM-TS-v1'].includes(f.model)||f.locked_model_active!==false||f.minute_sampler_audit?.sampler!==f.model)throw Error('Forkert GK-previewversion');
   if(!Array.isArray(f.players)||!f.players.length||new Set(f.players.map(p=>p.id)).size!==f.players.length)throw Error('Ufuldstændig spillerliste');
   const cuts=Object.values(f.component_source_asof||{});
-  if(cuts.length<2||cuts.some(c=>!Number.isFinite(Date.parse(c))||Date.parse(c)>now||now-Date.parse(c)>24*3600000)||now>=Date.parse(f.origin_deadline))throw Error('Not Available: data eller deadline er udløbet');
+  if(cuts.length<2||cuts.some(c=>!Number.isFinite(Date.parse(c))||Date.parse(c)>now||(!(options.latestVerifiedSnapshot===true&&f.model==='B-MM-PM-TS-v1')&&now-Date.parse(c)>24*3600000))||now>=Date.parse(f.origin_deadline))throw Error('Not Available: data eller deadline er udløbet');
   const mm=new Map(m.players.map(r=>[r.fixture_id+'|'+r.player_id,r]));
   if(mm.size!==m.players.length)throw Error('Dubleret MM-identitet');
   const groups=new Map();

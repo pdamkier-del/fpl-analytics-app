@@ -8,3 +8,9 @@ const m={players:[row,{...structuredClone(row),player_id:'q'}]};assert.equal(C.v
 for(const mutation of [x=>x.gk_team_fixtures[0].unlisted_expected_minutes=26,x=>x.gk_team_fixtures[0].unlisted_start_probability=.2,x=>x.players[0].weeks[0].fixtures[0].pm_analytic_minutes=60,x=>x.component_source_asof.original_B_PM='2026-10-16T09:00:00Z',x=>x.minute_sampler_audit.sampler='locked']){const x=structuredClone(f);mutation(x);assert.throws(()=>C.validate(x,m,now));}
 const bad=structuredClone(m);bad.players[0].p_90=.6;assert.throws(()=>C.validate(f,bad,now));
 assert.equal(C.interval(row),'0–90');assert.equal(C.interval(null),'Not Available');console.log('Joint GK preview: integrity,90-minute coverage,exclusive start mass,staleness and probability checks passed');
+
+const aged=structuredClone(f);aged.model=aged.minute_sampler_audit.sampler='B-MM-PM-TS-v1';aged.component_source_asof.original_B_PM='2026-10-16T09:00:00Z';
+assert.throws(()=>C.validate(aged,m,now));assert.equal(C.validate(aged,m,now,{latestVerifiedSnapshot:true}).size,2);
+for(const mutate of [x=>x.origin_deadline='2026-10-17T00:00:00Z',x=>x.component_source_asof.original_B_PM='2026-10-19T00:00:00Z',x=>x.players[0].weeks[0].fixtures[0].pm_analytic_minutes=60]){const x=structuredClone(aged);mutate(x);assert.throws(()=>C.validate(x,m,now,{latestVerifiedSnapshot:true}));}
+assert.throws(()=>C.validate({...aged,model:C.VERSION,minute_sampler_audit:{sampler:C.VERSION}},m,now,{latestVerifiedSnapshot:true}));
+console.log('Explicit unified B snapshot accepts older sources while keeping deadline, future-source and MM/PM guards; other models stay strict.');

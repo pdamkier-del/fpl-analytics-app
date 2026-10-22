@@ -9,6 +9,7 @@ def inject(out):
         text=text.replace('body:{state,forecast_cutoff:',"body:{forecast_policy:FplLatestSnapshot.policy,state,forecast_cutoff:")
         text=text.replace('if(latest.forecast_sha256!==forecast.forecast_sha256)', 'if(!FplLatestSnapshot.enabled&&latest.forecast_sha256!==forecast.forecast_sha256)')
         if name=='classic-manager.js':
+            text=text.replace('latestTeamNews=await FplTeamNews.load();if(!FplTeamNews.evaluate', 'try{latestTeamNews=await FplTeamNews.load();latestTeamNewsError=null;}catch(e){latestTeamNews=null;latestTeamNewsError=e.message;}if(!FplTeamNews.evaluate')
             text=text.replace('async function load(){', 'async function load(){if(busy&&forecast)return snapshot();')
             text=text.replace("function waitingReason(){", "function waitingReason(){if(FplLatestSnapshot.enabled)return FplLatestSnapshot.reason(state,forecast,official);")
         else:
