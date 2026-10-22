@@ -37,10 +37,12 @@
     const name=match?teams[home?match.away:match.home]?.name:null;
     const link=el('a',(name||'Kamp '+r.fixture_id)+(match?(home?' (H)':' (U)'):'')+(r.provisional?' · foreløbig':''));link.href='fixtures-classic.html?gw='+r.gw;
     const opponent=el('span',undefined,'player-match-opponent');opponent.append(link);if(match)opponent.append(el('small',clock(match.kickoff)+' · '+val(home?match.home_score:match.away_score)+'–'+val(home?match.away_score:match.home_score)));
+    if(r.stats?.minutes===0&&root.FplPlayerMatchContext){const absence=el('small','Årsag til 0 minutter afventer …','match-context-inline-absence');opponent.append(absence);root.FplPlayerMatchContext.load().then(data=>{const context=data.rows.find(x=>x.player_id===player.id&&x.competition==='prem'&&x.fpl_fixture_id===r.fixture_id);if(context&&context.minutes>0){absence.textContent='Kilderne er uenige om spilletiden; årsag ikke afklaret.';}else absence.replaceChildren(root.FplPlayerMatchContext.reason(context));}).catch(()=>{absence.textContent='Årsag til fravær ikke dokumenteret';});}
     return ['GW '+r.gw,opponent,val(r.stats?.minutes),val(r.total_points??r.stats?.total_points),val(r.stats?.goals_scored),val(r.stats?.assists),val(r.stats?.expected_goals,2),val(r.stats?.expected_assists,2)];
    });
    if(!rows.length)past.append(el('p','Ingen verificerede tidligere kampe for denne spiller.','prob-note'));
    else{const count=options.compact?3:6;past.append(table(['GW','Kamp','Min','Point','Mål','Assists','xG','xA'],rows.slice(0,count),'player-fixtures-past'));if(rows.length>count){const more=el('details'),s=el('summary','Vis '+(rows.length-count)+' ældre kampe');more.append(s,table(['GW','Kamp','Min','Point','Mål','Assists','xG','xA'],rows.slice(count),'player-fixtures-past'));past.append(more);}}
+   if(root.FplPlayerMatchContext)box.append(root.FplPlayerMatchContext.create(player,h,options.compact));
    past.append(el('p','Resultatet er set fra spillerens hold. Officielle FPL-kampdata · hentet '+clock(h.observed_at)+'. — betyder, at tallet ikke findes pr. kamp; GW-totaler fordeles ikke kunstigt på dobbeltkampe.','prob-note'));
   }).catch(()=>{past.replaceChildren(el('h3','Tidligere kampe'),el('p','Kamphistorikken kunne ikke hentes. Prognosen ovenfor er stadig tilgængelig. Prøv at åbne kortet igen.','prob-note'));});
   return box;
