@@ -1,0 +1,7 @@
+# Upcoming fixtures and actual history directly in Transfers
+
+Each suggested buy/sell player now has the next three gameweeks' opponents, venue and fixture-level xP directly below the name, plus a shortcut to the embedded research area. The research area offers proposed buys, proposed sales and all players in the returned squad, defaulting to the first incoming player or captain when holding. It reuses the existing verified player-card renderer in compact mode: next three GWs and latest three actual matches, with older matches expandable and the full player card available. Switching preserves the exact plan/state and guards against stale async responses and mismatched forecast hashes.
+
+Future model xP/xMin/xMål/xAssist/start probabilities remain separate from historical minutes, FPL points, goals, assists, xG/xA. Missing/blank/DGW behavior and original role/goal weights stay in the existing shared renderer. Fixture labels and historical results come from the existing checksum-verified history/catalogue/fixture snapshot. No MM/PM/TS or backend changes.
+
+Local desktop/mobile browser checks compare selected-player forecasts directly with the active sealed forecast, require the three visible historical records, verify inline schedules, and retain original exact-plan equality, score-after-hits, XI/captain, injury warnings, details, modal opening, no overflow, unchanged state and no private POSTs. Publication receipts follow.

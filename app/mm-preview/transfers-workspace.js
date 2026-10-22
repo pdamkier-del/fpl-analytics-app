@@ -26,7 +26,7 @@ function draw(){
  const title=hero.querySelector('.transfer-card-head h3');if(title)title.textContent=first.incoming.length?'Dit anbefalede træk':'Behold holdet denne uge';
  const why=hero.querySelector('.planner-why');if(why){why.remove();hero.append(disclosure('transfer-player-evidence','Spillernes tal og usikkerhed','xP, minutter og startsandsynlighed for de foreslåede spillere',why));}
  FplTransferResultSummary.enhance(hero,c);
- const grid=document.createElement('div');grid.className='result-ready-grid';grid.append(hero,FplTransferResultSummary.lineup(c));target.append(grid,FplTransferResultSummary.risks(c),FplTransferResultSummary.horizon(c));
+ const grid=document.createElement('div');grid.className='result-ready-grid';grid.append(hero,FplTransferResultSummary.lineup(c));target.append(grid,FplTransferResultSummary.insights(c),FplTransferResultSummary.risks(c),FplTransferResultSummary.horizon(c));
  const temp=document.createElement('div');FplPlanView.render(p,c.people,temp);
  for(const [id,key,title,description]of [
   ['teamResult','transfer-lineup','Anbefalet startopstilling','Se kaptajn, startellever og bænk efter de foreslåede transfers'],
