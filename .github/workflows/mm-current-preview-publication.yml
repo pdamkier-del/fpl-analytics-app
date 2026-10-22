@@ -15,7 +15,7 @@ permissions:
   id-token: write
 env:
   PREVIEW_SOURCE_SHA: f492be4795bfd630ba91377d71497e68c1d85934
-  PREVIEW_UI_SHA: ad2fd019cca79b591a09ece8abad1cb3d47dee6a
+  PREVIEW_UI_SHA: c3d9d3a8c4ad3d876544c4da5d1bca570d8b1541
 jobs:
   verified:
     if: ${{ inputs.validated_run != '' }}
@@ -94,7 +94,9 @@ jobs:
           cp app/mm-preview/transfers-workspace.js "$RUNNER_TEMP/reviewed-transfers-workspace.js"
           cp app/mm-preview/transfers-workspace.css "$RUNNER_TEMP/reviewed-transfers-workspace.css"
           cp app/mm-preview/transfer-result-summary.js "$RUNNER_TEMP/reviewed-transfer-result-summary.js"
+          cp app/mm-preview/player-match-context.js "$RUNNER_TEMP/reviewed-player-match-context.js"
           cp -R .mm-preview-evidence/. app/mm-preview/
+          cp "$RUNNER_TEMP/reviewed-player-match-context.js" app/mm-preview/player-match-context.js
           cp "$RUNNER_TEMP/reviewed-transfers-workspace.js" app/mm-preview/transfers-workspace.js
           cp "$RUNNER_TEMP/reviewed-transfers-workspace.css" app/mm-preview/transfers-workspace.css
           cp "$RUNNER_TEMP/reviewed-transfer-result-summary.js" app/mm-preview/transfer-result-summary.js
@@ -107,6 +109,7 @@ jobs:
           cp "$RUNNER_TEMP/reviewed-planner-experience.js" app/mm-preview/planner-experience.js
           cp "$RUNNER_TEMP/reviewed-team-news.js" app/mm-preview/dashboard-team-news.js
           python -c "import json;from pathlib import Path;from publish_unified_b_chain import synchronize_audit;synchronize_audit(Path('app/mm-preview/current'),json.loads(Path('app/mm-preview/current/forecast.json').read_text()))"
+          python scripts/collect_player_match_context.py
           python scripts/integrate_desktop_probabilities.py
           cmp .mm-preview-evidence/current/forecast.json app/mm-preview/current/forecast.json
           cmp .mm-preview-evidence/gk/forecast.json app/mm-preview/gk/forecast.json
@@ -131,6 +134,7 @@ jobs:
           trap 'kill "$preview_http_pid"' EXIT
           node analysis/verify_desktop_probabilities.cjs > unified-desktop-browser.json
           node analysis/verify_player_match_card.cjs > unified-player-match-card-browser.json
+          node analysis/verify_player_match_context.cjs > unified-player-match-context-browser.json
           node analysis/verify_unified_chain.cjs > unified-identity-browser.json
           node analysis/verify_latest_snapshot.cjs > unified-latest-snapshot-browser.json
           node analysis/verify_transfer_result_summary.cjs > unified-transfer-result-browser.json
