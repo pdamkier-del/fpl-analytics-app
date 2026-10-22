@@ -15,7 +15,7 @@ permissions:
   id-token: write
 env:
   PREVIEW_SOURCE_SHA: f492be4795bfd630ba91377d71497e68c1d85934
-  PREVIEW_UI_SHA: 4eef716a0b697a57e0519caed429d7fa023ece46
+  PREVIEW_UI_SHA: b91254f3ef626b891bb7e11cd2c73db5b09ea468
 jobs:
   verified:
     if: ${{ inputs.validated_run != '' }}
@@ -91,7 +91,13 @@ jobs:
           cp app/mm-preview/gk/contract.js "$RUNNER_TEMP/reviewed-GK-contract.js"
           cp app/mm-preview/desktop-probabilities.js "$RUNNER_TEMP/reviewed-probabilities.js"
           cp app/mm-preview/player-match-card.js "$RUNNER_TEMP/reviewed-player-match-card.js"
+          cp app/mm-preview/transfers-workspace.js "$RUNNER_TEMP/reviewed-transfers-workspace.js"
+          cp app/mm-preview/transfers-workspace.css "$RUNNER_TEMP/reviewed-transfers-workspace.css"
+          cp app/mm-preview/transfer-result-summary.js "$RUNNER_TEMP/reviewed-transfer-result-summary.js"
           cp -R .mm-preview-evidence/. app/mm-preview/
+          cp "$RUNNER_TEMP/reviewed-transfers-workspace.js" app/mm-preview/transfers-workspace.js
+          cp "$RUNNER_TEMP/reviewed-transfers-workspace.css" app/mm-preview/transfers-workspace.css
+          cp "$RUNNER_TEMP/reviewed-transfer-result-summary.js" app/mm-preview/transfer-result-summary.js
           cp "$RUNNER_TEMP/reviewed-probabilities.js" app/mm-preview/desktop-probabilities.js
           cp "$RUNNER_TEMP/reviewed-player-match-card.js" app/mm-preview/player-match-card.js
           cp "$RUNNER_TEMP/reviewed-existing-adapter.js" app/mm-preview/existing-app-adapter.js
@@ -127,6 +133,7 @@ jobs:
           node analysis/verify_player_match_card.cjs > unified-player-match-card-browser.json
           node analysis/verify_unified_chain.cjs > unified-identity-browser.json
           node analysis/verify_latest_snapshot.cjs > unified-latest-snapshot-browser.json
+          node analysis/verify_transfer_result_summary.cjs > unified-transfer-result-browser.json
           node - <<'JS' > unified-live-readiness-browser.json
           const {chromium}=require('playwright'),assert=require('node:assert/strict');
           (async()=>{
