@@ -47,7 +47,7 @@
  function controller({get,compute,render,hash,hasJob,storage=localStorage,session=sessionStorage}){
   let news=null,error=null,pending=false;const preference='fpl-B-news-auto-plan-v1',attemptKey='fpl-B-news-plan-attempt-v1';
   const enabled=()=>{try{return storage.getItem(preference)!=='false';}catch{return false;}};
-  const status=()=>evaluate({...get(),news,error});
+  const status=()=>root.FplTeamNews.evaluate({...get(),news,error});
   async function refresh(){try{news=await load();error=null;}catch(e){news=null;error=e.name==='AbortError'?'Spillerstatus kunne ikke hentes inden for tidsgrænsen.':e.message;}}
   function afterRender(){document.getElementById('auto-team-plan')?.addEventListener('change',e=>{storage.setItem(preference,String(e.target.checked));render();});document.getElementById('refresh-team-news')?.addEventListener('click',async()=>{await refresh();render();});
    if(pending||(location.hash&&location.hash!=='#dashboard'))return;

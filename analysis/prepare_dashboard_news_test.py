@@ -1,10 +1,10 @@
 """Private synthetic browser-test fixture, never copied into public artifacts."""
 from pathlib import Path
-from datetime import datetime,timedelta
+from datetime import datetime,timedelta,timezone
 import argparse,json
 from run_live_locked_ts import run
 
-def prepare(forecast_path,out):
+def prepare(forecast_path,out,*,snapshot=False):
     f=json.loads(Path(forecast_path).read_text());people=f['players'];chosen=[];clubs={}
     for pos,count in [(1,2),(2,5),(3,5),(4,3)]:
         options=sorted((p for p in people if p['position']==pos),key=lambda p:(0 if p['name']in ['Haaland','Penders']else 1,p['price_tenths'],p['id']))
@@ -15,12 +15,16 @@ def prepare(forecast_path,out):
         if count:raise ValueError('Could not create legal synthetic UI fixture')
     state=dict(season=f['season'],gw=f['gws'][0],source='SYNTHETIC_DASHBOARD_UI_TEST_NOT_USER_TEAM',observed_at=(datetime.fromisoformat(f['data_asof'].replace('Z','+00:00'))-timedelta(hours=2)).isoformat(),bank_tenths=1000-sum(p['price_tenths']for p in chosen),free_transfers=2,squad=[dict(id=p['id'],purchase_price_tenths=p['price_tenths'])for p in chosen],chips_used={c:[]for c in ['wildcard','free_hit','bench_boost','triple_captain']})
     if state['bank_tenths']<0:raise ValueError('Synthetic fixture over budget')
+    now=datetime.now(timezone.utc).isoformat()
+    if snapshot:state['observed_at']=(datetime.now(timezone.utc)-timedelta(seconds=1)).isoformat()
     if f.get('chain_version')=='B-MM-PM-TS-v1':
         from b_preview_ts import preview_scoring
-        with preview_scoring(f):result=run(f,state,include_chips=False)
+        with preview_scoring(f):result=run(f,state,include_chips=False,snapshot_at=now if snapshot else None)
     else:result=run(f,state,include_chips=False)
     result.update(validation_only=False,forecast_variant=f['model'],forecast_sha256=f['forecast_sha256'])
+    if snapshot:
+        result.update(forecast_policy='latest_verified_snapshot_v1',model_asof=f['data_asof'],prices_asof=f['data_asof'],computed_at=now,decision_at=now)
     out=Path(out);out.parent.mkdir(parents=True,exist_ok=True);out.write_text(json.dumps(dict(state=state,result=result),ensure_ascii=False,allow_nan=False))
     print('Prepared private synthetic dashboard test fixture; original TS ran six GWs')
 if __name__=='__main__':
-    p=argparse.ArgumentParser();p.add_argument('--forecast',type=Path,required=True);p.add_argument('--out',type=Path,required=True);a=p.parse_args();prepare(a.forecast,a.out)
+    p=argparse.ArgumentParser();p.add_argument('--forecast',type=Path,required=True);p.add_argument('--out',type=Path,required=True);p.add_argument('--snapshot',action='store_true');a=p.parse_args();prepare(a.forecast,a.out,snapshot=a.snapshot)

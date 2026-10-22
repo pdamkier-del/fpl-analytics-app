@@ -51,8 +51,11 @@ def project(payload):
                 'gw':w['gw'],'origin_gw':first-1,'xpts_mean':w['xpts'],'p_play':w['p_play'],'fixtures':len(w['fixtures'])})
     return pd.DataFrame(meta),pd.DataFrame(rows)
 
-def run(payload,raw,include_chips=False,tc_samples=None):
-    if payload.get('freshness_limit_hours') is not None:
+def run(payload,raw,include_chips=False,tc_samples=None,*,snapshot_at=None):
+    if snapshot_at is not None:
+        from b_snapshot_policy import validate_snapshot
+        validate_snapshot(payload,raw,snapshot_at)
+    if snapshot_at is None and payload.get('freshness_limit_hours') is not None:
         from datetime import datetime,timezone,timedelta
         cutoff=datetime.fromisoformat(payload['data_asof'].replace('Z','+00:00'))
         now=datetime.now(timezone.utc)
@@ -63,7 +66,7 @@ def run(payload,raw,include_chips=False,tc_samples=None):
     if not 1<=gw<=38 or sorted(payload['gws'])!=list(range(gw,min(39,gw+6))):raise ValueError('TS requires the complete original horizon through season end')
     deadline=payload.get('origin_deadline')
     if deadline and pd.Timestamp.now(tz='UTC')>=pd.Timestamp(deadline):raise ValueError('Forecast deadline has passed; fetch a fresh forecast. Historical replay is separate.')
-    state=parse_state(raw,meta,gw,payload['data_asof'])
+    state=parse_state(raw,meta,gw,payload['data_asof'] if snapshot_at is None else snapshot_at)
     diagnostic=not payload.get('locked_model_active',False) or any(payload.get('parts',{}).get(k)!='verified' for k in ('mm','pm_vfinal'))
     planned=plan_transfer_path(state,meta,origin,gw,cfg());after=clone_state(state)
     transfers=execute_first_action(after,planned,meta);lineup=plan_squad(origin,list(after.squad),gw)

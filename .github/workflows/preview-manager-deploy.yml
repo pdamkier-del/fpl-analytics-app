@@ -1,9 +1,6 @@
 name: Deploy isolated B private manager capability
 on:
   workflow_dispatch:
-  push:
-    branches: [experiment-goalkeeper-coverage-20261018]
-    paths: [.github/workflows/preview-manager-deploy.yml]
 permissions:
   contents: read
 jobs:
@@ -57,8 +54,8 @@ jobs:
           while time.monotonic()<end:
               try:
                   health=call('https://fpl-analytics-private-manager.onrender.com/health')
-                  if health.get('supports_unified_B_chain')is True:
-                      print('Verified live unified B worker capability; original runtime retained:',health.get('runtime'))
+                  if health.get('supports_B_snapshot_policy')is True and health.get('preview_worker_sha256')=='b3e67026e6c57e1c764d76bc2bf999ab7f4bcbaa739e3ab198ebe7fd5a95dbb7':
+                      print('Verified live B snapshot worker capability; original runtime retained:',health.get('runtime'))
                       break
               except RuntimeError:pass
               time.sleep(15)
