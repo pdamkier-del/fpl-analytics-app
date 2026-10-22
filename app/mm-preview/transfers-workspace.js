@@ -25,7 +25,8 @@ function draw(){
  const hero=document.createElement('section');hero.className='planner-summary';hero.innerHTML='<div class="workspace-eyebrow">Anbefalet til næste gameweek</div>'+FplTransferCard.html(p,c.people);
  const title=hero.querySelector('.transfer-card-head h3');if(title)title.textContent=first.incoming.length?'Dit anbefalede træk':'Behold holdet denne uge';
  const why=hero.querySelector('.planner-why');if(why){why.remove();hero.append(disclosure('transfer-player-evidence','Spillernes tal og usikkerhed','xP, minutter og startsandsynlighed for de foreslåede spillere',why));}
- target.append(hero);
+ FplTransferResultSummary.enhance(hero,c);
+ const grid=document.createElement('div');grid.className='result-ready-grid';grid.append(hero,FplTransferResultSummary.lineup(c));target.append(grid,FplTransferResultSummary.risks(c),FplTransferResultSummary.horizon(c));
  const temp=document.createElement('div');FplPlanView.render(p,c.people,temp);
  for(const [id,key,title,description]of [
   ['teamResult','transfer-lineup','Anbefalet startopstilling','Se kaptajn, startellever og bænk efter de foreslåede transfers'],
@@ -33,6 +34,7 @@ function draw(){
   ['chipResult','transfer-chips','Chips og timing','Se den originale models chipforslag']]){
   const section=temp.querySelector('#'+id);if(section){if(id==='teamResult'){const note=document.createElement('p');note.className='workspace-note';note.textContent='Modellens forslag efter transfers. Dit faktiske hold i My Team er uændret.';section.prepend(note);}target.append(disclosure(key,title,description,section));}
  }
+ const data=document.createElement('section');data.id='transfer-result-data';data.className='result-data';for(const id of ['planner-context','latest-snapshot-info']){const node=document.getElementById(id);if(node)data.append(node);}target.append(data);
 }
 function failed(e){target.replaceChildren();status.textContent='Planen kunne ikke hentes: '+e.message;const retry=document.getElementById('transfer-retry');retry.hidden=false;retry.onclick=()=>location.reload();}
 document.querySelector('[data-open-alternatives]').addEventListener('click',()=>{const panel=document.getElementById('transfer-alternatives');panel.open=true;panel.scrollIntoView({behavior:matchMedia('(prefers-reduced-motion: reduce)').matches?'instant':'smooth',block:'start'});panel.querySelector('summary').focus();});

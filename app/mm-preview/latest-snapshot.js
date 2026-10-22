@@ -25,7 +25,7 @@
   const box=document.createElement('section');box.id='latest-snapshot-info';box.className='panel';
   const h=document.createElement('h2');h.textContent='Planens datagrundlag';const p=document.createElement('p');p.textContent='Prognose og priser: '+clock(c.forecast.data_asof)+(c.plan?' · Plan beregnet: '+clock(c.plan.computed_at):'')+'.';
   const note=document.createElement('p');note.textContent='Planen bruger den seneste validerede prognose. Nyere skader og prisændringer kan stå i nyhederne uden at være medregnet. Kontrollér dem før du handler. En ny holdbekræftelse kræver ikke en ny modelkørsel.';
-  box.append(h,p,note);host.after(box);
+  box.append(h,p,note);host.after(box);root.FplTransferResultSummary?.placeData();
  };};
  root.FplLatestSnapshot=api;if(typeof module!=='undefined')module.exports=api;
 })(typeof window==='undefined'?globalThis:window);
