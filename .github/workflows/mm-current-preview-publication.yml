@@ -15,7 +15,7 @@ permissions:
   id-token: write
 env:
   PREVIEW_SOURCE_SHA: f492be4795bfd630ba91377d71497e68c1d85934
-  PREVIEW_UI_SHA: 3b7c68fab72f21bcb45cd46e771611c81fdd48cc
+  PREVIEW_UI_SHA: 3d8c9b4a36f6600e0b98865248b8d2bb6c7d1fc1
 jobs:
   verified:
     if: ${{ inputs.validated_run != '' }}
@@ -87,7 +87,11 @@ jobs:
           cp app/mm-preview/planner-experience.js "$RUNNER_TEMP/reviewed-planner-experience.js"
           cp app/mm-preview/dashboard-team-news.js "$RUNNER_TEMP/reviewed-team-news.js"
           cp app/mm-preview/latest-snapshot.js "$RUNNER_TEMP/reviewed-latest-snapshot.js"
+          cp app/mm-preview/existing-app-adapter.js "$RUNNER_TEMP/reviewed-existing-adapter.js"
+          cp app/mm-preview/gk/contract.js "$RUNNER_TEMP/reviewed-GK-contract.js"
           cp -R .mm-preview-evidence/. app/mm-preview/
+          cp "$RUNNER_TEMP/reviewed-existing-adapter.js" app/mm-preview/existing-app-adapter.js
+          cp "$RUNNER_TEMP/reviewed-GK-contract.js" app/mm-preview/gk/contract.js
           cp "$RUNNER_TEMP/reviewed-latest-snapshot.js" app/mm-preview/latest-snapshot.js
           cp "$RUNNER_TEMP/reviewed-probabilities.css" app/mm-preview/desktop-probabilities.css
           cp "$RUNNER_TEMP/reviewed-planner-experience.js" app/mm-preview/planner-experience.js
