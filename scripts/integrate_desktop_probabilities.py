@@ -36,7 +36,7 @@ def integrate(root=ROOT):
         path.write_text(text)
     for path in out.glob('*.html'):
         text=path.read_text().replace('../existing-app-adapter.js?v=1','../existing-app-adapter.js?v=desktop-probabilities-2')
-        text=text.replace('</head>','<link rel="stylesheet" href="../desktop-probabilities.css?v=2"><script src="../gk/contract.js?v=2"></script><script defer src="../desktop-probabilities.js?v=2"></script></head>')
+        text=text.replace('</head>','<link rel="stylesheet" href="../desktop-probabilities.css?v=2"><script src="../gk/contract.js?v=2"></script><script defer src="../player-match-card.js"></script><script defer src="../desktop-probabilities.js?v=2"></script></head>')
         for asset in ['classic-catalog.js','forecast-window.js']:
             text=text.replace('src="'+asset+'?','src="'+asset+'?desktop-probabilities=2&').replace('src="'+asset+'"','src="'+asset+'?desktop-probabilities=2"')
         path.write_text(text)

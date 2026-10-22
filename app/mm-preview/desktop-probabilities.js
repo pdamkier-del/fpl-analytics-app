@@ -9,7 +9,8 @@
   const controls=make('div'),select=make('select');select.setAttribute('aria-label','GW for sandsynligheder');for(const gw of data.forecast.gws){const o=make('option','GW '+gw);o.value=gw;select.append(o);}select.value=initialGW;controls.append(select);
   if(!inline){const close=make('button','Luk spillerkort');close.type='button';close.onclick=()=>dialog.close();controls.append(close);}
   toolbar.append(controls);const body=make('div',undefined,'panel-body');root.append(toolbar,body);
-  function draw(){body.replaceChildren();const week=player.weeks.find(w=>w.gw===Number(select.value));if(!week?.fixtures.length){body.append(make('p','Ingen kamp i denne GW.'));return;}
+  const overview=window.FplPlayerMatchCard?.create(player,data);
+  function draw(){body.replaceChildren();if(overview)body.append(overview);body.append(make('h3','Minut- og pointchancer · valgt GW'));const week=player.weeks.find(w=>w.gw===Number(select.value));if(!week?.fixtures.length){body.append(make('p','Ingen kamp i denne GW.'));return;}
    for(const f of week.fixtures){const d=f.distribution,m=data.mm.get(f.fixture_uuid+'|'+player.player_uuid),other=data.forecast.players.find(p=>p.team_id!==player.team_id&&p.weeks.some(w=>w.fixtures.some(x=>x.fixture_uuid===f.fixture_uuid))),fixture=make('div',undefined,'prob-fixture');
     fixture.append(make('h3',(other?'Mod '+other.team:'Kamp')+' · '+new Date(f.kickoff).toLocaleString('da-DK',{timeZone:'Europe/Copenhagen'})),make('p','xP '+num(f.xpts)+' · xM '+num(f.xmins)+' · PM E[min] '+num(m?.xmins??d.pm_expected_minutes)));
     const values=[['P(0 minutter)',m?1-m.p_play:d.p_zero],['P(indhop)',m?m.p_play-m.p_start:d.p_cameo],['P(start)',m?.p_start??d.p_start],['P(60+ minutter)',m?.p_60_plus??d.p_60_plus],['P(90 minutter)',m?.p_90??d.p_90],['Mindst 2 point',d.p_2_plus],['Mindst 5 point',d.p_5_plus],['Mindst 10 point',d.p_10_plus]],grid=make('div',undefined,'prob-grid');
@@ -20,11 +21,11 @@
    }
    body.append(make('p','Pointchancer bygger på 400 fælles PM-simuleringer. Start, 60+ og 90 minutter overlapper; minutgrupperne summerer til 100 %. Tallene er modelestimater, ikke garantier. Små procentforskelle bør ikke overfortolkes.','prob-note'));
   }
-  select.onchange=draw;draw();return root;
+  select.onchange=()=>{draw();body.querySelector('.prob-fixture')?.scrollIntoView({block:'start',behavior:'smooth'});};draw();return root;
  }
  function open(id){const player=data?.forecast.players.find(p=>p.id===Number(id));if(!player)return;
   if(!dialog){dialog=make('dialog',undefined,'fpl-probability-dialog');dialog.setAttribute('aria-label','Spillerkort med sandsynligheder');document.body.append(dialog);}
-  const panel=content(player,data.forecast.gws[0]);dialog.replaceChildren(panel);const link=make('a','Spillerprofil · tidligere kampe, statistik og prognose →');link.href='player.html?id='+player.id;panel.append(link);dialog.showModal();
+  const panel=content(player,data.forecast.gws[0]);dialog.replaceChildren(panel);const link=make('a','Spillerprofil · tidligere kampe, statistik og prognose →');link.href='player.html?id='+player.id;panel.append(link);dialog.showModal();dialog.scrollTop=0;
  }
  async function init(){
   if(!window.FplBExistingApp)return;
