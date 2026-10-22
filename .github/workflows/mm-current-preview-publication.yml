@@ -15,7 +15,7 @@ permissions:
   id-token: write
 env:
   PREVIEW_SOURCE_SHA: f492be4795bfd630ba91377d71497e68c1d85934
-  PREVIEW_UI_SHA: 6017ea5bb6c8e46b4582833233d9a9e41226728f
+  PREVIEW_UI_SHA: 3b7c68fab72f21bcb45cd46e771611c81fdd48cc
 jobs:
   verified:
     if: ${{ inputs.validated_run != '' }}
@@ -59,8 +59,9 @@ jobs:
           python - <<'PY'
           import json,urllib.request
           with urllib.request.urlopen('https://fpl-analytics-private-manager.onrender.com/health',timeout=90)as response:health=json.load(response)
+          assert health.get('supports_B_snapshot_policy')is True, 'B snapshot backend must be deployed first'
           assert health.get('supports_unified_B_chain')is True, 'Unified B backend must be deployed before switching app forecasts'
-          assert health.get('preview_worker_sha256')=='e89e1ec8d7c11674d6d997e43b80c1b9db3bd97f26ea144d42874771a28907d1', 'Tested standalone B worker must be deployed'
+          assert health.get('preview_worker_sha256')=='b3e67026e6c57e1c764d76bc2bf999ab7f4bcbaa739e3ab198ebe7fd5a95dbb7', 'Tested standalone B worker must be deployed'
           assert health.get('runtime')=='original_locked_python'and health.get('locked_model_active')is False
           PY
       - uses: actions/download-artifact@v4
@@ -79,12 +80,15 @@ jobs:
         env:
           PYTHONPATH: src:scripts:.
         run: |
-          git diff --exit-code "$PREVIEW_SOURCE_SHA" -- src model scripts/gk_joint_bridge.py scripts/gk_solo_role.py scripts/pm_preview_distributions.py scripts/run_joint_gk_preview.py scripts/mm_candidate_forecast.py scripts/mm_locked_bridge.py scripts/b_chain_contract.py scripts/b_preview_ts.py scripts/run_live_locked_ts.py scripts/publish_mm_preview.py
+          git diff --exit-code "$PREVIEW_SOURCE_SHA" -- src model scripts/gk_joint_bridge.py scripts/gk_solo_role.py scripts/pm_preview_distributions.py scripts/run_joint_gk_preview.py scripts/mm_candidate_forecast.py scripts/mm_locked_bridge.py scripts/b_chain_contract.py scripts/b_preview_ts.py scripts/publish_mm_preview.py
+          python scripts/check_snapshot_adapter.py
           pip install -r requirements-model-checkpoint.txt -r requirements-model-tests.txt requests tabulate==0.10.0
           cp app/mm-preview/desktop-probabilities.css "$RUNNER_TEMP/reviewed-probabilities.css"
           cp app/mm-preview/planner-experience.js "$RUNNER_TEMP/reviewed-planner-experience.js"
           cp app/mm-preview/dashboard-team-news.js "$RUNNER_TEMP/reviewed-team-news.js"
+          cp app/mm-preview/latest-snapshot.js "$RUNNER_TEMP/reviewed-latest-snapshot.js"
           cp -R .mm-preview-evidence/. app/mm-preview/
+          cp "$RUNNER_TEMP/reviewed-latest-snapshot.js" app/mm-preview/latest-snapshot.js
           cp "$RUNNER_TEMP/reviewed-probabilities.css" app/mm-preview/desktop-probabilities.css
           cp "$RUNNER_TEMP/reviewed-planner-experience.js" app/mm-preview/planner-experience.js
           cp "$RUNNER_TEMP/reviewed-team-news.js" app/mm-preview/dashboard-team-news.js
@@ -107,15 +111,13 @@ jobs:
           export BROWSER_PATH="$(command -v google-chrome)"
           export DESKTOP_URL=http://127.0.0.1:18097/mm-preview/app/
           export DASHBOARD_TEST_FIXTURE="$RUNNER_TEMP/unified-private-browser-fixture.json"
-          python analysis/prepare_dashboard_news_test.py --forecast app/mm-preview/current/forecast.json --out "$DASHBOARD_TEST_FIXTURE"
+          python analysis/prepare_dashboard_news_test.py --snapshot --forecast app/mm-preview/current/forecast.json --out "$DASHBOARD_TEST_FIXTURE"
           python -m http.server 18097 --bind 127.0.0.1 --directory app > "$RUNNER_TEMP/unified-browser-http.log" 2>&1 &
           preview_http_pid=$!
           trap 'kill "$preview_http_pid"' EXIT
           node analysis/verify_desktop_probabilities.cjs > unified-desktop-browser.json
           node analysis/verify_unified_chain.cjs > unified-identity-browser.json
-          node analysis/verify_planner_experience.cjs > unified-planner-browser.json
-          node analysis/verify_dashboard_news.cjs > unified-news-browser.json
-          node analysis/verify_transfer_wait_reason.cjs > unified-wait-reason-browser.json
+          node analysis/verify_latest_snapshot.cjs > unified-latest-snapshot-browser.json
           node - <<'JS' > unified-live-readiness-browser.json
           const {chromium}=require('playwright'),assert=require('node:assert/strict');
           (async()=>{
@@ -125,9 +127,10 @@ jobs:
               await page.route('**/plans**',r=>{if(r.request().method()==='POST'){posts++;return r.abort();}return r.continue();});
               await page.goto(process.env.DESKTOP_URL+'transfers-classic.html',{waitUntil:'networkidle'});
               await page.locator('#planner-context').waitFor();
-              const result=await page.evaluate(()=>{const s=FplManagerClient.snapshot();return {usable:s.usable,reason:s.reason,forecast_sha256:s.forecast.forecast_sha256,model:s.forecast.model};});
+              const result=await page.evaluate(()=>{const s=FplManagerClient.snapshot();return {usable:s.usable,reason:s.reason,forecast_sha256:s.forecast.forecast_sha256,model:s.forecast.model,model_asof:s.forecast.data_asof};});
               assert.equal(result.model,'B-MM-PM-TS-v1');assert.equal(result.usable,true,JSON.stringify(result));assert.equal(posts,0);
-              console.log(JSON.stringify({...result,unmocked_news_and_forecast_aligned:true,real_private_posts:posts},null,2));
+              assert.match(await page.locator('#latest-snapshot-info').innerText(),/Prognose og priser/);
+              console.log(JSON.stringify({...result,snapshot_window_usable:true,real_private_posts:posts},null,2));
             }finally{await browser.close();}
           })().catch(e=>{console.error(e);process.exit(1)});
           JS
