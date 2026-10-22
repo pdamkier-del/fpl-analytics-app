@@ -16,3 +16,5 @@
  }
  const api={check};root.FplForecastWindow=api;if(typeof module!=='undefined')module.exports=api;
 })(typeof window!=='undefined'?window:globalThis);
+
+FplLatestSnapshot.installWindow();
