@@ -9,9 +9,13 @@ REPO = 'pdamkier-del/fpl-analytics-app'
 MODEL_WORKFLOW = '.github/workflows/mm-current-live-preview.yml'
 WRAPPER_WORKFLOW = '.github/workflows/mm-current-preview-publication.yml'
 REUSABLE = REPO + '/' + MODEL_WORKFLOW + '@0c622eeb2b3da5c085660bc95e22cf2fd5447593'
+# This immutable main commit reviewed the exact wrapper whose numerical job
+# completed before Pages rejected deployment from the feature branch. Keep
+# Pages restricted to main; only an identical reviewed wrapper may supply data.
+REVIEWED_WRAPPER_SOURCE = 'e4906926cfaf210f5280fd101fa4e004b097347a'
 
 
-def verify(run, artifacts, source, *, workflow='', jobs=()):
+def verify(run, artifacts, source, *, workflow='', jobs=(), reviewed_workflow='', reviewed_on_main=False):
     if not re.fullmatch('[a-f0-9]{40}', source):
         raise ValueError('Invalid numerical source')
     if run.get('status') != 'completed':
@@ -27,7 +31,8 @@ def verify(run, artifacts, source, *, workflow='', jobs=()):
         # official-news alignment and production-integrity gate.
         if run.get('conclusion') not in {'success', 'failure', 'cancelled'}:
             raise ValueError('Unverified wrapper completion')
-        if run.get('head_branch') != 'main' or run.get('event') not in {'schedule', 'workflow_dispatch'}:
+        reviewed = reviewed_on_main and bool(reviewed_workflow) and workflow == reviewed_workflow
+        if (run.get('head_branch') != 'main' and not reviewed) or run.get('event') not in {'schedule', 'workflow_dispatch'}:
             raise ValueError('Wrapper must run from the reviewed main workflow')
         if re.findall(r'^  PREVIEW_SOURCE_SHA: ([a-f0-9]{40})\s*$', workflow, re.M) != [source]:
             raise ValueError('Immutable wrapper pins another numerical source')
@@ -61,13 +66,19 @@ def main():
     run = get('actions/runs/' + args.run)
     artifacts = get('actions/runs/' + args.run + '/artifacts')['artifacts']
     workflow, jobs = '', []
+    reviewed_workflow, reviewed_on_main = '', False
     if run.get('path') == WRAPPER_WORKFLOW:
         commit = run['head_sha']
         if not re.fullmatch('[a-f0-9]{40}', commit):
             raise ValueError('Invalid immutable workflow commit')
         workflow = base64.b64decode(get('contents/' + WRAPPER_WORKFLOW + '?ref=' + commit)['content']).decode()
         jobs = get('actions/runs/' + args.run + '/jobs?per_page=100')['jobs']
-    artifact = verify(run, artifacts, args.source, workflow=workflow, jobs=jobs)
+        if run.get('head_branch') != 'main':
+            comparison = get('compare/' + REVIEWED_WRAPPER_SOURCE + '...main')
+            reviewed_on_main = comparison.get('status') in {'ahead', 'identical'}
+            reviewed_workflow = base64.b64decode(get('contents/' + WRAPPER_WORKFLOW + '?ref=' + REVIEWED_WRAPPER_SOURCE)['content']).decode()
+    artifact = verify(run, artifacts, args.source, workflow=workflow, jobs=jobs,
+                      reviewed_workflow=reviewed_workflow, reviewed_on_main=reviewed_on_main)
     print(json.dumps(dict(run=int(args.run), artifact=artifact, numerical_source=args.source,
                           immutable_source_verified=True)))
 

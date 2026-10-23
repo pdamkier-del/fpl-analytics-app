@@ -54,3 +54,12 @@ def test_later_ui_failure_does_not_discard_successful_numerical_work(conclusion)
     with pytest.raises(ValueError):
         verify(dict(WRAPPER, conclusion=conclusion), ARTIFACTS, SOURCE,
                workflow=WORKFLOW, jobs=[dict(name='current / current', status='completed', conclusion='failure')])
+
+
+def test_feature_artifact_requires_byte_identical_main_review_and_successful_numerics():
+    run=dict(WRAPPER,head_branch='experiment-goalkeeper-coverage-20261018',conclusion='failure')
+    kwargs=dict(workflow=WORKFLOW,jobs=JOBS,reviewed_workflow=WORKFLOW,reviewed_on_main=True)
+    assert verify(run,ARTIFACTS,SOURCE,**kwargs)==1
+    for change in [dict(reviewed_on_main=False),dict(reviewed_workflow=WORKFLOW+'# changed'),
+                   dict(jobs=[]),dict(jobs=[dict(JOBS[0],conclusion='failure')])]:
+        with pytest.raises(ValueError):verify(run,ARTIFACTS,SOURCE,**dict(kwargs,**change))
