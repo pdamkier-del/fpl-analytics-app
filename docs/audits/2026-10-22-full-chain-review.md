@@ -1,5 +1,7 @@
 # Samlet krav- og testgennemgang: FPL Analytics B
 
+Opdatering 23. oktober: Rolle-/importance-koblingen og ældre sæsoners brugerflade har en særskilt [implementerings- og leveranceopfølgning](2026-10-23-b-role-history-release.md). Tabellen nedenfor beskriver den oprindelige auditversion og er bevaret som historik.
+
 ## Konklusion
 
 Den tekniske B-kæde fungerer på det kontrollerede aktuelle datagrundlag: fælles forecast-identitet, gyldige minut-/pointsummer, lovlige seks-GW-overgange og visning i den eksisterende desktopapp. Det er **ikke** dokumentation for, at alle aftalte mekanismer er implementeret, eller at hele modellen har valideret prognosekvalitet.

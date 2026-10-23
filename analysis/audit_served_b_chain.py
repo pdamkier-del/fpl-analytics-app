@@ -33,6 +33,13 @@ def main():
   assert abs(g['analytic_gk_minutes']-90)<1e-7
  contextindex=load('match-context/index.json');assert digest('match-context/'+contextindex['file'])==contextindex['sha256'];context=load('match-context/'+contextindex['file'])
  history=load('history/index.json');pub=load('publication.json');assert pub['production_files_identical']is True
+ archive=None
+ if (root/'history-archive/index.json').exists():
+  archive=load('history-archive/index.json')
+  assert archive['current_identity_forecast_sha256']==f['forecast_sha256']
+  assert {entry['season']for entry in archive['seasons']}=={'2022-23','2023-24','2024-25','2025-26'}
+  for entry in archive['seasons']:
+   assert digest('history-archive/'+entry['file'])==entry['sha256']
  # Read actual served production bytes, rather than trusting a publisher flag.
  prod=[]
  for name,sha in pub['production_sha256'].items():
@@ -63,6 +70,6 @@ def main():
  assert abs(score-r['plan']['path'][0]['projected_manager_score'])<1e-7
  for name,url in [('health','https://fpl-analytics-private-manager.onrender.com/health')]:
   health=json.load(urllib.request.urlopen(url,timeout=30))
- result=dict(checked_at_utc=datetime.datetime.now(datetime.timezone.utc).isoformat(),forecast_sha256=f['forecast_sha256'],model=f['model'],data_asof=f['data_asof'],gws=f['gws'],players=len(f['players']),fixtures=f['fixtures'],player_fixture_rows=len(by),sealed_snapshot_and_file_checksums=True,unique_player_identities=True,all_MM_PM_analytic_minutes_equal=True,all_point_components_reconciled=True,all_team_outfield_start_mass_10=True,all_GK_start_mass_1_and_minutes_90_with_explicit_pool=True,probability_ordering_valid=True,match_context_integrity=True,history_scope=dict(gws=history['available_gws'],match_rows=history['match_rows'],older_seasons_exposed=False),midweek_context=dict(matches=contextindex['matches'],player_rows=contextindex['player_rows'],collection_errors=contextindex['collection_errors']),synthetic_six_GW_TS=dict(actual_user_plan=False,weekly_checks=checks,first_GW_score_recomputed=True,manager_actions_sent=False,synthetic_state_saved_only_locally=True),service_health={k:health.get(k)for k in ['status','calculation_runtime','locked_model_active','supports_unified_B_chain','supports_B_snapshot_policy','preview_worker_sha256']},production_files_checked=len(prod),served_production_bytes_match_publisher_receipt=True,production_files=prod,production_or_preview_changed=False)
+ result=dict(checked_at_utc=datetime.datetime.now(datetime.timezone.utc).isoformat(),forecast_sha256=f['forecast_sha256'],model=f['model'],data_asof=f['data_asof'],gws=f['gws'],players=len(f['players']),fixtures=f['fixtures'],player_fixture_rows=len(by),sealed_snapshot_and_file_checksums=True,unique_player_identities=True,all_MM_PM_analytic_minutes_equal=True,all_point_components_reconciled=True,all_team_outfield_start_mass_10=True,all_GK_start_mass_1_and_minutes_90_with_explicit_pool=True,probability_ordering_valid=True,match_context_integrity=True,history_scope=dict(gws=history['available_gws'],match_rows=history['match_rows'],older_seasons_exposed=archive is not None,archived_seasons=[]if archive is None else [e['season']for e in archive['seasons']],archived_counts=None if archive is None else archive['counts']),midweek_context=dict(matches=contextindex['matches'],player_rows=contextindex['player_rows'],collection_errors=contextindex['collection_errors']),synthetic_six_GW_TS=dict(actual_user_plan=False,weekly_checks=checks,first_GW_score_recomputed=True,manager_actions_sent=False,synthetic_state_saved_only_locally=True),service_health={k:health.get(k)for k in ['status','calculation_runtime','locked_model_active','supports_unified_B_chain','supports_B_snapshot_policy','preview_worker_sha256']},production_files_checked=len(prod),served_production_bytes_match_publisher_receipt=True,production_files=prod,production_or_preview_changed=False)
  args.out.write_text(json.dumps(result,indent=2)+'\n');print(json.dumps({k:v for k,v in result.items()if k!='production_files'},indent=2))
 if __name__=='__main__':main()
