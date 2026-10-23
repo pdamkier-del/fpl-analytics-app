@@ -14,8 +14,8 @@ permissions:
   pages: write
   id-token: write
 env:
-  PREVIEW_SOURCE_SHA: f492be4795bfd630ba91377d71497e68c1d85934
-  PREVIEW_UI_SHA: c3d9d3a8c4ad3d876544c4da5d1bca570d8b1541
+  PREVIEW_SOURCE_SHA: 2b8393a932c7ed5de0f3334cc024915b909e6442
+  PREVIEW_UI_SHA: c36bc46996cc9e111445e3647877c0a5482bd4b8
 jobs:
   verified:
     if: ${{ inputs.validated_run != '' }}
@@ -31,10 +31,10 @@ jobs:
         run: python scripts/verify_b_publication_artifact.py --run "$VALIDATED_RUN" --source "$PREVIEW_SOURCE_SHA"
   current:
     if: ${{ inputs.validated_run == '' }}
-    uses: pdamkier-del/fpl-analytics-app/.github/workflows/mm-current-live-preview.yml@0c622eeb2b3da5c085660bc95e22cf2fd5447593
+    uses: pdamkier-del/fpl-analytics-app/.github/workflows/mm-current-live-preview.yml@2b8393a932c7ed5de0f3334cc024915b909e6442
     with:
-      source_ref: f492be4795bfd630ba91377d71497e68c1d85934
-      validated_history_run: '39573140691'
+      source_ref: 2b8393a932c7ed5de0f3334cc024915b909e6442
+      validated_history_run: '39832070543'
     permissions:
       contents: read
       actions: read
@@ -83,6 +83,7 @@ jobs:
           git diff --exit-code "$PREVIEW_SOURCE_SHA" -- src model scripts/gk_joint_bridge.py scripts/gk_solo_role.py scripts/pm_preview_distributions.py scripts/run_joint_gk_preview.py scripts/mm_candidate_forecast.py scripts/mm_locked_bridge.py scripts/b_chain_contract.py scripts/b_preview_ts.py scripts/publish_mm_preview.py
           python scripts/check_snapshot_adapter.py
           pip install -r requirements-model-checkpoint.txt -r requirements-model-tests.txt requests tabulate==0.10.0
+          python scripts/restore_core_checkpoint.py
           cp app/mm-preview/desktop-probabilities.css "$RUNNER_TEMP/reviewed-probabilities.css"
           cp app/mm-preview/planner-experience.js "$RUNNER_TEMP/reviewed-planner-experience.js"
           cp app/mm-preview/dashboard-team-news.js "$RUNNER_TEMP/reviewed-team-news.js"
@@ -95,8 +96,14 @@ jobs:
           cp app/mm-preview/transfers-workspace.css "$RUNNER_TEMP/reviewed-transfers-workspace.css"
           cp app/mm-preview/transfer-result-summary.js "$RUNNER_TEMP/reviewed-transfer-result-summary.js"
           cp app/mm-preview/player-match-context.js "$RUNNER_TEMP/reviewed-player-match-context.js"
+          cp app/mm-preview/season-history-explorer.js "$RUNNER_TEMP/reviewed-season-history-explorer.js"
+          cp app/mm-preview/season-history-explorer.css "$RUNNER_TEMP/reviewed-season-history-explorer.css"
+          cp app/mm-preview/season-history-links.js "$RUNNER_TEMP/reviewed-season-history-links.js"
           cp -R .mm-preview-evidence/. app/mm-preview/
           cp "$RUNNER_TEMP/reviewed-player-match-context.js" app/mm-preview/player-match-context.js
+          cp "$RUNNER_TEMP/reviewed-season-history-explorer.js" app/mm-preview/season-history-explorer.js
+          cp "$RUNNER_TEMP/reviewed-season-history-explorer.css" app/mm-preview/season-history-explorer.css
+          cp "$RUNNER_TEMP/reviewed-season-history-links.js" app/mm-preview/season-history-links.js
           cp "$RUNNER_TEMP/reviewed-transfers-workspace.js" app/mm-preview/transfers-workspace.js
           cp "$RUNNER_TEMP/reviewed-transfers-workspace.css" app/mm-preview/transfers-workspace.css
           cp "$RUNNER_TEMP/reviewed-transfer-result-summary.js" app/mm-preview/transfer-result-summary.js
@@ -110,6 +117,8 @@ jobs:
           cp "$RUNNER_TEMP/reviewed-team-news.js" app/mm-preview/dashboard-team-news.js
           python -c "import json;from pathlib import Path;from publish_unified_b_chain import synchronize_audit;synchronize_audit(Path('app/mm-preview/current'),json.loads(Path('app/mm-preview/current/forecast.json').read_text()))"
           python scripts/collect_player_match_context.py
+          python scripts/build_preview_history_archive.py
+          python analysis/audit_history_archive.py --archive app/mm-preview/history-archive --db work/core.sqlite3 --out unified-history-archive-reconciliation.json
           python scripts/integrate_desktop_probabilities.py
           cmp .mm-preview-evidence/current/forecast.json app/mm-preview/current/forecast.json
           cmp .mm-preview-evidence/gk/forecast.json app/mm-preview/gk/forecast.json
@@ -135,6 +144,7 @@ jobs:
           node analysis/verify_desktop_probabilities.cjs > unified-desktop-browser.json
           node analysis/verify_player_match_card.cjs > unified-player-match-card-browser.json
           node analysis/verify_player_match_context.cjs > unified-player-match-context-browser.json
+          node analysis/verify_history_archive.cjs > unified-history-archive-browser.json
           node analysis/verify_unified_chain.cjs > unified-identity-browser.json
           node analysis/verify_latest_snapshot.cjs > unified-latest-snapshot-browser.json
           node analysis/verify_transfer_result_summary.cjs > unified-transfer-result-browser.json
@@ -163,7 +173,9 @@ jobs:
       - uses: actions/upload-artifact@v4
         with:
           name: unified-B-browser-validation
-          path: unified-*-browser.json
+          path: |
+            unified-*-browser.json
+            unified-history-archive-reconciliation.json
           retention-days: 90
       - name: Publish preview alone; preserve every production asset
         env:
