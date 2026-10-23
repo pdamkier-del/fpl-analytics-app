@@ -1,0 +1,131 @@
+{
+  "reviewed_at_utc": "2026-10-23T16:36:16.763022+00:00",
+  "scope": "read-only current diagnosis and quote-integration design; no new numerical candidate",
+  "forecast_sha256": "352349728ebaf2ddfe5356987c3d65ad291b630071e257406039d911ea513383",
+  "forecast_data_asof": "2026-10-23T12:59:55.799303+00:00",
+  "published_numerical_source": "b0a229c0de05a640f49937616c070dfbcdf986fc",
+  "input_evidence_run": 39955376460,
+  "player_id": 399,
+  "player_name": "Cherki",
+  "gw": 8,
+  "fixture": "live-2026-27-fpl-72",
+  "current": {
+    "xp": 2.735,
+    "xmins": 46.22638477193064,
+    "pm_analytic_minutes": 46.22638477193064,
+    "p_start": 0.4801366005014953,
+    "p60": 0.48010893218782635,
+    "p90": 0.3860303743355895,
+    "p_no_appearance": 0.33943876958407415,
+    "normal_role": "rotation_or_short_history",
+    "primary_role": "CAM",
+    "components": {
+      "appearance_points": 1.195,
+      "assist_points": 0.5925,
+      "cs_points": 0.1175,
+      "dc_points": 0.03,
+      "expected_bonus": 0.2575,
+      "gc_points": 0.0,
+      "goal_points": 0.6,
+      "negative_points": -0.0575,
+      "penalty_save_points": 0.0,
+      "save_points": 0.0
+    }
+  },
+  "paired_penalty_separation_control": {
+    "after": {
+      "p60": 0.48010893218782635,
+      "p90": 0.3860303743355895,
+      "p_start": 0.4801366005014953,
+      "pm_analytic_minutes": 46.22638477193064,
+      "xmins": 46.22638477193064,
+      "xp": 2.735
+    },
+    "before": {
+      "p60": 0.48010893218782635,
+      "p90": 0.3860303743355895,
+      "p_start": 0.4801366005014953,
+      "pm_analytic_minutes": 46.22638477193064,
+      "xmins": 46.22638477193064,
+      "xp": 2.82
+    },
+    "fixture_id": "live-2026-27-fpl-72",
+    "player_id": "eebb4710-6fe9-53e9-81e0-a650547126a0"
+  },
+  "conditional_sample": {
+    "xp_given_sampled_exactly_90_minutes": 4.688622754491018,
+    "n_exactly_90": 167,
+    "not_guaranteed_90_counterfactual": true,
+    "xp_monte_carlo_standard_error": 0.16850942426215487
+  },
+  "official_coach_quote": {
+    "url": "https://www.mancity.com/news/mens/enzo-maresca-aston-villa-press-conference-rayan-cherki-63928260",
+    "observed_at": "2026-10-23T16:32:49.188118+00:00",
+    "sha256": "afd8d8db1e20bba7bc6219792da90184e1d9b561a0304d088549e0918f8b9c33",
+    "publication_date": "2026-10-22",
+    "displayed_publication_time": "11:00",
+    "displayed_timezone_unverified": true,
+    "excerpt": "one of the best players in Europe when he is in the right position",
+    "interpretation": "positive attacking role/quality evidence, conditional on position; no explicit promise to start next PL match",
+    "consumed_as_structured_quote_by_current_model": false
+  },
+  "verified_CL_stats": {
+    "minutes_played": 90,
+    "goals": 1,
+    "assists": 0,
+    "total_shots": 5,
+    "expected_goals": 0.34,
+    "expected_goals_non_penalty": 0.34,
+    "expected_assists": 0.42,
+    "chances_created": 3
+  },
+  "CL_source": {
+    "url": "https://www.fotmob.com/api/data/matchDetails?matchId=6106257",
+    "sha256": "eb1dac5c81f20b5ae96c5682edadb832269e482ad20019c621db506c542581cc",
+    "capture_local_file_time_utc": "2026-10-23T16:31:48.457844+00:00",
+    "not_provider_publication_time": true
+  },
+  "CL_role_consumption": {
+    "fixture_uuid": "26-27-cl-6106257",
+    "role": "CAM",
+    "minutes": 90.0,
+    "known_at": "2026-10-20 23:00:00+00:00",
+    "before_model_cutoff": true
+  },
+  "partial_integration": {
+    "B_explicit_features_PL_only": {
+      "last_started": 0.0,
+      "minutes_7d": 0.0,
+      "minutes_14d": 90.0,
+      "rest_days": 11.88975515295139
+    },
+    "observed_all_competition_context_at_same_cutoff": {
+      "minutes_7d": 90,
+      "minutes_14d": 225,
+      "rest_days": 2.7439218196180555
+    },
+    "ordinary_goal_short_form": {
+      "np_last_xg": 0.58,
+      "np_recent3_xg": 0.3728571428571428,
+      "nonpenalty_rate90": 0.2225004172666172,
+      "ordinary_goal_weight": 0.2706101930636049
+    },
+    "other_PM_performance": {
+      "perf_last_xgi": 0.76,
+      "perf_r3_xgi": 0.5457142857142857,
+      "perf_last_goal_assist": 1.0
+    },
+    "whole_model_is_not_PL_only": true
+  },
+  "checks": {
+    "point_components_reconcile": true,
+    "MM_PM_minutes_reconcile": true,
+    "minute_mixture_identity": true,
+    "CL_role_observation_precedes_cutoff": true,
+    "penalty_change_keeps_all_MM_marginals": true
+  },
+  "production_changed": false,
+  "preview_changed": false,
+  "private_user_state_used": false,
+  "no_claim_that_48_percent_is_calibrated_or_incorrect": true
+}
