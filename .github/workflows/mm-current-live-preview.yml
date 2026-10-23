@@ -94,7 +94,7 @@ jobs:
           dest=Path('work/validated-history-artifact')
           subprocess.run(['gh','run','download',run_id,'--name','current-B-public-input-and-validation-evidence','--dir',str(dest)],check=True)
           copied={}
-          for name in ['work/joint-gk-historical','work/joint-gk-role-validation','analysis/results/unified-b-chain-20261021','work/joint-role-replay']:
+          for name in ['work/joint-gk-historical','work/joint-gk-role-validation','analysis/results/unified-b-chain-20261021','work/joint-role-replay','work/nonpenalty-head-validation']:
               source=dest/name
               assert source.is_dir(), 'Missing validated historical artifact: '+name
               for item in source.rglob('*'):
@@ -144,6 +144,7 @@ jobs:
             python scripts/locked_numerical_runtime.py scripts/validate_unified_b_history.py --workers 2
             PYTHONPATH="$PYTHONPATH:analysis" python scripts/locked_numerical_runtime.py analysis/test_joint_role_candidate.py --out work/joint-role-replay --fixed-strength .5
             PYTHONPATH="$PYTHONPATH:analysis" python scripts/locked_numerical_runtime.py analysis/test_joint_role_pm.py --out work/joint-role-replay --workers 2
+            PYTHONPATH="$PYTHONPATH:analysis" python scripts/locked_numerical_runtime.py analysis/test_separated_goal_head.py --model analysis/results/nonpenalty-goal-head-20261023/final-v2/model.json --out work/nonpenalty-head-validation --workers 2
           fi
           python - <<'PY'
           import json
@@ -155,8 +156,23 @@ jobs:
           pm=json.loads(Path('work/joint-role-replay/pm-decision.json').read_text())
           assert mm['mm_gate_passed']and pm['passed']and mm['selected_strength']==policy['strength']
           PY
-          python scripts/locked_numerical_runtime.py scripts/run_joint_gk_preview.py --out work/joint-gk-current --chain --role-assignment-policy analysis/results/joint-role-candidate-20261022/policy.json
-          python scripts/locked_numerical_runtime.py scripts/run_joint_gk_preview.py --out work/joint-gk-repeat --no-baseline --chain --role-assignment-policy analysis/results/joint-role-candidate-20261022/policy.json
+          python - <<'PY'
+          import json
+          import pandas as pd
+          from pathlib import Path
+          from nonpenalty_goal_bridge import load
+          root=Path('.').resolve()
+          load(root,root/'analysis/results/nonpenalty-goal-head-20261023/policy.json')
+          decision=json.loads(Path('work/nonpenalty-head-validation/decision.json').read_text())
+          assert decision['passed']and decision['baseline_max_xp_error']==0
+          keys=['season','fixture_uuid','player_uuid','arm']
+          current=pd.read_csv('work/nonpenalty-head-validation/predictions.csv.gz').set_index(keys).sort_index()
+          archived=pd.read_csv('analysis/results/separated-goal-head-v2-validation-20261023/predictions.csv.gz').set_index(keys).sort_index()
+          assert current.index.equals(archived.index)
+          assert (current.xp-archived.xp).abs().max()==0, 'NP scorer replay differs from reviewed evidence'
+          PY
+          python scripts/locked_numerical_runtime.py scripts/run_joint_gk_preview.py --out work/joint-gk-current --chain --role-assignment-policy analysis/results/joint-role-candidate-20261022/policy.json --nonpenalty-goal-policy analysis/results/nonpenalty-goal-head-20261023/policy.json
+          python scripts/locked_numerical_runtime.py scripts/run_joint_gk_preview.py --out work/joint-gk-repeat --no-baseline --chain --role-assignment-policy analysis/results/joint-role-candidate-20261022/policy.json --nonpenalty-goal-policy analysis/results/nonpenalty-goal-head-20261023/policy.json
           python scripts/locked_numerical_runtime.py scripts/validate_joint_gk_stages.py
           python scripts/export_joint_gk_preview.py
           python scripts/collect_dashboard_news.py
@@ -185,6 +201,7 @@ jobs:
             work/joint-gk-historical/
             work/joint-gk-role-validation/
             work/joint-role-replay/
+            work/nonpenalty-head-validation/
             work/gk-official-evidence/
             analysis/results/unified-b-chain-20261021/
           retention-days: 90

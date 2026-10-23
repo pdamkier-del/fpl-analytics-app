@@ -98,7 +98,7 @@ class PenaltyNeutralState:
             if new<0 or new>old+1e-10:raise ValueError('Penalty removal increased goal rate')
             factor=new/old if old>0 else 1.
             factors[key]=factor
-            audit.append(dict(fixture_uuid=key[0],player_uuid=key[1],inclusive_rate90=old,nonpenalty_rate90=new,ordinary_goal_factor=factor))
+            audit.append(dict(fixture_uuid=key[0],player_uuid=key[1],inclusive_rate90=old,nonpenalty_rate90=new,nonpenalty_role_prior90=priors[1][1][key],ordinary_goal_factor=factor))
         return factors,pd.DataFrame(audit)
 
 
@@ -118,7 +118,7 @@ def conditional_penalty_conversion(inp, intervals, team):
             ranked=[p for p in active if p.penalty_order is not None and p.penalty_order>0]
             if ranked:active=[p for p in ranked if p.penalty_order==min(q.penalty_order for q in ranked)]
         weights=np.array([max(0.,p.penalty_weight)for p in active],float)
-        if weights.sum()<=0:weights=np.array([max(0.,p.goal_weight)for p in active],float)
+        if weights.sum()<=0:weights=np.array([max(0.,p.goal_weight if p.penalty_fallback_weight is None else p.penalty_fallback_weight)for p in active],float)
         if weights.sum()>0:
             conversion=np.array([min(1.,max(0.,p.penalty_conversion))for p in active])
             mean+=(b-a)/90*float(weights@conversion/weights.sum())

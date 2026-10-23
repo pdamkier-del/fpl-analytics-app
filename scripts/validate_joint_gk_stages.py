@@ -31,12 +31,17 @@ def main(source=None,inputs=None):
         if receipt['strength']!=payload['role_assignment']['strength']:raise ValueError('Role policy mismatch')
         assignment_history=AssignmentHistory(pd.read_csv(inputs/'roles.csv.gz'))
         assignment_strength=receipt['strength']
+    goal_weights=None
+    if payload.get('nonpenalty_goal_head'):
+        from nonpenalty_goal_bridge import load as load_goal_head,calculate as calculate_goal_head
+        model,_=load_goal_head(ROOT,ROOT/'analysis/results/nonpenalty-goal-head-20261023/policy.json')
+        goal_weights,_,_=calculate_goal_head(ROOT,frame,model)
     stages=[];obs=observations(ROOT)
     for scope,mask in [('one-match',frame.fixture_uuid.eq(first)),('one-gw',frame.gw.eq(origin))]:
         chosen=frame[mask];p=pred[pred.fixture_uuid.isin(chosen.fixture_uuid)]
         catalogue={r.player_uuid:next(p for p in json.loads((inputs/'bootstrap.json').read_text())['elements']if p['id']==int(r.fpl_element))for r in chosen.itertuples()}if unified else None
         xp,_,audit,_=run(chosen,p,obs,season='2026-27',incomplete_teams=partial,offsets=offsets,role_policy=policy,distributions=True,chain=unified,catalogue=catalogue,
-            assignment_history=assignment_history,assignment_strength=assignment_strength)
+            assignment_history=assignment_history,assignment_strength=assignment_strength,ordinary_goal_weights=goal_weights,conditional_penalties=goal_weights is not None)
         for r in xp.itertuples():
             old=expected[(r.fixture_uuid,r.player_uuid)]
             if r.distribution!=old['distribution']:raise ValueError('PM distributions differ across scopes')

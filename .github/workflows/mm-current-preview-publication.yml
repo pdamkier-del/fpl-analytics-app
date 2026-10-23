@@ -143,6 +143,7 @@ jobs:
           trap 'kill "$preview_http_pid"' EXIT
           node analysis/verify_desktop_probabilities.cjs > unified-desktop-browser.json
           node analysis/verify_player_match_card.cjs > unified-player-match-card-browser.json
+          node analysis/verify_penalty_split_card.cjs > unified-penalty-split-browser.json
           node analysis/verify_player_match_context.cjs > unified-player-match-context-browser.json
           node analysis/verify_history_archive.cjs > unified-history-archive-browser.json
           node analysis/verify_unified_chain.cjs > unified-identity-browser.json

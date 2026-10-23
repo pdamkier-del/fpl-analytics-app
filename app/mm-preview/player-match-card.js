@@ -28,6 +28,8 @@
     return ['GW '+w.gw,opponent,val(f.xpts,2),val(f.xmins,1),val(Number.isFinite(goals)?goals/({1:10,2:6,3:5,4:4}[player.position]):null,2),val(Number.isFinite(assists)?assists/3:null,2),Number.isFinite(start)?val(start*100)+' %':'—'];
    }):[['GW '+w.gw,'Ingen kamp','—','—','—','—','—']]);
    future.append(table(['GW','Kamp','xP','xMin','xMål','xAssist','Start'],rows,'player-fixtures-future'),el('p','xMål og xAssist er modellens forventede mål og assists, afledt af PM-pointkomponenterne. xG og xA fra afsluttede kampe vises nedenfor. Prognose: '+clock(data.forecast.data_asof)+'.','prob-note'));
+   const splitRows=(options.compact?player.weeks.slice(0,3):player.weeks).flatMap(w=>w.fixtures.filter(f=>f.penalty).map(f=>['GW '+w.gw,val(f.penalty.expected_nonpenalty_goals,2),val(f.penalty.expected_penalty_goals,2),val(f.penalty.team_p_at_least_one*100,1)+' %',val(f.penalty.p_takes_penalty*100,1)+' %']));
+   if(splitRows.length){const detail=el('details'),title=el('summary','Almindelige mål og straffespark');detail.append(title,table(['GW','xMål uden straffe','xStraffemål','Holdet får straffe','Spilleren tager straffe'],splitRows,'player-fixtures-penalty'),el('p','Målfaren beregnes adskilt. Holdets chance gælder mindst ét straffespark; spillerens chance inkluderer spilletid og skyttehierarki. Spillerens tal estimeres fra de samme 400 kampsimuleringer som xP.','prob-note'));future.append(detail);}
   }
   drawFuture(null);
   load().then(h=>{

@@ -17,9 +17,9 @@ def simulate_with_distributions(inp, *, n=400, seed=93000000, include_samples=Fa
         result=simulator.simulate_match(inp,rng)
         for pid in draws:
             r=result[pid]
-            draws[pid].append((r.minutes,r.started,r.points))
+            draws[pid].append((r.minutes,r.started,r.points,r.goals-r.penalty_goals,r.penalty_goals,r.penalty_miss))
     for pid,values in draws.items():
-        minutes,started,points=np.asarray(values).T
+        minutes,started,points,ordinary,penalties,misses=np.asarray(values).T
         row=aggregate[pid]
         if float(points.mean())!=row['xPts'] or float(minutes.mean())!=row['expected_minutes']:
             raise ValueError('Preview distributions do not reproduce locked PM draws')
@@ -32,6 +32,8 @@ def simulate_with_distributions(inp, *, n=400, seed=93000000, include_samples=Fa
             'p_2_plus':float(np.mean(points>=2)),'p_5_plus':float(np.mean(points>=5)),'p_10_plus':float(np.mean(points>=10)),
             'points_interval80':[float(np.quantile(points,.1)),float(np.quantile(points,.9))],
             'pm_expected_minutes':float(minutes.mean())}
+        if any(p.penalty_fallback_weight is not None for p in inp.players):
+            row['penalty_components']={'expected_nonpenalty_goals':float(ordinary.mean()),'expected_penalty_goals':float(penalties.mean()),'expected_missed_penalties':float(misses.mean()),'p_takes_penalty':float(np.mean(penalties+misses>0)),'p_scores_penalty':float(np.mean(penalties>0))}
         if include_samples:
             row['scenarios']={'minutes':minutes.astype(int).tolist(),'points':points.astype(int).tolist()}
     return aggregate

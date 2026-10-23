@@ -49,6 +49,11 @@ def export():
         index['outfield_role_evidence_sha256']=dump(out/'outfield-role-evidence.json',dict(policy=forecast['role_assignment'],
             mm=json.loads((evidence/'decision.json').read_text()),pm=json.loads((evidence/'pm-decision.json').read_text()),
             model_source='same sealed B forecast; production unchanged'))
+    if forecast.get('nonpenalty_goal_head'):
+        control=json.loads((source/'nonpenalty-control.json').read_text())
+        if not control['all_MM_marginals_unchanged']or not control['same_source_and_seeds']:raise ValueError('NP head current control missing')
+        index['nonpenalty_control_sha256']=dump(out/'nonpenalty-control.json',dict(forecast_sha256=forecast['forecast_sha256'],**control))
+        index['nonpenalty_evidence_sha256']=dump(out/'nonpenalty-evidence.json',dict(policy=forecast['nonpenalty_goal_head']['policy'],historical=json.loads((ROOT/'analysis/results/separated-goal-head-validation-20261023/decision.json').read_text()),production_changed=False,predictive_accuracy_improvement_claimed=False))
     dump(out/'index.json',index)
     if unified:
         from publish_unified_b_chain import publish

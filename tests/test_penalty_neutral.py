@@ -127,3 +127,60 @@ def test_promotion_cannot_enable_failed_candidate_or_unvalidated_np_correction(t
     with pytest.raises(ValueError):load(tmp_path,policy)
     write()
     with pytest.raises(ValueError,match='historical gate'):load(tmp_path,policy)
+
+
+def test_np_head_is_invariant_to_adding_a_penalty_to_inclusive_history():
+    from fpl_v1_1_model.experimental_penalty_neutral import PenaltyNeutralState
+    from fpl_v1_1_model.experimental_nonpenalty_allocation import allocate,FEATURES
+    import numpy as np
+    h,roles,target=role_fixture();h['xg']=[.2,.5]
+    no_events=pd.DataFrame(columns=['season','fixture_uuid','player_uuid','attempts']).astype({'attempts':float})
+    event=pd.DataFrame([dict(season='s',fixture_uuid='old',player_uuid='taker',attempts=1.)])
+    changed=h.copy();changed.loc[changed.player_uuid.eq('taker'),'xg']+=.79
+    attack={'goal':{'recency_half_life':11.,'current_season_position_prior_minutes_tau':590.}}
+    model=dict(columns=FEATURES,coef=[.1,.2],mean=[0.,0.],scale=[1.,1.])
+    a=allocate(PenaltyNeutralState(h,no_events,roles,attack),target,target.cutoff.iloc[0],'s',model)
+    b=allocate(PenaltyNeutralState(changed,event,roles,attack),target,target.cutoff.iloc[0],'s',model)
+    assert np.allclose(a.ordinary_goal_weight,b.ordinary_goal_weight,atol=1e-12,rtol=0)
+    assert np.allclose(a.nonpenalty_role_prior90,b.nonpenalty_role_prior90,atol=1e-12,rtol=0)
+    assert np.allclose(a[FEATURES],b[FEATURES],atol=1e-12,rtol=0)
+
+
+def test_independent_penalty_fallback_does_not_change_with_ordinary_scorer_weights(monkeypatch):
+    import numpy as np
+    from dataclasses import replace
+    import fpl_v1_1_model.joint_simulator as joint
+    from fpl_v1_1_model.experimental_penalty_neutral import conditional_penalty_conversion
+    monkeypatch.setattr(joint,'_sample_minutes',lambda rng,p:(90,0,90))
+    a=joint.PlayerSimInput('a','H','MID',1.,0.,90.,0.,goal_weight=10.,penalty_fallback_weight=1.,penalty_conversion=.9)
+    b=replace(a,player_id='b',goal_weight=1.,penalty_fallback_weight=2.,penalty_conversion=.5)
+    inp=joint.MatchSimInput('H','A',2.,0.,(a,b),lambda_home_penalties=.5,experimental_conditional_penalties=True)
+    changed=replace(inp,players=(replace(a,goal_weight=.01),replace(b,goal_weight=100.)))
+    intervals={'a':(0,90),'b':(0,90)}
+    assert conditional_penalty_conversion(inp,intervals,'H')==conditional_penalty_conversion(changed,intervals,'H')
+    for seed in range(100):
+        left=joint.simulate_match(inp,np.random.default_rng(seed));right=joint.simulate_match(changed,np.random.default_rng(seed))
+        for pid in ['a','b']:
+            assert (left[pid].penalty_goals,left[pid].penalty_miss)==(right[pid].penalty_goals,right[pid].penalty_miss)
+
+
+def test_np_short_form_does_not_treat_a_rest_or_future_match_as_bad_performance():
+    from fpl_v1_1_model.experimental_nonpenalty_allocation import recent_features
+    h,_,t=role_fixture();cut=t.cutoff.iloc[0]
+    baseline=recent_features(h,t,cut)
+    rested=h.assign(fixture_uuid='rest',kickoff_at='2025-01-02T12:00:00Z',available_at='2025-01-02T15:00:00Z',minutes=0,xg=0.)
+    future=h.assign(fixture_uuid='future',kickoff_at='2025-01-04T12:00:00Z',available_at='2025-01-04T15:00:00Z',xg=5.)
+    pd.testing.assert_frame_equal(baseline,recent_features(pd.concat([h,rested,future],ignore_index=True),t,cut))
+
+
+def test_np_publication_gate_rejects_inclusive_performance_coefficients(tmp_path):
+    import json,hashlib
+    from nonpenalty_goal_bridge import load
+    model=tmp_path/'model.json';decision=tmp_path/'decision.json';policy=tmp_path/'policy.json'
+    m=dict(version='nonpenalty-goal-head-v1',training_min_gw=16,training_max_gw=21,allocation=dict(columns=['np_last_xg','np_recent3_xg']))
+    model.write_text(json.dumps(m));decision.write_text(json.dumps(dict(passed=True,fixtures=341,baseline_max_xp_error=0)))
+    def write():
+        policy.write_text(json.dumps(dict(version='nonpenalty-goal-head-v1',approved=True,model='model.json',decision='decision.json',sha256={n:hashlib.sha256((tmp_path/n).read_bytes()).hexdigest()for n in ['model.json','decision.json']})))
+    write();assert load(tmp_path,policy)[0]['version']=='nonpenalty-goal-head-v1'
+    m['allocation']['columns']=['perf_last_xgi','np_recent3_xg'];model.write_text(json.dumps(m));write()
+    with pytest.raises(ValueError,match='Blended'):load(tmp_path,policy)

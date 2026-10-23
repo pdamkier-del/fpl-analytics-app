@@ -22,7 +22,7 @@ ROOT=Path(__file__).resolve().parents[1]
 KEY=['fixture_uuid','player_uuid']
 
 
-def run(frame,predicted,obs,*,season,draws=400,incomplete_teams=(),seed=93000000,paired=False,offsets=None,role_policy=None,paired_v1=None,distributions=False,chain=False,catalogue=None,assignment_history=None,assignment_strength=None,conditional_penalties=False):
+def run(frame,predicted,obs,*,season,draws=400,incomplete_teams=(),seed=93000000,paired=False,offsets=None,role_policy=None,paired_v1=None,distributions=False,chain=False,catalogue=None,assignment_history=None,assignment_strength=None,conditional_penalties=False,ordinary_goal_weights=None):
     rows=[];baseline=[];details={};audit=[]
     raw=predicted.set_index(KEY)
     caches={}
@@ -51,6 +51,8 @@ def run(frame,predicted,obs,*,season,draws=400,incomplete_teams=(),seed=93000000
         if chain:
             from b_chain_contract import prepare_match,field_marginals
             inp=prepare_match(inp,catalogue)
+            if ordinary_goal_weights is not None:
+                inp=replace(inp,players=tuple(replace(p,goal_weight=ordinary_goal_weights[(fx,p.player_id)],penalty_fallback_weight=p.goal_weight)if not p.player_id.startswith(UNKNOWN)else p for p in inp.players))
             if conditional_penalties:inp=replace(inp,experimental_conditional_penalties=True)
             for p in inp.players:
                 if p.is_keeper:continue
@@ -78,7 +80,7 @@ def run(frame,predicted,obs,*,season,draws=400,incomplete_teams=(),seed=93000000
             if (fx,pid) in raw.index and (chain or str(raw.loc[(fx,pid),'pos'])in('GK','GKP')):
                 details[(fx,pid)]=moments[pid]
             rows.append(dict(fixture_uuid=fx,player_uuid=pid,gw=int(g.gw.iloc[0]),xpts_fixture=s['xPts'],expected_minutes=s['expected_minutes'],
-                **{k:s[k] for k in POINT_COMPONENTS},penalty_miss_points=s['penalty_miss_points'],**({'distribution':s['distribution']} if distributions else {}),**({'scenarios':s['scenarios']}if chain and distributions else{})))
+                **{k:s[k] for k in POINT_COMPONENTS},penalty_miss_points=s['penalty_miss_points'],**({'penalty_components':s['penalty_components']}if 'penalty_components'in s else{}),**({'distribution':s['distribution']} if distributions else {}),**({'scenarios':s['scenarios']}if chain and distributions else{})))
         for team in (inp.home_team,inp.away_team):
             keepers=[p for p in inp.players if p.team==team and p.is_keeper]
             if abs(sum(sim[p.player_id]['expected_minutes'] for p in keepers)-90)>1e-8:raise AssertionError('Sampled GK coverage failure')
@@ -90,7 +92,7 @@ def write(path,obj):
     path.write_text(json.dumps(obj,sort_keys=True,ensure_ascii=False,allow_nan=False,separators=(',',':'))+'\n')
 
 
-def current(inputs,out,*,paired=True,chain=False,evidence_path=None,assignment_policy=None):
+def current(inputs,out,*,paired=True,chain=False,evidence_path=None,assignment_policy=None,goal_head_policy=None):
     from build_live_vfinal_desktop import build
     inputs=Path(inputs);out=Path(out)
     h=pd.read_csv(inputs/'history.csv.gz',low_memory=False);t=pd.read_csv(inputs/'target.csv.gz',low_memory=False)
@@ -125,14 +127,22 @@ def current(inputs,out,*,paired=True,chain=False,evidence_path=None,assignment_p
         assignment_history=AssignmentHistory(pd.read_csv(inputs/'roles.csv.gz'))
         role_receipt={**role_receipt,'excluded_current_role_games':len(assignment_history.excluded),
             'role_input_sha256':hashlib.sha256((inputs/'roles.csv.gz').read_bytes()).hexdigest()}
+    goal_weights=None;goal_receipt=None
+    if goal_head_policy:
+        if not chain:raise ValueError('NP goal head requires unified B chain')
+        from nonpenalty_goal_bridge import load as load_goal_head,calculate as calculate_goal_head
+        goal_model,goal_policy=load_goal_head(ROOT,goal_head_policy)
+        goal_weights,goal_audit,goal_receipt=calculate_goal_head(ROOT,joined,goal_model)
+        goal_audit.to_csv(out/'nonpenalty-goal-head.csv.gz',index=False)
+        goal_receipt['policy']=goal_policy
     xp,details,audit,baseline=run(joined,pred,observations(ROOT),season='2026-27',incomplete_teams=incomplete,paired=paired,role_policy=policy,paired_v1=v1,distributions=True,chain=chain,catalogue=catalogue,
-        assignment_history=assignment_history,assignment_strength=role_receipt['strength']if role_receipt else None)
+        assignment_history=assignment_history,assignment_strength=role_receipt['strength']if role_receipt else None,ordinary_goal_weights=goal_weights,conditional_penalties=goal_weights is not None)
     if role_receipt and paired:
         # Matched current control: identical source facts, GK policy, event
         # rates and seeds, with only the role kernel disabled. The old locked
         # PM comparison remains a separate legacy reference.
         control,control_means,_,_=run(joined,pred,observations(ROOT),season='2026-27',incomplete_teams=incomplete,
-            role_policy=policy,chain=True,catalogue=catalogue)
+            role_policy=policy,chain=True,catalogue=catalogue,ordinary_goal_weights=goal_weights,conditional_penalties=goal_weights is not None)
         before=control.set_index(KEY);after=xp.set_index(KEY);positions=pred.set_index(KEY).pos;comparison=[]
         for key,d in details.items():
             old_mean=control_means[key]
@@ -145,6 +155,16 @@ def current(inputs,out,*,paired=True,chain=False,evidence_path=None,assignment_p
                     after=dict(p_start=d['p'],xmins=d['x'],pm_analytic_minutes=d['x'],p60=d['p60'],p90=d['p90'],xp=float(after.loc[key,'xpts_fixture']))))
         write(out/'role-control.json',dict(scope='matched current first-GW role-kernel control',same_source_and_seeds=True,
             monte_carlo_order_changes=True,goalkeeper_marginals_unchanged=True,players=comparison))
+    if goal_receipt and paired:
+        offsets={fx:i for i,fx in enumerate(sorted(joined.fixture_uuid.unique()))}
+        first=joined[joined.gw.eq(joined.gw.min())]
+        control,control_means,_,_=run(first,pred[pred.fixture_uuid.isin(first.fixture_uuid)],observations(ROOT),season='2026-27',incomplete_teams=incomplete,role_policy=policy,chain=True,catalogue=catalogue,assignment_history=assignment_history,assignment_strength=role_receipt['strength']if role_receipt else None,offsets=offsets)
+        before=control.set_index(KEY);after=xp.set_index(KEY);comparison=[]
+        for key,d in control_means.items():
+            new=details[key]
+            if any(abs(d[k]-new[k])>1e-10 for k in ['p','q','s','c','x','p60','p90']):raise ValueError('NP goal head changed MM marginals')
+            comparison.append(dict(fixture_id=key[0],player_id=key[1],before=dict(p_start=d['p'],xmins=d['x'],pm_analytic_minutes=d['x'],p60=d['p60'],p90=d['p90'],xp=float(before.loc[key,'xpts_fixture'])),after=dict(p_start=new['p'],xmins=new['x'],pm_analytic_minutes=new['x'],p60=new['p60'],p90=new['p90'],xp=float(after.loc[key,'xpts_fixture']))))
+        write(out/'nonpenalty-control.json',dict(scope='same-source first-GW B control, ordinary/penalty separation only',same_source_and_seeds=True,all_MM_marginals_unchanged=True,players=comparison))
     if paired:write(out/'before-v1.json',dict(players=v1))
     display=joined.copy();updated=pred.copy();mmrows=[]
     for index,r in updated.iterrows():
@@ -169,10 +189,13 @@ def current(inputs,out,*,paired=True,chain=False,evidence_path=None,assignment_p
     payload=build(display,xp,bootstrap,json.loads((inputs/'bps-audit.json').read_text()))
     distributions=xp.set_index(KEY)['distribution'].to_dict()
     scenarios=xp.set_index(KEY)['scenarios'].to_dict()if chain else{}
+    penalty_split=xp.set_index(KEY)['penalty_components'].to_dict()if goal_receipt else{}
+    team_penalty={(r['fixture_id'],r['team_id']):r['p_at_least_one']for r in goal_receipt['team_penalty_fixtures']}if goal_receipt else{}
     for p in payload['players']:
         for w in p['weeks']:
             for f in w['fixtures']:
                 f['distribution']=distributions[(f['fixture_uuid'],p['player_uuid'])]
+                if goal_receipt:f['penalty']={**penalty_split[(f['fixture_uuid'],p['player_uuid'])],'team_p_at_least_one':team_penalty[(f['fixture_uuid'],p['team_id'])]}
                 d=details.get((f['fixture_uuid'],p['player_uuid']))
                 if d:
                     f.update(p_60_plus=d['p60'],p_90=d['p90'],pm_analytic_minutes=d['x'],goalkeeper_model=VERSION)
@@ -184,6 +207,9 @@ def current(inputs,out,*,paired=True,chain=False,evidence_path=None,assignment_p
     payload['blockers'].append('Experimental joint GK/11-starter sampler; not production-certified. Unlisted competitors are pooled, not individual FPL forecasts.')
     payload['code_sha256']={name:hashlib.sha256((ROOT/name).read_bytes()).hexdigest() for name in ['scripts/gk_joint_bridge.py','scripts/run_joint_gk_preview.py','scripts/mm_candidate_forecast.py','scripts/gk_solo_role.py','src/fpl_v1_1_model/joint_simulator.py','scripts/pm_preview_distributions.py']}
     payload['input_sha256']={name:hashlib.sha256((inputs/name).read_bytes()).hexdigest() for name in ['pm.csv.gz','history.csv.gz','target.csv.gz','provenance.json']}
+    if goal_receipt:
+        payload['nonpenalty_goal_head']=goal_receipt
+        payload['code_sha256'].update({name:hashlib.sha256((ROOT/name).read_bytes()).hexdigest()for name in ['scripts/nonpenalty_goal_bridge.py','src/fpl_v1_1_model/experimental_nonpenalty_allocation.py','src/fpl_v1_1_model/experimental_penalty_neutral.py']})
     if role_receipt:
         payload['role_assignment']=role_receipt
         payload['code_sha256'].update({name:hashlib.sha256((ROOT/name).read_bytes()).hexdigest()for name in ['scripts/joint_role_bridge.py','src/fpl_v1_1_model/experimental_joint_role_assignment.py','src/fpl_v1_1_model/experimental_role_assignment_history.py','src/fpl_v1_1_model/experimental_role_importance.py']})
@@ -196,6 +222,7 @@ def current(inputs,out,*,paired=True,chain=False,evidence_path=None,assignment_p
             penalty_roles={str(p['id']):p.get('penalties_order')for p in bootstrap['elements']if p.get('penalties_order')},
             penalty_role_source={'source':'official FPL bootstrap','observed_at':prov['bootstrap_observed_at']})
         payload['code_sha256'].update({name:hashlib.sha256((ROOT/name).read_bytes()).hexdigest()for name in ['scripts/b_chain_contract.py','scripts/b_preview_ts.py']})
+        if goal_receipt:payload['parts']['pm_vfinal']='B_separate_nonpenalty_and_penalty_goals'
         validate_forecast(payload)
     payload=seal_forecast(payload)
     write(out/'baseline-mm.json',dict(players=[dict(fixture_id=r.fixture_uuid,player_id=r.player_uuid,p_start=float(r.p),xmins=float(r.x),start_minutes=float(r.s),p_sub_given_not_start=float(r.q),sub_minutes=float(r.c))for r in pred.itertuples()]));
@@ -208,7 +235,7 @@ def current(inputs,out,*,paired=True,chain=False,evidence_path=None,assignment_p
 def main():
     ap=argparse.ArgumentParser();ap.add_argument('--inputs',type=Path,default=ROOT/'work/current-B-inputs');ap.add_argument('--out',type=Path,required=True)
     ap.add_argument('--no-baseline',action='store_true');ap.add_argument('--chain',action='store_true');ap.add_argument('--evidence',type=Path)
-    ap.add_argument('--role-assignment-policy',type=Path)
-    args=ap.parse_args();p=current(args.inputs,args.out,paired=not args.no_baseline,chain=args.chain,evidence_path=args.evidence,assignment_policy=args.role_assignment_policy)
+    ap.add_argument('--role-assignment-policy',type=Path);ap.add_argument('--nonpenalty-goal-policy',type=Path)
+    args=ap.parse_args();p=current(args.inputs,args.out,paired=not args.no_baseline,chain=args.chain,evidence_path=args.evidence,assignment_policy=args.role_assignment_policy,goal_head_policy=args.nonpenalty_goal_policy)
     print(json.dumps(dict(players=len(p['players']),fixtures=p['fixtures'],gws=p['gws'],forecast_sha256=p['forecast_sha256'])))
 if __name__=='__main__':main()

@@ -71,4 +71,15 @@ def validate_forecast(f):
                 raise ValueError('MM/PM week mean mismatch')
             if any(abs(x['xmins']-x['pm_analytic_minutes'])>1e-7 for x in w['fixtures']):
                 raise ValueError('MM/PM fixture mean mismatch')
+    if f.get('nonpenalty_goal_head'):
+        for p in f['players']:
+            divisor={1:10,2:6,3:5,4:4}[p['position']]
+            for w in p['weeks']:
+                for match in w['fixtures']:
+                    split=match.get('penalty',{})
+                    required=['expected_nonpenalty_goals','expected_penalty_goals','expected_missed_penalties','p_takes_penalty','p_scores_penalty','team_p_at_least_one']
+                    if not all(k in split and np.isfinite(split[k]) and split[k]>=0 for k in required):raise ValueError('Missing separate NP/penalty scoring evidence')
+                    if not 0<=split['p_scores_penalty']<=split['p_takes_penalty']<=1 or not 0<=split['team_p_at_least_one']<=1:raise ValueError('Invalid penalty probabilities')
+                    if abs(split['expected_nonpenalty_goals']+split['expected_penalty_goals']-match['components']['goal_points']/divisor)>1e-9:raise ValueError('Separated goals do not reconcile')
+                    if abs(-2*split['expected_missed_penalties']-match['penalty_miss_points_subset_of_negative'])>1e-9:raise ValueError('Penalty misses do not reconcile')
     return True

@@ -31,3 +31,15 @@ def test_preview_probabilities_reconcile_with_actual_draws_and_locked_output(mon
     assert d['p_10_plus']==np.mean([r.points>=10 for r in actual])
     assert d['points_interval80']==list(np.quantile([r.points for r in actual],[.1,.9]))
     assert 0<d['p_start']<1 and 0<d['p_cameo']<1 and 0<d['p_zero']<1
+
+
+def test_np_penalty_decomposition_reconciles_without_extra_rng():
+    player=sim.PlayerSimInput('p','H','MID',1.,0.,90.,0.,goal_weight=1.,penalty_weight=1.,penalty_conversion=.7,penalty_fallback_weight=1.)
+    inp=sim.MatchSimInput('H','A',1.5,0.,(player,),lambda_home_penalties=.25,experimental_conditional_penalties=True)
+    original=sim.simulate_many(inp,n=200,seed=827)
+    result=simulate_with_distributions(inp,n=200,seed=827,include_samples=True)['p'];split=result['penalty_components']
+    assert result['xPts']==original['p']['xPts']
+    assert split['expected_nonpenalty_goals']+split['expected_penalty_goals']==result['goal_points']/5
+    assert -2*split['expected_missed_penalties']==result['penalty_miss_points']
+    assert 0<=split['p_scores_penalty']<=split['p_takes_penalty']<=1
+    assert np.mean(result['scenarios']['points'])==result['xPts']

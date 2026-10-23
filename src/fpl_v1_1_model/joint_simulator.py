@@ -1,8 +1,8 @@
 """Joint match-level Monte Carlo primitives for FPL v1.1.
 
 Phase 4A deliberately joins the already-selected component models without
-retuning their half-lives. Penalties remain folded into attack rates until a
-complete npxG/penalty source is approved. BPS background is explicit rather
+retuning their half-lives. Defaults retain their historical attack rates;
+the explicit B nonpenalty bridge supplies a separately fitted ordinary-goal head. BPS background is explicit rather
 than silently invented from unavailable Opta components.
 """
 from __future__ import annotations
@@ -45,6 +45,7 @@ class PlayerSimInput:
     penalty_conversion: float=0.78
     goalkeeper_start_pmf: tuple[float,...]|None=None
     penalty_order: int|None=None
+    penalty_fallback_weight: float|None=None
 
 @dataclass(frozen=True)
 class MatchSimInput:
@@ -249,7 +250,7 @@ def simulate_match(inp:MatchSimInput,rng:Any,*,trace=None)->dict[str,PlayerSimRe
                 candidates=[p for p in ranked if p.penalty_order==first]
         taker=_weighted_choice(rng,candidates,[p.penalty_weight for p in candidates])
         if taker is None:
-            taker=_weighted_choice(rng,candidates,[p.goal_weight for p in candidates])
+            taker=_weighted_choice(rng,candidates,[p.goal_weight if p.penalty_fallback_weight is None else p.penalty_fallback_weight for p in candidates])
         if taker is None:
             continue
         conv=min(1.0,max(0.0,float(taker.penalty_conversion)))

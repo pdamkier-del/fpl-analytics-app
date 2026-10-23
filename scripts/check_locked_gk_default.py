@@ -19,7 +19,7 @@ def check():
                 candidates=[p for p in ranked if p.penalty_order==first]
         taker=_weighted_choice(rng,candidates,[p.penalty_weight for p in candidates])
         if taker is None:
-            taker=_weighted_choice(rng,candidates,[p.goal_weight for p in candidates])'''
+            taker=_weighted_choice(rng,candidates,[p.goal_weight if p.penalty_fallback_weight is None else p.penalty_fallback_weight for p in candidates])'''
     legacy='''        taker=_weighted_choice(rng,active,[p.penalty_weight for p in active])
         if taker is None:
             taker=_weighted_choice(rng,active,[p.goal_weight for p in active])'''
