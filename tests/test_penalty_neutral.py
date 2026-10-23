@@ -184,3 +184,20 @@ def test_np_publication_gate_rejects_inclusive_performance_coefficients(tmp_path
     write();assert load(tmp_path,policy)[0]['version']=='nonpenalty-goal-head-v1'
     m['allocation']['columns']=['perf_last_xgi','np_recent3_xg'];model.write_text(json.dumps(m));write()
     with pytest.raises(ValueError,match='Blended'):load(tmp_path,policy)
+
+
+def test_full_snapshot_accepts_coherent_np_penalty_summary_and_rejects_impossible_player_chance():
+    from test_unified_b_chain import unified_fixture
+    from b_chain_contract import validate_forecast
+    f,_=unified_fixture();f['nonpenalty_goal_head']={'version':'nonpenalty-goal-head-v1'}
+    # This legal synthetic snapshot has no per-fixture scoring fields; add an
+    # explicit zero-scoring fixture to exercise the real snapshot validator.
+    fixture={'fixture_uuid':'f','xmins':0.,'pm_analytic_minutes':0.,'components':{'goal_points':0.},'penalty_miss_points_subset_of_negative':0.,'penalty':dict(expected_nonpenalty_goals=0.,expected_penalty_goals=0.,expected_missed_penalties=0.,p_takes_penalty=0.,p_scores_penalty=0.,team_p_at_least_one=.09,team_simulated_p_at_least_one=.1)}
+    # Preserve the fixture factory's existing analytic minute totals.
+    for p in f['players']:
+        for w in p['weeks']:
+            for x in w['fixtures']:
+                x.update(components={'goal_points':0.},penalty_miss_points_subset_of_negative=0.,penalty=dict(fixture['penalty']))
+    assert validate_forecast(f)
+    first=f['players'][0]['weeks'][0]['fixtures'][0];first['penalty']['p_takes_penalty']=.2
+    with pytest.raises(ValueError,match='penalty probabilities'):validate_forecast(f)
