@@ -66,6 +66,7 @@ class MatchSimInput:
     experimental_joint_starters: bool=False
     experimental_mean_preserving_minutes: bool=False
     experimental_penalty_hierarchy: bool=False
+    experimental_conditional_penalties: bool=False
 
 @dataclass
 class PlayerSimResult:
@@ -220,6 +221,12 @@ def simulate_match(inp:MatchSimInput,rng:Any,*,trace=None)->dict[str,PlayerSimRe
     # penalties do not inflate the existing team goal mean.
     hp=max(0.0,float(inp.lambda_home_penalties)); ap=max(0.0,float(inp.lambda_away_penalties))
     hc=min(1.0,max(0.0,float(inp.home_penalty_conversion))); ac=min(1.0,max(0.0,float(inp.away_penalty_conversion)))
+    if inp.experimental_conditional_penalties:
+        from .experimental_penalty_neutral import conditional_penalty_conversion
+        hc=conditional_penalty_conversion(inp,intervals,inp.home_team)
+        ac=conditional_penalty_conversion(inp,intervals,inp.away_team)
+        if hp*hc>float(inp.lambda_home_goals)+1e-12 or ap*ac>float(inp.lambda_away_goals)+1e-12:
+            raise ValueError('Penalty goal budget exceeds inclusive team goal budget')
     h_open=max(0.0,float(inp.lambda_home_goals)-hp*hc)
     a_open=max(0.0,float(inp.lambda_away_goals)-ap*ac)
     hg=int(rng.poisson(h_open)); ag=int(rng.poisson(a_open))

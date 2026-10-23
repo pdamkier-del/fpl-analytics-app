@@ -25,6 +25,9 @@ def check():
             taker=_weighted_choice(rng,active,[p.goal_weight for p in active])'''
     assert current_source.count(branch)==1, 'Unexpected penalty hierarchy branch'
     current_source=current_source.replace(branch,legacy)
+    conditional="    if inp.experimental_conditional_penalties:\n        from .experimental_penalty_neutral import conditional_penalty_conversion\n        hc=conditional_penalty_conversion(inp,intervals,inp.home_team)\n        ac=conditional_penalty_conversion(inp,intervals,inp.away_team)\n        if hp*hc>float(inp.lambda_home_goals)+1e-12 or ap*ac>float(inp.lambda_away_goals)+1e-12:\n            raise ValueError('Penalty goal budget exceeds inclusive team goal budget')\n"
+    assert current_source.count(conditional)==1, 'Unexpected conditional penalty branch'
+    current_source=current_source.replace(conditional,'')
     assert source[source.index(tail):].rstrip()==current_source[current_source.index(tail):].rstrip(), 'Locked event/scoring/aggregate logic changed'
     changed=subprocess.check_output(['git','diff','--name-status',REFERENCE,'--','src'],text=True).splitlines()
     assert all(line.split('\t')[-1]=='src/fpl_v1_1_model/joint_simulator.py' or

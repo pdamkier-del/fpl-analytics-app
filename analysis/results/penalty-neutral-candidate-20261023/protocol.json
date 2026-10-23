@@ -1,0 +1,9 @@
+{
+  "candidate": "Remove verified penalty attempts from FPL-scale historical xG (.79 each); rebuild both individual and predeadline soft-role priors; multiply only ordinary scorer weights by resulting nonpenalty/inclusive rate ratio. Keep learned predictive performance covariates/coefs frozen.",
+  "source": "2024/25 native shotmap penalty counts; 2025/26 recorded scored+missed counts, no xG-gap inference; all 380 matches per season audited",
+  "selection": "No tuning, no player-specific thresholds. Fixed single candidate.",
+  "period": "2024/25 GW22-38 and 2025/26 GW6-38, reused research diagnostics",
+  "draws": 400,
+  "gate": "xP MAE delta <= .005 each season, played MAE delta <= .02, abs bias increase <= .02; penalty-taker subgroup abs bias must improve and MAE not worsen > .02",
+  "production_changed": false
+}

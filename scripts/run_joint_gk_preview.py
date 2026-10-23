@@ -22,7 +22,7 @@ ROOT=Path(__file__).resolve().parents[1]
 KEY=['fixture_uuid','player_uuid']
 
 
-def run(frame,predicted,obs,*,season,draws=400,incomplete_teams=(),seed=93000000,paired=False,offsets=None,role_policy=None,paired_v1=None,distributions=False,chain=False,catalogue=None,assignment_history=None,assignment_strength=None):
+def run(frame,predicted,obs,*,season,draws=400,incomplete_teams=(),seed=93000000,paired=False,offsets=None,role_policy=None,paired_v1=None,distributions=False,chain=False,catalogue=None,assignment_history=None,assignment_strength=None,conditional_penalties=False):
     rows=[];baseline=[];details={};audit=[]
     raw=predicted.set_index(KEY)
     caches={}
@@ -51,6 +51,7 @@ def run(frame,predicted,obs,*,season,draws=400,incomplete_teams=(),seed=93000000
         if chain:
             from b_chain_contract import prepare_match,field_marginals
             inp=prepare_match(inp,catalogue)
+            if conditional_penalties:inp=replace(inp,experimental_conditional_penalties=True)
             for p in inp.players:
                 if p.is_keeper:continue
                 mass=field_marginals(p)
