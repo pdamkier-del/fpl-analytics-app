@@ -48,3 +48,9 @@ Reproduce the fit with `analysis/fit_nonpenalty_allocation.py`, the paired holdo
 The final short-form correction excludes zero-minute registrations, so resting a player does not manufacture a bad attacking performance. The final fit and validation are in `final-v2` and `separated-goal-head-v2-validation-20261023`; the first refitted prototype is retained separately for transparency. This change addresses absence semantics, not validation-metric tuning.
 
 Displayed team/player penalty probabilities share the same Monte Carlo event denominator, so a player cannot have a larger displayed chance than his team. The exact analytical Poisson probability is retained separately as `team_p_at_least_one`; the displayed common-draw parent is `team_simulated_p_at_least_one`. This summary-only change makes no extra RNG calls and changes no xP, minute, goal or scenario outcome.
+
+## Final public delivery
+
+The exact-source numerical run [39955376460](https://github.com/pdamkier-del/fpl-analytics-app/actions/runs/39955376460) passed 865 tests and all historical/current gates. Publication [39965165259](https://github.com/pdamkier-del/fpl-analytics-app/actions/runs/39965165259) passed all existing desktop/mobile browser gates and deployed the isolated B app. Actual public HTTPS browser checks, one synthetic remote six-GW transfer plan, and a served-data audit of all 4,008 rows and 88 production-file hashes passed. Production/default calculations and private user state remain unchanged.
+
+The fresh same-source GW8 control gives Le Fée xP **5.315 → 4.6575**, with xM/PM minutes **85.85076049 unchanged** and P(start) **96.1031254% unchanged**. Source time is 23 October 2026 12:59:55 UTC, forecast seal `352349728ebaf2ddfe5356987c3d65ad291b630071e257406039d911ea513383`. These fresh paired values supersede the fixed-reference figures above for the delivered app. Sanitized receipts and limitations are in `analysis/results/nonpenalty-release-20261023/`.
