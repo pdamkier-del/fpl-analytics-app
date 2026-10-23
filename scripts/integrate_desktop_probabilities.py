@@ -50,6 +50,8 @@ def integrate(root=ROOT):
     capacity_inject(out)
     from integrate_latest_snapshot import inject as snapshot_inject
     snapshot_inject(out)
+    from integrate_history_archive import inject as history_inject
+    history_inject(out)
     # The same origin already serves earlier app versions. Content-derived
     # queries prevent cached old adapters from hiding newly added history APIs.
     import re

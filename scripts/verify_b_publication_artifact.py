@@ -33,7 +33,11 @@ def verify(run, artifacts, source, *, workflow='', jobs=()):
             raise ValueError('Immutable wrapper pins another numerical source')
         if re.findall(r'^      source_ref: ([a-f0-9]{40})\s*$', workflow, re.M) != [source]:
             raise ValueError('Numerical checkout differs from the declared pin')
-        if re.findall(r'^    uses: (.+mm-current-live-preview\.yml@[^\s]+)\s*$', workflow, re.M) != [REUSABLE]:
+        # Retain the reviewed legacy workflow for its old source. New sources
+        # must use the workflow committed at that exact same immutable source;
+        # an old workflow could silently omit a new opt-in numerical stage.
+        expected=REUSABLE if source=='f492be4795bfd630ba91377d71497e68c1d85934' else REPO+'/'+MODEL_WORKFLOW+'@'+source
+        if re.findall(r'^    uses: (.+mm-current-live-preview\.yml@[^\s]+)\s*$', workflow, re.M) != [expected]:
             raise ValueError('Unreviewed numerical workflow')
         if not any(j.get('name') == 'current / current' and j.get('status') == 'completed' and j.get('conclusion') == 'success' for j in jobs):
             raise ValueError('Wrapper did not complete the numerical computation')

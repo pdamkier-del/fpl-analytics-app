@@ -14,6 +14,14 @@ def test_accepts_standalone_exact_source_and_successful_pinned_main_wrapper():
     assert verify(WRAPPER, ARTIFACTS, SOURCE, workflow=WORKFLOW, jobs=JOBS) == 1
 
 
+def test_new_model_source_requires_its_own_immutable_workflow():
+    source='2b8393a932c7ed5de0f3334cc024915b909e6442'
+    workflow=WORKFLOW.replace(SOURCE,source).replace(REUSABLE,REPO+'/'+MODEL_WORKFLOW+'@'+source)
+    assert verify(WRAPPER,ARTIFACTS,source,workflow=workflow,jobs=JOBS)==1
+    with pytest.raises(ValueError,match='workflow'):
+        verify(WRAPPER,ARTIFACTS,source,workflow=WORKFLOW.replace(SOURCE,source),jobs=JOBS)
+
+
 @pytest.mark.parametrize('change', [dict(conclusion='action_required'), dict(status='in_progress'),
     dict(head_branch='other'), dict(event='pull_request'), dict(path='other.yml'),
     dict(head_repository={'full_name': 'another/repository'})])
