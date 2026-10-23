@@ -35,7 +35,7 @@ Both seasons use only GW22–38: 171 fixtures in 2024/25 and 170 in 2025/26, 341
 
 The MAE noninferiority gate passes. **Overall predictive accuracy is not improved**, and systematic underprediction in the historical taker cohort worsens. This is a B-only correctness release, not a production promotion or a claim that all penalty calibration is solved. A full penalty-winner-assist process remains absent. The confidence intervals and complete scored rows are retained with the decision.
 
-On the fixed current release reference, 60 fixtures / 4,008 player-fixture rows / GW8–13 are replayed. The old B baseline is reproduced exactly. Every analytical minute/start marginal is unchanged. Le Fée's GW8 xP is 5.52 → 4.6675; his xM and start probabilities are unchanged. This is a paired reference result, not necessarily the value after a later official source refresh.
+On the fixed current release reference, 60 fixtures / 4,008 player-fixture rows / GW8–13 are replayed. The old B baseline is reproduced exactly. Every analytical minute/start marginal is unchanged. Le Fée's GW8 xP is 5.52 → 4.6625; his xM and start probabilities are unchanged. This is a paired reference result, not necessarily the value after a later official source refresh.
 
 ## Public transparency and release gates
 
@@ -46,3 +46,5 @@ The release requires checksum-pinned NP policy/model/evidence, exact historical 
 Reproduce the fit with `analysis/fit_nonpenalty_allocation.py`, the paired holdout with `analysis/test_separated_goal_head.py`, and the prospective current comparison with `analysis/test_current_penalty_candidate.py --model ...`. Use `scripts/locked_numerical_runtime.py` and `PYTHONPATH=src:scripts:.:analysis OPENBLAS_NUM_THREADS=1`.
 
 The final short-form correction excludes zero-minute registrations, so resting a player does not manufacture a bad attacking performance. The final fit and validation are in `final-v2` and `separated-goal-head-v2-validation-20261023`; the first refitted prototype is retained separately for transparency. This change addresses absence semantics, not validation-metric tuning.
+
+Displayed team/player penalty probabilities share the same Monte Carlo event denominator, so a player cannot have a larger displayed chance than his team. The exact analytical Poisson probability is retained separately as `team_p_at_least_one`; the displayed common-draw parent is `team_simulated_p_at_least_one`. This summary-only change makes no extra RNG calls and changes no xP, minute, goal or scenario outcome.

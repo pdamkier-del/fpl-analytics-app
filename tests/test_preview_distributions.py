@@ -41,5 +41,5 @@ def test_np_penalty_decomposition_reconciles_without_extra_rng():
     assert result['xPts']==original['p']['xPts']
     assert split['expected_nonpenalty_goals']+split['expected_penalty_goals']==result['goal_points']/5
     assert -2*split['expected_missed_penalties']==result['penalty_miss_points']
-    assert 0<=split['p_scores_penalty']<=split['p_takes_penalty']<=1
+    assert 0<=split['p_scores_penalty']<=split['p_takes_penalty']<=split['team_simulated_p_at_least_one']<=1
     assert np.mean(result['scenarios']['points'])==result['xPts']

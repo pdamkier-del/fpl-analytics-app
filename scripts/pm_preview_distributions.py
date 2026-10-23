@@ -18,6 +18,13 @@ def simulate_with_distributions(inp, *, n=400, seed=93000000, include_samples=Fa
         for pid in draws:
             r=result[pid]
             draws[pid].append((r.minutes,r.started,r.points,r.goals-r.penalty_goals,r.penalty_goals,r.penalty_miss))
+    separated=any(p.penalty_fallback_weight is not None for p in inp.players)
+    team_probability={}
+    if separated:
+        for team in (inp.home_team,inp.away_team):
+            counts=np.sum([np.asarray(draws[p.player_id])[:,4]+np.asarray(draws[p.player_id])[:,5]for p in inp.players if p.team==team],axis=0)
+            team_probability[team]=float(np.mean(counts>0))
+    player_teams={p.player_id:p.team for p in inp.players}
     for pid,values in draws.items():
         minutes,started,points,ordinary,penalties,misses=np.asarray(values).T
         row=aggregate[pid]
@@ -32,8 +39,8 @@ def simulate_with_distributions(inp, *, n=400, seed=93000000, include_samples=Fa
             'p_2_plus':float(np.mean(points>=2)),'p_5_plus':float(np.mean(points>=5)),'p_10_plus':float(np.mean(points>=10)),
             'points_interval80':[float(np.quantile(points,.1)),float(np.quantile(points,.9))],
             'pm_expected_minutes':float(minutes.mean())}
-        if any(p.penalty_fallback_weight is not None for p in inp.players):
-            row['penalty_components']={'expected_nonpenalty_goals':float(ordinary.mean()),'expected_penalty_goals':float(penalties.mean()),'expected_missed_penalties':float(misses.mean()),'p_takes_penalty':float(np.mean(penalties+misses>0)),'p_scores_penalty':float(np.mean(penalties>0))}
+        if separated:
+            row['penalty_components']={'team_simulated_p_at_least_one':team_probability[player_teams[pid]],'expected_nonpenalty_goals':float(ordinary.mean()),'expected_penalty_goals':float(penalties.mean()),'expected_missed_penalties':float(misses.mean()),'p_takes_penalty':float(np.mean(penalties+misses>0)),'p_scores_penalty':float(np.mean(penalties>0))}
         if include_samples:
             row['scenarios']={'minutes':minutes.astype(int).tolist(),'points':points.astype(int).tolist()}
     return aggregate
