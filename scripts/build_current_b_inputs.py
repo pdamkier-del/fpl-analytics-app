@@ -162,6 +162,9 @@ def build(out,role_cache,ledger_path=None):
         source_manifest_sha256=sha(WORK/'source_manifest.json'),source_workflow=receipt['workflow'],
         role_model='PR4 bands_h42.0_C1.0',role_reference_parity=meta['reference_parity'],
         missing_preinjury_latent_state=not len(old),
+        source_scopes={'explicit_workload_and_last_start':'Premier League only',
+                       'detailed_tactical_role_ledger':'verified all-competition starters',
+                       'structured_coach_statements':'not implemented'},
         limitations=['Historical postmatch times retain documented kickoff+3/4h proxies.',
             'Only verified PL histories enter B workload; other-competition load remains outside this fixed model.',
             'First current-season ledger has no invented prior forecast state; unobserved pre-injury duration remains unavailable.'])
@@ -176,6 +179,16 @@ def build(out,role_cache,ledger_path=None):
     for name,frame in [('target.csv.gz',target),('history.csv.gz',history),('pm.csv.gz',pm)]:write_frame(out/name,frame)
     classified=pd.read_csv(BASE/'classified_starters.csv.gz');games={g['match_id']:g for g in [json.loads(x) for x in gzip.open(WORK/'match_actuals.jsonl.gz','rt')]}
     classified['season']='2026-27';classified['fixture_uuid']=classified.match_id;classified['kickoff']=classified.match_id.map(lambda x:games[x]['kickoff_time'])
+    classified['competition']=classified.match_id.map(lambda x:games[x]['tournament'])
+    classified['round_name']=classified.match_id.map(lambda x:games[x]['round_name'])
+    # Preserve actual all-competition minutes and receipt clocks for the
+    # separate joint-role candidate. The existing PR4/PR8/PR9 input is unchanged.
+    role_events=pd.DataFrame([json.loads(x)for x in gzip.open(WORK/'player_match_events.jsonl.gz','rt')])
+    role_events=role_events[role_events.started.eq(True)][['match_id','team_id','player_uuid','minutes_played','available_at']]
+    if role_events.duplicated(['match_id','team_id','player_uuid']).any():raise ValueError('Duplicate observed starter event')
+    classified=classified.merge(role_events,on=['match_id','team_id','player_uuid'],how='left',validate='one_to_one',suffixes=('','_event'))
+    classified=classified.rename(columns={'minutes_played':'minutes'})
+    classified['known_at']=pd.concat([pd.to_datetime(classified.available_at,utc=True),pd.to_datetime(classified.available_at_event,utc=True)],axis=1).max(axis=1).astype(str)
     write_frame(out/'roles.csv.gz',classified)
     for name,obj in [('provenance.json',provenance),('bootstrap.json',bootstrap),('fixtures.json',fixtures),('bps-audit.json',json.loads((WORK/'live_bps_source_audit.json').read_text()))]:
         (out/name).write_text(json.dumps(obj,allow_nan=False,indent=2)+'\n')

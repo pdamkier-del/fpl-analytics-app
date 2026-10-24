@@ -51,11 +51,14 @@ def infer_B(history, target, provenance):
     model.fit(design(h.loc[eligible]),h.loc[eligible,'y'])
     if model[-1].n_iter_[0]>=3000:raise ValueError('Calibration not converged')
     g['p']=model.predict_proba(design(g))[:,1]
+    unprojected=g.p.to_numpy().copy()
     fixed=target.p.eq(0)&target.q.eq(0);g.loc[fixed,'p']=0.
     projected_p=project(g).p.to_numpy()
     # PR9 prequential() stores only the projected p, not its temporary q cap.
     # change(B) then projects that p against the ORIGINAL upstream q again.
     g=target.copy();g['p']=projected_p;g=project(g)
+    g['unprojected_p']=unprojected
+    g.loc[fixed,'unprojected_p']=0.
     return g,dict(alpha=10.,training_rows=int(eligible.sum()),last_label_known_at=str(known.max()),feature_columns=NUM,independently_validated=False)
 
 

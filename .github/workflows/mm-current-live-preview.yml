@@ -5,9 +5,13 @@ on:
       source_ref:
         required: true
         type: string
+      validated_history_run:
+        description: 'Reuse historical gates only from a successful run of the identical numerical source'
+        required: false
+        type: string
   workflow_dispatch:
   push:
-    branches: [integration-mm-live-20261017]
+    branches: [integration-mm-live-20261017, experiment-goalkeeper-coverage-20261018]
     paths:
       - scripts/**
       - service/app.py
@@ -27,6 +31,7 @@ concurrency:
 env:
   PYTHONPATH: src:scripts:.
   OPENBLAS_NUM_THREADS: '1'
+  VALIDATED_HISTORY_RUN: ${{ inputs.validated_history_run || '' }}
 jobs:
   current:
     runs-on: ubuntu-latest
@@ -44,6 +49,9 @@ jobs:
         run: |
           python -m compileall -q scripts/current_b_features.py scripts/build_current_b_inputs.py scripts/prepare_mm_role_training.py scripts/replay_mm_candidate_sampler.py scripts/run_mm_locked_preview.py scripts/publish_current_b_preview.py
           python -m pytest -q tests
+          node tests/test_preview_distributions.js
+          node tests/test_dashboard_team_news.js
+          node tests/test_joint_gk_contract.js
           node tests/test_B_preview_contract.js
           node tests/test_B_preview_jobs.js
           node tests/test_B_personal_view.js
@@ -69,6 +77,39 @@ jobs:
           p.write_bytes(urllib.request.urlopen('https://raw.githubusercontent.com/pdamkier-del/fpl-analytics-app/free-github-static-20261010/model/checkpoints/current-diagnostic.json',timeout=60).read())
           c.SELECTOR=p;c.restore()
           PY
+      - name: Reuse immutable historical validation only for the identical source
+        if: ${{ inputs.validated_history_run != '' }}
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          python - <<'PYTHON'
+          import hashlib,json,os,shutil,subprocess
+          from pathlib import Path
+          run_id=os.environ['VALIDATED_HISTORY_RUN']
+          assert run_id.isdigit()
+          pinned=subprocess.check_output(['git','rev-parse','HEAD'],text=True).strip()
+          run=json.loads(subprocess.check_output(['gh','api','repos/pdamkier-del/fpl-analytics-app/actions/runs/'+run_id]))
+          assert run['status']=='completed' and run['conclusion']=='success' and run['head_sha']==pinned
+          assert run['path']=='.github/workflows/mm-current-live-preview.yml'
+          dest=Path('work/validated-history-artifact')
+          subprocess.run(['gh','run','download',run_id,'--name','current-B-public-input-and-validation-evidence','--dir',str(dest)],check=True)
+          copied={}
+          for name in ['work/joint-gk-historical','work/joint-gk-role-validation','analysis/results/unified-b-chain-20261021','work/joint-role-replay','work/nonpenalty-head-validation']:
+              source=dest/name
+              assert source.is_dir(), 'Missing validated historical artifact: '+name
+              for item in source.rglob('*'):
+                  if item.is_file():
+                      target=Path(name)/item.relative_to(source)
+                      target.parent.mkdir(parents=True,exist_ok=True);shutil.copyfile(item,target)
+                      copied[str(target)]=hashlib.sha256(target.read_bytes()).hexdigest()
+          gate=json.loads(Path('analysis/results/unified-b-chain-20261021/validation.json').read_text())
+          roles=json.loads(Path('work/joint-gk-role-validation/summary.json').read_text())
+          assert gate['accepted'] and roles['accepted']
+          assert json.loads(Path('work/joint-role-replay/decision.json').read_text())['mm_gate_passed']
+          assert json.loads(Path('work/joint-role-replay/pm-decision.json').read_text())['passed']
+          Path('work/historical-validation-reuse.json').write_text(json.dumps(dict(run=int(run_id),numerical_source=pinned,unchanged_historical_files=copied,fresh_current_inputs_reused=False),indent=2)+'\n')
+          print('Reused verified historical gates; current official capture and full six-GW simulations still run afresh')
+          PYTHON
       - name: Capture current official data and rebuild unchanged original chain twice
         run: python scripts/locked_numerical_runtime.py scripts/run_current_diagnostic_pipeline.py --source-chain-only
       - name: Restore verified public role memory and produce authentic PR4 to PR8 to PR9 B inputs
@@ -88,17 +129,90 @@ jobs:
           node --check app/mm-preview/existing-app-adapter.js
           node --check app/mm-preview/app/classic-manager.js
           node --check app/mm-preview/app/weekly-app.js
-          git diff --exit-code 3ad8fc5f2eabe0a62fec494d896320d288ece2d5 -- src model service/manager_job.py
+          python scripts/check_locked_gk_default.py
+          git diff --exit-code 3ad8fc5f2eabe0a62fec494d896320d288ece2d5 -- model service/manager_job.py
+      - name: Validate and export the explicit joint GK preview
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          python scripts/collect_preview_history.py
+          python scripts/capture_gk_official_evidence.py
+          if [ -z "$VALIDATED_HISTORY_RUN" ]; then
+            python scripts/locked_numerical_runtime.py scripts/replay_joint_gk.py
+            python scripts/locked_numerical_runtime.py scripts/check_gk_uncertainty.py
+            python scripts/locked_numerical_runtime.py scripts/evaluate_solo_gk_roles.py
+            python scripts/locked_numerical_runtime.py scripts/validate_unified_b_history.py --workers 2
+            PYTHONPATH="$PYTHONPATH:analysis" python scripts/locked_numerical_runtime.py analysis/test_joint_role_candidate.py --out work/joint-role-replay --fixed-strength .5
+            PYTHONPATH="$PYTHONPATH:analysis" python scripts/locked_numerical_runtime.py analysis/test_joint_role_pm.py --out work/joint-role-replay --workers 2
+            PYTHONPATH="$PYTHONPATH:analysis" python scripts/locked_numerical_runtime.py analysis/test_separated_goal_head.py --model analysis/results/nonpenalty-goal-head-20261023/final-v2/model.json --out work/nonpenalty-head-validation --workers 2
+          fi
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          from joint_role_bridge import load_assignment_policy
+          root=Path('.').resolve()
+          policy=load_assignment_policy(root,root/'analysis/results/joint-role-candidate-20261022/policy.json')
+          mm=json.loads(Path('work/joint-role-replay/decision.json').read_text())
+          pm=json.loads(Path('work/joint-role-replay/pm-decision.json').read_text())
+          assert mm['mm_gate_passed']and pm['passed']and mm['selected_strength']==policy['strength']
+          PY
+          python - <<'PY'
+          import json
+          import pandas as pd
+          from pathlib import Path
+          from nonpenalty_goal_bridge import load
+          root=Path('.').resolve()
+          load(root,root/'analysis/results/nonpenalty-goal-head-20261023/policy.json')
+          decision=json.loads(Path('work/nonpenalty-head-validation/decision.json').read_text())
+          assert decision['passed']and decision['baseline_max_xp_error']==0
+          keys=['season','fixture_uuid','player_uuid','arm']
+          current=pd.read_csv('work/nonpenalty-head-validation/predictions.csv.gz').set_index(keys).sort_index()
+          archived=pd.read_csv('analysis/results/separated-goal-head-v2-validation-20261023/predictions.csv.gz').set_index(keys).sort_index()
+          assert current.index.equals(archived.index)
+          assert (current.xp-archived.xp).abs().max()==0, 'NP scorer replay differs from reviewed evidence'
+          PY
+          python scripts/locked_numerical_runtime.py scripts/run_joint_gk_preview.py --out work/joint-gk-current --chain --role-assignment-policy analysis/results/joint-role-candidate-20261022/policy.json --nonpenalty-goal-policy analysis/results/nonpenalty-goal-head-20261023/policy.json
+          python scripts/locked_numerical_runtime.py scripts/run_joint_gk_preview.py --out work/joint-gk-repeat --no-baseline --chain --role-assignment-policy analysis/results/joint-role-candidate-20261022/policy.json --nonpenalty-goal-policy analysis/results/nonpenalty-goal-head-20261023/policy.json
+          python scripts/locked_numerical_runtime.py scripts/validate_joint_gk_stages.py
+          python scripts/export_joint_gk_preview.py
+          python scripts/collect_dashboard_news.py
+          python analysis/audit_player_chain.py --capture app/mm-preview --inputs work/current-B-inputs --out app/mm-preview/input-audit --require-source-linkage
+          node tests/test_joint_gk_contract.js
+          node --check app/mm-preview/gk/app.js
       - uses: actions/upload-artifact@v4
         with:
           name: mm-current-live-preview
           path: app/mm-preview/
           retention-days: 1
       - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: current-B-origin-input-evidence
+          path: |
+            data_v1_1/derived/live_locked_inputs/2026-27-v1/player_fixture_observations.csv.gz
+            data_v1_1/derived/live_locked_inputs/2026-27-v1/verified_penalty_attempts.csv.gz
+            data_v1_1/derived/live_locked_inputs/2026-27-v1/verified_penalty_team_sides.csv.gz
+            data_v1_1/derived/live_locked_inputs/2026-27-v1/reconstructed_training_features.csv.gz
+            data_v1_1/derived/live_locked_inputs/2026-27-v1/classified_starters.csv.gz
+            work/current-B-inputs/
+            work/current-B-role-training/manifest.json
+            work/current-B-role-training/feature-parity.json
+            work/live-final-model/source_manifest.json
+            work/live-final-model/canonical_raw_rebuild.json
+            work/joint-gk-current/nonpenalty-goal-head.csv.gz
+            work/gk-official-evidence/
+          retention-days: 30
+      - uses: actions/upload-artifact@v4
         if: always() && github.event_name != 'schedule'
         with:
           name: current-B-public-input-and-validation-evidence
           path: |
+            data_v1_1/derived/live_locked_inputs/2026-27-v1/player_fixture_observations.csv.gz
+            data_v1_1/derived/live_locked_inputs/2026-27-v1/verified_penalty_attempts.csv.gz
+            data_v1_1/derived/live_locked_inputs/2026-27-v1/verified_penalty_team_sides.csv.gz
+            data_v1_1/derived/live_locked_inputs/2026-27-v1/reconstructed_training_features.csv.gz
+            data_v1_1/derived/live_locked_inputs/2026-27-v1/classified_starters.csv.gz
+            work/historical-validation-reuse.json
             work/current-B-inputs/
             work/current-B-role-training/manifest.json
             work/current-B-role-training/feature-parity.json
@@ -106,4 +220,12 @@ jobs:
             work/current-B-repeat/
             work/live-final-model/source_manifest.json
             work/live-final-model/canonical_raw_rebuild.json
+            work/joint-gk-current/
+            work/joint-gk-repeat/
+            work/joint-gk-historical/
+            work/joint-gk-role-validation/
+            work/joint-role-replay/
+            work/nonpenalty-head-validation/
+            work/gk-official-evidence/
+            analysis/results/unified-b-chain-20261021/
           retention-days: 90

@@ -1,0 +1,5 @@
+{
+  "approved": false,
+  "limitation": "The existing zero-history/no-rank penalty fallback reuses goal_weight. Changing ordinary goal weights can therefore also change fallback taker choices for those cases. These NP arms are not pure causal isolation of ordinary-goal allocation. This is an additional reason not to promote them; the conditional-only arm changes no scorer weights.",
+  "future_requirement": "Separate immutable penalty-fallback weights before any future NP-only claim or retraining."
+}

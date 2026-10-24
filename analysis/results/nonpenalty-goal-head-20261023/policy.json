@@ -1,0 +1,34 @@
+{
+  "version": "nonpenalty-goal-head-v1",
+  "approved": true,
+  "scope": "B preview only; complete NP/penalty separation with played-match-only short form; no claim of overall predictive improvement",
+  "production_changed": false,
+  "model": "analysis/results/nonpenalty-goal-head-20261023/final-v2/model.json",
+  "decision": "analysis/results/separated-goal-head-v2-validation-20261023/decision.json",
+  "protocol": "analysis/results/separated-goal-head-v2-validation-20261023/protocol.json",
+  "known_limitations": [
+    "Penalty-taker historical bias worsens; full metrics retained",
+    "The earlier blanket no-increase-in-taker-bias research gate is not a correctness requirement for this user-requested full separation; new correctness/noninferiority protocol was fixed before scoring this refitted candidate",
+    "Reused historical periods, 2024 conditional robustness, no independent calibration certification",
+    "Count-based FPL-scale npxG estimate, not provider-native per-shot npxG",
+    "Ordinary short-form predictors use known PL NP-xG observations; existing all-competition MM remains unchanged",
+    "Special penalty-winner assists are not yet modeled completely",
+    "Outfield substitutions are not a fully joint physical process; full-model certification is not established"
+  ],
+  "sha256": {
+    "analysis/results/nonpenalty-goal-head-20261023/final-v2/model.json": "dc254f5a3bbacfe979583f224dd9408f0f1e4f0fe156caf6870de4ab601ff4b2",
+    "analysis/results/separated-goal-head-v2-validation-20261023/decision.json": "5f90a9d6950bedc5ac2bb25f4ebcb8ad7a60f7bf0b0973d76a1ef41701d86780",
+    "analysis/results/separated-goal-head-v2-validation-20261023/protocol.json": "7ecdc31fb1037065756dddf1a508dab97e6fc2dfafe8bab08bdd0df85257d8df",
+    "src/fpl_v1_1_model/experimental_nonpenalty_allocation.py": "db848595111d46828402cce08bd2c7a9d1426e6d96fa69fcb5fd300eaec895a5",
+    "src/fpl_v1_1_model/experimental_penalty_neutral.py": "e3bcf29cb27c801cd2b9e868e990c415aadadb55631270b5d30422cb06f5b03b",
+    "src/fpl_v1_1_model/joint_simulator.py": "eaaed25f96c7919354ee1031180305f9935f4189f9973c535264126562d95c10",
+    "scripts/nonpenalty_goal_bridge.py": "41d5e30eb6e8c290f25358f7c3247d99721db2d9b733697d3660c66b43cd2158",
+    "scripts/run_joint_gk_preview.py": "713cff8d34e973d18104fe896bbcb3c9aba9f034fe85f470842eac190328b340",
+    "scripts/pm_preview_distributions.py": "7dba7f5855a5ba35556c337a78f714e82616b153ed11fa5d6506d28dbcf52fe5",
+    "scripts/b_chain_contract.py": "0ae29aa4abf367030648aca30837c9e58791958b8d7755cf6386a3cdc32c73c3",
+    "analysis/fit_nonpenalty_allocation.py": "a95717d1b4526c8f882a0ef051a0049ab39005fb528281aba517d1a7dcfe10ac",
+    "analysis/test_separated_goal_head.py": "881b7a931c25c819c25313207457c6759a967996b5de785f5c2d242affd97de3",
+    "analysis/results/penalty-neutral-sources-20261023/verified-attempts.csv": "7e683b606096d3a4c5f75644c9fa2a1f99061bb8c2771dee92b5786df755e99a",
+    "analysis/results/penalty-neutral-sources-20261023/predeadline-roles-2024.csv.gz": "58220ef8dbff2afdbba58d228d1c99a6a711e36b8af0481644df3ae82c8d4942"
+  }
+}

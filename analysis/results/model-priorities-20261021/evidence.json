@@ -1,0 +1,64 @@
+{
+  "classification": "READ_ONLY_ARCHIVED_SNAPSHOT_AND_CODE_REVIEW",
+  "data_asof": "2026-10-20T14:23:21.988478+00:00",
+  "forecast_sha256": "ee4c118518d14792af49e34beda13642ef9b7e61dbba9ef2073b0635b5c39b93",
+  "panel_data_asof": "2026-10-20T14:33:08.757490+00:00",
+  "panel_forecast_sha256": "363a7711f1135494167170fdd20efd36900fb658b5469ec4c242fb00172d1a2f",
+  "examples": [
+    {
+      "name": "Penders",
+      "team": "Chelsea",
+      "planning_xm": 78.0,
+      "planning_pm_minutes": 77.43978449733301,
+      "planning_xp": 3.905,
+      "panel_xm": 89.47000016411117,
+      "panel_xp": 3.8
+    },
+    {
+      "name": "Saka",
+      "team": "Arsenal",
+      "planning_xm": 84.56427763788973,
+      "planning_pm_minutes": 80.8920680135171,
+      "planning_xp": 5.535,
+      "panel_xm": 84.56427763788973,
+      "panel_xp": 5.375,
+      "official_penalty_order": 1,
+      "penalty_weight": 0.9008068959234482
+    },
+    {
+      "name": "Palmer",
+      "team": "Chelsea",
+      "planning_xm": 84.93487751312351,
+      "planning_pm_minutes": 81.32585264923485,
+      "planning_xp": 4.085,
+      "panel_xm": 84.93487751312351,
+      "panel_xp": 3.995,
+      "official_penalty_order": 1,
+      "penalty_weight": 0.0429016400928498
+    }
+  ],
+  "outfield_minutes": {
+    "rows": 3570,
+    "mean_mm_minus_pm": 0.8358579306690465,
+    "mean_absolute_gap": 0.851300899992677,
+    "rows_absolute_gap_above_one_minute": 915,
+    "max_gap": 3.97011463844062
+  },
+  "normal_location_90_actual_clipped_mean": 86.01223994069694,
+  "bench_control": {
+    "kind": "SYNTHETIC_NOT_USER_TEAM",
+    "baseline_score": 70.0,
+    "better_bench_score": 70.0,
+    "backup_gk_xp_before": 2.0,
+    "backup_gk_xp_after": 3.0,
+    "starter_no_play_probability": 0.2,
+    "expected_score_gain_under_independent_autosub": 0.2
+  },
+  "source_sha256": {
+    "/tmp/fpl-capacity-fresh-model/current/forecast.json": "ffcff46ea2f3b9cbba0b56ba8b82ca760bc37dfe2dfd76fca13a0659c12e0233",
+    "/tmp/fpl-capacity-fresh-model/gk/forecast.json": "76b107ef8794dfa6e7409a1994970011c972c058a30a272329c55b20df9217a2",
+    "/tmp/fpl-saka-palmer-evidence/current-B-inputs/pm.csv.gz": "af70d0cd7d460589302dd5b01b533b795d67c851d40446ba004c4e85e5de1d18"
+  },
+  "live_refresh_performed": false,
+  "production_changed": false
+}

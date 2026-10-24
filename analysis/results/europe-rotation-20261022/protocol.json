@@ -1,0 +1,18 @@
+{
+  "classification": "OFFLINE_RESEARCH_NOT_LIVE_MODEL",
+  "hypothesis": "Past European participation and PL-to-Europe role switches add start signal beyond frozen B without treating an unused PL substitute as a permanent loss of role.",
+  "reference": "Frozen PR9 B with unified mean-preserving PM",
+  "candidate": "Regularized logistic residual with frozen B logit as offset; prior European minutes, actual observed rest, and prior PL/European role-switch features. No named-player overrides.",
+  "selection": "2024-25 GW14-21, prequential fits on labels strictly known before each cutoff; L2 grid 0.1,1,10; select lowest development start Brier",
+  "evaluation": "2024-25 GW22-38 and 2025-26 GW6-38; reused research periods, not pristine holdouts",
+  "timing": "Prior-only, with existing documented kickoff+4h/3h availability proxies; restored original records use max(proxy, historical Git version time). Not actual ingestion certification.",
+  "future_calendar": "No archived pre-cutoff complete future European schedule available. No future realised fixture or result is used as a predictor. This tests observed role recovery and workload, not prospective pre-European-match rest forecasting.",
+  "acceptance": {
+    "start": "Start Brier improves in both seasons and pooled fixture bootstrap 95% upper delta < 0",
+    "minutes": "Minute MAE non-worsening in both seasons; absolute minute bias increase <= 0.1",
+    "points": "xP MAE increase <= 0.005 each season, played-player xP MAE increase <= 0.02, absolute xP bias increase <= 0.02",
+    "coverage": "At least 50 recovery-pattern outfield player rows per evaluation season; incomplete or uncertified source timing prevents independent promotion certification"
+  },
+  "reporting": "All-roster, played rows, Europe-context, and PL-nonstart followed by observed Europe start subsets; start Brier, minute MAE/bias and xP MAE/bias. Missing contexts remain neutral. No automatic publication.",
+  "production_changed": false
+}

@@ -1,0 +1,245 @@
+#!/usr/bin/env python3
+"""Isolated empirical-GK B→PM preview and historical paired replay.
+
+Does not change a production configuration, manager state, or locked PM/TS.
+"""
+from pathlib import Path
+from contextlib import nullcontext
+from dataclasses import replace
+from datetime import datetime,timezone
+import argparse,hashlib,json
+import numpy as np
+import pandas as pd
+from gk_joint_bridge import DurationHistory,observations,prepare,VERSION,UNKNOWN
+from mm_candidate_forecast import infer_B,seal_document
+from mm_locked_bridge import attach_mm
+from run_vfinal_integrated import make_vfinal_input
+from run_live_vfinal_joint_simulation import POINT_COMPONENTS
+from fpl_v1_1_model.joint_simulator import simulate_many
+from pm_preview_distributions import simulate_with_distributions
+from fpl_v1_1_model.forecast_snapshot import seal_forecast
+ROOT=Path(__file__).resolve().parents[1]
+KEY=['fixture_uuid','player_uuid']
+
+
+def run(frame,predicted,obs,*,season,draws=400,incomplete_teams=(),seed=93000000,paired=False,offsets=None,role_policy=None,paired_v1=None,distributions=False,chain=False,catalogue=None,assignment_history=None,assignment_strength=None,conditional_penalties=False,ordinary_goal_weights=None):
+    rows=[];baseline=[];details={};audit=[]
+    raw=predicted.set_index(KEY)
+    caches={}
+    for i,(fx,g) in enumerate(frame.groupby('fixture_uuid',sort=True)):
+        cut=str(g.cutoff.iloc[0]);history=caches.setdefault(cut,None)
+        if history is None:history=DurationHistory(obs,cut);caches[cut]=history
+        inp,_=make_vfinal_input(g)
+        inp=replace(inp,bps_rules=season)
+        if paired:
+            base=simulate_many(inp,n=draws,seed=seed+(offsets[fx] if offsets is not None else i))
+            for pid,s in base.items():baseline.append(dict(fixture_uuid=fx,player_uuid=pid,xpts=s['xPts'],minutes=s['expected_minutes']))
+        mm=raw.loc[fx].reset_index()
+        original_inp=inp
+        inp,moments,teams=prepare(inp,mm,history,incomplete_teams=incomplete_teams,role_policy=role_policy,season=season)
+        role_distributions={}
+        if assignment_history is not None:
+            if not chain:raise ValueError('Joint role assignment requires the unified B chain')
+            from joint_role_bridge import apply_assignment
+            mm=mm.assign(fixture_uuid=fx)
+            corrected,role_distributions,role_audit=apply_assignment(mm,assignment_history,strength=assignment_strength)
+            by=corrected.set_index('player_uuid')
+            inp=replace(inp,players=tuple(p if p.is_keeper else replace(p,p_start=float(by.loc[p.player_id,'p']),
+                p_cameo_given_bench=float(by.loc[p.player_id,'q']))for p in inp.players))
+            for team in teams:
+                team['outfield_role_assignment']=next(a for a in role_audit if a['team_id']==int(team['team']))
+        if chain:
+            from b_chain_contract import prepare_match,field_marginals
+            inp=prepare_match(inp,catalogue)
+            if ordinary_goal_weights is not None:
+                inp=replace(inp,players=tuple(replace(p,goal_weight=ordinary_goal_weights[(fx,p.player_id)],penalty_fallback_weight=p.goal_weight)if not p.player_id.startswith(UNKNOWN)else p for p in inp.players))
+            if conditional_penalties:inp=replace(inp,experimental_conditional_penalties=True)
+            for p in inp.players:
+                if p.is_keeper:continue
+                mass=field_marginals(p)
+                moments[p.player_id]=dict(p=p.p_start,q=p.p_cameo_given_bench,s=p.start_minutes_mean,c=p.cameo_minutes_mean,
+                    x=float(mass@np.arange(91)),p60=float(mass[60:].sum()),p90=float(mass[90]),p_play=float(1-mass[0]),pmf=mass.tolist())
+        for team in teams: audit.append(dict(fixture_uuid=fx,**team,history_rows=history.rows,last_label_known_at=history.latest,cutoff=cut))
+        if role_distributions:
+            from fpl_v1_1_model.experimental_joint_role_assignment import role_lineup_sampler
+            scope=role_lineup_sampler(role_distributions)
+        else:scope=nullcontext()
+        with scope:
+            sim=(simulate_with_distributions if distributions else simulate_many)(inp,n=draws,seed=seed+(offsets[fx] if offsets is not None else i),**({'include_samples':True}if chain and distributions else{}))
+        if paired_v1 is not None:
+            old,old_moments,_=prepare(original_inp,mm,history,incomplete_teams=incomplete_teams)
+            old_sim=sim if old.players==inp.players else simulate_many(old,n=draws,seed=seed+(offsets[fx] if offsets is not None else i))
+            for p in original_inp.players:
+                if p.is_keeper:
+                    d=old_moments[p.player_id]
+                    paired_v1.append(dict(fixture_uuid=fx,player_uuid=p.player_id,p=d['p'],xm=d['x'],pm=d['x'],p60=d['p60'],p90=d['p90'],xp=old_sim[p.player_id]['xPts']))
+        if i%10==0:print('Joint GK fixture',i+1,'/',frame.fixture_uuid.nunique(),fx,flush=True)
+        for pid,s in sim.items():
+            if not np.isclose(sum(s[k]for k in POINT_COMPONENTS),s['xPts'],atol=1e-8):raise AssertionError('Unreconciled points')
+            if pid.startswith(UNKNOWN):continue
+            if (fx,pid) in raw.index and (chain or str(raw.loc[(fx,pid),'pos'])in('GK','GKP')):
+                details[(fx,pid)]=moments[pid]
+            rows.append(dict(fixture_uuid=fx,player_uuid=pid,gw=int(g.gw.iloc[0]),xpts_fixture=s['xPts'],expected_minutes=s['expected_minutes'],
+                **{k:s[k] for k in POINT_COMPONENTS},penalty_miss_points=s['penalty_miss_points'],**({'penalty_components':s['penalty_components']}if 'penalty_components'in s else{}),**({'distribution':s['distribution']} if distributions else {}),**({'scenarios':s['scenarios']}if chain and distributions else{})))
+        for team in (inp.home_team,inp.away_team):
+            keepers=[p for p in inp.players if p.team==team and p.is_keeper]
+            if abs(sum(sim[p.player_id]['expected_minutes'] for p in keepers)-90)>1e-8:raise AssertionError('Sampled GK coverage failure')
+    return pd.DataFrame(rows),details,audit,pd.DataFrame(baseline)
+
+
+def write(path,obj):
+    path.parent.mkdir(parents=True,exist_ok=True)
+    path.write_text(json.dumps(obj,sort_keys=True,ensure_ascii=False,allow_nan=False,separators=(',',':'))+'\n')
+
+
+def current(inputs,out,*,paired=True,chain=False,evidence_path=None,assignment_policy=None,goal_head_policy=None):
+    from build_live_vfinal_desktop import build
+    inputs=Path(inputs);out=Path(out)
+    h=pd.read_csv(inputs/'history.csv.gz',low_memory=False);t=pd.read_csv(inputs/'target.csv.gz',low_memory=False)
+    prov=json.loads((inputs/'provenance.json').read_text());bootstrap=json.loads((inputs/'bootstrap.json').read_text())
+    if datetime.now(timezone.utc)-datetime.fromisoformat(prov['data_at'])>pd.Timedelta(hours=24):raise ValueError('Not Available: stale current inputs')
+    if datetime.now(timezone.utc)>=datetime.fromisoformat(prov['origin_deadline'].replace('Z','+00:00')):raise ValueError('Expired deadline')
+    evidence_path=Path(evidence_path)if evidence_path else ROOT/'work/gk-official-evidence/evidence.json'
+    evidence=json.loads(evidence_path.read_text())
+    fresh=json.loads((evidence_path.parent/'fpl_bootstrap.json').read_text())
+    old={p['id']:p for p in bootstrap['elements']};new={p['id']:p for p in fresh['elements']}
+    if set(old)!=set(new): raise ValueError('Official roster changed: rebuild original current B inputs')
+    for pid in old:
+        for key in ['now_cost','team','element_type','status','news','chance_of_playing_next_round']:
+            if old[pid].get(key)!=new[pid].get(key):raise ValueError('Official catalogue/news changed: rebuild current B inputs: '+str(pid)+' '+key)
+    if datetime.now(timezone.utc)-datetime.fromisoformat(evidence['observed_at'])>pd.Timedelta(hours=24):raise ValueError('Stale squad evidence')
+    incomplete=(evidence['team_id'],) if evidence['unlisted_competitors'] else ()
+    from gk_solo_role import mark_horizon_absences
+    pred,_=infer_B(h,t,prov);pred=mark_horizon_absences(pred,fresh);pm=pd.read_csv(inputs/'pm.csv.gz',low_memory=False);joined=attach_mm(pm,pred)
+    from gk_solo_role import load_policy
+    policy=load_policy(ROOT,h);v1=[] if paired else None
+    role_evidence=policy.squads.sort_values(['season','team_id','kick','player_uuid']).to_csv(index=False).encode()
+    policy.receipt['squad_evidence_sha256']=hashlib.sha256(role_evidence).hexdigest()
+    import gzip
+    out.mkdir(parents=True,exist_ok=True)
+    (out/'role-squad-evidence.csv.gz').write_bytes(gzip.compress(role_evidence,mtime=0))
+    catalogue={r.player_uuid:old[int(r.fpl_element)]for r in joined.itertuples()}if chain else None
+    assignment_history=None;role_receipt=None
+    if assignment_policy:
+        from joint_role_bridge import load_assignment_policy
+        from fpl_v1_1_model.experimental_role_assignment_history import AssignmentHistory
+        role_receipt=load_assignment_policy(ROOT,assignment_policy)
+        assignment_history=AssignmentHistory(pd.read_csv(inputs/'roles.csv.gz'))
+        role_receipt={**role_receipt,'excluded_current_role_games':len(assignment_history.excluded),
+            'role_input_sha256':hashlib.sha256((inputs/'roles.csv.gz').read_bytes()).hexdigest()}
+    goal_weights=None;goal_receipt=None
+    if goal_head_policy:
+        if not chain:raise ValueError('NP goal head requires unified B chain')
+        from nonpenalty_goal_bridge import load as load_goal_head,calculate as calculate_goal_head
+        goal_model,goal_policy=load_goal_head(ROOT,goal_head_policy)
+        goal_weights,goal_audit,goal_receipt=calculate_goal_head(ROOT,joined,goal_model)
+        goal_audit.to_csv(out/'nonpenalty-goal-head.csv.gz',index=False,compression={'method':'gzip','mtime':0})
+        goal_receipt['goal_head_audit_sha256']=hashlib.sha256((out/'nonpenalty-goal-head.csv.gz').read_bytes()).hexdigest()
+        goal_receipt['policy']=goal_policy
+    xp,details,audit,baseline=run(joined,pred,observations(ROOT),season='2026-27',incomplete_teams=incomplete,paired=paired,role_policy=policy,paired_v1=v1,distributions=True,chain=chain,catalogue=catalogue,
+        assignment_history=assignment_history,assignment_strength=role_receipt['strength']if role_receipt else None,ordinary_goal_weights=goal_weights,conditional_penalties=goal_weights is not None)
+    if role_receipt and paired:
+        # Matched current control: identical source facts, GK policy, event
+        # rates and seeds, with only the role kernel disabled. The old locked
+        # PM comparison remains a separate legacy reference.
+        control,control_means,_,_=run(joined,pred,observations(ROOT),season='2026-27',incomplete_teams=incomplete,
+            role_policy=policy,chain=True,catalogue=catalogue,ordinary_goal_weights=goal_weights,conditional_penalties=goal_weights is not None)
+        before=control.set_index(KEY);after=xp.set_index(KEY);positions=pred.set_index(KEY).pos;comparison=[]
+        for key,d in details.items():
+            old_mean=control_means[key]
+            is_gk=str(positions.loc[key])in ('GK','GKP')
+            if is_gk and any(abs(d[k]-old_mean[k])>1e-10 for k in ['p','q','s','c','x','p60','p90']):
+                raise ValueError('Outfield role assignment changed goalkeeper marginals')
+            if int(before.loc[key,'gw'])==int(joined.gw.min()):
+                comparison.append(dict(fixture_id=key[0],player_id=key[1],
+                    before=dict(p_start=old_mean['p'],xmins=old_mean['x'],pm_analytic_minutes=old_mean['x'],p60=old_mean['p60'],p90=old_mean['p90'],xp=float(before.loc[key,'xpts_fixture'])),
+                    after=dict(p_start=d['p'],xmins=d['x'],pm_analytic_minutes=d['x'],p60=d['p60'],p90=d['p90'],xp=float(after.loc[key,'xpts_fixture']))))
+        write(out/'role-control.json',dict(scope='matched current first-GW role-kernel control',same_source_and_seeds=True,
+            monte_carlo_order_changes=True,goalkeeper_marginals_unchanged=True,players=comparison))
+    if goal_receipt and paired:
+        offsets={fx:i for i,fx in enumerate(sorted(joined.fixture_uuid.unique()))}
+        first=joined[joined.gw.eq(joined.gw.min())]
+        control,control_means,_,_=run(first,pred[pred.fixture_uuid.isin(first.fixture_uuid)],observations(ROOT),season='2026-27',incomplete_teams=incomplete,role_policy=policy,chain=True,catalogue=catalogue,assignment_history=assignment_history,assignment_strength=role_receipt['strength']if role_receipt else None,offsets=offsets)
+        before=control.set_index(KEY);after=xp.set_index(KEY);comparison=[]
+        for key,d in control_means.items():
+            new=details[key]
+            if any(abs(d[k]-new[k])>1e-10 for k in ['p','q','s','c','x','p60','p90']):raise ValueError('NP goal head changed MM marginals')
+            comparison.append(dict(fixture_id=key[0],player_id=key[1],before=dict(p_start=d['p'],xmins=d['x'],pm_analytic_minutes=d['x'],p60=d['p60'],p90=d['p90'],xp=float(before.loc[key,'xpts_fixture'])),after=dict(p_start=new['p'],xmins=new['x'],pm_analytic_minutes=new['x'],p60=new['p60'],p90=new['p90'],xp=float(after.loc[key,'xpts_fixture']))))
+        write(out/'nonpenalty-control.json',dict(scope='same-source first-GW B control, ordinary/penalty separation only',same_source_and_seeds=True,all_MM_marginals_unchanged=True,players=comparison))
+    if paired:write(out/'before-v1.json',dict(players=v1))
+    display=joined.copy();updated=pred.copy();mmrows=[]
+    for index,r in updated.iterrows():
+        key=(r.fixture_uuid,r.player_uuid)
+        if key not in details:continue
+        d=details[key]
+        for name in ['p','q','s','c','x']:updated.loc[index,name]=d[name]
+        ix=display.fixture_uuid.eq(r.fixture_uuid)&display.player_uuid.eq(r.player_uuid)
+        for name,col in [('p','control_p_start'),('q','p_cameo_given_bench'),('x','control_xmins')]:display.loc[ix,col]=d[name]
+        mass=np.array(d['pmf']);lo=int(np.searchsorted(np.cumsum(mass),.1));hi=int(np.searchsorted(np.cumsum(mass),.9))
+        mmrows.append(dict(fixture_id=r.fixture_uuid,player_id=r.player_uuid,team_id=int(r.team_id),gw=int(r.gw),
+            p_start=d['p'],xmins=d['x'],p_60_plus=d['p60'],p_90=d['p90'],p_play=d['p_play'],
+            start_minutes=d['s'],p_sub_given_not_start=d['q'],sub_minutes=d['c'],minute_pmf=d['pmf'],
+            interval80=[lo,hi],interval_status='empirical model distribution; independent coverage calibration not certified'))
+    # Existing locked exporter reads original controls for outfield players.
+    if not chain:
+        for col,src in [('control_p_start','v4_workload_start_p_start'),('p_cameo_given_bench','v4_p_cameo_given_bench'),('control_xmins','v4_workload_start_xmins')]:
+            non=~display.pos.isin(['GK','GKP']);display.loc[non,col]=display.loc[non,src]
+    display['expected_minutes']=display.control_xmins
+    aligned=pred.set_index(KEY).reindex(pd.MultiIndex.from_frame(display[KEY]))
+    display['live_eligibility_applied']=(aligned.news_eligible&aligned.news_state.isin(['OUT','SUSPENDED'])).to_numpy()
+    payload=build(display,xp,bootstrap,json.loads((inputs/'bps-audit.json').read_text()))
+    distributions=xp.set_index(KEY)['distribution'].to_dict()
+    scenarios=xp.set_index(KEY)['scenarios'].to_dict()if chain else{}
+    penalty_split=xp.set_index(KEY)['penalty_components'].to_dict()if goal_receipt else{}
+    team_penalty={(r['fixture_id'],r['team_id']):r['p_at_least_one']for r in goal_receipt['team_penalty_fixtures']}if goal_receipt else{}
+    for p in payload['players']:
+        for w in p['weeks']:
+            for f in w['fixtures']:
+                f['distribution']=distributions[(f['fixture_uuid'],p['player_uuid'])]
+                if goal_receipt:f['penalty']={**penalty_split[(f['fixture_uuid'],p['player_uuid'])],'team_p_at_least_one':team_penalty[(f['fixture_uuid'],p['team_id'])]}
+                d=details.get((f['fixture_uuid'],p['player_uuid']))
+                if d:
+                    f.update(p_60_plus=d['p60'],p_90=d['p90'],pm_analytic_minutes=d['x'],goalkeeper_model=VERSION)
+            if chain:
+                w['pm_analytic_minutes']=sum(x['pm_analytic_minutes']for x in w['fixtures'])
+                w['scenarios']={name:np.sum([scenarios[(x['fixture_uuid'],p['player_uuid'])][name]for x in w['fixtures']],axis=0).astype(int).tolist()for name in ['points','minutes']}
+    payload.update(goalkeeper_role_fit=policy.receipt,gk_horizon_absences=[{k:p.get(k)for k in ['id','web_name','news']}for p in fresh['elements']if p['id']in set(pred.loc[pred.role_horizon_absence,'fpl_element'])],official_gk_status={str(p['id']):{k:p.get(k) for k in ['status','news','chance_of_playing_next_round']} for p in fresh['elements'] if p['element_type']==1},data_asof=max(prov['data_at'],evidence['observed_at']),component_source_asof={'original_B_PM':prov['data_at'],'official_GK_roster':evidence['observed_at']},official_gk_evidence=evidence,model=VERSION,scope='prospective_preview',minute_sampler_audit={'sampler':VERSION,'goalkeeper_MM_to_PM_mean_consistent':True},
+        parts={'mm':'experimental_GK','pm_vfinal':'experimental_joint_GK','ts':'original_unchanged'},gk_team_fixtures=audit)
+    payload['blockers'].append('Experimental joint GK/11-starter sampler; not production-certified. Unlisted competitors are pooled, not individual FPL forecasts.')
+    payload['code_sha256']={name:hashlib.sha256((ROOT/name).read_bytes()).hexdigest() for name in ['scripts/gk_joint_bridge.py','scripts/run_joint_gk_preview.py','scripts/mm_candidate_forecast.py','scripts/gk_solo_role.py','src/fpl_v1_1_model/joint_simulator.py','scripts/pm_preview_distributions.py']}
+    payload['input_sha256']={name:hashlib.sha256((inputs/name).read_bytes()).hexdigest() for name in ['pm.csv.gz','history.csv.gz','target.csv.gz','provenance.json']}
+    if goal_receipt:
+        payload['nonpenalty_goal_head']=goal_receipt
+        payload['code_sha256'].update({name:hashlib.sha256((ROOT/name).read_bytes()).hexdigest()for name in ['scripts/nonpenalty_goal_bridge.py','src/fpl_v1_1_model/experimental_nonpenalty_allocation.py','src/fpl_v1_1_model/experimental_penalty_neutral.py']})
+    if role_receipt:
+        payload['role_assignment']=role_receipt
+        payload['code_sha256'].update({name:hashlib.sha256((ROOT/name).read_bytes()).hexdigest()for name in ['scripts/joint_role_bridge.py','src/fpl_v1_1_model/experimental_joint_role_assignment.py','src/fpl_v1_1_model/experimental_role_assignment_history.py','src/fpl_v1_1_model/experimental_role_importance.py']})
+    if chain:
+        from b_chain_contract import VERSION as CHAIN_VERSION,SCENARIOS,validate_forecast
+        payload.update(model=CHAIN_VERSION,mm_version=CHAIN_VERSION,chain_version=CHAIN_VERSION,
+            minute_sampler_audit={'sampler':CHAIN_VERSION,'all_MM_to_PM_means_consistent':True,'goalkeeper_MM_to_PM_mean_consistent':True,
+                'outfield_minute_budget_enforced':False,'substitution_limit_enforced':False},
+            scenario_contract={'version':SCENARIOS,'draws':400,'within_match':'shared','across_fixtures':'independent seeded draws','parameter_uncertainty_included':False,
+                'outfield_substitutions':'independent conditional durations/cameos; not a physical substitution timeline'},
+            parts={'mm':'B_joint_role_aware','pm_vfinal':'B_mean_preserving_penalty_roles','ts':'B_shared_scenarios_autosubs'},
+            penalty_roles={str(p['id']):p.get('penalties_order')for p in bootstrap['elements']if p.get('penalties_order')},
+            penalty_role_source={'source':'official FPL bootstrap','observed_at':prov['bootstrap_observed_at']})
+        payload['code_sha256'].update({name:hashlib.sha256((ROOT/name).read_bytes()).hexdigest()for name in ['scripts/b_chain_contract.py','scripts/b_preview_ts.py']})
+        if goal_receipt:payload['parts']['pm_vfinal']='B_separate_nonpenalty_and_penalty_goals'
+        payload['blockers'].append('Outfield minutes and substitutions are not a fully joint physical process. Per-player MM/PM agreement is not full-model certification.')
+        validate_forecast(payload)
+    payload=seal_forecast(payload)
+    write(out/'baseline-mm.json',dict(players=[dict(fixture_id=r.fixture_uuid,player_id=r.player_uuid,p_start=float(r.p),xmins=float(r.x),start_minutes=float(r.s),p_sub_given_not_start=float(r.q),sub_minutes=float(r.c))for r in pred.itertuples()]));
+    write(out/'forecast.json',payload);write(out/'gk-mm.json',dict(model=payload['model'],players=mmrows))
+    write(out/'gk-audit.json',dict(model=payload['model'],team_fixtures=audit,draws_per_fixture=400,point_components_reconciled=True,production_changed=False))
+    if paired:baseline.to_csv(out/'paired-baseline.csv.gz',index=False,compression={'method':'gzip','mtime':0})
+    return payload
+
+
+def main():
+    ap=argparse.ArgumentParser();ap.add_argument('--inputs',type=Path,default=ROOT/'work/current-B-inputs');ap.add_argument('--out',type=Path,required=True)
+    ap.add_argument('--no-baseline',action='store_true');ap.add_argument('--chain',action='store_true');ap.add_argument('--evidence',type=Path)
+    ap.add_argument('--role-assignment-policy',type=Path);ap.add_argument('--nonpenalty-goal-policy',type=Path)
+    args=ap.parse_args();p=current(args.inputs,args.out,paired=not args.no_baseline,chain=args.chain,evidence_path=args.evidence,assignment_policy=args.role_assignment_policy,goal_head_policy=args.nonpenalty_goal_policy)
+    print(json.dumps(dict(players=len(p['players']),fixtures=p['fixtures'],gws=p['gws'],forecast_sha256=p['forecast_sha256'])))
+if __name__=='__main__':main()
