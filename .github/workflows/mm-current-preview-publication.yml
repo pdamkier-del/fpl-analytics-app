@@ -14,8 +14,8 @@ permissions:
   pages: write
   id-token: write
 env:
-  PREVIEW_SOURCE_SHA: b0a229c0de05a640f49937616c070dfbcdf986fc
-  PREVIEW_UI_SHA: b0a229c0de05a640f49937616c070dfbcdf986fc
+  PREVIEW_SOURCE_SHA: 4a5e421856a64f4b080c0a68ed7e75ef8aedbdd9
+  PREVIEW_UI_SHA: 4ffc5e93e9fb2bbf22cfb92132469be2af48376b
 jobs:
   verified:
     if: ${{ inputs.validated_run != '' }}
@@ -31,10 +31,10 @@ jobs:
         run: python scripts/verify_b_publication_artifact.py --run "$VALIDATED_RUN" --source "$PREVIEW_SOURCE_SHA"
   current:
     if: ${{ inputs.validated_run == '' }}
-    uses: pdamkier-del/fpl-analytics-app/.github/workflows/mm-current-live-preview.yml@b0a229c0de05a640f49937616c070dfbcdf986fc
+    uses: pdamkier-del/fpl-analytics-app/.github/workflows/mm-current-live-preview.yml@4a5e421856a64f4b080c0a68ed7e75ef8aedbdd9
     with:
-      source_ref: b0a229c0de05a640f49937616c070dfbcdf986fc
-      validated_history_run: '39955376460'
+      source_ref: 4a5e421856a64f4b080c0a68ed7e75ef8aedbdd9
+      validated_history_run: '40124214540'
     permissions:
       contents: read
       actions: read
@@ -68,6 +68,12 @@ jobs:
         with:
           name: mm-current-live-preview
           path: .mm-preview-evidence
+          run-id: ${{ inputs.validated_run || github.run_id }}
+          github-token: ${{ github.token }}
+      - uses: actions/download-artifact@v4
+        with:
+          name: current-B-origin-input-evidence
+          path: .B-origin-evidence
           run-id: ${{ inputs.validated_run || github.run_id }}
           github-token: ${{ github.token }}
       - uses: actions/setup-python@v5
@@ -119,7 +125,9 @@ jobs:
           python scripts/collect_player_match_context.py
           python scripts/build_preview_history_archive.py
           python analysis/audit_history_archive.py --archive app/mm-preview/history-archive --db work/core.sqlite3 --out unified-history-archive-reconciliation.json
+          python analysis/audit_player_chain.py --capture app/mm-preview --inputs .B-origin-evidence/work/current-B-inputs --out app/mm-preview/input-audit --require-source-linkage
           python scripts/integrate_desktop_probabilities.py
+          python analysis/archive_prospective_player_forecast.py --capture app/mm-preview --out app/mm-preview/input-audit
           cmp .mm-preview-evidence/current/forecast.json app/mm-preview/current/forecast.json
           cmp .mm-preview-evidence/gk/forecast.json app/mm-preview/gk/forecast.json
           cmp .mm-preview-evidence/gk/gk-mm.json app/mm-preview/gk/gk-mm.json
@@ -144,6 +152,7 @@ jobs:
           node analysis/verify_desktop_probabilities.cjs > unified-desktop-browser.json
           node analysis/verify_player_match_card.cjs > unified-player-match-card-browser.json
           node analysis/verify_penalty_split_card.cjs > unified-penalty-split-browser.json
+          node analysis/verify_player_input_audit.cjs > unified-player-input-audit-browser.json
           node analysis/verify_player_match_context.cjs > unified-player-match-context-browser.json
           node analysis/verify_history_archive.cjs > unified-history-archive-browser.json
           node analysis/verify_unified_chain.cjs > unified-identity-browser.json
@@ -177,6 +186,13 @@ jobs:
           path: |
             unified-*-browser.json
             unified-history-archive-reconciliation.json
+          retention-days: 90
+      - uses: actions/upload-artifact@v4
+        with:
+          name: B-prospective-player-ledger
+          path: |
+            app/mm-preview/input-audit/prospective-ledger.jsonl.gz
+            app/mm-preview/input-audit/prospective-ledger-manifest.json
           retention-days: 90
       - name: Publish preview alone; preserve every production asset
         env:
