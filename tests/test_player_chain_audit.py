@@ -1,6 +1,7 @@
 import copy
 import hashlib
 import json
+import gzip
 from pathlib import Path
 
 import pandas as pd
@@ -8,6 +9,59 @@ import pytest
 
 from analysis.audit_player_chain import audit
 from scripts.export_joint_gk_preview import selected_nonpenalty_evidence
+
+
+def goalkeeper_bundle(tmp_path,f):
+    inputs=tmp_path/'work/current-B-inputs';inputs.mkdir(parents=True)
+    input_bundle(inputs,f)
+    role=tmp_path/'work/joint-gk-current/role-squad-evidence.csv.gz'
+    role.parent.mkdir(parents=True);raw=b'player_uuid,confirmed_squad\nkeeper,True\n'
+    role.write_bytes(gzip.compress(raw,mtime=0))
+    f['model']='B-MM-PM-TS-v1'
+    f['goalkeeper_role_fit']={'squad_evidence_sha256':hashlib.sha256(raw).hexdigest()}
+    official=tmp_path/'work/gk-official-evidence';official.mkdir()
+    sources={}
+    bootstrap={'elements':[dict(id=p['id'],element_type=p['position'],status='a',news='',chance_of_playing_next_round=None)for p in f['players']]}
+    for key,data in [('chelsea_squad',b'official squad'),('fpl_bootstrap',json.dumps(bootstrap).encode())]:
+        (official/(key+('.json'if key=='fpl_bootstrap'else'.html'))).write_bytes(data)
+        sources[key]={'sha256':hashlib.sha256(data).hexdigest()}
+    f['official_gk_evidence']={'sources':sources,'observed_at':f['data_asof']}
+    f['official_gk_status']={str(p['id']):{k:p[k]for k in ['status','news','chance_of_playing_next_round']}
+                             for p in bootstrap['elements']if p['element_type']==1}
+    (official/'evidence.json').write_text(json.dumps(f['official_gk_evidence']))
+    return inputs,role,official
+
+
+def test_complete_source_checks_include_actual_goalkeeper_role_and_official_inputs(coherent,tmp_path):
+    f,m,c=coherent;inputs,_,_=goalkeeper_bundle(tmp_path,f)
+    r=audit(f,m,catalogue=c,inputs=inputs)
+    assert r['goalkeeper_role_source_evidence_verified']
+    assert r['official_goalkeeper_source_evidence_verified']
+    assert r['source_linkage_passed']and r['all_model_source_evidence_verified']
+    assert r['full_model_certification']is False
+
+
+@pytest.mark.parametrize('change',['missing_role','corrupt_role','wrong_role','raw_squad','saved_receipt','status_snapshot'])
+def test_missing_or_tampered_goalkeeper_input_cannot_appear_complete(coherent,tmp_path,change):
+    f,m,c=coherent;inputs,role,official=goalkeeper_bundle(tmp_path,f)
+    if change=='missing_role':role.unlink()
+    elif change=='corrupt_role':role.write_bytes(b'not gzip')
+    elif change=='wrong_role':role.write_bytes(gzip.compress(b'different valid input',mtime=0))
+    elif change=='raw_squad':(official/'chelsea_squad.html').write_bytes(b'changed')
+    elif change=='saved_receipt':(official/'evidence.json').write_text('{}')
+    else:f['official_gk_status']['100']['status']='i'
+    r=audit(f,m,catalogue=c,inputs=inputs)
+    assert not r['all_model_source_evidence_verified']
+    assert not r['source_linkage_passed']
+    assert all(not p['input_evidence_verified']for p in r['players'])
+
+
+def test_unified_model_without_goalkeeper_receipts_is_not_source_complete(coherent,tmp_path):
+    f,m,c=coherent;input_bundle(tmp_path,f);f['model']='B-MM-PM-TS-v1'
+    r=audit(f,m,catalogue=c,inputs=tmp_path)
+    assert not r['goalkeeper_role_source_evidence_verified']
+    assert not r['official_goalkeeper_source_evidence_verified']
+    assert not r['source_linkage_passed']
 
 
 @pytest.fixture

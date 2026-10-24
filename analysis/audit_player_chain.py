@@ -10,6 +10,7 @@ import argparse
 import csv
 import hashlib
 import json
+import gzip
 
 import numpy as np
 import pandas as pd
@@ -17,6 +18,48 @@ import pandas as pd
 
 def sha(path):
     return hashlib.sha256(Path(path).read_bytes()).hexdigest()
+
+
+def goalkeeper_sources(forecast, inputs):
+    """Verify the actual GK model inputs, independently of the outfield role ledger."""
+    root=Path(inputs).parent if inputs else None
+    required=forecast.get('model')=='B-MM-PM-TS-v1'
+    fit=forecast.get('goalkeeper_role_fit')
+    role_ok=not bool(fit)and not required;official=forecast.get('official_gk_evidence')
+    official_ok=not bool(official)and not required;receipts={}
+    if fit:
+        path=root/'joint-gk-current/role-squad-evidence.csv.gz'if root else None
+        actual=None
+        if path is not None and path.is_file():
+            try:actual=hashlib.sha256(gzip.decompress(path.read_bytes())).hexdigest()
+            except (OSError,EOFError):pass
+        expected=fit.get('squad_evidence_sha256')
+        role_ok=bool(expected and actual==expected)
+        receipts['role_squads']=dict(expected=expected,actual=actual,matches=role_ok)
+    if official:
+        base=root/'gk-official-evidence'if root else None
+        saved=base/'evidence.json'if base else None
+        try:official_ok=bool(saved and saved.is_file()and json.loads(saved.read_text())==official)
+        except (ValueError,OSError):official_ok=False
+        receipts['embedded_official_receipt_matches_saved']=official_ok
+        sources=official.get('sources',{})
+        official_ok=official_ok and bool(sources)
+        for key,record in sources.items():
+            valid=bool(key and all(c.isalnum()or c=='_'for c in key))
+            path=base/(key+('.json'if key=='fpl_bootstrap'else'.html'))if base and valid else None
+            actual=sha(path)if path is not None and path.is_file()else None
+            matches=bool(record.get('sha256')and actual==record['sha256'])
+            receipts[key]=dict(expected=record.get('sha256'),actual=actual,matches=matches)
+            official_ok=official_ok and matches
+        if official_ok and forecast.get('official_gk_status')is not None:
+            try:
+                bootstrap=json.loads((base/'fpl_bootstrap.json').read_text())
+                actual={str(p['id']):{k:p.get(k)for k in ['status','news','chance_of_playing_next_round']}
+                        for p in bootstrap['elements']if p['element_type']==1}
+                official_ok=actual==forecast['official_gk_status']
+            except (ValueError,KeyError,OSError):official_ok=False
+            receipts['official_status_matches_raw_bootstrap']=official_ok
+    return bool(role_ok),bool(official_ok),receipts
 
 
 def audit(forecast, mm, *, inputs=None, context=None, catalogue=None,
@@ -116,7 +159,12 @@ def audit(forecast, mm, *, inputs=None, context=None, catalogue=None,
                 issue('ordinary_goal_derivation_mismatch',str(e))
         else:
             issue('ordinary_goal_derivation_evidence_unavailable','The published ordinary-goal weights are not linked to a recoverable exact derivation.')
-    complete_inputs=verified and (role_verified or not forecast.get('role_assignment')) and goal_sources_verified and goal_derivation_verified
+    gk_role_verified,gk_official_verified,gk_receipts=goalkeeper_sources(forecast,inputs)
+    if not gk_role_verified:
+        issue('goalkeeper_role_source_evidence_unavailable','The exact GK squad-history input is missing or mismatched.')
+    if not gk_official_verified:
+        issue('official_goalkeeper_source_evidence_unavailable','Saved official goalkeeper sources or the status snapshot differ from the forecast.')
+    complete_inputs=verified and (role_verified or not forecast.get('role_assignment')) and goal_sources_verified and goal_derivation_verified and gk_role_verified and gk_official_verified
 
     evidence_ok = None
     if forecast.get('nonpenalty_goal_head') and penalty_evidence is not None:
@@ -275,6 +323,9 @@ def audit(forecast, mm, *, inputs=None, context=None, catalogue=None,
                 all_model_source_evidence_verified=bool(complete_inputs),
                 ordinary_goal_source_evidence_verified=goal_sources_verified,
                 ordinary_goal_derivation_verified=bool(goal_derivation_verified),
+                goalkeeper_role_source_evidence_verified=gk_role_verified,
+                official_goalkeeper_source_evidence_verified=gk_official_verified,
+                goalkeeper_source_receipts=gk_receipts,
                 source_linkage_passed=bool(complete_inputs and (evidence_ok is True if goal_head else True) and not(structural & codes.keys())),
                 ordinary_goal_source_receipts=goal_sources,
                 published_selected_historical_evidence_matches=evidence_ok,

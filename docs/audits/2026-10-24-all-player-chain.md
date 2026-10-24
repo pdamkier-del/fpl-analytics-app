@@ -176,3 +176,12 @@ reference exactly. Only that script's policy hash is updated after this
 comparison; the model, decision, protocol, parameters and acceptance gates
 remain unchanged. A fast repository-policy consistency regression now catches
 such stale pins before the expensive replay. No failed run was published.
+
+The subsequent isolated export check also tightened goalkeeper source coverage.
+The source-completeness flag now requires the exact compressed GK squad-history
+input (verified against the forecast's uncompressed hash), every saved official
+source response, the embedded evidence receipt and the official FPL goalkeeper
+status snapshot. Scheduled origin artifacts include that GK role input too.
+Missing, modified or corrupt GK inputs cannot produce a complete-source status.
+Earlier receipts from the preceding auditor version cover the MM/role/NP subset;
+they are not retroactively claimed to satisfy this added GK requirement.
