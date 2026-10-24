@@ -128,3 +128,15 @@ not newly activated by this audit.
 Final CI, public browser/source-linkage, production-byte and synthetic-service
 receipts will be recorded with the delivered preview. No user team or private
 job key belongs in the public evidence directory.
+
+## Prospective recording
+
+Publication also writes a compact all-player/fixture prediction ledger for
+future evaluation. It records the actual capture time separately from source
+data-as-of, stable player codes, exact fixture predictions and source hashes.
+A capture after the origin deadline or kickoff is not retrospectively marked
+eligible merely because the forecast's source timestamp is old. The ledger
+and manifest are retained as a separate 90-day publication artifact; origin
+feature/source artifacts have a 30-day retention window. This enables honest
+prospective evaluation during those windows, not a promise of permanent
+archival storage or an independent calibration result today.
