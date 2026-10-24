@@ -14,6 +14,8 @@ on:
     branches: [integration-mm-live-20261017, experiment-goalkeeper-coverage-20261018]
     paths:
       - scripts/**
+      - analysis/test_separated_goal_head.py
+      - tests/test_separated_goal_replay_reporting.py
       - service/app.py
       - app/mm-preview/**
       - tests/test_current_b_features.py

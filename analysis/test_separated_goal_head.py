@@ -86,6 +86,7 @@ def main():
     maxerror=float(abs(match.xp_new-match.xp_old).max())
     if maxerror!=0:raise ValueError('Frozen current-B historical baseline not exactly reproduced: '+str(maxerror))
     predictions.to_csv(out/'predictions.csv.gz',index=False);metrics=[];passed=True
+    attempts=pd.read_csv(ROOT/'analysis/results/penalty-neutral-sources-20261023/verified-attempts.csv')
     takers={s:set(attempts[attempts.season.eq(s)].player_uuid)for s in ['2024-25','2025-26']}
     for season,g in predictions.groupby('season'):
         for cohort,sub in [('all',g),('played',g[g.minutes.gt(0)]),('takers',g[g.player_uuid.isin(takers[season])])]:
