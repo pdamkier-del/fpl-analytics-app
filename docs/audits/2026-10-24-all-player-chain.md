@@ -158,9 +158,8 @@ missing role signal. Unknown or sparse information must remain visible;
 coach statements and prospective competition-priority/absence inference are
 not newly activated by this audit.
 
-Final CI, public browser/source-linkage, production-byte and synthetic-service
-receipts will be recorded with the delivered preview. No user team or private
-job key belongs in the public evidence directory.
+Final release receipts are in `analysis/results/all-player-chain-audit-20261024/release/`.
+No user team or private job key belongs in the public evidence directory.
 
 ## Prospective recording
 
@@ -210,3 +209,45 @@ status snapshot. Scheduled origin artifacts include that GK role input too.
 Missing, modified or corrupt GK inputs cannot produce a complete-source status.
 Earlier receipts from the preceding auditor version cover the MM/role/NP subset;
 they are not retroactively claimed to satisfy this added GK requirement.
+
+## Verified publication
+
+The existing desktop B app is published at
+https://pdamkier-del.github.io/fpl-analytics-app/mm-preview/app/transfers-classic.html.
+
+- Numerical source `4a5e421856a64f4b080c0a68ed7e75ef8aedbdd9`,
+  [run 40124214540](https://github.com/pdamkier-del/fpl-analytics-app/actions/runs/40124214540):
+  **917 tests passed**, complete historical gates and repeated fresh model chain.
+- Reviewed UI/auditor source `4ffc5e93e9fb2bbf22cfb92132469be2af48376b`,
+  [publication 40131589302](https://github.com/pdamkier-del/fpl-analytics-app/actions/runs/40131589302):
+  **920 tests passed**, all existing desktop/mobile browser gates and Pages deployment.
+  Publication downloads the exact origin bundle and regenerates auditor **v2**;
+  the numerical source's obsolete v1 interpretation is never used by the new UI.
+- Actual served seal:
+  `6ebf56331e0575fb7252c2fd0384c49167075ab5c5937eecc16ce964ae4da273`.
+  The latest source contains **669 players / 4,014 player-fixtures**, GW9–14,
+  data as of **24 October 21:29:50 Copenhagen** (19:29:50 UTC).
+- Actual public HTTPS desktop/mobile card and audit checks pass with normal
+  TLS verification, no private POSTs, no page errors or horizontal clipping.
+  Old v1, stale and tampered audit reports are rejected. The public transfer
+  page is usable, uses the identical forecast and retains the original layout.
+- Independent reconstruction from the exact retained origin verifies every
+  ordinary scorer weight, all GK input/evidence hashes and source linkage.
+  The public prospective ledger has 4,014 eligible records and no missing
+  stable player codes; probabilities, minute/point values and components
+  match the served model exactly.
+- An explicitly synthetic private remote six-GW TS job completes; captain,
+  vice-captain and scenario score reconcile independently. This is not the
+  actual user's plan. Private state/keys remain outside the repository.
+- All **88 actual served production-file hashes** match the publisher receipt.
+  Model parameters and numerical forecast files are unchanged by the UI/audit
+  correction; no physical repair candidate is activated.
+
+The corrected actual snapshot has **8,356 of 48,000 team draws** whose known
+participants require more than five substitutions under the standard-match
+assumption. Exception events are not exported, and a full time-resolved process
+is not verified. This concern is distinct from the withdrawn sum-to-900 test.
+Roles, historical match importance and the normalized goalkeeper kernel were
+already implemented; future CL priority, latent rest causes, structured coach
+statements and independently calibrated reporting-clock uncertainty remain
+limited. Full-model certification is **false**.
