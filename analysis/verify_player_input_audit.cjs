@@ -21,7 +21,8 @@ const {chromium}=require('playwright'),assert=require('node:assert/strict');
    assert.match(await panel.innerText(),/kun Premier League/);assert.match(await panel.innerText(),/Trænerudtalelser/);
    assert.match(await panel.innerText(),expected.player.physical_team_minutes_verified?/Kampens minutbudget er afstemt/:/Ikke fuldt sammenhængende/);
    assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth),true);assert.equal(posts,0);assert.deepEqual(errors,[]);
-   proof[name]={forecast_sha256:expected.forecast,players_audited:expected.players,per_player_status_matches_report:true,private_posts:posts,page_errors:errors,normal_browser_security:true,scheme:new URL(url).protocol};
+   assert.equal(await panel.evaluate(el=>[el.querySelector('.player-input-audit-table'),...el.querySelectorAll('td')].every(n=>n.scrollWidth<=n.clientWidth+1)),true,'Audit explanations must wrap without horizontal clipping');
+   proof[name]={forecast_sha256:expected.forecast,players_audited:expected.players,per_player_status_matches_report:true,audit_text_wraps_without_horizontal_clipping:true,private_posts:posts,page_errors:errors,normal_browser_security:true,scheme:new URL(url).protocol};
    await context.close();
   }
   const context=await browser.newContext(),page=await context.newPage();
