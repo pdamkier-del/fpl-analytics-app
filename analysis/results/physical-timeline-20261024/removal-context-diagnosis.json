@@ -1,0 +1,90 @@
+{
+  "scope": "Post-hoc diagnosis only; original all-fixture rejection and gates unchanged",
+  "source": "Read-only Core final observations. No recorded red card does not prove all removal events absent.",
+  "predictions_sha256": "e7d6ab1460ba3a1ad6535408cf66c9865946a488564091ef6e7bfd3d294aeadc",
+  "dismissal_context_sha256": "a033ca811996f985039fb33b7f81113d43a2e29ea697a303dfd7b77eb8b56b7c",
+  "independent_validation": false,
+  "candidate_activated": false,
+  "groups": [
+    {
+      "season": "2024-25",
+      "context": "no_recorded_red_card",
+      "arm": "baseline",
+      "fixtures": 152,
+      "player_rows": 11649,
+      "minute_MAE": 10.956172649051473,
+      "minute_bias": -0.3811658316621274,
+      "xP_MAE": 0.8830348098549231
+    },
+    {
+      "season": "2024-25",
+      "context": "no_recorded_red_card",
+      "arm": "candidate",
+      "fixtures": 152,
+      "player_rows": 11649,
+      "minute_MAE": 10.971241474988506,
+      "minute_bias": 0.08713194265601129,
+      "xP_MAE": 0.8848186539617133
+    },
+    {
+      "season": "2024-25",
+      "context": "recorded_red_card",
+      "arm": "baseline",
+      "fixtures": 19,
+      "player_rows": 1456,
+      "minute_MAE": 10.566484154262879,
+      "minute_bias": 0.054246757007186806,
+      "xP_MAE": 0.937396978021978
+    },
+    {
+      "season": "2024-25",
+      "context": "recorded_red_card",
+      "arm": "candidate",
+      "fixtures": 19,
+      "player_rows": 1456,
+      "minute_MAE": 10.508814398574874,
+      "minute_bias": 0.526098901098894,
+      "xP_MAE": 0.9390418956043955
+    },
+    {
+      "season": "2025-26",
+      "context": "no_recorded_red_card",
+      "arm": "baseline",
+      "fixtures": 150,
+      "player_rows": 12335,
+      "minute_MAE": 10.307808831023443,
+      "minute_bias": -0.24881972167153027,
+      "xP_MAE": 0.8742261856505879
+    },
+    {
+      "season": "2025-26",
+      "context": "no_recorded_red_card",
+      "arm": "candidate",
+      "fixtures": 150,
+      "player_rows": 12335,
+      "minute_MAE": 10.400528074449388,
+      "minute_bias": 0.07458451560598603,
+      "xP_MAE": 0.8779860154033239
+    },
+    {
+      "season": "2025-26",
+      "context": "recorded_red_card",
+      "arm": "baseline",
+      "fixtures": 20,
+      "player_rows": 1652,
+      "minute_MAE": 9.266594384884069,
+      "minute_bias": 0.07778192825675155,
+      "xP_MAE": 0.8460063559322034
+    },
+    {
+      "season": "2025-26",
+      "context": "recorded_red_card",
+      "arm": "candidate",
+      "fixtures": 20,
+      "player_rows": 1652,
+      "minute_MAE": 9.47373695812905,
+      "minute_bias": 0.4769975786924845,
+      "xP_MAE": 0.8601831113801452
+    }
+  ]
+}

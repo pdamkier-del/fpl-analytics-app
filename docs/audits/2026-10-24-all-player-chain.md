@@ -79,6 +79,14 @@ certification or production promotion. A proper joint duration/substitution
 model needs calibration against observed squads, entrances/exits and removal
 events, rather than a live minute rescaling or a boost to Cherki.
 
+A post-hoc dismissal-context diagnosis does not explain away the failure.
+Among the 150 evaluated 2025/26 fixtures with no recorded red card, minute
+MAE still rises from 10.307809 to 10.400528. The 20 fixtures with a recorded
+dismissal also worsen (9.266594 to 9.473737). This is an explanatory split,
+not a replacement acceptance cohort or independent test; unrecorded removal
+events are not ruled out. The original all-fixture rejection remains intact.
+The read-only reproduction is `analysis/summarize_physical_removal_context.py`.
+
 Repeated deterministic uniform generation was cached and conditional-state
 grouping vectorized after stack profiling. All intervals are bit-identical
 to the original implementation on 160 conditional ensembles × 128 states.
