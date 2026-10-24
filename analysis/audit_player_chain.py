@@ -278,29 +278,36 @@ def audit(forecast, mm, *, inputs=None, context=None, catalogue=None,
         entry = dict(team_id=team, fixture=fixture, outfield_start_mass=startmass,
                      goalkeeper_start_mass=gkmass, goalkeeper_minutes=gkmins,
                      expected_outfield_minutes=fieldminutes,
-                     standard_90_minute_outfield_budget=900,
+                     nominal_regulation_outfield_minutes=900,
+                     minute_total_scope='Model/FPL-reported marginals; not a physical clock conservation test',
+                     GK_check_scope='Existing normalized 90-minute GK kernel, not an empirical FPL sum rule',
                      physical_removal_events_exported=False,
-                     outfield_budget_reconciled=abs(fieldminutes-900)<1e-7)
+                     interval_timelines_exported=False)
         # Week samples are only unambiguous fixture samples in single fixtures.
         if all(len(w['fixtures'])==1 for _,w,_ in field):
             mins = np.asarray([w['scenarios']['minutes'] for _,w,_ in field],float)
             totals = mins.sum(axis=0)
             participants = (mins>0).sum(axis=0)
-            entry.update(draws=len(totals), draws_not_900=int((totals!=900).sum()),
-                         draws_over_900=int((totals>900).sum()),
-                         draws_over_standard_five_sub_limit=int((participants>15).sum()),
+            keeper_minutes=np.asarray([w['scenarios']['minutes']for _,w,_ in keepers],float)
+            known_keepers=(keeper_minutes>0).sum(axis=0)
+            # Unknown keepers can only increase this count. Do not infer their
+            # presence from a reported-minute deficit: FPL minutes need not sum
+            # to the physical 90-minute clock after substitutions.
+            subs_lower_bound=np.maximum(participants-10,0)+np.maximum(known_keepers-1,0)
+            entry.update(draws=len(totals),
+                         draws_over_standard_five_sub_limit=int((subs_lower_bound>5).sum()),
+                         maximum_known_substitutions_lower_bound=int(subs_lower_bound.max()),
                          max_outfield_participants=int(participants.max()),
                          minimum_total_minutes=float(totals.min()), maximum_total_minutes=float(totals.max()))
         else:
             entry['fixture_sample_check']='unavailable: gameweek contains multiple fixtures'
-        if (not entry['outfield_budget_reconciled'] or entry.get('draws_not_900',0) or
-                entry.get('draws_over_standard_five_sub_limit',0)):
-            issue('outfield_physical_coherence', 'Outfield minutes/substitutions are not a joint physical process.', team_id=team, fixture=fixture)
+        if entry.get('draws_over_standard_five_sub_limit',0):
+            issue('normal_substitution_limit_exceeded', 'Known participants require more than five substitutions in standard-match samples; no exception process is exported.', team_id=team, fixture=fixture)
         groups.append(entry)
     codes = Counter(r['code'] for r in findings)
-    physical = {(g['team_id'],g['fixture']):(g['outfield_budget_reconciled'] and
-                not g.get('draws_not_900',0) and not g.get('draws_over_standard_five_sub_limit',0))
-                if 'draws' in g else None for g in groups}
+    # Reported durations alone cannot prove a continuous legal timeline.
+    physical = {(g['team_id'],g['fixture']):False if g.get('draws_over_standard_five_sub_limit',0) else None
+                for g in groups}
     for row in result:
         states=[physical[row['team_id'],q['fixture']] for q in row['fixtures']]
         row['physical_team_minutes_verified'] = False if False in states else None if None in states or not states else True
@@ -313,7 +320,7 @@ def audit(forecast, mm, *, inputs=None, context=None, catalogue=None,
                   'training_history_after_origin','target_outcome_leakage','feature_history_after_origin','availability_cap_exceeded'}
     structural.add('input_forecast_identity_mismatch')
     structural.update(['unreviewed_input_scope','invalid_input_provenance'])
-    return dict(schema='B-all-player-chain-audit-v1', forecast_sha256=forecast['forecast_sha256'],
+    return dict(schema='B-all-player-chain-audit-v2', forecast_sha256=forecast['forecast_sha256'],
                 auditor_code_sha256=sha(__file__),declared_input_scopes=declared_scopes,
                 data_asof=forecast['data_asof'], reviewed_at=datetime.now(timezone.utc).isoformat(),
                 players_audited=len(players), player_fixture_rows=len(matches),
@@ -333,7 +340,8 @@ def audit(forecast, mm, *, inputs=None, context=None, catalogue=None,
                 source_receipts=receipts, finding_counts=dict(codes), findings=findings,
                 players=result, team_fixtures=groups,
                 limitations=['Completed context captured after an origin cannot prove what that model knew.',
-                             '900 outfield minutes and five substitutions assume a standard match without explicit removal/exception events.',
+                             'FPL-reported minute totals need not equal the physical regulation clock; no equality-to-900 rejection is applied.',
+                             'Participant counts give only a lower bound on substitutions; standard five-sub checks do not establish a complete timeline or model exception events.',
                              'No per-fixture sample check is inferred from aggregated double-gameweek samples.',
                              'Mathematical coherence is not statistical calibration or personal transfer-plan validation.'],
                 production_changed=False, private_user_state_used=False)
@@ -369,7 +377,7 @@ def main():
                  penalty_evidence=evidence,policy_root=Path(__file__).resolve().parents[1])
     a.out.mkdir(parents=True,exist_ok=True)
     (a.out/'audit.json').write_text(json.dumps(report,indent=2,allow_nan=False)+'\n')
-    (a.out/'index.json').write_text(json.dumps(dict(schema='B-all-player-chain-audit-index-v1',
+    (a.out/'index.json').write_text(json.dumps(dict(schema='B-all-player-chain-audit-index-v2',
         forecast_sha256=f['forecast_sha256'],file='audit.json',sha256=sha(a.out/'audit.json'),
         players=report['players_audited'],data_asof=f['data_asof']),sort_keys=True)+'\n')
     summary={k:v for k,v in report.items() if k not in ['players','team_fixtures','findings']}

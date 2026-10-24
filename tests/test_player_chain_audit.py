@@ -92,7 +92,8 @@ def coherent():
 def test_coherence_is_not_calibration(coherent):
     f,m,c=coherent;r=audit(f,m,catalogue=c)
     assert r['technical_moment_contract_passed']
-    assert all(g['outfield_budget_reconciled'] for g in r['team_fixtures'])
+    assert all(g['expected_outfield_minutes']==900 for g in r['team_fixtures'])
+    assert all(p['physical_team_minutes_verified']is None for p in r['players'])
     assert r['full_model_certification'] is False
     assert not r['source_input_evidence_verified']
     assert all(p['calibration_independently_certified'] is False for p in r['players'])
@@ -105,7 +106,7 @@ def test_probability_roundoff_is_tolerated_but_real_ordering_error_is_not(cohere
     assert r['technical_moment_contract_passed'] is passed
 
 
-def test_extra_cameo_exposes_team_gap_without_minute_contract_error(coherent):
+def test_reported_total_alone_does_not_establish_a_physical_timeline(coherent):
     f,m,c=coherent;p=copy.deepcopy(f['players'][1]);p.update(id=999,player_uuid='999',name='Reserve')
     w=p['weeks'][0];w.update(xmins=20.,xpts=1.,scenarios={'minutes':[20]*4,'points':[1]*4})
     w['fixtures'][0].update(xmins=20.,pm_analytic_minutes=20.,p_start=0.,p_60_plus=0.,p_90=0.,xpts=1.,components={'appearance_points':1.})
@@ -115,11 +116,11 @@ def test_extra_cameo_exposes_team_gap_without_minute_contract_error(coherent):
     c.append(dict(id=999,team=1,element_type=3))
     r=audit(f,m,catalogue=c)
     assert r['technical_moment_contract_passed']
-    assert r['finding_counts']['outfield_physical_coherence']==1
+    assert 'normal_substitution_limit_exceeded'not in r['finding_counts']
     g=next(g for g in r['team_fixtures']if g['team_id']==1)
     assert g['expected_outfield_minutes']==920
-    assert g['draws_over_900']==4
-    assert all(not p['physical_team_minutes_verified'] for p in r['players'] if p['team_id']==1)
+    assert 'draws_over_900'not in g
+    assert all(p['physical_team_minutes_verified']is None for p in r['players'] if p['team_id']==1)
 
 
 @pytest.mark.parametrize('mutation,code',[
@@ -176,9 +177,48 @@ def test_average_900_does_not_hide_invalid_individual_timelines(coherent):
         c.append(dict(id=p['id'],team=1,element_type=3))
     r=audit(f,m,catalogue=c);g=next(g for g in r['team_fixtures']if g['team_id']==1)
     assert r['technical_moment_contract_passed']
-    assert g['outfield_budget_reconciled'] and g['draws_not_900']==2
-    assert r['finding_counts']['outfield_physical_coherence']==1
-    assert all(p['physical_team_minutes_verified'] is False for p in r['players']if p['team_id']==1)
+    assert g['expected_outfield_minutes']==900
+    assert 'draws_not_900'not in g
+    assert all(p['physical_team_minutes_verified'] is None for p in r['players']if p['team_id']==1)
+
+
+def add_substitution(f,m,c,index,starter_minutes,sub_minutes,identity):
+    p=f['players'][index];w=p['weeks'][0];q=w['fixtures'][0]
+    xp=2 if starter_minutes>=60 else 1
+    w.update(xmins=starter_minutes,xpts=xp,scenarios={'minutes':[starter_minutes]*4,'points':[xp]*4})
+    q.update(xmins=starter_minutes,pm_analytic_minutes=starter_minutes,p_60_plus=float(starter_minutes>=60),p_90=0,xpts=xp,components={'appearance_points':xp})
+    m['players'][index].update(xmins=starter_minutes,start_minutes=starter_minutes,p_60_plus=float(starter_minutes>=60),p_90=0)
+    sub=copy.deepcopy(p);sub.update(id=identity,player_uuid=str(identity),name='Sub')
+    w=sub['weeks'][0];q=w['fixtures'][0]
+    w.update(xmins=sub_minutes,xpts=1,scenarios={'minutes':[sub_minutes]*4,'points':[1]*4})
+    q.update(xmins=sub_minutes,pm_analytic_minutes=sub_minutes,p_start=0,p_60_plus=0,p_90=0,xpts=1,components={'appearance_points':1})
+    f['players'].append(sub);f['player_fixture_rows']+=1
+    m['players'].append(dict(player_id=str(identity),fixture_id='fixture',xmins=sub_minutes,p_start=0,p_sub_given_not_start=1,start_minutes=90,sub_minutes=sub_minutes,p_60_plus=0,p_90=0,p_play=1))
+    c.append(dict(id=identity,team=p['team_id'],element_type=p['position']))
+
+
+def test_three_valid_reported_minute_pairs_sum_897_without_false_900_violation(coherent):
+    f,m,c=coherent
+    for i,(a,b)in enumerate([(55,34),(68,21),(72,17)],1):add_substitution(f,m,c,i,a,b,1000+i)
+    r=audit(f,m,catalogue=c);g=next(g for g in r['team_fixtures']if g['team_id']==1)
+    assert g['expected_outfield_minutes']==897
+    assert g['maximum_known_substitutions_lower_bound']==3
+    assert 'normal_substitution_limit_exceeded'not in r['finding_counts']
+    assert r['technical_moment_contract_passed']
+    assert all(p['physical_team_minutes_verified']is None for p in r['players'])
+
+
+@pytest.mark.parametrize('include_GK',[False,True])
+def test_six_substitutions_are_detected_even_with_exact_900_model_minutes(coherent,include_GK):
+    f,m,c=coherent
+    indices=[0,1,2,3,4,5]if include_GK else[1,2,3,4,5,6]
+    for index in indices:add_substitution(f,m,c,index,70,20,1000+index)
+    r=audit(f,m,catalogue=c);g=next(g for g in r['team_fixtures']if g['team_id']==1)
+    assert g['expected_outfield_minutes']==900
+    assert g['maximum_known_substitutions_lower_bound']==6
+    assert g['draws_over_standard_five_sub_limit']==4
+    assert r['finding_counts']['normal_substitution_limit_exceeded']==1
+    assert all(p['physical_team_minutes_verified']is False for p in r['players']if p['team_id']==1)
 
 
 def input_bundle(tmp_path,f):

@@ -4,6 +4,13 @@ This is the requested general review, not a Cherki-specific adjustment.
 Production, private manager state and the selected forecasting parameters are
 unchanged. Results are in `analysis/results/all-player-chain-audit-20261024/`.
 
+**Correction, auditor v2:** the initial audit incorrectly treated the sum of
+reported/modelled FPL minutes as an exactly conserved physical 900-minute clock.
+That validity criterion and the resulting claim that all 120 team-fixtures
+failed it are withdrawn. The retained v1 receipts are historical diagnostics,
+not evidence of that claimed defect. Reported-minute sums, physical timelines
+and normal substitution-count constraints must be distinguished.
+
 ## Coverage and the distinction that earlier checks missed
 
 The initial served snapshot covers **668 players, 4,008 player-fixture rows,
@@ -29,22 +36,40 @@ The previous technical claim was broader than the tests justified.
 | Statistical reliability | Historical start and minute-probability bins, subgroup errors and fixture-paired intervals | Reused research periods; no independent individual-player certification |
 | App | Per-player, forecast-bound data audit with checksum validation; missing/stale evidence never appears verified | A complete source trail is not a guarantee of a start, minutes or points |
 
-## Critical physical-process finding
+## Reported minutes and substitution timelines
 
-All 120 initial team-fixtures fail the standard 900 outfield-minute budget.
-Expected totals range from about **818 to 918 minutes**. Of 48,000 exported
-team draws, **47,559 do not sum to 900**, **19,434 exceed 900**, and **4,935**
-have more than fifteen outfield participants; the maximum is 21. The kernel
-does select ten outfield starters and its goalkeeper process covers 90
-minutes. The error lies in sampling unpaired outfield exits and entries.
+Read-only Core observations from the original FPL historical source have a
+median reported outfield total of **897**, in both reviewed seasons, among
+team-fixtures with no recorded red card and complete minute/red labels.
+Only 26 of 709 such 2024/25 team-fixtures and 23 of 718 in 2025/26 sum to 900.
+Goalkeeper reported totals also occasionally equal 89 or 91. This does not
+establish a particular rounding/added-time conversion law, but it disproves
+using exact equality of reported totals to the physical clock as a universal
+validity test. Reproduction: `analysis/summarize_reported_minute_clock.py`;
+receipt: `analysis/results/all-player-chain-audit-20261024/minute-clock/`.
 
-The check is conditional on a normal match. Explicit dismissal/removal and
-concussion-exception timelines are not exported or modelled completely; a
-deficit cannot silently be declared explained by one. Double-gameweek samples
-are not falsely used as individual-fixture timelines. Matching the *average*
-900 is also insufficient if individual draws violate it.
+The initial forecast's expected outfield totals range from about 818 to 918.
+Those figures and the former counts of non-900 draws are descriptive, not a
+standalone physical-failure verdict. The separate observation that 4,935
+draws have more than fifteen outfield participants (maximum 21) remains a
+standard five-substitution concern. Auditor v2 checks a lower bound on known
+substitutions, including additional known goalkeeper participants; it does
+not infer missing keepers from a reported-minute shortfall.
+
+No continuous exit/entry timeline is exported, so totals and counts cannot
+certify one. A detected standard-count breach is reported; otherwise the
+timeline status remains **unknown**, even when totals happen to equal 900.
+Dismissal/concussion exceptions are not silently invented. Double-gameweek
+aggregates are not treated as individual-fixture timelines. The existing
+normalized goalkeeper kernel's declared 90-minute invariant is a model
+consistency check, not a claim that empirical FPL keeper sums are always 90.
 
 ## General repair candidate: tested and rejected
+
+**Measurement limitation:** this candidate forces its model-minute totals to
+900 and was scored directly against reported FPL minutes without a separately
+validated reporting-clock conversion. Its results below are retained honestly;
+they do not prove that a correctly measured joint timeline must perform worse.
 
 An offline physical timeline kernel retains the existing joint starter
 mixture, uses the existing duration/cameo inputs, constrains normal matches to
@@ -72,14 +97,14 @@ increase also has a positive interval [0.001752, 0.008230]. P(60+) and P(90)
 Brier improve, but P(0) and some rotation errors worsen. No subgroup or metric
 has been hidden to call the candidate a win.
 
-**Decision: do not activate this candidate.** The gate is not loosened after
-scoring. Rejection does not resolve or excuse the baseline's physical error:
-it remains a critical outstanding requirement, and prevents full-model
-certification or production promotion. A proper joint duration/substitution
-model needs calibration against observed squads, entrances/exits and removal
-events, rather than a live minute rescaling or a boost to Cherki.
+**Decision: do not activate this candidate as implemented.** The gate is not
+loosened after scoring. A proper joint duration/substitution model needs a
+validated physical-to-reported-minute mapping and calibration against observed
+squads, entrances/exits and removal events. Raw FPL marginals must not simply
+be rescaled to 900. Full-model certification and production promotion are not
+established by this trial or by the corrected source audit.
 
-A post-hoc dismissal-context diagnosis does not explain away the failure.
+A post-hoc dismissal-context diagnosis retains the same reported-label limitation.
 Among the 150 evaluated 2025/26 fixtures with no recorded red card, minute
 MAE still rises from 10.307809 to 10.400528. The 20 fixtures with a recorded
 dismissal also worsen (9.266594 to 9.473737). This is an explanatory split,

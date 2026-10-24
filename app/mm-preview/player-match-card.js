@@ -13,12 +13,12 @@
   if(!inputAudits.has(seal))inputAudits.set(seal,(async()=>{
    const base=new URL('../input-audit/index.json',location.href),r=await fetch(base,{cache:'no-store'});
    if(!r.ok)throw Error('Audit index unavailable');const index=await r.json();
-   if(index.schema!=='B-all-player-chain-audit-index-v1'||index.forecast_sha256!==seal)throw Error('Audit belongs to another forecast');
+   if(index.schema!=='B-all-player-chain-audit-index-v2'||index.forecast_sha256!==seal)throw Error('Audit belongs to another forecast');
    const url=new URL(index.file,base);if(url.origin!==base.origin||!url.pathname.startsWith(base.pathname.slice(0,base.pathname.lastIndexOf('/')+1)))throw Error('Invalid audit path');
    const response=await fetch(url,{cache:'no-store'});if(!response.ok)throw Error('Audit unavailable');const bytes=await response.arrayBuffer();
    const digest=[...new Uint8Array(await crypto.subtle.digest('SHA-256',bytes))].map(x=>x.toString(16).padStart(2,'0')).join('');
    if(digest!==index.sha256)throw Error('Audit checksum mismatch');const report=JSON.parse(new TextDecoder().decode(bytes));
-   if(report.schema!=='B-all-player-chain-audit-v1'||report.forecast_sha256!==seal||report.players.length!==forecast.players.length)throw Error('Incomplete audit');
+   if(report.schema!=='B-all-player-chain-audit-v2'||report.forecast_sha256!==seal||report.players.length!==forecast.players.length)throw Error('Incomplete audit');
    return report;
   })().catch(e=>{inputAudits.delete(seal);throw e}));
   return inputAudits.get(seal);
@@ -30,14 +30,14 @@
    const p=report.players.find(x=>x.id===player.id&&x.player_uuid===player.player_uuid);if(!p)throw Error('Player audit missing');
    const rows=[
     ['Minutter og point',p.individual_numerical_checks_passed?'Afstemt mellem modellerne':'Der er fundet en afvigelse i modelkæden'],
-    ['Samlet spilletid og udskiftninger',p.physical_team_minutes_verified===true?'Kampens minutbudget er afstemt':p.physical_team_minutes_verified===false?'Ikke fuldt sammenhængende i denne modelversion':'Kan ikke kontrolleres pr. kamp fra de tilgængelige scenarier'],
+    ['Udskiftninger og minutforløb',p.physical_team_minutes_verified===true?'Fælles tidslinje verificeret':p.physical_team_minutes_verified===false?'Normalgrænsen for udskiftninger overskrides i simuleringer':'Fælles tidslinje er ikke verificeret fra de tilgængelige data'],
     ['Belastning','De særskilte belastningsfelter bruger kun Premier League'],
     ['CL og pokal','Indgår i dele af rolle- og præstationsmodellen, men ikke i alle felter'],
     ['Trænerudtalelser','Indgår endnu ikke som et struktureret modelinput'],
     ['Sporbarhed',p.input_evidence_verified?'De aktuelle modelinput er gemt og verificeret':'De præcise modelinput kunne ikke efterkontrolleres'],
     ['Prognosekvalitet','Sandsynligheder og minutintervaller er ikke uafhængigt certificeret']
    ];
-   body.replaceChildren(table(['Område','Datagrundlag'],rows,'player-input-audit-table'),el('p','Kontrollen gælder prognosen fra '+clock(report.data_asof)+'. Afstemte beregninger er ikke en garanti for start, minutter eller point.','prob-note'));
+   body.replaceChildren(table(['Område','Datagrundlag'],rows,'player-input-audit-table'),el('p','Kontrollen gælder prognosen fra '+clock(report.data_asof)+'. FPL-registrerede minutter kan afvige fra den fysiske kampklokke. Afstemte beregninger er ikke en garanti for start, minutter eller point.','prob-note'));
    if(!report.technical_moment_contract_passed||report.published_selected_historical_evidence_matches===false)body.prepend(el('p','Datakontrollen har fundet en fejl i modelkæden eller dens kildedokumentation. Prognosen kræver gennemgang.','prob-note'));
    detail.dataset.forecast=report.forecast_sha256;detail.dataset.auditLoaded='true';
   }).catch(()=>{body.replaceChildren(el('p','Datakontrollen for denne prognose kunne ikke hentes. Dækningen er derfor ikke bekræftet.','prob-note'));detail.dataset.auditLoaded='false';});

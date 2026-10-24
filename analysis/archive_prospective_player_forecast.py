@@ -31,6 +31,8 @@ def build_records(forecast,mm,*,recorded_at,catalogue=()):
                     expected_minutes=f['xmins'],xp=f['xpts'],point_components=f['components'],
                     eligible_for_pre_match_validation=asof<=now<deadline and now<utc(f['kickoff'])))
     manifest=dict(schema='B-prospective-player-ledger-v1',season=forecast['season'],
+        minute_definition='Model expected minute marginals; reported FPL totals are not a conserved physical clock',
+        physical_to_reported_minute_conversion_independently_validated=False,
         forecast_sha256=forecast['forecast_sha256'],data_asof=forecast['data_asof'],
         recorded_at=now.isoformat(),origin_deadline=forecast['origin_deadline'],
         records=len(rows),eligible_records=sum(r['eligible_for_pre_match_validation']for r in rows),
