@@ -168,3 +168,11 @@ to be injured, on loan or unavailable. Replaying the actual failed response
 followed by a fresh official request recovers 14 goalkeeper registrations
 on attempt two. Full local regressions pass 908 tests; new publication still
 requires a successful full external run and public browser/service checks.
+
+Run 40119501751 then completed the historical replay successfully but correctly
+rejected the old source hash for the reporting script repaired in adc38ed.
+All 54,184 baseline/candidate prediction rows match the approved 341-fixture
+reference exactly. Only that script's policy hash is updated after this
+comparison; the model, decision, protocol, parameters and acceptance gates
+remain unchanged. A fast repository-policy consistency regression now catches
+such stale pins before the expensive replay. No failed run was published.

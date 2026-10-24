@@ -8,6 +8,14 @@ from pathlib import Path
 import pandas as pd
 
 
+def test_approved_nonpenalty_policy_matches_current_repository_sources():
+    from nonpenalty_goal_bridge import load
+    root=Path(__file__).resolve().parents[1]
+    model,policy=load(root,root/'analysis/results/nonpenalty-goal-head-20261023/policy.json')
+    assert policy['approved']is True
+    assert set(model['allocation']['columns'])=={'np_last_xg','np_recent3_xg'}
+
+
 def test_cli_reports_penalty_taker_cohort_after_preparation(monkeypatch, tmp_path):
     analysis = Path(__file__).resolve().parents[1] / 'analysis'
     monkeypatch.syspath_prepend(str(analysis))
