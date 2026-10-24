@@ -148,3 +148,23 @@ and manifest are retained as a separate 90-day publication artifact; origin
 feature/source artifacts have a 30-day retention window. This enables honest
 prospective evaluation during those windows, not a promise of permanent
 archival storage or an independent calibration result today.
+
+## Publication integration recovery
+
+Run 40100293118 stopped in the refactored historical replay's reporting step:
+the penalty-attempt frame had moved into task preparation but its reporting
+reference had not. All 341 saved fixture predictions exactly reproduce the
+reviewed NP replay (maximum xP difference zero); the missing frame load is
+restored and a CLI reporting regression covers the taker cohort. The failed
+run was not deployed.
+
+Run 40105396189 passed 903 tests and the repeated current six-GW calculations,
+then received an official Chelsea squad payload containing coaching staff
+but no goalkeeper records. Validated uncached retries now reject that partial
+payload and retain response hashes. The source gate requires parsed first-team
+goalkeeper records, not the presence of a specific named player. An omitted
+FPL goalkeeper is recorded as a registration-page discrepancy, never inferred
+to be injured, on loan or unavailable. Replaying the actual failed response
+followed by a fresh official request recovers 14 goalkeeper registrations
+on attempt two. Full local regressions pass 908 tests; new publication still
+requires a successful full external run and public browser/service checks.

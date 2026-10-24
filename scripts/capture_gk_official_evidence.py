@@ -4,6 +4,7 @@ from pathlib import Path
 from html.parser import HTMLParser
 from datetime import datetime,timezone
 import hashlib,json,re,unicodedata,urllib.request
+from time import time_ns
 ROOT=Path(__file__).resolve().parents[1]
 URLS={'chelsea_squad':'https://www.chelseafc.com/en/teams/mens-profiles',
       'chelsea_injury':'https://www.chelseafc.com/en/news/article/injury-update-emiliano-martinez',
@@ -48,19 +49,39 @@ class Squad(HTMLParser):
                 try:walk(json.loads(v))
                 except ValueError:pass
 
+def fetch_squad(url, *, attempts=3, opener=None):
+    """Reject the club's occasional staff-only payload; retry uncached, never infer absence."""
+    opener=opener or urllib.request.urlopen
+    rejected=[]
+    for attempt in range(attempts):
+        requested=url if attempt==0 else url+('&'if '?'in url else '?')+'evidence_capture='+str(time_ns())
+        request=urllib.request.Request(requested,headers={'Cache-Control':'no-cache'})
+        with opener(request,timeout=40)as response:data=response.read()
+        parser=Squad();parser.feed(data.decode())
+        if any('mensteam'in p.get('teams',[])for p in parser.players):
+            return data,dict(requested_url=requested,retrieval_attempt=attempt+1,
+                rejected_responses=rejected,
+                squad_scope='Parsed first-team goalkeeper registrations; registration is not match availability.')
+        rejected.append(dict(requested_url=requested,sha256=hashlib.sha256(data).hexdigest(),
+            observed_at=datetime.now(timezone.utc).isoformat(),reason='No parsed first-team goalkeeper registrations'))
+    raise ValueError('Official squad returned no first-team goalkeeper registrations after validated retries; availability is unknown')
+
 def capture(out):
     out=Path(out);out.mkdir(parents=True,exist_ok=True);sources={};raw={}
     for key,url in URLS.items():
-        data=urllib.request.urlopen(url,timeout=40).read();at=datetime.now(timezone.utc).isoformat()
+        extra={}
+        if key=='chelsea_squad':data,extra=fetch_squad(url)
+        else:data=urllib.request.urlopen(url,timeout=40).read()
+        at=datetime.now(timezone.utc).isoformat()
         path=out/(key+('.json'if key=='fpl_bootstrap'else'.html'));path.write_bytes(data)
-        sources[key]=dict(url=url,observed_at=at,sha256=hashlib.sha256(data).hexdigest());raw[key]=data
+        sources[key]=dict(url=url,observed_at=at,sha256=hashlib.sha256(data).hexdigest(),**extra);raw[key]=data
         if key!='fpl_bootstrap':
             article=Article();article.feed(data.decode());sources[key]['published_at']=article.published_at
     bootstrap=json.loads(raw['fpl_bootstrap']);team=next(t for t in bootstrap['teams']if t['name']=='Chelsea')
     official=[p for p in bootstrap['elements']if p['team']==team['id']and p['element_type']==1]
     parser=Squad();parser.feed(raw['chelsea_squad'].decode())
     men={canonical(p['playerFirstName']+p['playerLastName']):p for p in parser.players if 'mensteam'in p.get('teams',[])}
-    if not any('penders'in n for n in men):raise ValueError('Chelsea squad parser lacks Penders')
+    if not men:raise ValueError('Official squad contains no parsed first-team goalkeepers')
     names={canonical(p.get('first_name','')+p.get('second_name',''))for p in official}
     # Full names differ in middle names; confirmed FPL surnames are also checked.
     missing=[p for n,p in men.items()if n not in names and not any(canonical(q['web_name'])in n for q in official)]
@@ -68,6 +89,9 @@ def capture(out):
         first_team_goalkeepers=[dict(name=(p['playerFirstName']+' '+p['playerLastName']).strip(),url='https://www.chelseafc.com'+p['playerProfileLink']['url'])for p in men.values()],
         unlisted_competitors=[(p['playerFirstName']+' '+p['playerLastName']).strip()for p in missing],
         fpl_goalkeepers=[{k:p.get(k)for k in ['id','web_name','status','news','news_added','chance_of_playing_next_round']}for p in official])
+    evidence['fpl_goalkeepers_missing_from_club_registration_page']=[p['web_name']for p in official
+        if not any(canonical(p['web_name'])in n or canonical(p.get('first_name','')+p.get('second_name',''))==n for n in men)]
+    evidence['registration_absence_interpretation']='Missing from the parsed club page is not evidence of injury, loan or next-match unavailability.'
     evidence['loan_goalkeepers']=[dict(name=(p['playerFirstName']+' '+p['playerLastName']).strip(),teams=p.get('teams',[]))for p in {canonical(p['playerFirstName']+p['playerLastName']):p for p in parser.players if 'onLoan'in p.get('teams',[])}.values()]
     evidence['hierarchy_review']={
         'review_date':'2026-10-18',
