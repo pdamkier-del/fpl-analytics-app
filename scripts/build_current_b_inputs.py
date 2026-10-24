@@ -162,6 +162,9 @@ def build(out,role_cache,ledger_path=None):
         source_manifest_sha256=sha(WORK/'source_manifest.json'),source_workflow=receipt['workflow'],
         role_model='PR4 bands_h42.0_C1.0',role_reference_parity=meta['reference_parity'],
         missing_preinjury_latent_state=not len(old),
+        source_scopes={'explicit_workload_and_last_start':'Premier League only',
+                       'detailed_tactical_role_ledger':'verified all-competition starters',
+                       'structured_coach_statements':'not implemented'},
         limitations=['Historical postmatch times retain documented kickoff+3/4h proxies.',
             'Only verified PL histories enter B workload; other-competition load remains outside this fixed model.',
             'First current-season ledger has no invented prior forecast state; unobserved pre-injury duration remains unavailable.'])

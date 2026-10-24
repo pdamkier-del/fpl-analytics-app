@@ -133,7 +133,8 @@ def current(inputs,out,*,paired=True,chain=False,evidence_path=None,assignment_p
         from nonpenalty_goal_bridge import load as load_goal_head,calculate as calculate_goal_head
         goal_model,goal_policy=load_goal_head(ROOT,goal_head_policy)
         goal_weights,goal_audit,goal_receipt=calculate_goal_head(ROOT,joined,goal_model)
-        goal_audit.to_csv(out/'nonpenalty-goal-head.csv.gz',index=False)
+        goal_audit.to_csv(out/'nonpenalty-goal-head.csv.gz',index=False,compression={'method':'gzip','mtime':0})
+        goal_receipt['goal_head_audit_sha256']=hashlib.sha256((out/'nonpenalty-goal-head.csv.gz').read_bytes()).hexdigest()
         goal_receipt['policy']=goal_policy
     xp,details,audit,baseline=run(joined,pred,observations(ROOT),season='2026-27',incomplete_teams=incomplete,paired=paired,role_policy=policy,paired_v1=v1,distributions=True,chain=chain,catalogue=catalogue,
         assignment_history=assignment_history,assignment_strength=role_receipt['strength']if role_receipt else None,ordinary_goal_weights=goal_weights,conditional_penalties=goal_weights is not None)
@@ -216,13 +217,16 @@ def current(inputs,out,*,paired=True,chain=False,evidence_path=None,assignment_p
     if chain:
         from b_chain_contract import VERSION as CHAIN_VERSION,SCENARIOS,validate_forecast
         payload.update(model=CHAIN_VERSION,mm_version=CHAIN_VERSION,chain_version=CHAIN_VERSION,
-            minute_sampler_audit={'sampler':CHAIN_VERSION,'all_MM_to_PM_means_consistent':True,'goalkeeper_MM_to_PM_mean_consistent':True},
-            scenario_contract={'version':SCENARIOS,'draws':400,'within_match':'shared','across_fixtures':'independent seeded draws','parameter_uncertainty_included':False},
+            minute_sampler_audit={'sampler':CHAIN_VERSION,'all_MM_to_PM_means_consistent':True,'goalkeeper_MM_to_PM_mean_consistent':True,
+                'outfield_minute_budget_enforced':False,'substitution_limit_enforced':False},
+            scenario_contract={'version':SCENARIOS,'draws':400,'within_match':'shared','across_fixtures':'independent seeded draws','parameter_uncertainty_included':False,
+                'outfield_substitutions':'independent conditional durations/cameos; not a physical substitution timeline'},
             parts={'mm':'B_joint_role_aware','pm_vfinal':'B_mean_preserving_penalty_roles','ts':'B_shared_scenarios_autosubs'},
             penalty_roles={str(p['id']):p.get('penalties_order')for p in bootstrap['elements']if p.get('penalties_order')},
             penalty_role_source={'source':'official FPL bootstrap','observed_at':prov['bootstrap_observed_at']})
         payload['code_sha256'].update({name:hashlib.sha256((ROOT/name).read_bytes()).hexdigest()for name in ['scripts/b_chain_contract.py','scripts/b_preview_ts.py']})
         if goal_receipt:payload['parts']['pm_vfinal']='B_separate_nonpenalty_and_penalty_goals'
+        payload['blockers'].append('Outfield minutes and substitutions are not a fully joint physical process. Per-player MM/PM agreement is not full-model certification.')
         validate_forecast(payload)
     payload=seal_forecast(payload)
     write(out/'baseline-mm.json',dict(players=[dict(fixture_id=r.fixture_uuid,player_id=r.player_uuid,p_start=float(r.p),xmins=float(r.x),start_minutes=float(r.s),p_sub_given_not_start=float(r.q),sub_minutes=float(r.c))for r in pred.itertuples()]));

@@ -27,12 +27,7 @@ def evaluate(task):
     return rows
 
 
-def main():
-    parser=argparse.ArgumentParser();parser.add_argument('--out',type=Path,required=True);parser.add_argument('--model',type=Path,required=True);parser.add_argument('--workers',type=int,default=2);parser.add_argument('--conditional-penalties',action='store_true');parser.add_argument('--conditional-only',action='store_true');args=parser.parse_args();out=args.out;out.mkdir(parents=True,exist_ok=True)
-    fitted=json.loads(args.model.read_text())
-    protocol={'candidate':'Remove verified penalty attempts from FPL-scale historical xG (.79 each); rebuild both individual and predeadline soft-role priors; multiply only ordinary scorer weights by resulting nonpenalty/inclusive rate ratio. Keep learned predictive performance covariates/coefs frozen.','source':'2024/25 native shotmap penalty counts; 2025/26 recorded scored+missed counts, no xG-gap inference; all 380 matches per season audited','selection':'No tuning, no player-specific thresholds. Fixed single candidate.','period':'2024/25 GW22-38 and 2025/26 GW6-38, reused research diagnostics','draws':400,'gate':'xP MAE delta <= .005 each season, played MAE delta <= .02, abs bias increase <= .02; penalty-taker subgroup abs bias must improve and MAE not worsen > .02','production_changed':False}
-    protocol.update(candidate='Replace the full ordinary scorer head with NP-only history, NP priors, refitted NP attack shrinkage and NP-trained performance coefficients; freeze the separate penalty fallback; conditional team conversion',period='Both seasons GW22-38 only; development GW16-21 excluded',conditional_penalties=True,conditional_only=False,model_sha256=hashlib.sha256(args.model.read_bytes()).hexdigest(),gate='hard structural separation; overall MAE delta <=.005 and played <=.02 each season; all biases reported, no requirement to preserve compensation from the known blended head')
-    (out/'protocol.json').write_text(json.dumps(protocol,indent=2)+'\n')
+def prepare_tasks(fitted,out):
     with sqlite3.connect(f'file:{ROOT/"work/core.sqlite3"}?mode=ro',uri=True)as db:core=pd.read_sql_query("SELECT * FROM player_fixture_observations WHERE is_final=1 AND season IN ('2024-25','2025-26')",db)
     core['available_at']=pd.to_datetime(core.kickoff_at,utc=True)+pd.to_timedelta(np.where(core.season.eq('2024-25'),4,3),unit='h')
     features={'2024-25':pd.read_csv(ROOT/'analysis/results/penalty-neutral-sources-20261023/predeadline-roles-2024.csv.gz',low_memory=False),'2025-26':pd.read_csv(ROOT/'analysis/results/workload-recovered-v4/all_features.csv.gz',low_memory=False)}
@@ -69,6 +64,16 @@ def main():
             tasks.append((season,r['core_fixture'],r['seed'],asdict(inp),dist,ff,True))
             if len(tasks)%30==0:print('Prepared penalty fixtures',len(tasks),flush=True)
     pd.concat(rate_audits,ignore_index=True).to_csv(out/'rate-audit.csv.gz',index=False)
+    return tasks,core
+
+
+def main():
+    parser=argparse.ArgumentParser();parser.add_argument('--out',type=Path,required=True);parser.add_argument('--model',type=Path,required=True);parser.add_argument('--workers',type=int,default=2);parser.add_argument('--conditional-penalties',action='store_true');parser.add_argument('--conditional-only',action='store_true');args=parser.parse_args();out=args.out;out.mkdir(parents=True,exist_ok=True)
+    fitted=json.loads(args.model.read_text())
+    protocol={'candidate':'Remove verified penalty attempts from FPL-scale historical xG (.79 each); rebuild both individual and predeadline soft-role priors; multiply only ordinary scorer weights by resulting nonpenalty/inclusive rate ratio. Keep learned predictive performance covariates/coefs frozen.','source':'2024/25 native shotmap penalty counts; 2025/26 recorded scored+missed counts, no xG-gap inference; all 380 matches per season audited','selection':'No tuning, no player-specific thresholds. Fixed single candidate.','period':'2024/25 GW22-38 and 2025/26 GW6-38, reused research diagnostics','draws':400,'gate':'xP MAE delta <= .005 each season, played MAE delta <= .02, abs bias increase <= .02; penalty-taker subgroup abs bias must improve and MAE not worsen > .02','production_changed':False}
+    protocol.update(candidate='Replace the full ordinary scorer head with NP-only history, NP priors, refitted NP attack shrinkage and NP-trained performance coefficients; freeze the separate penalty fallback; conditional team conversion',period='Both seasons GW22-38 only; development GW16-21 excluded',conditional_penalties=True,conditional_only=False,model_sha256=hashlib.sha256(args.model.read_bytes()).hexdigest(),gate='hard structural separation; overall MAE delta <=.005 and played <=.02 each season; all biases reported, no requirement to preserve compensation from the known blended head')
+    (out/'protocol.json').write_text(json.dumps(protocol,indent=2)+'\n')
+    tasks,core=prepare_tasks(fitted,out)
     rows=[]
     with ProcessPoolExecutor(max_workers=args.workers)as pool:
         for i,future in enumerate(as_completed([pool.submit(evaluate,t)for t in tasks])):

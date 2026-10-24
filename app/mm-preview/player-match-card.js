@@ -7,6 +7,42 @@
  function table(labels,rows,cls){const wrap=el('div',undefined,'player-match-table '+cls),t=el('table'),head=el('thead'),hr=el('tr'),body=el('tbody');for(const label of labels){const th=el('th',label);th.scope='col';hr.append(th);}head.append(hr);for(const row of rows){const tr=el('tr');row.forEach((value,i)=>{const td=el('td');td.dataset.label=labels[i];if(value instanceof Node)td.append(value);else td.textContent=value;tr.append(td);});body.append(tr);}t.append(head,body);wrap.append(t);return wrap;}
  let history;
  function load(){if(!history)history=root.FplBExistingApp.history().catch(e=>{history=null;throw e});return history;}
+ const inputAudits=new Map();
+ function loadInputAudit(forecast){
+  const seal=forecast.forecast_sha256;
+  if(!inputAudits.has(seal))inputAudits.set(seal,(async()=>{
+   const base=new URL('../input-audit/index.json',location.href),r=await fetch(base,{cache:'no-store'});
+   if(!r.ok)throw Error('Audit index unavailable');const index=await r.json();
+   if(index.schema!=='B-all-player-chain-audit-index-v1'||index.forecast_sha256!==seal)throw Error('Audit belongs to another forecast');
+   const url=new URL(index.file,base);if(url.origin!==base.origin||!url.pathname.startsWith(base.pathname.slice(0,base.pathname.lastIndexOf('/')+1)))throw Error('Invalid audit path');
+   const response=await fetch(url,{cache:'no-store'});if(!response.ok)throw Error('Audit unavailable');const bytes=await response.arrayBuffer();
+   const digest=[...new Uint8Array(await crypto.subtle.digest('SHA-256',bytes))].map(x=>x.toString(16).padStart(2,'0')).join('');
+   if(digest!==index.sha256)throw Error('Audit checksum mismatch');const report=JSON.parse(new TextDecoder().decode(bytes));
+   if(report.schema!=='B-all-player-chain-audit-v1'||report.forecast_sha256!==seal||report.players.length!==forecast.players.length)throw Error('Incomplete audit');
+   return report;
+  })().catch(e=>{inputAudits.delete(seal);throw e}));
+  return inputAudits.get(seal);
+ }
+ function inputAuditPanel(player,data){
+  const detail=el('details',undefined,'player-input-audit');detail.append(el('summary','Prognosens datagrundlag'));
+  const body=el('div');body.append(el('p','Henter datakontrol for denne prognose …','prob-note'));detail.append(body);
+  loadInputAudit(data.forecast).then(report=>{
+   const p=report.players.find(x=>x.id===player.id&&x.player_uuid===player.player_uuid);if(!p)throw Error('Player audit missing');
+   const rows=[
+    ['Minutter og point',p.individual_numerical_checks_passed?'Afstemt mellem modellerne':'Der er fundet en afvigelse i modelkæden'],
+    ['Samlet spilletid og udskiftninger',p.physical_team_minutes_verified===true?'Kampens minutbudget er afstemt':p.physical_team_minutes_verified===false?'Ikke fuldt sammenhængende i denne modelversion':'Kan ikke kontrolleres pr. kamp fra de tilgængelige scenarier'],
+    ['Belastning','De særskilte belastningsfelter bruger kun Premier League'],
+    ['CL og pokal','Indgår i dele af rolle- og præstationsmodellen, men ikke i alle felter'],
+    ['Trænerudtalelser','Indgår endnu ikke som et struktureret modelinput'],
+    ['Sporbarhed',p.input_evidence_verified?'De aktuelle modelinput er gemt og verificeret':'De præcise modelinput kunne ikke efterkontrolleres'],
+    ['Prognosekvalitet','Sandsynligheder og minutintervaller er ikke uafhængigt certificeret']
+   ];
+   body.replaceChildren(table(['Område','Datagrundlag'],rows,'player-input-audit-table'),el('p','Kontrollen gælder prognosen fra '+clock(report.data_asof)+'. Afstemte beregninger er ikke en garanti for start, minutter eller point.','prob-note'));
+   if(!report.technical_moment_contract_passed||report.published_selected_historical_evidence_matches===false)body.prepend(el('p','Datakontrollen har fundet en fejl i modelkæden eller dens kildedokumentation. Prognosen kræver gennemgang.','prob-note'));
+   detail.dataset.forecast=report.forecast_sha256;detail.dataset.auditLoaded='true';
+  }).catch(()=>{body.replaceChildren(el('p','Datakontrollen for denne prognose kunne ikke hentes. Dækningen er derfor ikke bekræftet.','prob-note'));detail.dataset.auditLoaded='false';});
+  return detail;
+ }
  function create(player,data,options={}){
   const box=el('div',undefined,'player-match-overview'+(options.compact?' is-compact':'')),summary=el('div',undefined,'player-match-summary');
   for(const[label,value]of [['Næste GW · xP',val(player.weeks[0]?.xpts,2)],['6 GW · xP',val(player.weeks.reduce((s,w)=>s+w.xpts,0),2)],['Næste GW · xMin',val(player.weeks[0]?.xmins,1)]]){const c=el('div');c.append(el('span',label),el('strong',value));summary.append(c);}
@@ -14,7 +50,7 @@
   const nav=el('nav',undefined,'player-match-nav');nav.setAttribute('aria-label','Spillerkortets kampoversigter');for(const[label,target]of [['Næste kampe',future],['Tidligere kampe',past]]){const button=el('button',label);button.type='button';button.onclick=()=>target.scrollIntoView({block:'start',behavior:'smooth'});nav.append(button);}
   box.append(summary);if(!options.compact)box.append(nav);
   const archive=el('a','Tidligere sæsoner · spillerens kampstatistik','player-history-link');archive.href='history-classic.html?player='+encodeURIComponent(player.player_uuid);box.append(archive);
-  box.append(future,past);past.append(el('h3','Tidligere kampe'),el('p','Henter verificeret kamphistorik …','prob-note'));
+  box.append(future,inputAuditPanel(player,data),past);past.append(el('h3','Tidligere kampe'),el('p','Henter verificeret kamphistorik …','prob-note'));
   function drawFuture(h){
    future.replaceChildren(el('h3',options.compact?'Næste 3 GW · modelprognose':'Næste kampe · modelprognose'));
    const matches=new Map((h?.historical_fixtures?.fixtures||[]).map(f=>[f.id,f])),teams=h?.historical_catalogue?.teams||{};

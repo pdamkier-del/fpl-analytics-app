@@ -156,11 +156,14 @@ def joint_goalkeeper_expected_minutes(gks, team, verified_teams):
     return means
 
 
-def simulate_match(inp:MatchSimInput,rng:Any,*,trace=None)->dict[str,PlayerSimResult]:
+def simulate_match(inp:MatchSimInput,rng:Any,*,trace=None,timeline=None)->dict[str,PlayerSimResult]:
     if inp.lambda_home_goals<0 or inp.lambda_away_goals<0: raise ValueError("goal means must be non-negative")
     ps=list(inp.players); out={p.player_id:PlayerSimResult() for p in ps}; intervals={}
     selected = None
-    if inp.experimental_joint_starters:
+    if timeline is not None:
+        from .experimental_physical_timeline import validate_timeline
+        validate_timeline(inp,timeline)
+    if inp.experimental_joint_starters and timeline is None:
         if not inp.experimental_joint_goalkeepers:
             raise ValueError('Joint XI requires the joint goalkeeper kernel')
         from .experimental_correctness_simulator import round_pair
@@ -178,6 +181,10 @@ def simulate_match(inp:MatchSimInput,rng:Any,*,trace=None)->dict[str,PlayerSimRe
             if len(chosen) != 10: raise AssertionError('Joint XI did not select ten outfield starters')
             selected.update(chosen)
     for p in ps:
+        if timeline is not None:
+            m,a,b=timeline[p.player_id]
+            out[p.player_id].minutes=m;out[p.player_id].started=int(m>0 and a==0);intervals[p.player_id]=(a,b)
+            continue
         if inp.experimental_joint_goalkeepers and p.is_keeper:
             continue
         minute_sampler = _sample_minutes
@@ -191,7 +198,7 @@ def simulate_match(inp:MatchSimInput,rng:Any,*,trace=None)->dict[str,PlayerSimRe
             m,a,b=minute_sampler(rng,replace(p,p_start=float(p.player_id in selected)))
         out[p.player_id].minutes=m; out[p.player_id].started=int(m>0 and a==0); intervals[p.player_id]=(a,b)
 
-    if inp.experimental_joint_goalkeepers:
+    if inp.experimental_joint_goalkeepers and timeline is None:
         for team in (inp.home_team, inp.away_team):
             gks = [p for p in ps if p.team == team and p.is_keeper]
             validate_joint_goalkeepers(gks, team, inp.verified_goalkeeper_roster_teams)

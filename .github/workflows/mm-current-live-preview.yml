@@ -176,6 +176,7 @@ jobs:
           python scripts/locked_numerical_runtime.py scripts/validate_joint_gk_stages.py
           python scripts/export_joint_gk_preview.py
           python scripts/collect_dashboard_news.py
+          python analysis/audit_player_chain.py --capture app/mm-preview --inputs work/current-B-inputs --out app/mm-preview/input-audit --require-source-linkage
           node tests/test_joint_gk_contract.js
           node --check app/mm-preview/gk/app.js
       - uses: actions/upload-artifact@v4
@@ -184,10 +185,33 @@ jobs:
           path: app/mm-preview/
           retention-days: 1
       - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: current-B-origin-input-evidence
+          path: |
+            data_v1_1/derived/live_locked_inputs/2026-27-v1/player_fixture_observations.csv.gz
+            data_v1_1/derived/live_locked_inputs/2026-27-v1/verified_penalty_attempts.csv.gz
+            data_v1_1/derived/live_locked_inputs/2026-27-v1/verified_penalty_team_sides.csv.gz
+            data_v1_1/derived/live_locked_inputs/2026-27-v1/reconstructed_training_features.csv.gz
+            data_v1_1/derived/live_locked_inputs/2026-27-v1/classified_starters.csv.gz
+            work/current-B-inputs/
+            work/current-B-role-training/manifest.json
+            work/current-B-role-training/feature-parity.json
+            work/live-final-model/source_manifest.json
+            work/live-final-model/canonical_raw_rebuild.json
+            work/joint-gk-current/nonpenalty-goal-head.csv.gz
+            work/gk-official-evidence/
+          retention-days: 30
+      - uses: actions/upload-artifact@v4
         if: always() && github.event_name != 'schedule'
         with:
           name: current-B-public-input-and-validation-evidence
           path: |
+            data_v1_1/derived/live_locked_inputs/2026-27-v1/player_fixture_observations.csv.gz
+            data_v1_1/derived/live_locked_inputs/2026-27-v1/verified_penalty_attempts.csv.gz
+            data_v1_1/derived/live_locked_inputs/2026-27-v1/verified_penalty_team_sides.csv.gz
+            data_v1_1/derived/live_locked_inputs/2026-27-v1/reconstructed_training_features.csv.gz
+            data_v1_1/derived/live_locked_inputs/2026-27-v1/classified_starters.csv.gz
             work/historical-validation-reuse.json
             work/current-B-inputs/
             work/current-B-role-training/manifest.json

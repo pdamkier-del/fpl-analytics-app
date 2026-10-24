@@ -12,6 +12,24 @@ def dump(path,value):
     b=(json.dumps(value,ensure_ascii=False,sort_keys=True,separators=(',',':'),allow_nan=False)+'\n').encode();path.write_bytes(b)
     return hashlib.sha256(b).hexdigest()
 
+
+def selected_nonpenalty_evidence(root, policy):
+    """Export the policy's exact decision, never an older similarly named fit."""
+    root=Path(root).resolve()
+    name=policy.get('decision','')
+    path=(root/name).resolve()
+    expected=policy.get('sha256',{}).get(name)
+    if policy.get('approved') is not True or not path.is_relative_to(root) or not expected:
+        raise ValueError('Missing selected NP decision receipt')
+    if hashlib.sha256(path.read_bytes()).hexdigest()!=expected:
+        raise ValueError('Selected NP historical decision checksum mismatch')
+    decision=json.loads(path.read_text())
+    if decision.get('passed') is not True:
+        raise ValueError('Selected NP historical decision failed')
+    return dict(policy=policy,historical=decision,historical_decision_file=name,
+                historical_decision_sha256=expected,production_changed=False,
+                predictive_accuracy_improvement_claimed=False)
+
 def export():
     source=ROOT/'work/joint-gk-current';repeat=ROOT/'work/joint-gk-repeat';out=ROOT/'app/mm-preview/gk';out.mkdir(exist_ok=True)
     for file in ['forecast.json','gk-mm.json','gk-audit.json']:
@@ -53,7 +71,7 @@ def export():
         control=json.loads((source/'nonpenalty-control.json').read_text())
         if not control['all_MM_marginals_unchanged']or not control['same_source_and_seeds']:raise ValueError('NP head current control missing')
         index['nonpenalty_control_sha256']=dump(out/'nonpenalty-control.json',dict(forecast_sha256=forecast['forecast_sha256'],**control))
-        index['nonpenalty_evidence_sha256']=dump(out/'nonpenalty-evidence.json',dict(policy=forecast['nonpenalty_goal_head']['policy'],historical=json.loads((ROOT/'analysis/results/separated-goal-head-validation-20261023/decision.json').read_text()),production_changed=False,predictive_accuracy_improvement_claimed=False))
+        index['nonpenalty_evidence_sha256']=dump(out/'nonpenalty-evidence.json',selected_nonpenalty_evidence(ROOT,forecast['nonpenalty_goal_head']['policy']))
     dump(out/'index.json',index)
     if unified:
         from publish_unified_b_chain import publish
