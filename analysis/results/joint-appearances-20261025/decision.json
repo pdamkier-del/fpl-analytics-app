@@ -1,0 +1,36 @@
+{
+  "fixtures": 341,
+  "player_rows": 27092,
+  "baseline_max_xp_error": 0.0,
+  "numerical_gate_passed": true,
+  "checks": [
+    {
+      "season": "2024-25",
+      "minute_mae_delta": -0.0004790835914825209,
+      "absolute_minute_bias_delta": 0.004967179744910344,
+      "xp_mae_delta": 0.003396222815719163,
+      "absolute_xp_bias_delta": -0.0011127432277756519,
+      "passed": true
+    },
+    {
+      "season": "2025-26",
+      "minute_mae_delta": 0.0004263399786257338,
+      "absolute_minute_bias_delta": 0.004781347251542667,
+      "xp_mae_delta": -0.0006209337241724899,
+      "absolute_xp_bias_delta": 0.0006434546364481267,
+      "passed": true
+    }
+  ],
+  "historical_clock_coverage": {
+    "rows": 57030,
+    "sub_on_second": 0,
+    "sub_off_second": 0
+  },
+  "activated": false,
+  "publishable": false,
+  "production_changed": false,
+  "independent_validation": false,
+  "reason": "Partial appearance-budget coupling only; no paired exits or validated physical-to-FPL clock. Reused periods and 400 draws do not establish a new calibrated full chain.",
+  "script_sha256": "8ca2f82e6e9b2ef5c113f3c44823078095d9249c60da2624369e73d2fbba0b40",
+  "protocol_sha256": "ec704422e6a0abb49e07daf155c65c955bb15194d7388d48309076ff19a19af8"
+}

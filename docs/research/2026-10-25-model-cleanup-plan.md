@@ -36,3 +36,17 @@ Preview means, probabilities and TS scenarios now come from one simulation pass.
 ## Shared fixture input implemented
 
 The PM compatibility entry now delegates to `src/fpl_v1_1_model/fixture_input.py`: separate player/team/match tables, one exact ownership/identity/cutoff join, and one existing mathematical adapter. All source features and original player ordering are retained. Exact mathematical inputs and forecast outputs match on 98 real historical/current fixtures; all 60 current fixtures / 4,014 rows / 669 players round-trip every original value/dtype unchanged. All 974 tests pass. Details: `docs/model/shared-fixture-input.md`; receipts: `analysis/results/fixture-input-contract-20261025/`. This does not rewrite raw collectors or retrain MM/PM, and no public release is initiated.
+
+## Subsequent optimization experiment, distinct from cleanup
+
+The shared appearance-budget candidate is tested on 341 historical fixtures /
+27,092 rows and the archived 60-fixture six-GW chain. Existing B xP reproduces
+exactly in both replays; 980 tests pass. The partial candidate eliminates draws
+above five bench appearances under a standard-match assumption, but leaves
+entry/exit pairing and physical/reporting-clock validation unresolved. Minute
+MAE is essentially unchanged and xP changes do not establish a consistent gain;
+the predeclared protocol forbids activation from this partial screen alone.
+The active B and production models remain unchanged. Signed error decomposition
+identifies start/role uncertainty as larger than the duration components, without
+claiming all of it is avoidable. Full evidence and reproduction commands:
+[`joint-appearances-20261025`](../../analysis/results/joint-appearances-20261025/README.md).
