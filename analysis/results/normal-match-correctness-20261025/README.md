@@ -65,3 +65,23 @@ The script binds live GK history, role squads and NP input sources to the same
 origin artifact, runs the actual current publisher into a private output
 directory, verifies one-match/one-GW scope replay, and exercises the existing TS
 search with a synthetic legal squad. It never changes an actual manager team.
+
+## Completed same-input rehearsal
+
+All 48,000 normal-match team draws pass. The original model required more than
+five substitutions in 8,356 draws (maximum 12); the coupled model has zero such
+draws (maximum five). New sampled outfield totals are exactly 900 throughout.
+This concerns modeled normal-match scenarios, not observed FPL label sums.
+Start marginals differ only by floating-point roundoff, at most 2.45e-15.
+Details: `same-input-minute-comparison.json`. Full six-GW synthetic TS search
+and exact one-match/one-GW scope replay pass.
+
+The deployment's older default guard compared source text from before the
+reviewed scoring extraction. It now checks strict SHA-256 pins for the exact
+reviewed simulator, scorer and input contract and executes the original
+`49b5a829...` PM against the current disabled-B path. Every event/result field,
+RNG state and aggregate is identical on 100 full-roster fixtures (20 draws and
+20 aggregate draws each), plus the original 100 seeded small fixtures and its
+100-draw aggregate. Unknown default-source edits still fail closed. All 986
+tests pass under the GitHub test environment; no model output is changed by
+this guard repair. Fresh release validation remains separate.
