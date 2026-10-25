@@ -14,8 +14,8 @@ permissions:
   pages: write
   id-token: write
 env:
-  PREVIEW_SOURCE_SHA: 4a5e421856a64f4b080c0a68ed7e75ef8aedbdd9
-  PREVIEW_UI_SHA: 4ffc5e93e9fb2bbf22cfb92132469be2af48376b
+  PREVIEW_SOURCE_SHA: 03d5c4d4777b44bc1d37884a1cf4dde106b45cab
+  PREVIEW_UI_SHA: bf518dd5a5aec0cbc18b49375e4afb09ec409a55
 jobs:
   verified:
     if: ${{ inputs.validated_run != '' }}
@@ -31,10 +31,10 @@ jobs:
         run: python scripts/verify_b_publication_artifact.py --run "$VALIDATED_RUN" --source "$PREVIEW_SOURCE_SHA"
   current:
     if: ${{ inputs.validated_run == '' }}
-    uses: pdamkier-del/fpl-analytics-app/.github/workflows/mm-current-live-preview.yml@4a5e421856a64f4b080c0a68ed7e75ef8aedbdd9
+    uses: pdamkier-del/fpl-analytics-app/.github/workflows/mm-current-live-preview.yml@03d5c4d4777b44bc1d37884a1cf4dde106b45cab
     with:
-      source_ref: 4a5e421856a64f4b080c0a68ed7e75ef8aedbdd9
-      validated_history_run: '40124214540'
+      source_ref: 03d5c4d4777b44bc1d37884a1cf4dde106b45cab
+      validated_history_run: '40209861386'
     permissions:
       contents: read
       actions: read
