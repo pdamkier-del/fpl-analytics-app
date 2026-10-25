@@ -1,23 +1,21 @@
-"""Public preview summaries from exact seeded PM replay; locked PM is untouched.
+"""Preview probabilities and TS scenarios from the exact aggregate PM draws.
 
-Replay uses the same match sampler and seed as the aggregate, with no extra RNG
-calls inside a match. The second pass trades computation for a strict immutable
-production boundary. These are empirical predictive distributions, not estimates
-of parameter uncertainty or independently certified calibration.
+One match simulation feeds point means, probabilities and aligned samples.
+The collector only records scalar outcomes and consumes no random numbers.
+These are empirical predictive distributions, not independently certified
+parameter uncertainty or calibration. Production deployment remains separate.
 """
 import numpy as np
 from fpl_v1_1_model import joint_simulator as simulator
 
 
 def simulate_with_distributions(inp, *, n=400, seed=93000000, include_samples=False):
-    aggregate=simulator.simulate_many(inp,n=n,seed=seed)
-    rng=np.random.default_rng(seed)
     draws={p.player_id:[] for p in inp.players}
-    for _ in range(n):
-        result=simulator.simulate_match(inp,rng)
+    def collect(result):
         for pid in draws:
             r=result[pid]
             draws[pid].append((r.minutes,r.started,r.points,r.goals-r.penalty_goals,r.penalty_goals,r.penalty_miss))
+    aggregate=simulator.simulate_many(inp,n=n,seed=seed,on_match=collect)
     separated=any(p.penalty_fallback_weight is not None for p in inp.players)
     team_probability={}
     if separated:

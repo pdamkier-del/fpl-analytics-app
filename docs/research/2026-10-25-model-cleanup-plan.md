@@ -26,3 +26,9 @@ The analytic PM/market screen remains an offline experiment. Neither the B app n
 ## Verified first-step result
 
 All 942 tests pass. The fixed replay has exact equality for 100 fixtures / 2,000 individual match draws plus 2,000 aggregate draws, including random state and all exported components. Evidence: `analysis/results/point-accounting-cleanup-20261025/`. No live deployment was made. The NP source-integrity guard now pins both the simulator and the extracted scorer plus the parity receipt; fitted model and historical acceptance thresholds remain unchanged. Steps 2–6 above are the remaining cleanup plan, not claims of completed implementation.
+
+## Second bounded implementation
+
+The maintained ownership/field map is now `docs/model/data-to-player-points.md`, linked from the root README. `scripts/trace_player_points.py` verifies exact input files and exports source context, selected NP weights, analytic MM values, sampled PM values/components and the TS seal for each player/fixture. It was checked on all 669 players / 4,014 rows of the saved 24 October reviewed release; this is not a new live forecast.
+
+Preview means, probabilities and TS scenarios now come from one simulation pass. Exact fingerprints match the prior two-pass version on 100 historical fixtures, including every preview field and raw TS scenario. Existing full regression suite: 948 passed; subsequent targeted suite including one new joint-role integration test: 9 passed. No source feature, coefficient, probability estimate or public app output was changed or deployed. Old reference/research implementations remain deliberately separate.

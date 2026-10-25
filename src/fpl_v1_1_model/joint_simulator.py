@@ -342,12 +342,18 @@ def simulate_match(inp:MatchSimInput,rng:Any,*,trace=None,timeline=None)->dict[s
     if trace is not None: trace["intervals"]=dict(intervals)
     return out
 
-def simulate_many(inp:MatchSimInput,n:int=20_000,seed:int=26092026)->dict[str,dict[str,float]]:
+def simulate_many(inp:MatchSimInput,n:int=20_000,seed:int=26092026,*,on_match=None)->dict[str,dict[str,float]]:
+    """Aggregate shared draws; an optional read-only observer records those draws.
+
+    Observers must not mutate results or generate random numbers. Existing
+    callers retain the same outputs and random-number sequence.
+    """
     if n<=0: raise ValueError("n must be positive")
     rng=np.random.default_rng(seed); samples={p.player_id:[] for p in inp.players}; nonbonus={p.player_id:[] for p in inp.players}; bonuses={p.player_id:[] for p in inp.players}; mins={p.player_id:[] for p in inp.players}
     aux={p.player_id:{"start":0,"return":0,"ten":0,"cs":0,"bonus1":0,"bonus2":0,"bonus3":0,"appearance_pts":0.0,"goal_pts":0.0,"assist_pts":0.0,"cs_pts":0.0,"save_pts":0.0,"dc_pts":0.0,"negative_pts":0.0,"gc_pts":0.0,"penalty_miss_pts":0.0,"penalty_save_pts":0.0} for p in inp.players}
     for _ in range(n):
         res=simulate_match(inp,rng)
+        if on_match is not None:on_match(res)
         for p in inp.players:
             r=res[p.player_id]; samples[p.player_id].append(r.points); nonbonus[p.player_id].append(r.points-r.bonus); bonuses[p.player_id].append(r.bonus); mins[p.player_id].append(r.minutes); aux[p.player_id]["start"]+=r.started
             aux[p.player_id]["return"]+=int(r.goals+r.assists>0); aux[p.player_id]["ten"]+=int(r.points>=10); aux[p.player_id]["cs"]+=r.clean_sheet
