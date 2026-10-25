@@ -45,3 +45,55 @@ def test_model_publication_keeps_more_recent_news(tmp_path,monkeypatch):
         (path/'news').mkdir(parents=True);(path/'news/availability.json').write_text(json.dumps(value))
     retain_latest(source,previous)
     assert json.loads((source/'news/availability.json').read_text())==newer
+
+
+def fixture(now,player=1,**kw):
+    return dict(id=73,event=8,team_h=1,team_a=2,kickoff_time=(now-timedelta(days=1)).isoformat(),finished=False,stats=[dict(identifier='red_cards',h=[dict(value=1,element=player)],a=[])],**kw)
+
+
+def test_red_card_does_not_require_updated_availability_or_imply_ban():
+    source=raw();source['elements'][0].update(status='a',news='',red_cards=1);source['teams'].append(dict(id=2,name='Opponent'));now=datetime.now(timezone.utc)
+    value=build(source,now.isoformat(),[fixture(now)])
+    p=value['players'][0]
+    assert p['status']=='a'and p['news']==''
+    assert p['recent_red_cards'][0]['fixture_id']==73 and p['recent_red_cards'][0]['provisional']
+    assert 'suspension_matches'not in p and value['discipline_checked']
+    assert seal(value)==value
+
+
+def test_season_red_card_total_is_not_a_current_event():
+    source=raw();source['elements'][0]['red_cards']=1
+    assert build(source,fixtures=[])['players'][0]['recent_red_cards']==[]
+
+
+def test_old_and_future_red_cards_do_not_become_current_alerts():
+    source=raw();source['teams'].append(dict(id=2,name='Opponent'));now=datetime.now(timezone.utc)
+    for days in [15,-1]:
+        f=fixture(now);f['kickoff_time']=(now-timedelta(days=days)).isoformat()
+        assert build(source,now.isoformat(),[f])['players'][0]['recent_red_cards']==[]
+
+
+def test_both_sides_and_player_identity_stay_distinct():
+    source=raw();source['teams'].append(dict(id=2,name='Opponent'));source['elements'].append({**source['elements'][0],'id':2,'team':2,'web_name':'Other Palmer'})
+    now=datetime.now(timezone.utc);f=fixture(now,2);f['stats'][0]['a']=f['stats'][0].pop('h');f['stats'][0]['h']=[]
+    value=build(source,now.isoformat(),[f]);assert not value['players'][0]['recent_red_cards'];assert value['players'][1]['recent_red_cards'][0]['team_id']==2
+
+
+def test_duplicate_and_unmapped_card_evidence_rejected():
+    source=raw();source['teams'].append(dict(id=2,name='Opponent'));now=datetime.now(timezone.utc);f=fixture(now)
+    with pytest.raises(ValueError,match='Duplicate'):build(source,now.isoformat(),[f,f])
+    with pytest.raises(ValueError,match='Unmapped'):build(source,now.isoformat(),[fixture(now,999)])
+
+
+def test_reviewed_ban_scope_is_attached_to_exact_event_without_changing_availability():
+    source=raw();source['elements'][0]['status']='a';source['teams'].append(dict(id=2,name='Opponent'));now=datetime.now(timezone.utc);f=fixture(now)
+    resolution=dict(player_id=1,fixture_id=73,kickoff=f['kickoff_time'],human_reviewed=True,source_url='https://www.premierleague.com/en/news/4425344',source_observed_at=(now-timedelta(minutes=5)).isoformat(),description='Afsones i EFL Cup.',premier_league_matches_missed=0)
+    value=build(source,now.isoformat(),[f],[resolution]);assert value['players'][0]['status']=='a';assert value['players'][0]['recent_red_cards'][0]['resolution']['premier_league_matches_missed']==0
+    # A reused fixture/player ID in another season/day must not inherit the ban.
+    other={**resolution,'kickoff':(now-timedelta(days=2)).isoformat()};assert 'resolution'not in build(source,now.isoformat(),[f],[other])['players'][0]['recent_red_cards'][0]
+
+
+def test_future_ban_review_is_not_backdated():
+    source=raw();source['teams'].append(dict(id=2,name='Opponent'));now=datetime.now(timezone.utc);f=fixture(now)
+    resolution=dict(player_id=1,fixture_id=73,kickoff=f['kickoff_time'],human_reviewed=True,source_url='https://www.premierleague.com/en/news/4425344',source_observed_at=(now+timedelta(minutes=5)).isoformat())
+    with pytest.raises(ValueError,match='Unverified'):build(source,now.isoformat(),[f],[resolution])

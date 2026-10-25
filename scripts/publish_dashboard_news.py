@@ -2,7 +2,7 @@
 import hashlib,json,os,re,subprocess,tarfile,tempfile
 from pathlib import Path
 import requests
-from collect_dashboard_news import build,seal,URL
+from collect_dashboard_news import build,seal,URL,FIXTURES_URL,reviewed_resolutions
 from publish_mm_preview import main as publish
 ROOT=Path(__file__).resolve().parents[1]
 
@@ -20,7 +20,8 @@ def main():
         receipt=json.loads((source/'publication.json').read_text());ui=receipt['preview_source_commit']
         if not re.fullmatch('[a-f0-9]{40}',ui):raise ValueError('Unknown existing UI provenance')
         response=requests.get(URL,timeout=45,headers={'Cache-Control':'no-cache','User-Agent':'FPLAnalyticsAvailability/1'});response.raise_for_status()
-        news=build(response.json());news=seal(dict(news,collector_source_sha=subprocess.check_output(['git','rev-parse','HEAD'],cwd=ROOT,text=True).strip()))
+        fixtures=requests.get(FIXTURES_URL,timeout=45,headers={'Cache-Control':'no-cache','User-Agent':'FPLAnalyticsAvailability/1'});fixtures.raise_for_status()
+        news=build(response.json(),fixtures=fixtures.json(),resolutions=reviewed_resolutions());news=seal(dict(news,collector_source_sha=subprocess.check_output(['git','rev-parse','HEAD'],cwd=ROOT,text=True).strip()))
         out=source/'news/availability.json';out.parent.mkdir(exist_ok=True);out.write_text(json.dumps(news,ensure_ascii=False,sort_keys=True,separators=(',',':'),allow_nan=False)+'\n')
         assert before==fingerprints(source),'News refresh altered existing UI or model files'
         os.environ['MM_PREVIEW_SOURCE_DIR']=str(source);os.environ['PREVIEW_SOURCE_SHA']=ui

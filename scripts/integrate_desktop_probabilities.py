@@ -52,6 +52,10 @@ def integrate(root=ROOT):
     snapshot_inject(out)
     from integrate_history_archive import inject as history_inject
     history_inject(out)
+    # Player panels reuse the same sealed current status feed as the dashboard.
+    for page in out.glob('*.html'):
+        text=page.read_text()
+        if 'dashboard-team-news.js'not in text:page.write_text(text.replace('</head>','<script src="../dashboard-team-news.js"></script></head>'))
     # The same origin already serves earlier app versions. Content-derived
     # queries prevent cached old adapters from hiding newly added history APIs.
     import re

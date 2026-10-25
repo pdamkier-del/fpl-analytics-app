@@ -34,3 +34,13 @@ assert(!N.html(changedTarget).includes('Other'));
 assert.match(N.evaluate({...context,state:{...state,observed_at:'2026-10-19T18:30:00Z'}},now).message,/ikke bekræfte holdet igen/);
 assert.equal(N.evaluate(context,now).alignmentReason,'');
 console.log('PASS: new official injury and team timestamp waits have distinct reasons; off-squad news stays outside the owned feed.');
+
+// A match dismissal must remain visible even when FPL's status flag still says a.
+const red=structuredClone(news);red.discipline_checked=true;red.discipline_source_url='https://fantasy.premierleague.com/api/fixtures/';red.players.forEach(p=>p.recent_red_cards=[]);red.players[0].recent_red_cards=[{fixture_id:73,gw:7,kickoff:'2026-10-18T16:30:00Z',red_cards:1,provisional:true,opponent:'Spurs',source_url:red.discipline_source_url}];
+const rp=N.evaluate({...context,news:red},now);assert.equal(rp.rows[0].status,'a');assert(rp.rows[0].has_recent_red);assert.match(rp.rows[0].label,/Rødt kort/);assert.match(N.html(rp),/foreløbige kampdata/);assert.match(N.html(rp),/ikke fastlagt/);assert(!N.html(rp).includes('FPL-tilgængelighed: 100'));
+const staleRed=structuredClone(red);staleRed.observed_at='2026-10-19T17:00:00Z';const sr=N.evaluate({...context,news:staleRed},now);assert.equal(sr.phase,'news_unavailable');assert(!sr.canCompute);assert(sr.rows[0].has_recent_red);assert.match(sr.rows[0].label,/Senest registreret/);
+assert.throws(()=>N.playerStatus(red,1,999));const badRed=structuredClone(red);badRed.players[0].recent_red_cards[0].kickoff='2026-10-20T12:00:00Z';assert.throws(()=>N.validate(badRed,now));
+console.log('PASS: recent red cards override a lagging available label without inventing a ban, survive stale-feed display and preserve compute freshness gates.');
+const cup=structuredClone(red);cup.players[0].recent_red_cards[0].resolution={player_id:1,fixture_id:73,kickoff:'2026-10-18T16:30:00Z',source_url:'https://www.premierleague.com/en/news/4425344',source_observed_at:'2026-10-19T18:45:00Z',description:'Én kamp. Afsones i EFL Cup, ingen PL-kampe.',premier_league_matches_missed:0};
+N.validate(cup,now);const ch=N.html(N.evaluate({...context,news:cup},now));assert.match(ch,/Afsones i EFL Cup/);assert.doesNotMatch(ch,/ikke fastlagt/);assert.equal(N.playerStatus(cup,1,1).status,'a');const wrongResolution=structuredClone(cup);wrongResolution.players[0].recent_red_cards[0].resolution.kickoff='2025-10-18T16:30:00Z';assert.throws(()=>N.validate(wrongResolution,now));
+console.log('PASS: a sourced cup suspension explanation belongs only to its exact red-card event and does not change PL availability.');
