@@ -13,11 +13,9 @@ import numpy as np
 
 from .bps import BPSComponents, bps_2024_25, bps_2025_26, bps_2026_27, allocate_bonus_points
 from .defcon import dc_points_from_count
-from .keeper import save_points
-from .negative_events import DisciplineProbabilities, sample_discipline, direct_negative_points
+from .negative_events import DisciplineProbabilities, sample_discipline
 
-GOAL_POINTS={"GK":10,"GKP":10,"DEF":6,"MID":5,"FWD":4}
-CS_POINTS={"GK":4,"GKP":4,"DEF":4,"MID":1,"FWD":0}
+from .point_accounting import GOAL_POINTS, CS_POINTS, point_components, nonbonus_total
 
 @dataclass(frozen=True)
 class PlayerSimInput:
@@ -316,14 +314,7 @@ def simulate_match(inp:MatchSimInput,rng:Any,*,trace=None,timeline=None)->dict[s
     for p in ps:
         r=out[p.player_id]; m=r.minutes
         if m<=0: bps[p.player_id]=-10_000; continue
-        pts=2 if m>=60 else 1
-        pts += GOAL_POINTS[p.position]*r.goals + 3*r.assists
-        pts += CS_POINTS[p.position]*r.clean_sheet
-        if p.is_keeper: pts += save_points(r.saves) + 5*r.penalty_saves
-        if p.position in ("GK","GKP","DEF"): pts -= r.goals_conceded_while_on_pitch//2
-        pts += r.dc_points
-        pts += direct_negative_points(yellow=r.yellow,red=r.red,own_goal=r.own_goal,penalty_miss=r.penalty_miss)
-        r.points=pts
+        r.points=nonbonus_total(point_components(p.position,p.is_keeper,r))
         comp=BPSComponents(minutes=m,position=p.position,
             non_penalty_goals=max(0,r.goals-r.penalty_goals),penalty_goals=r.penalty_goals,assists=r.assists,
             clean_sheet=r.clean_sheet,penalty_saves=r.penalty_saves,saves_total=r.saves,
@@ -362,17 +353,8 @@ def simulate_many(inp:MatchSimInput,n:int=20_000,seed:int=26092026)->dict[str,di
             aux[p.player_id]["return"]+=int(r.goals+r.assists>0); aux[p.player_id]["ten"]+=int(r.points>=10); aux[p.player_id]["cs"]+=r.clean_sheet
             if r.bonus in (1,2,3):
                 aux[p.player_id][f"bonus{r.bonus}"]+=1
-            if r.minutes>0:
-                aux[p.player_id]["appearance_pts"] += 2 if r.minutes>=60 else 1
-                aux[p.player_id]["goal_pts"] += GOAL_POINTS[p.position]*r.goals
-                aux[p.player_id]["assist_pts"] += 3*r.assists
-                aux[p.player_id]["cs_pts"] += CS_POINTS[p.position]*r.clean_sheet
-                aux[p.player_id]["save_pts"] += save_points(r.saves) if p.is_keeper else 0
-                aux[p.player_id]["penalty_save_pts"] += 5*r.penalty_saves if p.is_keeper else 0
-                aux[p.player_id]["penalty_miss_pts"] += -2*r.penalty_miss
-                aux[p.player_id]["dc_pts"] += r.dc_points
-                aux[p.player_id]["negative_pts"] += direct_negative_points(yellow=r.yellow,red=r.red,own_goal=r.own_goal,penalty_miss=r.penalty_miss)
-                aux[p.player_id]["gc_pts"] += -(r.goals_conceded_while_on_pitch//2) if p.position in ("GK","GKP","DEF") else 0
+            for component,value in point_components(p.position,p.is_keeper,r).items():
+                aux[p.player_id][component] += value
     ans={}
     for p in inp.players:
         a=np.asarray(samples[p.player_id],dtype=float)
