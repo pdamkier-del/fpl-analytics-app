@@ -30,7 +30,7 @@
    const p=report.players.find(x=>x.id===player.id&&x.player_uuid===player.player_uuid);if(!p)throw Error('Player audit missing');
    const rows=[
     ['Minutter og point',p.individual_numerical_checks_passed?'Afstemt mellem modellerne':'Der er fundet en afvigelse i modelkæden'],
-    ['Udskiftninger og minutforløb',p.physical_team_minutes_verified===true?'Fælles tidslinje verificeret':p.physical_team_minutes_verified===false?'Normalgrænsen for udskiftninger overskrides i simuleringer':'Fælles tidslinje er ikke verificeret fra de tilgængelige data'],
+    ['Udskiftninger og minutforløb',p.normal_match_timeline_verified===true?'Normal kamp verificeret: højst 5 indskiftninger. Fælles tidslinje er ikke verificeret ved udvisninger.':p.physical_team_minutes_verified===true?'Fælles tidslinje verificeret':p.physical_team_minutes_verified===false?'Normalgrænsen for udskiftninger overskrides i simuleringer':'Fælles tidslinje er ikke verificeret fra de tilgængelige data'],
     ['Belastning','De særskilte belastningsfelter bruger kun Premier League'],
     ['CL og pokal','Indgår i dele af rolle- og præstationsmodellen, men ikke i alle felter'],
     ['Trænerudtalelser','Indgår endnu ikke som et struktureret modelinput'],
