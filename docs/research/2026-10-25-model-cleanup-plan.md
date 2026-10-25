@@ -50,3 +50,16 @@ The active B and production models remain unchanged. Signed error decomposition
 identifies start/role uncertainty as larger than the duration components, without
 claiming all of it is avoidable. Full evidence and reproduction commands:
 [`joint-appearances-20261025`](../../analysis/results/joint-appearances-20261025/README.md).
+
+## Normal-match constraints established in the published B preview
+
+The user subsequently required known football constraints independently of a
+predictive gain. Current B now uses the existing shared normal-match kernel by
+default: paired entry/exit, ten outfield starters plus one keeper, 900+90
+normalized minutes, at most five substitutions including GK and three live
+windows excluding half-time. MM and PM use the same marginal law; TS consumes
+the same shared draws. 990 tests, fresh repeat/scope/TS checks and public
+desktop/mobile verification pass. This does not introduce a red-card removal
+process or an empirically validated reported-minute conversion. The original
+production model is unchanged. Published source and exact production-isolation
+receipts: [`normal-match release`](../../analysis/results/normal-match-correctness-20261025/release/README.md).
