@@ -1,7 +1,7 @@
 import json,gzip,hashlib,base64
 from pathlib import Path
-from free_match_intel import identity
-P=Path('/workspace/scratch/text-intel-pilot');OUT=Path('analysis/results/text-intel-pilot-20261025')
+from free_match_intel import identity,Tree
+OUT=Path('analysis/results/text-intel-pilot-20261025');P=OUT
 raw=gzip.decompress(b''.join(p.read_bytes()for p in sorted(Path('data_v1_1/derived/team_news_audit/2025-26-v2').glob('predeadline_strict.jsonl.gz.part-*'))))
 ident=[r for r in map(json.loads,raw.splitlines())if r['gw']==22]
 # This list uses source text and identities only. No results/predicted errors loaded.
@@ -16,9 +16,9 @@ for name,club,kind,needle,source in specs:
  # Explicit manually reviewed canonical aliases, not a fuzzy matcher.
  aliases={'Ruben Dias':'Rúben dos Santos Gato Alves Dias','Savinho':'Sávio Moreira de Oliveira','Gabriel':'Gabriel dos Santos Magalhães','Amad Diallo':'Amad Diallo','Emiliano Martinez':'Emiliano Martínez Romero','Robin Roefs':'Robin Roefs','William Osula':'William Osula'}
  if name in aliases:found=[r for r in ident if identity(r['team'])==identity(club)and identity(aliases[name])in identity(r['player_name'])]
- blocks=json.load(open(P/(source+'.blocks.json')));hits=[(i,x)for i,x in enumerate(blocks)if x['tag']=='p'and needle in x['text']]
+ root=Tree(gzip.decompress((P/'source-archives'/(source+'.html.gz')).read_bytes()).decode()).root;entry=root.find('entry-content')[0];blocks=[dict(tag=n.tag,text=n.text())for n in entry.walk()if n.tag in ['h2','h3','p','blockquote','li']and n.text()];hits=[(i,x)for i,x in enumerate(blocks)if x['tag']=='p'and needle in x['text']]
  if not hits:raise ValueError(('Missing source span',name,needle))
- r=receipts[source];data=(P/(source+'.raw')).read_bytes();assert base64.b32encode(hashlib.sha1(data).digest()).decode().rstrip('=')==r['cdx']['digest']
+ r=receipts[source];data=gzip.decompress((P/'source-archives'/(source+'.html.gz')).read_bytes());assert base64.b32encode(hashlib.sha1(data).digest()).decode().rstrip('=')==r['cdx']['digest']
  if len(found)!=1:
   unresolved.append({'name':name,'club':club,'candidates':[r['player_name']for r in found]});continue
  person=found[0];i,span=hits[0];cases.append(dict(case_id=len(cases)+1,season='2025-26',gw=22,name=name,canonical_name=person['player_name'],player_uuid=person['player_uuid'],team_id=person['team_id'],fpl_element=person['fpl_element'],category=kind,cutoff=person['cutoff'],source_url=r['cdx']['original'],archive_url=r['url'],archive_timestamp=r['cdx']['timestamp'],archive_digest_sha1_base32=r['cdx']['digest'],source_sha256=r['sha256'],source_block=i,source_span_sha256=hashlib.sha256(span['text'].encode()).hexdigest(),source_excerpt=' '.join(span['text'].split()[:10]),source_body_before_deadline_certified=True,annotation='human_reviewed',candidate_action='hard_unavailable'if kind=='out'else 'no_automatic_start_change'))
