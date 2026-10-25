@@ -33,6 +33,8 @@ Udvalget indeholder:
 
 Alle fire positivt omtalte spillere startede faktisk. Vi har **ikke** efterfølgende udskiftet dem med spillere, der blev bænket, for at fremstille et ønsket mønster. Denne del af prøven viser derfor ingen falsk positiv ros og kan ikke bruges til at kalibrere et “ros betyder start”-signal. Minutstyringsudtalelserne giver ingen præcis numerisk grænse; der opfindes ingen.
 
+Baselinens ældre historiske outcome-tilgængelighedstider er de eksisterende dokumenterede proxyer. Arkivkontrollen certificerer de anvendte tekstversioner før deadline, ikke uafhængigt alle historiske baselineinputs.
+
 Vi har ikke testet en bred sprogmodels samlede rollefortolkning, lært nye tekstvægte eller ændret den aktive model. Der er ikke kørt en kandidat gennem final fælles rolle-/målmandsfordeling, fysisk minutkernel, PM/xP eller TS; tabellens minutter er **upstream MM's**, ikke en påstand om en valideret fuld MM→PM→TS-forbedring. Ingen xP-gevinst rapporteres.
 
 ## Hvordan ved vi, hvad der stod før kampen?
@@ -77,4 +79,17 @@ PYTHONPATH=src:scripts:. OPENBLAS_NUM_THREADS=1 /workspace/fpl-venv/bin/python -
 
 `selection-lock.json` skal fortsat matche casefilen. Scoringen afviser et forkert arkivdigest eller et arkivtidspunkt på/efter deadline. Den bygger ikke en ny baseline: original frosset B og eksisterende projektion genbruges.
 
-Lokal validering: **1.018 Python-tests bestået** (58.01 sekunder), JavaScript-datakontroller bestået, desktop/mobile-browserkontrol bestået. Browseren verificerer bevarede betingelser, særskilt vurdering, historisk scope, uændrede sandsynlighedskort, intet overløb, ingen privat POST og uændret lokal holdlagring. En forfalsket tekstfil afvises, mens prognosen forbliver synlig. Originale numeriske forecast-/GK-filer er byte-identiske efter lokal genopbygning. Offentlig releasekvittering tilføjes efter publicering.
+Lokal validering: **1.018 Python-tests bestået** (58.01 sekunder), JavaScript-datakontroller bestået, desktop/mobile-browserkontrol bestået. Browseren verificerer bevarede betingelser, særskilt vurdering, historisk scope, uændrede sandsynlighedskort, intet overløb, ingen privat POST og uændret lokal holdlagring. En forfalsket tekstfil afvises, mens prognosen forbliver synlig. Originale numeriske forecast-/GK-filer er byte-identiske efter lokal genopbygning. Offentlig kontrol og releasekvittering er tilføjet nedenfor.
+
+
+## Publiceret og kontrolleret
+
+Den opdaterede B-preview er publiceret med [succesfuldt Pages-job 40231464442](https://github.com/pdamkier-del/fpl-analytics-app/actions/runs/40231464442). [Åbn Players i den eksisterende app](https://pdamkier-del.github.io/fpl-analytics-app/mm-preview/app/players-classic.html?mode=forecast&horizon=1), klik eksempelvis på Cherki og find “Holdnyt og rolle”.
+
+- UI-kilde: `7d05acd6544468a00905e27db5862ddd81f936c9`. Main-workflowens B-UI-pin er opdateret i `cc6b958de443e7f46cdeb23073173383e6ba7262`; den numeriske kilde forbliver `03d5c4d4777b44bc1d37884a1cf4dde106b45cab`.
+- Det seneste allerede validerede numeriske artefakt fra run `40224242684` blev genbrugt. Forecast-seal `bb75fe27a185189f656e227148ecd704276bd885186a3752332c27c1f0963ceb`, data-as-of **25. oktober 19.24.03 UTC / 20.24.03 dansk tid**, er bevaret. Ingen genberegning eller tilbageførsel til den tidligere lokale rehearsal blev publiceret.
+- Offentlig Chromium-kontrol med normal TLS-verifikation består på desktop og mobil. Manipuleret tekstdata afvises, mens de otte sandsynlighedskort forbliver tilgængelige. Ingen sidefejl, privat POST, horisontalt overløb eller ændring af holdlagring blev observeret. Se `public-browser.json`.
+- Alle **88 faktisk serverede produktionsfiler** er hentet og SHA-256-kontrolleret mod publisherens bevarede produktionsartefakt. Alle stemmer. Produktionens forecast er desuden byte-identisk før/efter denne UI-publicering.
+- B-forecastet og GK-minutevidensen er byte-identiske med det seneste numeriske artefakt og det tidligere serverede B-forecast. Tekstfilens SHA-256 stemmer med den gennemgåede lokale fil. Se `public-integrity.json`.
+
+De historiske fraværsinterventioner er fortsat kun et offline-forsøg. Den publicerede ændring er kildebelagt forklaring i det eksisterende spillerpanel, ikke aktivering af nye tekstbaserede sandsynligheder.
