@@ -15,7 +15,7 @@ permissions:
   id-token: write
 env:
   PREVIEW_SOURCE_SHA: 03d5c4d4777b44bc1d37884a1cf4dde106b45cab
-  PREVIEW_UI_SHA: 7d05acd6544468a00905e27db5862ddd81f936c9
+  PREVIEW_UI_SHA: 9c5095e7802af7414b51b3c81578b71000dbd025
 jobs:
   verified:
     if: ${{ inputs.validated_run != '' }}
@@ -126,6 +126,7 @@ jobs:
           python scripts/build_preview_history_archive.py
           python analysis/audit_history_archive.py --archive app/mm-preview/history-archive --db work/core.sqlite3 --out unified-history-archive-reconciliation.json
           python analysis/audit_player_chain.py --capture app/mm-preview --inputs .B-origin-evidence/work/current-B-inputs --out app/mm-preview/input-audit --require-source-linkage
+          python scripts/collect_dashboard_news.py
           python scripts/integrate_desktop_probabilities.py
           python analysis/archive_prospective_player_forecast.py --capture app/mm-preview --out app/mm-preview/input-audit
           cmp .mm-preview-evidence/current/forecast.json app/mm-preview/current/forecast.json
