@@ -22,7 +22,8 @@ ROOT=Path(__file__).resolve().parents[1]
 KEY=['fixture_uuid','player_uuid']
 
 
-def run(frame,predicted,obs,*,season,draws=400,incomplete_teams=(),seed=93000000,paired=False,offsets=None,role_policy=None,paired_v1=None,distributions=False,chain=False,catalogue=None,assignment_history=None,assignment_strength=None,conditional_penalties=False,ordinary_goal_weights=None):
+def run(frame,predicted,obs,*,season,draws=400,incomplete_teams=(),seed=93000000,paired=False,offsets=None,role_policy=None,paired_v1=None,distributions=False,chain=False,catalogue=None,assignment_history=None,assignment_strength=None,conditional_penalties=False,ordinary_goal_weights=None,physical_minutes=False):
+    if physical_minutes and not chain:raise ValueError('Physical minute process requires the unified B chain')
     rows=[];baseline=[];details={};audit=[]
     raw=predicted.set_index(KEY)
     caches={}
@@ -59,13 +60,26 @@ def run(frame,predicted,obs,*,season,draws=400,incomplete_teams=(),seed=93000000
                 mass=field_marginals(p)
                 moments[p.player_id]=dict(p=p.p_start,q=p.p_cameo_given_bench,s=p.start_minutes_mean,c=p.cameo_minutes_mean,
                     x=float(mass@np.arange(91)),p60=float(mass[60:].sum()),p90=float(mass[90]),p_play=float(1-mass[0]),pmf=mass.tolist())
-        for team in teams: audit.append(dict(fixture_uuid=fx,**team,history_rows=history.rows,last_label_known_at=history.latest,cutoff=cut))
-        if role_distributions:
+        kernel=None
+        if physical_minutes:
+            from fpl_v1_1_model.experimental_physical_timeline import PhysicalKernel,physical_sampler
+            kernel=PhysicalKernel(inp,role_distributions)
+            moments.update(kernel.moments)
+            scope=physical_sampler(kernel)
+        elif role_distributions:
             from fpl_v1_1_model.experimental_joint_role_assignment import role_lineup_sampler
             scope=role_lineup_sampler(role_distributions)
         else:scope=nullcontext()
         with scope:
             sim=(simulate_with_distributions if distributions else simulate_many)(inp,n=draws,seed=seed+(offsets[fx] if offsets is not None else i),**({'include_samples':True}if chain and distributions else{}))
+        for team in teams:
+            physical_audit=dict(kernel.audit)if kernel else None
+            if kernel and distributions and chain:
+                unknown=[s['scenarios']['minutes']for pid,s in sim.items()
+                         if pid.startswith(UNKNOWN)and next(p.team for p in inp.players if p.player_id==pid)==team['team']]
+                physical_audit['unlisted_keeper_minutes']=np.sum(unknown,axis=0).astype(int).tolist()if unknown else [0]*draws
+            audit.append(dict(fixture_uuid=fx,**team,history_rows=history.rows,last_label_known_at=history.latest,cutoff=cut,
+                **({'physical_timeline':physical_audit}if kernel else{})))
         if paired_v1 is not None:
             old,old_moments,_=prepare(original_inp,mm,history,incomplete_teams=incomplete_teams)
             old_sim=sim if old.players==inp.players else simulate_many(old,n=draws,seed=seed+(offsets[fx] if offsets is not None else i))
@@ -92,7 +106,10 @@ def write(path,obj):
     path.write_text(json.dumps(obj,sort_keys=True,ensure_ascii=False,allow_nan=False,separators=(',',':'))+'\n')
 
 
-def current(inputs,out,*,paired=True,chain=False,evidence_path=None,assignment_policy=None,goal_head_policy=None):
+def current(inputs,out,*,paired=True,chain=False,evidence_path=None,assignment_policy=None,goal_head_policy=None,physical_minutes=None):
+    # Current unified B forecasts use the coherent process by default. Lower
+    # level run(..., physical_minutes=False) remains a historical reference.
+    if physical_minutes is None:physical_minutes=bool(chain)
     from build_live_vfinal_desktop import build
     inputs=Path(inputs);out=Path(out)
     h=pd.read_csv(inputs/'history.csv.gz',low_memory=False);t=pd.read_csv(inputs/'target.csv.gz',low_memory=False)
@@ -137,13 +154,13 @@ def current(inputs,out,*,paired=True,chain=False,evidence_path=None,assignment_p
         goal_receipt['goal_head_audit_sha256']=hashlib.sha256((out/'nonpenalty-goal-head.csv.gz').read_bytes()).hexdigest()
         goal_receipt['policy']=goal_policy
     xp,details,audit,baseline=run(joined,pred,observations(ROOT),season='2026-27',incomplete_teams=incomplete,paired=paired,role_policy=policy,paired_v1=v1,distributions=True,chain=chain,catalogue=catalogue,
-        assignment_history=assignment_history,assignment_strength=role_receipt['strength']if role_receipt else None,ordinary_goal_weights=goal_weights,conditional_penalties=goal_weights is not None)
+        assignment_history=assignment_history,assignment_strength=role_receipt['strength']if role_receipt else None,ordinary_goal_weights=goal_weights,conditional_penalties=goal_weights is not None,physical_minutes=physical_minutes)
     if role_receipt and paired:
         # Matched current control: identical source facts, GK policy, event
         # rates and seeds, with only the role kernel disabled. The old locked
         # PM comparison remains a separate legacy reference.
         control,control_means,_,_=run(joined,pred,observations(ROOT),season='2026-27',incomplete_teams=incomplete,
-            role_policy=policy,chain=True,catalogue=catalogue,ordinary_goal_weights=goal_weights,conditional_penalties=goal_weights is not None)
+            role_policy=policy,chain=True,catalogue=catalogue,ordinary_goal_weights=goal_weights,conditional_penalties=goal_weights is not None,physical_minutes=physical_minutes)
         before=control.set_index(KEY);after=xp.set_index(KEY);positions=pred.set_index(KEY).pos;comparison=[]
         for key,d in details.items():
             old_mean=control_means[key]
@@ -159,7 +176,7 @@ def current(inputs,out,*,paired=True,chain=False,evidence_path=None,assignment_p
     if goal_receipt and paired:
         offsets={fx:i for i,fx in enumerate(sorted(joined.fixture_uuid.unique()))}
         first=joined[joined.gw.eq(joined.gw.min())]
-        control,control_means,_,_=run(first,pred[pred.fixture_uuid.isin(first.fixture_uuid)],observations(ROOT),season='2026-27',incomplete_teams=incomplete,role_policy=policy,chain=True,catalogue=catalogue,assignment_history=assignment_history,assignment_strength=role_receipt['strength']if role_receipt else None,offsets=offsets)
+        control,control_means,_,_=run(first,pred[pred.fixture_uuid.isin(first.fixture_uuid)],observations(ROOT),season='2026-27',incomplete_teams=incomplete,role_policy=policy,chain=True,catalogue=catalogue,assignment_history=assignment_history,assignment_strength=role_receipt['strength']if role_receipt else None,offsets=offsets,physical_minutes=physical_minutes)
         before=control.set_index(KEY);after=xp.set_index(KEY);comparison=[]
         for key,d in control_means.items():
             new=details[key]
@@ -226,7 +243,20 @@ def current(inputs,out,*,paired=True,chain=False,evidence_path=None,assignment_p
             penalty_role_source={'source':'official FPL bootstrap','observed_at':prov['bootstrap_observed_at']})
         payload['code_sha256'].update({name:hashlib.sha256((ROOT/name).read_bytes()).hexdigest()for name in ['scripts/b_chain_contract.py','scripts/b_preview_ts.py']})
         if goal_receipt:payload['parts']['pm_vfinal']='B_separate_nonpenalty_and_penalty_goals'
-        payload['blockers'].append('Outfield minutes and substitutions are not a fully joint physical process. Per-player MM/PM agreement is not full-model certification.')
+        if physical_minutes:
+            payload['minute_sampler_audit'].update(outfield_minute_budget_enforced=True,substitution_limit_enforced=True,
+                physical_clock='normalized_regulation_0_90',reported_FPL_total_enforced=False,
+                normal_match_timeline=True,red_card_removals_modeled=False)
+            payload['scenario_contract']['outfield_substitutions']='paired normal-match timeline; shared MM/PM marginal law'
+            payload['normal_match_timeline']=dict(version='B-normal-timeline-v1',conditional_states=128,
+                acceptance='Structural correctness required by user; predictive gains are not an activation prerequisite',
+                scope='normal match before dismissals/removal events; no empirical FPL clock conversion',
+                dismissal_removals_modeled=False,concussion_exceptions_modeled=False,
+                reported_FPL_total_required_to_equal_990=False)
+            payload['code_sha256']['src/fpl_v1_1_model/experimental_physical_timeline.py']=hashlib.sha256((ROOT/'src/fpl_v1_1_model/experimental_physical_timeline.py').read_bytes()).hexdigest()
+            payload['blockers'].append('Normal-match timeline is coherent; dismissal removals and physical-to-FPL clock conversion are not modeled. Predictive calibration remains separate.')
+        else:
+            payload['blockers'].append('Outfield minutes and substitutions are not a fully joint physical process. Per-player MM/PM agreement is not full-model certification.')
         validate_forecast(payload)
     payload=seal_forecast(payload)
     write(out/'baseline-mm.json',dict(players=[dict(fixture_id=r.fixture_uuid,player_id=r.player_uuid,p_start=float(r.p),xmins=float(r.x),start_minutes=float(r.s),p_sub_given_not_start=float(r.q),sub_minutes=float(r.c))for r in pred.itertuples()]));
@@ -240,6 +270,7 @@ def main():
     ap=argparse.ArgumentParser();ap.add_argument('--inputs',type=Path,default=ROOT/'work/current-B-inputs');ap.add_argument('--out',type=Path,required=True)
     ap.add_argument('--no-baseline',action='store_true');ap.add_argument('--chain',action='store_true');ap.add_argument('--evidence',type=Path)
     ap.add_argument('--role-assignment-policy',type=Path);ap.add_argument('--nonpenalty-goal-policy',type=Path)
-    args=ap.parse_args();p=current(args.inputs,args.out,paired=not args.no_baseline,chain=args.chain,evidence_path=args.evidence,assignment_policy=args.role_assignment_policy,goal_head_policy=args.nonpenalty_goal_policy)
+    ap.add_argument('--physical-minutes',action='store_true',default=None)
+    args=ap.parse_args();p=current(args.inputs,args.out,paired=not args.no_baseline,chain=args.chain,evidence_path=args.evidence,assignment_policy=args.role_assignment_policy,goal_head_policy=args.nonpenalty_goal_policy,physical_minutes=args.physical_minutes)
     print(json.dumps(dict(players=len(p['players']),fixtures=p['fixtures'],gws=p['gws'],forecast_sha256=p['forecast_sha256'])))
 if __name__=='__main__':main()

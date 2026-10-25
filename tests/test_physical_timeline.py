@@ -99,3 +99,60 @@ def test_independent_intervals_with_correct_total_still_fail_active_coverage():
     uid=next(p.player_id for p in inp.players if not p.is_keeper and t[p.player_id][0]<89 and t[p.player_id][0]>0 and t[p.player_id][1]==0)
     m,a,b=t[uid];t[uid]=(m,a+1,b+1)
     with pytest.raises(ValueError):validate_timeline(inp,t)
+
+
+def planned_swaps(times):
+    inp=fixture();timeline={p.player_id:(0,90,90)for p in inp.players}
+    for team in ['H','A']:
+        timeline[team+'GK']=(90,0,90)
+        for j in range(10):timeline[team+str(j).zfill(2)]=(90,0,90)
+        for j,t in enumerate(times):
+            timeline[team+str(j).zfill(2)]=(t,0,t)
+            timeline[team+str(j+10).zfill(2)]=(90-t,t,90)
+    return inp,timeline
+
+
+def test_six_swaps_fail_even_with_exact_900_plus_90_coverage():
+    inp,timeline=planned_swaps([60]*6)
+    with pytest.raises(ValueError,match='five substitutions'):validate_timeline(inp,timeline)
+
+
+def test_four_live_windows_fail_but_half_time_is_not_a_live_window():
+    inp,timeline=planned_swaps([50,60,70,80])
+    with pytest.raises(ValueError,match='three substitution windows'):validate_timeline(inp,timeline)
+    inp,timeline=planned_swaps([45,60,70,80])
+    assert validate_timeline(inp,timeline)
+
+
+def test_goalkeeper_swap_uses_one_of_the_same_five_slots():
+    inp,timeline=planned_swaps([60]*5)
+    for team in ['H','A']:
+        timeline[team+'GK']=(60,0,60)
+        timeline[team+'reserveGK']=(30,60,90)
+    with pytest.raises(ValueError,match='five substitutions'):validate_timeline(inp,timeline)
+
+
+def test_normal_timeline_contract_checks_all_scenarios_not_only_means():
+    import copy
+    from b_chain_contract import VERSION,SCENARIOS,validate_forecast
+    from pm_preview_distributions import simulate_with_distributions
+    inp=fixture();kernel=PhysicalKernel(inp)
+    with physical_sampler(kernel):result=simulate_with_distributions(inp,n=20,seed=7,include_samples=True)
+    f=dict(model=VERSION,scope='prospective_preview',locked_model_active=False,gws=[1],
+        minute_sampler_audit=dict(sampler=VERSION,all_MM_to_PM_means_consistent=True),
+        scenario_contract=dict(version=SCENARIOS,draws=20),normal_match_timeline=dict(version='B-normal-timeline-v1'),
+        gk_team_fixtures=[dict(team=t,fixture_uuid='match',physical_timeline={**kernel.audit,'unlisted_keeper_minutes':[0]*20})for t in ['H','A']],players=[])
+    for p in inp.players:
+        r=result[p.player_id];mean=kernel.moments[p.player_id]['x']if not p.is_keeper else r['expected_minutes']
+        f['players'].append(dict(team_id=p.team,position=1 if p.is_keeper else 3,weeks=[dict(gw=1,
+            xpts=r['xPts'],xmins=mean,pm_analytic_minutes=mean,scenarios=r['scenarios'],
+            fixtures=[dict(fixture_uuid='match',xmins=mean,pm_analytic_minutes=mean)])]))
+    assert validate_forecast(f)
+    bad=copy.deepcopy(f)
+    row=next(p for p in bad['players']if p['position']!=1)
+    row['weeks'][0]['scenarios']['minutes'][0]+=1
+    with pytest.raises(ValueError,match='scenario minute coverage'):validate_forecast(bad)
+    bad=copy.deepcopy(f);bad['gk_team_fixtures'][0]['physical_timeline']['max_substitutions']=6
+    with pytest.raises(ValueError,match='substitution process'):validate_forecast(bad)
+    bad=copy.deepcopy(f);bad['gk_team_fixtures'][0]['physical_timeline']['reported_FPL_minutes_required_to_sum_990']=True
+    with pytest.raises(ValueError,match='substitution process'):validate_forecast(bad)

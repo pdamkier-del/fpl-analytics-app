@@ -1,4 +1,4 @@
-"""Offline candidate: one physical normal-match timeline, not independent cameos.
+"""Opt-in B normal-match timeline, not independent cameos.
 
 No fitted parameters or production activation. Finite conditional ensembles
 define the same analytical MM marginals and PM sampling law. Original start
@@ -126,6 +126,16 @@ class PhysicalKernel:
         if not inp.experimental_joint_goalkeepers or not inp.experimental_mean_preserving_minutes:
             raise ValueError('Physical candidate requires the existing B GK/minute contract')
         from .joint_simulator import validate_joint_goalkeepers
+        if len({p.player_id for p in inp.players})!=len(inp.players):
+            raise ValueError('Duplicate physical player identity')
+        self.input=inp
+        self.audit=dict(version='B-normal-timeline-v1',clock='normalized_regulation_0_90',
+            scope='normal match before dismissal/removal events',draws=0,
+            physical_outfield_minutes=900,physical_keeper_minutes=90,
+            paired_entry_exit=True,substitution_limit=5,window_limit=3,
+            reported_FPL_minutes_required_to_sum_990=False,
+            physical_to_FPL_clock_calibrated=False,red_card_removals_modeled=False,
+            concussion_exceptions_modeled=False,max_substitutions=0,max_windows=0)
         self.teams={};self.moments={};role_distributions=role_distributions or {}
         for team in (inp.home_team,inp.away_team):
             field=sorted((p for p in inp.players if p.team==team and not p.is_keeper),key=lambda p:p.player_id)
@@ -186,6 +196,14 @@ class PhysicalKernel:
             minutes=ensemble[int(rng.integers(len(ensemble)))]
             for j,p in enumerate(data['field']):
                 m=int(minutes[j]);timeline[p.player_id]=(m,0,m)if start[j]else(m,90-m,90)
+        validate_timeline(self.input,timeline)
+        self.audit['draws']+=1
+        for team in (self.input.home_team,self.input.away_team):
+            ps=[p for p in self.input.players if p.team==team]
+            arrivals=[timeline[p.player_id][1]for p in ps
+                      if timeline[p.player_id][0]>0 and timeline[p.player_id][1]>0]
+            self.audit['max_substitutions']=max(self.audit['max_substitutions'],len(arrivals))
+            self.audit['max_windows']=max(self.audit['max_windows'],len(set(arrivals)-{45}))
         return timeline
 
 
@@ -200,7 +218,7 @@ def validate_timeline(inp,timeline):
             raise ValueError('Physical minute coverage failed')
         if sum(timeline[p.player_id][0]>0 for p in ps)>16:raise ValueError('More than five substitutions')
         windows={timeline[p.player_id][1]for p in ps if timeline[p.player_id][0]>0 and timeline[p.player_id][1]>0}
-        if len(windows)>3:raise ValueError('More than three substitution windows')
+        if len(windows-{45})>3:raise ValueError('More than three substitution windows')
         cuts=sorted({0,90}|windows|{timeline[p.player_id][2]for p in ps if timeline[p.player_id][0]>0})
         for a,b in zip(cuts,cuts[1:]):
             t=(a+b)/2
@@ -214,6 +232,7 @@ def physical_sampler(kernel):
     from . import joint_simulator as simulator
     original=simulator.simulate_match
     def sample(inp,rng,*,trace=None):
+        if inp!=kernel.input:raise ValueError('Physical kernel belongs to different fixture inputs')
         return original(inp,rng,trace=trace,timeline=kernel.sample(rng))
     simulator.simulate_match=sample
     try:yield

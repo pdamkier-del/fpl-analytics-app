@@ -176,8 +176,8 @@ jobs:
           assert current.index.equals(archived.index)
           assert (current.xp-archived.xp).abs().max()==0, 'NP scorer replay differs from reviewed evidence'
           PY
-          python scripts/locked_numerical_runtime.py scripts/run_joint_gk_preview.py --out work/joint-gk-current --chain --role-assignment-policy analysis/results/joint-role-candidate-20261022/policy.json --nonpenalty-goal-policy analysis/results/nonpenalty-goal-head-20261023/policy.json
-          python scripts/locked_numerical_runtime.py scripts/run_joint_gk_preview.py --out work/joint-gk-repeat --no-baseline --chain --role-assignment-policy analysis/results/joint-role-candidate-20261022/policy.json --nonpenalty-goal-policy analysis/results/nonpenalty-goal-head-20261023/policy.json
+          python scripts/locked_numerical_runtime.py scripts/run_joint_gk_preview.py --out work/joint-gk-current --chain --physical-minutes --role-assignment-policy analysis/results/joint-role-candidate-20261022/policy.json --nonpenalty-goal-policy analysis/results/nonpenalty-goal-head-20261023/policy.json
+          python scripts/locked_numerical_runtime.py scripts/run_joint_gk_preview.py --out work/joint-gk-repeat --no-baseline --chain --physical-minutes --role-assignment-policy analysis/results/joint-role-candidate-20261022/policy.json --nonpenalty-goal-policy analysis/results/nonpenalty-goal-head-20261023/policy.json
           python scripts/locked_numerical_runtime.py scripts/validate_joint_gk_stages.py
           python scripts/export_joint_gk_preview.py
           python scripts/collect_dashboard_news.py

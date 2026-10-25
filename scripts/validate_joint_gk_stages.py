@@ -41,7 +41,8 @@ def main(source=None,inputs=None):
         chosen=frame[mask];p=pred[pred.fixture_uuid.isin(chosen.fixture_uuid)]
         catalogue={r.player_uuid:next(p for p in json.loads((inputs/'bootstrap.json').read_text())['elements']if p['id']==int(r.fpl_element))for r in chosen.itertuples()}if unified else None
         xp,_,audit,_=run(chosen,p,obs,season='2026-27',incomplete_teams=partial,offsets=offsets,role_policy=policy,distributions=True,chain=unified,catalogue=catalogue,
-            assignment_history=assignment_history,assignment_strength=assignment_strength,ordinary_goal_weights=goal_weights,conditional_penalties=goal_weights is not None)
+            assignment_history=assignment_history,assignment_strength=assignment_strength,ordinary_goal_weights=goal_weights,conditional_penalties=goal_weights is not None,
+            physical_minutes=bool(payload.get('normal_match_timeline')))
         for r in xp.itertuples():
             old=expected[(r.fixture_uuid,r.player_uuid)]
             if r.distribution!=old['distribution']:raise ValueError('PM distributions differ across scopes')

@@ -71,6 +71,8 @@ def validate_forecast(f):
                 raise ValueError('MM/PM week mean mismatch')
             if any(abs(x['xmins']-x['pm_analytic_minutes'])>1e-7 for x in w['fixtures']):
                 raise ValueError('MM/PM fixture mean mismatch')
+    if f.get('normal_match_timeline'):
+        validate_normal_timeline(f,n)
     if f.get('nonpenalty_goal_head'):
         for p in f['players']:
             divisor={1:10,2:6,3:5,4:4}[p['position']]
@@ -82,4 +84,40 @@ def validate_forecast(f):
                     if not 0<=split['p_scores_penalty']<=split['p_takes_penalty']<=split['team_simulated_p_at_least_one']<=1 or not 0<=split['team_p_at_least_one']<=1:raise ValueError('Invalid penalty probabilities')
                     if abs(split['expected_nonpenalty_goals']+split['expected_penalty_goals']-match['components']['goal_points']/divisor)>1e-9:raise ValueError('Separated goals do not reconcile')
                     if abs(-2*split['expected_missed_penalties']-match['penalty_miss_points_subset_of_negative'])>1e-9:raise ValueError('Penalty misses do not reconcile')
+    return True
+
+
+def validate_normal_timeline(f,n):
+    """Require modeled normalized coverage, never impose it on FPL labels."""
+    teams={}
+    for p in f['players']:
+        for w in p['weeks']:
+            for match in w['fixtures']:
+                teams.setdefault((str(p['team_id']),match['fixture_uuid']),[]).append((p,w,match))
+    audits={(str(a['team']),a['fixture_uuid']):a for a in f['gk_team_fixtures']}
+    if set(teams)!=set(audits):raise ValueError('Incomplete normal-timeline coverage')
+    for key,rows in teams.items():
+        a=audits[key].get('physical_timeline',{})
+        if (a.get('version')!='B-normal-timeline-v1' or a.get('draws')!=n
+                or a.get('clock')!='normalized_regulation_0_90'
+                or a.get('physical_outfield_minutes')!=900 or a.get('physical_keeper_minutes')!=90
+                or a.get('reported_FPL_minutes_required_to_sum_990')is not False
+                or not a.get('paired_entry_exit') or a.get('substitution_limit')!=5
+                or a.get('window_limit')!=3 or not 0<=a.get('max_substitutions',99)<=5
+                or not 0<=a.get('max_windows',99)<=3):
+            raise ValueError('Missing verified normal-match substitution process')
+        field=[r for r in rows if r[0]['position']!=1]
+        if abs(sum(r[2]['xmins']for r in field)-900)>1e-7:
+            raise ValueError('Normal-match MM outfield coverage differs from 900')
+        # Week samples can stand in for fixture samples only for a single match.
+        if all(len(w['fixtures'])==1 for _,w,_ in rows):
+            pool=np.asarray(a.get('unlisted_keeper_minutes',[]),float)
+            if pool.shape!=(n,) or not np.isfinite(pool).all() or ((pool<0)|(pool>90)).any():
+                raise ValueError('Missing unlisted keeper scenario coverage')
+            fieldmins=np.asarray([w['scenarios']['minutes']for p,w,_ in field],float)
+            keepmins=np.asarray([w['scenarios']['minutes']for p,w,_ in rows if p['position']==1],float)
+            if not np.all(fieldmins.sum(axis=0)==900) or not np.all(keepmins.sum(axis=0)+pool==90):
+                raise ValueError('Normal-match PM scenario minute coverage failed')
+            count=(fieldmins>0).sum(axis=0)+(keepmins>0).sum(axis=0)+(pool>0)
+            if (count>16).any():raise ValueError('More than five normal-match substitutions')
     return True

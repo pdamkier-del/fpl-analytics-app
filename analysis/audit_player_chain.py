@@ -70,6 +70,15 @@ def audit(forecast, mm, *, inputs=None, context=None, catalogue=None,
     def issue(code, detail, **identity):
         findings.append(dict(code=code, detail=detail, **identity))
 
+    normal_verified=False
+    if forecast.get('normal_match_timeline'):
+        try:
+            from b_chain_contract import validate_normal_timeline
+            validate_normal_timeline(forecast,forecast['scenario_contract']['draws'])
+            normal_verified=True
+        except (ValueError,KeyError,TypeError)as e:
+            issue('normal_timeline_contract_failed',str(e))
+
     ids = [p['id'] for p in players]
     uids = [p['player_uuid'] for p in players]
     if len(set(ids)) != len(ids) or len(set(uids)) != len(uids):
@@ -282,7 +291,11 @@ def audit(forecast, mm, *, inputs=None, context=None, catalogue=None,
                      minute_total_scope='Model/FPL-reported marginals; not a physical clock conservation test',
                      GK_check_scope='Existing normalized 90-minute GK kernel, not an empirical FPL sum rule',
                      physical_removal_events_exported=False,
-                     interval_timelines_exported=False)
+                     interval_timelines_exported=False,
+                     normal_match_timeline_verified=normal_verified)
+        if normal_verified:
+            entry['minute_total_scope']='Normalized physical 0..90 normal-match timeline; not a conservation requirement for observed FPL labels'
+            entry['normal_substitution_process']=gk['physical_timeline']
         # Week samples are only unambiguous fixture samples in single fixtures.
         if all(len(w['fixtures'])==1 for _,w,_ in field):
             mins = np.asarray([w['scenarios']['minutes'] for _,w,_ in field],float)
@@ -311,6 +324,7 @@ def audit(forecast, mm, *, inputs=None, context=None, catalogue=None,
     for row in result:
         states=[physical[row['team_id'],q['fixture']] for q in row['fixtures']]
         row['physical_team_minutes_verified'] = False if False in states else None if None in states or not states else True
+        row['normal_match_timeline_verified']=normal_verified
         row['individual_numerical_checks_passed'] = not any(
             i.get('player_id')==row['id'] for i in findings)
         row['quality_status'] = 'not_independently_validated'
