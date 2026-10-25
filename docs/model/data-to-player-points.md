@@ -88,3 +88,7 @@ Each row has `upstream_PM_inputs → selected_NP_head → MM → PM → TS`, plu
 ## Cleanup acceptance
 
 Keep the existing feature set, coefficient values, event dependencies, supported APIs and random draw order. For every extraction, compare unchanged real fixture inputs and seeds before and after, checking every event field, point component, BPS/bonus, intervals, generator state, aggregate, probability and TS scenario. Run the full regression suite. Update source-integrity pins only with a documented parity receipt; never disable a guard to get tests to pass.
+
+## Optional competition context and prospective calibration
+
+The next tested data path is documented in `analysis/results/competition-context-20261025/README.md`. It reuses canonical all-competition events, preserves authoritative PL inputs, keeps club roles separate from transferable physical load, and represents missing minutes through the existing missingness channels. `scripts/competition_context.py::apply_physical_context` is opt-in and is not called by the active publisher. The numerical upstream screen passes noninferiority but does not establish stable start-probability or xP improvement; it is not promoted. `analysis/score_prospective_player_forecast.py` can score the existing timestamped forecast ledgers once real final results exist. These additions do not change the current data-to-points ownership or resolve joint substitutions.

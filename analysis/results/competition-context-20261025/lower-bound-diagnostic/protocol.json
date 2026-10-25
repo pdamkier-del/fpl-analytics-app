@@ -1,0 +1,11 @@
+{
+ "version":"competition-physical-context-v1",
+ "written_before_candidate_scoring":true,
+ "candidate":"Reuse existing B calibrator C=.1 and exact existing news/11-player projection. Replace only rest_days, minutes_7d, minutes_14d and physical_last_known_at in BOTH training and target features with observed PL+cup/Europe history. Keep normal role, role_jump, duration, news and team_rest_days unchanged. New role-shift diagnostics are not automatic boosts.",
+ "source":"Existing audited Core PL + existing recorded/recovered non-PL workload; unknown minutes remain missing, repeated events fail closed, strict known_at<cutoff",
+ "evaluation":"Both seasons GW22-38; baseline must reproduce archived B within 1e-6 max start-probability difference; prior-label-only fitting at each saved origin; reused research periods",
+ "gates":{"max_start_brier_increase_each_season":0.0005,"max_minute_mae_increase_each_season":0.05,"max_absolute_minute_bias_increase_each_season":0.25,"max_rotation_minute_mae_increase_each_season":0.1},
+ "decision":"No promotion unless baseline reproduction and every season gate pass; then require selected-role/GK MM→PM six-GW validation and truly timestamped current context. Incomplete coverage/timing stays explicit. No threshold tuning after scoring.",
+ "probability_monitoring":"Reliability, Brier, log loss and bias for start/P0/P60/P90; confidence bins diagnostic only, no free-standing post-hoc recalibration that breaks team start mass",
+ "production_changed":false
+}
