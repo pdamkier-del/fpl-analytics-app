@@ -50,7 +50,7 @@
   const nav=el('nav',undefined,'player-match-nav');nav.setAttribute('aria-label','Spillerkortets kampoversigter');for(const[label,target]of [['Næste kampe',future],['Tidligere kampe',past]]){const button=el('button',label);button.type='button';button.onclick=()=>target.scrollIntoView({block:'start',behavior:'smooth'});nav.append(button);}
   box.append(summary);if(!options.compact)box.append(nav);
   const archive=el('a','Tidligere sæsoner · spillerens kampstatistik','player-history-link');archive.href='history-classic.html?player='+encodeURIComponent(player.player_uuid);box.append(archive);
-  box.append(future,inputAuditPanel(player,data),past);past.append(el('h3','Tidligere kampe'),el('p','Henter verificeret kamphistorik …','prob-note'));
+  box.append(future,inputAuditPanel(player,data));if(root.FplPlayerTextContext)box.append(root.FplPlayerTextContext.create(player,options.compact));box.append(past);past.append(el('h3','Tidligere kampe'),el('p','Henter verificeret kamphistorik …','prob-note'));
   function drawFuture(h){
    future.replaceChildren(el('h3',options.compact?'Næste 3 GW · modelprognose':'Næste kampe · modelprognose'));
    const matches=new Map((h?.historical_fixtures?.fixtures||[]).map(f=>[f.id,f])),teams=h?.historical_catalogue?.teams||{};
