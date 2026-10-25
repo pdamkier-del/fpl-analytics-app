@@ -85,3 +85,20 @@ RNG state and aggregate is identical on 100 full-roster fixtures (20 draws and
 100-draw aggregate. Unknown default-source edits still fail closed. All 986
 tests pass under the GitHub test environment; no model output is changed by
 this guard repair. Fresh release validation remains separate.
+
+## Reuse original-head reference evidence without refitting it
+
+The original full historical job takes about one hour. Its original fitted
+heads and source datasets have not changed. `historical_reference_reuse.py`
+permits the specific successful `4a5e421...` reference after checking a reviewed
+dependency manifest, exact extraction receipts and executing the original PM
+parity oracle again. Every existing changed source/data file must be explicitly
+pinned; deletions/renames and unreviewed additions fail closed. No new-head
+statistical score is substituted for an old reference result.
+
+The run provenance records both the historical reference commit and the new
+numerical commit, rather than claiming the whole source is identical. Cached
+evidence covers the unchanged original heads only. Current official inputs,
+both current simulations, the new normal-match law, one-match/one-GW scope
+replay and the full synthetic TS chain still run afresh. Subsequent same-source
+refreshes retain the existing stricter exact-commit reuse path.
