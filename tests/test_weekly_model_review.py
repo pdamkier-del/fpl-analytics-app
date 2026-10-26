@@ -101,3 +101,18 @@ def test_only_official_zero_stats_create_zero_minute_labels(monkeypatch):
     def absent(url,**kwargs):return Response({'elements':[]}if 'event/'in url else{'history':[]})
     monkeypatch.setattr('weekly_model_review.requests.get',absent)
     assert len(collect_outcomes({2:r},b,fixtures,NOW))==0
+
+
+def test_actual_player_history_without_predictions_never_enters_error_metrics():
+    from weekly_model_review import player_traces,attach_actual_history
+    r,a,b=fixture();b['elements']=[dict(id=1,code=123,web_name='Test',element_type=3)]
+    for p in r['records']:p['player_id']=1
+    selected,_=select([r],'s',NOW);traces=player_traces(selected,b,a)
+    h=dict(observed_at=NOW,gw_rows=[dict(player_id=1,gw=1,gw_complete=True,stats=dict(minutes=90,starts=1,total_points=6))])
+    cat=dict(season='s',players=[dict(id=1,code=123)])
+    attach_actual_history(traces,h,cat,b)
+    p=traces['players'][0]
+    assert p['actual_history'][0]['points']==6
+    assert p['summary']['scored_gws']==1 and p['summary']['xp_mae']==1
+    cat['season']='another-season';attach_actual_history(traces,h,cat,b)
+    assert p['actual_history']==[]

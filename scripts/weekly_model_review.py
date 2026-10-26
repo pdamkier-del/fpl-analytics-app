@@ -151,6 +151,17 @@ def player_traces(selected,bootstrap,outcomes):
         p['summary']=dict(scored_gws=n,minute_mae=sum(abs(w['expected_minutes']-w['actual_minutes'])for w in final)/n if n else None,xp_mae=sum(abs(w['xp']-w['actual_points'])for w in final)/n if n else None,xp_bias=sum(w['xp']-w['actual_points']for w in final)/n if n else None)
     return dict(schema='fpl-player-season-review-v1',season=bootstrap['season'],players=list(players.values()))
 
+def attach_actual_history(traces,history,catalogue,bootstrap):
+    """Actual stats can exist even when no forecast was saved. Never score these as predictions."""
+    by={p['id']:p for p in traces['players']};codes={p['id']:p.get('code')for p in bootstrap['elements']};old_codes={p['id']:p.get('code')for p in catalogue['players']}
+    for p in by.values():p['actual_history']=[]
+    if catalogue.get('season')!=bootstrap['season']:return
+    traces['actual_history_observed_at']=history['observed_at']
+    for r in history['gw_rows']:
+        p=by.get(r['player_id'])
+        if not p or not r['gw_complete']or codes.get(p['id'])is None or old_codes.get(p['id'])!=codes.get(p['id']):continue
+        p['actual_history'].append(dict(gw=r['gw'],minutes=r['stats']['minutes'],points=r['stats']['total_points'],starts=r['stats']['starts']))
+
 def build(source,ref):
     source=Path(source);now=datetime.now(timezone.utc).isoformat();receipts=recover(ref)
     # Include the new capture only once it has an actual public commit on a later run.
@@ -161,6 +172,7 @@ def build(source,ref):
     selected,_=select(receipts,season,now);outcomes=collect_outcomes(selected,bootstrap,fixtures,now)
     result=report(receipts,bootstrap,fixtures,outcomes,now=now)
     traces=player_traces(selected,bootstrap,outcomes);traces['updated_at']=now
+    attach_actual_history(traces,json.loads((source/'history/match-results.json').read_text()),json.loads((source/'history/current-players.json').read_text()),bootstrap)
     from season_round_benchmark import build as round_benchmarks
     result['round_benchmarks']=round_benchmarks(source)
     out=source/'weekly-review';out.mkdir(exist_ok=True)
