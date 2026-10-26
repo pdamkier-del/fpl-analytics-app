@@ -4,10 +4,11 @@ const KEY='fpl-season-team-history-v1',position=p=>({1:'GK',2:'DEF',3:'MID',4:'F
 function legal(rows){const counts={GK:0,DEF:0,MID:0,FWD:0};for(const r of rows)counts[position(r)]++;return rows.length===11&&counts.GK===1&&counts.DEF>=3&&counts.DEF<=5&&counts.MID>=2&&counts.MID<=5&&counts.FWD>=1&&counts.FWD<=3}
 function validSquad(rows){const counts={GK:0,DEF:0,MID:0,FWD:0};if(!Array.isArray(rows)||rows.length!==15||new Set(rows.map(r=>r.id)).size!==15||rows.some(r=>!Number.isInteger(r.id)))return false;for(const r of rows)counts[position(r)]++;return counts.GK===2&&counts.DEF===5&&counts.MID===5&&counts.FWD===3&&rows.filter(r=>r.role==='C').length===1&&rows.filter(r=>r.role==='VC').length===1&&legal(rows.filter(isXI))}
 
+const hasPlayed=r=>r.minutes>0||r.started>0||r.played===true||r.yellow_cards>0||r.red_cards>0;
 function score(rows,actual,{chip=null,hits=0}={}){
  if(!validSquad(rows))throw Error('Ugyldig arkiveret trup');
  if(rows.some(r=>!actual.has(r.id)||!actual.get(r.id).final))return null;
- const played=r=>(actual.get(r.id).minutes>0||actual.get(r.id).started>0),xi=rows.filter(isXI),bench=rows.filter(r=>!isXI(r)),captain=xi.find(r=>r.role==='C'),vice=xi.find(r=>r.role==='VC');if(!captain||!vice||captain.id===vice.id)throw Error('Kaptajn og vice mangler');
+ const played=r=>hasPlayed(actual.get(r.id)),xi=rows.filter(isXI),bench=rows.filter(r=>!isXI(r)),captain=xi.find(r=>r.role==='C'),vice=xi.find(r=>r.role==='VC');if(!captain||!vice||captain.id===vice.id)throw Error('Kaptajn og vice mangler');
  let selected=xi.slice(),substitutions=[];
  if(chip!=='bench_boost'){
   const gk=xi.find(r=>position(r)==='GK'),reserve=bench.find(r=>position(r)==='GK');if(!played(gk)&&reserve&&played(reserve)){selected=selected.map(r=>r.id===gk.id?reserve:r);substitutions.push({out:gk.id,in:reserve.id})}
@@ -19,7 +20,7 @@ function score(rows,actual,{chip=null,hits=0}={}){
 }
 function bestOwnXI(rows,actual,options={}){
  if(rows.length!==15||rows.some(r=>!actual.has(r.id)||!actual.get(r.id).final))return null;let best=null;
- function visit(start,chosen){if(chosen.length===11){if(!legal(chosen))return;const possible=chosen.filter(r=>(actual.get(r.id).minutes>0||actual.get(r.id).started>0));const captain=possible.sort((a,b)=>actual.get(b.id).points-actual.get(a.id).points||a.id-b.id)[0]||chosen[0],vice=chosen.find(r=>r.id!==captain.id);const xi=new Set(chosen.map(r=>r.id)),candidate=chosen.map(r=>({...r,role:r.id===captain.id?'C':r.id===vice.id?'VC':'XI'})).concat(rows.filter(r=>!xi.has(r.id)).map((r,i)=>({...r,role:position(r)==='GK'?'BGK':'B'+(i+1)})));const result=score(candidate,actual,options);if(!best||result.net>best.score.net)best={rows:candidate,score:result,scope:'Best XI from these same 15, chosen after results; no transfer or chip optimisation.'};return}for(let i=start;i<=rows.length-(11-chosen.length);i++){chosen.push(rows[i]);visit(i+1,chosen);chosen.pop()}}visit(0,[]);return best;
+ function visit(start,chosen){if(chosen.length===11){if(!legal(chosen))return;const possible=chosen.filter(r=>hasPlayed(actual.get(r.id)));const captain=possible.sort((a,b)=>actual.get(b.id).points-actual.get(a.id).points||a.id-b.id)[0]||chosen[0],vice=chosen.find(r=>r.id!==captain.id);const xi=new Set(chosen.map(r=>r.id)),candidate=chosen.map(r=>({...r,role:r.id===captain.id?'C':r.id===vice.id?'VC':'XI'})).concat(rows.filter(r=>!xi.has(r.id)).map((r,i)=>({...r,role:position(r)==='GK'?'BGK':'B'+(i+1)})));const result=score(candidate,actual,options);if(!best||result.net>best.score.net)best={rows:candidate,score:result,scope:'Best XI from these same 15, chosen after results; no transfer or chip optimisation.'};return}for(let i=start;i<=rows.length-(11-chosen.length);i++){chosen.push(rows[i]);visit(i+1,chosen);chosen.pop()}}visit(0,[]);return best;
 }
 function read(storage=localStorage){const raw=JSON.parse(storage.getItem(KEY)||'{"schema":"fpl-season-team-history-v1","seasons":{}}');if(raw.schema!==KEY||!raw.seasons)throw Error('Ukendt holdarkiv');return raw}
 let lastSignature=null;
