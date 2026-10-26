@@ -1,5 +1,8 @@
 name: Weekly season model review
 on:
+  push:
+    branches: [main]
+    paths: [.github/workflows/weekly-model-review-publication.yml]
   schedule:
     - cron: '0 8 * * 2'
   workflow_dispatch:
@@ -10,6 +13,6 @@ permissions:
   id-token: write
 jobs:
   review:
-    uses: pdamkier-del/fpl-analytics-app/.github/workflows/weekly-model-review.yml@a9aaf71c1f3ac9efd5af83c254f0843eb1413f7b
+    uses: pdamkier-del/fpl-analytics-app/.github/workflows/weekly-model-review.yml@c483fd07512279fc33ca7dc16e308956aaad487e
     with:
-      source_ref: a9aaf71c1f3ac9efd5af83c254f0843eb1413f7b
+      source_ref: c483fd07512279fc33ca7dc16e308956aaad487e
