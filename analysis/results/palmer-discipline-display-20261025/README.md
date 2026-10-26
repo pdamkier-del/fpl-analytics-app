@@ -37,3 +37,17 @@ NODE_PATH=/workspace/scratch/normal-match-browser/node_modules DESKTOP_URL=http:
 ```
 
 Primærkilden og dens hentetid/hash er bevaret i `official-suspension-receipt.json`; den gennemgåede afsoning findes i registret. Den nye statusrecord og lokale browserkontroller er gemt her. Offentlig releasekontrol tilføjes efter deployment.
+
+## Genkontrol 26. oktober 2026
+
+- Officiel status genhentet kl. **11.00 dansk tid**: samme røde kort, FPL-status `a`, og den officielle PL-forklaring om afsoning i EFL Cup er fortsat tilgængelig. Kampen er nu afsluttet i FPL, så den foreløbige markering forsvinder korrekt. Browserkontrollen følger det faktiske kampflag i stedet for at kræve en permanent foreløbig markering.
+- Transferbrowserens syntetiske nyhedsrecord skulle bevare det nye kortfelt fra samme spiller-ID. Testdata er rettet; de rigtige datas validering er bevaret. Desktop/mobil viser fortsat seks-GW-planen, første XI, kaptajn, spillerhistorik og den syntetiske nye skade uden at ændre privat hold, forecast eller foretage POST. Testdata valideres nu også før browserstart.
+- UI-publiceringen genbruger den seneste allerede validerede numeriske kørsel **40278297143** fra 26. oktober; den foretager ingen ekstra modelændring. Prognosen er fra **07.30 dansk tid**, seal `ab02a2f70751356cf5c9610967b6ecf572b6634ae8f18faa5098b053f19e4c73`. Nyhedstid og prognosetid er forskellige og vises særskilt.
+
+## Publiceret og kontrolleret
+
+- [B-app / Palmer](https://pdamkier-del.github.io/fpl-analytics-app/mm-preview/app/player.html?id=154). [Publicering 40303959787](https://github.com/pdamkier-del/fpl-analytics-app/actions/runs/40303959787) bestod. UI-kilde `97e698395e562a69e6957d6b864ad5d64ea736f1`; numerisk kilde fortsat `03d5c4d4777b44bc1d37884a1cf4dde106b45cab`.
+- CI: **1.025 tests bestået på 57,79 sekunder**, alle eksisterende browserchecks inklusive transferresultat og live readiness bestod.
+- Efter deployment: normal TLS-verificeret offentlig browserkontrol på desktop, mobil og standalone bestod. Rødt kort, officiel EFL Cup-afsoning, ingen PL-kampe mistet, korrekt endelig kampstatus og historikkens røde kort vises. Ingen sidefejl, privat POST eller ændret browserholdlagring.
+- De tre serverede numeriske forecastfiler er byteidentiske med den genbrugte validerede numeriske artefakt. Alle **88 serverede produktionsfiler** matcher publiceringens bevarede produktionsartefakt (produktionskørsel `40278245680`). Produktionsdata er blevet fornyet af deres eksisterende drift siden 25. oktober, så de er ikke byteidentiske med gårsdagens før-snapshot; denne B-publicering ændrer ikke produktionsfiler eller produktionsmodel.
+- Det offentlige nyhedsfeeds checksum og Palmer-record er verificeret i `public-news-proof.json`. Den løbende nyhedsopdatering er kildefastlåst til den nye generiske kortindsamling.
