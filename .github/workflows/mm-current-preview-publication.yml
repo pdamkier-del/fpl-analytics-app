@@ -15,7 +15,7 @@ permissions:
   id-token: write
 env:
   PREVIEW_SOURCE_SHA: 03d5c4d4777b44bc1d37884a1cf4dde106b45cab
-  PREVIEW_UI_SHA: 13a9544711430fe1c312d65b5e1b95c2d1e21323
+  PREVIEW_UI_SHA: 95ae641bea9f11b1346b9f28df145cd399e70091
 jobs:
   verified:
     if: ${{ inputs.validated_run != '' }}
@@ -107,7 +107,13 @@ jobs:
           cp app/mm-preview/season-history-links.js "$RUNNER_TEMP/reviewed-season-history-links.js"
           cp app/mm-preview/weekly-review.js "$RUNNER_TEMP/reviewed-weekly-review.js"
           cp app/mm-preview/weekly-review.css "$RUNNER_TEMP/reviewed-weekly-review.css"
+          cp app/mm-preview/player-season-review.js "$RUNNER_TEMP/reviewed-player-season-review.js"
+          cp app/mm-preview/team-season-review.js "$RUNNER_TEMP/reviewed-team-season-review.js"
+          cp app/mm-preview/season-team-comparison.js "$RUNNER_TEMP/reviewed-season-team-comparison.js"
           cp -R .mm-preview-evidence/. app/mm-preview/
+          cp "$RUNNER_TEMP/reviewed-season-team-comparison.js" app/mm-preview/season-team-comparison.js
+          cp "$RUNNER_TEMP/reviewed-team-season-review.js" app/mm-preview/team-season-review.js
+          cp "$RUNNER_TEMP/reviewed-player-season-review.js" app/mm-preview/player-season-review.js
           cp "$RUNNER_TEMP/reviewed-weekly-review.js" app/mm-preview/weekly-review.js
           cp "$RUNNER_TEMP/reviewed-weekly-review.css" app/mm-preview/weekly-review.css
           cp "$RUNNER_TEMP/reviewed-player-match-context.js" app/mm-preview/player-match-context.js
@@ -147,6 +153,7 @@ jobs:
           node tests/test_existing_B_adapter.js
           node tests/test_B_preview_contract.js
           node tests/test_joint_gk_contract.js
+          node tests/test_season_team_comparison.js
           npm install --prefix "$RUNNER_TEMP/fpl-browser" playwright@1.56.1
           export NODE_PATH="$RUNNER_TEMP/fpl-browser/node_modules"
           export BROWSER_PATH="$(command -v google-chrome)"
@@ -167,6 +174,7 @@ jobs:
           node analysis/verify_transfer_result_summary.cjs > unified-transfer-result-browser.json
           node analysis/verify_transfer_chip_advice.cjs > unified-transfer-chip-browser.json
           node analysis/verify_weekly_model_review.cjs > unified-weekly-review-browser.json
+          node analysis/verify_season_comparisons.cjs > unified-season-comparisons-browser.json
           node - <<'JS' > unified-live-readiness-browser.json
           const {chromium}=require('playwright'),assert=require('node:assert/strict');
           (async()=>{
