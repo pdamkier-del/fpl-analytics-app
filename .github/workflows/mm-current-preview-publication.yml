@@ -159,6 +159,7 @@ jobs:
           node analysis/verify_unified_chain.cjs > unified-identity-browser.json
           node analysis/verify_latest_snapshot.cjs > unified-latest-snapshot-browser.json
           node analysis/verify_transfer_result_summary.cjs > unified-transfer-result-browser.json
+          node analysis/verify_transfer_chip_advice.cjs > unified-transfer-chip-browser.json
           node - <<'JS' > unified-live-readiness-browser.json
           const {chromium}=require('playwright'),assert=require('node:assert/strict');
           (async()=>{

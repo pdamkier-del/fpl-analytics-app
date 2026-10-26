@@ -20,13 +20,13 @@ function draw(){
  if(!c.usable){status.textContent=c.reason;return;}
  if(!c.stateValid){const issues=FplPlannerExperience.diagnose(c.state,c.forecast);status.innerHTML='<strong>'+esc(issues.length?'Holdoplysninger skal opdateres':'Venter på nye modeldata')+'</strong><p>'+esc(issues.join(' ')||c.reason)+'</p>';return;}
  if(!c.plan){status.textContent=c.busy?'Din plan beregnes. Du kan blive på siden og følge status her.':'Klar til din første plan. Vælg Beregn for at finde transfers, startopstilling og chips over seks gameweeks.';return;}
- const p=c.plan,first=p.plan.path[0];
+ const p=c.plan,first=p.plan.path[0],chipAdvice=FplTransferResultSummary.chipAdvice(c),chipActive=chipAdvice.dataset.chip!=='none';target.append(chipAdvice);
  status.textContent='Personlig plan klar · GW '+p.gw+' · forslagene ændrer ikke dit gemte hold.';
  const hero=document.createElement('section');hero.className='planner-summary';hero.innerHTML='<div class="workspace-eyebrow">Anbefalet til næste gameweek</div>'+FplTransferCard.html(p,c.people);
- const title=hero.querySelector('.transfer-card-head h3');if(title)title.textContent=first.incoming.length?'Dit anbefalede træk':'Behold holdet denne uge';
+ const title=hero.querySelector('.transfer-card-head h3');if(title)title.textContent=chipActive?'Alternativ uden chip':first.incoming.length?'Dit anbefalede træk':'Behold holdet denne uge';if(chipActive)hero.querySelector('.workspace-eyebrow').textContent='Normal transferplan · uden chip';
  const why=hero.querySelector('.planner-why');if(why){why.remove();hero.append(disclosure('transfer-player-evidence','Spillernes tal og usikkerhed','xP, minutter og startsandsynlighed for de foreslåede spillere',why));}
  FplTransferResultSummary.enhance(hero,c);
- const grid=document.createElement('div');grid.className='result-ready-grid';grid.append(hero,FplTransferResultSummary.lineup(c));target.append(grid,FplTransferResultSummary.insights(c),FplTransferResultSummary.risks(c),FplTransferResultSummary.horizon(c));
+ const grid=document.createElement('div');grid.className='result-ready-grid';const normalLineup=FplTransferResultSummary.lineup(c);if(chipActive)normalLineup.querySelector('h3').prepend('Uden chip · ');grid.append(hero,normalLineup);target.append(grid,FplTransferResultSummary.insights(c),FplTransferResultSummary.risks(c),FplTransferResultSummary.horizon(c));
  const temp=document.createElement('div');FplPlanView.render(p,c.people,temp);
  for(const [id,key,title,description]of [
   ['teamResult','transfer-lineup','Anbefalet startopstilling','Se kaptajn, startellever og bænk efter de foreslåede transfers'],
