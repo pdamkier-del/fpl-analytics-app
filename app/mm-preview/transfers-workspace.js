@@ -10,7 +10,7 @@ function disclosure(id,title,description,content){
  d.querySelector('.disclosure-body').append(content);d.addEventListener('toggle',()=>{if(d.isConnected){if(d.open)expanded.add(id);else expanded.delete(id);}});return d;
 }
 function draw(){
- const c=FplManagerClient.snapshot();document.querySelector('.transfer-workspace').dataset.planReady=String(!!c.plan&&c.usable&&c.stateValid&&!c.busy);target.replaceChildren();button.disabled=c.busy;FplPlannerExperience.mount(c);
+ const c=FplManagerClient.snapshot();status.style.removeProperty('display');document.querySelector('.transfer-workspace').dataset.planReady=String(!!c.plan&&c.usable&&c.stateValid&&!c.busy);target.replaceChildren();button.disabled=c.busy;FplPlannerExperience.mount(c);
  document.getElementById('appState').textContent='B-preview · forecast '+c.forecast.data_asof;
  document.getElementById('transfer-retry').hidden=true;document.querySelector('[data-recompute-plan]').hidden=!c.plan;
  document.getElementById('transfer-gw').textContent='GW '+c.forecast.gws[0]+'–'+c.forecast.gws.at(-1);
@@ -20,6 +20,7 @@ function draw(){
  if(!c.usable){status.textContent=c.reason;return;}
  if(!c.stateValid){const issues=FplPlannerExperience.diagnose(c.state,c.forecast);status.innerHTML='<strong>'+esc(issues.length?'Holdoplysninger skal opdateres':'Venter på nye modeldata')+'</strong><p>'+esc(issues.join(' ')||c.reason)+'</p>';return;}
  if(!c.plan){status.textContent=c.busy?'Din plan beregnes. Du kan blive på siden og følge status her.':'Klar til din første plan. Vælg Beregn for at finde transfers, startopstilling og chips over seks gameweeks.';return;}
+ if(window.FplSeasonCompare)FplSeasonCompare.capture(c).catch(e=>{status.style.display='block';status.textContent='Planen er klar, men GW-arkivet kunne ikke gemmes: '+e.message});
  const p=c.plan,first=p.plan.path[0],chipAdvice=FplTransferResultSummary.chipAdvice(c),chipActive=chipAdvice.dataset.chip!=='none';target.append(chipAdvice);
  status.textContent='Personlig plan klar · GW '+p.gw+' · forslagene ændrer ikke dit gemte hold.';
  const hero=document.createElement('section');hero.className='planner-summary';hero.innerHTML='<div class="workspace-eyebrow">Anbefalet til næste gameweek</div>'+FplTransferCard.html(p,c.people);
