@@ -15,7 +15,7 @@ permissions:
   id-token: write
 env:
   PREVIEW_SOURCE_SHA: 03d5c4d4777b44bc1d37884a1cf4dde106b45cab
-  PREVIEW_UI_SHA: cabef3f355c2ce6224c599cdd7a9a534c1f0c512
+  PREVIEW_UI_SHA: 13a9544711430fe1c312d65b5e1b95c2d1e21323
 jobs:
   verified:
     if: ${{ inputs.validated_run != '' }}
@@ -105,7 +105,11 @@ jobs:
           cp app/mm-preview/season-history-explorer.js "$RUNNER_TEMP/reviewed-season-history-explorer.js"
           cp app/mm-preview/season-history-explorer.css "$RUNNER_TEMP/reviewed-season-history-explorer.css"
           cp app/mm-preview/season-history-links.js "$RUNNER_TEMP/reviewed-season-history-links.js"
+          cp app/mm-preview/weekly-review.js "$RUNNER_TEMP/reviewed-weekly-review.js"
+          cp app/mm-preview/weekly-review.css "$RUNNER_TEMP/reviewed-weekly-review.css"
           cp -R .mm-preview-evidence/. app/mm-preview/
+          cp "$RUNNER_TEMP/reviewed-weekly-review.js" app/mm-preview/weekly-review.js
+          cp "$RUNNER_TEMP/reviewed-weekly-review.css" app/mm-preview/weekly-review.css
           cp "$RUNNER_TEMP/reviewed-player-match-context.js" app/mm-preview/player-match-context.js
           cp "$RUNNER_TEMP/reviewed-season-history-explorer.js" app/mm-preview/season-history-explorer.js
           cp "$RUNNER_TEMP/reviewed-season-history-explorer.css" app/mm-preview/season-history-explorer.css
@@ -127,6 +131,8 @@ jobs:
           python analysis/audit_history_archive.py --archive app/mm-preview/history-archive --db work/core.sqlite3 --out unified-history-archive-reconciliation.json
           python analysis/audit_player_chain.py --capture app/mm-preview --inputs .B-origin-evidence/work/current-B-inputs --out app/mm-preview/input-audit --require-source-linkage
           python scripts/collect_dashboard_news.py
+          git fetch origin free-github-static-20261010
+          PYTHONPATH=src:scripts:.:analysis python scripts/weekly_model_review.py --ref FETCH_HEAD
           python scripts/integrate_desktop_probabilities.py
           python analysis/archive_prospective_player_forecast.py --capture app/mm-preview --out app/mm-preview/input-audit
           cmp .mm-preview-evidence/current/forecast.json app/mm-preview/current/forecast.json
@@ -160,6 +166,7 @@ jobs:
           node analysis/verify_latest_snapshot.cjs > unified-latest-snapshot-browser.json
           node analysis/verify_transfer_result_summary.cjs > unified-transfer-result-browser.json
           node analysis/verify_transfer_chip_advice.cjs > unified-transfer-chip-browser.json
+          node analysis/verify_weekly_model_review.cjs > unified-weekly-review-browser.json
           node - <<'JS' > unified-live-readiness-browser.json
           const {chromium}=require('playwright'),assert=require('node:assert/strict');
           (async()=>{
