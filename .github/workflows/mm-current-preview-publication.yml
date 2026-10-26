@@ -15,7 +15,7 @@ permissions:
   id-token: write
 env:
   PREVIEW_SOURCE_SHA: 03d5c4d4777b44bc1d37884a1cf4dde106b45cab
-  PREVIEW_UI_SHA: a9aaf71c1f3ac9efd5af83c254f0843eb1413f7b
+  PREVIEW_UI_SHA: c483fd07512279fc33ca7dc16e308956aaad487e
 jobs:
   verified:
     if: ${{ inputs.validated_run != '' }}
