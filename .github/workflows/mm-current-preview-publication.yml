@@ -15,7 +15,7 @@ permissions:
   id-token: write
 env:
   PREVIEW_SOURCE_SHA: 03d5c4d4777b44bc1d37884a1cf4dde106b45cab
-  PREVIEW_UI_SHA: 97e698395e562a69e6957d6b864ad5d64ea736f1
+  PREVIEW_UI_SHA: cabef3f355c2ce6224c599cdd7a9a534c1f0c512
 jobs:
   verified:
     if: ${{ inputs.validated_run != '' }}
@@ -159,6 +159,7 @@ jobs:
           node analysis/verify_unified_chain.cjs > unified-identity-browser.json
           node analysis/verify_latest_snapshot.cjs > unified-latest-snapshot-browser.json
           node analysis/verify_transfer_result_summary.cjs > unified-transfer-result-browser.json
+          node analysis/verify_transfer_chip_advice.cjs > unified-transfer-chip-browser.json
           node - <<'JS' > unified-live-readiness-browser.json
           const {chromium}=require('playwright'),assert=require('node:assert/strict');
           (async()=>{
