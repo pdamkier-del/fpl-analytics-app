@@ -67,3 +67,37 @@ def test_player_trace_does_not_score_pending_or_future_lead_weeks():
     pending=player_traces(selected,b,a.iloc[:0])['players'][0]
     assert pending['summary']['scored_gws']==0
     assert pending['summary']['xp_mae']is None
+
+
+def test_old_publication_receipt_uses_real_public_clock_not_today():
+    from weekly_model_review import receipt_from_original_publication
+    from test_prospective_player_ledger import source
+    f,mm=source();docs={'forecast_sha256':f['forecast_sha256'],'documents':{'current-players.json':{'players':[{'id':399,'code':466052}]}}}
+    receipt=receipt_from_original_publication(f,mm,docs,published_at='2026-10-23T16:29:56Z',recovered_at='2026-10-26T12:00:00Z',commit='original-public-commit')
+    assert receipt['manifest']['recorded_at']=='2026-10-23T16:29:56+00:00'
+    assert receipt['manifest']['recovered_at']=='2026-10-26T12:00:00Z'
+    assert receipt['records'][0]['eligible_for_pre_match_validation']is True
+    with pytest.raises(ValueError,match='before deadline'):receipt_from_original_publication(f,mm,docs,published_at='2026-10-23T18:00:00Z',recovered_at='2026-10-26T12:00:00Z',commit='late-public-commit')
+
+
+def test_only_official_zero_stats_create_zero_minute_labels(monkeypatch):
+    from weekly_model_review import collect_outcomes
+    r,_,b=fixture();p=r['records'][0];p.update(player_id=1,fixture_uuid='live-s-fpl-1')
+    b['elements']=[dict(id=1,code=123)]
+    fixtures=[dict(id=1,event=2,finished=True,team_h=1,team_a=2,kickoff_time=p['kickoff'])]
+    calls=[]
+    class Response:
+        def __init__(self,data):self.data=data
+        def raise_for_status(self):pass
+        def json(self):return self.data
+    def zero(url,**kwargs):
+        calls.append(url)
+        assert 'event/2/live/'in url
+        return Response({'elements':[{'id':1,'stats':{'minutes':0,'starts':0,'total_points':0}}]})
+    monkeypatch.setattr('weekly_model_review.requests.get',zero)
+    out=collect_outcomes({2:r},b,fixtures,NOW)
+    assert len(out)==1 and out.iloc[0].minutes==0 and out.iloc[0].total_points==0
+    assert len(calls)==1
+    def absent(url,**kwargs):return Response({'elements':[]}if 'event/'in url else{'history':[]})
+    monkeypatch.setattr('weekly_model_review.requests.get',absent)
+    assert len(collect_outcomes({2:r},b,fixtures,NOW))==0

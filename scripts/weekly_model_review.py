@@ -4,13 +4,23 @@ from pathlib import Path
 from datetime import datetime,timezone
 import requests
 import pandas as pd
-from archive_prospective_player_forecast import utc
+from archive_prospective_player_forecast import utc,build_records
 from score_prospective_player_forecast import score
 
 API='https://fantasy.premierleague.com/api/'
 PATH='app/mm-preview/input-audit/'
 
 def git(*args):return subprocess.check_output(['git',*args])
+def receipt_from_original_publication(forecast,mm,documents,*,published_at,recovered_at,commit):
+    """Read old predictions, never rerun them. The original public clock is evidence."""
+    published=utc(published_at)
+    if utc(recovered_at)<published:raise ValueError('Recovery clock predates original publication')
+    if not utc(forecast['data_asof'])<=published<utc(forecast['origin_deadline']):raise ValueError('Original publication was not before deadline')
+    if documents['forecast_sha256']!=forecast['forecast_sha256']:raise ValueError('Historical catalogue differs from forecast')
+    manifest,records=build_records(forecast,mm,recorded_at=published_at,catalogue=documents['documents']['current-players.json']['players'])
+    manifest.update(recovered_at=recovered_at,archive_basis='original_public_forecast_snapshot',note='recorded_at is the original immutable Git publication time; this receipt was reconstructed later without recalculating any prediction.')
+    return dict(manifest=manifest,records=records,published_at=published_at,commit=commit)
+
 def recover(ref):
     """Recover timestamped public receipts already committed to the live branch."""
     commits=git('log',ref,'--format=%H','--',PATH+'prospective-ledger-manifest.json').decode().splitlines()
@@ -27,7 +37,26 @@ def recover(ref):
         m=receipt['manifest'];packed=git('show',receipt['commit']+':'+PATH+m['file'])
         if hashlib.sha256(packed).hexdigest()!=m['sha256']:raise ValueError('Historical ledger checksum mismatch')
         receipt['records']=[json.loads(x)for x in gzip.decompress(packed).splitlines()]
-    return list(candidates.values())+late
+    # Before the ledger format existed, complete sealed forecasts were already
+    # public. Recover only an original commit genuinely before its GW deadline.
+    deadlines={utc(r['manifest']['origin_deadline'])for r in candidates.values()}
+    historical=[]
+    for commit in git('log',ref,'--format=%H','--diff-filter=AM','--','app/mm-preview/current/index.json').decode().splitlines():
+        index=json.loads(git('show',commit+':app/mm-preview/current/index.json'))
+        if index.get('scope')!='prospective_preview' or not index.get('origin_deadline'):continue
+        deadline=utc(index['origin_deadline']);published=git('show','-s','--format=%cI',commit).decode().strip()
+        if deadline in deadlines or not utc(index['data_asof'])<=utc(published)<deadline:continue
+        def checked(name,key):
+            raw=git('show',commit+':app/mm-preview/current/'+name)
+            if hashlib.sha256(raw).hexdigest()!=index[key]:raise ValueError('Original public forecast checksum mismatch')
+            return json.loads(raw)
+        forecast=checked(index['forecast_file'],'forecast_file_sha256')
+        mm=checked(index['mm_file'],'mm_file_sha256');documents=checked('existing-app-data.json','existing_app_data_sha256')
+        from fpl_v1_1_model.forecast_snapshot import require_snapshot
+        require_snapshot(forecast)
+        historical.append(receipt_from_original_publication(forecast,mm,documents,published_at=published,recovered_at=datetime.now(timezone.utc).isoformat(),commit=commit))
+        deadlines.add(deadline)
+    return list(candidates.values())+historical+late
 
 def select(receipts,season,now):
     selected={};excluded=0
@@ -58,7 +87,7 @@ def report(receipts,bootstrap,fixtures,outcomes,*,now):
             final=event.get('finished')and event.get('data_checked')
             labels=outcomes if final else outcomes.iloc[:0]
             result=score(m,records,labels,asof=now)
-            row.update(result,gw=gw,status='complete'if result['scored_rows']and not result['pending_rows']else'pending_results',forecast_sha256=m['forecast_sha256'],publication_commit=receipt['commit'],published_at=receipt['published_at'],model_code=m.get('forecast_code_sha256',{}))
+            row.update(result,gw=gw,status='complete'if result['scored_rows']and not result['pending_rows']else'pending_results',forecast_sha256=m['forecast_sha256'],publication_commit=receipt['commit'],published_at=receipt['published_at'],model_code=m.get('forecast_code_sha256',{}),archive_basis=m.get('archive_basis','prospective_ledger'),recovered_at=m.get('recovered_at'))
             row['positions']=[]
             for pos in [1,2,3,4]:
                 subset=[r for r in records if r['position']==pos]
@@ -72,9 +101,9 @@ def report(receipts,bootstrap,fixtures,outcomes,*,now):
     for event in ['start','0','60','90']:
         items=[m for w in measured for m in w['metrics']if m['event']==event];count=sum(m['rows']for m in items)
         aggregate['metrics'].append(dict(event=event,rows=count,**{k:sum(m[k]*m['rows']for m in items)/count if count else None for k in ['brier','bias','log_loss']}))
-    return dict(schema='fpl-weekly-model-review-v1',season=season,updated_at=now,weeks=weeks,season_summary=aggregate,completed_scored_gws=sum(w['status']=='complete'for w in weeks),missing_gws=[w['gw']for w in weeks if w['status']=='missing_predeadline_forecast'],excluded_late_captures=excluded,selection='Latest publicly committed forecast before its origin GW deadline; first forecast GW only; each player/fixture once.',scope='B-model versions as published; all registered forecast players, including non-appearances.',ts=dict(status='not_measured',reason='Private transfer/chip plans have not been archived before deadlines. Player accuracy does not measure transfer decisions.'),sources=[API+'bootstrap-static/',API+'fixtures/',API+'element-summary/{player_id}/'],production_changed=False,model_retrained=False)
+    return dict(schema='fpl-weekly-model-review-v1',season=season,updated_at=now,weeks=weeks,season_summary=aggregate,completed_scored_gws=sum(w['status']=='complete'for w in weeks),missing_gws=[w['gw']for w in weeks if w['status']=='missing_predeadline_forecast'],excluded_late_captures=excluded,selection='Latest publicly committed forecast before its origin GW deadline; first forecast GW only; each player/fixture once.',scope='B-model versions as published; all registered forecast players, including non-appearances.',ts=dict(status='not_measured',reason='Private transfer/chip plans have not been archived before deadlines. Player accuracy does not measure transfer decisions.'),sources=[API+'bootstrap-static/',API+'fixtures/',API+'element-summary/{player_id}/',API+'event/{gw}/live/'],production_changed=False,model_retrained=False)
 
-COLS=['season','fixture_uuid','player_uuid','team_id','is_final','known_at','kickoff','started','minutes','total_points']
+COLS=['season','fixture_uuid','player_uuid','team_id','is_final','known_at','kickoff','started','minutes','total_points','source_url','label_basis']
 def collect_outcomes(selected,bootstrap,fixtures,now):
     event_by={e['id']:e for e in bootstrap['events']};fixture_by={f['id']:f for f in fixtures};players={p['id']:p for p in bootstrap['elements']};needed={}
     for gw,receipt in selected.items():
@@ -86,13 +115,21 @@ def collect_outcomes(selected,bootstrap,fixtures,now):
             if not fixture or not fixture.get('finished')or not person or person.get('code')!=p.get('fpl_code'):continue
             if fixture['event']!=gw or utc(fixture['kickoff_time'])!=utc(p['kickoff'])or p['team_id']not in [fixture['team_h'],fixture['team_a']]:continue
             needed.setdefault(p['player_id'],[]).append((p,fixture))
+    live={}
+    for predictions in needed.values():
+        for p,_ in predictions:
+            if p['gw']not in live:
+                r=requests.get(API+f"event/{p['gw']}/live/",timeout=45);r.raise_for_status();live[p['gw']]={e['id']:e['stats']for e in r.json()['elements']}
     def load(item):
-        player_id,predictions=item;r=requests.get(API+f'element-summary/{player_id}/',timeout=45);r.raise_for_status();history={h['fixture']:h for h in r.json()['history']};rows=[]
+        player_id,predictions=item;
+        zero=all((s:=live[p['gw']].get(player_id))is not None and s.get('minutes')==0 and s.get('starts')==0 and s.get('total_points')==0 for p,_ in predictions)
+        if zero:return [dict(season=bootstrap['season'],fixture_uuid=p['fixture_uuid'],player_uuid=p['player_uuid'],team_id=p['team_id'],is_final=True,known_at=now,kickoff=p['kickoff'],started=0,minutes=0,total_points=0,source_url=API+f"event/{p['gw']}/live/",label_basis='official_final_GW_all_zero')for p,_ in predictions]
+        r=requests.get(API+f'element-summary/{player_id}/',timeout=45);r.raise_for_status();history={h['fixture']:h for h in r.json()['history']};rows=[]
         for p,fixture in predictions:
             h=history.get(fixture['id'])
             if h is None:continue # No fabricated zero-minute label.
             if (fixture['team_h']if h['was_home']else fixture['team_a'])!=p['team_id']or utc(h['kickoff_time'])!=utc(p['kickoff']):raise ValueError('Official fixture identity mismatch')
-            rows.append(dict(season=bootstrap['season'],fixture_uuid=p['fixture_uuid'],player_uuid=p['player_uuid'],team_id=p['team_id'],is_final=True,known_at=now,kickoff=p['kickoff'],started=h['starts'],minutes=h['minutes'],total_points=h['total_points']))
+            rows.append(dict(season=bootstrap['season'],fixture_uuid=p['fixture_uuid'],player_uuid=p['player_uuid'],team_id=p['team_id'],is_final=True,known_at=now,kickoff=p['kickoff'],started=h['starts'],minutes=h['minutes'],total_points=h['total_points'],source_url=API+f'element-summary/{player_id}/',label_basis='official_fixture_history'))
         return rows
     with concurrent.futures.ThreadPoolExecutor(max_workers=6)as pool:rows=[r for batch in pool.map(load,needed.items())for r in batch]
     return pd.DataFrame(rows,columns=COLS)
