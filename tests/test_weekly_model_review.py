@@ -126,5 +126,7 @@ def test_actual_history_season_comes_from_fixture_start_year_not_catalogue():
     bootstrap={'season':'2026-27','elements':[{'id':1,'code':123}]}
     attach_actual_history(traces,history,catalogue,bootstrap)
     assert traces['players'][0]['actual_history'][0]['points']==6
+    history['season']='2026';attach_actual_history(traces,history,catalogue,bootstrap)
+    assert traces['players'][0]['actual_history'][0]['points']==6
     history['season']=2025;attach_actual_history(traces,history,catalogue,bootstrap)
     assert traces['players'][0]['actual_history']==[]

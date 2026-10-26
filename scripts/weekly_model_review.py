@@ -156,7 +156,8 @@ def attach_actual_history(traces,history,catalogue,bootstrap):
     by={p['id']:p for p in traces['players']};codes={p['id']:p.get('code')for p in bootstrap['elements']};old_codes={p['id']:p.get('code')for p in catalogue['players']}
     for p in by.values():p['actual_history']=[]
     actual_season=history.get('season',catalogue.get('season'))
-    if isinstance(actual_season,int):actual_season=f'{actual_season}-{(actual_season+1)%100:02d}'
+    if isinstance(actual_season,int)or(isinstance(actual_season,str)and len(actual_season)==4 and actual_season.isdigit()):
+        start_year=int(actual_season);actual_season=f'{start_year}-{(start_year+1)%100:02d}'
     if actual_season!=bootstrap['season']:return
     traces['actual_history_observed_at']=history['observed_at']
     for r in history['gw_rows']:
