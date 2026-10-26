@@ -19,3 +19,6 @@ const {rows,actual}=fixture();rows.find(r=>r.id===12).role='B1';rows.find(r=>r.i
  const q=fixture();Object.assign(q.actual.get(3),{minutes:0,started:0,points:0});Object.assign(q.actual.get(6),{minutes:0,started:0,yellow_cards:1,points:-1});assert(q.actual.get(6).minutes===0);assert(E.score(q.rows,q.actual).substitutions.some(r=>r.in===6));
  console.log('Official FPL card-only participation: zero-minute card recipients count as played for captain and autosub purposes.');
 }
+{
+ const {rows,actual}=fixture();for(const a of actual.values())a.points=-1;for(const id of [8,9])Object.assign(actual.get(id),{minutes:0,started:0,points:0});const best=E.bestOwnXI(rows,actual);assert.equal(best.score.net,-11);assert.equal(best.score.captain_id,null);console.log('Hindsight captain choice also handles an all-negative playing cohort without forcing a negative bonus.');
+}
