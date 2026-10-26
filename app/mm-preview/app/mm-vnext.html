@@ -25,7 +25,7 @@ td span.flag{font-weight:700;color:var(--green);font-size:12px}
 #loading{font-weight:600}.error{color:#a33445}a{color:#0b7655}
 @media(max-width:660px){main{padding:12px 9px 80px}section{padding:14px}.stats{grid-template-columns:repeat(2,minmax(0,1fr))}input{min-width:120px;width:100%}}
 </style>
-<link rel="stylesheet" href="../desktop-probabilities.css?asset=b14014d247e84179"><script src="../gk/contract.js?asset=1628db7ff03a9931"></script><script defer src="../player-match-context.js?asset=53456a382ca58df2"></script><script defer src="../player-text-context.js?asset=d12e99a28d8ce9bc"></script><script defer src="../player-match-card.js?asset=e38e2ad75e00892b"></script><script defer src="../desktop-probabilities.js?asset=02c8b05cce6e56e9"></script><script src="../dashboard-team-news.js?asset=e278e30c98be4e93"></script></head>
+<link rel="stylesheet" href="../desktop-probabilities.css?asset=b14014d247e84179"><script src="../gk/contract.js?asset=1628db7ff03a9931"></script><script defer src="../player-match-context.js?asset=53456a382ca58df2"></script><script defer src="../player-text-context.js?asset=d12e99a28d8ce9bc"></script><script defer src="../player-match-card.js?asset=e38e2ad75e00892b"></script><script defer src="../desktop-probabilities.js?asset=02c8b05cce6e56e9"></script><script src="../dashboard-team-news.js?asset=e278e30c98be4e93"></script><script defer src="../weekly-review.js?asset=24f382389ba717ce"></script><link rel="stylesheet" href="../weekly-review.css?asset=da7135d390c384ea"></head>
 <body>
 <header><a href="overview.html">← Dashboard</a> · <a href="mm-diagnostic.html">Oprindelig MM</a>
 <h1>MM vNext – minutprognoser</h1>
@@ -83,4 +83,4 @@ Promise.all([fetch('mm-vnext-6gw.json',{cache:'no-store'}),fetch('vfinal-diagnos
 }).catch(e=>{$('loading').textContent=e.message;$('loading').classList.add('error');$('body').innerHTML='<tr><td colspan="7">'+esc(e.message)+'</td></tr>';});
 for(const id of ['week','search','sort'])$(id).addEventListener(id==='search'?'input':'change',draw);
 })();
-</script><script src="design-v2.js?asset=2c981dc7a13afa7e"></script></body></html>
+</script><script src="design-v2.js?asset=2c981dc7a13afa7e"></script><p><a href="weekly-review.html">Ugens modelrapport →</a></p></body></html>
