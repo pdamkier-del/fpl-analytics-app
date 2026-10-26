@@ -54,3 +54,16 @@ def test_duplicate_actual_labels_or_wrong_team_fail_closed():
     with pytest.raises(ValueError,match='Duplicate'):report([r],b,[],pd.concat([a,a]),now=NOW)
     a['team_id']=2
     with pytest.raises(ValueError,match='identity'):report([r],b,[],a,now=NOW)
+
+
+def test_player_trace_does_not_score_pending_or_future_lead_weeks():
+    from weekly_model_review import player_traces
+    r,a,b=fixture();b['elements']=[dict(id=1,web_name='Test',element_type=3)]
+    for p in r['records']:p['player_id']=1
+    selected,_=select([r],'s',NOW)
+    data=player_traces(selected,b,a);p=data['players'][0]
+    assert len(p['weeks'])==1 and p['weeks'][0]['gw']==2
+    assert p['summary']['xp_mae']==1 and p['summary']['minute_mae']==18
+    pending=player_traces(selected,b,a.iloc[:0])['players'][0]
+    assert pending['summary']['scored_gws']==0
+    assert pending['summary']['xp_mae']is None

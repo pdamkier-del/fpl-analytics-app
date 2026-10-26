@@ -48,7 +48,7 @@
   for(const[label,value]of [['Næste GW · xP',val(player.weeks[0]?.xpts,2)],['6 GW · xP',val(player.weeks.reduce((s,w)=>s+w.xpts,0),2)],['Næste GW · xMin',val(player.weeks[0]?.xmins,1)]]){const c=el('div');c.append(el('span',label),el('strong',value));summary.append(c);}
   const future=el('section',undefined,'player-next-matches'),past=el('section',undefined,'player-past-matches');
   const nav=el('nav',undefined,'player-match-nav');nav.setAttribute('aria-label','Spillerkortets kampoversigter');for(const[label,target]of [['Næste kampe',future],['Tidligere kampe',past]]){const button=el('button',label);button.type='button';button.onclick=()=>target.scrollIntoView({block:'start',behavior:'smooth'});nav.append(button);}
-  box.append(summary);if(root.FplPlayerTextContext)box.append(root.FplPlayerTextContext.liveStatus(player));if(!options.compact)box.append(nav);
+  box.append(summary);const review=el('a','Modellens sæsonresultater for '+player.name+' →','player-season-review-link');review.href='weekly-review.html?player='+player.id+'#player-review';box.append(review);if(root.FplPlayerTextContext)box.append(root.FplPlayerTextContext.liveStatus(player));if(!options.compact)box.append(nav);
   const archive=el('a','Tidligere sæsoner · spillerens kampstatistik','player-history-link');archive.href='history-classic.html?player='+encodeURIComponent(player.player_uuid);box.append(archive);
   box.append(future,inputAuditPanel(player,data));if(root.FplPlayerTextContext)box.append(root.FplPlayerTextContext.create(player,options.compact,{includeLive:false}));box.append(past);past.append(el('h3','Tidligere kampe'),el('p','Henter verificeret kamphistorik …','prob-note'));
   function drawFuture(h){

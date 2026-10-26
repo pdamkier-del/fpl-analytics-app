@@ -11,6 +11,7 @@ def inject(out):
         s=path.read_text();anchor='<span>Model Explorer</span></a>'
         if anchor in s:s=s.replace(anchor,anchor+'<a href="weekly-review.html"><span>Ugens modelrapport</span></a>')
         elif 'weekly-review.html'not in s:s=s.replace('</body>','<p><a href="weekly-review.html">Ugens modelrapport →</a></p></body>')
+        if 'season-team-comparison.js'not in s:s=s.replace('</head>','<script defer src="../season-team-comparison.js"></script></head>')
         if 'weekly-review.js'not in s:s=s.replace('</head>','<script defer src="../weekly-review.js"></script></head>')
         s=s.replace('</head>','<link rel="stylesheet" href="../weekly-review.css"></head>')
         if path.name=='weekly-review.html':s=s.replace('<a href="weekly-review.html">','<a class="active" href="weekly-review.html">')

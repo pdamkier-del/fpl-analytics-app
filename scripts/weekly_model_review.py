@@ -97,6 +97,23 @@ def collect_outcomes(selected,bootstrap,fixtures,now):
     with concurrent.futures.ThreadPoolExecutor(max_workers=6)as pool:rows=[r for batch in pool.map(load,needed.items())for r in batch]
     return pd.DataFrame(rows,columns=COLS)
 
+def player_traces(selected,bootstrap,outcomes):
+    labels={(r.fixture_uuid,r.player_uuid):r for r in outcomes.itertuples()}
+    players={p['id']:dict(id=p['id'],name=p['web_name'],position=p['element_type'],weeks=[])for p in bootstrap['elements']}
+    for gw,receipt in selected.items():
+        grouped={}
+        for p in receipt['records']:
+            if p['gw']==gw and p['eligible_for_pre_match_validation']and p.get('fpl_code')is not None:grouped.setdefault(p['player_id'],[]).append(p)
+        for player_id,records in grouped.items():
+            if player_id not in players:continue
+            actual=[labels.get((p['fixture_uuid'],p['player_uuid']))for p in records]
+            complete=all(a is not None for a in actual)
+            players[player_id]['weeks'].append(dict(gw=gw,forecast_sha256=receipt['manifest']['forecast_sha256'],published_at=receipt['published_at'],xp=sum(p['xp']for p in records),expected_minutes=sum(p['expected_minutes']for p in records),p_start=[p['p_start']for p in records],actual_minutes=sum(a.minutes for a in actual)if complete else None,actual_points=sum(a.total_points for a in actual)if complete else None,actual_starts=sum(a.started for a in actual)if complete else None,final=complete))
+    for p in players.values():
+        p['weeks'].sort(key=lambda w:w['gw']);final=[w for w in p['weeks']if w['final']];n=len(final)
+        p['summary']=dict(scored_gws=n,minute_mae=sum(abs(w['expected_minutes']-w['actual_minutes'])for w in final)/n if n else None,xp_mae=sum(abs(w['xp']-w['actual_points'])for w in final)/n if n else None,xp_bias=sum(w['xp']-w['actual_points']for w in final)/n if n else None)
+    return dict(schema='fpl-player-season-review-v1',season=bootstrap['season'],players=list(players.values()))
+
 def build(source,ref):
     source=Path(source);now=datetime.now(timezone.utc).isoformat();receipts=recover(ref)
     # Include the new capture only once it has an actual public commit on a later run.
@@ -106,8 +123,12 @@ def build(source,ref):
     fixtures=requests.get(API+'fixtures/',timeout=45);fixtures.raise_for_status();fixtures=fixtures.json()
     selected,_=select(receipts,season,now);outcomes=collect_outcomes(selected,bootstrap,fixtures,now)
     result=report(receipts,bootstrap,fixtures,outcomes,now=now)
+    traces=player_traces(selected,bootstrap,outcomes);traces['updated_at']=now
+    from season_round_benchmark import build as round_benchmarks
+    result['round_benchmarks']=round_benchmarks(source)
     out=source/'weekly-review';out.mkdir(exist_ok=True)
     raw=(json.dumps(dict(observed_at=now,records=outcomes.to_dict(orient='records')),sort_keys=True,allow_nan=False)+'\n').encode()
+    (out/'players.json').write_text(json.dumps(traces,ensure_ascii=False,sort_keys=True,allow_nan=False)+'\n')
     (out/'outcomes.json').write_bytes(raw);result['outcomes_sha256']=hashlib.sha256(raw).hexdigest()
     (out/'report.json').write_text(json.dumps(result,ensure_ascii=False,sort_keys=True,allow_nan=False)+'\n')
     print(json.dumps({k:result[k]for k in ['season','updated_at','completed_scored_gws','missing_gws','excluded_late_captures']}));return result
