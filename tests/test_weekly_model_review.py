@@ -116,3 +116,15 @@ def test_actual_player_history_without_predictions_never_enters_error_metrics():
     assert p['summary']['scored_gws']==1 and p['summary']['xp_mae']==1
     cat['season']='another-season';attach_actual_history(traces,h,cat,b)
     assert p['actual_history']==[]
+
+
+def test_actual_history_season_comes_from_fixture_start_year_not_catalogue():
+    from weekly_model_review import attach_actual_history
+    traces={'players':[{'id':1}]}
+    history={'season':2026,'observed_at':NOW,'gw_rows':[dict(player_id=1,gw=1,gw_complete=True,stats=dict(minutes=90,total_points=6,starts=1))]}
+    catalogue={'players':[{'id':1,'code':123}]}
+    bootstrap={'season':'2026-27','elements':[{'id':1,'code':123}]}
+    attach_actual_history(traces,history,catalogue,bootstrap)
+    assert traces['players'][0]['actual_history'][0]['points']==6
+    history['season']=2025;attach_actual_history(traces,history,catalogue,bootstrap)
+    assert traces['players'][0]['actual_history']==[]

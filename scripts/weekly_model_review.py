@@ -155,7 +155,9 @@ def attach_actual_history(traces,history,catalogue,bootstrap):
     """Actual stats can exist even when no forecast was saved. Never score these as predictions."""
     by={p['id']:p for p in traces['players']};codes={p['id']:p.get('code')for p in bootstrap['elements']};old_codes={p['id']:p.get('code')for p in catalogue['players']}
     for p in by.values():p['actual_history']=[]
-    if catalogue.get('season')!=bootstrap['season']:return
+    actual_season=history.get('season',catalogue.get('season'))
+    if isinstance(actual_season,int):actual_season=f'{actual_season}-{(actual_season+1)%100:02d}'
+    if actual_season!=bootstrap['season']:return
     traces['actual_history_observed_at']=history['observed_at']
     for r in history['gw_rows']:
         p=by.get(r['player_id'])
@@ -172,7 +174,11 @@ def build(source,ref):
     selected,_=select(receipts,season,now);outcomes=collect_outcomes(selected,bootstrap,fixtures,now)
     result=report(receipts,bootstrap,fixtures,outcomes,now=now)
     traces=player_traces(selected,bootstrap,outcomes);traces['updated_at']=now
-    attach_actual_history(traces,json.loads((source/'history/match-results.json').read_text()),json.loads((source/'history/current-players.json').read_text()),bootstrap)
+    history=json.loads((source/'history/match-results.json').read_text())
+    fixture_raw=(source/'history/live-fixtures.json').read_bytes();history_index=json.loads((source/'history/index.json').read_text())
+    if hashlib.sha256(fixture_raw).hexdigest()!=history_index['files']['live-fixtures.json']:raise ValueError('Historical fixture season checksum mismatch')
+    history['season']=json.loads(fixture_raw)['season']
+    attach_actual_history(traces,history,json.loads((source/'history/current-players.json').read_text()),bootstrap)
     from season_round_benchmark import build as round_benchmarks
     result['round_benchmarks']=round_benchmarks(source)
     out=source/'weekly-review';out.mkdir(exist_ok=True)
