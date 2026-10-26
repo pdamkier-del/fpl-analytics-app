@@ -56,6 +56,8 @@ def integrate(root=ROOT):
     for page in out.glob('*.html'):
         text=page.read_text()
         if 'dashboard-team-news.js'not in text:page.write_text(text.replace('</head>','<script src="../dashboard-team-news.js"></script></head>'))
+    from integrate_weekly_review import inject as review_inject
+    review_inject(out)
     # The same origin already serves earlier app versions. Content-derived
     # queries prevent cached old adapters from hiding newly added history APIs.
     import re
