@@ -37,7 +37,7 @@ def build(source):
         players=[]
         for r in h['gw_rows']:
             club=teams.get(r['player_id'],set());p=catalogue.get(r['player_id'])
-            if r['gw']!=gw or not r.get('gw_complete')or r['stats']['minutes']<=0 or len(club)!=1 or not p:continue
+            if r['gw']!=gw or not r.get('gw_complete')or not(r['stats']['minutes']>0 or r['stats'].get('starts',0)>0 or r['stats'].get('yellow_cards',0)>0 or r['stats'].get('red_cards',0)>0 or r['stats'].get('played')is True) or len(club)!=1 or not p:continue
             players.append(dict(id=p['id'],name=p['web_name'],position=p['position'],team_id=next(iter(club)),points=r['stats']['total_points']))
         result=best_xi(players)
         if result:out[str(gw)]=result

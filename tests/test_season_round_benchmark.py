@@ -19,3 +19,23 @@ def test_hindsight_benchmark_is_exact_with_formation_club_and_captain_constraint
 
 def test_no_legal_formation_is_not_reported_as_an_optimum():
     assert best_xi([dict(id=i,position=3,team_id=i,points=2)for i in range(12)])is None
+
+
+def test_card_only_goalkeeper_is_a_played_candidate_under_official_fpl_rules(tmp_path):
+    import json,hashlib
+    from season_round_benchmark import build
+    base=tmp_path/'history';base.mkdir()
+    positions=[1,1,2,2,2,3,3,3,3,4,4,4]
+    players=[dict(id=i,web_name=str(i),position=pos)for i,pos in enumerate(positions,1)]
+    rows=[]
+    for p in players:
+        card=p['id']==2
+        rows.append(dict(player_id=p['id'],gw=1,gw_complete=True,stats=dict(minutes=0 if card else 90,starts=0 if card else 1,red_cards=1 if card else 0,yellow_cards=0,total_points=-3 if card else -8 if p['id']==1 else 1)))
+    docs={'current-players.json':{'players':players},'match-results.json':{'completed_gws':[1],'gw_rows':rows,'match_rows':[dict(player_id=p['id'],gw=1,team_id=p['id'])for p in players]}}
+    files={}
+    for name,data in docs.items():
+        raw=json.dumps(data).encode();(base/name).write_bytes(raw);files[name]=hashlib.sha256(raw).hexdigest()
+    (base/'index.json').write_text(json.dumps({'files':files}))
+    result=build(tmp_path)['1']
+    assert 2 in [p['id']for p in result['rows']]
+    assert result['points']==8
