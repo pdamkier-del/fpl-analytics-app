@@ -48,9 +48,9 @@
   for(const[label,value]of [['Næste GW · xP',val(player.weeks[0]?.xpts,2)],['6 GW · xP',val(player.weeks.reduce((s,w)=>s+w.xpts,0),2)],['Næste GW · xMin',val(player.weeks[0]?.xmins,1)]]){const c=el('div');c.append(el('span',label),el('strong',value));summary.append(c);}
   const future=el('section',undefined,'player-next-matches'),past=el('section',undefined,'player-past-matches');
   const nav=el('nav',undefined,'player-match-nav');nav.setAttribute('aria-label','Spillerkortets kampoversigter');for(const[label,target]of [['Næste kampe',future],['Tidligere kampe',past]]){const button=el('button',label);button.type='button';button.onclick=()=>target.scrollIntoView({block:'start',behavior:'smooth'});nav.append(button);}
-  box.append(summary);if(!options.compact)box.append(nav);
+  box.append(summary);if(root.FplPlayerTextContext)box.append(root.FplPlayerTextContext.liveStatus(player));if(!options.compact)box.append(nav);
   const archive=el('a','Tidligere sæsoner · spillerens kampstatistik','player-history-link');archive.href='history-classic.html?player='+encodeURIComponent(player.player_uuid);box.append(archive);
-  box.append(future,inputAuditPanel(player,data));if(root.FplPlayerTextContext)box.append(root.FplPlayerTextContext.create(player,options.compact));box.append(past);past.append(el('h3','Tidligere kampe'),el('p','Henter verificeret kamphistorik …','prob-note'));
+  box.append(future,inputAuditPanel(player,data));if(root.FplPlayerTextContext)box.append(root.FplPlayerTextContext.create(player,options.compact,{includeLive:false}));box.append(past);past.append(el('h3','Tidligere kampe'),el('p','Henter verificeret kamphistorik …','prob-note'));
   function drawFuture(h){
    future.replaceChildren(el('h3',options.compact?'Næste 3 GW · modelprognose':'Næste kampe · modelprognose'));
    const matches=new Map((h?.historical_fixtures?.fixtures||[]).map(f=>[f.id,f])),teams=h?.historical_catalogue?.teams||{};
@@ -78,10 +78,10 @@
     const link=el('a',(name||'Kamp '+r.fixture_id)+(match?(home?' (H)':' (U)'):'')+(r.provisional?' · foreløbig':''));link.href='fixtures-classic.html?gw='+r.gw;
     const opponent=el('span',undefined,'player-match-opponent');opponent.append(link);if(match)opponent.append(el('small',clock(match.kickoff)+' · '+val(home?match.home_score:match.away_score)+'–'+val(home?match.away_score:match.home_score)));
     if(r.stats?.minutes===0&&root.FplPlayerMatchContext){const absence=el('small','Årsag til 0 minutter afventer …','match-context-inline-absence');opponent.append(absence);root.FplPlayerMatchContext.load().then(data=>{const context=data.rows.find(x=>x.player_id===player.id&&x.competition==='prem'&&x.fpl_fixture_id===r.fixture_id);if(context&&context.minutes>0){absence.textContent='Kilderne er uenige om spilletiden; årsag ikke afklaret.';}else absence.replaceChildren(root.FplPlayerMatchContext.reason(context));}).catch(()=>{absence.textContent='Årsag til fravær ikke dokumenteret';});}
-    return ['GW '+r.gw,opponent,val(r.stats?.minutes),val(r.total_points??r.stats?.total_points),val(r.stats?.goals_scored),val(r.stats?.assists),val(r.stats?.expected_goals,2),val(r.stats?.expected_assists,2)];
+    return ['GW '+r.gw,opponent,val(r.stats?.minutes),val(r.total_points??r.stats?.total_points),val(r.stats?.goals_scored),val(r.stats?.assists),val(r.stats?.expected_goals,2),val(r.stats?.expected_assists,2),val(r.stats?.red_cards)];
    });
    if(!rows.length)past.append(el('p','Ingen verificerede tidligere kampe for denne spiller.','prob-note'));
-   else{const count=options.compact?3:6;past.append(table(['GW','Kamp','Min','Point','Mål','Assists','xG','xA'],rows.slice(0,count),'player-fixtures-past'));if(rows.length>count){const more=el('details'),s=el('summary','Vis '+(rows.length-count)+' ældre kampe');more.append(s,table(['GW','Kamp','Min','Point','Mål','Assists','xG','xA'],rows.slice(count),'player-fixtures-past'));past.append(more);}}
+   else{const count=options.compact?3:6;past.append(table(['GW','Kamp','Min','Point','Mål','Assists','xG','xA','Røde'],rows.slice(0,count),'player-fixtures-past'));if(rows.length>count){const more=el('details'),s=el('summary','Vis '+(rows.length-count)+' ældre kampe');more.append(s,table(['GW','Kamp','Min','Point','Mål','Assists','xG','xA','Røde'],rows.slice(count),'player-fixtures-past'));past.append(more);}}
    if(root.FplPlayerMatchContext)box.append(root.FplPlayerMatchContext.create(player,h,options.compact));
    past.append(el('p','Resultatet er set fra spillerens hold. Officielle FPL-kampdata · hentet '+clock(h.observed_at)+'. — betyder, at tallet ikke findes pr. kamp; GW-totaler fordeles ikke kunstigt på dobbeltkampe.','prob-note'));
   }).catch(()=>{past.replaceChildren(el('h3','Tidligere kampe'),el('p','Kamphistorikken kunne ikke hentes. Prognosen ovenfor er stadig tilgængelig. Prøv at åbne kortet igen.','prob-note'));});
