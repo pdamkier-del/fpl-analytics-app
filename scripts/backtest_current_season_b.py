@@ -47,7 +47,7 @@ def verify_origin(inputs,source):
             if set(map(int,team.fpl_element))!={pid for pid,p in official.items()if p['team']==tid}:raise ValueError('Incomplete archived roster')
     return prov,boot,pm,origin
 
-def replay(inputs,source,out,*,draws=400):
+def replay(inputs,source,out,*,draws=400,export_scenarios=False):
     inputs,source,out=map(Path,[inputs,source,out]);out.mkdir(parents=True,exist_ok=True)
     prov,boot,pm,origin=verify_origin(inputs,source)
     h=pd.read_csv(inputs/'history.csv.gz',low_memory=False);target=pd.read_csv(inputs/'target.csv.gz',low_memory=False)
@@ -61,6 +61,10 @@ def replay(inputs,source,out,*,draws=400):
     xp,moments,audit,_=run(joined,pred,observations(source),season='2026-27',draws=draws,
         role_policy=load_policy(source,h),chain=True,catalogue=catalogue,assignment_history=assignment,assignment_strength=role['strength'],
         ordinary_goal_weights=weights,conditional_penalties=True,physical_minutes=True,distributions=True,offsets=offsets)
+    if export_scenarios:
+        import gzip
+        samples=[dict(fixture_uuid=r.fixture_uuid,player_uuid=r.player_uuid,scenarios=r.scenarios)for r in xp.itertuples()]
+        (out/'scenarios.json.gz').write_bytes(gzip.compress(json.dumps(dict(cutoff=prov['data_at'],gw=origin,draws=draws,records=samples),allow_nan=False).encode(),mtime=0))
     identity=joined.set_index(['fixture_uuid','player_uuid']);rows=[]
     for r in xp.itertuples():
         if abs(sum(getattr(r,k)for k in POINT_COMPONENTS)-r.xpts_fixture)>1e-8:raise ValueError('Point components do not reconcile')
@@ -80,4 +84,4 @@ def warmup_status(gw,minimum):
 
 
 if __name__=='__main__':
-    p=argparse.ArgumentParser();p.add_argument('--inputs',type=Path,required=True);p.add_argument('--source',type=Path,required=True);p.add_argument('--out',type=Path,required=True);p.add_argument('--draws',type=int,default=400);a=p.parse_args();replay(a.inputs,a.source,a.out,draws=a.draws)
+    p=argparse.ArgumentParser();p.add_argument('--inputs',type=Path,required=True);p.add_argument('--source',type=Path,required=True);p.add_argument('--out',type=Path,required=True);p.add_argument('--draws',type=int,default=400);p.add_argument('--export-scenarios',action='store_true');a=p.parse_args();replay(a.inputs,a.source,a.out,draws=a.draws,export_scenarios=a.export_scenarios)
