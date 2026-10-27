@@ -15,7 +15,7 @@ permissions:
   id-token: write
 env:
   PREVIEW_SOURCE_SHA: 03d5c4d4777b44bc1d37884a1cf4dde106b45cab
-  PREVIEW_UI_SHA: 0b9a85436a6e4d89e757afa6431bb576d90b4b22
+  PREVIEW_UI_SHA: 80d2e1d6ef08626055ab96e14ea67e14bc45feed
 jobs:
   verified:
     if: ${{ inputs.validated_run != '' }}
@@ -176,6 +176,8 @@ jobs:
           node analysis/verify_weekly_model_review.cjs > unified-weekly-review-browser.json
           node analysis/verify_season_comparisons.cjs > unified-season-comparisons-browser.json
           node analysis/verify_current_season_backtest.cjs > unified-season-backtest-browser.json
+          node tests/test_round_review.js
+          node analysis/verify_round_review.cjs > unified-round-review-browser.json
           node - <<'JS' > unified-live-readiness-browser.json
           const {chromium}=require('playwright'),assert=require('node:assert/strict');
           (async()=>{
