@@ -1,0 +1,91 @@
+name: Recover verified B Pages deployment
+on:
+  workflow_dispatch:
+    inputs:
+      source_run:
+        description: 'Completed main B publication with all checks passed and only deploy-pages failed'
+        required: true
+        type: string
+permissions:
+  contents: write
+  actions: read
+  pages: write
+  id-token: write
+env:
+  PREVIEW_SOURCE_SHA: 03d5c4d4777b44bc1d37884a1cf4dde106b45cab
+  PREVIEW_UI_SHA: 0bdd51eeb2dd895ac2b0bfa8499b26bd0f4d91a1
+jobs:
+  recover:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    concurrency:
+      group: fpl-pages-publication
+      cancel-in-progress: false
+    environment:
+      name: github-pages
+      url: https://pdamkier-del.github.io/fpl-analytics-app/mm-preview/app/weekly-review.html
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ env.PREVIEW_UI_SHA }}
+          fetch-depth: 0
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: pip install requests==2.32.3
+      - name: Require successful tests and only a deployment failure
+        env:
+          GH_TOKEN: ${{ github.token }}
+          SOURCE_RUN: ${{ inputs.source_run }}
+        run: |
+          python - <<'PY'
+          import json,os,re,subprocess
+          repo='pdamkier-del/fpl-analytics-app';run=os.environ['SOURCE_RUN']
+          assert re.fullmatch('[0-9]+',run)
+          def get(path):return json.loads(subprocess.check_output(['gh','api','repos/'+repo+'/'+path],text=True))
+          origin=get('actions/runs/'+run)
+          assert origin['path']=='.github/workflows/mm-current-preview-publication.yml'
+          assert origin['head_branch']=='main'and origin['status']=='completed'and origin['conclusion']=='failure'
+          jobs=get('actions/runs/'+run+'/jobs?per_page=100')['jobs']
+          job=next(j for j in jobs if j['name']=='preview')
+          steps=job['steps'];failed=[s for s in steps if s['conclusion']=='failure']
+          assert len(failed)==1 and failed[0]['name']=='Run actions/deploy-pages@v4'
+          for name in ['Verify actual existing desktop and mobile UI before publication','Publish preview alone; preserve every production asset','Run actions/upload-pages-artifact@v3']:
+              assert any(s['name']==name and s['conclusion']=='success'for s in steps),name
+          print('Exact public UI checks and production-preservation gate passed; retrying deployment only')
+          PY
+      - uses: actions/download-artifact@v4
+        with:
+          name: mm-current-preview-pages-${{ inputs.source_run }}
+          path: .verified-pages-archive
+          run-id: ${{ inputs.source_run }}
+          github-token: ${{ github.token }}
+      - name: Reuse verified preview and preserve the newest production artifact
+        env:
+          GH_TOKEN: ${{ github.token }}
+          SOURCE_RUN: ${{ inputs.source_run }}
+          PYTHONPATH: scripts
+        run: |
+          python - <<'PY'
+          import hashlib,json,os,tarfile
+          from pathlib import Path
+          from publish_mm_preview import main
+          with tarfile.open('.verified-pages-archive/artifact.tar')as archive:archive.extractall('.verified-pages',filter='data')
+          source=Path('.verified-pages/mm-preview').resolve();p=source/'chain-publication-sources.json';chain=json.loads(p.read_text())
+          assert chain['model_source']==os.environ['PREVIEW_SOURCE_SHA']and chain['ui_source']==os.environ['PREVIEW_UI_SHA']
+          assert chain['publication_run']==os.environ['SOURCE_RUN']
+          assert json.loads((source/'publication.json').read_text())['production_files_identical']is True
+          files=['current/forecast.json','gk/forecast.json','gk/gk-mm.json']
+          before={n:hashlib.sha256((source/n).read_bytes()).hexdigest()for n in files}
+          chain['validated_ui_run']=chain['publication_run'];chain['publication_run']=os.environ['GITHUB_RUN_ID'];chain['deployment_recovery']=True;p.write_text(json.dumps(chain,sort_keys=True)+'\n')
+          os.environ['MM_PREVIEW_SOURCE_DIR']=str(source);main()
+          assert all(hashlib.sha256((Path('.mm-preview-site/mm-preview')/n).read_bytes()).hexdigest()==digest for n,digest in before.items())
+          PY
+      - uses: actions/configure-pages@v5
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: .mm-preview-site
+          name: recovered-B-pages-${{ github.run_id }}
+      - uses: actions/deploy-pages@v4
+        with:
+          artifact_name: recovered-B-pages-${{ github.run_id }}
