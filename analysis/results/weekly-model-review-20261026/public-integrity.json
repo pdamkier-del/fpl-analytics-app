@@ -1,0 +1,602 @@
+{
+  "publication": {
+    "forecast_sha256": "a5e70fc3be44869ab8254f3bac2e74d501b171eb0c3e13a4fcd59a16ea18a44b",
+    "model_source": "03d5c4d4777b44bc1d37884a1cf4dde106b45cab",
+    "numerical_forecasts_byte_identical": true,
+    "production_model_unchanged": true,
+    "publication_run": "40406129273",
+    "ui_source": "c483fd07512279fc33ca7dc16e308956aaad487e"
+  },
+  "production_files": 88,
+  "all_production_files_match_preserved_artifact": true,
+  "production_forecast_equal_before_after": true,
+  "numeric_forecast_hashes": {
+    "current/forecast.json": "1d7b772b53e2f1fe77f8461d196e311ad23f9691247d053d0ca355dd99522097",
+    "gk/forecast.json": "1d7b772b53e2f1fe77f8461d196e311ad23f9691247d053d0ca355dd99522097",
+    "gk/gk-mm.json": "9930efa79cf7c2e2a72bdb93b73016fe6158b12686cc14a4e912af6f747dcdab"
+  },
+  "report_updated_at": "2026-10-26T21:41:14.774208+00:00",
+  "gw8": {
+    "status": "complete",
+    "scored_rows": 668,
+    "minute_mae": 12.31899054205971,
+    "minute_bias": -0.5214482471963078,
+    "xp_mae": 1.0817252994011977,
+    "xp_bias": -0.05203218562874252,
+    "published_at": "2026-10-23T16:29:56Z",
+    "publication_commit": "e0afd754ec1dd8776b325a00f69a0bd08591fd2a",
+    "archive_basis": "original_public_forecast_snapshot",
+    "metrics": [
+      {
+        "bias": -3.6030263775755e-06,
+        "brier": 0.0870554461643988,
+        "event": "start",
+        "log_loss": 0.27507013423747867,
+        "rows": 668
+      },
+      {
+        "bias": 0.024942021398026513,
+        "brier": 0.09021412633176452,
+        "event": "0",
+        "log_loss": 0.3292394929498033,
+        "rows": 668
+      },
+      {
+        "bias": -0.011516738110356972,
+        "brier": 0.10425508922031274,
+        "event": "60",
+        "log_loss": 0.3508726851142683,
+        "rows": 668
+      },
+      {
+        "bias": 0.00442506933130299,
+        "brier": 0.09871975898046727,
+        "event": "90",
+        "log_loss": 0.4936396865838001,
+        "rows": 668
+      }
+    ]
+  },
+  "missing_gws": [
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7
+  ],
+  "player_count": 669,
+  "outcomes_sha256": "6de7023df7315c5b3beba8fef6e335dfa2d07247855a28341c6971e14960e2c7",
+  "round_benchmarks": 8,
+  "production_checks": [
+    {
+      "path": ".nojekyll",
+      "expected": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "actual": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "matched": true
+    },
+    {
+      "path": "assets.css",
+      "expected": "898ce55ee157d5441b9d20302825b8066658084698c7fd0ae32f052d5a0648fa",
+      "actual": "898ce55ee157d5441b9d20302825b8066658084698c7fd0ae32f052d5a0648fa",
+      "matched": true
+    },
+    {
+      "path": "assets.js",
+      "expected": "bc28d0ef5cc6f118aa6abb96a0efd3d25e6231b73e5a63409d9f8be30d45b05c",
+      "actual": "bc28d0ef5cc6f118aa6abb96a0efd3d25e6231b73e5a63409d9f8be30d45b05c",
+      "matched": true
+    },
+    {
+      "path": "availability-ui.js",
+      "expected": "6b2b83a98706c1a4f136033fd9c7c1fe45612d718eff4a923ddb91ea0b96af78",
+      "actual": "6b2b83a98706c1a4f136033fd9c7c1fe45612d718eff4a923ddb91ea0b96af78",
+      "matched": true
+    },
+    {
+      "path": "catalog-data.js",
+      "expected": "8a3e04c12f8b9913c9ca3723df9f5c061add977d528615309f6711de099d55be",
+      "actual": "8a3e04c12f8b9913c9ca3723df9f5c061add977d528615309f6711de099d55be",
+      "matched": true
+    },
+    {
+      "path": "classic-catalog.css",
+      "expected": "a45aae71e9e1b23a241f45600287e4f306137fe8f5da375bc93baef09d1c4c5f",
+      "actual": "a45aae71e9e1b23a241f45600287e4f306137fe8f5da375bc93baef09d1c4c5f",
+      "matched": true
+    },
+    {
+      "path": "classic-catalog.js",
+      "expected": "299129135cbb2a12d4c106c10134fc4d47fa17da78f9371bd5cb287124c90450",
+      "actual": "299129135cbb2a12d4c106c10134fc4d47fa17da78f9371bd5cb287124c90450",
+      "matched": true
+    },
+    {
+      "path": "classic-common.css",
+      "expected": "253c914db9a08d355c2bff6e18dfecbaa82510ba5b6ef626c9c61621a460f14e",
+      "actual": "253c914db9a08d355c2bff6e18dfecbaa82510ba5b6ef626c9c61621a460f14e",
+      "matched": true
+    },
+    {
+      "path": "classic-fixtures.css",
+      "expected": "adf0b8ab12162a1384883a89bea82df3eef70e18083b87f000edcd9de7177674",
+      "actual": "adf0b8ab12162a1384883a89bea82df3eef70e18083b87f000edcd9de7177674",
+      "matched": true
+    },
+    {
+      "path": "classic-fixtures.js",
+      "expected": "bb822dc19269c7a29813e9ce9d232b3b92fc3be0d9e0481e9423622d9cd17cfa",
+      "actual": "bb822dc19269c7a29813e9ce9d232b3b92fc3be0d9e0481e9423622d9cd17cfa",
+      "matched": true
+    },
+    {
+      "path": "classic-manager.js",
+      "expected": "53d0aff6b34e4df157d86ec25504c455f814882f155eeb85fb72816b4fb2c454",
+      "actual": "53d0aff6b34e4df157d86ec25504c455f814882f155eeb85fb72816b4fb2c454",
+      "matched": true
+    },
+    {
+      "path": "classic-nav.js",
+      "expected": "b0a65af1a53a9d580e387e5f89c6666a91dee9079e0421211b57b35559508df2",
+      "actual": "b0a65af1a53a9d580e387e5f89c6666a91dee9079e0421211b57b35559508df2",
+      "matched": true
+    },
+    {
+      "path": "classic-transfer-preview.js",
+      "expected": "5e787c111edf0ad3aac367a0691e8247d3f3dcaf0cd7844052c4e7ffa4619325",
+      "actual": "5e787c111edf0ad3aac367a0691e8247d3f3dcaf0cd7844052c4e7ffa4619325",
+      "matched": true
+    },
+    {
+      "path": "classic-transfers.js",
+      "expected": "783bae14b75ead9d71cf5d60f9d6179b18c6e38ccace314c9d7f2c5850535ddb",
+      "actual": "783bae14b75ead9d71cf5d60f9d6179b18c6e38ccace314c9d7f2c5850535ddb",
+      "matched": true
+    },
+    {
+      "path": "club-lineups.json",
+      "expected": "8da4acce098ffba0b6601346021e987ae860551763013bfbe517e823fabde40c",
+      "actual": "8da4acce098ffba0b6601346021e987ae860551763013bfbe517e823fabde40c",
+      "matched": true
+    },
+    {
+      "path": "clubs-classic.html",
+      "expected": "eeae8d0efeffa460d7c3b99c9b6eb9d743761abf25959ecf1b6646628fc38188",
+      "actual": "eeae8d0efeffa460d7c3b99c9b6eb9d743761abf25959ecf1b6646628fc38188",
+      "matched": true
+    },
+    {
+      "path": "clubs-live.html",
+      "expected": "a2c838393192a4c5d92fed2f567244c46034d5de1f42b003a7c3d0efe4b4daf2",
+      "actual": "a2c838393192a4c5d92fed2f567244c46034d5de1f42b003a7c3d0efe4b4daf2",
+      "matched": true
+    },
+    {
+      "path": "compute-feedback.js",
+      "expected": "02b758f5d7b7d7dd7070aa505589cffb92ad095b03eb02bd6c893e79b203cbf8",
+      "actual": "02b758f5d7b7d7dd7070aa505589cffb92ad095b03eb02bd6c893e79b203cbf8",
+      "matched": true
+    },
+    {
+      "path": "current-players.html",
+      "expected": "e6e92158b9398ab02eeb3f40b8e292a4bb8b217a386f8462dbbe6aaf4eda1c52",
+      "actual": "e6e92158b9398ab02eeb3f40b8e292a4bb8b217a386f8462dbbe6aaf4eda1c52",
+      "matched": true
+    },
+    {
+      "path": "current-players.json",
+      "expected": "259ce3dab2fd4c11ee7fe4fd3dd36b7173dc96817dbe275a2039127a03a85587",
+      "actual": "259ce3dab2fd4c11ee7fe4fd3dd36b7173dc96817dbe275a2039127a03a85587",
+      "matched": true
+    },
+    {
+      "path": "data.js",
+      "expected": "c0b4591374e205a4f06eb644bb765fbfdd7b88bb862e5060e622f108eccf9010",
+      "actual": "c0b4591374e205a4f06eb644bb765fbfdd7b88bb862e5060e622f108eccf9010",
+      "matched": true
+    },
+    {
+      "path": "design-v2.css",
+      "expected": "63f080526211e30309a0c1498171e1a0ff436b889276ebc988982a545a6ea09c",
+      "actual": "63f080526211e30309a0c1498171e1a0ff436b889276ebc988982a545a6ea09c",
+      "matched": true
+    },
+    {
+      "path": "design-v2.js",
+      "expected": "2c981dc7a13afa7e987e1b8ccfb5cef3203569b2b15cd1194d6ff8f37a425a0e",
+      "actual": "2c981dc7a13afa7e987e1b8ccfb5cef3203569b2b15cd1194d6ff8f37a425a0e",
+      "matched": true
+    },
+    {
+      "path": "diagnostic-pipeline-status.json",
+      "expected": "9e5c800256550fa5486616f92efd91d5b913f76e9a740684cba8d392f1c33de6",
+      "actual": "9e5c800256550fa5486616f92efd91d5b913f76e9a740684cba8d392f1c33de6",
+      "matched": true
+    },
+    {
+      "path": "expert-lineups.js",
+      "expected": "3038d01f3bf5327bf187dea5aea9f6984b9142f7118b2797276fb9f1c9f61fe6",
+      "actual": "3038d01f3bf5327bf187dea5aea9f6984b9142f7118b2797276fb9f1c9f61fe6",
+      "matched": true
+    },
+    {
+      "path": "fixture-expectations.json",
+      "expected": "38ddee7ba91be222787babc0b46086a06ec69f33f515bb21923e7591d317161d",
+      "actual": "38ddee7ba91be222787babc0b46086a06ec69f33f515bb21923e7591d317161d",
+      "matched": true
+    },
+    {
+      "path": "fixture-formatter.js",
+      "expected": "7296b09d85a72fb2376aec47c385ad9e74b7a594babd8ceb37d25dd9cfd68556",
+      "actual": "7296b09d85a72fb2376aec47c385ad9e74b7a594babd8ceb37d25dd9cfd68556",
+      "matched": true
+    },
+    {
+      "path": "fixtures-classic.html",
+      "expected": "78a82fc5b70274296435ee26cb248894a499c57f4093f13c7fe8d0a88f78e753",
+      "actual": "78a82fc5b70274296435ee26cb248894a499c57f4093f13c7fe8d0a88f78e753",
+      "matched": true
+    },
+    {
+      "path": "fixtures-live.html",
+      "expected": "3a441bda4c3f0064e1d63abba4be6e6479b44bc9b14677a824d8de2a9bc7e1ce",
+      "actual": "3a441bda4c3f0064e1d63abba4be6e6479b44bc9b14677a824d8de2a9bc7e1ce",
+      "matched": true
+    },
+    {
+      "path": "forecast-center.html",
+      "expected": "befadbb1444fc38f655ffc382697e9ef92b317f27d975217cf43088a3de42e8f",
+      "actual": "befadbb1444fc38f655ffc382697e9ef92b317f27d975217cf43088a3de42e8f",
+      "matched": true
+    },
+    {
+      "path": "forecast-history.html",
+      "expected": "7520136edbd451bf14534e5c0487f57bd467c0a1f62c74b8d77afc82363150d4",
+      "actual": "7520136edbd451bf14534e5c0487f57bd467c0a1f62c74b8d77afc82363150d4",
+      "matched": true
+    },
+    {
+      "path": "forecast-live.html",
+      "expected": "1f51df6c9bac8efb357da7bb7c401c7de6a5d1e7b6f9c2d641017797190bc6e2",
+      "actual": "1f51df6c9bac8efb357da7bb7c401c7de6a5d1e7b6f9c2d641017797190bc6e2",
+      "matched": true
+    },
+    {
+      "path": "forecast-window.js",
+      "expected": "29f35e9a0e2735b768ad90a6ee436580ff00d30286f5c25a0a0ffbea6f82d2c5",
+      "actual": "29f35e9a0e2735b768ad90a6ee436580ff00d30286f5c25a0a0ffbea6f82d2c5",
+      "matched": true
+    },
+    {
+      "path": "forecast.html",
+      "expected": "08a216d34877acf3efbb84760ac845492b5ccdc419614412d8ad39b31e1d35ac",
+      "actual": "08a216d34877acf3efbb84760ac845492b5ccdc419614412d8ad39b31e1d35ac",
+      "matched": true
+    },
+    {
+      "path": "historical-gw-stats.json",
+      "expected": "7cfab6d0d584a8785112bb6fb34555367f60016469b081a8b470eb117e60a573",
+      "actual": "7cfab6d0d584a8785112bb6fb34555367f60016469b081a8b470eb117e60a573",
+      "matched": true
+    },
+    {
+      "path": "icons/fpl-icon.svg",
+      "expected": "0bd949042285cf7c085284fa69a9cbb3f46018ad1c96e21828efcb0affa8c339",
+      "actual": "0bd949042285cf7c085284fa69a9cbb3f46018ad1c96e21828efcb0affa8c339",
+      "matched": true
+    },
+    {
+      "path": "index.html",
+      "expected": "3398e02b7168f3b9c8bda3aacbd0e72e42df3940ae2b55f7bfeb58f146457814",
+      "actual": "3398e02b7168f3b9c8bda3aacbd0e72e42df3940ae2b55f7bfeb58f146457814",
+      "matched": true
+    },
+    {
+      "path": "integration-validation.html",
+      "expected": "be1c2e588b09ba39ed937d4e7215e2a04ce4c4330f4065ea64b59c4633cb59e7",
+      "actual": "be1c2e588b09ba39ed937d4e7215e2a04ce4c4330f4065ea64b59c4633cb59e7",
+      "matched": true
+    },
+    {
+      "path": "integration-validation.json",
+      "expected": "667d8c63857c62158b359681bd66128eaa312ae489798b414a2ce3130be35610",
+      "actual": "667d8c63857c62158b359681bd66128eaa312ae489798b414a2ce3130be35610",
+      "matched": true
+    },
+    {
+      "path": "layout-check.html",
+      "expected": "8c81a862b36181a6de91ed902820c6118dcf105bf8db1a5ef1df8f99ea336dfa",
+      "actual": "8c81a862b36181a6de91ed902820c6118dcf105bf8db1a5ef1df8f99ea336dfa",
+      "matched": true
+    },
+    {
+      "path": "live-fixtures.json",
+      "expected": "9fdb921b50a2d314be9b0665b6329588ecf5310e7c908e290168123bbccbf8cb",
+      "actual": "9fdb921b50a2d314be9b0665b6329588ecf5310e7c908e290168123bbccbf8cb",
+      "matched": true
+    },
+    {
+      "path": "live-model-status.html",
+      "expected": "8b1dbaeeb2b4209030cc7c6357fd7a2564cd9f3e26dcf3f3d54cefe3f2a12df2",
+      "actual": "8b1dbaeeb2b4209030cc7c6357fd7a2564cd9f3e26dcf3f3d54cefe3f2a12df2",
+      "matched": true
+    },
+    {
+      "path": "locked-forecast.html",
+      "expected": "e4ed16a7ba9b60db0679cd915b8b0641e2a39dce7c507bdc2b11c39241572f09",
+      "actual": "e4ed16a7ba9b60db0679cd915b8b0641e2a39dce7c507bdc2b11c39241572f09",
+      "matched": true
+    },
+    {
+      "path": "locked-integration-audit.json",
+      "expected": "80bc4848960848451ff2311d283c99b67085eee1a95c297f5975679df9e027c2",
+      "actual": "80bc4848960848451ff2311d283c99b67085eee1a95c297f5975679df9e027c2",
+      "matched": true
+    },
+    {
+      "path": "manager-online.js",
+      "expected": "7092ffffa6a3ab9d0cfcc0699591f9e3d82da34722c10803e10e74bb16d93932",
+      "actual": "7092ffffa6a3ab9d0cfcc0699591f9e3d82da34722c10803e10e74bb16d93932",
+      "matched": true
+    },
+    {
+      "path": "manager-service.json",
+      "expected": "3befd03ef23f3ecdb491c100897090222fb179b7fd92715e9972ca35ffd1c671",
+      "actual": "3befd03ef23f3ecdb491c100897090222fb179b7fd92715e9972ca35ffd1c671",
+      "matched": true
+    },
+    {
+      "path": "manager-state.html",
+      "expected": "01f50acbddd6aead95a1e7780f7052a0522d3a94b57c53549e0de2abaec6e9c6",
+      "actual": "01f50acbddd6aead95a1e7780f7052a0522d3a94b57c53549e0de2abaec6e9c6",
+      "matched": true
+    },
+    {
+      "path": "manager-state.js",
+      "expected": "9706dad0df62a210c278072ef040231b2dd5885a7d227a3b660c4d8ee7404a08",
+      "actual": "9706dad0df62a210c278072ef040231b2dd5885a7d227a3b660c4d8ee7404a08",
+      "matched": true
+    },
+    {
+      "path": "manifest.webmanifest",
+      "expected": "385435214c0132e3a4d1031c104fac890de276367316db55fc2bc29e4911865f",
+      "actual": "385435214c0132e3a4d1031c104fac890de276367316db55fc2bc29e4911865f",
+      "matched": true
+    },
+    {
+      "path": "match-centre.html",
+      "expected": "707978bd15dab501a380d91b3c942023d883b795788cf642d95f971e8afd3375",
+      "actual": "707978bd15dab501a380d91b3c942023d883b795788cf642d95f971e8afd3375",
+      "matched": true
+    },
+    {
+      "path": "match-data.js",
+      "expected": "ee1742224bfdaad16036ce5c4ada64cf82884f411697198078a64f457b302a20",
+      "actual": "ee1742224bfdaad16036ce5c4ada64cf82884f411697198078a64f457b302a20",
+      "matched": true
+    },
+    {
+      "path": "match-results.json",
+      "expected": "f9ec71f199aab56f230b369fb399a944362b3333d379c5aa85b854ef2bfe6ce0",
+      "actual": "f9ec71f199aab56f230b369fb399a944362b3333d379c5aa85b854ef2bfe6ce0",
+      "matched": true
+    },
+    {
+      "path": "mm-diagnostic.html",
+      "expected": "18886c30f04649592dad14a99cd7bdf095cee9820c997a5e3cabea57c626c749",
+      "actual": "18886c30f04649592dad14a99cd7bdf095cee9820c997a5e3cabea57c626c749",
+      "matched": true
+    },
+    {
+      "path": "mm-vnext.html",
+      "expected": "0d3b2506f80b5f9ecd2e7ed1c7eec8439f826d911a70381f942145bb6bf14947",
+      "actual": "0d3b2506f80b5f9ecd2e7ed1c7eec8439f826d911a70381f942145bb6bf14947",
+      "matched": true
+    },
+    {
+      "path": "mobile.html",
+      "expected": "a39cdcd8702ea1d0a1a72296922c5f20148c703f47f28cdafcaa8f2d0299ea1a",
+      "actual": "a39cdcd8702ea1d0a1a72296922c5f20148c703f47f28cdafcaa8f2d0299ea1a",
+      "matched": true
+    },
+    {
+      "path": "model-lab.html",
+      "expected": "cfb8a4e72944921c8f2a2b7b3be2a72cda160f1cf9933cc54b8c7bb429b72708",
+      "actual": "cfb8a4e72944921c8f2a2b7b3be2a72cda160f1cf9933cc54b8c7bb429b72708",
+      "matched": true
+    },
+    {
+      "path": "model-status.html",
+      "expected": "30b05d062ff814834e6f0131904087ec7e66f612fedc561a557a19c330ec22ce",
+      "actual": "30b05d062ff814834e6f0131904087ec7e66f612fedc561a557a19c330ec22ce",
+      "matched": true
+    },
+    {
+      "path": "model-tree-data.js",
+      "expected": "47059574edd009003698508e0f130c104f22ca5c1edbdadc1c8e9cb3d299c418",
+      "actual": "47059574edd009003698508e0f130c104f22ca5c1edbdadc1c8e9cb3d299c418",
+      "matched": true
+    },
+    {
+      "path": "model-tree-ui.js",
+      "expected": "bca57edf6e9ecba96853334a5278e9ec8c6d142fa1877e1f05972d80160eacea",
+      "actual": "bca57edf6e9ecba96853334a5278e9ec8c6d142fa1877e1f05972d80160eacea",
+      "matched": true
+    },
+    {
+      "path": "models.html",
+      "expected": "5983bb945e0b289dce2f06048e00f53bfc15eec1fc9cfb70983896d50b475533",
+      "actual": "5983bb945e0b289dce2f06048e00f53bfc15eec1fc9cfb70983896d50b475533",
+      "matched": true
+    },
+    {
+      "path": "my-team-classic.html",
+      "expected": "3354ebb16ed4c5fd7495c878c95a6cd39afeed6b04a101a6476a3e29b840aa71",
+      "actual": "3354ebb16ed4c5fd7495c878c95a6cd39afeed6b04a101a6476a3e29b840aa71",
+      "matched": true
+    },
+    {
+      "path": "my-team-live.html",
+      "expected": "f2da7bd45a9d73f808749a30f810cb2763c30360c1718a37a8d793bb73d110d8",
+      "actual": "f2da7bd45a9d73f808749a30f810cb2763c30360c1718a37a8d793bb73d110d8",
+      "matched": true
+    },
+    {
+      "path": "my-team.html",
+      "expected": "19576f07fe96fdcdad774ae8fabc18081fc22f5f7b4942951eb84d53d7679bab",
+      "actual": "19576f07fe96fdcdad774ae8fabc18081fc22f5f7b4942951eb84d53d7679bab",
+      "matched": true
+    },
+    {
+      "path": "nav.js",
+      "expected": "b9fa2521d9a8eaa8c6108ee3dab312e7550960cd7170a704ad90fe961c7c8bbb",
+      "actual": "b9fa2521d9a8eaa8c6108ee3dab312e7550960cd7170a704ad90fe961c7c8bbb",
+      "matched": true
+    },
+    {
+      "path": "overview.html",
+      "expected": "354ee1ea1bc5b684681445ece9c4270f3a7be58661d72498594116e19742011d",
+      "actual": "354ee1ea1bc5b684681445ece9c4270f3a7be58661d72498594116e19742011d",
+      "matched": true
+    },
+    {
+      "path": "own-forecast.html",
+      "expected": "046d581e6290214ec08217fdc9dc097948153ee82b5662731bc09ab7d3bd10f1",
+      "actual": "046d581e6290214ec08217fdc9dc097948153ee82b5662731bc09ab7d3bd10f1",
+      "matched": true
+    },
+    {
+      "path": "pipeline-status.js",
+      "expected": "4c35400dbdcc61759de1439b386a5464949ae99cb256f54f36943d804de04c1e",
+      "actual": "4c35400dbdcc61759de1439b386a5464949ae99cb256f54f36943d804de04c1e",
+      "matched": true
+    },
+    {
+      "path": "plan-view.js",
+      "expected": "a22a22c6cd9eebcdd8ade221b2c9a8b117fb9c92f1d354cc69c38ff7f53bea9d",
+      "actual": "a22a22c6cd9eebcdd8ade221b2c9a8b117fb9c92f1d354cc69c38ff7f53bea9d",
+      "matched": true
+    },
+    {
+      "path": "player-palmer.html",
+      "expected": "a1a6030e2136d907f5d9e5ae474d8daf0ca897f06261b976e31768860af86487",
+      "actual": "a1a6030e2136d907f5d9e5ae474d8daf0ca897f06261b976e31768860af86487",
+      "matched": true
+    },
+    {
+      "path": "player.html",
+      "expected": "613c3a5b010915dda907364bd5a6146ddcd66f199d67be9bfd97cdac7b422c74",
+      "actual": "613c3a5b010915dda907364bd5a6146ddcd66f199d67be9bfd97cdac7b422c74",
+      "matched": true
+    },
+    {
+      "path": "players-classic.html",
+      "expected": "549ea13c33291480fa6d79ab90e4194b0ad29db5cf583290c8026abe18ddf3ac",
+      "actual": "549ea13c33291480fa6d79ab90e4194b0ad29db5cf583290c8026abe18ddf3ac",
+      "matched": true
+    },
+    {
+      "path": "private-import.js",
+      "expected": "b454f973d65fb14fe7dad34c186d5b9f9bbcaa7f4ac870f8f3b59dd430ac70ff",
+      "actual": "b454f973d65fb14fe7dad34c186d5b9f9bbcaa7f4ac870f8f3b59dd430ac70ff",
+      "matched": true
+    },
+    {
+      "path": "rankings.html",
+      "expected": "e6e92158b9398ab02eeb3f40b8e292a4bb8b217a386f8462dbbe6aaf4eda1c52",
+      "actual": "e6e92158b9398ab02eeb3f40b8e292a4bb8b217a386f8462dbbe6aaf4eda1c52",
+      "matched": true
+    },
+    {
+      "path": "replay.html",
+      "expected": "b1cec62e972a91925d1916dee870e266d53ae3d61b8486e601f132bc0e7e3b01",
+      "actual": "b1cec62e972a91925d1916dee870e266d53ae3d61b8486e601f132bc0e7e3b01",
+      "matched": true
+    },
+    {
+      "path": "role-data.js",
+      "expected": "2ed6172d10815edf491a8a633a398117c8fded7a39b1f52856c6d0cf8586ed30",
+      "actual": "2ed6172d10815edf491a8a633a398117c8fded7a39b1f52856c6d0cf8586ed30",
+      "matched": true
+    },
+    {
+      "path": "roles-view.css",
+      "expected": "3278939ec4072362932b8d1455630e91bd6dba30b7c210dc12743ae2f39618d3",
+      "actual": "3278939ec4072362932b8d1455630e91bd6dba30b7c210dc12743ae2f39618d3",
+      "matched": true
+    },
+    {
+      "path": "roles-view.js",
+      "expected": "b9279e2055e16bb846a4e571b13b28f6b3a31e67a74ea2703165bec07bb684a4",
+      "actual": "b9279e2055e16bb846a4e571b13b28f6b3a31e67a74ea2703165bec07bb684a4",
+      "matched": true
+    },
+    {
+      "path": "sw.js",
+      "expected": "4aad561c3a7810bc0c04ac22772ac8f773bf5e447441532e58e7bfa8bbb19fad",
+      "actual": "4aad561c3a7810bc0c04ac22772ac8f773bf5e447441532e58e7bfa8bbb19fad",
+      "matched": true
+    },
+    {
+      "path": "tc-samples.csv.gz",
+      "expected": "d6016db6d9bd2ec190add263d464c817ab54cd48adc3e54a11b046d8ad7a0084",
+      "actual": "d6016db6d9bd2ec190add263d464c817ab54cd48adc3e54a11b046d8ad7a0084",
+      "matched": true
+    },
+    {
+      "path": "team-optimizer.html",
+      "expected": "de41a2748f07237deed1c5002b0cec9ebbd7f52bef1fd9fdf9894487a4cab948",
+      "actual": "de41a2748f07237deed1c5002b0cec9ebbd7f52bef1fd9fdf9894487a4cab948",
+      "matched": true
+    },
+    {
+      "path": "transfer-card.js",
+      "expected": "64112dc61ee315f4df47d0d0b24c9f5f5e58e4b83d287125978822f53d9541f4",
+      "actual": "64112dc61ee315f4df47d0d0b24c9f5f5e58e4b83d287125978822f53d9541f4",
+      "matched": true
+    },
+    {
+      "path": "transfer-planner.html",
+      "expected": "79475b989bbfcdf11b95381e11c516387024ff4ed0860a08e80066504bc3b8e6",
+      "actual": "79475b989bbfcdf11b95381e11c516387024ff4ed0860a08e80066504bc3b8e6",
+      "matched": true
+    },
+    {
+      "path": "transfers-classic.html",
+      "expected": "a2d8f32da97d187c948fe2355a1df2686da08ee5304ac59c460c075f2fd55222",
+      "actual": "a2d8f32da97d187c948fe2355a1df2686da08ee5304ac59c460c075f2fd55222",
+      "matched": true
+    },
+    {
+      "path": "ui-review.html",
+      "expected": "33ba14b5cef2a76e93678fc3f9bba16b0dfdc7151d3b8ce5fdfb6acffba3665b",
+      "actual": "33ba14b5cef2a76e93678fc3f9bba16b0dfdc7151d3b8ce5fdfb6acffba3665b",
+      "matched": true
+    },
+    {
+      "path": "vfinal-diagnostic.html",
+      "expected": "c96605c1d16da08a1ca157a1cd4cb522c60d2f49681a1c8dea6124ef251a6ac9",
+      "actual": "c96605c1d16da08a1ca157a1cd4cb522c60d2f49681a1c8dea6124ef251a6ac9",
+      "matched": true
+    },
+    {
+      "path": "vfinal-diagnostic.json",
+      "expected": "7fd72ac43bb209ea7229a0fc1f7fb1ab0de2bca4a23b1df0b1deac3f5659d141",
+      "actual": "7fd72ac43bb209ea7229a0fc1f7fb1ab0de2bca4a23b1df0b1deac3f5659d141",
+      "matched": true
+    },
+    {
+      "path": "weekly-app.css",
+      "expected": "21ec044ae0b32feaa926908305e5f03be8d49a1d144c182899790316b74cb4e1",
+      "actual": "21ec044ae0b32feaa926908305e5f03be8d49a1d144c182899790316b74cb4e1",
+      "matched": true
+    },
+    {
+      "path": "weekly-app.js",
+      "expected": "1ea5cb96ab46cdea0fd4954e99dd4da696cd2455f994cd76563ebb7e6a78fe3c",
+      "actual": "1ea5cb96ab46cdea0fd4954e99dd4da696cd2455f994cd76563ebb7e6a78fe3c",
+      "matched": true
+    }
+  ]
+}
