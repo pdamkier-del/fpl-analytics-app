@@ -50,3 +50,16 @@ Den publicerede numeriske serie bruger også det foregående rekonstruktionsledg
 ## App
 
 Sæsonrapporten får en særskilt backtesttabel og en tredje modelserie på spillerens sæsonoversigt. Før-deadline B, oprindelig MM/PM og genskabt B-backtest holdes adskilt. Faktiske stats fra alle otte runder bevares, og manglende prognoser bliver ikke til nul.
+
+
+## Verificeret release
+
+- Funktionel kilde: `0b9a85436a6e4d89e757afa6431bb576d90b4b22`.
+- Lokal fuld suite: **1.084 beståede tests**, 75,00 s; CI: **1.084 beståede tests**, 70,94 s.
+- [B-publicering 40543572395](https://github.com/pdamkier-del/fpl-analytics-app/actions/runs/40543572395): success. Bruger det nyeste validerede numeriske output fra `40503199417`, data-asof 27. oktober 2026 12:41:50 UTC; ruller ikke B tilbage til den tidligere 05:20-kørsel.
+- [Ugentlig rapportpublicering 40543154011](https://github.com/pdamkier-del/fpl-analytics-app/actions/runs/40543154011): success. Efterfølgende ugentlige/almindelige B-opdateringer bevarer den samme separate backtestserie.
+- Offentlig Chromium-kontrol på desktop/mobil med normal TLS-verifikation: tre adskilte modelserier, 2.002 backtest-rækker, første fem runder eksplicit ikke-understøttet, Palmers tre backtest-runder, ingen overflow, ingen sidefejl og ingen POST eller ændring af privat tilstand.
+- SHA256-kontrol: alle 88 produktionsfiler er identiske med det bevarede produktionsartifact; de tre numeriske B-filer er byteidentiske før/efter UI-publiceringen. Den prospektive B-måling indeholder fortsat kun sine egne 668 evaluerede GW8-rækker og er ikke blandet med backtestens 2.002 rækker.
+- Uafhængig genberegning af MAE fra de offentlige forecast-/resultatrækker giver de publicerede tal. Forecast- og outcome-filer kontrolleres med SHA256.
+
+[Åbn sæsonrapportens backtest](https://pdamkier-del.github.io/fpl-analytics-app/mm-preview/app/weekly-review.html?v=0b9a8543#historical-b-backtest).
