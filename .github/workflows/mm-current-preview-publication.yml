@@ -175,6 +175,7 @@ jobs:
           node analysis/verify_transfer_chip_advice.cjs > unified-transfer-chip-browser.json
           node analysis/verify_weekly_model_review.cjs > unified-weekly-review-browser.json
           node analysis/verify_season_comparisons.cjs > unified-season-comparisons-browser.json
+          node analysis/verify_current_season_backtest.cjs > unified-season-backtest-browser.json
           node - <<'JS' > unified-live-readiness-browser.json
           const {chromium}=require('playwright'),assert=require('node:assert/strict');
           (async()=>{

@@ -182,6 +182,8 @@ def build(source,ref):
     attach_actual_history(traces,history,json.loads((source/'history/current-players.json').read_text()),bootstrap)
     from recover_season_model_history import attach
     attach(source,ref,result,traces)
+    from season_backtest_report import attach as attach_backtest
+    attach_backtest(source,result,traces)
     from season_round_benchmark import build as round_benchmarks
     result['round_benchmarks']=round_benchmarks(source)
     out=source/'weekly-review';out.mkdir(exist_ok=True)
