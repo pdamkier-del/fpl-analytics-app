@@ -180,6 +180,8 @@ def build(source,ref):
     if hashlib.sha256(fixture_raw).hexdigest()!=history_index['files']['live-fixtures.json']:raise ValueError('Historical fixture season checksum mismatch')
     history['season']=json.loads(fixture_raw)['season']
     attach_actual_history(traces,history,json.loads((source/'history/current-players.json').read_text()),bootstrap)
+    from recover_season_model_history import attach
+    attach(source,ref,result,traces)
     from season_round_benchmark import build as round_benchmarks
     result['round_benchmarks']=round_benchmarks(source)
     out=source/'weekly-review';out.mkdir(exist_ok=True)
