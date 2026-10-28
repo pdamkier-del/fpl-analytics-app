@@ -97,6 +97,7 @@ def health():
                    runtime='original_locked_python',locked_model_active=False,
                    supports_idempotent_submit=True,
                    supports_mm_preview=True,
+                   supports_history_refresh=True,
                    supports_unified_B_chain=unified_ready,
                    supports_B_snapshot_policy=snapshot_ready,
                    preview_worker_sha256=hashlib.sha256((ROOT/'service/preview_manager_job.py').read_bytes()).hexdigest() if unified_ready else None,
@@ -179,6 +180,31 @@ def create(preview=False):
 def create_mm_preview():
     """Opt-in B feed; same original worker, no arbitrary forecast URLs/fallback."""
     return create(preview=True)
+@app.route('/preview/history',methods=['POST','OPTIONS'])
+def refresh_history():
+    """Read official public entry data into a short-lived private capability job."""
+    if request.method=='OPTIONS':return ('',204)
+    if request.headers.get('Origin')!=ORIGIN:return jsonify(error='Invalid app origin'),403
+    body=request.get_json(silent=True)
+    if not isinstance(body,dict) or type(body.get('entry_id')) is not int or not 0<body['entry_id']<1000000000 or not isinstance(body.get('season'),str) or not re.fullmatch(r'20\d{2}-\d{2}',body['season']):
+        return jsonify(error='Angiv numerisk FPL manager-ID og sæson'),400
+    cleanup()
+    with lock:
+        if any(j['status']=='running' for j in jobs.values()):return jsonify(error='Tjenesten er optaget. Din seneste rapport er bevaret; prøv igen om lidt.'),429
+        if len(jobs)>=12:return jsonify(error='Midlertidig kapacitetsgrænse. Prøv igen senere.'),429
+        identifier=secrets.token_hex(16);key=secrets.token_urlsafe(32)
+        directory=Path(tempfile.mkdtemp(prefix='fpl-history-'))
+        jobs[identifier]={'key':key,'directory':directory,'created':time.time(),'status':'running','kind':'history'}
+    def work():
+        try:
+            from scripts.export_fpl_team_history import collect
+            result=collect(body['entry_id'],body['season'])
+            (directory/'result.json').write_text(json.dumps(result,allow_nan=False))
+            jobs[identifier]['status']='completed'
+        except Exception:
+            jobs[identifier]['status']='failed';jobs[identifier]['failure']='source_unavailable'
+    threading.Thread(target=work,daemon=True).start()
+    return jsonify(id=identifier,key=key),202
 @app.route('/plans/<identifier>',methods=['GET','OPTIONS'])
 def status(identifier):
     if request.method=='OPTIONS':return ('',204)
@@ -195,5 +221,5 @@ def status(identifier):
             if not isinstance(result,dict):raise ValueError('Invalid private result')
         except (OSError,ValueError,TypeError):
             return jsonify(status='failed',error='Det private resultat kunne ikke valideres. Beregn igen.'),422
-        return jsonify(status='completed',plan=result)
+        return jsonify(status='completed',**({'history':result} if job.get('kind')=='history' else {'plan':result}))
     return jsonify(status='running')
