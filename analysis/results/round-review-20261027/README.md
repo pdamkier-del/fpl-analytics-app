@@ -35,3 +35,12 @@ Run with `--folder PRIVATE_EXPORT_FOLDER --capsules REPLAY_FOLDER --history-sour
 - Private screenshot import exercised locally only; public browser uses synthetic/empty personal data.
 
 Public release evidence is recorded after the deployment completes. Production assets and the latest live numerical artifacts must retain their hashes.
+
+## Published verification
+
+- Reviewed UI: `0bdd51eeb2dd895ac2b0bfa8499b26bd0f4d91a1`.
+- CI validation [40583605703](https://github.com/pdamkier-del/fpl-analytics-app/actions/runs/40583605703): 1090 Python tests in 72.98 seconds and every UI/browser gate passed; only the final Pages OIDC request failed with HTTP 503/timeout.
+- Deployment recovery [40586050331](https://github.com/pdamkier-del/fpl-analytics-app/actions/runs/40586050331): success. It reused the exact verified artifact, checked successful prior gates, retained the same UI/mathematical pins, and republished through the existing production-preserving publisher. No model recomputation or test bypass.
+- Public Chromium on desktop/mobile: real private-history import, round/profile drilldown and legal transfer benchmark display passed. Private inputs/results were never uploaded; browser proof contains only nonpersonal booleans. Standard TLS verification.
+- All three numerical B files byte-identical. All 88 production assets match the production artifact retained for this publication. Compare to that exact artifact, not an older preview receipt predating ordinary production refreshes.
+- Final personal import file remains outside the repository under `/workspace/private-fpl-history/`. It must be imported once in the user's own browser; the agent's verification browser does not write the user's localStorage.
