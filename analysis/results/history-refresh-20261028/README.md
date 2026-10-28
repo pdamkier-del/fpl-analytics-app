@@ -1,0 +1,9 @@
+# Private history refresh button
+
+The existing B weekly-review page now has an “Opdater historik og rapport” button and a locally remembered numeric manager ID. It submits to the existing private service, polls a short-lived capability-protected job, validates the returned official history using the same transactional import checks, and reloads the latest published model report. Progress and errors are explicit. Current squad/plan and archived predeadline recommendations are not written.
+
+Existing private historical transfer analyses survive refresh only when the underlying official picks, entry history, chip and autosubs are identical. Changed official results invalidate the associated stale private analysis. IDs and private results are not published; service results expire with the existing one-hour job cleanup. Official results only become final when FPL marks the event finished and checked; season mismatches fail. Jobs share the existing bounded service capacity.
+
+This button fetches official history and the latest published review; it does not launch a fresh public model/research pipeline or reconstruct missing private historical transfer alternatives. The UI states this limitation explicitly. Those alternatives remain a separate validated numerical run. No coefficients, PM/TS decisions or production forecast assets change.
+
+Validation: 1,093 Python tests; official real-history smoke returned eight GWs (private output outside repository); existing round/profile browser regression and new desktop/mobile refresh browser contract. Browser transport fixtures verify a single submission, polling/progress/completion, preserved analyses/archive/current state, and 429 rollback/retry availability. No manager ID, picks, scores, or job credentials are included in this evidence.
