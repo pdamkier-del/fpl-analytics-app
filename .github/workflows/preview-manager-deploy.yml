@@ -1,0 +1,63 @@
+name: Deploy isolated B private manager capability
+on:
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - name: Use existing Render deployment credentials without exposing them
+        env:
+          RENDER_DEPLOY_HOOK: ${{ secrets.RENDER_DEPLOY_HOOK }}
+          RENDER_DEPLOY_HOOK_URL: ${{ secrets.RENDER_DEPLOY_HOOK_URL }}
+          RENDER_API_KEY: ${{ secrets.RENDER_API_KEY }}
+          RENDER_SERVICE_ID: ${{ secrets.RENDER_SERVICE_ID }}
+        run: |
+          python - <<'PY'
+          import json,os,time,urllib.request,urllib.parse
+          hook=os.environ.get('RENDER_DEPLOY_HOOK')or os.environ.get('RENDER_DEPLOY_HOOK_URL')
+          token=os.environ.get('RENDER_API_KEY')
+          service=os.environ.get('RENDER_SERVICE_ID')
+          def call(url,body=None,auth=False):
+              headers={'Content-Type':'application/json'}
+              if auth:headers['Authorization']='Bearer '+token
+              request=urllib.request.Request(url,data=json.dumps(body).encode()if body is not None else None,headers=headers)
+              try:
+                  with urllib.request.urlopen(request,timeout=45)as response:
+                      data=response.read()
+                      return json.loads(data)if data else{}
+              except Exception:
+                  # Exceptions can contain a credential-bearing hook URL.
+                  raise RuntimeError('Render request failed; credential and URL details withheld')from None
+          if hook:
+              parsed=urllib.parse.urlparse(hook)
+              if parsed.scheme!='https'or parsed.hostname!='api.render.com'or not parsed.path.startswith('/deploy/'):
+                  raise SystemExit('Configured hook is not a Render deploy hook; nothing sent')
+              call(hook,{})
+              print('Existing Render deploy hook triggered; no credential was logged',flush=True)
+          elif token:
+              if not service:
+                  matches=call('https://api.render.com/v1/services?name=fpl-analytics-private-manager&limit=100',auth=True)
+                  exact=[r['service']for r in matches if r.get('service',{}).get('name')=='fpl-analytics-private-manager']
+                  if len(exact)!=1:raise SystemExit('Cannot uniquely identify the existing private manager service')
+                  service=exact[0]['id']
+              if not service.startswith('srv-')or not service.replace('-','').isalnum():raise SystemExit('Invalid Render service ID')
+              actual=call('https://api.render.com/v1/services/'+service,auth=True)
+              if actual.get('name')!='fpl-analytics-private-manager':raise SystemExit('Configured service is not the existing private manager')
+              receipt=call('https://api.render.com/v1/services/'+service+'/deploys',{'clearCache':'do_not_clear'},auth=True)
+              print('Existing private manager deploy triggered:',receipt.get('id','accepted'),flush=True)
+          else:
+              raise SystemExit('RENDER_DEPLOY_ACCESS_NOT_CONFIGURED: no existing Render hook or API key is available to this repository job. No deployment or production change was made.')
+          end=time.monotonic()+900
+          while time.monotonic()<end:
+              try:
+                  health=call('https://fpl-analytics-private-manager.onrender.com/health')
+                  if health.get('supports_history_refresh')is True and health.get('adapter_sha256')=='2fb0a2385918b38b15cb3f06031e7309d355837abdb66ea6f435cdf0a9421f7c' and health.get('supports_B_snapshot_policy')is True and health.get('preview_worker_sha256')=='b3e67026e6c57e1c764d76bc2bf999ab7f4bcbaa739e3ab198ebe7fd5a95dbb7':
+                      print('Verified live B snapshot worker capability; original runtime retained:',health.get('runtime'))
+                      break
+              except RuntimeError:pass
+              time.sleep(15)
+          else:raise SystemExit('Deploy triggered, but the new B capability is not live within the verification window')
+          PY
