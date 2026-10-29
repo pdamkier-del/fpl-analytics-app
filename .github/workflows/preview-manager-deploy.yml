@@ -54,7 +54,7 @@ jobs:
           while time.monotonic()<end:
               try:
                   health=call('https://fpl-analytics-private-manager.onrender.com/health')
-                  if health.get('supports_B_snapshot_policy')is True and health.get('preview_worker_sha256')=='b3e67026e6c57e1c764d76bc2bf999ab7f4bcbaa739e3ab198ebe7fd5a95dbb7' and health.get('supports_full_history_refresh')is True and health.get('adapter_sha256')=='6bceb7d51e09067b195c31439deffb48b908bf06dacc9e5f961fc88b7f381a28' and health.get('history_worker_sha256')=='0e8a5a4d98fdd990652b267db7b4b01aedc6ea03cc079d5f9b19c5d6555199af':
+                  if health.get('supports_B_snapshot_policy')is True and health.get('preview_worker_sha256')=='b3e67026e6c57e1c764d76bc2bf999ab7f4bcbaa739e3ab198ebe7fd5a95dbb7' and health.get('supports_full_history_refresh')is True and health.get('adapter_sha256')=='089d276907920a9a68a1bf084fc5faa96a273427e29419fdcc494aa4d6137ff5' and health.get('history_worker_sha256')=='0e8a5a4d98fdd990652b267db7b4b01aedc6ea03cc079d5f9b19c5d6555199af':
                       print('Verified exact-source full history and B snapshot capability; original runtime retained:',health.get('runtime'))
                       break
               except RuntimeError:pass
