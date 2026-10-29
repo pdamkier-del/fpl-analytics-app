@@ -15,7 +15,7 @@ permissions:
   id-token: write
 env:
   PREVIEW_SOURCE_SHA: 03d5c4d4777b44bc1d37884a1cf4dde106b45cab
-  PREVIEW_UI_SHA: b8a7a2566240e925bcd0f81900449fe64ae43625
+  PREVIEW_UI_SHA: 4616348e424e8181582b2ca4979d55e8102b0974
 jobs:
   verified:
     if: ${{ inputs.validated_run != '' }}
@@ -154,6 +154,7 @@ jobs:
           node tests/test_B_preview_contract.js
           node tests/test_joint_gk_contract.js
           node tests/test_season_team_comparison.js
+          node tests/test_history_refresh_client.js
           npm install --prefix "$RUNNER_TEMP/fpl-browser" playwright@1.56.1
           export NODE_PATH="$RUNNER_TEMP/fpl-browser/node_modules"
           export BROWSER_PATH="$(command -v google-chrome)"
