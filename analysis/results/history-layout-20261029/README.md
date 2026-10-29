@@ -1,0 +1,9 @@
+# Clear refresh status in the existing B review
+
+The primary action is now the first card in the existing desktop/mobile shell: green refresh button, status badge, spinner during actual work, and real connection/history/report stages. There is no simulated percentage. The official history retrieval time, published report time and imported completed-GW count are separate. Long explanations and import/backup controls use native disclosures. Report headings and table styling improve scanning without changing scoring or archived data.
+
+The third stage explicitly fetches and validates the latest published report with no-store before committing the official history and reloading. Only the reloaded page displays completion. An inactive server receives a distinct amber waiting state; capacity errors stop the animation and offer retry. Relevant input/import/model-series controls are disabled during a running update to prevent redraw and duplicate-submission races. Motion respects prefers-reduced-motion.
+
+Desktop/mobile browser checks cover all real phases, completed stages, busy controls, success, 429 rollback and retry, 404 waiting versus updating, preservation of archived forecasts/current squad/plan, and invalidation of a private analysis when its official input changes. Existing round/player, backup round-trip and report navigation checks also pass. Isolated private browser fixtures are not published; screenshots show an empty browser and no personal manager information.
+
+No MM/PM/TS coefficients, forecasts, service code or production-model files were changed. The refresh still retrieves official history and the latest published review; new historical transfer optimizations remain a separate numerical run. Remote history activation was already blocked by missing Render deploy access before this layout change; the UI now makes that distinction explicit.
