@@ -98,6 +98,8 @@ def health():
                    supports_idempotent_submit=True,
                    supports_mm_preview=True,
                    supports_history_refresh=True,
+                   supports_full_history_refresh=ready and __import__('service.history_job',fromlist=['ready']).ready(),
+                   history_worker_sha256=__import__('service.history_job',fromlist=['fingerprint']).fingerprint()if ready and __import__('service.history_job',fromlist=['ready']).ready()else None,
                    supports_unified_B_chain=unified_ready,
                    supports_B_snapshot_policy=snapshot_ready,
                    preview_worker_sha256=hashlib.sha256((ROOT/'service/preview_manager_job.py').read_bytes()).hexdigest() if unified_ready else None,
@@ -197,12 +199,14 @@ def refresh_history():
         jobs[identifier]={'key':key,'directory':directory,'created':time.time(),'status':'running','kind':'history'}
     def work():
         try:
-            from scripts.export_fpl_team_history import collect
-            result=collect(body['entry_id'],body['season'])
+            from service.history_job import refresh
+            result=refresh(directory,body['entry_id'],body['season'],get_public)
             (directory/'result.json').write_text(json.dumps(result,allow_nan=False))
             jobs[identifier]['status']='completed'
+        except subprocess.TimeoutExpired:
+            jobs[identifier]['status']='failed';jobs[identifier]['failure']='history_timeout'
         except Exception:
-            jobs[identifier]['status']='failed';jobs[identifier]['failure']='source_unavailable'
+            jobs[identifier]['status']='failed';jobs[identifier]['failure']='history_review_failed'
     threading.Thread(target=work,daemon=True).start()
     return jsonify(id=identifier,key=key),202
 @app.route('/plans/<identifier>',methods=['GET','OPTIONS'])
@@ -212,7 +216,9 @@ def status(identifier):
     if not job or not secrets.compare_digest(job['key'],request.headers.get('X-Plan-Key','')):return jsonify(error='Beregningen findes ikke længere. Beregn igen.'),404
     if time.time()-job['created']>TTL:return jsonify(error='Beregningen er udløbet. Beregn igen.'),410
     if job['status']=='failed':
-        errors={'timeout':'Beregningen fik timeout. Dit hold er bevaret; prøv igen.',
+        errors={'history_timeout':'Historikberegningen tog for lang tid. Dine tidligere oplysninger er bevaret; prøv igen.',
+                'history_review_failed':'Historikken kunne ikke færdiggøres sikkert. Dine tidligere oplysninger er bevaret; prøv igen senere.',
+                'timeout':'Beregningen fik timeout. Dit hold er bevaret; prøv igen.',
                 'source_unavailable':'Officielle kilder kunne ikke verificeres. Dit hold er bevaret; prøv igen senere.'}
         return jsonify(status='failed',error=errors.get(job.get('failure'),'Beregningen bestod ikke kontrollerne. Kontrollér hold, tidspunkt og forecast, og prøv igen.')),422
     if job['status']=='completed':
@@ -222,4 +228,10 @@ def status(identifier):
         except (OSError,ValueError,TypeError):
             return jsonify(status='failed',error='Det private resultat kunne ikke valideres. Beregn igen.'),422
         return jsonify(status='completed',**({'history':result} if job.get('kind')=='history' else {'plan':result}))
-    return jsonify(status='running')
+    extra={}
+    if job.get('kind')=='history':
+        try:
+            p=json.loads((job['directory']/'progress.json').read_text())
+            if p.get('stage')in ['history','model','complete']:extra={k:p[k]for k in ['stage','gw','completed_gws','total_gws']if k in p}
+        except (OSError,ValueError):pass
+    return jsonify(status='running',**extra)
