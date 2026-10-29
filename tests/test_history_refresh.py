@@ -6,6 +6,8 @@ from scripts import export_fpl_team_history as export
 
 def test_history_job_origin_input_capability_and_source_failure(monkeypatch):
     monkeypatch.setattr(export,'collect',lambda entry,season: {'entry_id':entry,'season':season,'weeks':[]})
+    import service.history_job as worker
+    monkeypatch.setattr(worker,'refresh',lambda directory,entry,season,get_public:export.collect(entry,season))
     with api.app.test_client() as c:
         assert c.post('/preview/history',json={}).status_code==403
         assert c.options('/preview/history',headers={'Origin':api.ORIGIN}).status_code==204
@@ -55,6 +57,7 @@ def test_collector_checks_season_and_finality(monkeypatch):
     def source(path):
         seen.append(path)
         if path=='bootstrap-static/':return {'events':[{'id':1,'deadline_time':'2026-08-21T12:00:00Z','finished':True,'data_checked':False}]}
+        if path.endswith('transfers/'):return []
         if path.endswith('history/'):return {'current':[{'event':1}]}
         return {'picks':[], 'entry_history':{'event':1,'points':4}}
     monkeypatch.setattr(export,'get',source)

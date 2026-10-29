@@ -8,7 +8,7 @@ def get(path):
  r=requests.get(API+path,timeout=40);r.raise_for_status();return r.json()
 def collect(entry,season):
  if type(entry) is not int or not 0<entry<1000000000:raise ValueError('Ugyldigt manager-ID')
- history=get(f'entry/{entry}/history/');bootstrap=get('bootstrap-static/');events={e['id']:e for e in bootstrap['events']}
+ history=get(f'entry/{entry}/history/');transfers=get(f'entry/{entry}/transfers/');bootstrap=get('bootstrap-static/');events={e['id']:e for e in bootstrap['events']}
  from datetime import datetime
  first=min(events.values(),key=lambda e:e['id'])
  year=datetime.fromisoformat(first['deadline_time'].replace('Z','+00:00')).year
@@ -17,7 +17,13 @@ def collect(entry,season):
  def load(row):
   gw=row['event'];data=get(f'entry/{entry}/event/{gw}/picks/');e=events[gw];return dict(gw=gw,picks=data['picks'],automatic_subs=data.get('automatic_subs',[]),active_chip=data.get('active_chip'),entry_history=data['entry_history'],final=bool(e['finished']and e['data_checked']))
  with concurrent.futures.ThreadPoolExecutor(max_workers=4)as pool:weeks=list(pool.map(load,history['current']))
- return dict(schema='fpl-official-entry-history-v1',season=season,entry_id=entry,observed_at=datetime.now(timezone.utc).isoformat(),weeks=weeks)
+ observed=datetime.now(timezone.utc).isoformat();result=dict(schema='fpl-official-entry-history-v1',season=season,entry_id=entry,observed_at=observed,weeks=weeks,transfers=transfers,chips=history.get('chips',[]),previous_seasons=history.get('past',[]))
+ next_event=next((e for e in bootstrap['events']if e.get('is_next')),None)
+ if weeks and next_event:
+  owned={p['element']for p in max(weeks,key=lambda w:w['gw'])['picks']}
+  people=[dict(id=p['id'],name=p['web_name'],team=p['team'],position=p['element_type'],price_tenths=p['now_cost'],status=p['status'],news=p.get('news',''),news_added=p.get('news_added'),chance_of_playing_next_round=p.get('chance_of_playing_next_round'),chance_of_playing_this_round=p.get('chance_of_playing_this_round'))for p in bootstrap.get('elements',[])if p['id']in owned]
+  if people:result['availability']=dict(schema='fpl-dashboard-availability-v1',source_url=API+'bootstrap-static/',observed_at=observed,next_gw=next_event['id'],deadline=next_event['deadline_time'],players=people,discipline_checked=False)
+ return result
 def main():
  p=argparse.ArgumentParser();p.add_argument('--entry',required=True,type=int);p.add_argument('--season',required=True);p.add_argument('--out',required=True,type=Path);a=p.parse_args()
  if a.entry<=0:raise ValueError('Use the public numeric entry ID, never credentials')

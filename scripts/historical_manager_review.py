@@ -121,8 +121,8 @@ def ts_scoring(scorer):
     finally:planner._fast_manager_score=original;planner.plan_squad=original_plan
 
 
-def build(folder,capsules,out,*,history_source,markets):
-    folder,capsules,out=map(Path,[folder,capsules,out]);history=json.loads((folder/'history-import.json').read_text());initial=json.loads((folder/'initial-bootstrap.json').read_text());transfers=json.loads((folder/'transfers.json').read_text());start=states(history,transfers,initial)
+def build(folder,capsules,out,*,history_source,markets,review_gws=None,progress=None):
+    folder,capsules,out=map(Path,[folder,capsules,out]);history=json.loads((folder/'history-import.json').read_text());initial=json.loads((folder/'initial-bootstrap.json').read_text());transfers=json.loads((folder/'transfers.json').read_text());targets=set(review_gws if review_gws is not None else [w['gw']for w in history['weeks']if w['gw']>=6]);start=states(dict(history,weeks=[w for w in history['weeks']if w['gw']<=max(targets)]),transfers,initial)if targets else {};completed=0
     history_source=Path(history_source);markets=Path(markets);raw=history_source.read_bytes();index=json.loads((history_source.parent/'index.json').read_text());
     if hashlib.sha256(raw).hexdigest()!=index['files'][history_source.name]:raise ValueError('Unverified actual history')
     hist=json.loads(raw);actual_gw={}
@@ -131,8 +131,11 @@ def build(folder,capsules,out,*,history_source,markets):
         if w['gw_complete']:actual_gw.setdefault(w['gw'],{})[w['player_id']]=dict(points=s['total_points'],played=s['minutes']>0 or s.get('starts',0)>0 or s.get('yellow_cards',0)>0 or s.get('red_cards',0)>0)
     for w in history['weeks']:
         gw=w['gw']
-        if gw<6:continue
-        archive=capsules/f'gw{gw}';doc=json.loads((archive/'forecast.json').read_text());samples=json.loads(gzip.decompress((archive/'scenarios.json.gz').read_bytes()));boot=json.loads((markets/f'gw{gw}/inputs/bootstrap.json').read_text());market=[dict(id=p['id'],name=p['web_name'],position=p['element_type'],team_id=p['team'],price_tenths=p['now_cost'],status=p['status'],code=p['code'])for p in boot['elements']if p['element_type']in POSITIONS];state=start[gw];actual=actual_gw[gw]
+        if gw not in targets:continue
+        if progress:progress(gw,completed,len(targets))
+        archive=capsules/f'gw{gw}';doc=json.loads((archive/'forecast.json').read_text());samples=json.loads(gzip.decompress((archive/'scenarios.json.gz').read_bytes()));boot_path=markets/f'gw{gw}/inputs/bootstrap.json'
+        if hashlib.sha256(boot_path.read_bytes()).hexdigest()!=doc['source_hashes']['bootstrap.json']:raise ValueError('Historical market differs from archived forecast inputs')
+        boot=json.loads(boot_path.read_text());market=[dict(id=p['id'],name=p['web_name'],position=p['element_type'],team_id=p['team'],price_tenths=p['now_cost'],status=p['status'],code=p['code'])for p in boot['elements']if p['element_type']in POSITIONS];state=start[gw];actual=actual_gw[gw]
         if set(state.squad)-{p['id']for p in market}:raise ValueError('Owned player absent from historical market')
         frozen=json.loads(gzip.decompress((Path(__file__).resolve().parents[1]/f'analysis/results/current-season-b-backtest-20261027/gw{gw}.json.gz').read_bytes()))
         if doc['players']!=frozen['players']or doc['source_hashes']!=frozen['source_hashes']:raise ValueError('Replay differs from frozen numerical backtest')
@@ -158,6 +161,9 @@ def build(folder,capsules,out,*,history_source,markets):
         if abs(own_score-(w['entry_history']['points']-w['entry_history']['event_transfers_cost']))>1e-8:raise ValueError('Official own lineup/actual scoring mismatch')
         ids=[r['id']for r in own];pts=np.array([scorer.weeks[pid,gw]['scenarios']['points']for pid in ids],float).T;plays=np.array([scorer.weeks[pid,gw]['scenarios']['minutes']for pid in ids],float).T>0;xi=[i for i,r in enumerate(own)if r['role']in ['XI','C','VC']];bench=[i for i,r in enumerate(own)if r['role']not in ['XI','C','VC']];bench.sort(key=lambda i:(own[i]['position']==1,own[i]['bench_order']));cap=next(i for i,r in enumerate(own)if r['role']=='C');vice=next(i for i,r in enumerate(own)if r['role']=='VC');own_xp=float((autosub_points(pts,plays,[POSITIONS[r['position']]for r in own],xi,bench)+pts[:,cap]+np.where(~plays[:,cap],pts[:,vice],0)).mean()-w['entry_history']['event_transfers_cost'])
         w['transfer_review']=dict(schema='fpl-private-transfer-round-v1',gw=gw,previous_gw=gw-1,cutoff=doc['cutoff'],deadline=doc['origin_deadline'],generated_at=pd.Timestamp.now(tz='UTC').isoformat(),model_scope=doc['scope'],manager_state_reconstructed_now=True,state_before=dict(squad=[dict(id=pid,purchase_price_tenths=p.purchase_price)for pid,p in state.squad.items()],bank_tenths=state.bank,free_transfers=state.free_transfers,chips_used=state.chips_used),bank_before=state.bank,free_transfers_before=state.free_transfers,chips_used=state.chips_used,own_expected_score=own_xp,own_actual_score=own_score,model=dict(rows=rows,expected_score=plan.expected_score-action.official_hit_points,points=actual_net,outgoing=list(action.outgoing),incoming=list(action.incoming),hits=action.official_hit_points,bank_after=after.bank,scope='Retrospective B, original TS candidate search, one GW only, shared PM draws, autosubs and captain fallback. No chip; heuristic best found, not a global stochastic optimum. Original hit uncertainty buffer retained.'),hindsight=best,chip_hindsight=chip_options,source_hashes={n:hashlib.sha256((folder/n).read_bytes()).hexdigest()for n in ['history-import.json','transfers.json','initial-bootstrap.json']})
+        completed+=1
+        scorer.decision.cache_clear()
+        if progress:progress(gw,completed,len(targets))
         print('GW',gw,'own',round(own_xp,2),own_score,'model',round(plan.expected_score-action.official_hit_points,2),actual_net,'hindsight',best['points'],best['globally_optimal'],flush=True)
     out.write_text(json.dumps(history,ensure_ascii=False,allow_nan=False,indent=2)+'\n')
 

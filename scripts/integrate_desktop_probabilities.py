@@ -58,6 +58,8 @@ def integrate(root=ROOT):
         if 'dashboard-team-news.js'not in text:page.write_text(text.replace('</head>','<script src="../dashboard-team-news.js"></script></head>'))
     from integrate_weekly_review import inject as review_inject
     review_inject(out)
+    from integrate_personal_workspace import inject as workspace_inject
+    workspace_inject(out)
     # The same origin already serves earlier app versions. Content-derived
     # queries prevent cached old adapters from hiding newly added history APIs.
     import re
