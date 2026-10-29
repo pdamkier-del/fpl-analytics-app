@@ -67,3 +67,19 @@ def test_collector_checks_season_and_finality(monkeypatch):
     data=export.collect(123,'2026-27')
     assert data['weeks'][0]['final'] is False
     assert data['schema']=='fpl-official-entry-history-v1'
+
+
+def test_optional_history_failure_does_not_break_original_runtime_health(monkeypatch):
+    import service.history_job as worker
+    monkeypatch.setattr(api,'original_runtime_ready',lambda:True)
+    def missing_dependency():raise ImportError('optional history HTTP client missing')
+    monkeypatch.setattr(worker,'ready',missing_dependency)
+    with api.app.test_client() as client:
+        response=client.get('/health')
+        assert response.status_code==200
+        data=response.get_json()
+        assert data['runtime']=='original_locked_python'
+        assert data['supports_B_snapshot_policy'] is True
+        assert data['supports_full_history_refresh'] is False
+        assert data['history_worker_sha256'] is None
+        assert 'missing' not in response.get_data(as_text=True)

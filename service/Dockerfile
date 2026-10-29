@@ -1,7 +1,7 @@
 FROM python:3.12-slim
 WORKDIR /app
 COPY requirements-model-checkpoint.txt .
-RUN pip install --no-cache-dir -r requirements-model-checkpoint.txt Flask==3.1.2 gunicorn==23.0.0
+RUN pip install --no-cache-dir -r requirements-model-checkpoint.txt Flask==3.1.2 gunicorn==23.0.0 requests==2.34.2
 COPY src src
 COPY scripts scripts
 COPY service service

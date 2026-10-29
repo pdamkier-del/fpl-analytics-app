@@ -9,7 +9,7 @@ Shared replay inputs are pinned by full commit and SHA-256 manifest; per-file ha
 Validation:
 - Full Python suite: 1,095 passed; final targeted history checks: 11 passed. Earlier adapter checks: 23 passed.
 - Real local HTTP/CORS job: eight completed official weeks, three complete historical analyses and 15 fresh owned-player statuses; 8.18 seconds. Joint-PM own-team xP and actual scores exactly match the previous verified private review.
-- Equivalent clean Docker COPY file layout exercised successfully; a Docker image was not built in this environment.
+- Follow-up after owner deployment: actual Docker image built and full real gunicorn HTTP history refresh passed in8.31s after fixing a missing requests dependency. Six targeted packaging/readiness tests pass. See docker-full-http.json and backend-package-fix.json.
 - Desktop/mobile browser checks: personal-first ordering; last explainer; private ID refresh; old-team links; original six-GW transfer result; source timestamps; news; probability dialogs; player profiles; original team editor; unchanged private state/plan; no overflow or JavaScript errors.
 - A real-user import was rendered privately with 15 players, three reviewed rounds and fresh official player statuses. Personal data and its screenshot are outside the repository. Committed screenshots and dashboard fixtures are synthetic only.
 - No `src` model changes. Local preview numerical files were copied byte-identically from the published verified B preview, not recomputed.

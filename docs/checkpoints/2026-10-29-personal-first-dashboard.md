@@ -13,3 +13,11 @@ Main B publisher now pins UI b8a7a256 at workflow commit aff659c5810dc57ed21ef63
 Published UI last verified74beff4b99ef51e03a2c06baa043ea4e6245f9fa. Public dashboard https://pdamkier-del.github.io/fpl-analytics-app/mm-preview/app/overview.html#dashboard. Preserve root production and currently published numerical files byte-identically for eventual UI release. Do not roll back forecasts to an old artifact.
 
 Local static preview18128 /workspace/scratch/season-history-recovery/stage. New local API18149. Full latest private result /workspace/private-fpl-history/latest-complete-history.json and private dashboard screenshot dashboard-private-preview.png. Public-safe receipts analysis/results/personal-dashboard-20261029. Source hashes/actual deployment attempts recorded there. No need to redo model research, create branches, or recreate the implemented layout.
+
+## After owner deploy, 29 October
+
+Owner activated8047759. Remote history OPTIONS now204 (was404), but /health500 exposed an actual packaging bug: requests was installed locally but absent from the service Docker pip install. Fixed service/Dockerfile to install requests2.34.2 and made optional history readiness fail closed without breaking original runtime health. Regression check verifies original B snapshot capability stays available when history import fails. Six targeted tests pass.
+
+The actual Docker image was built successfully with session CA mounted only for pip; runtime CA mounted read-only. The image's real gunicorn HTTP/CORS service imported eight official GW, three historical analyses,15 fresh owned statuses in8.31s, preserving exact joint-PM scores. Receipt docker-full-http.json. This supersedes the earlier COPY-layout-only limitation. No personal data in image/build context/Git.
+
+Both files prepared on existing Render source branch at2f6b0183e9e9f70c2b4ea28445051e2475d5d768. Owner must activate latest commit again if no automatic deployment. Existing deploy workflow exact adapter guard updated; known absent Render deployment credentials were not retried again. The UI pin remains b8a7a256, unchanged UI maths. GitHub waiting-run blocker remains separate. Do not claim live health/history works until actual remote health and private full job succeed.

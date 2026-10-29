@@ -93,13 +93,20 @@ def health():
     if snapshot_ready:
         import inspect
         snapshot_ready='snapshot_at'in inspect.signature(preview_calculate).parameters
+    history_ready=False;history_sha=None
+    if ready:
+        try:
+            from service.history_job import ready as history_available,fingerprint
+            history_ready=history_available()
+            if history_ready:history_sha=fingerprint()
+        except (ImportError,OSError,ValueError,KeyError):pass
     return jsonify(status='ready' if ready else 'unavailable',
                    runtime='original_locked_python',locked_model_active=False,
                    supports_idempotent_submit=True,
                    supports_mm_preview=True,
                    supports_history_refresh=True,
-                   supports_full_history_refresh=ready and __import__('service.history_job',fromlist=['ready']).ready(),
-                   history_worker_sha256=__import__('service.history_job',fromlist=['fingerprint']).fingerprint()if ready and __import__('service.history_job',fromlist=['ready']).ready()else None,
+                   supports_full_history_refresh=history_ready,
+                   history_worker_sha256=history_sha,
                    supports_unified_B_chain=unified_ready,
                    supports_B_snapshot_policy=snapshot_ready,
                    preview_worker_sha256=hashlib.sha256((ROOT/'service/preview_manager_job.py').read_bytes()).hexdigest() if unified_ready else None,
