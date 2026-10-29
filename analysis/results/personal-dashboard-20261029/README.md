@@ -15,3 +15,5 @@ Validation:
 - No `src` model changes. Local preview numerical files were copied byte-identically from the published verified B preview, not recomputed.
 
 Publication state must be read from the deployment receipts: local checks do not establish that GitHub Pages or Render activated the new version. The existing production model remains unchanged.
+
+Delivered publicly via run40932964422. Full Python suite1095 passed;17 archived browser reports. Public desktop/mobile tested.8 UI source files verified,3 numerical preview files and88 production files unchanged. Real Render full private job passed45.67s after481.62s waiting for an existing calculation; no existing job cancelled. See public-integrity.json, browser-public.json, render-full-http.json and publication-passed.json. No further owner deployment needed.
