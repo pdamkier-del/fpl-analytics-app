@@ -27,13 +27,17 @@ function draw(){
  const title=hero.querySelector('.transfer-card-head h3');if(title)title.textContent=chipActive?'Alternativ uden chip':first.incoming.length?'Dit anbefalede træk':'Behold holdet denne uge';if(chipActive)hero.querySelector('.workspace-eyebrow').textContent='Normal transferplan · uden chip';
  const why=hero.querySelector('.planner-why');if(why){why.remove();hero.append(disclosure('transfer-player-evidence','Spillernes tal og usikkerhed','xP, minutter og startsandsynlighed for de foreslåede spillere',why));}
  FplTransferResultSummary.enhance(hero,c);
- const grid=document.createElement('div');grid.className='result-ready-grid';const normalLineup=FplTransferResultSummary.lineup(c);if(chipActive)normalLineup.querySelector('h3').prepend('Uden chip · ');grid.append(hero,normalLineup);target.append(grid,FplTransferResultSummary.insights(c),FplTransferResultSummary.risks(c),FplTransferResultSummary.horizon(c));
+ const grid=document.createElement('div');grid.className='result-ready-grid';const normalLineup=FplTransferResultSummary.lineup(c);if(chipActive)normalLineup.querySelector('h3').prepend('Uden chip · ');grid.append(hero,normalLineup);let detailTarget=target;
+ if(chipAdvice.dataset.chip==='wildcard'){
+  target.append(FplTransferResultSummary.wildcardHorizon(c));
+  const alternative=document.createElement('details');alternative.id='transfer-normal-alternative';alternative.className='transfer-disclosure';alternative.innerHTML='<summary><strong>Alternativ uden Wildcard · normale transfers</strong></summary>';const body=document.createElement('div');body.className='disclosure-body';const normalHorizon=FplTransferResultSummary.horizon(c);normalHorizon.querySelector('h3').textContent='Uden Wildcard · seks-GW-alternativ';body.append(grid,FplTransferResultSummary.insights(c),FplTransferResultSummary.risks(c),normalHorizon);alternative.append(body);target.append(alternative);detailTarget=body;
+ }else target.append(grid,FplTransferResultSummary.insights(c),FplTransferResultSummary.risks(c),FplTransferResultSummary.horizon(c));
  const temp=document.createElement('div');FplPlanView.render(p,c.people,temp);
  for(const [id,key,title,description]of [
   ['teamResult','transfer-lineup','Anbefalet startopstilling','Se kaptajn, startellever og bænk efter de foreslåede transfers'],
   ['transferResult','transfer-path','Planen over seks gameweeks','Transfers, point, budget og beslutningsværdi uge for uge'],
   ['chipResult','transfer-chips','Chips og timing','Se den originale models chipforslag']]){
-  const section=temp.querySelector('#'+id);if(section){if(id==='teamResult'){const note=document.createElement('p');note.className='workspace-note';note.textContent='Modellens forslag efter transfers. Dit faktiske hold i My Team er uændret.';section.prepend(note);}target.append(disclosure(key,title,description,section));}
+  const section=temp.querySelector('#'+id);if(section){if(id==='teamResult'){const note=document.createElement('p');note.className='workspace-note';note.textContent='Modellens forslag efter transfers. Dit faktiske hold i My Team er uændret.';section.prepend(note);}(id==='chipResult'?target:detailTarget).append(disclosure(key,chipAdvice.dataset.chip==='wildcard'&&id!=='chipResult'?'Uden WC · '+title:title,description,section));}
  }
  const data=document.createElement('section');data.id='transfer-result-data';data.className='result-data';for(const id of ['planner-context','latest-snapshot-info']){const node=document.getElementById(id);if(node)data.append(node);}target.append(data);
 }
