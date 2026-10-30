@@ -15,7 +15,7 @@ permissions:
   id-token: write
 env:
   PREVIEW_SOURCE_SHA: 03d5c4d4777b44bc1d37884a1cf4dde106b45cab
-  PREVIEW_UI_SHA: 4616348e424e8181582b2ca4979d55e8102b0974
+  PREVIEW_UI_SHA: 3c8a34485e02ea5d833f79dc2810c813e23cafd6
 jobs:
   verified:
     if: ${{ inputs.validated_run != '' }}
@@ -173,6 +173,7 @@ jobs:
           node analysis/verify_unified_chain.cjs > unified-identity-browser.json
           node analysis/verify_latest_snapshot.cjs > unified-latest-snapshot-browser.json
           node analysis/verify_dashboard_workspace.cjs > unified-personal-dashboard-browser.json
+          node analysis/verify_model_explainer.cjs > unified-model-explainer-browser.json
           node analysis/verify_transfer_result_summary.cjs > unified-transfer-result-browser.json
           node analysis/verify_transfer_chip_advice.cjs > unified-transfer-chip-browser.json
           node analysis/verify_weekly_model_review.cjs > unified-weekly-review-browser.json
