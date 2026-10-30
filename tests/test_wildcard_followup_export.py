@@ -13,6 +13,6 @@ def test_B_wc_path_is_exported_without_changing_original_search():
     follow=b['wildcard_followup'];assert follow['schema']=='B-wildcard-followup-v1'
     assert [r['gw']for r in follow['path']]==list(range(7,12))
     assert follow['squad_ids']==sorted(b['chip_assessment']['candidate_lineups']['wildcard']['squad_ids'])
-    assert follow['six_gw_xp_after_hits']==normal['wildcard_followup']['six_gw_xp_after_hits']
-    assert follow['weighted_objective_before_chip_timing_threshold']==normal['wildcard_followup']['weighted_objective_before_chip_timing_threshold']
+    assert follow['wc_without_bb_six_gw_xp_after_hits']==normal['wildcard_followup']['six_gw_xp_after_hits']
+    assert follow['wc_without_bb_weighted_objective']==normal['wildcard_followup']['weighted_objective_before_chip_timing_threshold']
     json.dumps(b,allow_nan=False)
