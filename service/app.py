@@ -109,6 +109,7 @@ def health():
                    history_worker_sha256=history_sha,
                    supports_unified_B_chain=unified_ready,
                    supports_B_snapshot_policy=snapshot_ready,
+                   supports_B_WC_horizon=ready and getattr(sys.modules.get('service.manager_job'),'B_WC_HORIZON_SCHEMA',None)=='B-wildcard-followup-v1',
                    preview_worker_sha256=hashlib.sha256((ROOT/'service/preview_manager_job.py').read_bytes()).hexdigest() if unified_ready else None,
                    adapter_sha256=hashlib.sha256((ROOT/'service/app.py').read_bytes()+(ROOT/'service/manager_job.py').read_bytes()).hexdigest()), (200 if ready else 503)
 @app.route('/plans',methods=['POST','OPTIONS'])
