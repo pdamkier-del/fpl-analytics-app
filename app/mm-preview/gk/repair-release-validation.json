@@ -1,0 +1,157 @@
+{
+  "passed": true,
+  "forecast_sha256": "5847c1c3173dec551ea28bd8061738354bc89845004ea7aad12805f4a8acd707",
+  "gws": [
+    10,
+    11,
+    12,
+    13,
+    14,
+    15
+  ],
+  "unavailable_players_zero_minutes": 106,
+  "max_outfield_900_error": 6.821210263296962e-13,
+  "team_fixture_event_receipts": 120,
+  "max_event_budget_error": 4.440892098500626e-16,
+  "historical": {
+    "scope": "Both seasons GW22-38, reused research periods; same inclusive team means, NP weights and penalty hierarchy. Historical workload source subset and clock proxies. Medical return and persistent departures require separate current-source diagnostics.",
+    "fixtures": 341,
+    "draws": 400,
+    "baseline_max_xp_error": 0.0,
+    "metrics": [
+      {
+        "season": "2024-25",
+        "arm": "events_only",
+        "rows": 13105,
+        "fixtures": 171,
+        "start_Brier": 0.07217678501999836,
+        "minute_MAE": 10.9198646094213,
+        "minute_bias": 0.13590232735596072,
+        "xp_MAE": 0.8904784433422357,
+        "xp_bias": -0.004229301793208702,
+        "goal_bias": 0.0009067149942769857,
+        "assist_bias": -0.0007781381152232085
+      },
+      {
+        "season": "2024-25",
+        "arm": "frozen_B",
+        "rows": 13105,
+        "fixtures": 171,
+        "start_Brier": 0.07217678501999836,
+        "minute_MAE": 10.9198646094213,
+        "minute_bias": 0.13590232735596072,
+        "xp_MAE": 0.8908429988553987,
+        "xp_bias": 0.0039162533384204485,
+        "goal_bias": 0.00181972529568866,
+        "assist_bias": 6.924837848148407e-05
+      },
+      {
+        "season": "2024-25",
+        "arm": "source_and_events",
+        "rows": 13105,
+        "fixtures": 171,
+        "start_Brier": 0.072112291489993,
+        "minute_MAE": 10.882056746706787,
+        "minute_bias": 0.1359023273559599,
+        "xp_MAE": 0.8895310950019077,
+        "xp_bias": -0.004085463563525369,
+        "goal_bias": 0.0008515833651278051,
+        "assist_bias": -0.0008227775658145858
+      },
+      {
+        "season": "2025-26",
+        "arm": "events_only",
+        "rows": 13987,
+        "fixtures": 170,
+        "start_Brier": 0.06789853225927087,
+        "minute_MAE": 10.291065078513077,
+        "minute_bias": 0.12211339100592138,
+        "xp_MAE": 0.8733858225495102,
+        "xp_bias": 0.016015764638592982,
+        "goal_bias": 0.0014045184814470504,
+        "assist_bias": -0.0010736755558733214
+      },
+      {
+        "season": "2025-26",
+        "arm": "frozen_B",
+        "rows": 13987,
+        "fixtures": 170,
+        "start_Brier": 0.06789853225927087,
+        "minute_MAE": 10.291065078513077,
+        "minute_bias": 0.12211339100592138,
+        "xp_MAE": 0.8758833202259241,
+        "xp_bias": 0.02373882891256166,
+        "goal_bias": 0.002730749982126253,
+        "assist_bias": 0.00015121183956529982
+      },
+      {
+        "season": "2025-26",
+        "arm": "source_and_events",
+        "rows": 13987,
+        "fixtures": 170,
+        "start_Brier": 0.06800826131348169,
+        "minute_MAE": 10.29447371032402,
+        "minute_bias": 0.12211339100592147,
+        "xp_MAE": 0.8732001143919355,
+        "xp_bias": 0.014967469793379564,
+        "goal_bias": 0.0015453635518695857,
+        "assist_bias": -0.0009330092228497996
+      }
+    ],
+    "production_changed": false,
+    "own_goal_accounting": {
+      "previous_shared_own_goal_events": 0,
+      "repaired_expected_shared_own_goals_per_fixture": 0.08299853372434017,
+      "max_conditional_goal_budget_error": 4.440892098500626e-16,
+      "unattributed_events": 0,
+      "special_assist_occurrence_rates": "Not Available; attribution rules tested separately"
+    },
+    "paired_uncertainty": [
+      {
+        "season": "2024-25",
+        "arm": "events_only",
+        "xp_MAE_delta": -0.0003645555131629134,
+        "fixture_bootstrap95": [
+          -0.0031104383409156842,
+          0.0023704912448132436
+        ]
+      },
+      {
+        "season": "2024-25",
+        "arm": "source_and_events",
+        "xp_MAE_delta": -0.0013119038534910327,
+        "fixture_bootstrap95": [
+          -0.004220372060237623,
+          0.0017588110628683656
+        ]
+      },
+      {
+        "season": "2025-26",
+        "arm": "events_only",
+        "xp_MAE_delta": -0.0024974976764138143,
+        "fixture_bootstrap95": [
+          -0.005005194716629308,
+          -5.1449536450525225e-05
+        ]
+      },
+      {
+        "season": "2025-26",
+        "arm": "source_and_events",
+        "xp_MAE_delta": -0.002683205833988705,
+        "fixture_bootstrap95": [
+          -0.005241934847283405,
+          -0.00016028758657598476
+        ]
+      }
+    ],
+    "known_limitations": [
+      "Reused historical research periods, not independent certification",
+      "Historical cup/UEFA coverage is a sourced subset and clocks retain documented proxies",
+      "Same seeds do not imply identical random-number pairing across event processes",
+      "Medical-return probability is separately validated against first appearance; not medical clearance or start probability",
+      "Special penalty-winner/own-goal assist occurrence rates and causal red-card removals not modeled"
+    ]
+  },
+  "ts_unchanged": true,
+  "production_activation": false
+}
