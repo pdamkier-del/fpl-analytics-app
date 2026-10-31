@@ -40,6 +40,10 @@ def infer_B(history, target, provenance):
     for col in NUM+['pos','news_eligible','news_state','news_chance']:
         if col not in target or (col in NUM+['pos'] and col not in history):
             raise ValueError('Missing B feature: '+col)
+    if provenance.get('physical_feature_version'):
+        from b_physical_workload import VERSION as PHYSICAL_VERSION
+        if provenance['physical_feature_version']!=PHYSICAL_VERSION or not history.get('physical_feature_version',pd.Series(dtype=str)).eq(PHYSICAL_VERSION).all() or 'physical_feature_version'not in history or not target.get('physical_feature_version',pd.Series(dtype=str)).eq(PHYSICAL_VERSION).all() or 'physical_feature_version'not in target:
+            raise ValueError('Historical/live physical feature semantics mismatch')
     h=history.copy();known=pd.to_datetime(h.known_at,utc=True)
     if not known.lt(cut).all():raise ValueError('Training has unknown/future labels')
     if set(h.fixture_uuid)&set(target.fixture_uuid):raise ValueError('Training/target overlap')
@@ -51,11 +55,17 @@ def infer_B(history, target, provenance):
     model.fit(design(h.loc[eligible]),h.loc[eligible,'y'])
     if model[-1].n_iter_[0]>=3000:raise ValueError('Calibration not converged')
     g['p']=model.predict_proba(design(g))[:,1]
+    unprojected=g.p.to_numpy().copy()
     fixed=target.p.eq(0)&target.q.eq(0);g.loc[fixed,'p']=0.
     projected_p=project(g).p.to_numpy()
     # PR9 prequential() stores only the projected p, not its temporary q cap.
     # change(B) then projects that p against the ORIGINAL upstream q again.
     g=target.copy();g['p']=projected_p;g=project(g)
+    g['unprojected_p']=unprojected
+    g.loc[fixed,'unprojected_p']=0.
+    if 'persistent_availability_cap'in g:
+        from b_horizon_eligibility import constrain
+        g=constrain(g)
     return g,dict(alpha=10.,training_rows=int(eligible.sum()),last_label_known_at=str(known.max()),feature_columns=NUM,independently_validated=False)
 
 

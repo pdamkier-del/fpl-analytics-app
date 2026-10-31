@@ -1,0 +1,60 @@
+{
+  "existing_prediction_tables_recomputed": true,
+  "new_historical_simulations": false,
+  "point_checks": [
+    {
+      "season": "2024-25",
+      "arm": "control",
+      "rows": 13105,
+      "fixtures": 171,
+      "xp_mae": 0.8918838229683328,
+      "xp_bias": -0.002699923693246853
+    },
+    {
+      "season": "2024-25",
+      "arm": "mean_preserving",
+      "rows": 13105,
+      "fixtures": 171,
+      "xp_mae": 0.8891198016024419,
+      "xp_bias": -0.01054750095383442
+    },
+    {
+      "season": "2024-25",
+      "arm": "penalty_roles",
+      "rows": 13105,
+      "fixtures": 171,
+      "xp_mae": 0.8891129339946586,
+      "xp_bias": -0.010652804273178173
+    },
+    {
+      "season": "2025-26",
+      "arm": "control",
+      "rows": 26159,
+      "fixtures": 330,
+      "xp_mae": 0.904608834435567,
+      "xp_bias": 0.007767020910585268
+    },
+    {
+      "season": "2025-26",
+      "arm": "mean_preserving",
+      "rows": 26159,
+      "fixtures": 330,
+      "xp_mae": 0.9032862494743682,
+      "xp_bias": 0.0035255552582285255
+    }
+  ],
+  "minute_rows": 50231,
+  "minute_metrics_match": true,
+  "limitations": [
+    "Reused development periods, not pristine holdouts",
+    "2024 rank snapshot clocks are unverified archival proxies",
+    "No pre-cutoff 2025 rank snapshots supplied; no current role backfill"
+  ],
+  "independent_certification": false,
+  "full_season_TS_return_test": false,
+  "input_sha256": {
+    "analysis/results/unified-b-chain-20261021/predictions.csv.gz": "a7f88c270de70cd479a5db1b4c597d42556105bb199f4bbbe9f339db9ecf25c3",
+    "analysis/results/unified-b-chain-20261021/validation.json": "b30f417f230e81fb343a5e9565019473fcc9a1b3892f1703fa10c5749a04ae7e",
+    "analysis/results/individual-mm-refinement-20261016/predictions.npz": "a7f4ed43d2ee0d0bdf03a72c8d2d18e7be924b6beb4db2c013a47422570f4f44"
+  }
+}

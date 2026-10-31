@@ -138,32 +138,11 @@ def build_final_frame():
 
 
 def make_vfinal_input(frame):
-    # build_pair applies the modified v4_* minute fields as candidate minutes.
-    _,inp=build_pair(frame)
-    by=frame.set_index('player_uuid')
-    players=[]
-    own_available='p_own_goal' in frame.columns
-    for p in inp.players:
-        r=by.loc[p.player_id]
-        kwargs=dict(
-          penalty_weight=float(r.pen_weight),
-          penalty_conversion=float(r.pen_conversion),
-          bps_background_mean=0.0,bps_background_sd=0.0,
-          bps_background_rate90=float(r.bg_mean_rate90),
-          bps_background_sd90=float(r.bg_sd90))
-        if own_available:
-            kwargs['p_own_goal']=float(r.p_own_goal)
-        players.append(replace(p,**kwargs))
-    home=int(frame.home_team_id.iloc[0]);away=int(frame.away_team_id.iloc[0])
-    h=frame[frame.team_id==home].iloc[0];a=frame[frame.team_id==away].iloc[0]
+    """Compatibility entry: one shared player/team/match contract owns assembly."""
+    from fpl_v1_1_model.fixture_input import prepare_fixture
     pen_summary=json.loads((ROOT/'analysis/results/shared-penalty-model-20261005-v1/model_summary.json').read_text())
-    return replace(inp,players=tuple(players),
-      lambda_home_penalties=float(h.lambda_pen),
-      lambda_away_penalties=float(a.lambda_pen),
-      home_penalty_conversion=float(h.team_pen_conversion),
-      away_penalty_conversion=float(a.team_pen_conversion),
-      p_penalty_save_given_miss=float(pen_summary['selected']['p_keeper_save_given_miss']),
-      bps_rules='2025-26'), own_available
+    prepared=prepare_fixture(frame,p_keeper_save_given_miss=float(pen_summary['selected']['p_keeper_save_given_miss']),bps_rules='2025-26')
+    return prepared.model_input,prepared.own_goal_input_present
 
 
 def make_baseline_input(frame):

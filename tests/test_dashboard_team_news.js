@@ -1,0 +1,46 @@
+const assert=require('node:assert/strict'),N=require('../app/mm-preview/dashboard-team-news.js');
+const now=Date.parse('2026-10-19T19:00:00Z');
+const player=(id,status='a')=>({id,name:id===1?'Haaland':'Other',team:1,position:4,price_tenths:100,status,news:'',news_added:null,chance_of_playing_next_round:null,chance_of_playing_this_round:null});
+const news={schema:'fpl-dashboard-availability-v1',source_url:'https://fantasy.premierleague.com/api/bootstrap-static/',observed_at:'2026-10-19T18:55:00Z',next_gw:8,deadline:'2026-10-23T15:00:00Z',players:[player(1),player(2)]};
+const official={players:news.players.map(p=>({...p,price:p.price_tenths/10}))},forecast={gws:[8,9],data_asof:'2026-10-19T18:00:00Z',forecast_sha256:'current'},state={gw:8,observed_at:'2026-10-19T17:00:00Z',squad:[{id:1}]};
+const context={news,official,forecast,state,stateValid:true,usable:true};
+let r=N.evaluate(context,now);assert(r.canCompute);assert.equal(r.rows.length,1);assert.equal(r.rows[0].name,'Haaland');assert.equal(r.phase,'can_compute');
+const injured=structuredClone(news);Object.assign(injured.players[0],{status:'d',news:'Knock. Further assessment required.',news_added:'2026-10-19T18:30:00Z',chance_of_playing_next_round:50});r=N.evaluate({...context,news:injured},now);assert.equal(r.rows[0].label,'Tvivlsom');assert.equal(r.phase,'waiting_forecast');assert(!r.canCompute&&!r.planReady);assert(N.html(r).includes('50 %'));assert(!N.html(r).includes('class="team-news-status">Skadet'));
+const target=structuredClone(news);target.players[1].status='i';r=N.evaluate({...context,news:target},now);assert.equal(r.rows.length,1);assert(!r.canCompute);assert(!N.html(r).includes('Other'));
+for(const at of ['2026-10-19T17:00:00Z','2026-10-19T20:00:00Z']){r=N.evaluate({...context,news:{...news,observed_at:at}},now);assert.equal(r.phase,'news_unavailable');assert(!r.canCompute);}
+r=N.evaluate({...context,state:{...state,gw:7}},now);assert.equal(r.phase,'update_state');assert(!r.canCompute);
+r=N.evaluate({...context,state:{...state,observed_at:'2026-10-19T18:30:00Z'}},now);assert.equal(r.phase,'waiting_forecast');assert(!r.canCompute);
+r=N.evaluate({...context,news:{...news,next_gw:9}},now);assert.equal(r.phase,'waiting_forecast');assert(!r.canCompute);
+const plan={ts_ran:true,locked_model_active:false,forecast_sha256:'current',gw:8};r=N.evaluate({...context,plan},now);assert(r.planReady);r=N.evaluate({...context,plan:{...plan,forecast_sha256:'old'}},now);assert(!r.planReady);
+r=N.evaluate({...context,plan,news:injured},now);assert(!r.planReady);
+r=N.evaluate({...context,state:null},now);assert.equal(r.phase,'missing_team');assert(!r.canCompute);
+const unsafe=structuredClone(injured);unsafe.players[0].news='<img src=x onerror=alert(1)>';assert(N.html(N.evaluate({...context,news:unsafe},now)).includes('&lt;img'));assert(!N.html(N.evaluate({...context,news:unsafe},now)).includes('<img'));
+const status=N.evaluate(context,now),request={status,enabled:true,busy:false,hasJob:false,signature:'same',now};assert(N.shouldRequest(request));assert(!N.shouldRequest({...request,attempt:{signature:'same',at:now-1000}}));assert(N.shouldRequest({...request,signature:'new',attempt:{signature:'same',at:now-1000}}));for(const change of [{enabled:false},{busy:true},{hasJob:true},{status:{...status,canCompute:false}},{status:{...status,planReady:true}}])assert(!N.shouldRequest({...request,...change}));
+assert.notDeepEqual(N.identity(player(1)),N.identity({...player(1),chance_of_playing_next_round:0}));
+console.log('Team news: owned-only feed, official doubt status, news/model gating, no stale plan, next-GW/state guards, escaping and automatic request deduplication passed');
+
+// A fresh injury after capture is a forecast dependency, even without a team.
+// Diagnose that dependency separately from personal team confirmation.
+const noTeam=N.evaluate({...context,state:null,news:injured},now);
+assert(!noTeam.aligned);
+assert.match(noTeam.alignmentReason,/Haaland/);
+assert.doesNotMatch(noTeam.alignmentReason,/hold.*bekræft/);
+const changedOwned=N.evaluate({...context,news:injured,usable:false},now);
+assert.match(changedOwned.message,/Haaland/);
+assert.equal(changedOwned.phase,'waiting_forecast');
+const changedTarget=N.evaluate({...context,news:target},now);
+assert.match(changedTarget.alignmentReason,/transferberegningen/);
+assert(!N.html(changedTarget).includes('Other'));
+assert.match(N.evaluate({...context,state:{...state,observed_at:'2026-10-19T18:30:00Z'}},now).message,/ikke bekræfte holdet igen/);
+assert.equal(N.evaluate(context,now).alignmentReason,'');
+console.log('PASS: new official injury and team timestamp waits have distinct reasons; off-squad news stays outside the owned feed.');
+
+// A match dismissal must remain visible even when FPL's status flag still says a.
+const red=structuredClone(news);red.discipline_checked=true;red.discipline_source_url='https://fantasy.premierleague.com/api/fixtures/';red.players.forEach(p=>p.recent_red_cards=[]);red.players[0].recent_red_cards=[{fixture_id:73,gw:7,kickoff:'2026-10-18T16:30:00Z',red_cards:1,provisional:true,opponent:'Spurs',source_url:red.discipline_source_url}];
+const rp=N.evaluate({...context,news:red},now);assert.equal(rp.rows[0].status,'a');assert(rp.rows[0].has_recent_red);assert.match(rp.rows[0].label,/Rødt kort/);assert.match(N.html(rp),/foreløbige kampdata/);assert.match(N.html(rp),/ikke fastlagt/);assert(!N.html(rp).includes('FPL-tilgængelighed: 100'));
+const staleRed=structuredClone(red);staleRed.observed_at='2026-10-19T17:00:00Z';const sr=N.evaluate({...context,news:staleRed},now);assert.equal(sr.phase,'news_unavailable');assert(!sr.canCompute);assert(sr.rows[0].has_recent_red);assert.match(sr.rows[0].label,/Senest registreret/);
+assert.throws(()=>N.playerStatus(red,1,999));const badRed=structuredClone(red);badRed.players[0].recent_red_cards[0].kickoff='2026-10-20T12:00:00Z';assert.throws(()=>N.validate(badRed,now));
+console.log('PASS: recent red cards override a lagging available label without inventing a ban, survive stale-feed display and preserve compute freshness gates.');
+const cup=structuredClone(red);cup.players[0].recent_red_cards[0].resolution={player_id:1,fixture_id:73,kickoff:'2026-10-18T16:30:00Z',source_url:'https://www.premierleague.com/en/news/4425344',source_observed_at:'2026-10-19T18:45:00Z',description:'Én kamp. Afsones i EFL Cup, ingen PL-kampe.',premier_league_matches_missed:0};
+N.validate(cup,now);const ch=N.html(N.evaluate({...context,news:cup},now));assert.match(ch,/Afsones i EFL Cup/);assert.doesNotMatch(ch,/ikke fastlagt/);assert.equal(N.playerStatus(cup,1,1).status,'a');const wrongResolution=structuredClone(cup);wrongResolution.players[0].recent_red_cards[0].resolution.kickoff='2025-10-18T16:30:00Z';assert.throws(()=>N.validate(wrongResolution,now));
+console.log('PASS: a sourced cup suspension explanation belongs only to its exact red-card event and does not change PL availability.');

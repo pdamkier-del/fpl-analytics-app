@@ -1,0 +1,356 @@
+{
+  "classification": "FROZEN_B_FEATURE_ABLATION_NOT_MODEL_ACCURACY_VALIDATION",
+  "cutoff": "2026-10-22T08:16:18.463735+00:00",
+  "fixture_uuid": "live-2026-27-fpl-72",
+  "archived_forecast_sha256": "66eddadd31c406096350b3cabf008e7805b883f2cc55b416130fc1dee0a0c013",
+  "target_sha256": "b730414e1c22c9ff9e06e0a659dc4d0eb95358ab5308d2d598e707309c5547bd",
+  "repeats": 8,
+  "draws_per_repeat": 400,
+  "seeds": [
+    93000000,
+    93100000,
+    93200000,
+    93300000,
+    93400000,
+    93500000,
+    93600000,
+    93700000
+  ],
+  "baseline_original_seed_exact": true,
+  "baseline_reconstruction_max_feature_errors": {
+    "logit_p": 7.786155631350766e-08,
+    "logit_q": 0.0,
+    "normal_p": 0.0,
+    "stable_p": 0.0,
+    "starter_mean": 2.842170943040401e-14,
+    "cameo_mean": 7.105427357601002e-15,
+    "history_n": 2.220446049250313e-16,
+    "start_n": 0.0,
+    "cameo_n": 0.0,
+    "last_start_minutes": 0.0,
+    "last_started": 0.0,
+    "rest_days": 0.0,
+    "team_rest_days": 0.0,
+    "minutes_7d": 0.0,
+    "minutes_14d": 0.0,
+    "role_jump": 0.0
+  },
+  "results": {
+    "baseline": {
+      "237": {
+        "name": "Ndiaye",
+        "p_start": 0.8765645684381268,
+        "xmins": 79.58384383287186,
+        "PM_E_minutes": 79.58384383287186,
+        "p_60_plus": 0.8757099788574817,
+        "p_90": 0.4698630583851985,
+        "xP_mean": 3.7996875,
+        "xP_per_seed": [
+          3.735,
+          3.6775,
+          3.58,
+          3.73,
+          3.81,
+          4.0025,
+          3.9175,
+          3.945
+        ],
+        "xP_seed_standard_error": 0.051489938120749104,
+        "PR4_role_p": 0.8515485061521255,
+        "last_started": 1.0,
+        "delta_start_percentage_points": 0.0,
+        "delta_xmins": 0.0,
+        "delta_xP": 0.0,
+        "delta_xP_seed_standard_error": 0.0
+      },
+      "399": {
+        "name": "Cherki",
+        "p_start": 0.4655061167321518,
+        "xmins": 45.62773000211688,
+        "PM_E_minutes": 45.62773000211688,
+        "p_60_plus": 0.4654792913732824,
+        "p_90": 0.37426744870090267,
+        "xP_mean": 2.4865625,
+        "xP_per_seed": [
+          2.805,
+          2.43,
+          2.445,
+          2.7725,
+          2.0725,
+          2.63,
+          2.395,
+          2.3425
+        ],
+        "xP_seed_standard_error": 0.08548696838344931,
+        "PR4_role_p": 0.44168513993190206,
+        "last_started": 0.0,
+        "delta_start_percentage_points": 0.0,
+        "delta_xmins": 0.0,
+        "delta_xP": 0.0,
+        "delta_xP_seed_standard_error": 0.0
+      }
+    },
+    "omit_Ndiaye": {
+      "237": {
+        "name": "Ndiaye",
+        "p_start": 0.8009108301114252,
+        "xmins": 75.52196748175022,
+        "PM_E_minutes": 75.52196748175022,
+        "p_60_plus": 0.800144951530959,
+        "p_90": 0.4293105444593901,
+        "xP_mean": 3.4537500000000003,
+        "xP_per_seed": [
+          3.575,
+          3.28,
+          3.33,
+          3.475,
+          3.505,
+          3.63,
+          3.47,
+          3.365
+        ],
+        "xP_seed_standard_error": 0.042780064616260556,
+        "PR4_role_p": 0.8099557758349484,
+        "last_started": 1.0,
+        "delta_start_percentage_points": -7.565373832670163,
+        "delta_xmins": -4.06187635112164,
+        "delta_xP": -0.3459375,
+        "delta_xP_seed_standard_error": 0.04671087338044842
+      },
+      "399": {
+        "name": "Cherki",
+        "p_start": 0.47252012272438504,
+        "xmins": 46.19442169814502,
+        "PM_E_minutes": 46.19442169814502,
+        "p_60_plus": 0.4724928931420958,
+        "p_90": 0.3799067175172057,
+        "xP_mean": 2.7190624999999997,
+        "xP_per_seed": [
+          2.695,
+          2.6325,
+          2.9975,
+          2.5975,
+          2.73,
+          2.805,
+          2.58,
+          2.715
+        ],
+        "xP_seed_standard_error": 0.047666385046412504,
+        "PR4_role_p": 0.4458861183538786,
+        "last_started": 0.0,
+        "delta_start_percentage_points": 0.701400599223323,
+        "delta_xmins": 0.5666916960281441,
+        "delta_xP": 0.23250000000000004,
+        "delta_xP_seed_standard_error": 0.10285652281559148
+      }
+    },
+    "omit_Cherki": {
+      "237": {
+        "name": "Ndiaye",
+        "p_start": 0.8728861985879378,
+        "xmins": 79.38635083602034,
+        "PM_E_minutes": 79.38635083602034,
+        "p_60_plus": 0.8720359222359005,
+        "p_90": 0.4678913495460411,
+        "xP_mean": 3.7925000000000004,
+        "xP_per_seed": [
+          3.7825,
+          4.105,
+          3.8025,
+          3.7825,
+          3.8125,
+          3.52,
+          3.9625,
+          3.5725
+        ],
+        "xP_seed_standard_error": 0.06680361677548395,
+        "PR4_role_p": 0.8499473360452766,
+        "last_started": 1.0,
+        "delta_start_percentage_points": -0.36783698501889894,
+        "delta_xmins": -0.19749299685152266,
+        "delta_xP": -0.007187499999999958,
+        "delta_xP_seed_standard_error": 0.10440780868015986
+      },
+      "399": {
+        "name": "Cherki",
+        "p_start": 0.5538787245905636,
+        "xmins": 52.767732888508576,
+        "PM_E_minutes": 52.767732888508576,
+        "p_60_plus": 0.5538468062395002,
+        "p_90": 0.4453191261963548,
+        "xP_mean": 3.034375,
+        "xP_per_seed": [
+          3.1725,
+          3.12,
+          2.9275,
+          3.0375,
+          3.07,
+          2.9325,
+          3.1075,
+          2.9075
+        ],
+        "xP_seed_standard_error": 0.03559052216331112,
+        "PR4_role_p": 0.47102645840239205,
+        "last_started": 1.0,
+        "delta_start_percentage_points": 8.837260785841183,
+        "delta_xmins": 7.140002886391699,
+        "delta_xP": 0.5478125,
+        "delta_xP_seed_standard_error": 0.0873000745325733
+      }
+    },
+    "omit_both": {
+      "237": {
+        "name": "Ndiaye",
+        "p_start": 0.7955929188912406,
+        "xmins": 75.2364469205672,
+        "PM_E_minutes": 75.2364469205672,
+        "p_60_plus": 0.7948332760531664,
+        "p_90": 0.4264599957147733,
+        "xP_mean": 3.5465625,
+        "xP_per_seed": [
+          3.475,
+          3.3325,
+          3.6025,
+          3.735,
+          3.495,
+          3.365,
+          3.7175,
+          3.65
+        ],
+        "xP_seed_standard_error": 0.054301443474302345,
+        "PR4_role_p": 0.8080229694238098,
+        "last_started": 1.0,
+        "delta_start_percentage_points": -8.097164954688619,
+        "delta_xmins": -4.34739691230466,
+        "delta_xP": -0.25312500000000004,
+        "delta_xP_seed_standard_error": 0.07406975175468053
+      },
+      "399": {
+        "name": "Cherki",
+        "p_start": 0.5609618666179531,
+        "xmins": 53.34001038202004,
+        "PM_E_minutes": 53.34001038202004,
+        "p_60_plus": 0.5609295400590986,
+        "p_90": 0.451013980463764,
+        "xP_mean": 3.0034375,
+        "xP_per_seed": [
+          2.945,
+          3.0225,
+          2.8875,
+          2.9025,
+          3.485,
+          2.7775,
+          2.8475,
+          3.16
+        ],
+        "xP_seed_standard_error": 0.08008775530071462,
+        "PR4_role_p": 0.4752943915268226,
+        "last_started": 1.0,
+        "delta_start_percentage_points": 9.54557498858013,
+        "delta_xmins": 7.712280379903163,
+        "delta_xP": 0.516875,
+        "delta_xP_seed_standard_error": 0.15446100842931204
+      }
+    },
+    "last_started_only": {
+      "237": {
+        "name": "Ndiaye",
+        "p_start": 0.8743459828004984,
+        "xmins": 79.46472717408224,
+        "PM_E_minutes": 79.46472717408224,
+        "p_60_plus": 0.8734939947165572,
+        "p_90": 0.46867383460121304,
+        "xP_mean": 3.7625,
+        "xP_per_seed": [
+          4.0125,
+          3.9725,
+          3.5575,
+          3.635,
+          3.7075,
+          3.8625,
+          3.715,
+          3.6375
+        ],
+        "xP_seed_standard_error": 0.05912871854812058,
+        "PR4_role_p": 0.8515485061521255,
+        "last_started": 1.0,
+        "delta_start_percentage_points": -0.22185856376284452,
+        "delta_xmins": -0.11911665878962197,
+        "delta_xP": -0.03718750000000004,
+        "delta_xP_seed_standard_error": 0.07655156627468275
+      },
+      "399": {
+        "name": "Cherki",
+        "p_start": 0.5217426667722344,
+        "xmins": 50.17132263039169,
+        "PM_E_minutes": 50.17132263039169,
+        "p_60_plus": 0.5217126004508392,
+        "p_90": 0.41948169906348787,
+        "xP_mean": 3.061875,
+        "xP_per_seed": [
+          3.0175,
+          3.08,
+          2.845,
+          3.26,
+          2.9275,
+          3.32,
+          2.99,
+          3.055
+        ],
+        "xP_seed_standard_error": 0.0564554778754272,
+        "PR4_role_p": 0.44168513993190206,
+        "last_started": 1.0,
+        "delta_start_percentage_points": 5.6236550040082545,
+        "delta_xmins": 4.543592628274816,
+        "delta_xP": 0.5753125000000001,
+        "delta_xP_seed_standard_error": 0.07149462626534552
+      }
+    }
+  },
+  "removed_observations": {
+    "omit_Ndiaye": [
+      {
+        "fixture_uuid": "historical-2026-27-fpl-67",
+        "player_uuid": "dea12abc-e8dd-5839-b626-0cb7e72e9a26",
+        "started": "1",
+        "minutes": "90",
+        "known_at": "2026-10-17 18:00:00+00:00"
+      }
+    ],
+    "omit_Cherki": [
+      {
+        "fixture_uuid": "historical-2026-27-fpl-67",
+        "player_uuid": "eebb4710-6fe9-53e9-81e0-a650547126a0",
+        "started": "0",
+        "minutes": "0",
+        "known_at": "2026-10-17 18:00:00+00:00"
+      }
+    ],
+    "omit_both": [
+      {
+        "fixture_uuid": "historical-2026-27-fpl-67",
+        "player_uuid": "dea12abc-e8dd-5839-b626-0cb7e72e9a26",
+        "started": "1",
+        "minutes": "90",
+        "known_at": "2026-10-17 18:00:00+00:00"
+      },
+      {
+        "fixture_uuid": "historical-2026-27-fpl-67",
+        "player_uuid": "eebb4710-6fe9-53e9-81e0-a650547126a0",
+        "started": "0",
+        "minutes": "0",
+        "known_at": "2026-10-17 18:00:00+00:00"
+      }
+    ]
+  },
+  "scope": [
+    "Historical training labels and coefficients implied by the same fixed fit are unchanged across arms.",
+    "Only B PR4 prefix/role features and PR9 prior features are rebuilt after the observation is removed; original upstream MM, duration carry memory, news, PM offensive rates and opponents remain fixed.",
+    "Every ablation includes exact team projection; other player marginals may therefore move.",
+    "Removing an observation is not the same as declaring it tactical rest. No CL-informed rotation candidate is implemented.",
+    "Paired seeds are not event-aligned draws; standard errors describe Monte Carlo repeat variation, not forecast accuracy.",
+    "Baseline reproduces the archived 22 October 08:16 input run, slightly later than the 07:40 PM inputs served publicly."
+  ],
+  "production_changed": false,
+  "model_changed": false
+}

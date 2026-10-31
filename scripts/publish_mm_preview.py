@@ -18,6 +18,26 @@ def gh(path):
     return json.loads(subprocess.check_output(['gh','api','repos/'+REPO+'/'+path],text=True))
 def hashes(folder):
     return {str(p.relative_to(folder)):hashlib.sha256(p.read_bytes()).hexdigest() for p in folder.rglob('*') if p.is_file() and not p.relative_to(folder).parts[0]=='mm-preview'}
+def require_current_preview(source, fetch=urlopen):
+    """A UI publication must never roll a newer served model snapshot back."""
+    from datetime import datetime
+    from urllib.error import HTTPError
+    from time import time_ns
+    for name in ['current/forecast.json', 'gk/forecast.json']:
+        path=source/name
+        if not path.exists():raise ValueError('Missing preview forecast: '+name)
+        incoming=json.loads(path.read_text())
+        try:
+            with fetch('https://pdamkier-del.github.io/fpl-analytics-app/mm-preview/'+name+'?publication='+str(time_ns()),timeout=60) as response:
+                served=json.load(response)
+        except HTTPError as error:
+            if error.code==404:continue  # First publication only.
+            raise
+        new_time=datetime.fromisoformat(incoming['data_asof'].replace('Z','+00:00'))
+        old_time=datetime.fromisoformat(served['data_asof'].replace('Z','+00:00'))
+        if new_time.tzinfo is None or old_time.tzinfo is None:raise ValueError('Forecast time must include timezone')
+        if new_time<old_time:raise ValueError('Newer B forecast is already public; validate UI against the latest model artifact before publishing')
+
 def main():
     WORK.mkdir(parents=True,exist_ok=True)
     runs=gh('actions/runs?status=success&per_page=100')['workflow_runs']
@@ -43,7 +63,10 @@ def main():
     frozen=json.loads((SITE/'vfinal-diagnostic.json').read_text())
     for k in ['data_asof','checksums','gws','model']:
         if live.get(k)!=frozen.get(k):raise ValueError('Production publication changed; rerun preview against newest artifact')
-    source=ROOT/'app/mm-preview';dest=SITE/'mm-preview'
+    source=Path(os.environ.get('MM_PREVIEW_SOURCE_DIR',ROOT/'app/mm-preview'));dest=SITE/'mm-preview'
+    require_current_preview(source)
+    from dashboard_news_publication import retain_latest
+    retain_latest(source,dest)
     # Preserve prior public forecast evidence; a refresh must not silently
     # discard the prospective records needed for later independent validation.
     prior_history=dest/'current/history';new_history=source/'current/history'
@@ -64,16 +87,27 @@ def main():
     (dest/'publication.json').write_text(json.dumps(evidence,sort_keys=True,indent=2)+'\n')
     # Keep this isolated new path in future normal forecast publications. No
     # production scripts, model files or existing web assets enter this commit.
-    livework=WORK/'live'
+    # Preserve the existing checkout; use a temporary Git index to overlay only
+    # public preview blobs on the live tree. No worktree, reset or force push.
+    import tempfile
     subprocess.run(['git','fetch','origin','free-github-static-20261010'],cwd=ROOT,check=True)
-    subprocess.run(['git','worktree','add','--detach',str(livework),'FETCH_HEAD'],cwd=ROOT,check=True)
-    destination=livework/'app/mm-preview'
-    if destination.exists():shutil.rmtree(destination)
-    shutil.copytree(dest,destination)
-    subprocess.run(['git','config','user.name','FPL MM preview publisher'],cwd=livework,check=True)
-    subprocess.run(['git','config','user.email','mm-preview@users.noreply.github.com'],cwd=livework,check=True)
-    subprocess.run(['git','add','app/mm-preview'],cwd=livework,check=True)
-    subprocess.run(['git','commit','-m','Publish isolated diagnostic MM integration preview [skip ci]'],cwd=livework,check=True)
-    subprocess.run(['git','push','origin','HEAD:free-github-static-20261010'],cwd=livework,check=True)
+    parent=subprocess.check_output(['git','rev-parse','FETCH_HEAD'],cwd=ROOT,text=True).strip()
+    with tempfile.TemporaryDirectory(prefix='preview-index-',dir=WORK) as scratch:
+        env=dict(os.environ,GIT_INDEX_FILE=str(Path(scratch)/'index'))
+        subprocess.run(['git','read-tree',parent],cwd=ROOT,env=env,check=True)
+        old=subprocess.check_output(['git','ls-files','-z','app/mm-preview'],cwd=ROOT,env=env)
+        subprocess.run(['git','update-index','--force-remove','-z','--stdin'],input=old,cwd=ROOT,env=env,check=True)
+        entries=[]
+        for path in sorted(dest.rglob('*')):
+            if path.is_symlink():raise ValueError('Public preview must not contain symlinks')
+            if not path.is_file():continue
+            rel='app/mm-preview/'+path.relative_to(dest).as_posix()
+            if '\n' in rel or '\t' in rel:raise ValueError('Unsafe public preview path')
+            blob=subprocess.check_output(['git','hash-object','-w',str(path)],cwd=ROOT,text=True).strip()
+            entries.append('100644 '+blob+'\t'+rel+'\n')
+        subprocess.run(['git','update-index','--index-info'],input=''.join(entries),text=True,cwd=ROOT,env=env,check=True)
+        tree=subprocess.check_output(['git','write-tree'],cwd=ROOT,env=env,text=True).strip()
+        commit=subprocess.check_output(['git','-c','user.name=FPL MM preview publisher','-c','user.email=mm-preview@users.noreply.github.com','commit-tree',tree,'-p',parent],input='Publish isolated validated B preview [skip ci]\n',cwd=ROOT,env=env,text=True).strip()
+        subprocess.run(['git','push','origin',commit+':free-github-static-20261010'],cwd=ROOT,check=True)
     print(json.dumps({k:v for k,v in evidence.items() if k!='production_sha256'},indent=2))
 if __name__=='__main__':main()

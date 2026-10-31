@@ -1,0 +1,226 @@
+name: Refresh isolated current B preview
+on:
+  schedule:
+    - cron: '17 * * * *'
+  workflow_dispatch:
+    inputs:
+      validated_run:
+        description: 'Optional successful exact-source mm-current-live-preview run to publish without recomputation'
+        required: false
+        type: string
+permissions:
+  contents: write
+  actions: read
+  pages: write
+  id-token: write
+env:
+  PREVIEW_SOURCE_SHA: 03d5c4d4777b44bc1d37884a1cf4dde106b45cab
+  PREVIEW_UI_SHA: 7d05acd6544468a00905e27db5862ddd81f936c9
+jobs:
+  verified:
+    if: ${{ inputs.validated_run != '' }}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ env.PREVIEW_UI_SHA }}
+      - name: Require a completed exact-source numerical computation
+        env:
+          GH_TOKEN: ${{ github.token }}
+          VALIDATED_RUN: ${{ inputs.validated_run }}
+        run: python scripts/verify_b_publication_artifact.py --run "$VALIDATED_RUN" --source "$PREVIEW_SOURCE_SHA"
+  current:
+    if: ${{ inputs.validated_run == '' }}
+    uses: pdamkier-del/fpl-analytics-app/.github/workflows/mm-current-live-preview.yml@03d5c4d4777b44bc1d37884a1cf4dde106b45cab
+    with:
+      source_ref: 03d5c4d4777b44bc1d37884a1cf4dde106b45cab
+      validated_history_run: '40209861386'
+    permissions:
+      contents: read
+      actions: read
+  preview:
+    needs: [current, verified]
+    if: ${{ always() && !cancelled() && (needs.current.result == 'success' || needs.verified.result == 'success') }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    concurrency:
+      group: fpl-pages-publication
+      cancel-in-progress: false
+    environment:
+      name: github-pages
+      url: https://pdamkier-del.github.io/fpl-analytics-app/mm-preview/app/transfers-classic.html
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ env.PREVIEW_UI_SHA }}
+          fetch-depth: 0
+      - name: Require live isolated B compute capability
+        run: |
+          python - <<'PY'
+          import json,urllib.request
+          with urllib.request.urlopen('https://fpl-analytics-private-manager.onrender.com/health',timeout=90)as response:health=json.load(response)
+          assert health.get('supports_B_snapshot_policy')is True, 'B snapshot backend must be deployed first'
+          assert health.get('supports_unified_B_chain')is True, 'Unified B backend must be deployed before switching app forecasts'
+          assert health.get('preview_worker_sha256')=='b3e67026e6c57e1c764d76bc2bf999ab7f4bcbaa739e3ab198ebe7fd5a95dbb7', 'Tested standalone B worker must be deployed'
+          assert health.get('runtime')=='original_locked_python'and health.get('locked_model_active')is False
+          PY
+      - uses: actions/download-artifact@v4
+        with:
+          name: mm-current-live-preview
+          path: .mm-preview-evidence
+          run-id: ${{ inputs.validated_run || github.run_id }}
+          github-token: ${{ github.token }}
+      - uses: actions/download-artifact@v4
+        with:
+          name: current-B-origin-input-evidence
+          path: .B-origin-evidence
+          run-id: ${{ inputs.validated_run || github.run_id }}
+          github-token: ${{ github.token }}
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Require unchanged model mathematics and integrate reviewed UI only
+        env:
+          PYTHONPATH: src:scripts:.
+        run: |
+          git diff --exit-code "$PREVIEW_SOURCE_SHA" -- src model scripts/gk_joint_bridge.py scripts/gk_solo_role.py scripts/pm_preview_distributions.py scripts/run_joint_gk_preview.py scripts/mm_candidate_forecast.py scripts/mm_locked_bridge.py scripts/b_chain_contract.py scripts/b_preview_ts.py scripts/publish_mm_preview.py
+          python scripts/check_snapshot_adapter.py
+          pip install -r requirements-model-checkpoint.txt -r requirements-model-tests.txt requests tabulate==0.10.0
+          python scripts/restore_core_checkpoint.py
+          cp app/mm-preview/desktop-probabilities.css "$RUNNER_TEMP/reviewed-probabilities.css"
+          cp app/mm-preview/planner-experience.js "$RUNNER_TEMP/reviewed-planner-experience.js"
+          cp app/mm-preview/dashboard-team-news.js "$RUNNER_TEMP/reviewed-team-news.js"
+          cp app/mm-preview/latest-snapshot.js "$RUNNER_TEMP/reviewed-latest-snapshot.js"
+          cp app/mm-preview/existing-app-adapter.js "$RUNNER_TEMP/reviewed-existing-adapter.js"
+          cp app/mm-preview/gk/contract.js "$RUNNER_TEMP/reviewed-GK-contract.js"
+          cp app/mm-preview/desktop-probabilities.js "$RUNNER_TEMP/reviewed-probabilities.js"
+          cp app/mm-preview/player-match-card.js "$RUNNER_TEMP/reviewed-player-match-card.js"
+          cp app/mm-preview/transfers-workspace.js "$RUNNER_TEMP/reviewed-transfers-workspace.js"
+          cp app/mm-preview/transfers-workspace.css "$RUNNER_TEMP/reviewed-transfers-workspace.css"
+          cp app/mm-preview/transfer-result-summary.js "$RUNNER_TEMP/reviewed-transfer-result-summary.js"
+          cp app/mm-preview/player-match-context.js "$RUNNER_TEMP/reviewed-player-match-context.js"
+          cp app/mm-preview/season-history-explorer.js "$RUNNER_TEMP/reviewed-season-history-explorer.js"
+          cp app/mm-preview/season-history-explorer.css "$RUNNER_TEMP/reviewed-season-history-explorer.css"
+          cp app/mm-preview/season-history-links.js "$RUNNER_TEMP/reviewed-season-history-links.js"
+          cp app/mm-preview/weekly-review.js "$RUNNER_TEMP/reviewed-weekly-review.js"
+          cp app/mm-preview/weekly-review.css "$RUNNER_TEMP/reviewed-weekly-review.css"
+          cp app/mm-preview/player-season-review.js "$RUNNER_TEMP/reviewed-player-season-review.js"
+          cp app/mm-preview/team-season-review.js "$RUNNER_TEMP/reviewed-team-season-review.js"
+          cp app/mm-preview/season-team-comparison.js "$RUNNER_TEMP/reviewed-season-team-comparison.js"
+          cp -R .mm-preview-evidence/. app/mm-preview/
+          cp "$RUNNER_TEMP/reviewed-season-team-comparison.js" app/mm-preview/season-team-comparison.js
+          cp "$RUNNER_TEMP/reviewed-team-season-review.js" app/mm-preview/team-season-review.js
+          cp "$RUNNER_TEMP/reviewed-player-season-review.js" app/mm-preview/player-season-review.js
+          cp "$RUNNER_TEMP/reviewed-weekly-review.js" app/mm-preview/weekly-review.js
+          cp "$RUNNER_TEMP/reviewed-weekly-review.css" app/mm-preview/weekly-review.css
+          cp "$RUNNER_TEMP/reviewed-player-match-context.js" app/mm-preview/player-match-context.js
+          cp "$RUNNER_TEMP/reviewed-season-history-explorer.js" app/mm-preview/season-history-explorer.js
+          cp "$RUNNER_TEMP/reviewed-season-history-explorer.css" app/mm-preview/season-history-explorer.css
+          cp "$RUNNER_TEMP/reviewed-season-history-links.js" app/mm-preview/season-history-links.js
+          cp "$RUNNER_TEMP/reviewed-transfers-workspace.js" app/mm-preview/transfers-workspace.js
+          cp "$RUNNER_TEMP/reviewed-transfers-workspace.css" app/mm-preview/transfers-workspace.css
+          cp "$RUNNER_TEMP/reviewed-transfer-result-summary.js" app/mm-preview/transfer-result-summary.js
+          cp "$RUNNER_TEMP/reviewed-probabilities.js" app/mm-preview/desktop-probabilities.js
+          cp "$RUNNER_TEMP/reviewed-player-match-card.js" app/mm-preview/player-match-card.js
+          cp "$RUNNER_TEMP/reviewed-existing-adapter.js" app/mm-preview/existing-app-adapter.js
+          cp "$RUNNER_TEMP/reviewed-GK-contract.js" app/mm-preview/gk/contract.js
+          cp "$RUNNER_TEMP/reviewed-latest-snapshot.js" app/mm-preview/latest-snapshot.js
+          cp "$RUNNER_TEMP/reviewed-probabilities.css" app/mm-preview/desktop-probabilities.css
+          cp "$RUNNER_TEMP/reviewed-planner-experience.js" app/mm-preview/planner-experience.js
+          cp "$RUNNER_TEMP/reviewed-team-news.js" app/mm-preview/dashboard-team-news.js
+          python -c "import json;from pathlib import Path;from publish_unified_b_chain import synchronize_audit;synchronize_audit(Path('app/mm-preview/current'),json.loads(Path('app/mm-preview/current/forecast.json').read_text()))"
+          python scripts/collect_player_match_context.py
+          python scripts/build_preview_history_archive.py
+          python analysis/audit_history_archive.py --archive app/mm-preview/history-archive --db work/core.sqlite3 --out unified-history-archive-reconciliation.json
+          python analysis/audit_player_chain.py --capture app/mm-preview --inputs .B-origin-evidence/work/current-B-inputs --out app/mm-preview/input-audit --require-source-linkage
+          python scripts/collect_dashboard_news.py
+          git fetch origin free-github-static-20261010
+          PYTHONPATH=src:scripts:.:analysis python scripts/weekly_model_review.py --ref FETCH_HEAD
+          python scripts/integrate_desktop_probabilities.py
+          python analysis/archive_prospective_player_forecast.py --capture app/mm-preview --out app/mm-preview/input-audit
+          cmp .mm-preview-evidence/current/forecast.json app/mm-preview/current/forecast.json
+          cmp .mm-preview-evidence/gk/forecast.json app/mm-preview/gk/forecast.json
+          cmp .mm-preview-evidence/gk/gk-mm.json app/mm-preview/gk/gk-mm.json
+      - name: Verify actual existing desktop and mobile UI before publication
+        env:
+          PYTHONPATH: src:scripts:.
+          OPENBLAS_NUM_THREADS: '1'
+        run: |
+          python -m pytest -q tests
+          node tests/test_existing_B_adapter.js
+          node tests/test_B_preview_contract.js
+          node tests/test_joint_gk_contract.js
+          node tests/test_season_team_comparison.js
+          npm install --prefix "$RUNNER_TEMP/fpl-browser" playwright@1.56.1
+          export NODE_PATH="$RUNNER_TEMP/fpl-browser/node_modules"
+          export BROWSER_PATH="$(command -v google-chrome)"
+          export DESKTOP_URL=http://127.0.0.1:18097/mm-preview/app/
+          export DASHBOARD_TEST_FIXTURE="$RUNNER_TEMP/unified-private-browser-fixture.json"
+          python analysis/prepare_dashboard_news_test.py --snapshot --forecast app/mm-preview/current/forecast.json --out "$DASHBOARD_TEST_FIXTURE"
+          python -m http.server 18097 --bind 127.0.0.1 --directory app > "$RUNNER_TEMP/unified-browser-http.log" 2>&1 &
+          preview_http_pid=$!
+          trap 'kill "$preview_http_pid"' EXIT
+          node analysis/verify_desktop_probabilities.cjs > unified-desktop-browser.json
+          node analysis/verify_player_match_card.cjs > unified-player-match-card-browser.json
+          node analysis/verify_penalty_split_card.cjs > unified-penalty-split-browser.json
+          node analysis/verify_player_input_audit.cjs > unified-player-input-audit-browser.json
+          node analysis/verify_player_match_context.cjs > unified-player-match-context-browser.json
+          node analysis/verify_history_archive.cjs > unified-history-archive-browser.json
+          node analysis/verify_unified_chain.cjs > unified-identity-browser.json
+          node analysis/verify_latest_snapshot.cjs > unified-latest-snapshot-browser.json
+          node analysis/verify_transfer_result_summary.cjs > unified-transfer-result-browser.json
+          node analysis/verify_transfer_chip_advice.cjs > unified-transfer-chip-browser.json
+          node analysis/verify_weekly_model_review.cjs > unified-weekly-review-browser.json
+          node analysis/verify_season_comparisons.cjs > unified-season-comparisons-browser.json
+          node analysis/verify_current_season_backtest.cjs > unified-season-backtest-browser.json
+          node - <<'JS' > unified-live-readiness-browser.json
+          const {chromium}=require('playwright'),assert=require('node:assert/strict');
+          (async()=>{
+            const browser=await chromium.launch({executablePath:process.env.BROWSER_PATH,headless:true,args:['--no-sandbox']});
+            try{
+              const page=await browser.newPage();let posts=0;
+              await page.route('**/plans**',r=>{if(r.request().method()==='POST'){posts++;return r.abort();}return r.continue();});
+              await page.goto(process.env.DESKTOP_URL+'transfers-classic.html',{waitUntil:'networkidle'});
+              await page.locator('#planner-context').waitFor();
+              const result=await page.evaluate(()=>{const s=FplManagerClient.snapshot();return {usable:s.usable,reason:s.reason,forecast_sha256:s.forecast.forecast_sha256,model:s.forecast.model,model_asof:s.forecast.data_asof};});
+              assert.equal(result.model,'B-MM-PM-TS-v1');assert.equal(result.usable,true,JSON.stringify(result));assert.equal(posts,0);
+              assert.match(await page.locator('#latest-snapshot-info').innerText(),/Prognose og priser/);
+              console.log(JSON.stringify({...result,snapshot_window_usable:true,real_private_posts:posts},null,2));
+            }finally{await browser.close();}
+          })().catch(e=>{console.error(e);process.exit(1)});
+          JS
+          python - <<'PY'
+          import json,os
+          from pathlib import Path
+          f=json.loads(Path('app/mm-preview/current/forecast.json').read_text())
+          Path('app/mm-preview/chain-publication-sources.json').write_text(json.dumps(dict(model_source=os.environ['PREVIEW_SOURCE_SHA'],ui_source=os.environ['PREVIEW_UI_SHA'],forecast_sha256=f['forecast_sha256'],publication_run=os.environ['GITHUB_RUN_ID'],numerical_forecasts_byte_identical=True,production_model_unchanged=True),sort_keys=True)+'\n')
+          PY
+      - uses: actions/upload-artifact@v4
+        with:
+          name: unified-B-browser-validation
+          path: |
+            unified-*-browser.json
+            unified-history-archive-reconciliation.json
+          retention-days: 90
+      - uses: actions/upload-artifact@v4
+        with:
+          name: B-prospective-player-ledger
+          path: |
+            app/mm-preview/input-audit/prospective-ledger.jsonl.gz
+            app/mm-preview/input-audit/prospective-ledger-manifest.json
+          retention-days: 90
+      - name: Publish preview alone; preserve every production asset
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: python scripts/publish_mm_preview.py
+      - uses: actions/configure-pages@v5
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: .mm-preview-site
+          name: mm-current-preview-pages-${{ github.run_id }}
+      - uses: actions/deploy-pages@v4
+        with:
+          artifact_name: mm-current-preview-pages-${{ github.run_id }}

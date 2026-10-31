@@ -1,0 +1,84 @@
+{
+  "scope": "outfield GW22-38; analytic probabilities of the exact B mean-preserving minute kernel",
+  "metrics": [
+    {
+      "season": "2024-25",
+      "event": "0",
+      "rows": 11722,
+      "baseline_brier": 0.08544751124869382,
+      "candidate_brier": 0.08535533657029432,
+      "delta": -9.217467839949327e-05,
+      "fixture_bootstrap95": [
+        -0.00016942799644933037,
+        -1.859633493162627e-05
+      ]
+    },
+    {
+      "season": "2024-25",
+      "event": "60",
+      "rows": 11722,
+      "baseline_brier": 0.08459006560640314,
+      "candidate_brier": 0.08446829019067872,
+      "delta": -0.00012177541572442226,
+      "fixture_bootstrap95": [
+        -0.00025761735111099143,
+        6.522964786067418e-06
+      ]
+    },
+    {
+      "season": "2024-25",
+      "event": "90",
+      "rows": 11722,
+      "baseline_brier": 0.09017583489280598,
+      "candidate_brier": 0.09020580315416742,
+      "delta": 2.9968261361450408e-05,
+      "fixture_bootstrap95": [
+        -3.074366350646439e-05,
+        8.789798154206571e-05
+      ]
+    },
+    {
+      "season": "2025-26",
+      "event": "0",
+      "rows": 12377,
+      "baseline_brier": 0.07846832568648536,
+      "candidate_brier": 0.07832661897120403,
+      "delta": -0.0001417067152813177,
+      "fixture_bootstrap95": [
+        -0.0002566717790586195,
+        -2.8424703081497516e-05
+      ]
+    },
+    {
+      "season": "2025-26",
+      "event": "60",
+      "rows": 12377,
+      "baseline_brier": 0.07888751546553129,
+      "candidate_brier": 0.07881510381523973,
+      "delta": -7.241165029152947e-05,
+      "fixture_bootstrap95": [
+        -0.00024583382818036266,
+        9.901549362645106e-05
+      ]
+    },
+    {
+      "season": "2025-26",
+      "event": "90",
+      "rows": 12377,
+      "baseline_brier": 0.08348038890095388,
+      "candidate_brier": 0.08349377881009869,
+      "delta": 1.3389909144778134e-05,
+      "fixture_bootstrap95": [
+        -0.00010060285287766884,
+        0.000127951631316799
+      ]
+    }
+  ],
+  "independent_certification": false,
+  "limitations": [
+    "Reused historical research periods and source-clock proxies",
+    "Discrete interval model mass often exceeds 80%; empirical coverage is reported separately",
+    "This diagnostic does not validate parameter uncertainty or confidence intervals for xP",
+    "GK calibration is separate; no sparse keeper subgroup is called certified"
+  ]
+}

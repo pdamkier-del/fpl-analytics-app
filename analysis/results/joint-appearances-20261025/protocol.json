@@ -1,0 +1,15 @@
+{
+  "written_before_candidate_scoring": true,
+  "baseline": "Existing B shared role lineups, mean-preserving minutes, joint GK, separated NP and conditional penalties; exact saved historical xP replay required",
+  "candidate": "Shared maximum five bench appearances including goalkeeper replacement. Preserve original role/start mixture and conditional reported-duration laws. Dependent rounding preserves conditional cameo marginals when their sum fits the remaining budget. Otherwise proportionally reduce that conditional vector; never increase a cameo chance.",
+  "fixtures": 341,
+  "seasons": ["2024-25", "2025-26"],
+  "gameweeks": "22-38; reused research periods, not independent holdout",
+  "draws_per_arm": 400,
+  "fitted_parameters_added": 0,
+  "gates": {"max_minute_mae_increase_each_season": 0.05, "max_absolute_minute_bias_increase_each_season": 0.25, "max_xp_mae_increase_each_season": 0.005, "max_absolute_xp_bias_increase_each_season": 0.02},
+  "promotion": "Never from this partial candidate alone: no paired exit process, no full active-player coverage, no validated reported-clock conversion, no three-window process. If numerical gate fails, retain the baseline. Do not tune to individual players or relax gates.",
+  "diagnosis": "Signed start-selection, starter-duration, cameo-selection and cameo-duration terms sum to each outfield xM error. Absolute component sizes are not additive shares of minute MAE. GK q is a replacement weight, so exclude keepers from this decomposition.",
+  "reported_outfield_minutes_required_to_sum_900": false,
+  "active_model_changed": false
+}

@@ -1,0 +1,48 @@
+name: Cancel exact stalled B preview deployment
+on:
+  workflow_dispatch:
+permissions:
+  actions: write
+  deployments: write
+  contents: read
+jobs:
+  cancel:
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    timeout-minutes: 3
+    steps:
+      - name: Reject only the identified stuck duplicate; retain the published preview
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          python - <<'PY'
+          import os,json,urllib.request,urllib.error,base64,re
+          base='https://api.github.com/repos/pdamkier-del/fpl-analytics-app'
+          def call(path,body=None):
+              request=urllib.request.Request(base+path,data=json.dumps(body).encode()if body is not None else None,headers={'Authorization':'Bearer '+os.environ['GH_TOKEN'],'Accept':'application/vnd.github+json','Content-Type':'application/json'})
+              try:
+                  with urllib.request.urlopen(request,timeout=30)as response:return json.load(response)
+              except urllib.error.HTTPError as error:
+                  detail=json.loads(error.read())
+                  print('GitHub response:',error.code,detail.get('message'),detail.get('errors',[]),flush=True)
+                  raise
+          run_id='40907419458'
+          run=call('/actions/runs/'+run_id)
+          assert run['head_branch']=='main'and run['path']=='.github/workflows/mm-current-preview-publication.yml'and run['event']=='workflow_dispatch'
+          if run['status']!='waiting':
+              print('Identified run is no longer waiting; nothing changed')
+              raise SystemExit(0)
+          workflow=base64.b64decode(call('/contents/.github/workflows/mm-current-preview-publication.yml?ref='+run['head_sha'])['content']).decode()
+          assert re.findall(r'^  PREVIEW_UI_SHA: (\w+)',workflow,re.M)==['7d50958f6d4c830850ee2096e9877bb08b42c4c2']
+          pending=call('/actions/runs/'+run_id+'/pending_deployments')
+          assert len(pending)==1 and pending[0]['environment']['name']=='github-pages'and pending[0]['wait_timer']==0 and not pending[0]['reviewers']
+          try:
+              call('/actions/runs/'+run_id+'/pending_deployments',{'environment_ids':[pending[0]['environment']['id']],'state':'rejected','comment':'Discard exact stalled duplicate; keep the verified published preview and the identical fully guarded retry.'})
+          except urllib.error.HTTPError as error:
+              if error.code!=422:raise
+              deployment=call('/deployments/7417414454')
+              assert deployment['sha']==run['head_sha']and deployment['ref']=='main'and deployment['environment']=='github-pages'
+              call('/deployments/7417414454/statuses',{'state':'failure','auto_inactive':False,'log_url':run['html_url'],'description':'Abandoned exact stalled duplicate; verified published preview retained.'})
+              print('Exact stalled deployment marked failed; no other deployment changed.')
+          print('No environment protection, code, model or published asset changed.')
+          PY

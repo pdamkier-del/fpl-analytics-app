@@ -1,0 +1,138 @@
+{
+  "schema": "B-current-season-backtest-index-v1",
+  "season": "2026-27",
+  "scope": "Retrospective fixed B policy; later-selected model, reused diagnostic, not original forecasts or independent holdout.",
+  "model_source": "03d5c4d4777b44bc1d37884a1cf4dde106b45cab",
+  "minimum_prior_team_matches": 5,
+  "minimum_history_source_sha256": "e42626f1be39051faa0464c325e39b9e350626c6d6dc4eef4966736efde99fac",
+  "warmup_guard": "fpl_v1_1_model.deadline_keeper.keeper_saves_at_deadline enforces selected protocol min_history_matches",
+  "weeks": [
+    {
+      "gw": 1,
+      "status": "unsupported_model_warmup",
+      "minimum_prior_team_matches": 5,
+      "maximum_prior_league_matches_per_team": 0,
+      "reason": "Den uændrede målmands-/redningsmodel kræver mindst 5 tidligere ligakampe pr. hold. Der bruges ingen senere kampe som opvarmning.",
+      "roster_snapshot": "2026-08-21T13:00:00+00:00",
+      "archived_players": 599,
+      "roster_source_sha256": "746b833e3e2b9d3cb700ae2c74075896bd8df8fa0627f85512b06f9f7a9bffd2",
+      "roster_source_url": "https://raw.githubusercontent.com/Randdalf/fplcache/main/cache/2026/8/21/1300.json.xz"
+    },
+    {
+      "gw": 2,
+      "status": "unsupported_model_warmup",
+      "minimum_prior_team_matches": 5,
+      "maximum_prior_league_matches_per_team": 1,
+      "reason": "Den uændrede målmands-/redningsmodel kræver mindst 5 tidligere ligakampe pr. hold. Der bruges ingen senere kampe som opvarmning.",
+      "roster_snapshot": "2026-08-28T11:03:00+00:00",
+      "archived_players": 616,
+      "roster_source_sha256": "81a8a48c51df35ea4abc07e7f4c1c16157521c998ef193f738d82ace19e8760b",
+      "roster_source_url": "https://raw.githubusercontent.com/Randdalf/fplcache/main/cache/2026/8/28/1103.json.xz"
+    },
+    {
+      "gw": 3,
+      "status": "unsupported_model_warmup",
+      "minimum_prior_team_matches": 5,
+      "maximum_prior_league_matches_per_team": 2,
+      "reason": "Den uændrede målmands-/redningsmodel kræver mindst 5 tidligere ligakampe pr. hold. Der bruges ingen senere kampe som opvarmning.",
+      "roster_snapshot": "2026-09-04T16:10:00+00:00",
+      "archived_players": 652,
+      "roster_source_sha256": "ec51db294ce31b56a4f4a567ac9921f2a628aaa21c3fa8b1ebd2037c6a0297d3",
+      "roster_source_url": "https://raw.githubusercontent.com/Randdalf/fplcache/main/cache/2026/9/4/1610.json.xz"
+    },
+    {
+      "gw": 4,
+      "status": "unsupported_model_warmup",
+      "minimum_prior_team_matches": 5,
+      "maximum_prior_league_matches_per_team": 3,
+      "reason": "Den uændrede målmands-/redningsmodel kræver mindst 5 tidligere ligakampe pr. hold. Der bruges ingen senere kampe som opvarmning.",
+      "roster_snapshot": "2026-09-12T10:31:00+00:00",
+      "archived_players": 656,
+      "roster_source_sha256": "6831fb91f4681f7b259112f61a8a31daaec163099fca84be08902a591e85e9b4",
+      "roster_source_url": "https://raw.githubusercontent.com/Randdalf/fplcache/main/cache/2026/9/12/1031.json.xz"
+    },
+    {
+      "gw": 5,
+      "status": "unsupported_model_warmup",
+      "minimum_prior_team_matches": 5,
+      "maximum_prior_league_matches_per_team": 4,
+      "reason": "Den uændrede målmands-/redningsmodel kræver mindst 5 tidligere ligakampe pr. hold. Der bruges ingen senere kampe som opvarmning.",
+      "roster_snapshot": "2026-09-18T16:14:00+00:00",
+      "archived_players": 659,
+      "roster_source_sha256": "56492287d85d4e92b5598b7d927140a3dd0279818b130596b540bf7107321524",
+      "roster_source_url": "https://raw.githubusercontent.com/Randdalf/fplcache/main/cache/2026/9/18/1614.json.xz"
+    },
+    {
+      "gw": 6,
+      "status": "replayed",
+      "file": "gw6.json.gz",
+      "sha256": "04f65bda6a58e6bec0767a4f0a159e163ebbc1245e59377dd25494f425b98f20",
+      "audit_file": "gw6-audit.json.gz",
+      "audit_sha256": "c280e8b353fc6efbeed736d1cfc39726efd8d25c49da39555cf0459fe8bf7ae0",
+      "cutoff": "2026-10-10T07:35:11.016234+00:00",
+      "generated_at": "2026-10-27T10:03:45.426529+00:00",
+      "registered_players": 667,
+      "source_hashes": {
+        "bootstrap.json": "8bcfbe452b0d63a58a5b3e15bd671516e51294ca8f00045a4204bfc6bfd1dd28",
+        "fixtures.json": "aeafdfedf5180b2d558317eee6ca03e7d5d1916e35fb1607bc9d0b17347beddb",
+        "history.csv.gz": "7749a3dbfceadc028eaad41f6262a4111cd4563de7c6045071bdc779c2a7df16",
+        "pm.csv.gz": "47c214f7f4a87bb11e6a7eb9d7d921857920933866af2e3e94cc4ea1d3743678",
+        "provenance.json": "6a624b61b8cbec1e2c453aa4ea0924892efc632674f38deae0b542f78f977b31",
+        "roles.csv.gz": "551e4f7f1c29c5f6aa10a22f281c3a7bc2739fd2ea5424f91fa7bde9ab1b15a5",
+        "target.csv.gz": "6fd9601f80a6a9ad38c686a70ffdea60ca666637b97e2bb6c799462eea9e1f78"
+      }
+    },
+    {
+      "gw": 7,
+      "status": "replayed",
+      "file": "gw7.json.gz",
+      "sha256": "9c907bf523b0511127883c4cf63309b7b17e652ffaac4a1a127431b441a7ad9c",
+      "audit_file": "gw7-audit.json.gz",
+      "audit_sha256": "8aaf121409dbda71b26c8e54103f5350c253e27fe04123f46e137c98edd028a7",
+      "cutoff": "2026-10-17T06:55:48.510321+00:00",
+      "generated_at": "2026-10-27T10:13:27.425341+00:00",
+      "registered_players": 667,
+      "source_hashes": {
+        "bootstrap.json": "ebd22bc997a247dafac93463a189f3326a6a221434a8f9dde98429af6a787dc4",
+        "fixtures.json": "bfa3d197fbe425d8384aaa898c5ec28f370402c12cdcfecacafe5b73c6bc2ff6",
+        "history.csv.gz": "7749a3dbfceadc028eaad41f6262a4111cd4563de7c6045071bdc779c2a7df16",
+        "pm.csv.gz": "0eeb06d34f43965d902a9ab262ce1ca1895f4fff034d65f5373fd229ea9104b4",
+        "provenance.json": "c38c0137266dd31ab7049a39026e104b4834182112132ac9e4081675350fbba9",
+        "roles.csv.gz": "487b7e5a0435b102ea40128aa6e83c662dae3ddaf88a568e71103d8797136b5d",
+        "target.csv.gz": "401b91df33f5cddb9e11cabeab62657e5cad692a88fe548d078637072f47fb4c"
+      },
+      "release_witness": "gw7-source-release.json",
+      "release_witness_sha256": "c066b5f95adb8062f4b60b8bd775a24f522c728b245f7aaf86e0fc34037ccf5b"
+    },
+    {
+      "gw": 8,
+      "status": "replayed",
+      "file": "gw8.json.gz",
+      "sha256": "e270f3a32dac19409ff6b6c3d04b9f442523ede1c9fbb24cdd21a487b22a24fc",
+      "audit_file": "gw8-audit.json.gz",
+      "audit_sha256": "8b16f1bfe2c9a3becf7e7a46ee962ed0cc4a72371c4153c84efcaf4511a35fdb",
+      "cutoff": "2026-10-23T13:24:39.808334+00:00",
+      "generated_at": "2026-10-27T10:15:30.911452+00:00",
+      "registered_players": 668,
+      "source_hashes": {
+        "bootstrap.json": "d6357b2c1b58a4f932d43a36eecb010e37af9cda3b838a72e4f9ad56e749bedd",
+        "fixtures.json": "a14e317c2916a609f62bd0a5d623f30dd3b447d4c2f1ba5cb03a775433abd82b",
+        "history.csv.gz": "7749a3dbfceadc028eaad41f6262a4111cd4563de7c6045071bdc779c2a7df16",
+        "pm.csv.gz": "03b368d6d11eb2029e0e55562d448de7b2e3c71eabb9f8265965dae8969174a6",
+        "provenance.json": "acf9c95b16c768e1bb04aa315ee5ff2e961fedd5ffa2f3aba6c873f37fa32a2b",
+        "roles.csv.gz": "34548d9a416df7281f57fa3dc86715aab301d61c7b4ab85e3793ac4bb794f05b",
+        "target.csv.gz": "c5b859041a3294e7ae80d3961897a9a90f8468240d2d3e99af18885ade9fa3ec"
+      },
+      "release_witness": "gw8-source-release.json",
+      "release_witness_sha256": "d999af2bcec5c272a2d2366b902cae73b494cde6364655a1f0269a13b84b4445"
+    }
+  ],
+  "notes": [
+    "No future match is used as warm-up for GW1–5.",
+    "Predeadline input packs verified for GW6–8; fixed B MM, NP/penalty head, joint roles and physical normal-match timeline reused.",
+    "Every actual input cutoff is displayed. Verified later predeadline release capsules are used where available; there is no invented deadline timestamp.",
+    "History availability uses kickoff+3/4h proxies. Some historical role reconstructions were built later; retrospective provider revisions cannot be fully excluded.",
+    "Per-player analytic MM and PM minute expectations agree; realized FPL-minute totals are not forced to physical budgets.",
+    "Production, private teams and prospective accuracy series are unchanged."
+  ]
+}
