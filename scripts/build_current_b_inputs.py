@@ -155,6 +155,18 @@ def build(out,role_cache,ledger_path=None):
     if target.projection_infeasible.any():raise ValueError('Current availability cannot support a legal expected XI')
     target=target.drop(columns=[c for c in ['history_n','last_started','team_rest_days','minutes_14d'] if c in target])
     target=prior_features(target,obs,old)
+    from b_physical_workload import current_ledger,historical_ledger,features as physical_features,VERSION as PHYSICAL_VERSION
+    from b_horizon_eligibility import annotate as horizon_eligibility
+    games_source=[json.loads(x)for x in gzip.open(WORK/'match_actuals.jsonl.gz','rt')]
+    events_source=[json.loads(x)for x in gzip.open(WORK/'player_match_events.jsonl.gz','rt')]
+    physical=current_ledger(obs,events_source,games_source,cut)
+    target=physical_features(target,physical)
+    target=horizon_eligibility(target,bootstrap,manifest['bootstrap_observed_at'])
+    from b_medical_return import episodes as medical_episodes,annotate as medical_features
+    return_training=medical_episodes(ROOT,cut)
+    target=medical_features(target,bootstrap,manifest['bootstrap_observed_at'],return_training)
+    write_frame(out/'medical-return-training.csv.gz',return_training)
+    historical_physical,physical_coverage=historical_ledger(ROOT)
     provenance=dict(upstream_variant='role_chance_return_duration',features=NUM,data_at=cut.isoformat(),
         origin_deadline=manifest['deadline'],bootstrap_observed_at=manifest['bootstrap_observed_at'],
         fixtures_observed_at=fixture_at,bootstrap_sha256=hashlib.sha256(canonical(bootstrap)).hexdigest(),
@@ -162,11 +174,12 @@ def build(out,role_cache,ledger_path=None):
         source_manifest_sha256=sha(WORK/'source_manifest.json'),source_workflow=receipt['workflow'],
         role_model='PR4 bands_h42.0_C1.0',role_reference_parity=meta['reference_parity'],
         missing_preinjury_latent_state=not len(old),
-        source_scopes={'explicit_workload_and_last_start':'Premier League only',
+        physical_feature_version=PHYSICAL_VERSION,physical_workload_coverage=physical_coverage,
+        source_scopes={'explicit_workload_and_last_start':'PL role/last-start; verified all-competition physical rest and 7/14-day load',
                        'detailed_tactical_role_ledger':'verified all-competition starters',
                        'structured_coach_statements':'not implemented'},
         limitations=['Historical postmatch times retain documented kickoff+3/4h proxies.',
-            'Only verified PL histories enter B workload; other-competition load remains outside this fixed model.',
+            'Verified all-competition physical ledger; historical missing cup coverage is an explicit PL-only fallback, not zero-filled matches.',
             'First current-season ledger has no invented prior forecast state; unobserved pre-injury duration remains unavailable.'])
     # PM's sources were captured over the collection interval. The completion
     # timestamp can equal cutoff; it is a pre-computation source receipt, not a
@@ -176,6 +189,9 @@ def build(out,role_cache,ledger_path=None):
         raise ValueError('Need actual fixture acquisition clock before cutoff')
     target=assemble(skeleton,mapping,target,provenance)
     history=historical_B_training();history=history[pd.to_datetime(history.known_at,utc=True).lt(cut)]
+    history=physical_features(history,historical_physical)
+    write_frame(out/'physical-ledger.csv.gz',physical)
+    write_frame(out/'historical-physical-ledger.csv.gz',historical_physical)
     for name,frame in [('target.csv.gz',target),('history.csv.gz',history),('pm.csv.gz',pm)]:write_frame(out/name,frame)
     classified=pd.read_csv(BASE/'classified_starters.csv.gz');games={g['match_id']:g for g in [json.loads(x) for x in gzip.open(WORK/'match_actuals.jsonl.gz','rt')]}
     classified['season']='2026-27';classified['fixture_uuid']=classified.match_id;classified['kickoff']=classified.match_id.map(lambda x:games[x]['kickoff_time'])

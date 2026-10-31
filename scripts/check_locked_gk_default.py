@@ -19,6 +19,10 @@ REVIEWED={
     'src/fpl_v1_1_model/fixture_input.py':'2a738326f18355c9515d410fd5ca907725531c22475175ec40560738be673037',
 }
 
+B_ONLY_ADDITIONS={
+    'src/fpl_v1_1_model/b_event_simulator.py':'261ab1cabafcd6146125c1c499313d275e6019f5a296780ec92f7ee7df37a68b',
+}
+
 
 def require_reviewed_default_sources(root=ROOT):
     for name,digest in REVIEWED.items():
@@ -30,7 +34,9 @@ def check():
     source=subprocess.check_output(['git','show',REFERENCE+':src/fpl_v1_1_model/joint_simulator.py'],text=True)
     changed=subprocess.check_output(['git','diff','--name-status',REFERENCE,'--','src'],text=True).splitlines()
     assert all(line.split('\t')[-1]in REVIEWED or
-        (line.startswith('A\t')and line.split('\t')[-1].startswith('src/fpl_v1_1_model/experimental_'))for line in changed),changed
+        (line.startswith('A\t')and(line.split('\t')[-1].startswith('src/fpl_v1_1_model/experimental_')or line.split('\t')[-1]in B_ONLY_ADDITIONS))for line in changed),changed
+    for name,digest in B_ONLY_ADDITIONS.items():
+        assert hashlib.sha256((ROOT/name).read_bytes()).hexdigest()==digest, 'Unreviewed B event implementation: '+name
     legacy=types.ModuleType('fpl_v1_1_model._gk_legacy_validation');legacy.__package__='fpl_v1_1_model'
     sys.modules[legacy.__name__]=legacy;exec(source,legacy.__dict__)
     def fixture(m):

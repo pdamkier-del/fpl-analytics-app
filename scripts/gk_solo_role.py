@@ -149,9 +149,9 @@ def load_policy(root,history=None):
 
 
 def mark_horizon_absences(predicted,bootstrap):
-    """Carry explicit season-long loan exclusions through all forecast GWs."""
-    import re
-    unavailable={p['id']for p in bootstrap['elements']if p['element_type']==1 and p['status']=='u'and 'loan'in p.get('news','').lower()and re.search(r'(rest|remainder|end).{0,20}season|season.long',p.get('news',''),re.I)}
+    """Keep persistent exclusions in GK pools and every outfield future XI."""
+    from b_horizon_eligibility import departure_kind
+    unavailable={p['id']for p in bootstrap['elements']if departure_kind(p)in ('permanent_exit','season_loan')}
     result=predicted.copy()
-    result['role_horizon_absence']=result.pos.eq('GK')&result.fpl_element.isin(unavailable)
+    result['role_horizon_absence']=result.fpl_element.isin(unavailable)|result.get('role_horizon_absence',pd.Series(False,index=result.index)).fillna(False)
     return result

@@ -22,7 +22,7 @@ ROOT=Path(__file__).resolve().parents[1]
 KEY=['fixture_uuid','player_uuid']
 
 
-def run(frame,predicted,obs,*,season,draws=400,incomplete_teams=(),seed=93000000,paired=False,offsets=None,role_policy=None,paired_v1=None,distributions=False,chain=False,catalogue=None,assignment_history=None,assignment_strength=None,conditional_penalties=False,ordinary_goal_weights=None,physical_minutes=False):
+def run(frame,predicted,obs,*,season,draws=400,incomplete_teams=(),seed=93000000,paired=False,offsets=None,role_policy=None,paired_v1=None,distributions=False,chain=False,catalogue=None,assignment_history=None,assignment_strength=None,conditional_penalties=False,ordinary_goal_weights=None,physical_minutes=False,event_conservation=False):
     if physical_minutes and not chain:raise ValueError('Physical minute process requires the unified B chain')
     rows=[];baseline=[];details={};audit=[]
     raw=predicted.set_index(KEY)
@@ -70,10 +70,12 @@ def run(frame,predicted,obs,*,season,draws=400,incomplete_teams=(),seed=93000000
             from fpl_v1_1_model.experimental_joint_role_assignment import role_lineup_sampler
             scope=role_lineup_sampler(role_distributions)
         else:scope=nullcontext()
-        with scope:
+        from fpl_v1_1_model.b_event_simulator import conserved_events
+        with (conserved_events()if event_conservation else nullcontext({}))as event_audit,scope:
             sim=(simulate_with_distributions if distributions else simulate_many)(inp,n=draws,seed=seed+(offsets[fx] if offsets is not None else i),**({'include_samples':True}if chain and distributions else{}))
         for team in teams:
             physical_audit=dict(kernel.audit)if kernel else None
+            if event_conservation:team['event_conservation']=event_audit.get(str(team['team']),{})
             if kernel and distributions and chain:
                 unknown=[s['scenarios']['minutes']for pid,s in sim.items()
                          if pid.startswith(UNKNOWN)and next(p.team for p in inp.players if p.player_id==pid)==team['team']]
@@ -154,13 +156,13 @@ def current(inputs,out,*,paired=True,chain=False,evidence_path=None,assignment_p
         goal_receipt['goal_head_audit_sha256']=hashlib.sha256((out/'nonpenalty-goal-head.csv.gz').read_bytes()).hexdigest()
         goal_receipt['policy']=goal_policy
     xp,details,audit,baseline=run(joined,pred,observations(ROOT),season='2026-27',incomplete_teams=incomplete,paired=paired,role_policy=policy,paired_v1=v1,distributions=True,chain=chain,catalogue=catalogue,
-        assignment_history=assignment_history,assignment_strength=role_receipt['strength']if role_receipt else None,ordinary_goal_weights=goal_weights,conditional_penalties=goal_weights is not None,physical_minutes=physical_minutes)
+        assignment_history=assignment_history,assignment_strength=role_receipt['strength']if role_receipt else None,ordinary_goal_weights=goal_weights,conditional_penalties=goal_weights is not None,physical_minutes=physical_minutes,event_conservation=bool(prov.get('physical_feature_version')))
     if role_receipt and paired:
         # Matched current control: identical source facts, GK policy, event
         # rates and seeds, with only the role kernel disabled. The old locked
         # PM comparison remains a separate legacy reference.
         control,control_means,_,_=run(joined,pred,observations(ROOT),season='2026-27',incomplete_teams=incomplete,
-            role_policy=policy,chain=True,catalogue=catalogue,ordinary_goal_weights=goal_weights,conditional_penalties=goal_weights is not None,physical_minutes=physical_minutes)
+            role_policy=policy,chain=True,catalogue=catalogue,ordinary_goal_weights=goal_weights,conditional_penalties=goal_weights is not None,physical_minutes=physical_minutes,event_conservation=bool(prov.get('physical_feature_version')))
         before=control.set_index(KEY);after=xp.set_index(KEY);positions=pred.set_index(KEY).pos;comparison=[]
         for key,d in details.items():
             old_mean=control_means[key]
@@ -176,7 +178,7 @@ def current(inputs,out,*,paired=True,chain=False,evidence_path=None,assignment_p
     if goal_receipt and paired:
         offsets={fx:i for i,fx in enumerate(sorted(joined.fixture_uuid.unique()))}
         first=joined[joined.gw.eq(joined.gw.min())]
-        control,control_means,_,_=run(first,pred[pred.fixture_uuid.isin(first.fixture_uuid)],observations(ROOT),season='2026-27',incomplete_teams=incomplete,role_policy=policy,chain=True,catalogue=catalogue,assignment_history=assignment_history,assignment_strength=role_receipt['strength']if role_receipt else None,offsets=offsets,physical_minutes=physical_minutes)
+        control,control_means,_,_=run(first,pred[pred.fixture_uuid.isin(first.fixture_uuid)],observations(ROOT),season='2026-27',incomplete_teams=incomplete,role_policy=policy,chain=True,catalogue=catalogue,assignment_history=assignment_history,assignment_strength=role_receipt['strength']if role_receipt else None,offsets=offsets,physical_minutes=physical_minutes,event_conservation=bool(prov.get('physical_feature_version')))
         before=control.set_index(KEY);after=xp.set_index(KEY);comparison=[]
         for key,d in control_means.items():
             new=details[key]
@@ -220,7 +222,7 @@ def current(inputs,out,*,paired=True,chain=False,evidence_path=None,assignment_p
             if chain:
                 w['pm_analytic_minutes']=sum(x['pm_analytic_minutes']for x in w['fixtures'])
                 w['scenarios']={name:np.sum([scenarios[(x['fixture_uuid'],p['player_uuid'])][name]for x in w['fixtures']],axis=0).astype(int).tolist()for name in ['points','minutes']}
-    payload.update(goalkeeper_role_fit=policy.receipt,gk_horizon_absences=[{k:p.get(k)for k in ['id','web_name','news']}for p in fresh['elements']if p['id']in set(pred.loc[pred.role_horizon_absence,'fpl_element'])],official_gk_status={str(p['id']):{k:p.get(k) for k in ['status','news','chance_of_playing_next_round']} for p in fresh['elements'] if p['element_type']==1},data_asof=max(prov['data_at'],evidence['observed_at']),component_source_asof={'original_B_PM':prov['data_at'],'official_GK_roster':evidence['observed_at']},official_gk_evidence=evidence,model=VERSION,scope='prospective_preview',minute_sampler_audit={'sampler':VERSION,'goalkeeper_MM_to_PM_mean_consistent':True},
+    payload.update(goalkeeper_role_fit=policy.receipt,gk_horizon_absences=[{k:p.get(k)for k in ['id','web_name','news']}for p in fresh['elements']if p['element_type']==1 and p['id']in set(pred.loc[pred.role_horizon_absence,'fpl_element'])],official_gk_status={str(p['id']):{k:p.get(k) for k in ['status','news','chance_of_playing_next_round']} for p in fresh['elements'] if p['element_type']==1},data_asof=max(prov['data_at'],evidence['observed_at']),component_source_asof={'original_B_PM':prov['data_at'],'official_GK_roster':evidence['observed_at']},official_gk_evidence=evidence,model=VERSION,scope='prospective_preview',minute_sampler_audit={'sampler':VERSION,'goalkeeper_MM_to_PM_mean_consistent':True},
         parts={'mm':'experimental_GK','pm_vfinal':'experimental_joint_GK','ts':'original_unchanged'},gk_team_fixtures=audit)
     payload['blockers'].append('Experimental joint GK/11-starter sampler; not production-certified. Unlisted competitors are pooled, not individual FPL forecasts.')
     payload['code_sha256']={name:hashlib.sha256((ROOT/name).read_bytes()).hexdigest() for name in ['scripts/gk_joint_bridge.py','scripts/run_joint_gk_preview.py','scripts/mm_candidate_forecast.py','scripts/gk_solo_role.py','src/fpl_v1_1_model/joint_simulator.py','scripts/pm_preview_distributions.py']}
@@ -231,6 +233,15 @@ def current(inputs,out,*,paired=True,chain=False,evidence_path=None,assignment_p
     if role_receipt:
         payload['role_assignment']=role_receipt
         payload['code_sha256'].update({name:hashlib.sha256((ROOT/name).read_bytes()).hexdigest()for name in ['scripts/joint_role_bridge.py','src/fpl_v1_1_model/experimental_joint_role_assignment.py','src/fpl_v1_1_model/experimental_role_assignment_history.py','src/fpl_v1_1_model/experimental_role_importance.py']})
+    if prov.get('physical_feature_version'):
+        payload['model_revision']='B-integrated-source-event-repair-v2'
+        for name in ['physical-ledger.csv.gz','historical-physical-ledger.csv.gz','medical-return-training.csv.gz','roles.csv.gz','bootstrap.json']:
+            if not (inputs/name).is_file():raise ValueError('Missing versioned repair input: '+name)
+            payload['input_sha256'][name]=hashlib.sha256((inputs/name).read_bytes()).hexdigest()
+        payload['horizon_absences']=[{k:p.get(k)for k in ['id','web_name','element_type','status','news']}for p in fresh['elements']if p['id']in set(pred.loc[pred.role_horizon_absence,'fpl_element'])]
+        payload['event_conservation']={'version':'B-conserved-goal-events-v1','strict_scorer_attribution':True,'inclusive_goal_budget':'ordinary + conditional penalties + opponent own goals','special_assist_occurrence_rates':'Not Available: no calibrated penalty-winner/own-goal attacking-touch source','red_card_exit_process':'Not Available'}
+        payload['source_repairs']={'physical_feature_version':prov['physical_feature_version'],'coverage':prov.get('physical_workload_coverage'),'persistent_departures_all_positions':True,'dated_medical_return':'prior fitted conditional first-appearance survival'}
+        payload['code_sha256'].update({name:hashlib.sha256((ROOT/name).read_bytes()).hexdigest()for name in ['scripts/b_physical_workload.py','scripts/b_horizon_eligibility.py','scripts/b_medical_return.py','src/fpl_v1_1_model/b_event_simulator.py']})
     if chain:
         from b_chain_contract import VERSION as CHAIN_VERSION,SCENARIOS,validate_forecast
         payload.update(model=CHAIN_VERSION,mm_version=CHAIN_VERSION,chain_version=CHAIN_VERSION,

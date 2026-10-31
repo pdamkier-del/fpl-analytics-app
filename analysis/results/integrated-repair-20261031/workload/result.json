@@ -1,0 +1,47 @@
+{
+  "scope": "Raw B marginal stage before tactical/physical kernel; same chronological fit and sources, no fresh holdout",
+  "coverage": {
+    "2024-25": "verified PL + 3252 mapped non-PL player-match observations; historical coverage is a sourced subset, not certified complete",
+    "2025-26": "verified PL + audited recovered cup/UEFA subset; completeness not claimed",
+    "availability": "historical +3/+4h proxies, not certified publication clocks"
+  },
+  "metrics": [
+    {
+      "season": "2024-25",
+      "arm": "all_comp_workload",
+      "rows": 13105,
+      "start_Brier": 0.07220856875674313,
+      "minute_MAE": 10.891411952873725,
+      "minute_RMSE": 20.742808032922024,
+      "minute_bias": -0.33580335540336786
+    },
+    {
+      "season": "2024-25",
+      "arm": "frozen",
+      "rows": 13105,
+      "start_Brier": 0.0723066787861134,
+      "minute_MAE": 10.948645619278173,
+      "minute_RMSE": 20.765577047899782,
+      "minute_bias": -0.332368807127531
+    },
+    {
+      "season": "2025-26",
+      "arm": "all_comp_workload",
+      "rows": 13987,
+      "start_Brier": 0.06802100037201397,
+      "minute_MAE": 10.255021040726595,
+      "minute_RMSE": 20.237753217323892,
+      "minute_bias": -0.22098190534991302
+    },
+    {
+      "season": "2025-26",
+      "arm": "frozen",
+      "rows": 13987,
+      "start_Brier": 0.06794264703450228,
+      "minute_MAE": 10.263079493457134,
+      "minute_RMSE": 20.229335134681605,
+      "minute_bias": -0.21759507813260107
+    }
+  ],
+  "production_changed": false
+}

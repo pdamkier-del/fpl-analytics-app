@@ -146,7 +146,8 @@ jobs:
           node --check app/mm-preview/app/classic-manager.js
           node --check app/mm-preview/app/weekly-app.js
           python scripts/check_locked_gk_default.py
-          git diff --exit-code 3ad8fc5f2eabe0a62fec494d896320d288ece2d5 -- model service/manager_job.py
+          git diff --exit-code 3ad8fc5f2eabe0a62fec494d896320d288ece2d5 -- model
+          git diff --exit-code cfe0bde31008c3285f045302182298a6cf3f968d -- service/manager_job.py
       - name: Validate and export the explicit joint GK preview
         env:
           GH_TOKEN: ${{ github.token }}
@@ -178,7 +179,7 @@ jobs:
           from pathlib import Path
           from nonpenalty_goal_bridge import load
           root=Path('.').resolve()
-          load(root,root/'analysis/results/nonpenalty-goal-head-20261023/policy.json')
+          load(root,root/'analysis/results/integrated-repair-20261031/nonpenalty-policy.json')
           decision=json.loads(Path('work/nonpenalty-head-validation/decision.json').read_text())
           assert decision['passed']and decision['baseline_max_xp_error']==0
           keys=['season','fixture_uuid','player_uuid','arm']
@@ -187,10 +188,15 @@ jobs:
           assert current.index.equals(archived.index)
           assert (current.xp-archived.xp).abs().max()==0, 'NP scorer replay differs from reviewed evidence'
           PY
-          python scripts/locked_numerical_runtime.py scripts/run_joint_gk_preview.py --out work/joint-gk-current --chain --physical-minutes --role-assignment-policy analysis/results/joint-role-candidate-20261022/policy.json --nonpenalty-goal-policy analysis/results/nonpenalty-goal-head-20261023/policy.json
-          python scripts/locked_numerical_runtime.py scripts/run_joint_gk_preview.py --out work/joint-gk-repeat --no-baseline --chain --physical-minutes --role-assignment-policy analysis/results/joint-role-candidate-20261022/policy.json --nonpenalty-goal-policy analysis/results/nonpenalty-goal-head-20261023/policy.json
+          python scripts/locked_numerical_runtime.py scripts/run_joint_gk_preview.py --out work/joint-gk-current --chain --physical-minutes --role-assignment-policy analysis/results/joint-role-candidate-20261022/policy.json --nonpenalty-goal-policy analysis/results/integrated-repair-20261031/nonpenalty-policy.json
+          python scripts/locked_numerical_runtime.py scripts/run_joint_gk_preview.py --out work/joint-gk-repeat --no-baseline --chain --physical-minutes --role-assignment-policy analysis/results/joint-role-candidate-20261022/policy.json --nonpenalty-goal-policy analysis/results/integrated-repair-20261031/nonpenalty-policy.json
           python scripts/locked_numerical_runtime.py scripts/validate_joint_gk_stages.py
+          PYTHONPATH="$PYTHONPATH:analysis" python analysis/validate_b_repair_release.py
+          PYTHONPATH="$PYTHONPATH:analysis" python scripts/locked_numerical_runtime.py analysis/compare_current_b_repair.py
           python scripts/export_joint_gk_preview.py
+          cp work/joint-gk-current/source-control.json app/mm-preview/gk/repair-comparison.json
+          cp work/joint-gk-current/repair-release-validation.json app/mm-preview/gk/repair-release-validation.json
+          cp analysis/results/integrated-repair-20261031/pm/result.json app/mm-preview/gk/repair-historical.json
           python scripts/collect_dashboard_news.py
           python analysis/audit_player_chain.py --capture app/mm-preview --inputs work/current-B-inputs --out app/mm-preview/input-audit --require-source-linkage
           node tests/test_joint_gk_contract.js
@@ -245,4 +251,5 @@ jobs:
             work/nonpenalty-head-validation/
             work/gk-official-evidence/
             analysis/results/unified-b-chain-20261021/
+            analysis/results/integrated-repair-20261031/
           retention-days: 90

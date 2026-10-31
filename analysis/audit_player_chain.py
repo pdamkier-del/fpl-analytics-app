@@ -114,7 +114,12 @@ def audit(forecast, mm, *, inputs=None, context=None, catalogue=None,
         try:
             provenance=json.loads((Path(inputs)/'provenance.json').read_text())
             declared_scopes=provenance.get('source_scopes',{})
-            if declared_scopes and declared_scopes.get('explicit_workload_and_last_start')!='Premier League only':
+            allowed_scope='Premier League only'
+            if provenance.get('physical_feature_version')=='B-verified-physical-workload-v2':
+                allowed_scope='PL role/last-start; verified all-competition physical rest and 7/14-day load'
+                if 'physical_feature_version'not in target or not target.physical_feature_version.eq(provenance['physical_feature_version']).all():
+                    issue('unreviewed_input_scope','Workload version differs between source and features.')
+            if declared_scopes and declared_scopes.get('explicit_workload_and_last_start')!=allowed_scope:
                 issue('unreviewed_input_scope','Workload source scope changed; the audit and presentation contract require review.')
             if declared_scopes and declared_scopes.get('structured_coach_statements')!='not implemented':
                 issue('unreviewed_input_scope','Coach-input scope changed; the audit and presentation contract require review.')
