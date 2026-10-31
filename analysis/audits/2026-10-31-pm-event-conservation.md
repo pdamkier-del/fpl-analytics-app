@@ -69,3 +69,22 @@ Thus for `hp*hc <= lambda`, the difference from the supplied total goal mean is 
 4. Attributed scored-penalty totals, misses and expected taker goals conserve the joint goal budget; ordinary goals still exclude converted penalty goals.
 5. Compare original and corrected calibrated score distributions on **out-of-time** matches and inspect goal/assist/bonus point deltas.
 
+
+
+## Further verified event conservation gap: own goals bypass the shared match score
+
+Code: `src/fpl_v1_1_model/joint_simulator.py:225-294,296-320`.
+
+- `goal_events` is formed from ordinary goals and explicitly converted penalties only (lines 238-272).
+- Lines 287-294 derive each player's goals conceded and 60+ clean-sheet condition exclusively from `goal_events`.
+- **Only after** that team-score/clean-sheet computation, lines 296-310 independently sample `r.own_goal = Bernoulli(p.p_own_goal)`, without appending an opposite-team goal to `goal_events` or adjusting the previously computed concessions / CS.
+- Hence a simulated home player's own goal can cost that player FPL own-goal points while the same event does not count as an away-team goal or home-player goals conceded. If the home team otherwise conceded zero, a home defender/GK may still get a clean sheet despite a sampled own goal by a home teammate. This is a definite *event semantics/control-flow inconsistency*; measured forecast frequency remains unknown.
+- Fix must represent own goal as a shared team-match scoring event **before** goals conceded / CS evaluation and must reconcile the team lambda to avoid inflating total goals. Do not merely append a second goal to the existing independent lambda without budget adjustment; choose a consistent own-goal process and validate it with FPL rules.
+- Related issue: player own-goal draws are independent of whether a player appeared, except the precheck `m>0`; check own-goal rate calibration relative to minutes, and ensure a single own goal increases opponent team goals rather than being credited to an opposition player.
+- Another side effect: simulator BPS scoring consumes individual own-goal penalties, while match-level score/CS may disagree.
+
+### Deterministic acceptance test
+With all home players on pitch for 90 minutes, `lambda_home_goals=lambda_away_goals=0`, no penalties, and one home player forced to own goal, the physical score MUST be away 1, home 0; home 60+ GK/DEF must not receive clean-sheet points. The current code samples a home own-goal event but leaves shared goal_events empty, so the home team incorrectly retains a clean sheet. Explicitly exercise own-goal P=1 synthetic fixture (valid as test-only input) to demonstrate, and compare run-to-run event statistics after the eventual repair.
+
+## Priority coordination
+Add own-goal conservation to the PM correctness workstream after MM availability repair (#24), alongside scorer-less event and penalty budget. This audit branch is documentation-only; no model code or deployment changed.
