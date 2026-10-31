@@ -88,3 +88,26 @@ With all home players on pitch for 90 minutes, `lambda_home_goals=lambda_away_go
 
 ## Priority coordination
 Add own-goal conservation to the PM correctness workstream after MM availability repair (#24), alongside scorer-less event and penalty budget. This audit branch is documentation-only; no model code or deployment changed.
+
+
+## Rule-level review against official 2026/27 FPL help (31 October 2026)
+
+Official source: https://fantasy.premierleague.com/help/faqs and https://www.premierleague.com/ar/news/4661029 . These distinguish FPL assists from ordinary Opta assists and explicitly specify red-card concessions.
+
+### Confirmed missing mechanism: penalty-winner FPL assists
+
+- `joint_simulator.py:262-263` records a converted penalty as `goal_events.append((t,team,taker.player_id,True))`.
+- `joint_simulator.py:282-285` categorically prevents any assist for `is_pen` goals. There is no penalty-winning event, handball-causing touch or award-to-winner process in this branch.
+- **Official FPL rule:** a player who wins a penalty (or whose attacking touch directly induces the handball) can be awarded a Fantasy assist if another player converts it; not when the same player wins and scores.
+- Consequently the simulator structurally assigns **zero assists on all directly converted penalty events**, whereas official FPL scoring permits some. This is a verified missing event type, **not** a claim that every converted penalty should receive an assist. It can affect assist xP, nonbonus xP and BPS. Its numerical frequency in the forecast is not measured.
+- Required test: penalty won by A and scored by B -> A may earn assist (with event eligibility); A wins and scores -> no assist; penalty directly awarded without eligible attacking touch -> no assist. Preserve penalty goal budget and explicit event type.
+
+### Red-card goals-conceded semantics: missing causal timing, potential scoring discrepancy
+
+- Official FPL rules say a red-carded player continues to incur team goals-conceded deductions **after the sending-off**, unlike an ordinary substitution.
+- `joint_simulator.py:287-294` counts concessions only when `a<=t<b` for the sampled on-pitch interval; `r.red` is sampled only later at `joint_simulator.py:308-309` and never changes the interval or concession count.
+- The simulator does not distinguish *left pitch due to dismissal* from *ordinary substitution*, nor track red-card time. Thus a red-carded GK/DEF with a sampled end minute before an opposing goal can be undercharged relative to FPL rules. Also the red-card event itself is not constrained to explain an early exit.
+- This is a verified **missing causal mechanism** and a deterministic discrepancy under a specified red-card-at-minute-30 + conceded-at-minute-70 scenario, not proof that the live forecast currently materially underestimates negatives. Requires a jointly simulated red-card timing/exit mechanism and post-dismissal concession liability; do not simply count all post-substitution goals against every player who has a red flag, as that would break ordinary substitutions.
+
+### Test scope and confidence
+Both findings are verified by source-code inspection plus official rules; no historical event frequencies, xP deltas, CI result or live deployment were obtained in this audit. Check whether another production simulator path already compensates before applying these conclusions to the *deployed* app. The audited code path is `src/fpl_v1_1_model/joint_simulator.py` on the B experiment branch.
