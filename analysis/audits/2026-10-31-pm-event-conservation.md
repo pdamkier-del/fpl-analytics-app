@@ -39,3 +39,33 @@ Note: `goal_weight=0` is possible for an active player with `goal_mu<=0` or `exp
 
 ## Next steps / ownership
 Independent audit may update this file but **must not modify** `joint_simulator.py` or B/PM live feature files while Codex handles Issue #24. Codex owns implementation after MM data repairs. Related issues: #24, #25, #26, #27, #28.
+
+
+## Additional audited issue: penalty budget mismatches actual taker conversions
+
+Source: `src/fpl_v1_1_model/joint_simulator.py:225-265` (same isolated audit branch).
+
+**Mathematical identity:** set `lambda` = inclusive expected team goals, `hp` = expected penalty attempts, `hc` = team-level penalty conversion input and `c_active` = average conversion rate for the model's selected active takers (potentially dependent on sampled lineup). Current ordinary goal intensity is
+
+```
+lambda_open = max(0, lambda - hp * hc)
+E[total sampled goals] = lambda_open + hp * E[c_active * I(taker exists)]
+```
+
+Thus for `hp*hc <= lambda`, the difference from the supplied total goal mean is `hp * (E[c_active*I] - hc)`. When `hp*hc > lambda`, ordinary intensity is clipped to zero and total expected goals may exceed `lambda` **even if** taker conversion matches `hc`. The strict `hp*hc <= lambda` check is currently within `if inp.experimental_conditional_penalties:`, not unconditionally applied.
+
+**Small reproducible mathematical counterexamples** (not observed game frequencies):
+- `lambda=0.1, hp=1, hc=0.78, active taker conversion=0.78` gives `lambda_open=0`, hence model total goal mean `0.78` instead of `0.1`, assuming a consistently present penalty taker.
+- `lambda=1.5, hp=0.2, hc=0.78, active taker conversion=0.5` gives `lambda_open=1.344` and expected total `1.444`, rather than `1.5`.
+
+**Additional absence mismatch:** When the sampled penalty event has no active player with positive penalty or goal fallback weight (`taker is None`, lines 256-260), it is discarded, while the `hp*hc` expectation has already been removed from ordinary goals. This can depress total scoring for incomplete/incorrect teams.
+
+**Severity:** proven possibility from code and exact expectations, not proven to affect current data at scale. Instrument and verify full 6-GW live inputs (`lambda_pen, team_pen_conversion, pen_conversion, pen_weight, p_start`) before assigning production severity. The correct fix should reconcile the *conditional taker hierarchy* and *team-wide penalty budget* with the exact same stochastic process; simply dropping penalties or capping `hp` silently would conceal source inconsistency.
+
+### Required candidate tests
+1. Fixture with `lambda < hp*hc`: strict validation or explicit source-calibrated budget, never silent overflow.
+2. Mixed team vs taker conversion with fixed lineup: compare expected simulated total goals to lambda at high draw count.
+3. GK/news/loan exclusion changes penalty takers: no artificial increase/decrease of goals solely due to unallocated penalty budget.
+4. Attributed scored-penalty totals, misses and expected taker goals conserve the joint goal budget; ordinary goals still exclude converted penalty goals.
+5. Compare original and corrected calibrated score distributions on **out-of-time** matches and inspect goal/assist/bonus point deltas.
+
