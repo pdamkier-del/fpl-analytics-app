@@ -7,6 +7,55 @@ coefficients. No target outcome is accepted by this kernel.
 from dataclasses import replace
 import numpy as np
 from fpl_v1_1_model.experimental_physical_timeline import PhysicalKernel, _states, _keeper_mass
+from fpl_v1_1_model.experimental_joint_role_assignment import RoleLineup
+
+
+def tilt_return_starts(inp, dist, returning, *, log_odds=.5):
+    """Reweight legal XIs, bounded by existing player availability ceilings.
+
+    This is a separate fixed hypothesis for the negative returning start bias
+    in PR29. Preserve each original p(play) ceiling while changing p(start).
+    Never manufacture an independent eleventh outfield starter.
+    """
+    if not np.isfinite(log_odds) or not 0 <= log_odds <= 1:
+        raise ValueError('Return log odds must be in [0, 1]')
+    returning = frozenset(returning)
+    known = {p.player_id for p in inp.players if not p.is_keeper}
+    if not returning <= known:
+        raise ValueError('Unknown or goalkeeper return identity')
+    if log_odds == 0 or not returning:
+        return inp, dist
+    kernel = PhysicalKernel(inp, dist)
+    new_dist = {}
+    changed = {}
+    for team, data in kernel.teams.items():
+        ids = [p.player_id for p in data['field']]
+        # Retain actual formation/role metadata when available.
+        given = dist.get(team, dist.get(str(team))) if dist else None
+        if given is None and str(team).isdigit() and dist:
+            given = dist.get(int(team))
+        source = list(given) if given else [
+            RoleLineup(formation='audit-convex-XI', players=selected, roles=tuple('unknown' for _ in selected), weight=w)
+            for selected, w in data['weights'].items()]
+        w = np.array([r.weight for r in source], float)
+        count = np.array([len(returning.intersection(r.players)) for r in source])
+        target = w*np.exp(log_odds*count)
+        target /= target.sum()
+        indicator = np.array([[uid in r.players for uid in ids] for r in source], float)
+        old = w @ indicator
+        desired = target @ indicator
+        ceilings = np.array([p.p_start+(1-p.p_start)*p.p_cameo_given_bench for p in data['field']])
+        positive = desired-old > 1e-12
+        alpha = min(1., max(0., float(np.min((ceilings[positive]-old[positive]) /
+                                           (desired[positive]-old[positive]))))) if positive.any() else 1.
+        weights = (1-alpha)*w+alpha*target
+        marginals = weights @ indicator
+        new_dist[team] = [replace(r, weight=float(v)) for r, v in zip(source, weights)]
+        for j, p in enumerate(data['field']):
+            start = float(np.clip(marginals[j], 0, 1))
+            q = float(np.clip((ceilings[j]-start)/(1-start), 0, 1)) if start < 1-1e-12 else 0.
+            changed[p.player_id] = replace(p, p_start=start, p_cameo_given_bench=q)
+    return replace(inp, players=tuple(changed.get(p.player_id, p) for p in inp.players)), new_dist
 
 
 class ReturnP90Kernel(PhysicalKernel):

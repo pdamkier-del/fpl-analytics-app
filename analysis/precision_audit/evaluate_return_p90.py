@@ -6,7 +6,7 @@ import pandas as pd
 from test_separated_goal_head import decode
 from fpl_v1_1_model.experimental_joint_role_assignment import RoleLineup
 from fpl_v1_1_model.experimental_physical_timeline import PhysicalKernel
-from precision_audit.return_p90 import ReturnP90Kernel
+from precision_audit.return_p90 import ReturnP90Kernel, tilt_return_starts
 
 ARMS = {'baseline': (1., 0.), 'return_only': (.5, 0.),
         'p90_only': (1., 2.), 'combined': (.5, 2.)}
@@ -24,6 +24,10 @@ def kernels(record):
         if arm != 'baseline':
             result[arm] = ReturnP90Kernel(inp, dist, returning=returning,
                                          return_scale=scale, regular_floor=floor)
+    tilted, tilted_dist = tilt_return_starts(inp, dist, returning)
+    result['return_start'] = PhysicalKernel(tilted, tilted_dist)
+    result['return_start_p90'] = ReturnP90Kernel(tilted, tilted_dist, returning=returning,
+                                               return_scale=1., regular_floor=.5)
     return inp, result
 
 
@@ -103,6 +107,10 @@ def main():
     a = p.parse_args()
     if a.draws < 2:
         p.error('At least two draws required')
+    sources = [Path(__file__), Path(__file__).with_name('return_p90.py'),
+               Path('src/fpl_v1_1_model/experimental_physical_timeline.py'),
+               Path('src/fpl_v1_1_model/b_event_simulator.py')]
+    source_hashes = {str(path): hashlib.sha256(path.read_bytes()).hexdigest() for path in sources}
     records = json.loads(gzip.decompress(a.inputs.read_bytes()))
     f = evaluate(records)
     if f.empty:
@@ -112,9 +120,10 @@ def main():
     s = summaries(f)
     s.to_csv(a.out/'metrics.csv', index=False)
     manifest = dict(input_sha256=hashlib.sha256(a.inputs.read_bytes()).hexdigest(),
-        source_sha256={str(Path(__file__).name): hashlib.sha256(Path(__file__).read_bytes()).hexdigest(),
-            'return_p90.py': hashlib.sha256(Path(__file__).with_name('return_p90.py').read_bytes()).hexdigest()},
-        hypotheses=ARMS, historical_fixtures=f.fixture_uuid.nunique(),
+        source_sha256=source_hashes,
+        hypotheses={**ARMS, 'return_start': {'log_odds': .5},
+                    'return_start_p90': {'log_odds': .5, 'regular_floor': .5}},
+        historical_fixtures=f.fixture_uuid.nunique(),
         scope='reused retrospective diagnostics; outfield only; no independent gain established',
         physical_clock='normalized 0..90, paired entries/exits; unchanged 900+90 team budget',
         label_clock='actual FPL reported minutes, never forced to sum 990',
@@ -130,8 +139,13 @@ def main():
                 mae=float(abs(h.xp-h.actual).mean()), bias=float((h.xp-h.actual).mean())))
         manifest['points_controls'] = metrics
         manifest['points_input_sha256'] = hashlib.sha256(a.points_controls.read_bytes()).hexdigest()
+    if any(hashlib.sha256(path.read_bytes()).hexdigest() != source_hashes[str(path)] for path in sources):
+        raise RuntimeError('Source changed during run; discard this evidence')
     (a.out/'manifest.json').write_text(json.dumps(manifest, indent=2)+'\n')
     print(s.to_string(index=False))
+    print('METRICS_JSON='+s.to_json(orient='records'))
+    if a.points_controls:
+        print('POINTS_JSON='+json.dumps(manifest['points_controls']))
 
 
 if __name__ == '__main__':

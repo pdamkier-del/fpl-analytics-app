@@ -92,3 +92,34 @@ def test_application_does_not_import_candidate():
     for folder in ['app', 'src', 'scripts', 'service']:
         for p in Path(folder).rglob('*.py'):
             assert 'precision_audit.return_p90' not in p.read_text()
+
+
+def test_return_start_repair_keeps_legal_xi_and_availability_ceiling():
+    from precision_audit.return_p90 import tilt_return_starts
+    inp = regular_fixture()
+    modified, dist = tilt_return_starts(inp, {}, ['H00'])
+    old = {p.player_id: p for p in inp.players}
+    new = {p.player_id: p for p in modified.players}
+    assert new['H00'].p_start > old['H00'].p_start
+    for team in ['H', 'A']:
+        field = [p for p in modified.players if p.team == team and not p.is_keeper]
+        assert sum(p.p_start for p in field) == pytest.approx(10)
+        assert all(len(r.players) == len(set(r.players)) == 10 for r in dist[team])
+    for pid, p in new.items():
+        before = old[pid]
+        assert p.p_start+(1-p.p_start)*p.p_cameo_given_bench == pytest.approx(
+            before.p_start+(1-before.p_start)*before.p_cameo_given_bench)
+        assert p.p_start <= before.p_start+(1-before.p_start)*before.p_cameo_given_bench+1e-10
+        if p.is_keeper:
+            assert p == before
+    kernel = PhysicalKernel(modified, dist)
+    rng = np.random.default_rng(912)
+    for _ in range(100):
+        assert validate_timeline(inp, kernel.sample(rng))
+
+
+def test_return_tilt_disabled_exact_identity():
+    from precision_audit.return_p90 import tilt_return_starts
+    inp = regular_fixture()
+    assert tilt_return_starts(inp, {}, ['H00'], log_odds=0) == (inp, {})
+    assert tilt_return_starts(inp, {}, []) == (inp, {})
