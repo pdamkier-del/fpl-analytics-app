@@ -11,7 +11,7 @@ import pandas as pd
 def test_approved_nonpenalty_policy_matches_current_repository_sources():
     from nonpenalty_goal_bridge import load
     root=Path(__file__).resolve().parents[1]
-    model,policy=load(root,root/'analysis/results/integrated-repair-20261031/nonpenalty-policy.json')
+    model,policy=load(root,root/'analysis/results/b-precision-development-20261101/nonpenalty-policy.json')
     original=json.loads((root/'analysis/results/nonpenalty-goal-head-20261023/policy.json').read_text())
     assert policy['model']==original['model'] and policy['decision']==original['decision']
     assert policy['sha256'][policy['model']]==original['sha256'][original['model']]

@@ -38,7 +38,7 @@ def main(source=None,inputs=None):
     goal_weights=None
     if payload.get('nonpenalty_goal_head'):
         from nonpenalty_goal_bridge import load as load_goal_head,calculate as calculate_goal_head
-        model,_=load_goal_head(ROOT,ROOT/('analysis/results/integrated-repair-20261031/nonpenalty-policy.json'if payload.get('event_conservation')else'analysis/results/nonpenalty-goal-head-20261023/policy.json'))
+        model,_=load_goal_head(ROOT,ROOT/('analysis/results/b-precision-development-20261101/nonpenalty-policy.json'if payload.get('simulation_precision')else 'analysis/results/integrated-repair-20261031/nonpenalty-policy.json'if payload.get('event_conservation')else'analysis/results/nonpenalty-goal-head-20261023/policy.json'))
         goal_weights,_,_=calculate_goal_head(ROOT,frame,model)
     stages=[];obs=observations(ROOT)
     for scope,mask in [('one-match',frame.fixture_uuid.eq(first)),('one-gw',frame.gw.eq(origin))]:
