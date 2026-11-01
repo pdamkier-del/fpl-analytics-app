@@ -3,6 +3,7 @@ import argparse, copy, gzip, hashlib, json
 from pathlib import Path
 import numpy as np
 import pandas as pd
+from concurrent.futures import ProcessPoolExecutor, as_completed
 from test_separated_goal_head import decode
 from fpl_v1_1_model.experimental_joint_role_assignment import RoleLineup
 from fpl_v1_1_model.experimental_physical_timeline import PhysicalKernel
@@ -80,6 +81,21 @@ def evaluate(records):
     return pd.DataFrame(rows)
 
 
+def evaluate_parallel(records, workers):
+    historical = [r for r in records if r.get('actual')]
+    if workers == 1:
+        return evaluate(historical)
+    frames = []
+    with ProcessPoolExecutor(max_workers=workers) as pool:
+        futures = [pool.submit(evaluate, [r]) for r in historical]
+        for i, future in enumerate(as_completed(futures)):
+            frames.append(future.result())
+            if (i+1) % 10 == 0 or i+1 == len(futures):
+                print('historical fixtures', i+1, '/', len(futures), flush=True)
+    return pd.concat(frames, ignore_index=True).sort_values(
+        ['season', 'fixture_uuid', 'player_uuid', 'arm']).reset_index(drop=True)
+
+
 def summaries(frame):
     rows = []
     for (season, arm), g in frame.groupby(['season', 'arm']):
@@ -134,16 +150,19 @@ def main():
     p.add_argument('--return-features', type=Path,
         default=Path('analysis/results/individual-mm-refinement-20261016/prior_only_features.csv.gz'))
     p.add_argument('--draws', type=int, default=2000)
+    p.add_argument('--workers', type=int, default=1)
     a = p.parse_args()
     if a.draws < 2:
         p.error('At least two draws required')
+    if not 1 <= a.workers <= 8:
+        p.error('Workers must be between one and eight')
     sources = [Path(__file__), Path(__file__).with_name('return_p90.py'),
                Path('src/fpl_v1_1_model/experimental_physical_timeline.py'),
                Path('src/fpl_v1_1_model/b_event_simulator.py')]
     source_hashes = {str(path): hashlib.sha256(path.read_bytes()).hexdigest() for path in sources}
     records = json.loads(gzip.decompress(a.inputs.read_bytes()))
     annotate_return_kinds(records, a.return_features)
-    f = evaluate(records)
+    f = evaluate_parallel(records, a.workers)
     if f.empty:
         raise ValueError('No historical outcomes: cannot measure accuracy')
     a.out.mkdir(parents=True, exist_ok=True)

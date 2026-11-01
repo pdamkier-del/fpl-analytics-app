@@ -35,7 +35,7 @@ jobs:
         run: pytest -q tests/test_return_p90_candidate.py tests/test_physical_timeline.py tests/test_b_event_conservation.py tests/test_gk_solo_role.py tests/test_point_accounting.py
       - name: Full frozen historical analytic comparison and paired point controls
         run: |
-          python scripts/locked_numerical_runtime.py analysis/precision_audit/evaluate_return_p90.py --inputs analysis/results/systematic-precision-audit-20261101/inputs/historical-inputs.json.gz --points-controls analysis/results/systematic-precision-audit-20261101/inputs/mc-inputs.json.gz --out work/return-p90-results --draws 2000
+          python scripts/locked_numerical_runtime.py analysis/precision_audit/evaluate_return_p90.py --inputs analysis/results/systematic-precision-audit-20261101/inputs/historical-inputs.json.gz --points-controls analysis/results/systematic-precision-audit-20261101/inputs/mc-inputs.json.gz --out work/return-p90-results --draws 2000 --workers 4
       - uses: actions/upload-artifact@v4
         if: always()
         with:
