@@ -1,0 +1,10 @@
+{
+  "base_branch": "audit-pm-secondary-components-20261101",
+  "base_commit": "20dfdd953ef99c382ea969836cd6a514b8182cc4",
+  "scope": "All 341 frozen fixtures; no outcome-based fixture selection, oracle conditioning, parameter search, production or preview activation",
+  "baseline": "2000 shared draws each; same seeded first 400 draws. Seven fixtures per season selected by evenly spaced indices after (GW,UUID) sorting use 10000 draws and two independent seeds",
+  "labels": "Direct per-player saves, penalty saves, DC awards (2025/26), bonus, BPS, conceded and negative-event labels; missing stays missing. Player CS only separately marked rule reconstruction from player-level conceded counts and FPL minutes. No independent direct CS label. Team CS separate",
+  "uncertainty": "1000 bootstrap replicates by fixture, by player, and separately by GW. No IID row CIs. Multiple subgroup findings descriptive, never automatic tuning. MC nested prefixes and independent seeds separately",
+  "acceptance": "Only a demonstrable semantics/scoring defect may be fixed from these data. Empirical parameter candidates require truly future or untouched labels, absent here. Historical parameter training chronology incomplete. No 2026/27 validation from older rules",
+  "synthetic_reserve_check": "Stable/switching keeper coverage, changing active taker conversion, lambda_saves 0 and 2, positive penalty attempts; analytic expectation and >=10000-draw means/buckets. Inclusive save target permits penalty-event lower bound when target is contradictory. Save tilts alter means intentionally"
+}
