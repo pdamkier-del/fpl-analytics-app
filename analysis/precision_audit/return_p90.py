@@ -10,7 +10,7 @@ from fpl_v1_1_model.experimental_physical_timeline import PhysicalKernel, _state
 from fpl_v1_1_model.experimental_joint_role_assignment import RoleLineup
 
 
-def tilt_return_starts(inp, dist, returning, *, log_odds=.5):
+def tilt_return_starts(inp, dist, returning, *, log_odds=.5, baseline=None):
     """Reweight legal XIs, bounded by existing player availability ceilings.
 
     This is a separate fixed hypothesis for the negative returning start bias
@@ -25,7 +25,9 @@ def tilt_return_starts(inp, dist, returning, *, log_odds=.5):
         raise ValueError('Unknown or goalkeeper return identity')
     if log_odds == 0 or not returning:
         return inp, dist
-    kernel = PhysicalKernel(inp, dist)
+    kernel = baseline if baseline is not None else PhysicalKernel(inp, dist)
+    if type(kernel) is not PhysicalKernel or kernel.input != inp:
+        raise ValueError('Return tilt baseline belongs to different input')
     new_dist = {}
     changed = {}
     for team, data in kernel.teams.items():
@@ -60,7 +62,7 @@ def tilt_return_starts(inp, dist, returning, *, log_odds=.5):
 
 class ReturnP90Kernel(PhysicalKernel):
     def __init__(self, inp, dist=None, *, returning=(), return_scale=0.5,
-                 regular_floor=2.0, states=128):
+                 regular_floor=2.0, states=128, baseline=None):
         if not np.isfinite(return_scale) or not 0 < return_scale <= 1:
             raise ValueError('Return scale must be in (0, 1]')
         if not np.isfinite(regular_floor) or not 0 <= regular_floor <= 10:
@@ -68,7 +70,18 @@ class ReturnP90Kernel(PhysicalKernel):
         returning = frozenset(returning)
         if not returning <= {p.player_id for p in inp.players if not p.is_keeper}:
             raise ValueError('Unknown or goalkeeper return identity')
-        super().__init__(inp, dist, states=states)
+        if baseline is None:
+            super().__init__(inp, dist, states=states)
+        else:
+            if (type(baseline) is not PhysicalKernel or baseline.input != inp
+                    or any(m.shape[0] != states for d in baseline.teams.values()
+                           for m, _ in d['ensembles'].values())):
+                raise ValueError('Candidate baseline input/state contract mismatch')
+            self.input = inp
+            self.audit = dict(baseline.audit)
+            self.moments = dict(baseline.moments)
+            self.teams = {team: dict(d, ensembles=dict(d['ensembles']))
+                          for team, d in baseline.teams.items()}
         self.audit.update(candidate='return-p90-exit-priority-v1',
                           return_scale=return_scale, regular_floor=regular_floor)
         for data in self.teams.values():
@@ -76,11 +89,14 @@ class ReturnP90Kernel(PhysicalKernel):
             adjusted = []
             for p in field:
                 loss = max(0., 90 - p.start_minutes_mean)
+                original_loss = loss
                 if p.player_id in returning:
                     loss *= return_scale
                 elif p.p_start >= .9 and loss < regular_floor:
                     loss = regular_floor
-                adjusted.append(replace(p, start_minutes_mean=90-loss))
+                adjusted.append(p if loss == original_loss else replace(p, start_minutes_mean=90-loss))
+            if adjusted == field:
+                continue
             swap = sum(p.p_start*(1-_keeper_mass(p)[90]) for p in data['keepers'])
             pmf = np.zeros((len(field), 91))
             start_total = np.zeros(len(field))

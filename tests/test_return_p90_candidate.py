@@ -143,3 +143,30 @@ def test_medical_and_suspension_episodes_are_separate_and_future_features_reject
     f.to_csv(p, index=False)
     with pytest.raises(ValueError, match='Future'):
         annotate_return_kinds(r, p)
+
+
+def test_baseline_reuse_is_exact_and_does_not_mutate_shared_ensembles():
+    from precision_audit.return_p90 import tilt_return_starts
+    inp = regular_fixture()
+    baseline = PhysicalKernel(inp)
+    saved = copy.deepcopy(baseline.moments)
+    for scale, floor in [(1, 0), (.5, 0), (1, 2), (.5, 2), (1, .5)]:
+        expected = ReturnP90Kernel(inp, returning=['H00'], return_scale=scale, regular_floor=floor)
+        cached = ReturnP90Kernel(inp, returning=['H00'], return_scale=scale,
+                                 regular_floor=floor, baseline=baseline)
+        assert expected.moments == cached.moments
+        r1, r2 = np.random.default_rng(45), np.random.default_rng(45)
+        for _ in range(50):
+            assert expected.sample(r1) == cached.sample(r2)
+    assert baseline.moments == saved
+    a, da = tilt_return_starts(inp, {}, ['H00'])
+    b, db = tilt_return_starts(inp, {}, ['H00'], baseline=baseline)
+    assert (a, da) == (b, db)
+
+
+def test_baseline_reuse_rejects_wrong_input_or_state_count():
+    inp = regular_fixture()
+    with pytest.raises(ValueError, match='contract'):
+        ReturnP90Kernel(inp, baseline=PhysicalKernel(inp, states=64))
+    with pytest.raises(ValueError, match='contract'):
+        ReturnP90Kernel(inp, baseline=PhysicalKernel(fixture()))

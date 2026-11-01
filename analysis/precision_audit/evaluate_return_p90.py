@@ -48,11 +48,13 @@ def kernels(record):
     for arm, (scale, floor) in ARMS.items():
         if arm != 'baseline':
             result[arm] = ReturnP90Kernel(inp, dist, returning=returning,
-                                         return_scale=scale, regular_floor=floor)
-    tilted, tilted_dist = tilt_return_starts(inp, dist, returning)
-    result['return_start'] = PhysicalKernel(tilted, tilted_dist)
+                                         return_scale=scale, regular_floor=floor,
+                                         baseline=result['baseline'])
+    tilted, tilted_dist = tilt_return_starts(inp, dist, returning, baseline=result['baseline'])
+    result['return_start'] = result['baseline'] if not returning else PhysicalKernel(tilted, tilted_dist)
     result['return_start_p90'] = ReturnP90Kernel(tilted, tilted_dist, returning=returning,
-                                               return_scale=1., regular_floor=.5)
+                                               return_scale=1., regular_floor=.5,
+                                               baseline=result['return_start'])
     return inp, result
 
 
