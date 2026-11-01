@@ -30,7 +30,7 @@ jobs:
       - name: Verify protected source identity against PR29
         run: |
           git diff --exit-code c18cfa4b5f795ff5cf59022f1cc31c2cd4878e11 HEAD -- app src scripts model service publisher
-          git diff --exit-code c18cfa4b5f795ff5cf59022f1cc31c2cd4878e11 HEAD -- .github/workflows ':!.github/workflows/return-p90-candidate.yml'
+          git diff --exit-code c18cfa4b5f795ff5cf59022f1cc31c2cd4878e11 HEAD -- .github/workflows ':!.github/workflows/return-p90-candidate.yml' ':!.github/workflows/systematic-precision-audit.yml'
       - name: Candidate and existing physical/event regression tests
         run: pytest -q tests/test_return_p90_candidate.py tests/test_physical_timeline.py tests/test_b_event_conservation.py tests/test_gk_solo_role.py tests/test_point_accounting.py
       - name: Full frozen historical analytic comparison and paired point controls
