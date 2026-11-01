@@ -24,7 +24,7 @@ jobs:
       - name: Production, B application and existing publication workflows unchanged
         run: |
           git diff --exit-code 736d65cacc1afeeaf8c3dcfad317d7ee745b48fa -- src scripts app model service
-          git diff --name-only 736d65cacc1afeeaf8c3dcfad317d7ee745b48fa -- .github/workflows | python -c 'import sys; names=sys.stdin.read().splitlines(); assert names == [".github/workflows/systematic-precision-audit.yml"], names'
+          git diff --name-only 736d65cacc1afeeaf8c3dcfad317d7ee745b48fa -- .github/workflows | python -c 'import sys; names=sys.stdin.read().splitlines(); assert names == [".github/workflows/return-p90-candidate.yml", ".github/workflows/systematic-precision-audit.yml"], names'
       - name: Oracle, decision and append-only log contracts
         env: {PYTHONPATH: 'src:scripts:.:analysis', OPENBLAS_NUM_THREADS: '1'}
         run: pytest -q tests/test_precision_audit_oracles.py tests/test_precision_audit_prospective.py tests/test_precision_audit_decisions.py
@@ -54,3 +54,4 @@ jobs:
             analysis/results/systematic-precision-audit-20261101
             docs/tasks/2026-11-01-systematic-precision-audit.md
           retention-days: 90
+
