@@ -5,7 +5,7 @@
  try{
   const response=await fetch('index.json',{cache:'no-store'});if(!response.ok)throw Error('Forecast er endnu ikke publiceret');const index=await response.json();
   const load=async(name,key)=>{const r=await fetch(name,{cache:'no-store'});if(!r.ok)throw Error('Manglende '+name);const b=await r.arrayBuffer();if(await digest(b)!==index[key])throw Error('Checksumfejl i '+name);return JSON.parse(new TextDecoder().decode(b));};
-  const [f,m,b,evidence,v1]=await Promise.all([load('forecast.json','forecast_sha256'),load('gk-mm.json','mm_sha256'),load('before.json','before_sha256'),load('evidence.json','evidence_sha256'),load('before-v1.json','before_v1_sha256')]);
+  const [f,m,b,evidence,v1]=await Promise.all([load(index.browser_forecast_file||'forecast.json',index.browser_forecast_file?'browser_forecast_sha256':'forecast_sha256'),load('gk-mm.json','mm_sha256'),load('before.json','before_sha256'),load('evidence.json','evidence_sha256'),load('before-v1.json','before_v1_sha256')]);
   if(evidence.model!==FplJointGK.VERSION||!evidence.role_validation?.accepted)throw Error('Rollekorrektionen er ikke valideret');
   const mm=FplJointGK.validate(f,m),previous=new Map(v1.players.map(p=>[p.fixture_uuid+'|'+p.player_uuid,p])),before=new Map(b.players.map(p=>[p.fixture_uuid+'|'+p.player_uuid,p]));
   $('status').textContent=FplJointGK.VERSION+' · '+f.players.length+' spillere · '+f.fixtures+' kampe · SHA-256 verificeret';

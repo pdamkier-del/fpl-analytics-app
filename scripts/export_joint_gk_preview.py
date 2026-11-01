@@ -78,5 +78,7 @@ def export():
         publish(ROOT,forecast,mm)
     from integrate_desktop_probabilities import integrate
     integrate(ROOT)
+    from b_simulation_precision import publish_summaries
+    publish_summaries(ROOT)
     print(json.dumps(index,indent=2))
 if __name__=='__main__':export()

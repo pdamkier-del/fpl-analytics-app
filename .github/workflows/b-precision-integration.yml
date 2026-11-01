@@ -1,0 +1,47 @@
+name: B precision and assist integration
+on:
+  push:
+    branches: [improve-b-stability-calibration-20261101]
+  pull_request:
+    paths:
+      - 'scripts/b_simulation_precision.py'
+      - 'scripts/b_precision_calibration.py'
+      - 'analysis/b_precision_development/**'
+      - 'tests/test_b_simulation_precision.py'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  references-and-regression:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+        with: {fetch-depth: 0}
+      - uses: actions/setup-python@v5
+        with: {python-version: '3.12'}
+      - run: pip install -r requirements-model-checkpoint.txt -r requirements-model-tests.txt requests tabulate==0.10.0
+      - name: Preserve all frozen mathematics, published production and forecast log
+        env: {PYTHONPATH: 'src:scripts:.:analysis'}
+        run: |
+          python -c "from b_precision_reference import require_reference,BASELINE;require_reference('.',BASELINE)"
+          git diff --exit-code 161b67b6fb8786a38e78c245b92a03ad841575d8 -- app ':!app/mm-preview'
+          git diff --exit-code c18cfa4b -- analysis/results/systematic-precision-audit-20261101/prospective
+      - name: Full Python regression
+        env: {PYTHONPATH: 'src:scripts:.:analysis', OPENBLAS_NUM_THREADS: '1'}
+        run: python -m pytest -q tests
+      - name: Existing desktop, mobile and probability adapter contracts
+        run: |
+          node tests/test_preview_distributions.js
+          node tests/test_joint_gk_contract.js
+          node tests/test_existing_B_adapter.js
+          node tests/test_B_preview_contract.js
+          node --check app/mm-preview/gk/app.js
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: B-precision-assist-evidence
+          path: |
+            analysis/results/b-precision-development-20261101
+            analysis/b_precision_development/protocol.json
+            docs/tasks/2026-11-01-B-shared-interface.md

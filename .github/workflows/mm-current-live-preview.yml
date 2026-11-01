@@ -103,8 +103,12 @@ jobs:
           assert run['path']=='.github/workflows/mm-current-live-preview.yml'
           compatibility=None
           if run['head_sha']!=pinned:
-              from historical_reference_reuse import require_compatible
-              compatibility=require_compatible(Path('.').resolve(),run['head_sha'],pinned)
+              if Path('scripts/b_precision_reference.py').is_file() and run['head_sha']=='161b67b6fb8786a38e78c245b92a03ad841575d8':
+                  from b_precision_reference import require_reference
+                  compatibility=require_reference(Path('.').resolve(),run['head_sha'])
+              else:
+                  from historical_reference_reuse import require_compatible
+                  compatibility=require_compatible(Path('.').resolve(),run['head_sha'],pinned)
           dest=Path('work/validated-history-artifact')
           subprocess.run(['gh','run','download',run_id,'--name','current-B-public-input-and-validation-evidence','--dir',str(dest)],check=True)
           copied={}

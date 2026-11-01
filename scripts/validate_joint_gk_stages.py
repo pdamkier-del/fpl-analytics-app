@@ -18,6 +18,10 @@ def main(source=None,inputs=None):
     h=pd.read_csv(inputs/'history.csv.gz',low_memory=False);t=pd.read_csv(inputs/'target.csv.gz',low_memory=False);prov=json.loads((inputs/'provenance.json').read_text())
     from gk_solo_role import mark_horizon_absences
     pred,_=infer_B(h,t,prov);pred=mark_horizon_absences(pred,json.loads((inputs/'bootstrap.json').read_text()));frame=attach_mm(pd.read_csv(inputs/'pm.csv.gz',low_memory=False),pred);offsets={fx:i for i,fx in enumerate(sorted(frame.fixture_uuid.unique()))}
+    if payload.get('simulation_precision'):
+        from b_simulation_precision import fixture_offset
+        offsets={fx:fixture_offset(fx,'2026-27')for fx in frame.fixture_uuid.unique()}
+    draws=payload.get('scenario_contract',{}).get('draws',400)
     origin=frame.gw.min();first=frame[frame.gw.eq(origin)].sort_values(['target_kickoff','fixture_uuid']).iloc[0].fixture_uuid
     expected={(x['fixture_uuid'],p['player_uuid']):x for p in payload['players']for w in p['weeks']for x in w['fixtures']}
     evidence=payload['official_gk_evidence'];partial=(evidence['team_id'],)if evidence['unlisted_competitors']else()
@@ -40,7 +44,7 @@ def main(source=None,inputs=None):
     for scope,mask in [('one-match',frame.fixture_uuid.eq(first)),('one-gw',frame.gw.eq(origin))]:
         chosen=frame[mask];p=pred[pred.fixture_uuid.isin(chosen.fixture_uuid)]
         catalogue={r.player_uuid:next(p for p in json.loads((inputs/'bootstrap.json').read_text())['elements']if p['id']==int(r.fpl_element))for r in chosen.itertuples()}if unified else None
-        xp,_,audit,_=run(chosen,p,obs,season='2026-27',incomplete_teams=partial,offsets=offsets,role_policy=policy,distributions=True,chain=unified,catalogue=catalogue,
+        xp,_,audit,_=run(chosen,p,obs,season='2026-27',incomplete_teams=partial,offsets=offsets,role_policy=policy,draws=draws,distributions=True,chain=unified,catalogue=catalogue,
             assignment_history=assignment_history,assignment_strength=assignment_strength,ordinary_goal_weights=goal_weights,conditional_penalties=goal_weights is not None,
             physical_minutes=bool(payload.get('normal_match_timeline')),event_conservation=bool(payload.get('event_conservation')))
         for r in xp.itertuples():

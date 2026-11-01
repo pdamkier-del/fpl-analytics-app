@@ -1,0 +1,25 @@
+{
+  "reference": "c18cfa4b",
+  "single_development_branch": "improve-b-stability-calibration-20261101",
+  "no_production_or_TS_change": true,
+  "MC": {
+    "normal": 2000,
+    "validation_close": 10000,
+    "maximum_fixture_draws": 600000,
+    "fixture_seed": "stable SHA256 season|fixture offset; model arms share seed; larger N preserves prefix",
+    "browser": "summary only; private TS keeps complete aligned canonical scenarios"
+  },
+  "calibration_window": "2024-25 GW22-29 reused research data",
+  "diagnostic_test_windows": [
+    "2024-25 GW30-38",
+    "2025-26 GW22-38"
+  ],
+  "limitations": "NP head trained on 2025-26; 2024 conditional retrospective; both seasons reused. No independent accuracy claim; sealed future log remains untouched.",
+  "candidates": [
+    "shrunken position/role/exposure assist allocation within original event budget"
+  ],
+  "parameter_selection": "One preregistered regularized fit per mechanism; no validation-grid search; report all candidates including rejected",
+  "assist_gate": "Both test windows: FWD assist binary Brier improves and absolute FWD xP bias decreases; overall xP-MAE <=baseline+.005 all /+.02 played; position regressions and cluster intervals disclosed. No unsupported extra assist events/goals.",
+  "simulation_for_gates": "2000 paired draws per fixture; 10000-draw independent-seed controls for noise/close contrasts; immutable original baselines and benchmarks retained",
+  "scope_update": "User delegated MM injury return/P90 to separate Codex; this branch stops/removes MM candidates and owns MC+assists+integration only."
+}

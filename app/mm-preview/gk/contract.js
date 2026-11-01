@@ -14,6 +14,7 @@
   if(!Array.isArray(f.players)||!f.players.length||new Set(f.players.map(p=>p.id)).size!==f.players.length)throw Error('Ufuldstændig spillerliste');
   const cuts=Object.values(f.component_source_asof||{});
   if(cuts.length<2||cuts.some(c=>!Number.isFinite(Date.parse(c))||Date.parse(c)>now||(!(options.latestVerifiedSnapshot===true&&f.model==='B-MM-PM-TS-v1')&&now-Date.parse(c)>24*3600000))||now>=Date.parse(f.origin_deadline))throw Error('Not Available: data eller deadline er udløbet');
+  if(f.transport&&(f.transport.version!=='B-browser-summary-v1'||f.transport.canonical_forecast_sha256!==f.forecast_sha256||f.transport.contains_TS_scenarios!==false||f.transport.server_retains_all_joint_draws!==true))throw Error('Forkert browserprognose-kontrakt');
   const mm=new Map(m.players.map(r=>[r.fixture_id+'|'+r.player_id,r]));
   if(mm.size!==m.players.length)throw Error('Dubleret MM-identitet');
   const groups=new Map();

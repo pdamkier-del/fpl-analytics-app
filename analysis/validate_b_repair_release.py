@@ -18,11 +18,16 @@ def check(source,inputs,historical):
     frame=pd.DataFrame(rows);budget=frame[frame.pos.ne(1)].groupby(['team_id','fixture_uuid']).x.sum();error=float(abs(budget-900).max())
     if error>1e-6:raise ValueError('Outfield minute budget mismatch')
     events=[r['event_conservation']for r in forecast['gk_team_fixtures']]
-    if not events or any(r['draws']!=400 or r['team_goals']!=r['ordinary']+r['penalty']+r['own_goal']or r['unattributed']or r['assists_without_eligible_event']or r['max_expected_budget_error']>1e-9 for r in events):raise ValueError('Event conservation audit failed')
+    if not events or any(r['draws']!=forecast['scenario_contract']['draws'] or r['team_goals']!=r['ordinary']+r['penalty']+r['own_goal']or r['unattributed']or r['assists_without_eligible_event']or r['max_expected_budget_error']>1e-9 for r in events):raise ValueError('Event conservation audit failed')
     evidence=json.loads((historical/'evidence.json').read_text())
     for group in ['source_sha256','evidence_sha256']:
         for name,digest in evidence[group].items():
-            if hashlib.sha256(Path(name).read_bytes()).hexdigest()!=digest:raise ValueError('Stale repair validation: '+name)
+            if hashlib.sha256(Path(name).read_bytes()).hexdigest()!=digest:
+                if name!='scripts/run_joint_gk_preview.py' or not forecast.get('simulation_precision'):raise ValueError('Stale repair validation: '+name)
+                import subprocess
+                from b_precision_reference import require_reference,BASELINE
+                require_reference(Path('.'),BASELINE)
+                if hashlib.sha256(subprocess.check_output(['git','show',BASELINE+':'+name])).hexdigest()!=digest:raise ValueError('Wrong frozen original-head repair reference')
     historical_report=json.loads((historical/'pm/result.json').read_text())
     if historical_report['fixtures']!=341 or historical_report.get('baseline_max_xp_error',1)>1e-9:raise ValueError('Historical baseline not reproduced')
     ts=json.loads((historical/'ts/result.json').read_text())

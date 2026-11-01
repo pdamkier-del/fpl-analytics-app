@@ -10,26 +10,31 @@ from fpl_v1_1_model import joint_simulator as simulator
 
 
 def simulate_with_distributions(inp, *, n=400, seed=93000000, include_samples=False):
-    draws={p.player_id:[] for p in inp.players}
+    players=list(inp.players);ids=[p.player_id for p in players]
+    samples=np.empty((n,len(players),6),dtype=np.int16);cursor=0
     def collect(result):
-        for pid in draws:
-            r=result[pid]
-            draws[pid].append((r.minutes,r.started,r.points,r.goals-r.penalty_goals,r.penalty_goals,r.penalty_miss))
+        nonlocal cursor
+        for j,pid in enumerate(ids):
+            r=result[pid];values=(r.minutes,r.started,r.points,r.goals-r.penalty_goals,r.penalty_goals,r.penalty_miss)
+            if any(abs(v)>32767 for v in values):raise ValueError('B scenario exceeds int16 storage')
+            samples[cursor,j]=values
+        cursor+=1
     aggregate=simulator.simulate_many(inp,n=n,seed=seed,on_match=collect)
     separated=any(p.penalty_fallback_weight is not None for p in inp.players)
     team_probability={}
     if separated:
         for team in (inp.home_team,inp.away_team):
-            counts=np.sum([np.asarray(draws[p.player_id])[:,4]+np.asarray(draws[p.player_id])[:,5]for p in inp.players if p.team==team],axis=0)
+            counts=np.sum([samples[:,j,4].astype(np.int32)+samples[:,j,5]for j,p in enumerate(players)if p.team==team],axis=0)
             team_probability[team]=float(np.mean(counts>0))
     player_teams={p.player_id:p.team for p in inp.players}
-    for pid,values in draws.items():
-        minutes,started,points,ordinary,penalties,misses=np.asarray(values).T
+    if cursor!=n:raise ValueError('B simulator returned incomplete draws')
+    for j,pid in enumerate(ids):
+        minutes,started,points,ordinary,penalties,misses=samples[:,j,:].T
         row=aggregate[pid]
         if float(points.mean())!=row['xPts'] or float(minutes.mean())!=row['expected_minutes']:
             raise ValueError('Preview distributions do not reproduce locked PM draws')
         row['distribution']={
-            'draws':n,'p_start':float(started.mean()),
+            'draws':n,'xp_mcse':float(points.std(ddof=1)/np.sqrt(n))if n>1 else None,'p_start':float(started.mean()),
             'p_zero':float(np.mean(minutes==0)),
             'p_cameo':float(np.mean((minutes>0)&(started==0))),
             'p_60_plus':float(np.mean(minutes>=60)),'p_90':float(np.mean(minutes==90)),
