@@ -40,5 +40,7 @@ jobs:
         if: always()
         with:
           name: return-p90-candidate-evidence
-          path: work/return-p90-results
+          path: |
+            work/return-p90-results/metrics.csv
+            work/return-p90-results/manifest.json
           retention-days: 90
