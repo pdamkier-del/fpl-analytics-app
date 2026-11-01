@@ -1,0 +1,93 @@
+{
+  "classification": "RESEARCH_COMPLETE_CANDIDATE_NOT_PROMOTED",
+  "source_hashes_verified": true,
+  "workload_content_verified": true,
+  "all_fit_labels_prior_to_cutoff": true,
+  "all_context_clocks_prior_to_cutoff": true,
+  "MM_identity_and_exact11_pass": true,
+  "hard_absences_preserved": true,
+  "outfield_role_recovery": {
+    "2024-25": {
+      "baseline": {
+        "mm": {
+          "rows": 91,
+          "start_brier": 0.21904165731746889,
+          "minute_mae": 29.391278545481033,
+          "minute_bias": 2.2719877161172715
+        },
+        "pm": {
+          "rows": 91,
+          "xp_mae": 1.6603296703296704,
+          "xp_bias": 0.21554945054945054
+        }
+      },
+      "candidate": {
+        "mm": {
+          "rows": 91,
+          "start_brier": 0.22780557478124508,
+          "minute_mae": 29.750335596443378,
+          "minute_bias": 4.592114667142622
+        },
+        "pm": {
+          "rows": 91,
+          "xp_mae": 1.7045329670329672,
+          "xp_bias": 0.30920329670329677
+        }
+      }
+    },
+    "2025-26": {
+      "baseline": {
+        "mm": {
+          "rows": 11,
+          "start_brier": 0.21486265801621632,
+          "minute_mae": 25.294496917929226,
+          "minute_bias": 7.06435772181812
+        },
+        "pm": {
+          "rows": 11,
+          "xp_mae": 2.1786363636363637,
+          "xp_bias": -0.5727272727272728
+        }
+      },
+      "candidate": {
+        "mm": {
+          "rows": 11,
+          "start_brier": 0.19302250333119944,
+          "minute_mae": 23.669447211322062,
+          "minute_bias": 5.26510702487095
+        },
+        "pm": {
+          "rows": 11,
+          "xp_mae": 2.1988636363636367,
+          "xp_bias": -0.6943181818181818
+        }
+      }
+    }
+  },
+  "point_uncertainty": {
+    "2024-25": {
+      "xp_mae_delta": -0.0005703929797787096,
+      "fixture_paired_CI95": [
+        -0.0021098964801944875,
+        0.000944055493387245
+      ]
+    },
+    "2025-26": {
+      "xp_mae_delta": 0.00013924461944263966,
+      "fixture_paired_CI95": [
+        -0.0007008339524670805,
+        0.0009774660171699564
+      ]
+    }
+  },
+  "promotion_allowed": false,
+  "reasons": [
+    "Intended role-recovery subgroup worsens in 2024-25.",
+    "Only 11 eligible outfield recovery rows in 2025-26; incomplete European data.",
+    "Actual historical publication/ingestion timing and complete pre-cutoff future European fixture schedules are not certified.",
+    "Reused development/research periods are not pristine independent holdouts."
+  ],
+  "interpretation": "Small aggregate predictive improvements do not establish a general rule that a European start should erase a prior PL bench signal. No conclusion that European context is irrelevant.",
+  "production_changed": false,
+  "preview_changed": false
+}

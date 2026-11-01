@@ -1,0 +1,33 @@
+# Private B calculation capacity waiting
+
+The private service accepts one running job at a time and returns HTTP 429 before accepting another job. Existing clients treated that temporary refusal as a fatal calculation error. The reported screenshot is therefore a capacity refusal, not another invalid-state/time-gate error.
+
+Only copied B clients change. MM, PM, TS, the original production client and the service's single-worker/12-receipt limits remain unchanged. A preview-only submit helper retries 429/503 with the exact same serialized body, private request ID and key. Retry-After seconds are respected within bounds; otherwise waits increase from 10 to 30 seconds. Waiting is bounded to 35 minutes per activation, after which the receipt remains available for an explicit retry. Non-retryable validation/authentication errors remain terminal.
+
+Feedback distinguishes waiting for a free calculation slot from an accepted/running job and from an exhausted capacity wait. It does not invent a server queue position or claim an accepted receipt before HTTP 202. Duplicate clicks remain blocked. Before retrying, the client rereads actual private state and a current cached result, checks the model index identity/cutoff and refreshes verified injury/news alignment. Changed inputs stop stale submission; a newly available valid local plan is shown without a new POST. Actual state, prices, bank, FT, chips and observation time are preserved.
+
+The retry module unit tests cover identical payload/ID across refusals, one eventual acceptance, reuse of a completed local plan, changed-state cancellation, bounded waiting and preservation of non-retryable errors. The desktop/mobile planner test now simulates two 429 responses followed by acceptance, asserts an explicit waiting phase/disabled button, three identical attempts and exactly one accepted original six-GW job. Test requests are intercepted; no synthetic state is sent to the real worker.
+
+The UI gate uses the latest successful full numerical artifact `39425077877`, actual source `65ab05201212e81be82bed59d0fef788fd8a78d0`, wrapper head `caec8301f2273bd8bdae6273159778f0f6e28841`. Forecast bytes and numerical source boundaries remain checked. No unnecessary model rebuild or capacity increase is introduced.
+
+
+UI source: `78caed771823c588092d50b78a4fd08d67010e61`. Local helper/unit and desktop/mobile browser tests passed. CI `39432214037` passed 728 Python regressions, capacity helper/other JS checks and four desktop/mobile suites. Public UI publication `39433076732` passed; main source-pin commit `15bff8a320bf4db159d6f0c09f08b4b8fd29c244` changes only the three B preview publication configurations. Receipt and both numerical files were verified unchanged (88 production files identical).
+
+Post-deployment actual-news readiness testing found a separate, genuine input change: Ruggeri (FPL ID 596) changed from “Hamstring injury - Unknown return date” to “Hamstring injury - Expected back 2 Jan”, while status/price/chance fields stayed unchanged. The existing forecast gives future-GW minutes, so the new return information was not treated as irrelevant metadata or silently ignored. A full current refresh was dispatched as run `39434048234`, pinned to this validated capacity UI source. The injury-news guard remains intact. One public simulated-planner pass also hit a transient missing-context load timeout; a standalone download observed an incomplete response, then bounded retry verified the unchanged forecast bytes. Public verification will be repeated after the fresh coherent model/news publication.
+
+The first refresh failed safely at the catalogue guard: Maatsen (36) changed from injured/0% to doubtful/75%, and Wan-Bissaka (611) changed from doubtful/75% to injured/0% between the source-chain and official-evidence captures. Nothing from that failed run was published. A replacement complete run `39437545079` uses the same validated source pin.
+
+The public desktop/mobile capacity/planner browser test subsequently passed with the served UI and coherent intercepted news/worker answers: two 429 refusals, three identical private POST payloads, exactly one accepted job, current-plan reuse without recomputation, preserved state, no page errors and no real private test jobs. The actual public worker health also matches the SHA-256 of the tested `service/app.py` + unchanged `service/manager_job.py`, with original locked Python runtime and preview/idempotent support. The public real-news readiness check remains a separate requirement after the replacement full refresh.
+
+Replacement full refresh and publication `39437545079` succeeded. All 728 regressions, original-chain and B→locked PM repeats, joint-GK historical/uncertainty/role checks and deterministic coverage/stage gates passed. It covers 668 players, 60 fixtures, GW8–13. The original six-GW TS was also run locally against this exact new forecast to prepare a private synthetic browser fixture; that fixture is never published.
+
+- Planning capture: `2026-10-20T14:23:21.988478+00:00` (16:23:21 Copenhagen), canonical SHA-256 `ee4c118518d14792af49e34beda13642ef9b7e61dbba9ef2073b0635b5c39b93`.
+- Goalkeeper probability capture: `2026-10-20T14:33:08.757490+00:00` (16:33:08 Copenhagen), canonical SHA-256 `363a7711f1135494167170fdd20efd36900fb658b5469ec4c242fb00172d1a2f`.
+- News publication `39439065299` succeeded; observed `2026-10-20T14:33:14.967700+00:00` (16:33:14 Copenhagen). Checksum verified and all 668 candidate identities/prices/status/news/chances match the new planning catalogue.
+- Both served forecast files match the new numerical artifact byte-for-byte, and the public receipt confirms source `78caed771823c588092d50b78a4fd08d67010e61` with all 88 production files identical. A first read during Pages propagation returned the previous forecast; the repeated read matched both new artifacts exactly.
+
+For subsequent UI-only validation, reuse successful full run `39437545079`, main wrapper head `15bff8a320bf4db159d6f0c09f08b4b8fd29c244`, actual application source `78caed771823c588092d50b78a4fd08d67010e61`. Do not publish the older numerical artifact over this newer forecast.
+
+Final public Chromium check against the new forecast and actual (unmocked) news passed: the reported observation `2026-10-20T12:45:34+00:00` is valid, `usable=true`, the UI is ready for a missing-plan calculation (`phase=stale`), actual worker health is reachable with original/preview/idempotent support, no state mutation, no page errors, no actual private test POSTs. This does not claim completion of the user's inaccessible local personal plan.
+
+Preview: https://pdamkier-del.github.io/fpl-analytics-app/mm-preview/app/transfers-classic.html?release=78caed7&refresh=20261020-1655

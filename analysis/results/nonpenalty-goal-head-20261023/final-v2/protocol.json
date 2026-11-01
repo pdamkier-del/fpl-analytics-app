@@ -1,0 +1,13 @@
+{
+  "training": "2025/26 GW16-21, existing development window; no validation results used",
+  "event": "verified FPL-scale npxG estimate, .79 per scored or missed penalty",
+  "features": [
+    "np_last_xg",
+    "np_recent3_xg"
+  ],
+  "allocation": "existing shared fit_allocator, fixed L2=200; ordinary-goal head only",
+  "attack": "refit half-life and shrinkage minutes using development NP-xG Poisson loss, bounded prior ranges; no player-specific parameters",
+  "validation": "2025/26 GW22-38 primary reused diagnostic; 2024/25 GW22-38 conditional robustness, not independent chronological holdout",
+  "selection": "One fixed candidate, no holdout tuning",
+  "promotion": "hard structural separation and unchanged default production; overall xP MAE noninferiority <=.005, played <=.02 per season; report taker bias and all cohorts without hiding regressions"
+}

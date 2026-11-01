@@ -1,0 +1,40 @@
+{
+  "parent_commit": "5850bc2",
+  "tests": {
+    "command": "PYTHONPATH=src:scripts:.:analysis OPENBLAS_NUM_THREADS=1 /workspace/fpl-venv/bin/python -m pytest -q tests",
+    "passed": 980,
+    "seconds": 69.56
+  },
+  "unchanged_default_replay": {
+    "fixtures": 100,
+    "individual_match_draws": 2000,
+    "aggregate_draws": 2000,
+    "preview_draws": 2000,
+    "all_fields_intervals_rng_and_shared_scenarios_exact": true
+  },
+  "historical_replay": {
+    "fixtures": 341,
+    "player_rows": 27092,
+    "baseline_max_xp_error": 0
+  },
+  "archived_current_replay": {
+    "fixtures": 60,
+    "players": 669,
+    "player_rows": 4014,
+    "baseline_max_xp_error": 0,
+    "shared_appearance_and_GK_scenario_contracts_passed": true,
+    "full_TS_optimizer_tested": false
+  },
+  "active_B_changed": false,
+  "production_changed": false,
+  "new_preview_published": false,
+  "source_sha256": {
+    "src/fpl_v1_1_model/experimental_joint_appearances.py": "3af5b4187fd5bc6e28666f76b46ba580ef350cc3f0242fd278cf88b3cd502206",
+    "analysis/screen_joint_appearances.py": "8ca2f82e6e9b2ef5c113f3c44823078095d9249c60da2624369e73d2fbba0b40",
+    "analysis/check_current_joint_appearances.py": "0f5bea96bbecc1056d3b244891cb94b2838cbbcc299251f5a533e649cafc45cf",
+    "analysis/summarize_joint_appearances.py": "e60116d94917b0d6c844ef5869e10efbf826cf6dd40777ee6aa47a5203d6b641",
+    "tests/test_joint_appearances.py": "46b5daef248f124718f495a8f8d1872cf01817983a65f7b7f956577f3d0abebe",
+    "src/fpl_v1_1_model/joint_simulator.py": "557857c7bc3bf56db75e0505a50606b4704c3534fdcced502783a3da34e0c953",
+    "analysis/results/nonpenalty-goal-head-20261023/policy.json": "dd4afcd42420c2fc26a254ccbfe619770055719f1a31b5719cb17ba7fe2d3bf5"
+  }
+}

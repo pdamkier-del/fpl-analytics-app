@@ -1,0 +1,18 @@
+{
+  "decision": "retain existing live model; neither raw nor calibrated fixed blend/individual arms improves overall or played xP RMSE in both seasons",
+  "live_changes": false,
+  "all_player_rows_per_arm": 27092,
+  "fixtures": 341,
+  "unique_players": 1091,
+  "prepared_task_semantic_sha256": "dce1e87b3fbe885eede0bfbc7e6d591fc51b7bd7563af1caa39bcbb2701c5a83",
+  "source_hashes": {
+    "analysis/research_attack_budget.py": "59e383b78e808807e4bd9e14dbc28d861d46471b724c0867f48a563f47f46299",
+    "src/fpl_v1_1_model/joint_simulator.py": "557857c7bc3bf56db75e0505a50606b4704c3534fdcced502783a3da34e0c953",
+    "src/fpl_v1_1_model/experimental_physical_timeline.py": "6240c1f9b3e11618f7e6d1c5d48c804d17c400cfd8cc46b6d53f8e77fb52e159",
+    "analysis/results/simple-market-model-20261025/rate-audit.csv.gz": "ca92b0fd32122b2ebfcfccf0e6fec903907484a1cf0260fb483d07220c3202e8"
+  },
+  "regression_tests_passed": 81,
+  "additional_prior_transfer_tests_passed": 31,
+  "independent_validation": false,
+  "next_priority": "Explore forecast calibration in high-xP group on proper development/future data, improve source scope and evaluate transfer search coverage separately; do not lower all assist forecasts based on MGW."
+}

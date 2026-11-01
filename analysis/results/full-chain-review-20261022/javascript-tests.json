@@ -1,0 +1,164 @@
+[
+  {
+    "test": "tests/test_B_personal_view.js",
+    "exit_code": 0,
+    "seconds": 0.08,
+    "output": "B personal view: 11 summary, horizon, no-mutation, snapshot-link and escaping checks passed\n"
+  },
+  {
+    "test": "tests/test_B_preview_contract.js",
+    "exit_code": 0,
+    "seconds": 0.05,
+    "output": "B preview: 10 contract, identity, sampling and uncertainty checks passed\n"
+  },
+  {
+    "test": "tests/test_B_preview_jobs.js",
+    "exit_code": 0,
+    "seconds": 0.05,
+    "output": "B preview jobs: 7 failure/retry/timeout/response checks passed\n"
+  },
+  {
+    "test": "tests/test_catalog_data.js",
+    "exit_code": 0,
+    "seconds": 0.06,
+    "output": "PASS classic catalogs: official ID joins, genuine zero vs absent data, bidirectional missing-last sorting, cutoff-safe expectations and DGW handling\nPASS original MM XI display: exact selected identities, original role layers, bench, unavailable and freshness/checksum gates\n"
+  },
+  {
+    "test": "tests/test_classic_fixtures.js",
+    "exit_code": 0,
+    "seconds": 0.06,
+    "output": "PASS classic fixtures: actual ID links, all GWs, unscheduled games, status filters, zero score and absent model data; no legacy demo bootstrap\n"
+  },
+  {
+    "test": "tests/test_classic_manager.js",
+    "exit_code": 0,
+    "seconds": 0.1,
+    "output": "PASS classic My Team asynchronous bootstrap\nPASS classic manager: actual-state binding, price invalidation, validation output rejection, deadline expiry and private-state preservation\n"
+  },
+  {
+    "test": "tests/test_classic_pitch_import.js",
+    "exit_code": 0,
+    "seconds": 0.05,
+    "output": "PASS classic pitch: private import completes before empty-store lookup; all 15 actual-input slots render\n"
+  },
+  {
+    "test": "tests/test_classic_profile.js",
+    "exit_code": 0,
+    "seconds": 0.05,
+    "output": "PASS original classic profile: ID-keyed teams, actual fixture join, model components and official statistics\n"
+  },
+  {
+    "test": "tests/test_dashboard_team_news.js",
+    "exit_code": 0,
+    "seconds": 0.07,
+    "output": "Team news: owned-only feed, official doubt status, news/model gating, no stale plan, next-GW/state guards, escaping and automatic request deduplication passed\nPASS: new official injury and team timestamp waits have distinct reasons; off-squad news stays outside the owned feed.\n"
+  },
+  {
+    "test": "tests/test_existing_B_adapter.js",
+    "exit_code": 0,
+    "seconds": 0.12,
+    "output": "Existing B app adapter: 8 checksum, routing, stale-source isolation and privacy checks passed\n"
+  },
+  {
+    "test": "tests/test_forecast_window.js",
+    "exit_code": 0,
+    "seconds": 0.08,
+    "output": "7 forecast deadline and official-GW checks passed\nPASS: changed current prices invalidate cached recommendations without repricing the locked model\n"
+  },
+  {
+    "test": "tests/test_joint_gk_contract.js",
+    "exit_code": 0,
+    "seconds": 0.04,
+    "output": "Joint GK preview: integrity,90-minute coverage,exclusive start mass,staleness and probability checks passed\nExplicit unified B snapshot accepts older sources while keeping deadline, future-source and MM/PM guards; other models stay strict.\n"
+  },
+  {
+    "test": "tests/test_latest_snapshot.js",
+    "exit_code": 0,
+    "seconds": 0.06,
+    "output": "PASS: old B data and later team observations are usable with advisory; deadlines, future data, other GW and production remain protected.\n"
+  },
+  {
+    "test": "tests/test_manager_confirmation.js",
+    "exit_code": 0,
+    "seconds": 0.04,
+    "output": "PASS: identical confirmations preserve actual provenance; changed bank, FT and GW establish a new observation.\n"
+  },
+  {
+    "test": "tests/test_manager_forecast_resume.js",
+    "exit_code": 0,
+    "seconds": 0.07,
+    "output": "PASS: waiting team automatically resumes once with fresh data; actual squad and prices stay unchanged.\n"
+  },
+  {
+    "test": "tests/test_manager_rollover.js",
+    "exit_code": 0,
+    "seconds": 0.04,
+    "output": "PASS: new-GW editor retains old actual prices/FT/chips/time as an unconfirmed draft, never inventing a new state.\n"
+  },
+  {
+    "test": "tests/test_match_data.js",
+    "exit_code": 0,
+    "seconds": 0.06,
+    "output": "PASS public match data: fixture identities, true zero, missing latest matches, snapshot gating, safe names and honest absent statistics\n"
+  },
+  {
+    "test": "tests/test_pipeline_status.js",
+    "exit_code": 0,
+    "seconds": 0.09,
+    "output": "PASS: missing, failed and overdue forecast attempts are visible; next hourly :17 is correct.\n"
+  },
+  {
+    "test": "tests/test_planner_experience.js",
+    "exit_code": 0,
+    "seconds": 0.25,
+    "output": "PASS: exact GW diagnosis, confirmed rollover preserving all actual IDs/prices/chips, constraints, hit arithmetic, unchanged legacy plan archive.\n"
+  },
+  {
+    "test": "tests/test_player_profile_snapshot.js",
+    "exit_code": 0,
+    "seconds": 0.04,
+    "output": "PASS original profile: primary xP/minutes/startchance share original snapshot\n"
+  },
+  {
+    "test": "tests/test_preview_capacity.js",
+    "exit_code": 0,
+    "seconds": 0.04,
+    "output": "PASS: busy retries preserve exact private payload/id, accept once, stop on state change/cached completion, bound waiting and preserve terminal errors.\n"
+  },
+  {
+    "test": "tests/test_preview_distributions.js",
+    "exit_code": 0,
+    "seconds": 0.07,
+    "output": "PM probability validation passed\n"
+  },
+  {
+    "test": "tests/test_private_backup_restore.js",
+    "exit_code": 0,
+    "seconds": 0.06,
+    "output": "PASS: expired backup retains actual prices; invalid imports cannot overwrite saved state; absent plan removes old plan.\n"
+  },
+  {
+    "test": "tests/test_private_import.js",
+    "exit_code": 0,
+    "seconds": 0.27,
+    "output": "PASS: private portable import, tamper rejection, fixed HTTPS origin and fragment removal.\n"
+  },
+  {
+    "test": "tests/test_roles_view.js",
+    "exit_code": 0,
+    "seconds": 0.07,
+    "output": "PASS role display: exact MM role overlap, safe names, absent source and separate role/start probabilities\n"
+  },
+  {
+    "test": "tests/test_weekly_compute.js",
+    "exit_code": 0,
+    "seconds": 0.06,
+    "output": "Weekly compute: duplicate cold starts blocked; progress and retry survive DOM replacement.\n"
+  },
+  {
+    "test": "tests/test_weekly_network.js",
+    "exit_code": 0,
+    "seconds": 0.09,
+    "output": "PASS: timeout and disconnect preserve jobs; changed forecasts reject completed stale results.\n"
+  }
+]

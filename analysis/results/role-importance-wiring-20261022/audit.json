@@ -1,0 +1,222 @@
+{
+  "classification": "READ_ONLY_ROLE_IMPORTANCE_WIRING_AUDIT",
+  "public_MM_data_at": "2026-10-22T07:48:38.065937+00:00",
+  "public_MM_file_sha256": "40523d473398cd6d81e88344db8b32b23b56139c6fbb6dd3b43e6529eeec1a38",
+  "frozen_B_input_cutoff": "2026-10-22T08:16:18.463735+00:00",
+  "input_sha256": {
+    "target.csv.gz": "b730414e1c22c9ff9e06e0a659dc4d0eb95358ab5308d2d598e707309c5547bd",
+    "history.csv.gz": "7749a3dbfceadc028eaad41f6262a4111cd4563de7c6045071bdc779c2a7df16",
+    "roles.csv.gz": "d8b6b5d27e3451d6ac0f4e2c921f1a4e725658c6c5be14e98660a3feae3cdc62",
+    "provenance.json": "5eda4f6bf80e15d642978430c49caa43ee05170982d44ea35606ce97ca4931b3"
+  },
+  "code_sha256": "0934f275c2659bf32a123b5dcabbae5f9bd087198ebcba66264df114238b6081",
+  "role_ledger_matches": 117,
+  "role_ledger_matches_by_competition": {
+    "prem": 70,
+    "efl": 23,
+    "cl": 15,
+    "el": 6,
+    "conf_qual": 2,
+    "conf": 1
+  },
+  "public_roles": {
+    "Ndiaye": {
+      "p_start": 0.8765642271116566,
+      "primary_role": "RAM",
+      "secondary_role": "RW",
+      "role_probabilities": {
+        "LW": 0.19590409890153304,
+        "RAM": 0.5241154390208614,
+        "RW": 0.27998046207760546
+      }
+    },
+    "Foden": {
+      "p_start": 0.7103177991068911,
+      "primary_role": "RAM",
+      "secondary_role": "CAM",
+      "role_probabilities": {
+        "CAM": 0.2165202322694976,
+        "RAM": 0.628757546450093,
+        "RW": 0.15472222128040936
+      }
+    },
+    "Cherki": {
+      "p_start": 0.46540859872755846,
+      "primary_role": "CAM",
+      "secondary_role": "RCM",
+      "role_probabilities": {
+        "CAM": 0.6747062651218901,
+        "LCM": 0.09261611350520667,
+        "RCM": 0.23267762137290318
+      }
+    }
+  },
+  "display_assignment": {
+    "feasible": true,
+    "assignment_score": 16.45654279827999,
+    "XI": [
+      {
+        "slot": "GK",
+        "player": "Donnarumma"
+      },
+      {
+        "slot": "RB",
+        "player": "Matheus N."
+      },
+      {
+        "slot": "RCB",
+        "player": "Rúben"
+      },
+      {
+        "slot": "LCB",
+        "player": "Guéhi"
+      },
+      {
+        "slot": "LB",
+        "player": "Gvardiol"
+      },
+      {
+        "slot": "RDM",
+        "player": "Enzo"
+      },
+      {
+        "slot": "LDM",
+        "player": "Anderson"
+      },
+      {
+        "slot": "RAM",
+        "player": "Ndiaye"
+      },
+      {
+        "slot": "CAM",
+        "player": "Foden"
+      },
+      {
+        "slot": "LAM",
+        "player": "Doku"
+      },
+      {
+        "slot": "ST",
+        "player": "Haaland"
+      }
+    ]
+  },
+  "forced_Foden_right_Cherki_central": {
+    "feasible": true,
+    "assignment_score": 15.481710937887994,
+    "XI": [
+      {
+        "slot": "GK",
+        "player": "Donnarumma"
+      },
+      {
+        "slot": "RB",
+        "player": "Matheus N."
+      },
+      {
+        "slot": "RCB",
+        "player": "Rúben"
+      },
+      {
+        "slot": "LCB",
+        "player": "Guéhi"
+      },
+      {
+        "slot": "LB",
+        "player": "Gvardiol"
+      },
+      {
+        "slot": "RDM",
+        "player": "Enzo"
+      },
+      {
+        "slot": "LDM",
+        "player": "Anderson"
+      },
+      {
+        "slot": "RAM",
+        "player": "Foden"
+      },
+      {
+        "slot": "CAM",
+        "player": "Cherki"
+      },
+      {
+        "slot": "LAM",
+        "player": "Ndiaye"
+      },
+      {
+        "slot": "ST",
+        "player": "Haaland"
+      }
+    ]
+  },
+  "forced_attacking_trio_Doku_Cherki_Foden": {
+    "feasible": true,
+    "assignment_score": 14.69898206415036,
+    "XI": [
+      {
+        "slot": "GK",
+        "player": "Donnarumma"
+      },
+      {
+        "slot": "RB",
+        "player": "Matheus N."
+      },
+      {
+        "slot": "RCB",
+        "player": "Rúben"
+      },
+      {
+        "slot": "LCB",
+        "player": "Guéhi"
+      },
+      {
+        "slot": "LB",
+        "player": "Gvardiol"
+      },
+      {
+        "slot": "RDM",
+        "player": "Enzo"
+      },
+      {
+        "slot": "LDM",
+        "player": "Anderson"
+      },
+      {
+        "slot": "RAM",
+        "player": "Foden"
+      },
+      {
+        "slot": "CAM",
+        "player": "Cherki"
+      },
+      {
+        "slot": "LAM",
+        "player": "Doku"
+      },
+      {
+        "slot": "ST",
+        "player": "Haaland"
+      }
+    ]
+  },
+  "assignment_score_gap": 0.9748318603919959,
+  "important_caveat": "Assignment score is an optimizer objective, not a probability or evidence that either XI will start.",
+  "controlled_wiring_checks": {
+    "B_probabilities_unchanged_when_unconsumed_importance_and_role_columns_mutated": true,
+    "display_roles_and_XI_unchanged_when_historical_importance_reversed": true,
+    "B_p_start_has_no_feedback_from_FormationSelector": true
+  },
+  "findings": [
+    "Foden already has historical RAM and RW support; the problem is not missing right-wing eligibility.",
+    "FormationSelector chooses a point XI after B marginal probabilities are fixed; the role history does not feed back from this assignment into those probabilities.",
+    "FormationSelector uses unweighted historical role counts with time decay and formation frequencies; its input importance column is discarded.",
+    "Upstream role summaries and PM tactical priors do exist; these checks do not claim that all earlier model components ignore roles or importance.",
+    "The joint starter kernel in joint_simulator uses exact outfield count and marginal p, not formation-slot compatibility or alternative-XI importance scores.",
+    "No proper end-to-end role-by-target-importance calibration/alternative-XI historical validation is established by the existing unit tests."
+  ],
+  "production_changed": false,
+  "preview_changed": false,
+  "model_changed": false
+}

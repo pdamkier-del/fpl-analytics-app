@@ -1,0 +1,23 @@
+{
+  "version": "competition-context-sidecar-v2",
+  "players": 669,
+  "fixture_rows": 4014,
+  "cutoff": "2026-10-24T19:20:08.323222+00:00",
+  "source_sha256": {
+    "work/live-final-model/match_actuals.jsonl.gz": "e0ae7298e9585cde20e0d4257e5edbcd0710eb03b501fbe28424f48c44244555",
+    "work/live-final-model/player_match_events.jsonl.gz": "41fe837da8289e417b604855a2c11ec2aeaa6f6a51de71505deda42bc84edf11",
+    "/workspace/scratch/fpl-origin-40124214540/work/current-B-inputs/pm.csv.gz": "cb83d4cf63f8cd6a44d243f18ee34e63e1d30a58f76c900ada25e62349d2fa99",
+    "/workspace/scratch/fpl-origin-40124214540/work/current-B-inputs/target.csv.gz": "2a1ce79ad412fa331c5095154c13b1eb7c52bed5ec3bd476997d3046cf3efbbd"
+  },
+  "context_sha256": "89fd328dfe5daaf275e6db4907168dd9e0c0fca254d8c401c0cd5a5858746013",
+  "coverage_complete": false,
+  "source_clock_type": "max(actual per-match observed_at, recorded availability); no backdating before capture",
+  "earliest_capture": "2026-10-23 07:29:35.528703+00:00",
+  "latest_capture": "2026-10-23 07:29:40.895619+00:00",
+  "missing_minutes": 893,
+  "identity_scope": "canonical team_id and player_uuid; provider team_code never treated as canonical club ID",
+  "minute_input_recipe": "Preserve authoritative PL feature values, add only non-PL events; never replace fresh PL history with an older retained archive",
+  "numbers_reweighted": false,
+  "activated": false,
+  "production_changed": false
+}

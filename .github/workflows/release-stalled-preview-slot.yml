@@ -1,0 +1,42 @@
+name: Release exact stalled B publication slot
+on:
+  workflow_dispatch:
+permissions:
+  actions: read
+  contents: read
+jobs:
+  inspect:
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    timeout-minutes: 3
+    steps:
+      - name: Require the old duplicate to be the only waiting publication
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          python - <<'PY'
+          import os,json,urllib.request
+          base='https://api.github.com/repos/pdamkier-del/fpl-analytics-app'
+          def get(path):
+              with urllib.request.urlopen(urllib.request.Request(base+path,headers={'Authorization':'Bearer '+os.environ['GH_TOKEN'],'Accept':'application/vnd.github+json'}),timeout=30)as response:return json.load(response)
+          target=get('/actions/runs/40907419458')
+          assert target['status']=='waiting'and target['head_branch']=='main'and target['path']=='.github/workflows/mm-current-preview-publication.yml'
+          active=[]
+          for status in ['waiting','in_progress','queued']:
+              active += get('/actions/runs?per_page=100&status='+status)['workflow_runs']
+          # These are the repository's existing shared Pages publication paths.
+          paths={'mm-current-preview-publication.yml','free-pages.yml','weekly-model-review.yml','publish-fpl-update.yml','retry-verified-b-pages.yml','cancel-stalled-b-preview.yml'}
+          shared=[r for r in active if r['path'].split('/')[-1]in paths]
+          assert [r['id']for r in shared]==[40907419458],[(r['id'],r['status'],r['path'])for r in shared]
+          print('Only exact abandoned B duplicate holds the publication slot. No other Pages job is active.')
+          PY
+  release:
+    needs: inspect
+    runs-on: ubuntu-latest
+    timeout-minutes: 3
+    concurrency:
+      group: fpl-pages-publication
+      cancel-in-progress: true
+    steps:
+      - name: Release scheduler slot without deploying or changing protections
+        run: echo 'Old duplicate superseded through the existing concurrency group. No assets, model, environment rules or deployment permissions changed.'

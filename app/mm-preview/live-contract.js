@@ -1,7 +1,7 @@
 'use strict';
 (function(root){
  function catalogue(f,o){
-  if(f?.model!=='B_locked_PM_preview'||f.scope!=='prospective_preview'||f.locked_model_active!==false||f.minute_sampler_audit?.sampler!=='locked')throw Error('Forkert aktuel B-/PM-kontrakt');
+  if(!['B_locked_PM_preview','B-MM-PM-TS-v1'].includes(f?.model)||f.scope!=='prospective_preview'||f.locked_model_active!==false||f.minute_sampler_audit?.sampler!==(f.model==='B-MM-PM-TS-v1'?f.model:'locked'))throw Error('Forkert aktuel B-/PM-kontrakt');
   const byId=new Map(o?.players?.map(p=>[p.id,p]));
   if(!byId.size||byId.size!==o.players.length||byId.size!==f.players?.length||new Set(f.players.map(p=>p.id)).size!==byId.size)throw Error('Officielt spillerudvalg er ændret; nyt forecast kræves');
   for(const p of f.players){const q=byId.get(p.id);if(!q||q.team!==p.team_id||q.position!==p.position||!Number.isInteger(p.price_tenths)||Math.abs(q.price*10-p.price_tenths)>1e-6)throw Error('Pris, klub eller position er ændret; nyt forecast kræves');

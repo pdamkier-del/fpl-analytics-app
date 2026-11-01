@@ -1,0 +1,32 @@
+{
+  "decision": "retain_existing_B_release",
+  "approved": false,
+  "existing_release": "eef055ef9aa0bd3d8a013b05e3e309b326ff98298171bc9a2cccd361c6d2a134",
+  "production_changed": false,
+  "preview_changed": false,
+  "candidates": {
+    "penalty-neutral-candidate-20261023": {
+      "passed": false,
+      "decision_sha256": "a6c32aaa51558b0d61dc08acb3427701351104d016a2d78ee72b1bcc76c02b4f"
+    },
+    "penalty-neutral-combined-20261023": {
+      "passed": false,
+      "decision_sha256": "616623c9f92e54c0ed657fd581762695c30e3d7107cbb3068313e80ca5af195d"
+    },
+    "penalty-conditional-only-20261023": {
+      "passed": false,
+      "decision_sha256": "2ef28c1f8ba2d1de2137cd10282d9c56fb7841ff08b8d0209a55c063b08f9ae1"
+    }
+  },
+  "regression_tests_passed": 859,
+  "current_fixtures": 60,
+  "current_player_fixture_rows": 4008,
+  "code_sha256": {
+    "src/fpl_v1_1_model/experimental_penalty_neutral.py": "afb4281542d83ea1c8a0a3a557eb21c6ca4e365be9dab2e93aef0cb9b4e2bf62",
+    "src/fpl_v1_1_model/joint_simulator.py": "499b77bab34ed66da9a29f3e4982c3bdc961fbb0f0d671340ff4fe9305d5e357",
+    "analysis/test_penalty_neutral_candidate.py": "7e6c256c1a779d57a733d52a5b549655c6480b6d10731b543ab6337456340ced",
+    "analysis/test_current_penalty_candidate.py": "afe8ed255b71dbbfcf549f0e274276706f26f81a124edb770778860898ead63a",
+    "analysis/build_penalty_neutral_sources.py": "954b862ef135f13fe62581e8e3f57681ce85e56a4971c3238db8bf6528754a44",
+    "scripts/penalty_policy.py": "a0514c79c901d614e6560e0b4750fa951e16e394d8c4d5711faf42ab3fe03aea"
+  }
+}

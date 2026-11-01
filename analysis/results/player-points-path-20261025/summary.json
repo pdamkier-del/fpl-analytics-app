@@ -1,0 +1,31 @@
+{
+  "component_source_asof": {
+    "official_GK_roster": "2026-10-24T19:29:50.818114+00:00",
+    "original_B_PM": "2026-10-24T19:20:08.323222+00:00"
+  },
+  "data_asof": "2026-10-24T19:29:50.818114+00:00",
+  "fixture_rows": 4014,
+  "forecast_sha256": "6ebf56331e0575fb7252c2fd0384c49167075ab5c5937eecc16ce964ae4da273",
+  "full_model_certification": false,
+  "input_sha256": {
+    "history.csv.gz": "7749a3dbfceadc028eaad41f6262a4111cd4563de7c6045071bdc779c2a7df16",
+    "pm.csv.gz": "cb83d4cf63f8cd6a44d243f18ee34e63e1d30a58f76c900ada25e62349d2fa99",
+    "provenance.json": "a637e313f08e9b2a30d467b34ad9fa83e76fcf44bc46d5532ab492d7bbd890bc",
+    "target.csv.gz": "2a1ce79ad412fa331c5095154c13b1eb7c52bed5ec3bd476997d3046cf3efbbd"
+  },
+  "notes": [
+    "Upstream PM goal_mu/control_xmins are frozen adapter inputs, not final expected goals. The selected NP head replaces ordinary weights separately.",
+    "Analytic MM means and finite-sample PM means are different representations; finite-sample fluctuation is not a second minute forecast.",
+    "TS consumes aligned weekly scenarios from this seal; it does not independently estimate player points.",
+    "Context fields show available source inputs, not causal feature contributions or implemented future-CL/coach-quote inference."
+  ],
+  "players": 669,
+  "probabilities_reestimated": false,
+  "rows_in_output": 4014,
+  "selected_NP_head_verified": true,
+  "source_inputs_verified": true,
+  "version": "B-player-points-trace-v1",
+  "trace_sha256": "54bd489087ee0a224491a87b8f6184cb1644f9a83728a96e2d5c32d3074c25fe",
+  "trace_script_sha256": "624523346856a129aebc828976d600458f495bd5fbf29f2cc823d2fd024a7bf6",
+  "snapshot_is_saved_reviewed_release_not_a_new_live_forecast": true
+}

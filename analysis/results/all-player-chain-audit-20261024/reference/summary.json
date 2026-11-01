@@ -1,0 +1,83 @@
+{
+  "schema": "B-all-player-chain-audit-v1",
+  "forecast_sha256": "352349728ebaf2ddfe5356987c3d65ad291b630071e257406039d911ea513383",
+  "auditor_code_sha256": "7e8299a68fd385ef2f884f946671ebf2d5c234fd4ac93d7a3c0131383c9c3bdf",
+  "declared_input_scopes": {},
+  "data_asof": "2026-10-23T12:59:55.799303+00:00",
+  "reviewed_at": "2026-10-24T13:54:34.823580+00:00",
+  "players_audited": 668,
+  "player_fixture_rows": 4008,
+  "technical_moment_contract_passed": true,
+  "full_model_certification": false,
+  "source_input_evidence_verified": true,
+  "all_competition_role_ledger_verified": true,
+  "all_model_source_evidence_verified": false,
+  "ordinary_goal_source_evidence_verified": false,
+  "ordinary_goal_derivation_verified": false,
+  "source_linkage_passed": false,
+  "ordinary_goal_source_receipts": {
+    "classified_starters": {
+      "expected": "7b292397ffa9241c7e490add49a98722b8f993f9128eaa1b04902fcc96a99229",
+      "actual": null,
+      "matches": false
+    },
+    "player_fixture_observations": {
+      "expected": "7f71066508061b398cddc9f8aa1e208683635f6a3db52a057b72603bb5365728",
+      "actual": null,
+      "matches": false
+    },
+    "reconstructed_training_features": {
+      "expected": "38477c377f22a2fe7b9b977028011227e8729b39f6444ac75862095d1bf7b4bc",
+      "actual": null,
+      "matches": false
+    },
+    "verified_penalty_attempts": {
+      "expected": "e3644d7b808758d7e7ac3aaca3627015be4386b3fcfffd01306899e85480d49c",
+      "actual": null,
+      "matches": false
+    },
+    "verified_penalty_team_sides": {
+      "expected": "c5dcab0f5e72b5940e3cda00f8c8657233be0bc52b1080ee9680181d20dfad56",
+      "actual": null,
+      "matches": false
+    }
+  },
+  "published_selected_historical_evidence_matches": false,
+  "calibrated_player_probabilities_claimed": false,
+  "source_receipts": {
+    "history.csv.gz": {
+      "expected": "7749a3dbfceadc028eaad41f6262a4111cd4563de7c6045071bdc779c2a7df16",
+      "actual": "7749a3dbfceadc028eaad41f6262a4111cd4563de7c6045071bdc779c2a7df16",
+      "matches": true
+    },
+    "pm.csv.gz": {
+      "expected": "4477d96242c6b82a57971b9122d076e755bcb3f6a203be9a0b599c7e8c16c8fc",
+      "actual": "4477d96242c6b82a57971b9122d076e755bcb3f6a203be9a0b599c7e8c16c8fc",
+      "matches": true
+    },
+    "provenance.json": {
+      "expected": "ad19204a0d48f884a42a451607e59b8fc0e0e10fab30ea8a2591cbb1f586fdd7",
+      "actual": "ad19204a0d48f884a42a451607e59b8fc0e0e10fab30ea8a2591cbb1f586fdd7",
+      "matches": true
+    },
+    "target.csv.gz": {
+      "expected": "07936dca3f7b591ad6e12b6ae5a5f7215a56638625e9c0d92e42e70f22b2c9a1",
+      "actual": "07936dca3f7b591ad6e12b6ae5a5f7215a56638625e9c0d92e42e70f22b2c9a1",
+      "matches": true
+    }
+  },
+  "finding_counts": {
+    "ordinary_goal_source_evidence_unavailable": 1,
+    "ordinary_goal_derivation_evidence_unavailable": 1,
+    "published_validation_policy_mismatch": 1,
+    "outfield_physical_coherence": 120
+  },
+  "limitations": [
+    "Completed context captured after an origin cannot prove what that model knew.",
+    "900 outfield minutes and five substitutions assume a standard match without explicit removal/exception events.",
+    "No per-fixture sample check is inferred from aggregated double-gameweek samples.",
+    "Mathematical coherence is not statistical calibration or personal transfer-plan validation."
+  ],
+  "production_changed": false,
+  "private_user_state_used": false
+}

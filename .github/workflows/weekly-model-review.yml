@@ -1,0 +1,49 @@
+name: Publish weekly season model review
+on:
+  workflow_call:
+    inputs:
+      source_ref:
+        required: true
+        type: string
+permissions:
+  contents: write
+  actions: read
+  pages: write
+  id-token: write
+jobs:
+  review:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    concurrency:
+      group: fpl-pages-publication
+      cancel-in-progress: false
+    environment:
+      name: github-pages
+      url: https://pdamkier-del.github.io/fpl-analytics-app/mm-preview/app/weekly-review.html
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ inputs.source_ref }}
+          fetch-depth: 0
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: pip install requests==2.32.3 numpy==2.2.6 pandas==2.3.3 scipy==1.17.0
+      - name: Evaluate archived predeadline predictions against final official results
+        env:
+          GH_TOKEN: ${{ github.token }}
+          PYTHONPATH: src:scripts:.:analysis
+        run: python scripts/publish_weekly_model_review.py
+      - uses: actions/configure-pages@v5
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: .mm-preview-site
+          name: weekly-review-pages-${{ github.run_id }}
+      - uses: actions/deploy-pages@v4
+        with:
+          artifact_name: weekly-review-pages-${{ github.run_id }}
+      - uses: actions/upload-artifact@v4
+        with:
+          name: weekly-review-proof
+          path: work/weekly-model-review-proof.json
+          retention-days: 90

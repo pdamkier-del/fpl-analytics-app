@@ -1,8 +1,10 @@
 """Private worker adapter. Calls the unchanged original Python model."""
 import json,sys,hashlib
-from dataclasses import replace
+from dataclasses import replace,asdict
 from pathlib import Path
 import pandas as pd
+B_WC_HORIZON_SCHEMA='B-wildcard-followup-v1'
+B_WC_BB_SCHEMA='B-wildcard-BB-followup-v1'
 ROOT=Path(__file__).resolve().parents[1]
 sys.path[:0]=[str(ROOT/'scripts'),str(ROOT/'src')]
 from run_live_locked_ts import run,project,parse_state
@@ -35,6 +37,12 @@ def calculate(forecast,raw,tc_bytes=None):
         proxy=build_asof_wc_projection(origin,meta,origin,result['gw'],cfg())
         path=plan_transfer_path(state_wc,meta,proxy,result['gw']+1,replace(cfg(),weights=cfg().weights[1:]))
         result['wildcard_followup']={'six_gw_xp_after_hits':wc['expected_score']+sum(x.projected_manager_score-x.official_hit_points for x in path.path),'weighted_objective_before_chip_timing_threshold':wc['expected_score']+path.objective,'free_transfers_next_gw':state.free_transfers}
+        if forecast.get('model')=='B-MM-PM-TS-v1':
+            # Export the already-computed B WC path; no second search or new score.
+            result['wildcard_followup'].update(schema=B_WC_HORIZON_SCHEMA,gw=result['gw'],squad_ids=sorted(wc['squad_ids']),path=asdict(path)['path'])
+            from service.wildcard_bb_plan import add_bench_boost
+            reserved=[r['expected_use_gw']for r in result.get('chip_plan',{}).get('rows',[])if isinstance(r.get('expected_use_gw'),int)and r['expected_use_gw']>result['gw']and r.get('decision')not in ['SAVE','UNAVAILABLE','Not Available']]
+            result['wildcard_followup']=add_bench_boost(result['wildcard_followup'],state_wc,meta,proxy,cfg().weights[1:1+len(path.path)],reserved_chip_gws=reserved)
     return result
 if __name__=='__main__':
     directory=Path(sys.argv[1]);body=json.loads((directory/'input.json').read_text())

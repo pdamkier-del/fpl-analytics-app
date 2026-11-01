@@ -1,0 +1,15 @@
+{
+  "written_before_candidate_scoring": true,
+  "question": "Does repeated starting evidence conditioned on the actual availability of an established soft-role rival add predictive information beyond existing B last-start, long-history, injury-return and joint-role features? A problem is not assumed.",
+  "candidate": "One residual logistic offset of the frozen prequential B start probabilities. Four fixed inputs: last-three start streak, contested starts in last three team games, starts with a confirmed unavailable established rival, and that opportunity evidence multiplied by the rival's currently known availability. Fit only earlier known outfield outcomes. Fixed C=0.1, no intercept, RMS training scaling, no parameter grid. Missing evidence produces no term. Preserve goalkeeper forecasts and all hard availability bounds; existing ten-outfield projection and role assignment remain.",
+  "rival_proxy": "Current predeadline slow soft-role cosine >=0.5; prior-six start share >=0.5 with >=3 observed games, excluding latest three team games; downweight historical co-selection. Highest weighted rival, deterministic UUID ties. This is not a confirmed exclusive coach hierarchy.",
+  "data": "Historical 2024/25 and 2025/26, fixed existing B forecasts. Chronology uses original recorded/proxy availability clocks and predeadline news; no invented injuries/rest reasons. Club-specific identities; no future labels enter features.",
+  "evaluation": "Both seasons GW22-38, reused research periods, not independent holdout. All outfield players and prior-defined role-change, opportunity, rival-return and rotation cohorts. European context only where recorded; never label confirmed rest.",
+  "screen": "Reproduce upstream B and final joint-role start probabilities; full paired normal-match PM only if upstream start-Brier improves each season and fixed cohorts do not show material degradation. Otherwise reject this candidate without spending a full PM replay on an already rejected start model.",
+  "gates": {"start_brier_delta_each_season": 0, "max_upstream_minute_MAE_increase_each_season": 0.05, "max_abs_start_bias_increase_each_season": 0.005, "max_cohort_start_brier_increase": 0.005},
+  "downstream_if_screen_passes": "Identical roles, empirical GK law, separated NP/penalty heads, normal-match shared PhysicalKernel in both arms; start/minute/xP errors and bias; max5 substitutions including GK, max3 live windows excluding halftime,900+90 normalized coverage, exact MM/PM law and shared TS scenarios. No production change or promotion without those checks.",
+  "reaction_time": "Descriptive event-time assessment after prior-defined role-change trigger. Any retrospective sustained-role classification is evaluation-only, explicitly posthoc and never a feature or gate.",
+  "named_player_tuning": false,
+  "active_B_changed": false,
+  "production_changed": false
+}

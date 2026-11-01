@@ -1,0 +1,12 @@
+{
+  "candidate": "Only align expected penalty conversion with the active taker law; retain inclusive scorer weights and every other input",
+  "source": "2024/25 native shotmap penalty counts; 2025/26 recorded scored+missed counts, no xG-gap inference; all 380 matches per season audited",
+  "selection": "No tuning, no player-specific thresholds. Fixed single candidate.",
+  "period": "2024/25 GW22-38 and 2025/26 GW6-38, reused research diagnostics",
+  "draws": 400,
+  "gate": "xP MAE delta <= .005 each season, played MAE delta <= .02, abs bias increase <= .02; penalty-taker subgroup abs bias must improve and MAE not worsen > .02",
+  "production_changed": false,
+  "conditional_only": true,
+  "conditional_penalties": true,
+  "conditional_change": "Subtract penalty goal expectation using the actual interval-specific on-pitch taker conversion; occurrence and taker laws unchanged"
+}

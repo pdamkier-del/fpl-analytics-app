@@ -1,0 +1,128 @@
+{
+  "classification": "FEASIBILITY_AND_SENSITIVITY_NOT_ACCURACY_TEST",
+  "forecast_sha256": "ee4c118518d14792af49e34beda13642ef9b7e61dbba9ef2073b0635b5c39b93",
+  "cutoff": "2026-10-20 14:23:21.988478+00:00",
+  "source_audit": {
+    "rows_by_season": {
+      "2022-23": 26505,
+      "2023-24": 29725,
+      "2024-25": 27283,
+      "2025-26": 29747
+    },
+    "excluded_2022_early_placeholder_rows": 8491,
+    "missing_fields": {
+      "npxg": 113260,
+      "shots": 113260,
+      "shots_on_target": 113260,
+      "big_chances_created": 113260
+    },
+    "source_publication_certified": false,
+    "availability": "kickoff+4h; 2025/26 +3h, matching archived MM/PM adapter proxies",
+    "team_identity": "(season, team_id), never team_id alone across seasons"
+  },
+  "focus": [
+    {
+      "name": "Saka",
+      "player_uuid": "4c3f279c-cb21-57c6-9d58-3decef97625e",
+      "goals": 42.0,
+      "xg": 40.340500000000006,
+      "finishing": {
+        "90.0": {
+          "factor": 0.9731564230727061,
+          "raw_factor": 0.9731564230727061,
+          "weighted_goals": 2.9402415649108176,
+          "weighted_xg": 3.5730258990408097,
+          "prior_xg": 20.0,
+          "history_type": "goals/xg"
+        },
+        "365.0": {
+          "factor": 0.9693609764049779,
+          "raw_factor": 0.9693609764049779,
+          "weighted_goals": 11.486770375728478,
+          "weighted_xg": 12.481986733674727,
+          "prior_xg": 20.0,
+          "history_type": "goals/xg"
+        },
+        "730.0": {
+          "factor": 0.986554225283249,
+          "raw_factor": 0.986554225283249,
+          "weighted_goals": 20.17958848568162,
+          "weighted_xg": 20.727197204133084,
+          "prior_xg": 20.0,
+          "history_type": "goals/xg"
+        }
+      },
+      "receiver_proxy": 1.0005501754215707,
+      "receiver_proxy_definition": "goal-rate \u00d7 PM expected exposure, excluding creator; not observed pass\u2192shot links"
+    },
+    {
+      "name": "Palmer",
+      "player_uuid": "481b07c4-b805-52cf-a0ee-593af134790d",
+      "goals": 49.0,
+      "xg": 46.42,
+      "finishing": {
+        "90.0": {
+          "factor": 1.0035622858434183,
+          "raw_factor": 1.0035622858434183,
+          "weighted_goals": 2.827369823150796,
+          "weighted_xg": 2.7463408551329875,
+          "prior_xg": 20.0,
+          "history_type": "goals/xg"
+        },
+        "365.0": {
+          "factor": 0.9994214474003493,
+          "raw_factor": 0.9994214474003493,
+          "weighted_goals": 15.30941241090887,
+          "weighted_xg": 15.329852588969493,
+          "prior_xg": 20.0,
+          "history_type": "goals/xg"
+        },
+        "730.0": {
+          "factor": 1.0130027656572167,
+          "raw_factor": 1.0130027656572167,
+          "weighted_goals": 26.09408647326825,
+          "weighted_xg": 25.502429051477755,
+          "prior_xg": 20.0,
+          "history_type": "goals/xg"
+        }
+      },
+      "receiver_proxy": 1.051780575174511,
+      "receiver_proxy_definition": "goal-rate \u00d7 PM expected exposure, excluding creator; not observed pass\u2192shot links"
+    }
+  ],
+  "verified_prior_reports": [
+    "analysis/results/pm-research-20261015/2024-25_locked_report.json",
+    "analysis/results/pm-research-20261015/2024-25_mm_report.json",
+    "analysis/results/pm-research-20261015/2025-26_locked_report.json",
+    "analysis/results/pm-research-20261015/2025-26_mm_report.json",
+    "analysis/results/pm-research-20261015/current_conversion_report.json",
+    "analysis/results/player-pm-v2-20261015/current_player_report.json",
+    "analysis/results/player-pm-v2-20261015/2024-25_locked_report.json",
+    "analysis/results/player-pm-v2-20261015/2024-25_mm_report.json",
+    "analysis/results/player-pm-v2-20261015/2025-26_locked_report.json",
+    "analysis/results/player-pm-v2-20261015/2025-26_mm_report.json",
+    "analysis/results/player-pm-v2-20261015/analytic_report.json",
+    "analysis/results/player-pm-v2-20261015/selection.json",
+    "analysis/results/player-pm-v2-20261015/summary.json",
+    "analysis/results/dynamic-pm-v2-20261015/2024-25_locked_independent_report.json",
+    "analysis/results/dynamic-pm-v2-20261015/2024-25_locked_legal_report.json",
+    "analysis/results/dynamic-pm-v2-20261015/2024-25_mm_legal_report.json",
+    "analysis/results/dynamic-pm-v2-20261015/2025-26_locked_independent_report.json",
+    "analysis/results/dynamic-pm-v2-20261015/2025-26_locked_legal_report.json",
+    "analysis/results/dynamic-pm-v2-20261015/2025-26_mm_legal_report.json",
+    "analysis/results/dynamic-pm-v2-20261015/matrix_report.json",
+    "analysis/results/dynamic-pm-v2-20261015/monte_carlo_report.json",
+    "analysis/results/dynamic-pm-v2-20261015/reliability_report.json",
+    "analysis/results/dynamic-pm-v2-20261015/selection.json",
+    "analysis/results/dynamic-pm-v2-20261015/summary.json"
+  ],
+  "common_multiplier_cancels_under_fixed_total": true,
+  "limitations": [
+    "All-xG finishing includes penalties; not identified non-penalty ability",
+    "Receiver proxy has no observed creator links or sampled co-presence",
+    "No new historical accuracy or candidate xP gain claimed",
+    "Prior historical evaluation periods reused; not independent holdouts"
+  ],
+  "production_changed": false,
+  "promotion_allowed": false
+}

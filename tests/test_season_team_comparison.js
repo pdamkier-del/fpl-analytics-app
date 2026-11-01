@@ -1,0 +1,24 @@
+'use strict';
+const assert=require('node:assert/strict'),E=require('../app/mm-preview/season-team-comparison.js');
+function fixture(){const rows=[];for(let id=1;id<=15;id++)rows.push({id,position:id<=2?'GK':id<=7?'DEF':id<=12?'MID':'FWD',role:id===2?'BGK':id===6?'B1':id===7?'B2':id===12?'B3':id===8?'C':id===9?'VC':'XI'});const actual=new Map(rows.map(r=>[r.id,{minutes:90,started:1,points:1,final:true}]));return {rows,actual}}
+{
+const {rows,actual}=fixture();assert(E.legal(rows.filter(r=>['XI','C','VC'].includes(r.role))));assert.equal(E.score(rows,actual).net,12);assert.equal(E.score(rows,actual,{hits:4}).net,8);assert.equal(E.score(rows,actual,{chip:'bench_boost'}).net,16);assert.equal(E.score(rows,actual,{chip:'triple_captain'}).net,13);actual.get(8).points=-2;assert.equal(E.score(rows,actual).net,6);actual.get(8).minutes=0;actual.get(8).started=0;actual.get(8).points=0;const score=E.score(rows,actual);assert.equal(score.captain_id,9);assert.equal(score.net,12);assert(score.substitutions.some(s=>s.out===8));
+}
+{
+ const {rows,actual}=fixture();actual.get(1).minutes=0;actual.get(1).started=0;const s=E.score(rows,actual);assert(s.substitutions.some(r=>r.in===2&&r.out===1));actual.get(3).minutes=0;actual.get(3).started=0;assert(E.score(rows,actual).substitutions.some(r=>r.in===6&&r.out===3));
+}
+{
+const {rows,actual}=fixture();rows.find(r=>r.id===12).role='B1';rows.find(r=>r.id===6).role='B2';rows.find(r=>r.id===7).role='B3';for(const id of [3,13]){actual.get(id).minutes=0;actual.get(id).started=0}const s=E.score(rows,actual);assert(s.scoring_ids.includes(12)&&s.scoring_ids.includes(6)&&!s.scoring_ids.includes(7));assert.equal(s.substitutions.length,2);
+}
+{
+ const {rows,actual}=fixture();actual.get(2).final=false;assert.equal(E.score(rows,actual),null);assert.equal(E.bestOwnXI(rows,actual),null);actual.get(2).final=true;actual.get(6).points=10;const best=E.bestOwnXI(rows,actual);assert.equal(best.score.net,30);assert.equal(best.score.captain_id,6);assert(E.legal(best.rows.filter(r=>['XI','C','VC'].includes(r.role))));assert.equal(rows.find(r=>r.id===6).role,'B1');
+}
+(async()=>{const {rows}=fixture(),map=new Map(),storage={getItem:k=>map.get(k)||null,setItem:(k,v)=>map.set(k,v)},c={usable:true,stateValid:true,state:{season:'s',gw:9,squad:rows.map(r=>({id:r.id}))},forecast:{season:'s',forecast_sha256:'saved',origin_deadline:'2026-10-30T12:00:00Z',gws:[9],data_asof:'2026-10-29T09:00:00Z',players:rows.map(r=>({...r,name:'P'+r.id}))},plan:{gw:9,forecast_sha256:'saved',ts_ran:true,validation_only:false,computed_at:'2026-10-29T10:00:00Z',lineup:rows,plan:{path:[{official_hit_points:0,projected_manager_score:44,outgoing:[],incoming:[]}]}}};assert.equal(await E.capture(c,{storage,now:new Date('2026-10-29T11:00:00Z')}),true);const before=map.get(E.KEY);assert.equal(await E.capture(c,{storage,now:new Date('2026-10-30T12:00:00Z')}),false);assert.equal(map.get(E.KEY),before);assert.equal(E.read(storage).seasons.s.weeks[9].expected_score,44);assert.deepEqual(E.read(storage).seasons.s.weeks[9].input_state,c.state);assert.equal(map.has('fpl-manager-state-v1'),false);console.log('Season comparisons: formation, bench order, GK autosub, captain/vice, negative captain points, BB, TC, hits, hindsight scope, pending labels and frozen predeadline local archives passed.');})().catch(e=>{console.error(e);process.exit(1)});
+{
+ const {rows,actual}=fixture();Object.assign(actual.get(8),{minutes:0,started:0,red_cards:1,points:-3});const s=E.score(rows,actual);assert.equal(s.captain_id,8);assert.equal(s.net,4);assert(!s.substitutions.some(r=>r.out===8));
+ const q=fixture();Object.assign(q.actual.get(3),{minutes:0,started:0,points:0});Object.assign(q.actual.get(6),{minutes:0,started:0,yellow_cards:1,points:-1});assert(q.actual.get(6).minutes===0);assert(E.score(q.rows,q.actual).substitutions.some(r=>r.in===6));
+ console.log('Official FPL card-only participation: zero-minute card recipients count as played for captain and autosub purposes.');
+}
+{
+ const {rows,actual}=fixture();for(const a of actual.values())a.points=-1;for(const id of [8,9])Object.assign(actual.get(id),{minutes:0,started:0,points:0});const best=E.bestOwnXI(rows,actual);assert.equal(best.score.net,-11);assert.equal(best.score.captain_id,null);console.log('Hindsight captain choice also handles an all-negative playing cohort without forcing a negative bonus.');
+}

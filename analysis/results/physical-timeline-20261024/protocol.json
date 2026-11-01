@@ -1,0 +1,13 @@
+{
+  "version": "physical-timeline-repair-v1",
+  "written_before_candidate_scoring": true,
+  "baseline": "published B joint-role, separate NP/penalty head; original defaults unchanged",
+  "candidate": "same starter marginals and event-rate inputs, coupled normal-match substitutions and exact minute marginals of the same finite timeline kernel",
+  "scope": "all registered players; no named-player adjustments; normal five-substitution/three-window matches; no red-card removal or concussion-exception claim",
+  "fixed_design": {"conditional_states": 128, "sequence": "fixed scrambled Sobol seed 20261024", "max_substitutions_including_GK": 5, "max_windows_including_GK": 3, "duration_scale": "reuse original cameo sigma 7", "fitted_parameters_added": 0},
+  "evaluation": {"seasons": ["2024-25", "2025-26"], "GW": "22-38, excluding existing NP development GW16-21", "fixtures": 341, "draws_per_arm": 400},
+  "gates": {"baseline_max_xP_reproduction_error": 0, "start_marginals_preserved_tolerance": 0.000001, "every_normal_draw_outfield_minutes": 900, "every_draw_GK_minutes": 90, "max_minute_MAE_increase_each_season": 0.05, "max_absolute_minute_bias_increase_each_season": 0.25, "max_all_xP_MAE_increase_each_season": 0.005, "max_played_xP_MAE_increase_each_season": 0.02, "max_absolute_xP_bias_increase_each_season": 0.02},
+  "required_reporting": ["P0/P60/P90 Brier", "all and played minute/point errors and bias", "rotation/reserve subgroups", "source coverage and chronology", "finite-kernel approximation and paired Monte Carlo uncertainty"],
+  "decision_rule": "Reject live activation if any gate fails; do not change gates after scoring. A physical repair is not independent calibration certification.",
+  "limitations": ["Reused research periods, not independent holdout", "No new coach-quote feature or cross-provider xG mixing", "No full future injury/red-card event process or full-season TS return claim"]
+}

@@ -1,0 +1,153 @@
+{
+  "protocol": {
+    "classification": "OFFLINE_RESEARCH_NOT_LIVE_MODEL",
+    "hypothesis": "Past European participation and PL-to-Europe role switches add start signal beyond frozen B without treating an unused PL substitute as a permanent loss of role.",
+    "reference": "Frozen PR9 B with unified mean-preserving PM",
+    "candidate": "Regularized logistic residual with frozen B logit as offset; prior European minutes, actual observed rest, and prior PL/European role-switch features. No named-player overrides.",
+    "selection": "2024-25 GW14-21, prequential fits on labels strictly known before each cutoff; L2 grid 0.1,1,10; select lowest development start Brier",
+    "evaluation": "2024-25 GW22-38 and 2025-26 GW6-38; reused research periods, not pristine holdouts",
+    "timing": "Prior-only, with existing documented kickoff+4h/3h availability proxies; restored original records use max(proxy, historical Git version time). Not actual ingestion certification.",
+    "future_calendar": "No archived pre-cutoff complete future European schedule available. No future realised fixture or result is used as a predictor. This tests observed role recovery and workload, not prospective pre-European-match rest forecasting.",
+    "acceptance": {
+      "start": "Start Brier improves in both seasons and pooled fixture bootstrap 95% upper delta < 0",
+      "minutes": "Minute MAE non-worsening in both seasons; absolute minute bias increase <= 0.1",
+      "points": "xP MAE increase <= 0.005 each season, played-player xP MAE increase <= 0.02, absolute xP bias increase <= 0.02",
+      "coverage": "At least 50 recovery-pattern outfield player rows per evaluation season; incomplete or uncertified source timing prevents independent promotion certification"
+    },
+    "reporting": "All-roster, played rows, Europe-context, and PL-nonstart followed by observed Europe start subsets; start Brier, minute MAE/bias and xP MAE/bias. Missing contexts remain neutral. No automatic publication.",
+    "production_changed": false
+  },
+  "selected_alpha": 10.0,
+  "development_brier": {
+    "0.1": 0.08085222601774797,
+    "1.0": 0.0808493372110064,
+    "10.0": 0.08083124287758046
+  },
+  "metrics": {
+    "2024-25": {
+      "all": {
+        "baseline": {
+          "rows": 13105,
+          "start_brier": 0.0723066787853998,
+          "minute_mae": 10.948645619204795,
+          "minute_bias": -0.3323688071768093
+        },
+        "candidate": {
+          "rows": 13105,
+          "start_brier": 0.07217136141590885,
+          "minute_mae": 10.946663457843668,
+          "minute_bias": -0.327898419794582
+        }
+      },
+      "played": {
+        "baseline": {
+          "rows": 5219,
+          "start_brier": 0.13947304324718082,
+          "minute_mae": 19.692835169488408,
+          "minute_bias": -8.633988754200212
+        },
+        "candidate": {
+          "rows": 5219,
+          "start_brier": 0.1391824062299914,
+          "minute_mae": 19.674895762651666,
+          "minute_bias": -8.635725698633877
+        }
+      },
+      "europe_context": {
+        "baseline": {
+          "rows": 1220,
+          "start_brier": 0.15088919937701664,
+          "minute_mae": 20.488305074955463,
+          "minute_bias": -0.9483550660145257
+        },
+        "candidate": {
+          "rows": 1220,
+          "start_brier": 0.14962735142930988,
+          "minute_mae": 20.493701732988804,
+          "minute_bias": -0.8385632977369076
+        }
+      },
+      "role_recovery": {
+        "baseline": {
+          "rows": 97,
+          "start_brier": 0.22161076875219932,
+          "minute_mae": 30.000267219246506,
+          "minute_bias": 1.1818863705631824
+        },
+        "candidate": {
+          "rows": 97,
+          "start_brier": 0.22983258822852548,
+          "minute_mae": 30.337114555716347,
+          "minute_bias": 3.358500314308613
+        }
+      }
+    },
+    "2025-26": {
+      "all": {
+        "baseline": {
+          "rows": 26159,
+          "start_brier": 0.06708364098475844,
+          "minute_mae": 10.137687663890503,
+          "minute_bias": -0.25795323454221414
+        },
+        "candidate": {
+          "rows": 26159,
+          "start_brier": 0.06706308585448355,
+          "minute_mae": 10.13667779455634,
+          "minute_bias": -0.2578200132284434
+        }
+      },
+      "played": {
+        "baseline": {
+          "rows": 9969,
+          "start_brier": 0.13662479190562682,
+          "minute_mae": 19.239952423696426,
+          "minute_bias": -8.0385680158764
+        },
+        "candidate": {
+          "rows": 9969,
+          "start_brier": 0.13658361468510355,
+          "minute_mae": 19.235206364694385,
+          "minute_bias": -8.04031456557366
+        }
+      },
+      "europe_context": {
+        "baseline": {
+          "rows": 368,
+          "start_brier": 0.15049510484202028,
+          "minute_mae": 21.792984654087565,
+          "minute_bias": -0.3887521019408323
+        },
+        "candidate": {
+          "rows": 368,
+          "start_brier": 0.1493267340272839,
+          "minute_mae": 21.75405897376891,
+          "minute_bias": -0.6006935140750802
+        }
+      },
+      "role_recovery": {
+        "baseline": {
+          "rows": 12,
+          "start_brier": 0.21129185786884622,
+          "minute_mae": 26.308057539192237,
+          "minute_bias": 9.597096609423728
+        },
+        "candidate": {
+          "rows": 12,
+          "start_brier": 0.1912717160742475,
+          "minute_mae": 24.81842864146901,
+          "minute_bias": 7.94778347055549
+        }
+      }
+    }
+  },
+  "pooled_start_brier_delta_CI95": [
+    -0.00012078905323912707,
+    -3.7730804715441246e-06
+  ],
+  "numerical_MM_gate": true,
+  "coverage_gate": false,
+  "independent_source_clock_certification": false,
+  "promotion_allowed": false,
+  "production_changed": false
+}

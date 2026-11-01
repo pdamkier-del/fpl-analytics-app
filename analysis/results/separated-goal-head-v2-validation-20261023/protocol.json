@@ -1,0 +1,12 @@
+{
+  "candidate": "Replace the full ordinary scorer head with NP-only history, NP priors, refitted NP attack shrinkage and NP-trained performance coefficients; freeze the separate penalty fallback; conditional team conversion",
+  "source": "2024/25 native shotmap penalty counts; 2025/26 recorded scored+missed counts, no xG-gap inference; all 380 matches per season audited",
+  "selection": "No tuning, no player-specific thresholds. Fixed single candidate.",
+  "period": "Both seasons GW22-38 only; development GW16-21 excluded",
+  "draws": 400,
+  "gate": "hard structural separation; overall MAE delta <=.005 and played <=.02 each season; all biases reported, no requirement to preserve compensation from the known blended head",
+  "production_changed": false,
+  "conditional_penalties": true,
+  "conditional_only": false,
+  "model_sha256": "dc254f5a3bbacfe979583f224dd9408f0f1e4f0fe156caf6870de4ab601ff4b2"
+}

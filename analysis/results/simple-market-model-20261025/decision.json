@@ -1,0 +1,199 @@
+{
+  "research_only": true,
+  "minute_model": "hybrid ablation retaining frozen B prior, not standalone",
+  "input_model_sha256": "dc254f5a3bbacfe979583f224dd9408f0f1e4f0fe156caf6870de4ab601ff4b2",
+  "script_sha256": "6f5d9b140238e0c9a84a69ece3cc52bcc3aa90cd92f62e27604dd325d59cf0a4",
+  "fixtures": 341,
+  "players_per_arm": 27092,
+  "frozen_mm_max_error": 7.105427357601002e-15,
+  "bootstrap": [
+    {
+      "season": "2024-25",
+      "arm": "analytic_PM_frozen_MM",
+      "xp_mae_delta": -0.008437659972628736,
+      "ci95": [
+        -0.010950155970018024,
+        -0.00596103203462072
+      ]
+    },
+    {
+      "season": "2024-25",
+      "arm": "analytic_PM_simple_MM",
+      "xp_mae_delta": 0.022850967830082964,
+      "ci95": [
+        0.017172536092822363,
+        0.02853967613430819
+      ]
+    },
+    {
+      "season": "2024-25",
+      "arm": "market_PM_frozen_MM",
+      "xp_mae_delta": -0.009357980062940268,
+      "ci95": [
+        -0.014199040449659769,
+        -0.0043782458260965195
+      ]
+    },
+    {
+      "season": "2024-25",
+      "arm": "market_PM_simple_MM",
+      "xp_mae_delta": 0.021398818368590918,
+      "ci95": [
+        0.01429658428053841,
+        0.028908718738916244
+      ]
+    },
+    {
+      "season": "2025-26",
+      "arm": "analytic_PM_frozen_MM",
+      "xp_mae_delta": -0.0062925470616402345,
+      "ci95": [
+        -0.008461207901412417,
+        -0.004166151623602173
+      ]
+    },
+    {
+      "season": "2025-26",
+      "arm": "analytic_PM_simple_MM",
+      "xp_mae_delta": 0.030723074130687922,
+      "ci95": [
+        0.025503766422375115,
+        0.036823074863628784
+      ]
+    },
+    {
+      "season": "2025-26",
+      "arm": "market_PM_frozen_MM",
+      "xp_mae_delta": -0.007640408538430053,
+      "ci95": [
+        -0.012340199406323905,
+        -0.00331384169356698
+      ]
+    },
+    {
+      "season": "2025-26",
+      "arm": "market_PM_simple_MM",
+      "xp_mae_delta": 0.028575356415198008,
+      "ci95": [
+        0.021043573111311904,
+        0.03597464717412626
+      ]
+    }
+  ],
+  "activation": false,
+  "production_changed": false,
+  "deadline_safe_market_test": false,
+  "protocol_sha256": "cd6f65fd83498c958f81073d70028131ccef49858d3425f13b7257bbae0a341e",
+  "sources": {
+    "analysis/results/simple-market-model-20261025/raw/2024-25.csv": "d0c8ce4a96d886cf60cf101f570f4a3893844226f91c7bd769eb568c49edbfa4",
+    "analysis/results/simple-market-model-20261025/raw/2025-26.csv": "3e3a8352f9ada6789c508d6ca184424421fed56a30400904a4a327c583407e62",
+    "analysis/results/simple-market-model-20261025/raw/teams-2024-25.csv": "d10a6db8feca6db9e44a3ba50b15168396667ea387fee9235d6b211c7f598c3b",
+    "analysis/results/simple-market-model-20261025/raw/teams-2025-26.csv": "b29df099cb0ad25413e284e53116099b0e0496874f99743dbc0870d8241b46c5"
+  },
+  "numerical_checks": [
+    {
+      "arm": "analytic_PM_frozen_MM",
+      "numerical_screen_passed": true,
+      "seasons": [
+        {
+          "season": "2024-25",
+          "minute_mae_delta": 0.0,
+          "xp_mae_delta": -0.008437659972628686,
+          "minute_bias_delta": 0.0,
+          "xp_bias_delta": -0.019952023393523297
+        },
+        {
+          "season": "2025-26",
+          "minute_mae_delta": 0.0,
+          "xp_mae_delta": -0.006292547061640175,
+          "minute_bias_delta": 1.1102230246251565e-16,
+          "xp_bias_delta": -0.0131789211553149
+        }
+      ],
+      "eligible_for_activation": false
+    },
+    {
+      "arm": "analytic_PM_simple_MM",
+      "numerical_screen_passed": false,
+      "seasons": [
+        {
+          "season": "2024-25",
+          "minute_mae_delta": 0.8143401697326738,
+          "xp_mae_delta": 0.022850967830083002,
+          "minute_bias_delta": -0.21981834367137154,
+          "xp_bias_delta": 0.027951085601980702
+        },
+        {
+          "season": "2025-26",
+          "minute_mae_delta": 1.0919039602629343,
+          "xp_mae_delta": 0.030723074130687977,
+          "minute_bias_delta": -0.31726125323438725,
+          "xp_bias_delta": 0.02436841148551
+        }
+      ],
+      "eligible_for_activation": false
+    },
+    {
+      "arm": "market_PM_frozen_MM",
+      "numerical_screen_passed": true,
+      "seasons": [
+        {
+          "season": "2024-25",
+          "minute_mae_delta": 0.0,
+          "xp_mae_delta": -0.009357980062940308,
+          "minute_bias_delta": 0.0,
+          "xp_bias_delta": -0.0141252199605489
+        },
+        {
+          "season": "2025-26",
+          "minute_mae_delta": 0.0,
+          "xp_mae_delta": -0.007640408538429955,
+          "minute_bias_delta": 1.1102230246251565e-16,
+          "xp_bias_delta": -0.008741497075646334
+        }
+      ],
+      "eligible_for_activation": false
+    },
+    {
+      "arm": "market_PM_simple_MM",
+      "numerical_screen_passed": false,
+      "seasons": [
+        {
+          "season": "2024-25",
+          "minute_mae_delta": 0.8143401697326738,
+          "xp_mae_delta": 0.021398818368591033,
+          "minute_bias_delta": -0.21981834367137154,
+          "xp_bias_delta": 0.0332912433258243
+        },
+        {
+          "season": "2025-26",
+          "minute_mae_delta": 1.0919039602629343,
+          "xp_mae_delta": 0.02857535641519815,
+          "minute_bias_delta": -0.31726125323438725,
+          "xp_bias_delta": 0.028617333584491998
+        }
+      ],
+      "eligible_for_activation": false
+    }
+  ],
+  "market_incremental_bootstrap": [
+    {
+      "season": "2024-25",
+      "comparison": "market minus analytic, frozen MM",
+      "xp_mae_delta": -0.0009203200903115324,
+      "ci95": [
+        -0.005343791148404209,
+        0.0032424302351589255
+      ]
+    },
+    {
+      "season": "2025-26",
+      "comparison": "market minus analytic, frozen MM",
+      "xp_mae_delta": -0.001347861476789818,
+      "ci95": [
+        -0.00523739928849914,
+        0.002537900261517422
+      ]
+    }
+  ]
+}

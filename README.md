@@ -6,6 +6,8 @@ A Python-based desktop web application for Fantasy Premier League analytics and 
 
 This is the FPL Analytics v1.6 desktop application, providing tools for analyzing FPL data and managing player statistics. The application uses a web interface served locally for an intuitive user experience.
 
+For the maintained B forecast chain, start with [Data → MM → PM → player points → TS](docs/model/data-to-player-points.md). It documents ownership, field meanings, integrity checks and known coverage gaps.
+
 ## Architecture
 
 The application consists of several key components:

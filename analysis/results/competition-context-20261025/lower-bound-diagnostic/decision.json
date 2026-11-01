@@ -1,0 +1,31 @@
+{
+  "numerical_MM_gate_passed": true,
+  "baseline_max_p_error": 1.9191555011843775e-09,
+  "checks": [
+    {
+      "season": "2024-25",
+      "start_brier_delta": -9.478645455726631e-05,
+      "minute_mae_delta": -0.05433289580943956,
+      "absolute_minute_bias_delta": 0.0034893965634877344,
+      "rotation_minute_mae_delta": -0.04953590627966875,
+      "passed": true
+    },
+    {
+      "season": "2025-26",
+      "start_brier_delta": 7.591161875242225e-05,
+      "minute_mae_delta": -0.005879770440122556,
+      "absolute_minute_bias_delta": 0.002200873623204147,
+      "rotation_minute_mae_delta": -0.0015953292706285538,
+      "passed": true
+    }
+  ],
+  "activated": false,
+  "production_changed": false,
+  "independent_certification": false,
+  "coverage_complete": false,
+  "source_clock_type": "historical kickoff+3/4h and audited recovered availability proxies; not observed historical ingestion",
+  "script_sha256": "bde0daad0bf792af399c9b2c8dfe92f35249a043456341e8d3c7950f3eff0c54",
+  "protocol_sha256": "6072f706c7ce68f18b6143c9c2be1dca46a537314336a597943d93ab0337531a",
+  "context_code_sha256": "276b92a75c52d1450371f1ddc2aacbdc68ccf8ba7e32d4fdc5a15ae3e72a2555",
+  "reporting": "Same baseline-defined rotation cohort in all arm metrics; report-only correction, fits and gates unchanged"
+}

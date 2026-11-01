@@ -1,0 +1,12 @@
+{
+  "draws": 400,
+  "fixtures": 501,
+  "baseline": "existing unified B mean-preserving historical arm",
+  "candidate": "same event inputs, new MM marginals and whole tactical lineups; same seed",
+  "acceptance": "xP MAE delta <=0.005 each season, played MAE delta <=0.02; absolute bias increases <=0.02",
+  "limitations": [
+    "Reused research periods; historical clock proxies",
+    "Monte Carlo order changes; seed pairing is not exact common random numbers",
+    "No independent certification or full-season transfer-policy result"
+  ]
+}

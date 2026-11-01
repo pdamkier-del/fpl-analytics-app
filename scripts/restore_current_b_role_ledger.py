@@ -14,7 +14,7 @@ BASE='https://pdamkier-del.github.io/fpl-analytics-app/mm-preview/current/'
 ALLOWED={'season','fixture_uuid','player_uuid','team_id','gw','cutoff','pos','p','p_role','upstream_s','s','q','c','x','news_eligible','news_state','news_chance','news_medical_out','news_effective_at'}
 
 def validate(index, packed):
-    if index.get('model')!='B_locked_PM_preview' or index.get('locked_model_active') is not False:
+    if index.get('model')not in ('B_locked_PM_preview','B-MM-PM-TS-v1') or index.get('locked_model_active') is not False:
         raise ValueError('Untrusted role ledger publication')
     if index.get('role_ledger_file')!='role-ledger.csv.gz' or hashlib.sha256(packed).hexdigest()!=index.get('role_ledger_sha256'):
         raise ValueError('Role ledger checksum mismatch')

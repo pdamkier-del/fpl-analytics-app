@@ -1,0 +1,28 @@
+{
+  "research_only": true,
+  "arms": {
+    "blend50_calibrated": 0.5,
+    "individual_calibrated": 0.0
+  },
+  "definitions": {
+    "current": "Existing NP scorer weights, team goal means, common historical assist probability and physical MM kernel",
+    "individual": "Player NP rates and individually shrunk xA set attack budgets; coherent team scores are their sums plus separate penalty process",
+    "blend50": "Equal mixture of team-normalized and individual expected ordinary-goal/assist masses, no weight tuning",
+    "smoothed_assist": "Current architecture; assist probability shrunk with 50 prior-goal observations from earlier seasons"
+  },
+  "draws": 400,
+  "MM": "Identical analytical physical kernel in every arm; sampled means can fluctuate",
+  "cohort": "Both seasons GW22-38, previously used research cohort; not independent validation",
+  "selection": "Fixed four-arm diagnostic; no player-specific tuning or live promotion",
+  "metrics": "xP RMSE primary, MAE guardrail; bias, goals/assists Poisson NLL+MAE and bonus MAE; fixture-cluster paired bootstrap",
+  "known_limits": [
+    "Historical availability clocks are proxies",
+    "Normal timeline has no red-card removals or concussion process",
+    "Individual xA is not the same target as FPL assists",
+    "Assist probability capped at 1 to preserve one assist per ordinary goal",
+    "Team goal changes affect clean sheets and bonus jointly",
+    "No TS activation or backtested transfer policy benefit claimed"
+  ],
+  "task_sha256": "68f9aa2b01e3e517454a40f86a546e3e1ba5ae57c74f2dc9466f713f5dfd3bf2",
+  "individual_assist_conversion": "Prefix-only FPL-assists/xA ratio, shrunk with 50 xA to earlier-season ratio"
+}

@@ -1,0 +1,673 @@
+{
+  "classification": "EXPLORATORY_DIFFICULTY_WEIGHTING_CONDITIONAL_SHOT_TEST",
+  "control": [
+    {
+      "xg": 0.05,
+      "goal": 0,
+      "initial_player_score": -0.05,
+      "fitted_offset_update": -0.005242210239354022
+    },
+    {
+      "xg": 0.05,
+      "goal": 1,
+      "initial_player_score": 0.95,
+      "fitted_offset_update": 0.09764935624868581
+    },
+    {
+      "xg": 0.8,
+      "goal": 0,
+      "initial_player_score": -0.8,
+      "fitted_offset_update": -0.08407646514736197
+    },
+    {
+      "xg": 0.8,
+      "goal": 1,
+      "initial_player_score": 0.19999999999999996,
+      "fitted_offset_update": 0.020626457040162454
+    }
+  ],
+  "selected": {
+    "weighted": {
+      "family": "weighted",
+      "ridge": 5.0,
+      "power": 0.5
+    },
+    "quality_response": {
+      "family": "quality_response",
+      "ridge": 20.0,
+      "shape_ridge": 80.0
+    }
+  },
+  "historical": {
+    "metrics": {
+      "calibration": {
+        "shots": 4255,
+        "goals": 445,
+        "log_loss": 0.2707052985998819,
+        "brier": 0.07661747329676365,
+        "expected_goals": 432.3059201915132,
+        "bias_per_shot": -0.002983332504932265
+      },
+      "existing_player": {
+        "shots": 4255,
+        "goals": 445,
+        "log_loss": 0.27282194180050895,
+        "brier": 0.07714181427356129,
+        "expected_goals": 435.40907220350925,
+        "bias_per_shot": -0.0022540370849566988
+      },
+      "native_xg": {
+        "shots": 4255,
+        "goals": 445,
+        "log_loss": 0.27043345254299644,
+        "brier": 0.07654445585671579,
+        "expected_goals": 443.69954173406575,
+        "bias_per_shot": -0.00030563061479066693
+      },
+      "quality_response": {
+        "shots": 4255,
+        "goals": 445,
+        "log_loss": 0.2717838641140944,
+        "brier": 0.07680858845413144,
+        "expected_goals": 433.3867327437128,
+        "bias_per_shot": -0.0027293225044153252
+      },
+      "quality_response_matched_player": {
+        "shots": 4255,
+        "goals": 445,
+        "log_loss": 0.2711111735495052,
+        "brier": 0.07671050209841107,
+        "expected_goals": 433.4491580742448,
+        "bias_per_shot": -0.002714651451411334
+      },
+      "weighted": {
+        "shots": 4255,
+        "goals": 445,
+        "log_loss": 0.27252199051248766,
+        "brier": 0.07704369657043639,
+        "expected_goals": 432.864381898961,
+        "bias_per_shot": -0.0028520841600561658
+      },
+      "weighted_matched_player": {
+        "shots": 4255,
+        "goals": 445,
+        "log_loss": 0.272821941800355,
+        "brier": 0.07714181427354344,
+        "expected_goals": 435.4090722025742,
+        "bias_per_shot": -0.0022540370851764475
+      }
+    },
+    "paired": {
+      "calibration_vs_native_xg": {
+        "log_loss_delta": 0.00027184605688551893,
+        "ci95": [
+          -0.00030097429416520014,
+          0.0008182891054683058
+        ]
+      },
+      "existing_player_vs_native_xg": {
+        "log_loss_delta": 0.002388489257512532,
+        "ci95": [
+          0.0006563037517494173,
+          0.004156085997656053
+        ]
+      },
+      "native_xg_vs_native_xg": {
+        "log_loss_delta": 0.0,
+        "ci95": [
+          0.0,
+          0.0
+        ]
+      },
+      "quality_response_vs_native_xg": {
+        "log_loss_delta": 0.0013504115710980039,
+        "ci95": [
+          0.0002898701184848069,
+          0.002394394238156152
+        ]
+      },
+      "quality_response_matched_player_vs_native_xg": {
+        "log_loss_delta": 0.0006777210065087109,
+        "ci95": [
+          -0.00013252224585113948,
+          0.001527050886550431
+        ]
+      },
+      "weighted_vs_native_xg": {
+        "log_loss_delta": 0.002088537969491242,
+        "ci95": [
+          0.0004601927781288822,
+          0.0037240067962916144
+        ]
+      },
+      "weighted_matched_player_vs_native_xg": {
+        "log_loss_delta": 0.002388489257358624,
+        "ci95": [
+          0.0005167833712260903,
+          0.004143139660537563
+        ]
+      },
+      "calibration_vs_existing_player": {
+        "log_loss_delta": -0.0021166432006270125,
+        "ci95": [
+          -0.0037479398134400224,
+          -0.0005351577674638906
+        ]
+      },
+      "existing_player_vs_existing_player": {
+        "log_loss_delta": 0.0,
+        "ci95": [
+          0.0,
+          0.0
+        ]
+      },
+      "native_xg_vs_existing_player": {
+        "log_loss_delta": -0.002388489257512532,
+        "ci95": [
+          -0.0041367820625511946,
+          -0.0005550154175301822
+        ]
+      },
+      "quality_response_vs_existing_player": {
+        "log_loss_delta": -0.001038077686414528,
+        "ci95": [
+          -0.0019519062239871814,
+          -0.00016194380064970678
+        ]
+      },
+      "quality_response_matched_player_vs_existing_player": {
+        "log_loss_delta": -0.0017107682510038205,
+        "ci95": [
+          -0.002796826258302867,
+          -0.0005970103195565147
+        ]
+      },
+      "weighted_vs_existing_player": {
+        "log_loss_delta": -0.0002999512880212897,
+        "ci95": [
+          -0.0010649873126778449,
+          0.00039644676229854526
+        ]
+      },
+      "weighted_matched_player_vs_existing_player": {
+        "log_loss_delta": -1.5390784188300566e-13,
+        "ci95": [
+          -7.076098393269549e-13,
+          3.1099329017932343e-13
+        ]
+      },
+      "calibration_vs_calibration": {
+        "log_loss_delta": 0.0,
+        "ci95": [
+          0.0,
+          0.0
+        ]
+      },
+      "existing_player_vs_calibration": {
+        "log_loss_delta": 0.0021166432006270125,
+        "ci95": [
+          0.0005104520501631691,
+          0.003755141710919227
+        ]
+      },
+      "native_xg_vs_calibration": {
+        "log_loss_delta": -0.00027184605688551893,
+        "ci95": [
+          -0.0008356363950704559,
+          0.00028506164773736285
+        ]
+      },
+      "quality_response_vs_calibration": {
+        "log_loss_delta": 0.0010785655142124847,
+        "ci95": [
+          0.0001420039449252765,
+          0.002045344348649203
+        ]
+      },
+      "quality_response_matched_player_vs_calibration": {
+        "log_loss_delta": 0.0004058749496231919,
+        "ci95": [
+          -0.00013404976168076896,
+          0.0010023242526807955
+        ]
+      },
+      "weighted_vs_calibration": {
+        "log_loss_delta": 0.0018166919126057228,
+        "ci95": [
+          0.0004150122028430003,
+          0.0032428660297359017
+        ]
+      },
+      "weighted_matched_player_vs_calibration": {
+        "log_loss_delta": 0.0021166432004731048,
+        "ci95": [
+          0.00043767829220606316,
+          0.0037087189277414247
+        ]
+      },
+      "calibration_vs_weighted_matched_player": {
+        "log_loss_delta": -0.0021166432004731048,
+        "ci95": [
+          -0.003819864717043558,
+          -0.00046631703582032804
+        ]
+      },
+      "existing_player_vs_weighted_matched_player": {
+        "log_loss_delta": 1.5390784188300566e-13,
+        "ci95": [
+          -2.9744003811667523e-13,
+          7.438179760779623e-13
+        ]
+      },
+      "native_xg_vs_weighted_matched_player": {
+        "log_loss_delta": -0.002388489257358624,
+        "ci95": [
+          -0.004133758083073852,
+          -0.0006193433754060483
+        ]
+      },
+      "quality_response_vs_weighted_matched_player": {
+        "log_loss_delta": -0.00103807768626062,
+        "ci95": [
+          -0.00194013345413116,
+          -0.0001325595678339191
+        ]
+      },
+      "quality_response_matched_player_vs_weighted_matched_player": {
+        "log_loss_delta": -0.001710768250849913,
+        "ci95": [
+          -0.0028320821572421183,
+          -0.0005838013036012001
+        ]
+      },
+      "weighted_vs_weighted_matched_player": {
+        "log_loss_delta": -0.0002999512878673818,
+        "ci95": [
+          -0.0010118825199987938,
+          0.0004089534030412746
+        ]
+      },
+      "weighted_matched_player_vs_weighted_matched_player": {
+        "log_loss_delta": 0.0,
+        "ci95": [
+          0.0,
+          0.0
+        ]
+      },
+      "calibration_vs_quality_response_matched_player": {
+        "log_loss_delta": -0.0004058749496231919,
+        "ci95": [
+          -0.0009732150572815466,
+          0.00015579372340518007
+        ]
+      },
+      "existing_player_vs_quality_response_matched_player": {
+        "log_loss_delta": 0.0017107682510038205,
+        "ci95": [
+          0.00061267235244033,
+          0.0028165288173243935
+        ]
+      },
+      "native_xg_vs_quality_response_matched_player": {
+        "log_loss_delta": -0.0006777210065087109,
+        "ci95": [
+          -0.0014851855500650657,
+          0.00012223214224939816
+        ]
+      },
+      "quality_response_vs_quality_response_matched_player": {
+        "log_loss_delta": 0.0006726905645892928,
+        "ci95": [
+          0.00013135993094145253,
+          0.0012154128638336194
+        ]
+      },
+      "quality_response_matched_player_vs_quality_response_matched_player": {
+        "log_loss_delta": 0.0,
+        "ci95": [
+          0.0,
+          0.0
+        ]
+      },
+      "weighted_vs_quality_response_matched_player": {
+        "log_loss_delta": 0.001410816962982531,
+        "ci95": [
+          0.00046290057025573703,
+          0.0023252634049478757
+        ]
+      },
+      "weighted_matched_player_vs_quality_response_matched_player": {
+        "log_loss_delta": 0.001710768250849913,
+        "ci95": [
+          0.0006613185721584104,
+          0.002782072184279302
+        ]
+      }
+    }
+  },
+  "later": {
+    "metrics": {
+      "calibration": {
+        "shots": 1885,
+        "goals": 183,
+        "log_loss": 0.26969857230723715,
+        "brier": 0.07597114000238889,
+        "expected_goals": 194.4668743167815,
+        "bias_per_shot": 0.006083222449220964
+      },
+      "existing_player": {
+        "shots": 1885,
+        "goals": 183,
+        "log_loss": 0.27034419542529675,
+        "brier": 0.07636776035961634,
+        "expected_goals": 191.31322433631362,
+        "bias_per_shot": 0.004410198586903768
+      },
+      "native_xg": {
+        "shots": 1885,
+        "goals": 183,
+        "log_loss": 0.27109508723692494,
+        "brier": 0.07650068264042717,
+        "expected_goals": 199.87890583090478,
+        "bias_per_shot": 0.00895432670074524
+      },
+      "quality_response": {
+        "shots": 1885,
+        "goals": 183,
+        "log_loss": 0.26970187182992705,
+        "brier": 0.07623349236731794,
+        "expected_goals": 193.31440584301413,
+        "bias_per_shot": 0.005471833338469028
+      },
+      "quality_response_matched_player": {
+        "shots": 1885,
+        "goals": 183,
+        "log_loss": 0.2696857800322681,
+        "brier": 0.07607421169633258,
+        "expected_goals": 193.61991130483227,
+        "bias_per_shot": 0.005633905201502535
+      },
+      "weighted": {
+        "shots": 1885,
+        "goals": 183,
+        "log_loss": 0.26954752099962664,
+        "brier": 0.07610342301301355,
+        "expected_goals": 191.18691124062508,
+        "bias_per_shot": 0.004343188987068996
+      },
+      "weighted_matched_player": {
+        "shots": 1885,
+        "goals": 183,
+        "log_loss": 0.2703441954252967,
+        "brier": 0.07636776035961634,
+        "expected_goals": 191.3132243363136,
+        "bias_per_shot": 0.004410198586903774
+      }
+    },
+    "paired": {
+      "calibration_vs_native_xg": {
+        "log_loss_delta": -0.0013965149296877514,
+        "ci95": [
+          -0.0023422486916127344,
+          -0.0004549377764723789
+        ]
+      },
+      "existing_player_vs_native_xg": {
+        "log_loss_delta": -0.0007508918116282027,
+        "ci95": [
+          -0.003343117299198018,
+          0.0019115586121032774
+        ]
+      },
+      "native_xg_vs_native_xg": {
+        "log_loss_delta": 0.0,
+        "ci95": [
+          0.0,
+          0.0
+        ]
+      },
+      "quality_response_vs_native_xg": {
+        "log_loss_delta": -0.0013932154069978514,
+        "ci95": [
+          -0.0028338938109010664,
+          9.077443810830716e-05
+        ]
+      },
+      "quality_response_matched_player_vs_native_xg": {
+        "log_loss_delta": -0.001409307204656769,
+        "ci95": [
+          -0.002788476120458763,
+          -0.00011398854896568862
+        ]
+      },
+      "weighted_vs_native_xg": {
+        "log_loss_delta": -0.0015475662372982945,
+        "ci95": [
+          -0.003792304665754864,
+          0.0008860988997825772
+        ]
+      },
+      "weighted_matched_player_vs_native_xg": {
+        "log_loss_delta": -0.0007508918116282044,
+        "ci95": [
+          -0.0034085754999522264,
+          0.0018116327121283006
+        ]
+      },
+      "calibration_vs_existing_player": {
+        "log_loss_delta": -0.0006456231180595486,
+        "ci95": [
+          -0.0029545528363281895,
+          0.0018255013710088601
+        ]
+      },
+      "existing_player_vs_existing_player": {
+        "log_loss_delta": 0.0,
+        "ci95": [
+          0.0,
+          0.0
+        ]
+      },
+      "native_xg_vs_existing_player": {
+        "log_loss_delta": 0.0007508918116282027,
+        "ci95": [
+          -0.0018609942865804618,
+          0.0033357543303203494
+        ]
+      },
+      "quality_response_vs_existing_player": {
+        "log_loss_delta": -0.0006423235953696491,
+        "ci95": [
+          -0.0021174661829638083,
+          0.0007035033540521865
+        ]
+      },
+      "quality_response_matched_player_vs_existing_player": {
+        "log_loss_delta": -0.000658415393028566,
+        "ci95": [
+          -0.002165079973211558,
+          0.0008162983773240162
+        ]
+      },
+      "weighted_vs_existing_player": {
+        "log_loss_delta": -0.0007966744256700918,
+        "ci95": [
+          -0.001661141641403237,
+          8.449591117450467e-05
+        ]
+      },
+      "weighted_matched_player_vs_existing_player": {
+        "log_loss_delta": -2.0568206731077793e-18,
+        "ci95": [
+          -1.520464271627578e-17,
+          8.138529020215933e-18
+        ]
+      },
+      "calibration_vs_calibration": {
+        "log_loss_delta": 0.0,
+        "ci95": [
+          0.0,
+          0.0
+        ]
+      },
+      "existing_player_vs_calibration": {
+        "log_loss_delta": 0.0006456231180595486,
+        "ci95": [
+          -0.0017149693492354609,
+          0.0029893291224600592
+        ]
+      },
+      "native_xg_vs_calibration": {
+        "log_loss_delta": 0.0013965149296877514,
+        "ci95": [
+          0.00046963097165822547,
+          0.002350238647445572
+        ]
+      },
+      "quality_response_vs_calibration": {
+        "log_loss_delta": 3.2995226898998856e-06,
+        "ci95": [
+          -0.0013624694540392483,
+          0.0013111103976615544
+        ]
+      },
+      "quality_response_matched_player_vs_calibration": {
+        "log_loss_delta": -1.2792274969017601e-05,
+        "ci95": [
+          -0.0009109380301147851,
+          0.0008899941065027766
+        ]
+      },
+      "weighted_vs_calibration": {
+        "log_loss_delta": -0.0001510513076105431,
+        "ci95": [
+          -0.002125325012787652,
+          0.0018125339765578067
+        ]
+      },
+      "weighted_matched_player_vs_calibration": {
+        "log_loss_delta": 0.0006456231180595467,
+        "ci95": [
+          -0.0017083226769113004,
+          0.0031090074386857015
+        ]
+      },
+      "calibration_vs_weighted_matched_player": {
+        "log_loss_delta": -0.0006456231180595467,
+        "ci95": [
+          -0.0030030242221560826,
+          0.0016838104928229398
+        ]
+      },
+      "existing_player_vs_weighted_matched_player": {
+        "log_loss_delta": 2.0568206731077793e-18,
+        "ci95": [
+          -7.898160258738064e-18,
+          1.5228985191865203e-17
+        ]
+      },
+      "native_xg_vs_weighted_matched_player": {
+        "log_loss_delta": 0.0007508918116282044,
+        "ci95": [
+          -0.0018738687147437606,
+          0.003344956578757222
+        ]
+      },
+      "quality_response_vs_weighted_matched_player": {
+        "log_loss_delta": -0.0006423235953696469,
+        "ci95": [
+          -0.002014789286503685,
+          0.0007051675685306752
+        ]
+      },
+      "quality_response_matched_player_vs_weighted_matched_player": {
+        "log_loss_delta": -0.0006584153930285642,
+        "ci95": [
+          -0.0020915670723889172,
+          0.000828648392955218
+        ]
+      },
+      "weighted_vs_weighted_matched_player": {
+        "log_loss_delta": -0.0007966744256700895,
+        "ci95": [
+          -0.0016670510036925746,
+          8.215456048686834e-05
+        ]
+      },
+      "weighted_matched_player_vs_weighted_matched_player": {
+        "log_loss_delta": 0.0,
+        "ci95": [
+          0.0,
+          0.0
+        ]
+      },
+      "calibration_vs_quality_response_matched_player": {
+        "log_loss_delta": 1.2792274969017601e-05,
+        "ci95": [
+          -0.0009253884377422868,
+          0.0009374699460081034
+        ]
+      },
+      "existing_player_vs_quality_response_matched_player": {
+        "log_loss_delta": 0.000658415393028566,
+        "ci95": [
+          -0.0008139473927851835,
+          0.002160759823986443
+        ]
+      },
+      "native_xg_vs_quality_response_matched_player": {
+        "log_loss_delta": 0.001409307204656769,
+        "ci95": [
+          8.917547829991808e-05,
+          0.0027962402013355695
+        ]
+      },
+      "quality_response_vs_quality_response_matched_player": {
+        "log_loss_delta": 1.609179765891726e-05,
+        "ci95": [
+          -0.0006842946367950938,
+          0.0007305698395428638
+        ]
+      },
+      "quality_response_matched_player_vs_quality_response_matched_player": {
+        "log_loss_delta": 0.0,
+        "ci95": [
+          0.0,
+          0.0
+        ]
+      },
+      "weighted_vs_quality_response_matched_player": {
+        "log_loss_delta": -0.00013825903264152558,
+        "ci95": [
+          -0.0012847151322920897,
+          0.0010446783201480553
+        ]
+      },
+      "weighted_matched_player_vs_quality_response_matched_player": {
+        "log_loss_delta": 0.0006584153930285642,
+        "ci95": [
+          -0.000797253927293224,
+          0.0021366806023534034
+        ]
+      }
+    }
+  },
+  "hashes": {
+    "selection.json": "1b36ce6128b467cf38a7ae969d5b978ae07c770ff15f2f47627962d4c1993bf6",
+    "historical_predictions.csv.gz": "53072b9e6de4bdceb475c5912c9ae85fb13d51582802380d04d1a421f923c474",
+    "later_predictions.csv.gz": "9de3579b602452af6b700d859f3fdc787eef76484a99dd2d78dc2c6768250390"
+  },
+  "code_sha256": {
+    "scripts/research_shot_difficulty.py": "69d320bbf8fc9c686b02d7c8379b7937e88bb07e3f2028c1057462abd3b38682",
+    "src/fpl_v1_1_model/experimental_shot_difficulty.py": "a8cc62acc162bd1b82b0b14f1025ef3829159f4eb34681a92b5db6b55356b1b9"
+  },
+  "limitations": [
+    "Reused research data; exploratory follow-up after earlier outcomes inspected",
+    "Only development period selects difficulty parameters",
+    "One full shot season plus partial later sample; missing intervening season",
+    "Conditions on realized pre-shot xG, not pre-match xP",
+    "Player-specific quality curve can absorb context/source biases"
+  ],
+  "production_changed": false,
+  "promotion_allowed": false
+}

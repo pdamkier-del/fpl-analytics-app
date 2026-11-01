@@ -1,0 +1,50 @@
+{
+  "baseline_audit": "full-chain-review-20261022/requirements.json",
+  "scope": "Only these four requirement statuses are updated; unchanged historical audit entries are not recertified.",
+  "changes": [
+    {
+      "id": "D03",
+      "requirement": "Alle relevante ældre sæsoner kan undersøges i appen",
+      "previous_status": "delvist",
+      "implementation": "Fire verificerede historiske Core-sæsoner vises for spillere og hold i den eksisterende desktopapp.",
+      "historically_or_functionally_tested": true,
+      "public_release_verified": true
+    },
+    {
+      "id": "R02",
+      "requirement": "Alternative kompatible opstillinger påvirker startchancer",
+      "previous_status": "mangler",
+      "implementation": "Detaljeret rollehistorik påvirker de endelige B-startmarginaler før MM og PM.",
+      "historically_or_functionally_tested": true,
+      "public_release_verified": true
+    },
+    {
+      "id": "R03",
+      "requirement": "Match importance kobles til konkrete roller og kampvalg",
+      "previous_status": "delvist",
+      "implementation": "B-koblingen bruger eksisterende importance-formel med korrekte konkurrence- og rundekoder. Kommende europæisk prioritering er fortsat R04.",
+      "historically_or_functionally_tested": true,
+      "public_release_verified": true
+    },
+    {
+      "id": "R06",
+      "requirement": "Taktisk kompatible alternative XI-scenarier",
+      "previous_status": "delvist",
+      "implementation": "PM trækker hele kompatible opstillinger fra den samme fordeling, som leverer MM-marginalerne.",
+      "historically_or_functionally_tested": true,
+      "public_release_verified": true
+    }
+  ],
+  "remaining_validation_limits": [
+    "R04",
+    "R05",
+    "M08",
+    "P08",
+    "P09",
+    "T06",
+    "T07"
+  ],
+  "actual_private_user_roster_verified": false,
+  "publication_run": 39921451927,
+  "forecast_sha256": "eef055ef9aa0bd3d8a013b05e3e309b326ff98298171bc9a2cccd361c6d2a134"
+}

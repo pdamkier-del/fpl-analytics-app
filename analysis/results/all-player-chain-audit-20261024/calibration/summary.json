@@ -1,0 +1,48 @@
+{
+  "scope": "two reused GW22-38 historical research periods; original source-clock proxies",
+  "independent_certification": false,
+  "individual_player_calibration_certified": false,
+  "calibration_cohorts_use_prior_information_only": true,
+  "low_sample_bin_threshold_is_descriptive_not_release_gate": 100,
+  "start_rows": 24099,
+  "timeline_reliability_included": true,
+  "paired_fixture_uncertainty": [
+    {
+      "season": "2024-25",
+      "metric": "xp_mae",
+      "delta": 0.0017684090041968701,
+      "fixture_bootstrap95": [
+        -0.0011084662028687364,
+        0.004660526600955801
+      ]
+    },
+    {
+      "season": "2024-25",
+      "metric": "minute_mae",
+      "delta": 0.006987378028138786,
+      "fixture_bootstrap95": [
+        -0.03886344702895875,
+        0.0502152014153745
+      ]
+    },
+    {
+      "season": "2025-26",
+      "metric": "xp_mae",
+      "delta": 0.004990169443054266,
+      "fixture_bootstrap95": [
+        0.0017519479063098388,
+        0.008230357917520128
+      ]
+    },
+    {
+      "season": "2025-26",
+      "metric": "minute_mae",
+      "delta": 0.1062337455251114,
+      "fixture_bootstrap95": [
+        0.06471231548168054,
+        0.14604363153843225
+      ]
+    }
+  ],
+  "production_changed": false
+}

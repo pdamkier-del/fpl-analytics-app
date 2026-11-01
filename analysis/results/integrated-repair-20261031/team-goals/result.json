@@ -1,0 +1,65 @@
+{
+  "metrics": [
+    {
+      "season": "2024-25",
+      "arm": "G_xG_shrinkage14",
+      "team_fixtures": 342,
+      "goal_MAE": 0.9251804883557764,
+      "goal_RMSE": 1.1810263964623857,
+      "goal_bias": 0.03590423759316513,
+      "poisson_NLL": 1.4843020834128096,
+      "mean_xg": 1.3830994152046785,
+      "mean_goals": 1.4385964912280702,
+      "mean_forecast": 1.4745007288212353
+    },
+    {
+      "season": "2024-25",
+      "arm": "frozen",
+      "team_fixtures": 342,
+      "goal_MAE": 0.9155565526844428,
+      "goal_RMSE": 1.1733296546225958,
+      "goal_bias": 0.018855455775213515,
+      "poisson_NLL": 1.4761180823358004,
+      "mean_xg": 1.3830994152046785,
+      "mean_goals": 1.4385964912280702,
+      "mean_forecast": 1.4574519470032836
+    },
+    {
+      "season": "2025-26",
+      "arm": "G_xG_shrinkage14",
+      "team_fixtures": 340,
+      "goal_MAE": 0.8838543938473691,
+      "goal_RMSE": 1.077927195821956,
+      "goal_bias": 0.05130322877751881,
+      "poisson_NLL": 1.4319357139201068,
+      "mean_xg": 1.4283235294117647,
+      "mean_goals": 1.3470588235294119,
+      "mean_forecast": 1.3983620523069304
+    },
+    {
+      "season": "2025-26",
+      "arm": "frozen",
+      "team_fixtures": 340,
+      "goal_MAE": 0.8857745916222745,
+      "goal_RMSE": 1.0760789369002863,
+      "goal_bias": 0.06131184969339246,
+      "poisson_NLL": 1.4306074514697045,
+      "mean_xg": 1.4283235294117647,
+      "mean_goals": 1.3470588235294119,
+      "mean_forecast": 1.408370673222804
+    }
+  ],
+  "candidate": "Fixed 14-xG shrinkage of prior same-season team G/xG, multiplicative attack correction to existing team means",
+  "activation": false,
+  "limitations": [
+    "Reused GW22-38 research periods; historical +3/4h proxies",
+    "Team G includes own goals, xG does not",
+    "No new full individual PM candidate activated without joint scoring gate"
+  ],
+  "upcoming_rotation": {
+    "historical_PL_schedule_rows": 0,
+    "recorded_before_kickoff": 0,
+    "nonPL_upcoming_calendar": "Not Available: recovered finished-match observations do not prove predeadline schedule knowledge",
+    "decision": "Keep future-opponent/relative-importance effect neutral; do not train on retrospective calendar"
+  }
+}

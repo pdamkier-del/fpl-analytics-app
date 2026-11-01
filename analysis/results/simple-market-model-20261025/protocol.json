@@ -1,0 +1,13 @@
+{
+  "version": "simple-market-screen-v1",
+  "design_frozen_before_scoring": true,
+  "cohort": "Same 341 fixtures, both seasons GW22-38, all available player rows as archived selected B replay",
+  "arms": ["archived_B", "analytic_PM_frozen_MM", "analytic_PM_simple_MM", "market_PM_frozen_MM", "market_PM_simple_MM"],
+  "MM": "Frozen B marginals or simple strictly prior last-eight appearances with exponential .8 decay, two pseudo-observations at frozen B starter prior; logistic projection to 10 outfield starters and one keeper. Start/cameo durations use prior observed conditional means shrunk by three observations toward 78/15. No current target outcomes used.",
+  "PM": "Analytic additive FPL expectation: appearance, exposure-normalized separate ordinary/penalty goals, assists, Poisson clean sheet and conceded goals, NB defensive contributions, Poisson saves, discipline, own goals, misses, penalty saves; prior bonus per90 shrunk by 450 minutes. No joint match simulation, no claim to aligned TS scenarios.",
+  "market": "Football-data average non-closing 1X2 and over/under2.5 odds; remove proportional margin independently; fit two independent Poisson intensities by least squares; no outcome fitting, no blend tuning",
+  "evaluation": "Minute MAE/bias, start and P0/P60/P90 Brier, xP MAE/bias by season and all/played/rotation/keeper; paired fixture bootstrap CI 1000 resamples seed20261025",
+  "decision": "Research only. No activation. Unknown odds observation clocks prevent deadline-safe promotion regardless of score; no tuning on these reused periods. A future candidate must not worsen minute MAE >.05 or xP MAE >.005 per season, must improve at least one, and needs fresh prospective validation and TS integration.",
+  "limitations": ["Reused research periods, not independent holdout", "Market observations may follow FPL deadline; upper-bound diagnostic only", "Simple MM retains frozen B prior and is an ablation, not a standalone replacement", "Marginal analytic PM cannot certify physically valid joint match draws"],
+  "production_changed": false
+}

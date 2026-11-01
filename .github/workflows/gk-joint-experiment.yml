@@ -1,0 +1,33 @@
+name: Experimental goalkeeper 90-minute coverage tests
+on:
+  push:
+    branches: [experiment-goalkeeper-coverage-20261018]
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - run: pip install -r requirements-model-checkpoint.txt -r requirements-model-tests.txt requests tabulate==0.10.0
+      - name: Run complete Python and preview/privacy regression checks
+        env:
+          PYTHONPATH: src:scripts:.
+          OPENBLAS_NUM_THREADS: '1'
+        run: |
+          python -m pytest -q tests
+          node tests/test_B_preview_contract.js
+          node tests/test_B_preview_jobs.js
+          node tests/test_B_personal_view.js
+          node tests/test_existing_B_adapter.js
+          node tests/test_joint_gk_contract.js
+          python scripts/check_locked_gk_default.py

@@ -1,0 +1,572 @@
+{
+  "checked_at_utc": "2026-10-23T08:07:28.863900+00:00",
+  "forecast_sha256": "eef055ef9aa0bd3d8a013b05e3e309b326ff98298171bc9a2cccd361c6d2a134",
+  "model": "B-MM-PM-TS-v1",
+  "data_asof": "2026-10-23T07:42:37.920784+00:00",
+  "gws": [
+    8,
+    9,
+    10,
+    11,
+    12,
+    13
+  ],
+  "players": 668,
+  "fixtures": 60,
+  "player_fixture_rows": 4008,
+  "sealed_snapshot_and_file_checksums": true,
+  "unique_player_identities": true,
+  "all_MM_PM_analytic_minutes_equal": true,
+  "all_point_components_reconciled": true,
+  "all_team_outfield_start_mass_10": true,
+  "all_GK_start_mass_1_and_minutes_90_with_explicit_pool": true,
+  "probability_ordering_valid": true,
+  "match_context_integrity": true,
+  "history_scope": {
+    "gws": [
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7
+    ],
+    "match_rows": 4551,
+    "older_seasons_exposed": true,
+    "archived_seasons": [
+      "2022-23",
+      "2023-24",
+      "2024-25",
+      "2025-26"
+    ],
+    "archived_counts": {
+      "2022-23": {
+        "fixtures": 380,
+        "player_match_rows": 26505,
+        "players": 778,
+        "team_match_rows": 760
+      },
+      "2023-24": {
+        "fixtures": 380,
+        "player_match_rows": 29725,
+        "players": 865,
+        "team_match_rows": 760
+      },
+      "2024-25": {
+        "fixtures": 380,
+        "player_match_rows": 27283,
+        "players": 784,
+        "team_match_rows": 760
+      },
+      "2025-26": {
+        "fixtures": 380,
+        "player_match_rows": 29747,
+        "players": 841,
+        "team_match_rows": 760
+      }
+    }
+  },
+  "midweek_context": {
+    "matches": 121,
+    "player_rows": 4033,
+    "collection_errors": []
+  },
+  "synthetic_six_GW_TS": {
+    "actual_user_plan": false,
+    "weekly_checks": [
+      {
+        "gw": 8,
+        "legal_squad": true,
+        "bank_and_FT": true,
+        "hits_and_utility": true
+      },
+      {
+        "gw": 9,
+        "legal_squad": true,
+        "bank_and_FT": true,
+        "hits_and_utility": true
+      },
+      {
+        "gw": 10,
+        "legal_squad": true,
+        "bank_and_FT": true,
+        "hits_and_utility": true
+      },
+      {
+        "gw": 11,
+        "legal_squad": true,
+        "bank_and_FT": true,
+        "hits_and_utility": true
+      },
+      {
+        "gw": 12,
+        "legal_squad": true,
+        "bank_and_FT": true,
+        "hits_and_utility": true
+      },
+      {
+        "gw": 13,
+        "legal_squad": true,
+        "bank_and_FT": true,
+        "hits_and_utility": true
+      }
+    ],
+    "first_GW_score_recomputed": true,
+    "manager_actions_sent": false,
+    "synthetic_state_saved_only_locally": true
+  },
+  "service_health": {
+    "status": "ready",
+    "calculation_runtime": null,
+    "locked_model_active": false,
+    "supports_unified_B_chain": true,
+    "supports_B_snapshot_policy": true,
+    "preview_worker_sha256": "b3e67026e6c57e1c764d76bc2bf999ab7f4bcbaa739e3ab198ebe7fd5a95dbb7"
+  },
+  "production_files_checked": 88,
+  "served_production_bytes_match_publisher_receipt": true,
+  "production_files": [
+    {
+      "path": ".nojekyll",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "matches_receipt": true
+    },
+    {
+      "path": "assets.css",
+      "sha256": "898ce55ee157d5441b9d20302825b8066658084698c7fd0ae32f052d5a0648fa",
+      "matches_receipt": true
+    },
+    {
+      "path": "assets.js",
+      "sha256": "bc28d0ef5cc6f118aa6abb96a0efd3d25e6231b73e5a63409d9f8be30d45b05c",
+      "matches_receipt": true
+    },
+    {
+      "path": "availability-ui.js",
+      "sha256": "6b2b83a98706c1a4f136033fd9c7c1fe45612d718eff4a923ddb91ea0b96af78",
+      "matches_receipt": true
+    },
+    {
+      "path": "catalog-data.js",
+      "sha256": "8a3e04c12f8b9913c9ca3723df9f5c061add977d528615309f6711de099d55be",
+      "matches_receipt": true
+    },
+    {
+      "path": "classic-catalog.css",
+      "sha256": "a45aae71e9e1b23a241f45600287e4f306137fe8f5da375bc93baef09d1c4c5f",
+      "matches_receipt": true
+    },
+    {
+      "path": "classic-catalog.js",
+      "sha256": "299129135cbb2a12d4c106c10134fc4d47fa17da78f9371bd5cb287124c90450",
+      "matches_receipt": true
+    },
+    {
+      "path": "classic-common.css",
+      "sha256": "253c914db9a08d355c2bff6e18dfecbaa82510ba5b6ef626c9c61621a460f14e",
+      "matches_receipt": true
+    },
+    {
+      "path": "classic-fixtures.css",
+      "sha256": "adf0b8ab12162a1384883a89bea82df3eef70e18083b87f000edcd9de7177674",
+      "matches_receipt": true
+    },
+    {
+      "path": "classic-fixtures.js",
+      "sha256": "bb822dc19269c7a29813e9ce9d232b3b92fc3be0d9e0481e9423622d9cd17cfa",
+      "matches_receipt": true
+    },
+    {
+      "path": "classic-manager.js",
+      "sha256": "53d0aff6b34e4df157d86ec25504c455f814882f155eeb85fb72816b4fb2c454",
+      "matches_receipt": true
+    },
+    {
+      "path": "classic-nav.js",
+      "sha256": "b0a65af1a53a9d580e387e5f89c6666a91dee9079e0421211b57b35559508df2",
+      "matches_receipt": true
+    },
+    {
+      "path": "classic-transfer-preview.js",
+      "sha256": "5e787c111edf0ad3aac367a0691e8247d3f3dcaf0cd7844052c4e7ffa4619325",
+      "matches_receipt": true
+    },
+    {
+      "path": "classic-transfers.js",
+      "sha256": "783bae14b75ead9d71cf5d60f9d6179b18c6e38ccace314c9d7f2c5850535ddb",
+      "matches_receipt": true
+    },
+    {
+      "path": "club-lineups.json",
+      "sha256": "15fc716ffa2c925ded24cf5c5c33b2d6db79d97a67a4c3e844aabc7feb4b2a84",
+      "matches_receipt": true
+    },
+    {
+      "path": "clubs-classic.html",
+      "sha256": "eeae8d0efeffa460d7c3b99c9b6eb9d743761abf25959ecf1b6646628fc38188",
+      "matches_receipt": true
+    },
+    {
+      "path": "clubs-live.html",
+      "sha256": "a2c838393192a4c5d92fed2f567244c46034d5de1f42b003a7c3d0efe4b4daf2",
+      "matches_receipt": true
+    },
+    {
+      "path": "compute-feedback.js",
+      "sha256": "02b758f5d7b7d7dd7070aa505589cffb92ad095b03eb02bd6c893e79b203cbf8",
+      "matches_receipt": true
+    },
+    {
+      "path": "current-players.html",
+      "sha256": "e6e92158b9398ab02eeb3f40b8e292a4bb8b217a386f8462dbbe6aaf4eda1c52",
+      "matches_receipt": true
+    },
+    {
+      "path": "current-players.json",
+      "sha256": "08287a3bc69ad6764d13406a2840f806c3dde4c282090bd534b483c4de8daf06",
+      "matches_receipt": true
+    },
+    {
+      "path": "data.js",
+      "sha256": "c0b4591374e205a4f06eb644bb765fbfdd7b88bb862e5060e622f108eccf9010",
+      "matches_receipt": true
+    },
+    {
+      "path": "design-v2.css",
+      "sha256": "63f080526211e30309a0c1498171e1a0ff436b889276ebc988982a545a6ea09c",
+      "matches_receipt": true
+    },
+    {
+      "path": "design-v2.js",
+      "sha256": "2c981dc7a13afa7e987e1b8ccfb5cef3203569b2b15cd1194d6ff8f37a425a0e",
+      "matches_receipt": true
+    },
+    {
+      "path": "diagnostic-pipeline-status.json",
+      "sha256": "127a2f1256d847bfe7dcf78014869ab6711c533b02b20dcc68a5ec9f0a0c34bc",
+      "matches_receipt": true
+    },
+    {
+      "path": "expert-lineups.js",
+      "sha256": "3038d01f3bf5327bf187dea5aea9f6984b9142f7118b2797276fb9f1c9f61fe6",
+      "matches_receipt": true
+    },
+    {
+      "path": "fixture-expectations.json",
+      "sha256": "a1b97241d3a05bb6071f0fbeda16f74d80c6c95c6ecdd09be673eb5cc1fd8692",
+      "matches_receipt": true
+    },
+    {
+      "path": "fixture-formatter.js",
+      "sha256": "7296b09d85a72fb2376aec47c385ad9e74b7a594babd8ceb37d25dd9cfd68556",
+      "matches_receipt": true
+    },
+    {
+      "path": "fixtures-classic.html",
+      "sha256": "78a82fc5b70274296435ee26cb248894a499c57f4093f13c7fe8d0a88f78e753",
+      "matches_receipt": true
+    },
+    {
+      "path": "fixtures-live.html",
+      "sha256": "3a441bda4c3f0064e1d63abba4be6e6479b44bc9b14677a824d8de2a9bc7e1ce",
+      "matches_receipt": true
+    },
+    {
+      "path": "forecast-center.html",
+      "sha256": "befadbb1444fc38f655ffc382697e9ef92b317f27d975217cf43088a3de42e8f",
+      "matches_receipt": true
+    },
+    {
+      "path": "forecast-history.html",
+      "sha256": "7520136edbd451bf14534e5c0487f57bd467c0a1f62c74b8d77afc82363150d4",
+      "matches_receipt": true
+    },
+    {
+      "path": "forecast-live.html",
+      "sha256": "1f51df6c9bac8efb357da7bb7c401c7de6a5d1e7b6f9c2d641017797190bc6e2",
+      "matches_receipt": true
+    },
+    {
+      "path": "forecast-window.js",
+      "sha256": "29f35e9a0e2735b768ad90a6ee436580ff00d30286f5c25a0a0ffbea6f82d2c5",
+      "matches_receipt": true
+    },
+    {
+      "path": "forecast.html",
+      "sha256": "08a216d34877acf3efbb84760ac845492b5ccdc419614412d8ad39b31e1d35ac",
+      "matches_receipt": true
+    },
+    {
+      "path": "historical-gw-stats.json",
+      "sha256": "2280a1c8c1aa822b20c2e80877197e0c37fcf7d2ebcc64fc8641859f413c6238",
+      "matches_receipt": true
+    },
+    {
+      "path": "icons/fpl-icon.svg",
+      "sha256": "0bd949042285cf7c085284fa69a9cbb3f46018ad1c96e21828efcb0affa8c339",
+      "matches_receipt": true
+    },
+    {
+      "path": "index.html",
+      "sha256": "3398e02b7168f3b9c8bda3aacbd0e72e42df3940ae2b55f7bfeb58f146457814",
+      "matches_receipt": true
+    },
+    {
+      "path": "integration-validation.html",
+      "sha256": "be1c2e588b09ba39ed937d4e7215e2a04ce4c4330f4065ea64b59c4633cb59e7",
+      "matches_receipt": true
+    },
+    {
+      "path": "integration-validation.json",
+      "sha256": "84d553a478a1b721ed392a2e69fc5e9d871bf1078dad0282c4fb06c0e87da239",
+      "matches_receipt": true
+    },
+    {
+      "path": "layout-check.html",
+      "sha256": "8c81a862b36181a6de91ed902820c6118dcf105bf8db1a5ef1df8f99ea336dfa",
+      "matches_receipt": true
+    },
+    {
+      "path": "live-fixtures.json",
+      "sha256": "a0dbd96b07242f2ad30c3ce0e1c824f8d2285605025539040bbe83d465199d87",
+      "matches_receipt": true
+    },
+    {
+      "path": "live-model-status.html",
+      "sha256": "8b1dbaeeb2b4209030cc7c6357fd7a2564cd9f3e26dcf3f3d54cefe3f2a12df2",
+      "matches_receipt": true
+    },
+    {
+      "path": "locked-forecast.html",
+      "sha256": "e4ed16a7ba9b60db0679cd915b8b0641e2a39dce7c507bdc2b11c39241572f09",
+      "matches_receipt": true
+    },
+    {
+      "path": "locked-integration-audit.json",
+      "sha256": "80bc4848960848451ff2311d283c99b67085eee1a95c297f5975679df9e027c2",
+      "matches_receipt": true
+    },
+    {
+      "path": "manager-online.js",
+      "sha256": "7092ffffa6a3ab9d0cfcc0699591f9e3d82da34722c10803e10e74bb16d93932",
+      "matches_receipt": true
+    },
+    {
+      "path": "manager-service.json",
+      "sha256": "3befd03ef23f3ecdb491c100897090222fb179b7fd92715e9972ca35ffd1c671",
+      "matches_receipt": true
+    },
+    {
+      "path": "manager-state.html",
+      "sha256": "01f50acbddd6aead95a1e7780f7052a0522d3a94b57c53549e0de2abaec6e9c6",
+      "matches_receipt": true
+    },
+    {
+      "path": "manager-state.js",
+      "sha256": "9706dad0df62a210c278072ef040231b2dd5885a7d227a3b660c4d8ee7404a08",
+      "matches_receipt": true
+    },
+    {
+      "path": "manifest.webmanifest",
+      "sha256": "385435214c0132e3a4d1031c104fac890de276367316db55fc2bc29e4911865f",
+      "matches_receipt": true
+    },
+    {
+      "path": "match-centre.html",
+      "sha256": "707978bd15dab501a380d91b3c942023d883b795788cf642d95f971e8afd3375",
+      "matches_receipt": true
+    },
+    {
+      "path": "match-data.js",
+      "sha256": "ee1742224bfdaad16036ce5c4ada64cf82884f411697198078a64f457b302a20",
+      "matches_receipt": true
+    },
+    {
+      "path": "match-results.json",
+      "sha256": "fb2ae14eee00dbd51ef89c8b56a48b59713e6d8301378d59738910b10bcb9265",
+      "matches_receipt": true
+    },
+    {
+      "path": "mm-diagnostic.html",
+      "sha256": "18886c30f04649592dad14a99cd7bdf095cee9820c997a5e3cabea57c626c749",
+      "matches_receipt": true
+    },
+    {
+      "path": "mm-vnext.html",
+      "sha256": "0d3b2506f80b5f9ecd2e7ed1c7eec8439f826d911a70381f942145bb6bf14947",
+      "matches_receipt": true
+    },
+    {
+      "path": "mobile.html",
+      "sha256": "a39cdcd8702ea1d0a1a72296922c5f20148c703f47f28cdafcaa8f2d0299ea1a",
+      "matches_receipt": true
+    },
+    {
+      "path": "model-lab.html",
+      "sha256": "cfb8a4e72944921c8f2a2b7b3be2a72cda160f1cf9933cc54b8c7bb429b72708",
+      "matches_receipt": true
+    },
+    {
+      "path": "model-status.html",
+      "sha256": "30b05d062ff814834e6f0131904087ec7e66f612fedc561a557a19c330ec22ce",
+      "matches_receipt": true
+    },
+    {
+      "path": "model-tree-data.js",
+      "sha256": "47059574edd009003698508e0f130c104f22ca5c1edbdadc1c8e9cb3d299c418",
+      "matches_receipt": true
+    },
+    {
+      "path": "model-tree-ui.js",
+      "sha256": "bca57edf6e9ecba96853334a5278e9ec8c6d142fa1877e1f05972d80160eacea",
+      "matches_receipt": true
+    },
+    {
+      "path": "models.html",
+      "sha256": "5983bb945e0b289dce2f06048e00f53bfc15eec1fc9cfb70983896d50b475533",
+      "matches_receipt": true
+    },
+    {
+      "path": "my-team-classic.html",
+      "sha256": "3354ebb16ed4c5fd7495c878c95a6cd39afeed6b04a101a6476a3e29b840aa71",
+      "matches_receipt": true
+    },
+    {
+      "path": "my-team-live.html",
+      "sha256": "f2da7bd45a9d73f808749a30f810cb2763c30360c1718a37a8d793bb73d110d8",
+      "matches_receipt": true
+    },
+    {
+      "path": "my-team.html",
+      "sha256": "19576f07fe96fdcdad774ae8fabc18081fc22f5f7b4942951eb84d53d7679bab",
+      "matches_receipt": true
+    },
+    {
+      "path": "nav.js",
+      "sha256": "b9fa2521d9a8eaa8c6108ee3dab312e7550960cd7170a704ad90fe961c7c8bbb",
+      "matches_receipt": true
+    },
+    {
+      "path": "overview.html",
+      "sha256": "354ee1ea1bc5b684681445ece9c4270f3a7be58661d72498594116e19742011d",
+      "matches_receipt": true
+    },
+    {
+      "path": "own-forecast.html",
+      "sha256": "046d581e6290214ec08217fdc9dc097948153ee82b5662731bc09ab7d3bd10f1",
+      "matches_receipt": true
+    },
+    {
+      "path": "pipeline-status.js",
+      "sha256": "4c35400dbdcc61759de1439b386a5464949ae99cb256f54f36943d804de04c1e",
+      "matches_receipt": true
+    },
+    {
+      "path": "plan-view.js",
+      "sha256": "a22a22c6cd9eebcdd8ade221b2c9a8b117fb9c92f1d354cc69c38ff7f53bea9d",
+      "matches_receipt": true
+    },
+    {
+      "path": "player-palmer.html",
+      "sha256": "a1a6030e2136d907f5d9e5ae474d8daf0ca897f06261b976e31768860af86487",
+      "matches_receipt": true
+    },
+    {
+      "path": "player.html",
+      "sha256": "613c3a5b010915dda907364bd5a6146ddcd66f199d67be9bfd97cdac7b422c74",
+      "matches_receipt": true
+    },
+    {
+      "path": "players-classic.html",
+      "sha256": "549ea13c33291480fa6d79ab90e4194b0ad29db5cf583290c8026abe18ddf3ac",
+      "matches_receipt": true
+    },
+    {
+      "path": "private-import.js",
+      "sha256": "b454f973d65fb14fe7dad34c186d5b9f9bbcaa7f4ac870f8f3b59dd430ac70ff",
+      "matches_receipt": true
+    },
+    {
+      "path": "rankings.html",
+      "sha256": "e6e92158b9398ab02eeb3f40b8e292a4bb8b217a386f8462dbbe6aaf4eda1c52",
+      "matches_receipt": true
+    },
+    {
+      "path": "replay.html",
+      "sha256": "b1cec62e972a91925d1916dee870e266d53ae3d61b8486e601f132bc0e7e3b01",
+      "matches_receipt": true
+    },
+    {
+      "path": "role-data.js",
+      "sha256": "2ed6172d10815edf491a8a633a398117c8fded7a39b1f52856c6d0cf8586ed30",
+      "matches_receipt": true
+    },
+    {
+      "path": "roles-view.css",
+      "sha256": "3278939ec4072362932b8d1455630e91bd6dba30b7c210dc12743ae2f39618d3",
+      "matches_receipt": true
+    },
+    {
+      "path": "roles-view.js",
+      "sha256": "b9279e2055e16bb846a4e571b13b28f6b3a31e67a74ea2703165bec07bb684a4",
+      "matches_receipt": true
+    },
+    {
+      "path": "sw.js",
+      "sha256": "4aad561c3a7810bc0c04ac22772ac8f773bf5e447441532e58e7bfa8bbb19fad",
+      "matches_receipt": true
+    },
+    {
+      "path": "tc-samples.csv.gz",
+      "sha256": "9abb4fa4651be5d458f20cf60ec0f295b81dabcbb09e59158a67addb3d65b5d7",
+      "matches_receipt": true
+    },
+    {
+      "path": "team-optimizer.html",
+      "sha256": "de41a2748f07237deed1c5002b0cec9ebbd7f52bef1fd9fdf9894487a4cab948",
+      "matches_receipt": true
+    },
+    {
+      "path": "transfer-card.js",
+      "sha256": "64112dc61ee315f4df47d0d0b24c9f5f5e58e4b83d287125978822f53d9541f4",
+      "matches_receipt": true
+    },
+    {
+      "path": "transfer-planner.html",
+      "sha256": "79475b989bbfcdf11b95381e11c516387024ff4ed0860a08e80066504bc3b8e6",
+      "matches_receipt": true
+    },
+    {
+      "path": "transfers-classic.html",
+      "sha256": "a2d8f32da97d187c948fe2355a1df2686da08ee5304ac59c460c075f2fd55222",
+      "matches_receipt": true
+    },
+    {
+      "path": "ui-review.html",
+      "sha256": "33ba14b5cef2a76e93678fc3f9bba16b0dfdc7151d3b8ce5fdfb6acffba3665b",
+      "matches_receipt": true
+    },
+    {
+      "path": "vfinal-diagnostic.html",
+      "sha256": "c96605c1d16da08a1ca157a1cd4cb522c60d2f49681a1c8dea6124ef251a6ac9",
+      "matches_receipt": true
+    },
+    {
+      "path": "vfinal-diagnostic.json",
+      "sha256": "c8024377dc3ced65bfd8153f2920b8fcb8f254b68b4bfd4d548b034426d707d3",
+      "matches_receipt": true
+    },
+    {
+      "path": "weekly-app.css",
+      "sha256": "21ec044ae0b32feaa926908305e5f03be8d49a1d144c182899790316b74cb4e1",
+      "matches_receipt": true
+    },
+    {
+      "path": "weekly-app.js",
+      "sha256": "1ea5cb96ab46cdea0fd4954e99dd4da696cd2455f994cd76563ebb7e6a78fe3c",
+      "matches_receipt": true
+    }
+  ],
+  "production_or_preview_changed": false
+}

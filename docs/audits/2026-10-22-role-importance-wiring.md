@@ -1,0 +1,31 @@
+# Existing role distribution and match-importance wiring audit
+
+Read-only review on the existing PR #22 branch. The request is to establish whether flexible roles, alternative XIs, and cross-competition priorities are properly connected, rather than adding another post-benching correction. No model, numerical B preview, UI or production behavior is changed.
+
+## Confirmed findings
+
+1. **Foden's right-sided role is already present.** In the served 22 October MM document, his historical role-profile shares are RAM 0.62876, CAM 0.21652 and RW 0.15472. Cherki has CAM 0.67471, RCM 0.23268 and LCM 0.09262. Ndiaye has RAM 0.52412, RW 0.27998 and LW 0.19590. These are normalized decayed historical role evidence, not calibrated probabilities for the upcoming position. Showing only primary/secondary roles conceals some flexibility; RW is Foden's third recorded role, not an absent one.
+
+2. **The detailed formation assignment follows B marginal inference, without feedback.** `mm_candidate_forecast.infer_B` owns p/q/s/c and exact team projection. `mm_candidate.FormationSelector.choose` then builds a role-compatible point-display assignment using those already computed p values. `build_contract` copies each marginal unchanged. A different display role assignment cannot itself adjust a player's start chance. Earlier upstream MM role summaries and PM tactical role priors do exist; it would be incorrect to call every role feature cosmetic.
+
+3. **The existing detailed selector discards historical match importance.** The archived role ledger contains 117 games: 70 PL, 23 League Cup, 15 CL, 6 EL, 2 Conference qualification and 1 Conference. Its importance column is nonconstant. However, `FormationSelector.__init__` retains only fixture/time/formation and player/final-role records. Formation frequency is decayed by match order, and role-profile evidence is decayed by time. Reversing every ledger importance value produces an identical selection and profiles. The independent `RoleHistory` engine supports q/H importance weighting; that capability is not the same as this downstream selector using it.
+
+4. **Adding upcoming-importance columns does not activate a model mechanism.** A controlled input mutation adds large `future_rotation_pressure`, `future_next_importance`, `target_match_importance`, `role_CAM` and `role_RAM` values to the frozen B target. B's output p remains byte-exact. The PR9 feature design consumes its specified NUM contract, and PR4 uses its specified prefix/scalar-role-band design. The mutation diagnoses unconsumed direct inputs; it does not prove that every upstream component is importance-free. There are existing `match_importance`, `future_match_importance`, `relative_match_importance`, and `relative_future_match_importance` research modules and unit tests. Those modules are not evidence of a validated role-by-upcoming-importance alternative-XI distribution in the served B chain.
+
+5. **A point XI and a distribution of tactical XIs are different.** The joint starter kernel in `joint_simulator` samples ten outfield starters from fixed marginals by dependent rounding. It enforces the count and joint goalkeeper kernel, but does not consume formation slots or evaluate alternative-XI role/importance scores. The display selector hard-separates GK/outfield, but detailed outfield role compatibility is a soft score with a nonzero fallback. It does not prove every sampled XI has an evidence-supported tactical shape. This audit does not label actual flexible football lineups impossible from their FPL position categories.
+
+## Controlled City assignment diagnostic
+
+Reconstructing the served display objective reproduces its point XI: Donnarumma; Matheus N., Rúben, Guéhi, Gvardiol; Enzo, Anderson; Ndiaye, Foden, Doku; Haaland.
+
+Forcing **Foden at RAM and Cherki at CAM** remains feasible. Given the existing p values and role-profile score, the best remaining assignment moves Ndiaye to LAM and leaves Doku out. Forcing the specific **Doku LAM – Cherki CAM – Foden RAM** trio is also feasible. This establishes that the roles are not structurally mutually exclusive; it does not show that the second lineup is more probable. Assignment scores are optimizer objectives, not lineup probabilities. No xP is overwritten or scaled from this diagnostic.
+
+The public MM evidence is the served 07:40-source document under the unified 07:48 seal. The B input-column and importance-reversal checks use the separately archived 08:16 input run, artifact 12414535468/run 39745524857. The captures are distinguished and hashed, not presented as identical snapshots. Output, input SHA256s, code identity, role shares, both forced alternatives, and invariant checks are in `analysis/results/role-importance-wiring-20261022/audit.json`.
+
+Reproduce with `PYTHONPATH=src:scripts:. OPENBLAS_NUM_THREADS=1 /workspace/fpl-venv/bin/python scripts/audit_role_importance_wiring.py --mm /tmp/cherki-pm-audit/current_mm.json --inputs /tmp/cherki-pm-audit/evidence/work/current-B-inputs --out analysis/results/role-importance-wiring-20261022`.
+
+## Existing validation and conclusion
+
+52 existing tests pass in 3.12 seconds: MM candidate, formation history, CAM roles, club match importance, future match importance, relative importance, relative future importance, reproducible roles and live role snapshot. They verify their implemented contracts, deterministic assignment, source/time exclusion and numerical primitives. They do not establish the predictive quality of role-by-match-importance interactions, flexible-player competition, or the probabilities of alternative formations/lineups. No new historical accuracy gain is claimed by this wiring audit.
+
+**Conclusion: the requested coupling is not properly established end to end.** Useful role information and importance machinery already exist; the missing piece is a validated connection from match-specific priorities and compatible alternative assignments to joint selection probabilities, with those same probabilities/minutes passed into PM and TS. Increasing Cherki's p or changing the displayed position alone would leave that architecture gap unresolved. The preceding separate European residual experiment neither validates nor refutes this coupling.

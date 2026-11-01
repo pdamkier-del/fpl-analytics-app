@@ -1,0 +1,20 @@
+{
+  "strengths": [
+    0.0,
+    0.1,
+    0.25,
+    0.5
+  ],
+  "development": "GW6-21 in each season; same global strength",
+  "validation": "GW22-38; reused historical research periods, not independent holdout",
+  "selection": "lowest mean development start-Brier, tie prefers zero",
+  "gate": "start-Brier and minute-MAE improve each season; absolute minute bias does not worsen; then full paired PM gate required",
+  "historical_roles": {
+    "2024-25": "formation/layout proxy; archival clock proxies",
+    "2025-26": "classified measured/structural roles; kickoff+3h clock proxies"
+  },
+  "importance": "mean of PL value=1, known GW stage, neutral opponent=.5; no invented future competition calendar",
+  "missing_history": "unchanged B, reported",
+  "production_changed": false,
+  "sha256": "4b29caa486d04d69918054c94344abaa3c82567759469b37fe8bb15cbae07148"
+}

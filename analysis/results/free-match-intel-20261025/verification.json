@@ -1,0 +1,23 @@
+{
+  "base_commit": "de2668fd10983893d9da552fa8a2c3f0d957f737",
+  "full_regression": {
+    "passed": 1010,
+    "seconds": 58.81,
+    "command": "PYTHONPATH=src:scripts:. OPENBLAS_NUM_THREADS=1 /workspace/fpl-venv/bin/python -m pytest -q tests"
+  },
+  "targeted": {
+    "passed": 21
+  },
+  "same_capture_replay_byte_identical": true,
+  "model_quality_gain_tested": false,
+  "active_B_changed": false,
+  "production_changed": false,
+  "automatic_schedule_enabled": false,
+  "files": {
+    "scripts/free_match_intel.py": "a941fd8d3a8a572c32239f0f5cddc33dff3ca1818efcf0cf434e3409c4be2633",
+    "tests/test_free_match_intel.py": "2a7b3935eb901974a995a2a2351a4b88fd43343ca35b78c43d33da3f3035f62a",
+    "scripts/snapshot_predicted_lineups.py": "77fa0b10ff95039f9dec7c162bbee21efe7d08c474f95527cb86d0366527a000",
+    "scripts/collect_dashboard_news.py": "5196a6b23104041787173487d34a457b93e8f9e173ed1568c7f35531562c725d",
+    "analysis/results/free-match-intel-20261025/report.json": "c4518da7246b5232668ef1b3ca0339e63950d80bea29683401e3a426f69f6d63"
+  }
+}

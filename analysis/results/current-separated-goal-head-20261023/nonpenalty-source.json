@@ -1,0 +1,737 @@
+{
+  "version": "nonpenalty-goal-head-v1",
+  "historical_fixtures": 70,
+  "verified_penalty_attempts": 11,
+  "source_sha256": {
+    "player_fixture_observations": "833a8845bb4d359594f626c56d96c0762eeb203b3af65257716971ee1ef2218e",
+    "verified_penalty_attempts": "cb285a595949d0b3d413d386fc36d0cdefba08d15c6bf70941817c4156985b4e",
+    "verified_penalty_team_sides": "7def2b4b8eaffbb10e8593f4d87f30bec685c0ee885361600629d38718f601b0",
+    "reconstructed_training_features": "38477c377f22a2fe7b9b977028011227e8729b39f6444ac75862095d1bf7b4bc",
+    "classified_starters": "39d78605dcdf09b81868bb1ab982b46d424aee04c73fa9e2f159dba187346be6"
+  },
+  "ordinary_head": "FPL-scale NP history, NP role priors and NP-only refitted coefficients",
+  "penalty_fallback": "frozen separately before replacing ordinary weights",
+  "form_window": "previous three known PL observations; no missing cup events assumed zero",
+  "team_penalty_fixtures": [
+    {
+      "fixture_id": "live-2026-27-fpl-100",
+      "team_id": 20,
+      "expected_attempts": 0.0952380952380952,
+      "p_at_least_one": 0.09084355712328689
+    },
+    {
+      "fixture_id": "live-2026-27-fpl-100",
+      "team_id": 6,
+      "expected_attempts": 0.0767195767195767,
+      "p_at_least_one": 0.0738504689153422
+    },
+    {
+      "fixture_id": "live-2026-27-fpl-101",
+      "team_id": 2,
+      "expected_attempts": 0.0767195767195767,
+      "p_at_least_one": 0.0738504689153422
+    },
+    {
+      "fixture_id": "live-2026-27-fpl-101",
+      "team_id": 20,
+      "expected_attempts": 0.0952380952380952,
+      "p_at_least_one": 0.09084355712328689
+    },
+    {
+      "fixture_id": "live-2026-27-fpl-102",
+      "team_id": 3,
+      "expected_attempts": 0.0582010582010582,
+      "p_at_least_one": 0.05653976205209844
+    },
+    {
+      "fixture_id": "live-2026-27-fpl-102",
+      "team_id": 18,
+      "expected_attempts": 0.0767195767195767,
+      "p_at_least_one": 0.0738504689153422
+    },
+    {
+      "fixture_id": "live-2026-27-fpl-103",
+      "team_id": 4,
+      "expected_attempts": 0.0767195767195767,
+      "p_at_least_one": 0.0738504689153422
+    },
+    {
+      "fixture_id": "live-2026-27-fpl-103",
+      "team_id": 9,
+      "expected_attempts": 0.0767195767195767,
+      "p_at_least_one": 0.0738504689153422
+    },
+    {
+      "fixture_id": "live-2026-27-fpl-104",
+      "team_id": 6,
+      "expected_attempts": 0.0582010582010582,
+      "p_at_least_one": 0.05653976205209844
+    },
+    {
+      "fixture_id": "live-2026-27-fpl-104",
+      "team_id": 13,
+      "expected_attempts": 0.0582010582010582,
+      "p_at_least_one": 0.05653976205209844
+    },
+    {
+      "fixture_id": "live-2026-27-fpl-105",
+      "team_id": 7,
+      "expected_attempts": 0.0767195767195767,
+      "p_at_least_one": 0.0738504689153422
+    },
+    {
+      "fixture_id": "live-2026-27-fpl-105",
+      "team_id": 8,
+      "expected_attempts": 0.0767195767195767,
+      "p_at_least_one": 0.0738504689153422
+    },
+    {
+      "fixture_id": "live-2026-27-fpl-106",
+      "team_id": 11,
+      "expected_attempts": 0.0582010582010582,
+      "p_at_least_one": 0.05653976205209844
+    },
+    {
+      "fixture_id": "live-2026-27-fpl-106",
+      "team_id": 5,
+      "expected_attempts": 0.0952380952380952,
+      "p_at_least_one": 0.09084355712328689
+    },
+    {
+      "fixture_id": "live-2026-27-fpl-107",
+      "team_id": 14,
+      "expected_attempts": 0.0767195767195767,
+      "p_at_least_one": 0.0738504689153422
+    },
+    {
+      "fixture_id": "live-2026-27-fpl-107",
+      "team_id": 16,
+      "expected_attempts": 0.0952380952380952,
+      "p_at_least_one": 0.09084355712328689
+    },
+    {
+      "fixture_id": "live-2026-27-fpl-108",
+      "team_id": 15,
+      "expected_attempts": 0.0582010582010582,
+      "p_at_least_one": 0.05653976205209844
+    },
+    {
+      "fixture_id": "live-2026-27-fpl-108",
+      "team_id": 10,
+      "expected_attempts": 0.0767195767195767,
+      "p_at_least_one": 0.0738504689153422
+    },
+    {
+      "fixture_id": "live-2026-27-fpl-109",
+      "team_id": 17,
+      "expected_attempts": 0.0952380952380952,
+      "p_at_least_one": 0.09084355712328689
+    },
+    {
+      "fixture_id": "live-2026-27-fpl-109",
+      "team_id": 1,
+      "expected_attempts": 0.1137566137566137,
+      "p_at_least_one": 0.10752485437615242
+    },
+    {
+      "fixture_id": "live-2026-27-fpl-110",
+      "team_id": 19,
+      "expected_attempts": 0.0767195767195767,
+      "p_at_least_one": 0.0738504689153422
+    },
+    {
+      "fixture_id": "live-2026-27-fpl-110",
+      "team_id": 12,
+      "expected_attempts": 0.0952380952380952,
+      "p_at_least_one": 0.09084355712328689
+    },
+    {
+      "fixture_id": "live-2026-27-fpl-111",
+      "team_id": 1,
+      "expected_attempts": 0.0952380952380952,
+      "p_at_least_one": 0.09084355712328689
+    },
+    {
+      "fixture_id": "live-2026-27-fpl-111",
+      "team_id": 15,
+      "expected_attempts": 0.0767195767195767,
+      "p_at_least_one": 0.0738504689153422
+    },
+    {
+      "fixture_id": "live-2026-27-fpl-112",
+      "team_id": 5,
+      "expected_attempts": 0.1137566137566137,
+      "p_at_least_one": 0.10752485437615242
+    },
+    {
+      "fixture_id": "live-2026-27-fpl-112",
+      "team_id": 17,
+      "expected_attempts": 0.0767195767195767,
+      "p_at_least_one": 0.0738504689153422
+    },
+    {
+      "fixture_id": "live-2026-27-fpl-113",
+      "team_id": 8,
+      "expected_attempts": 0.0767195767195767,
+      "p_at_least_one": 0.0738504689153422
+    },
+    {
+      "fixture_id": "live-2026-27-fpl-113",
+      "team_id": 11,
+      "expected_attempts": 0.0582010582010582,
+      "p_at_least_one": 0.05653976205209844
+    },
+    {
+      "fixture_id": "live-2026-27-fpl-114",
+      "team_id": 9,
+      "expected_attempts": 0.0767195767195767,
+      "p_at_least_one": 0.0738504689153422
+    },
+    {
+      "fixture_id": "live-2026-27-fpl-114",
+      "team_id": 14,
+      "expected_attempts": 0.0767195767195767,
+      "p_at_least_one": 0.0738504689153422
+    },
+    {
+      "fixture_id": "live-2026-27-fpl-115",
+      "team_id": 10,
+      "expected_attempts": 0.0582010582010582,
+      "p_at_least_one": 0.05653976205209844
+    },
+    {
+      "fixture_id": "live-2026-27-fpl-115",
+      "team_id": 3,
+      "expected_attempts": 0.0582010582010582,
+      "p_at_least_one": 0.05653976205209844
+    },
+    {
+      "fixture_id": "live-2026-27-fpl-116",
+      "team_id": 12,
+      "expected_attempts": 0.0767195767195767,
+      "p_at_least_one": 0.0738504689153422
+    },
+    {
+      "fixture_id": "live-2026-27-fpl-116",
+      "team_id": 2,
+      "expected_attempts": 0.0767195767195767,
+      "p_at_least_one": 0.0738504689153422
+    },
+    {
+      "fixture_id": "live-2026-27-fpl-117",
+      "team_id": 13,
+      "expected_attempts": 0.0767195767195767,
+      "p_at_least_one": 0.0738504689153422
+    },
+    {
+      "fixture_id": "live-2026-27-fpl-117",
+      "team_id": 7,
+      "expected_attempts": 0.0767195767195767,
+      "p_at_least_one": 0.0738504689153422
+    },
+    {
+      "fixture_id": "live-2026-27-fpl-118",
+      "team_id": 16,
+      "expected_attempts": 0.0952380952380952,
+      "p_at_least_one": 0.09084355712328689
+    },
+    {
+      "fixture_id": "live-2026-27-fpl-118",
+      "team_id": 4,
+      "expected_attempts": 0.0767195767195767,
+      "p_at_least_one": 0.0738504689153422
+    },
+    {
+      "fixture_id": "live-2026-27-fpl-119",
+      "team_id": 18,
+      "expected_attempts": 0.0767195767195767,
+      "p_at_least_one": 0.0738504689153422
+    },
+    {
+      "fixture_id": "live-2026-27-fpl-119",
+      "team_id": 6,
+      "expected_attempts": 0.0582010582010582,
+      "p_at_least_one": 0.05653976205209844
+    },
+    {
+      "fixture_id": "live-2026-27-fpl-120",
+      "team_id": 20,
+      "expected_attempts": 0.1137566137566137,
+      "p_at_least_one": 0.10752485437615242
+    },
+    {
+      "fixture_id": "live-2026-27-fpl-120",
+      "team_id": 19,
+      "expected_attempts": 0.0767195767195767,
+      "p_at_least_one": 0.0738504689153422
+    },
+    {
+      "fixture_id": "live-2026-27-fpl-121",
+      "team_id": 2,
+      "expected_attempts": 0.0582010582010582,
+      "p_at_least_one": 0.05653976205209844
+    },
+    {
+      "fixture_id": "live-2026-27-fpl-121",
+      "team_id": 9,
+      "expected_attempts": 0.0582010582010582,
+      "p_at_least_one": 0.05653976205209844
+    },
+    {
+      "fixture_id": "live-2026-27-fpl-122",
+      "team_id": 3,
+      "expected_attempts": 0.0582010582010582,
+      "p_at_least_one": 0.05653976205209844
+    },
+    {
+      "fixture_id": "live-2026-27-fpl-122",
+      "team_id": 5,
+      "expected_attempts": 0.0767195767195767,
+      "p_at_least_one": 0.0738504689153422
+    },
+    {
+      "fixture_id": "live-2026-27-fpl-123",
+      "team_id": 4,
+      "expected_attempts": 0.0952380952380952,
+      "p_at_least_one": 0.09084355712328689
+    },
+    {
+      "fixture_id": "live-2026-27-fpl-123",
+      "team_id": 1,
+      "expected_attempts": 0.0952380952380952,
+      "p_at_least_one": 0.09084355712328689
+    },
+    {
+      "fixture_id": "live-2026-27-fpl-124",
+      "team_id": 6,
+      "expected_attempts": 0.0582010582010582,
+      "p_at_least_one": 0.05653976205209844
+    },
+    {
+      "fixture_id": "live-2026-27-fpl-124",
+      "team_id": 8,
+      "expected_attempts": 0.0582010582010582,
+      "p_at_least_one": 0.05653976205209844
+    },
+    {
+      "fixture_id": "live-2026-27-fpl-125",
+      "team_id": 7,
+      "expected_attempts": 0.0952380952380952,
+      "p_at_least_one": 0.09084355712328689
+    },
+    {
+      "fixture_id": "live-2026-27-fpl-125",
+      "team_id": 12,
+      "expected_attempts": 0.0952380952380952,
+      "p_at_least_one": 0.09084355712328689
+    },
+    {
+      "fixture_id": "live-2026-27-fpl-126",
+      "team_id": 11,
+      "expected_attempts": 0.0582010582010582,
+      "p_at_least_one": 0.05653976205209844
+    },
+    {
+      "fixture_id": "live-2026-27-fpl-126",
+      "team_id": 18,
+      "expected_attempts": 0.0952380952380952,
+      "p_at_least_one": 0.09084355712328689
+    },
+    {
+      "fixture_id": "live-2026-27-fpl-127",
+      "team_id": 14,
+      "expected_attempts": 0.0952380952380952,
+      "p_at_least_one": 0.09084355712328689
+    },
+    {
+      "fixture_id": "live-2026-27-fpl-127",
+      "team_id": 20,
+      "expected_attempts": 0.1137566137566137,
+      "p_at_least_one": 0.10752485437615242
+    },
+    {
+      "fixture_id": "live-2026-27-fpl-128",
+      "team_id": 15,
+      "expected_attempts": 0.0582010582010582,
+      "p_at_least_one": 0.05653976205209844
+    },
+    {
+      "fixture_id": "live-2026-27-fpl-128",
+      "team_id": 13,
+      "expected_attempts": 0.0767195767195767,
+      "p_at_least_one": 0.0738504689153422
+    },
+    {
+      "fixture_id": "live-2026-27-fpl-129",
+      "team_id": 17,
+      "expected_attempts": 0.0767195767195767,
+      "p_at_least_one": 0.0738504689153422
+    },
+    {
+      "fixture_id": "live-2026-27-fpl-129",
+      "team_id": 16,
+      "expected_attempts": 0.1137566137566137,
+      "p_at_least_one": 0.10752485437615242
+    },
+    {
+      "fixture_id": "live-2026-27-fpl-130",
+      "team_id": 19,
+      "expected_attempts": 0.0582010582010582,
+      "p_at_least_one": 0.05653976205209844
+    },
+    {
+      "fixture_id": "live-2026-27-fpl-130",
+      "team_id": 10,
+      "expected_attempts": 0.0767195767195767,
+      "p_at_least_one": 0.0738504689153422
+    },
+    {
+      "fixture_id": "live-2026-27-fpl-71",
+      "team_id": 1,
+      "expected_attempts": 0.0767195767195767,
+      "p_at_least_one": 0.0738504689153422
+    },
+    {
+      "fixture_id": "live-2026-27-fpl-71",
+      "team_id": 9,
+      "expected_attempts": 0.0767195767195767,
+      "p_at_least_one": 0.0738504689153422
+    },
+    {
+      "fixture_id": "live-2026-27-fpl-72",
+      "team_id": 2,
+      "expected_attempts": 0.0767195767195767,
+      "p_at_least_one": 0.0738504689153422
+    },
+    {
+      "fixture_id": "live-2026-27-fpl-72",
+      "team_id": 15,
+      "expected_attempts": 0.0582010582010582,
+      "p_at_least_one": 0.05653976205209844
+    },
+    {
+      "fixture_id": "live-2026-27-fpl-73",
+      "team_id": 6,
+      "expected_attempts": 0.0767195767195767,
+      "p_at_least_one": 0.0738504689153422
+    },
+    {
+      "fixture_id": "live-2026-27-fpl-73",
+      "team_id": 19,
+      "expected_attempts": 0.0582010582010582,
+      "p_at_least_one": 0.05653976205209844
+    },
+    {
+      "fixture_id": "live-2026-27-fpl-74",
+      "team_id": 7,
+      "expected_attempts": 0.0767195767195767,
+      "p_at_least_one": 0.0738504689153422
+    },
+    {
+      "fixture_id": "live-2026-27-fpl-74",
+      "team_id": 10,
+      "expected_attempts": 0.0767195767195767,
+      "p_at_least_one": 0.0738504689153422
+    },
+    {
+      "fixture_id": "live-2026-27-fpl-75",
+      "team_id": 8,
+      "expected_attempts": 0.0952380952380952,
+      "p_at_least_one": 0.09084355712328689
+    },
+    {
+      "fixture_id": "live-2026-27-fpl-75",
+      "team_id": 17,
+      "expected_attempts": 0.0767195767195767,
+      "p_at_least_one": 0.0738504689153422
+    },
+    {
+      "fixture_id": "live-2026-27-fpl-76",
+      "team_id": 11,
+      "expected_attempts": 0.0767195767195767,
+      "p_at_least_one": 0.0738504689153422
+    },
+    {
+      "fixture_id": "live-2026-27-fpl-76",
+      "team_id": 4,
+      "expected_attempts": 0.0952380952380952,
+      "p_at_least_one": 0.09084355712328689
+    },
+    {
+      "fixture_id": "live-2026-27-fpl-77",
+      "team_id": 12,
+      "expected_attempts": 0.0767195767195767,
+      "p_at_least_one": 0.0738504689153422
+    },
+    {
+      "fixture_id": "live-2026-27-fpl-77",
+      "team_id": 18,
+      "expected_attempts": 0.0952380952380952,
+      "p_at_least_one": 0.09084355712328689
+    },
+    {
+      "fixture_id": "live-2026-27-fpl-78",
+      "team_id": 14,
+      "expected_attempts": 0.0767195767195767,
+      "p_at_least_one": 0.0738504689153422
+    },
+    {
+      "fixture_id": "live-2026-27-fpl-78",
+      "team_id": 5,
+      "expected_attempts": 0.0952380952380952,
+      "p_at_least_one": 0.09084355712328689
+    },
+    {
+      "fixture_id": "live-2026-27-fpl-79",
+      "team_id": 16,
+      "expected_attempts": 0.0767195767195767,
+      "p_at_least_one": 0.0738504689153422
+    },
+    {
+      "fixture_id": "live-2026-27-fpl-79",
+      "team_id": 3,
+      "expected_attempts": 0.0582010582010582,
+      "p_at_least_one": 0.05653976205209844
+    },
+    {
+      "fixture_id": "live-2026-27-fpl-80",
+      "team_id": 20,
+      "expected_attempts": 0.0952380952380952,
+      "p_at_least_one": 0.09084355712328689
+    },
+    {
+      "fixture_id": "live-2026-27-fpl-80",
+      "team_id": 13,
+      "expected_attempts": 0.0767195767195767,
+      "p_at_least_one": 0.0738504689153422
+    },
+    {
+      "fixture_id": "live-2026-27-fpl-81",
+      "team_id": 2,
+      "expected_attempts": 0.0582010582010582,
+      "p_at_least_one": 0.05653976205209844
+    },
+    {
+      "fixture_id": "live-2026-27-fpl-81",
+      "team_id": 10,
+      "expected_attempts": 0.0582010582010582,
+      "p_at_least_one": 0.05653976205209844
+    },
+    {
+      "fixture_id": "live-2026-27-fpl-82",
+      "team_id": 3,
+      "expected_attempts": 0.0582010582010582,
+      "p_at_least_one": 0.05653976205209844
+    },
+    {
+      "fixture_id": "live-2026-27-fpl-82",
+      "team_id": 13,
+      "expected_attempts": 0.0582010582010582,
+      "p_at_least_one": 0.05653976205209844
+    },
+    {
+      "fixture_id": "live-2026-27-fpl-83",
+      "team_id": 4,
+      "expected_attempts": 0.0767195767195767,
+      "p_at_least_one": 0.0738504689153422
+    },
+    {
+      "fixture_id": "live-2026-27-fpl-83",
+      "team_id": 18,
+      "expected_attempts": 0.0952380952380952,
+      "p_at_least_one": 0.09084355712328689
+    },
+    {
+      "fixture_id": "live-2026-27-fpl-84",
+      "team_id": 6,
+      "expected_attempts": 0.0582010582010582,
+      "p_at_least_one": 0.05653976205209844
+    },
+    {
+      "fixture_id": "live-2026-27-fpl-84",
+      "team_id": 16,
+      "expected_attempts": 0.0767195767195767,
+      "p_at_least_one": 0.0738504689153422
+    },
+    {
+      "fixture_id": "live-2026-27-fpl-85",
+      "team_id": 7,
+      "expected_attempts": 0.0952380952380952,
+      "p_at_least_one": 0.09084355712328689
+    },
+    {
+      "fixture_id": "live-2026-27-fpl-85",
+      "team_id": 20,
+      "expected_attempts": 0.1137566137566137,
+      "p_at_least_one": 0.10752485437615242
+    },
+    {
+      "fixture_id": "live-2026-27-fpl-86",
+      "team_id": 11,
+      "expected_attempts": 0.0767195767195767,
+      "p_at_least_one": 0.0738504689153422
+    },
+    {
+      "fixture_id": "live-2026-27-fpl-86",
+      "team_id": 12,
+      "expected_attempts": 0.0952380952380952,
+      "p_at_least_one": 0.09084355712328689
+    },
+    {
+      "fixture_id": "live-2026-27-fpl-87",
+      "team_id": 14,
+      "expected_attempts": 0.0952380952380952,
+      "p_at_least_one": 0.09084355712328689
+    },
+    {
+      "fixture_id": "live-2026-27-fpl-87",
+      "team_id": 1,
+      "expected_attempts": 0.0952380952380952,
+      "p_at_least_one": 0.09084355712328689
+    },
+    {
+      "fixture_id": "live-2026-27-fpl-88",
+      "team_id": 15,
+      "expected_attempts": 0.0582010582010582,
+      "p_at_least_one": 0.05653976205209844
+    },
+    {
+      "fixture_id": "live-2026-27-fpl-88",
+      "team_id": 5,
+      "expected_attempts": 0.0952380952380952,
+      "p_at_least_one": 0.09084355712328689
+    },
+    {
+      "fixture_id": "live-2026-27-fpl-89",
+      "team_id": 17,
+      "expected_attempts": 0.0767195767195767,
+      "p_at_least_one": 0.0738504689153422
+    },
+    {
+      "fixture_id": "live-2026-27-fpl-89",
+      "team_id": 9,
+      "expected_attempts": 0.0952380952380952,
+      "p_at_least_one": 0.09084355712328689
+    },
+    {
+      "fixture_id": "live-2026-27-fpl-90",
+      "team_id": 19,
+      "expected_attempts": 0.0582010582010582,
+      "p_at_least_one": 0.05653976205209844
+    },
+    {
+      "fixture_id": "live-2026-27-fpl-90",
+      "team_id": 8,
+      "expected_attempts": 0.0767195767195767,
+      "p_at_least_one": 0.0738504689153422
+    },
+    {
+      "fixture_id": "live-2026-27-fpl-91",
+      "team_id": 1,
+      "expected_attempts": 0.0952380952380952,
+      "p_at_least_one": 0.09084355712328689
+    },
+    {
+      "fixture_id": "live-2026-27-fpl-91",
+      "team_id": 11,
+      "expected_attempts": 0.0767195767195767,
+      "p_at_least_one": 0.0738504689153422
+    },
+    {
+      "fixture_id": "live-2026-27-fpl-92",
+      "team_id": 5,
+      "expected_attempts": 0.0952380952380952,
+      "p_at_least_one": 0.09084355712328689
+    },
+    {
+      "fixture_id": "live-2026-27-fpl-92",
+      "team_id": 4,
+      "expected_attempts": 0.0767195767195767,
+      "p_at_least_one": 0.0738504689153422
+    },
+    {
+      "fixture_id": "live-2026-27-fpl-93",
+      "team_id": 8,
+      "expected_attempts": 0.0767195767195767,
+      "p_at_least_one": 0.0738504689153422
+    },
+    {
+      "fixture_id": "live-2026-27-fpl-93",
+      "team_id": 14,
+      "expected_attempts": 0.0767195767195767,
+      "p_at_least_one": 0.0738504689153422
+    },
+    {
+      "fixture_id": "live-2026-27-fpl-94",
+      "team_id": 9,
+      "expected_attempts": 0.0767195767195767,
+      "p_at_least_one": 0.0738504689153422
+    },
+    {
+      "fixture_id": "live-2026-27-fpl-94",
+      "team_id": 7,
+      "expected_attempts": 0.0767195767195767,
+      "p_at_least_one": 0.0738504689153422
+    },
+    {
+      "fixture_id": "live-2026-27-fpl-95",
+      "team_id": 10,
+      "expected_attempts": 0.0952380952380952,
+      "p_at_least_one": 0.09084355712328689
+    },
+    {
+      "fixture_id": "live-2026-27-fpl-95",
+      "team_id": 17,
+      "expected_attempts": 0.0767195767195767,
+      "p_at_least_one": 0.0738504689153422
+    },
+    {
+      "fixture_id": "live-2026-27-fpl-96",
+      "team_id": 12,
+      "expected_attempts": 0.0767195767195767,
+      "p_at_least_one": 0.0738504689153422
+    },
+    {
+      "fixture_id": "live-2026-27-fpl-96",
+      "team_id": 3,
+      "expected_attempts": 0.0767195767195767,
+      "p_at_least_one": 0.0738504689153422
+    },
+    {
+      "fixture_id": "live-2026-27-fpl-97",
+      "team_id": 13,
+      "expected_attempts": 0.0767195767195767,
+      "p_at_least_one": 0.0738504689153422
+    },
+    {
+      "fixture_id": "live-2026-27-fpl-97",
+      "team_id": 19,
+      "expected_attempts": 0.0582010582010582,
+      "p_at_least_one": 0.05653976205209844
+    },
+    {
+      "fixture_id": "live-2026-27-fpl-98",
+      "team_id": 16,
+      "expected_attempts": 0.0767195767195767,
+      "p_at_least_one": 0.0738504689153422
+    },
+    {
+      "fixture_id": "live-2026-27-fpl-98",
+      "team_id": 2,
+      "expected_attempts": 0.0582010582010582,
+      "p_at_least_one": 0.05653976205209844
+    },
+    {
+      "fixture_id": "live-2026-27-fpl-99",
+      "team_id": 18,
+      "expected_attempts": 0.0952380952380952,
+      "p_at_least_one": 0.09084355712328689
+    },
+    {
+      "fixture_id": "live-2026-27-fpl-99",
+      "team_id": 15,
+      "expected_attempts": 0.0582010582010582,
+      "p_at_least_one": 0.05653976205209844
+    }
+  ]
+}

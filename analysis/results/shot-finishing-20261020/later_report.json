@@ -1,0 +1,211 @@
+{
+  "classification": "FROZEN_SHOT_MODEL_LATER_PARTIAL_SEASON_CONDITIONAL_CHECK",
+  "training": "2024/25 non-penalty shots only; no 2025/26 shot season available",
+  "model_frozen_before": "2026-08-01 00:00:00+00:00",
+  "source_capture": "data_v1_1/raw/live-captures/20261018T190738Z/fotmob/details",
+  "matches": 69,
+  "shots": 1885,
+  "identity_bridge_shots": 1222,
+  "trained_player_shots": 1193,
+  "selected": {
+    "calibration": {
+      "family": "calibration",
+      "half": null
+    },
+    "aggregate": {
+      "family": "aggregate",
+      "half": null,
+      "tau": 20.0
+    },
+    "player": {
+      "family": "player",
+      "half": null,
+      "ridge": 5.0
+    }
+  },
+  "metrics": {
+    "aggregate": {
+      "shots": 1885,
+      "goals": 183,
+      "log_loss": 0.27969367402549977,
+      "brier": 0.07631640322681293,
+      "expected_goals": 195.31710202662995,
+      "bias_per_shot": 0.00653427163216443
+    },
+    "calibration": {
+      "shots": 1885,
+      "goals": 183,
+      "log_loss": 0.26969857230723715,
+      "brier": 0.07597114000238889,
+      "expected_goals": 194.46687431678163,
+      "bias_per_shot": 0.006083222449221008
+    },
+    "native_xg": {
+      "shots": 1885,
+      "goals": 183,
+      "log_loss": 0.27109508723692494,
+      "brier": 0.07650068264042717,
+      "expected_goals": 199.87890583090484,
+      "bias_per_shot": 0.008954326700745275
+    },
+    "shot_player": {
+      "shots": 1885,
+      "goals": 183,
+      "log_loss": 0.2703441954252967,
+      "brier": 0.07636776035961634,
+      "expected_goals": 191.31322433631368,
+      "bias_per_shot": 0.004410198586903814
+    }
+  },
+  "paired": {
+    "native_xg": {
+      "native_xg": {
+        "log_loss_delta": 0.0,
+        "ci95": [
+          0.0,
+          0.0
+        ]
+      },
+      "calibration": {
+        "log_loss_delta": -0.0013965149296877527,
+        "ci95": [
+          -0.0022920979998234245,
+          -0.00045901245586872245
+        ]
+      },
+      "aggregate": {
+        "log_loss_delta": 0.008598586788574813,
+        "ci95": [
+          -0.002248263934557769,
+          0.02865555667983646
+        ]
+      },
+      "shot_player": {
+        "log_loss_delta": -0.0007508918116282078,
+        "ci95": [
+          -0.003382023237479988,
+          0.00190724116667253
+        ]
+      }
+    },
+    "calibration": {
+      "native_xg": {
+        "log_loss_delta": 0.0013965149296877527,
+        "ci95": [
+          0.0004962217696354527,
+          0.0023165837932768015
+        ]
+      },
+      "calibration": {
+        "log_loss_delta": 0.0,
+        "ci95": [
+          0.0,
+          0.0
+        ]
+      },
+      "aggregate": {
+        "log_loss_delta": 0.009995101718262569,
+        "ci95": [
+          -0.0006679125988711866,
+          0.0299077379323216
+        ]
+      },
+      "shot_player": {
+        "log_loss_delta": 0.0006456231180595453,
+        "ci95": [
+          -0.0018255013710088668,
+          0.0029545528363281834
+        ]
+      }
+    }
+  },
+  "source_sha256": {
+    "5795363.json": "f99dd1388b1bed60660c4d74989f5664eee9d4817309f48fed7d7e4a556620ba",
+    "5795364.json": "7572f85a162ce129389106abc94bf3e4e893ffd728f18c89e0a62d96087dc75f",
+    "5795365.json": "a3198f89e9a823f96ac6bc59c8bba194966740002b2bfe7de2246e7bbc62a385",
+    "5795366.json": "a64adc4931fda3dc1e74404d2073ec03544f9c5328873c0ec1883153705d56c4",
+    "5795367.json": "8b0cde9448f83fa6d91a5513190e87e01fa9d05be1064b12a6ed74c88fdd5dbe",
+    "5795368.json": "c5c368df71d4a6de55dd8b04935087254214f3050e08a12100fa76793b224a70",
+    "5795369.json": "6c4e8340a6ec6b216a50252f8a1e44c31a7dac409ccbf02013ca757a1907747d",
+    "5795370.json": "861dc848643c507acf34d15861341e4010ac5e8f151c7b0752db1b417571c9d5",
+    "5795371.json": "b9f5b52118090fb45174038677d400e299ddf3b625290632ff2ca5178ecf2bff",
+    "5795372.json": "9efb78de74c737a69d9fd3d0a95aaae412b8a670d22a2c62cb8526805b98c69a",
+    "5795425.json": "0fbd5b0873c48027a80d13625595821765d7ea9a905af390b7dad582854896d5",
+    "5795426.json": "f4122d222db7fd21b6b4ce4785d431fce0106480c63b21ccd87c9bcde1b95537",
+    "5795427.json": "83293504ed989d14025e7f5a6c13f7a31765d47ef9ca94d6dc5a8a4b592a5fad",
+    "5795428.json": "01c7f4067e7b87aadd17c3c5af0906bfb3178ba020f3ecfc53e92e7082901d63",
+    "5795429.json": "51b5e3fadd93c387c64bc6753e125df15855e9f03941345f7545e5a4448d3136",
+    "5795430.json": "742ebb064a0c32842a9c7d431e889661d810c0c451d8f725818b5a136628bc29",
+    "5795431.json": "4ffeafb7f07407f741f5ca8db9da7b6224a1dcb6920900ef2b48efbf2d5f28bf",
+    "5795432.json": "97bad9631cba04397482d7068533985cac8a61f6fbe500c0cae1149cbe59d445",
+    "5795433.json": "e41265043c02dd3669b5f6ee62990c7b0741fddf2d861adfe6e322a88d7dbd34",
+    "5795434.json": "90c51df35847b3aef1279b5aaec2101a7258d93780492a12df6fc8a18eab4b2d",
+    "5795435.json": "359c629700f9b99156f74089bec27e754ac435eb6af26b2d648fff1b35acb950",
+    "5795436.json": "7492e6d78ac8c9e29ca49b0f223526caccfed65b8e0eb9030cbee8959a1b9498",
+    "5795437.json": "023c55959379145ecb6844c6a82d2d991bce3455bceb30fc450bca045b6bc02e",
+    "5795438.json": "1bda89d2afd390d7e783aae3138a0640e01c6ebd37b60fef0405af2dafd41bd7",
+    "5795439.json": "5a7777195a8c7fbef835283a15c9517808d8d1c375bde30c8dc00f1572ae26fd",
+    "5795440.json": "cee3766fdd94cff0b08822a021151ffe3c8c1c7c74435550d251bcd525d4beec",
+    "5795441.json": "02f1e55e83017458a3b7a212f00c8528731fa54e7a2f02f388343004afe89d45",
+    "5795442.json": "9240c4c1514f1c3170ee07114738b8cd8cb43730286be7151754a4f6a5b39656",
+    "5795443.json": "4ddd23d46663f700c7b026e1813cd7ebfa8d61f941ad05e38a4d529ca9c530fd",
+    "5795444.json": "47f06d63bf84f8cc91926cf98f5f5818af3f05ef4c77d3abd7f5117ea44a8350",
+    "5795445.json": "d6ad89de0dae0c63141c06d89372b5e277090f9b301382926c41964bc436d6c2",
+    "5795446.json": "fff072219525d37acec0c4357a98e3aacdbe0482a6ab3ce84d8a5914107b974d",
+    "5795447.json": "b1f58bbf0124022b9d5a6d888137360cbaccb6b70d2a037103aace471ab85c57",
+    "5795448.json": "ecbf04d905b8fc9e111345e32adbdcb041b02fec35740fc1f4ca161fa917bbd9",
+    "5795449.json": "64d328dc4d0801a25a3d0ce47977d2be5355f861c0baaa590f1f3f5f8bb7031d",
+    "5795450.json": "ad78ec691264816032a48bb00155ec7018b1ea97c486672a41840162e997a594",
+    "5795451.json": "95b461e1c5b6d716d3c3bf43f5b64cafe4b8522d15073f841ea0bf907efef3c8",
+    "5795452.json": "cfbdec8e41e78a32f27514e47bc74902d88f8be6c754d1d1be31fb22dd5bcc84",
+    "5795453.json": "a2a694fb0d20d87b4791771533f82ec0f9c9184cc4479cefd66a1485b7943987",
+    "5795454.json": "4ab6deaf83376df23419be8b72faa2947947f41ebe428250bb85ba73f54497b4",
+    "5795455.json": "df8fad46314d98857bb47ce82b09578e75759faa527fa731f7c8599cabb34591",
+    "5795456.json": "d7ea6ec29932e03af824b6ea9292b2b787244e572f3ab7328355f1911950ff34",
+    "5795457.json": "e3721c939dfb3b3f981f1f19ec5f4eede05da2ca520440cc269ba780c52cec5c",
+    "5795458.json": "52e89da558f4a9871b78e8547a8d2f73a7c149e3dbeb3bf25e6134f226da8fae",
+    "5795459.json": "94601a87af627565d1fc3c0b890f75c81962d88ad1531e6021c0c0eb719653c6",
+    "5795460.json": "8efd113111d9e67865cdbce56a9ee62524a6ce0f7f42d87a9e058a4c2cffa098",
+    "5795461.json": "0ee264fece0d6f7711742ecdc41b85203a3fb19d78c7fe9c209c2bfe32b69120",
+    "5795462.json": "e1132f4e8959b5df74b238ac1c29d3694dbef45a23ec061ff7c175f914c6c479",
+    "5795463.json": "f9e52aa4cfd6008682e9bdba283d04328efad11dfa2fdf6fe9539fad6a755752",
+    "5795464.json": "ab3bac5578bcb66d969937ac630524b1c34ab292d842f3122852dfe285576dd1",
+    "5795465.json": "1fcc211756c97c963cbd1eac8c6baff7f4187d882dec35a156426753863031ee",
+    "5795466.json": "8153c912e88edf2599117aaebad5b823953260d0e826d777e1f8858d94992791",
+    "5795467.json": "635deafcaf58b2ea59dfc756e68eddc4a2bb5ecec5f8db8c6c1d7ab99db763ed",
+    "5795468.json": "12540fa3fba4955e970c86e9cf0852f1f0b9665cfe7a82a0a2d890608d8f272f",
+    "5795469.json": "5620ec1089032343771a9509bb1e5cff4f3b0a1b87b116038ac9fe11ba613754",
+    "5795470.json": "3c677eb1834571002508e894ac5d5dab8be31bdfcbe11ca617b7a44ac52a90b3",
+    "5795471.json": "b843810035f34847dd470f153a9a67cb4586671c6fc60790c3b2526b81e52d24",
+    "5795472.json": "e2fc503013ffe96ce115f45d4c74266c8e361aff0968fb794fcf73d160b3f921",
+    "5795473.json": "3ec1d96e0f6eabab07190a49bb0c0437b181fbcc59ddb0b5689bbc5d6b72d35e",
+    "5795474.json": "5cfa2e9b48849b0245a06db3d2aacb7da8338c6ec0afd09c39017fbb2eec8eef",
+    "5795475.json": "43440db98a2ad839c71e1acb98c114bf83412f1987b499a5d464fd4a079e448a",
+    "5795476.json": "481e4354dd6e4c67d930dada3d0d6cbaf61f2d4249bcbaf3d6ce03b1decadc67",
+    "5795477.json": "e86f24b41cd4f418aab1ed77b5185ff4b6cc16e4c8dee069931ab4634fc3fab4",
+    "5795478.json": "769412b62e345e14b3ddb3e09e21e60ba7bad2867cb2d2cd9316245f61cd255e",
+    "5795479.json": "05ddfdd44ed03940dfa28c136748a77fb71a70ca11674cad2132027245fda531",
+    "5795480.json": "c18c19c09584fd9ac68077e317e87b847d463f0e8c60b1fd9d01b9fea5acefe0",
+    "5795481.json": "987e5460eed23e1dd0f6919ea020a3fcde5a75e38202401b5aab579ee29ed489",
+    "5795482.json": "be156374c91c642932fa8ba03434896aef23e8c616a5ebec08ca8adab2fa8aa1",
+    "5795483.json": "d34909fcc42ad26ee0ae67e1375d1880bc669d937e5d8bfd2bad54586fc6e339"
+  },
+  "prediction_sha256": "1d59d438fca4479914f92afd58f0f5b3b48080dd36df44f4066b5cf3aaf38feb",
+  "input_sha256": {
+    "selection.json": "94d698f29ed81e97e59c8713872b6e7b640b36c2b4c95c0516e4e735f00d95dd",
+    "native_nonpenalty_shots.csv.gz": "b0d048e1a5c641732618b6a8a47729045bd0f1d5b61633fc2d89f89c95fc09b3"
+  },
+  "code_sha256": {
+    "scripts/check_shot_finishing_later.py": "a7c6ee7038d42ecb9b19ad04367caa0b6b243654dad33ec32e3ac96f189de422",
+    "src/fpl_v1_1_model/experimental_shot_finishing.py": "7162e9f3d41a59c17a7efbaa20570801453e037dad90c515017f94b29cd7f163"
+  },
+  "limitations": [
+    "Partial later-season coverage, not the entire current season",
+    "Old player estimates; intervening shot season unavailable",
+    "Provider IDs bridge known players; unseen players have neutral offsets",
+    "Conditional on observed pre-shot xG; not pre-match xP",
+    "No hyperparameters selected on later sample; not pristine whole-model validation"
+  ],
+  "production_changed": false,
+  "promotion_allowed": false
+}
