@@ -16,7 +16,7 @@ def task(args):
  if path.exists():return json.loads(gzip.decompress(path.read_bytes()))
  record=copy.deepcopy(r);inp=decode(copy.deepcopy(r['input']));inp,dist=apply(inp,r['dist'],r['meta'],policy,arm);record['input']=asdict(inp);record['dist']=dist;rows,receipt,_=run(record,n,seed)
  for row in rows:
-  a=r['actual'][row['player_uuid']];row.update(arm=arm,actual_points=a['total_points'],actual_minutes=a['minutes'],actual_assists=a.get('fpl_assists',0),actual_start=a['started'],medical_return=r['meta'][row['player_uuid']]['return_active']and r['meta'][row['player_uuid']]['return_kind']=='medical_selection')
+  a=r['actual'][row['player_uuid']];row.update(arm=arm,actual_points=a['total_points'],actual_minutes=a['minutes'],actual_assists=a.get('fpl_assists',0),actual_start=a['started'],medical_return=r['meta'][row['player_uuid']]['return_active']and r['meta'][row['player_uuid']].get('return_kind')=='medical_selection')
  out=dict(rows=rows,receipt=receipt);path.write_bytes(gzip.compress(json.dumps(out).encode(),mtime=0));return out
 
 def main():

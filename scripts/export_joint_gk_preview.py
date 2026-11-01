@@ -72,6 +72,10 @@ def export():
         if not control['all_MM_marginals_unchanged']or not control['same_source_and_seeds']:raise ValueError('NP head current control missing')
         index['nonpenalty_control_sha256']=dump(out/'nonpenalty-control.json',dict(forecast_sha256=forecast['forecast_sha256'],**control))
         index['nonpenalty_evidence_sha256']=dump(out/'nonpenalty-evidence.json',selected_nonpenalty_evidence(ROOT,forecast['nonpenalty_goal_head']['policy']))
+    if forecast.get('assist_calibration'):
+        control=json.loads((source/'assist-control.json').read_text())
+        if not control['all_MM_marginals_unchanged']or not control['same_source_and_seeds']:raise ValueError('Assist current control missing')
+        index['assist_control_sha256']=dump(out/'assist-control.json',dict(forecast_sha256=forecast['forecast_sha256'],**control))
     dump(out/'index.json',index)
     if unified:
         from publish_unified_b_chain import publish

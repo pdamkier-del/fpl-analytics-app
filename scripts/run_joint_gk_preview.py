@@ -22,7 +22,7 @@ ROOT=Path(__file__).resolve().parents[1]
 KEY=['fixture_uuid','player_uuid']
 
 
-def run(frame,predicted,obs,*,season,draws=400,incomplete_teams=(),seed=93000000,paired=False,offsets=None,role_policy=None,paired_v1=None,distributions=False,chain=False,catalogue=None,assignment_history=None,assignment_strength=None,conditional_penalties=False,ordinary_goal_weights=None,physical_minutes=False,event_conservation=False):
+def run(frame,predicted,obs,*,season,draws=400,incomplete_teams=(),seed=93000000,paired=False,offsets=None,role_policy=None,paired_v1=None,distributions=False,chain=False,catalogue=None,assignment_history=None,assignment_strength=None,conditional_penalties=False,ordinary_goal_weights=None,physical_minutes=False,event_conservation=False,assist_policy=None):
     if physical_minutes and not chain:raise ValueError('Physical minute process requires the unified B chain')
     rows=[];baseline=[];details={};audit=[]
     raw=predicted.set_index(KEY)
@@ -65,6 +65,9 @@ def run(frame,predicted,obs,*,season,draws=400,incomplete_teams=(),seed=93000000
             from fpl_v1_1_model.experimental_physical_timeline import PhysicalKernel,physical_sampler
             kernel=PhysicalKernel(inp,role_distributions)
             moments.update(kernel.moments)
+            if assist_policy is not None:
+                from b_precision_calibration import attach_to_kernel
+                inp,kernel=attach_to_kernel(inp,kernel,moments,g,assist_policy)
             scope=physical_sampler(kernel)
         elif role_distributions:
             from fpl_v1_1_model.experimental_joint_role_assignment import role_lineup_sampler
@@ -108,7 +111,7 @@ def write(path,obj):
     path.write_text(json.dumps(obj,sort_keys=True,ensure_ascii=False,allow_nan=False,separators=(',',':'))+'\n')
 
 
-def current(inputs,out,*,paired=True,chain=False,evidence_path=None,assignment_policy=None,goal_head_policy=None,physical_minutes=None,precision_mode='normal',draws=None):
+def current(inputs,out,*,paired=True,chain=False,evidence_path=None,assignment_policy=None,goal_head_policy=None,physical_minutes=None,precision_mode='normal',draws=None,assist_calibration_policy=None):
     # Current unified B forecasts use the coherent process by default. Lower
     # level run(..., physical_minutes=False) remains a historical reference.
     if physical_minutes is None:physical_minutes=bool(chain)
@@ -156,17 +159,26 @@ def current(inputs,out,*,paired=True,chain=False,evidence_path=None,assignment_p
         goal_receipt['goal_head_audit_sha256']=hashlib.sha256((out/'nonpenalty-goal-head.csv.gz').read_bytes()).hexdigest()
         goal_receipt['policy']=goal_policy
     from b_simulation_precision import resolution,fixture_offset,VERSION as PRECISION_VERSION
+    assist_model=None
+    assist_path=Path(assist_calibration_policy)if assist_calibration_policy else ROOT/'analysis/results/b-precision-development-20261101/active-policy.json'
+    if assist_calibration_policy is not None and not assist_path.is_file():raise ValueError('Explicit assist policy is missing')
+    if chain and assist_path.is_file():
+        from b_precision_calibration import load_accepted
+        assist_model=load_accepted(ROOT,assist_path)
+        if pd.Timestamp(assist_model['training_latest_label'])>=pd.Timestamp(t.cutoff.iloc[0]):raise ValueError('Future assist calibration labels')
     draws=draws or resolution(precision_mode,joined.fixture_uuid.nunique());precision_offsets={fx:fixture_offset(fx,'2026-27')for fx in joined.fixture_uuid.unique()}
     xp,details,audit,baseline=run(joined,pred,observations(ROOT),season='2026-27',incomplete_teams=incomplete,draws=draws,offsets=precision_offsets,paired=paired,role_policy=policy,paired_v1=v1,distributions=True,chain=chain,catalogue=catalogue,
-        assignment_history=assignment_history,assignment_strength=role_receipt['strength']if role_receipt else None,ordinary_goal_weights=goal_weights,conditional_penalties=goal_weights is not None,physical_minutes=physical_minutes,event_conservation=bool(prov.get('physical_feature_version')))
+        assignment_history=assignment_history,assignment_strength=role_receipt['strength']if role_receipt else None,ordinary_goal_weights=goal_weights,conditional_penalties=goal_weights is not None,physical_minutes=physical_minutes,event_conservation=bool(prov.get('physical_feature_version')),assist_policy=assist_model)
     if role_receipt and paired:
         # Matched current control: identical source facts, GK policy, event
         # rates and seeds, with only the role kernel disabled. The old locked
         # PM comparison remains a separate legacy reference.
-        control,control_means,_,_=run(joined,pred,observations(ROOT),season='2026-27',incomplete_teams=incomplete,
-            role_policy=policy,draws=draws,offsets=precision_offsets,chain=True,catalogue=catalogue,ordinary_goal_weights=goal_weights,conditional_penalties=goal_weights is not None,physical_minutes=physical_minutes,event_conservation=bool(prov.get('physical_feature_version')))
+        role_first=joined[joined.gw.eq(joined.gw.min())]
+        control,control_means,_,_=run(role_first,pred[pred.fixture_uuid.isin(role_first.fixture_uuid)],observations(ROOT),season='2026-27',incomplete_teams=incomplete,
+            role_policy=policy,draws=draws,offsets=precision_offsets,chain=True,catalogue=catalogue,ordinary_goal_weights=goal_weights,conditional_penalties=goal_weights is not None,physical_minutes=physical_minutes,event_conservation=bool(prov.get('physical_feature_version')),assist_policy=assist_model)
         before=control.set_index(KEY);after=xp.set_index(KEY);positions=pred.set_index(KEY).pos;comparison=[]
         for key,d in details.items():
+            if key not in control_means:continue
             old_mean=control_means[key]
             is_gk=str(positions.loc[key])in ('GK','GKP')
             if is_gk and any(abs(d[k]-old_mean[k])>1e-10 for k in ['p','q','s','c','x','p60','p90']):
@@ -180,13 +192,22 @@ def current(inputs,out,*,paired=True,chain=False,evidence_path=None,assignment_p
     if goal_receipt and paired:
         offsets=precision_offsets
         first=joined[joined.gw.eq(joined.gw.min())]
-        control,control_means,_,_=run(first,pred[pred.fixture_uuid.isin(first.fixture_uuid)],observations(ROOT),season='2026-27',incomplete_teams=incomplete,role_policy=policy,draws=draws,offsets=precision_offsets,chain=True,catalogue=catalogue,assignment_history=assignment_history,assignment_strength=role_receipt['strength']if role_receipt else None,physical_minutes=physical_minutes,event_conservation=bool(prov.get('physical_feature_version')))
+        control,control_means,_,_=run(first,pred[pred.fixture_uuid.isin(first.fixture_uuid)],observations(ROOT),season='2026-27',incomplete_teams=incomplete,role_policy=policy,draws=draws,offsets=precision_offsets,chain=True,catalogue=catalogue,assignment_history=assignment_history,assignment_strength=role_receipt['strength']if role_receipt else None,physical_minutes=physical_minutes,event_conservation=bool(prov.get('physical_feature_version')),assist_policy=assist_model)
         before=control.set_index(KEY);after=xp.set_index(KEY);comparison=[]
         for key,d in control_means.items():
             new=details[key]
             if any(abs(d[k]-new[k])>1e-10 for k in ['p','q','s','c','x','p60','p90']):raise ValueError('NP goal head changed MM marginals')
             comparison.append(dict(fixture_id=key[0],player_id=key[1],before=dict(p_start=d['p'],xmins=d['x'],pm_analytic_minutes=d['x'],p60=d['p60'],p90=d['p90'],xp=float(before.loc[key,'xpts_fixture'])),after=dict(p_start=new['p'],xmins=new['x'],pm_analytic_minutes=new['x'],p60=new['p60'],p90=new['p90'],xp=float(after.loc[key,'xpts_fixture']))))
         write(out/'nonpenalty-control.json',dict(scope='same-source first-GW B control, ordinary/penalty separation only',same_source_and_seeds=True,all_MM_marginals_unchanged=True,players=comparison))
+    if assist_model is not None and paired:
+        first=joined[joined.gw.eq(joined.gw.min())]
+        control,control_means,_,_=run(first,pred[pred.fixture_uuid.isin(first.fixture_uuid)],observations(ROOT),season='2026-27',incomplete_teams=incomplete,role_policy=policy,draws=draws,offsets=precision_offsets,chain=True,catalogue=catalogue,assignment_history=assignment_history,assignment_strength=role_receipt['strength']if role_receipt else None,ordinary_goal_weights=goal_weights,conditional_penalties=goal_weights is not None,physical_minutes=physical_minutes,event_conservation=bool(prov.get('physical_feature_version')),assist_policy=None,distributions=True)
+        before=control.set_index(KEY);after=xp.set_index(KEY);comparison=[]
+        for key,d in control_means.items():
+            new=details[key]
+            if any(abs(d[k]-new[k])>1e-10 for k in ['p','q','s','c','x','p60','p90']):raise ValueError('Assist allocation changed MM marginals')
+            comparison.append(dict(fixture_id=key[0],player_id=key[1],before=dict(xp=float(before.loc[key,'xpts_fixture']),assists=float(before.loc[key,'assist_points']/3),xmins=d['x'],p_start=d['p'],p60=d['p60'],p90=d['p90']),after=dict(xp=float(after.loc[key,'xpts_fixture']),assists=float(after.loc[key,'assist_points']/3),xmins=new['x'],p_start=new['p'],p60=new['p60'],p90=new['p90'])))
+        write(out/'assist-control.json',dict(scope='Same-source predeadline first-GW assist-only control; not a new historical holdout',same_source_and_seeds=True,all_MM_marginals_unchanged=True,draws=draws,data_asof=prov['data_at'],players=comparison))
     if paired:write(out/'before-v1.json',dict(players=v1))
     display=joined.copy();updated=pred.copy();mmrows=[]
     for index,r in updated.iterrows():
@@ -271,6 +292,9 @@ def current(inputs,out,*,paired=True,chain=False,evidence_path=None,assignment_p
         else:
             payload['blockers'].append('Outfield minutes and substitutions are not a fully joint physical process. Per-player MM/PM agreement is not full-model certification.')
         validate_forecast(payload)
+    if assist_model is not None:
+        payload['assist_calibration']=assist_model['receipt']
+        payload['code_sha256']['scripts/b_precision_calibration.py']=hashlib.sha256((ROOT/'scripts/b_precision_calibration.py').read_bytes()).hexdigest()
     payload['simulation_precision']=dict(version=PRECISION_VERSION,mode=precision_mode,draws=draws,normal_draws=2000,validation_and_close_draws=10000,seed_policy='base + SHA256(season|fixture) first 32 bits; independent fixture streams; paired arms and nested N prefixes',seed_base=93000000,maximum_fixture_draw_budget=600000)
     payload['code_sha256']['scripts/b_simulation_precision.py']=hashlib.sha256((ROOT/'scripts/b_simulation_precision.py').read_bytes()).hexdigest()
     payload=seal_forecast(payload)
@@ -285,8 +309,9 @@ def main():
     ap=argparse.ArgumentParser();ap.add_argument('--inputs',type=Path,default=ROOT/'work/current-B-inputs');ap.add_argument('--out',type=Path,required=True)
     ap.add_argument('--no-baseline',action='store_true');ap.add_argument('--chain',action='store_true');ap.add_argument('--evidence',type=Path)
     ap.add_argument('--role-assignment-policy',type=Path);ap.add_argument('--nonpenalty-goal-policy',type=Path)
+    ap.add_argument('--assist-calibration-policy',type=Path)
     ap.add_argument('--precision-mode',choices=['normal','validation','close'],default='normal');ap.add_argument('--draws',type=int,choices=[400,2000,10000])
     ap.add_argument('--physical-minutes',action='store_true',default=None)
-    args=ap.parse_args();p=current(args.inputs,args.out,paired=not args.no_baseline,chain=args.chain,evidence_path=args.evidence,assignment_policy=args.role_assignment_policy,goal_head_policy=args.nonpenalty_goal_policy,physical_minutes=args.physical_minutes,precision_mode=args.precision_mode,draws=args.draws)
+    args=ap.parse_args();p=current(args.inputs,args.out,paired=not args.no_baseline,chain=args.chain,evidence_path=args.evidence,assignment_policy=args.role_assignment_policy,goal_head_policy=args.nonpenalty_goal_policy,physical_minutes=args.physical_minutes,precision_mode=args.precision_mode,draws=args.draws,assist_calibration_policy=args.assist_calibration_policy)
     print(json.dumps(dict(players=len(p['players']),fixtures=p['fixtures'],gws=p['gws'],forecast_sha256=p['forecast_sha256'])))
 if __name__=='__main__':main()

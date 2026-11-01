@@ -183,7 +183,7 @@ jobs:
           from pathlib import Path
           from nonpenalty_goal_bridge import load
           root=Path('.').resolve()
-          load(root,root/'analysis/results/integrated-repair-20261031/nonpenalty-policy.json')
+          load(root,root/'analysis/results/b-precision-development-20261101/nonpenalty-policy.json')
           decision=json.loads(Path('work/nonpenalty-head-validation/decision.json').read_text())
           assert decision['passed']and decision['baseline_max_xp_error']==0
           keys=['season','fixture_uuid','player_uuid','arm']
