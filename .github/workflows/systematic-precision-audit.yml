@@ -1,0 +1,41 @@
+name: Systematic precision audit (isolated)
+on:
+  push:
+    branches: [audit-systematic-precision-20261101]
+  pull_request:
+    paths:
+      - 'analysis/precision_audit/**'
+      - 'tests/test_precision_audit*'
+      - 'analysis/results/systematic-precision-audit-20261101/**'
+      - '.github/workflows/systematic-precision-audit.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  contracts-and-log:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+        with: {fetch-depth: 0}
+      - uses: actions/setup-python@v5
+        with: {python-version: '3.12'}
+      - run: pip install -r requirements-model-checkpoint.txt pytest requests
+      - name: Production, B application and existing publication workflows unchanged
+        run: |
+          git diff --exit-code 736d65cacc1afeeaf8c3dcfad317d7ee745b48fa -- src scripts app model service
+          git diff --name-only 736d65cacc1afeeaf8c3dcfad317d7ee745b48fa -- .github/workflows | python -c 'import sys; names=sys.stdin.read().splitlines(); assert names == [".github/workflows/systematic-precision-audit.yml"], names'
+      - name: Oracle, decision and append-only log contracts
+        env: {PYTHONPATH: 'src:scripts:.:analysis', OPENBLAS_NUM_THREADS: '1'}
+        run: pytest -q tests/test_precision_audit_oracles.py tests/test_precision_audit_prospective.py
+      - name: Verify sealed prospective evidence
+        env: {PYTHONPATH: 'src:scripts:.:analysis'}
+        run: python -m precision_audit.prospective --out analysis/results/systematic-precision-audit-20261101/prospective --verify-only
+      - name: Preserve audit and real predeadline forecast
+        uses: actions/upload-artifact@v4
+        with:
+          name: systematic-precision-audit-evidence
+          path: |
+            analysis/results/systematic-precision-audit-20261101
+            docs/tasks/2026-11-01-systematic-precision-audit.md
+          retention-days: 90

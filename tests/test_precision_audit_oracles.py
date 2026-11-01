@@ -42,3 +42,18 @@ def test_two_clocks_keep_fpl_minutes_without_forcing_990():
     observed={p:r['minutes']for p,r in actual.items()}
     out=simulate(inp,np.random.default_rng(3),physical,point_minutes=observed)
     assert out['h1'].minutes==89 and error['h1']==1
+
+def test_conditioned_penalty_frequency_uses_thinned_poisson_ratio():
+    from precision_audit.oracles import score_conditioned_events
+    inp,t=fixture();intervals={p:(a,b)for p,(m,a,b)in t.items()};rng=np.random.default_rng(942)
+    count=0
+    for _ in range(2000):
+        events=score_conditioned_events(inp,rng,list(inp.players),intervals,{'h':1,'a':0})[1]
+        count+=sum(e.team=='h'and e.kind=='penalty'for e in events)
+    assert count/2000==pytest.approx(.2*.5/1.5,abs=.02)
+
+
+def test_point_clock_identity_when_reported_and_physical_minutes_agree():
+    inp,t=fixture();a=np.random.default_rng(9);b=np.random.default_rng(9)
+    assert simulate(inp,a,t,point_minutes={p:90 for p in t})==B.simulate_match(inp,b,timeline=t)
+    assert a.bit_generator.state==b.bit_generator.state
