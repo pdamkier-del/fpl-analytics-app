@@ -12,13 +12,37 @@ ARMS = {'baseline': (1., 0.), 'return_only': (.5, 0.),
         'p90_only': (1., 2.), 'combined': (.5, 2.)}
 
 
+def annotate_return_kinds(records, path):
+    """Join only frozen predeadline episode features, never target labels."""
+    columns = ['season', 'fixture_uuid', 'player_uuid', 'cutoff', 'return_kind',
+               'return_active', 'max_history_known_at']
+    features = pd.read_csv(path, usecols=columns)
+    key = ['season', 'fixture_uuid', 'player_uuid']
+    if features.duplicated(key).any():
+        raise ValueError('Ambiguous frozen return feature identity')
+    features = features.set_index(key)
+    for r in records:
+        for pid, meta in r['meta'].items():
+            if not meta.get('return_active', False):
+                continue
+            f = features.loc[(r['season'], r['fixture_uuid'], pid)]
+            cutoff = pd.Timestamp(r['cutoff'])
+            if not f.return_active or pd.Timestamp(f.cutoff) != cutoff:
+                raise ValueError('Frozen return episode/cutoff mismatch')
+            if pd.notna(f.max_history_known_at) and pd.Timestamp(f.max_history_known_at) >= cutoff:
+                raise ValueError('Future return feature')
+            if f.return_kind not in ['medical_selection', 'suspension_selection']:
+                raise ValueError('Unclassified return episode')
+            meta['return_kind'] = f.return_kind
+
+
 def kernels(record):
     inp = decode(copy.deepcopy(record['input']))
     dist = {int(k) if str(k).isdigit() else k:
             [v if isinstance(v, RoleLineup) else RoleLineup(**v) for v in vs]
             for k, vs in record['dist'].items()}
     returning = [p.player_id for p in inp.players if not p.is_keeper
-                 and record['meta'].get(p.player_id, {}).get('return_active', False)]
+                 and record['meta'].get(p.player_id, {}).get('return_kind') == 'medical_selection']
     result = {'baseline': PhysicalKernel(inp, dist)}
     for arm, (scale, floor) in ARMS.items():
         if arm != 'baseline':
@@ -46,6 +70,8 @@ def evaluate(records):
                 rows.append(dict(season=r['season'], fixture_uuid=r['fixture_uuid'],
                     player_uuid=p.player_id, arm=arm,
                     returning=bool(r['meta'].get(p.player_id, {}).get('return_active', False)),
+                    medical_return=r['meta'].get(p.player_id, {}).get('return_kind') == 'medical_selection',
+                    suspension_return=r['meta'].get(p.player_id, {}).get('return_kind') == 'suspension_selection',
                     regular=p.p_start >= .9, actual_minutes=float(a['minutes']),
                     actual_start=float(a['started']), minutes=m['x'], p=m['p'],
                     p60=m['p60'], p90=m['p90']))
@@ -58,7 +84,9 @@ def summaries(frame):
     rows = []
     for (season, arm), g in frame.groupby(['season', 'arm']):
         for name, keep in [('all_outfield', np.ones(len(g), bool)),
-                           ('returning_proxy', g.returning), ('regular', g.regular)]:
+                           ('returning_proxy', g.returning), ('regular', g.regular),
+                           ('medical_return', g.get('medical_return', pd.Series(False, index=g.index))),
+                           ('suspension_return', g.get('suspension_return', pd.Series(False, index=g.index)))]:
             h = g[keep]
             if h.empty:
                 continue
@@ -103,6 +131,8 @@ def main():
     p.add_argument('--inputs', type=Path, required=True)
     p.add_argument('--out', type=Path, required=True)
     p.add_argument('--points-controls', type=Path)
+    p.add_argument('--return-features', type=Path,
+        default=Path('analysis/results/individual-mm-refinement-20261016/prior_only_features.csv.gz'))
     p.add_argument('--draws', type=int, default=2000)
     a = p.parse_args()
     if a.draws < 2:
@@ -112,6 +142,7 @@ def main():
                Path('src/fpl_v1_1_model/b_event_simulator.py')]
     source_hashes = {str(path): hashlib.sha256(path.read_bytes()).hexdigest() for path in sources}
     records = json.loads(gzip.decompress(a.inputs.read_bytes()))
+    annotate_return_kinds(records, a.return_features)
     f = evaluate(records)
     if f.empty:
         raise ValueError('No historical outcomes: cannot measure accuracy')
@@ -127,10 +158,12 @@ def main():
         scope='reused retrospective diagnostics; outfield only; no independent gain established',
         physical_clock='normalized 0..90, paired entries/exits; unchanged 900+90 team budget',
         label_clock='actual FPL reported minutes, never forced to sum 990',
-        returning='existing return_active proxy includes medical and suspension episodes',
+        returning='medical_selection only is adjusted; suspension_selection reported separately',
+        return_features_sha256=hashlib.sha256(a.return_features.read_bytes()).hexdigest(),
         production_active=False, ts_v3_changed=False)
     if a.points_controls:
         controls = json.loads(gzip.decompress(a.points_controls.read_bytes()))
+        annotate_return_kinds(controls, a.return_features)
         q = paired_points(controls, a.draws)
         q.to_csv(a.out/'points-controls.csv.gz', index=False, compression={'method': 'gzip', 'mtime': 0})
         metrics = []

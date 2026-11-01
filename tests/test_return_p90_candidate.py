@@ -123,3 +123,23 @@ def test_return_tilt_disabled_exact_identity():
     inp = regular_fixture()
     assert tilt_return_starts(inp, {}, ['H00'], log_odds=0) == (inp, {})
     assert tilt_return_starts(inp, {}, []) == (inp, {})
+
+
+def test_medical_and_suspension_episodes_are_separate_and_future_features_rejected(tmp_path):
+    import pandas as pd
+    from precision_audit.evaluate_return_p90 import annotate_return_kinds
+    p = tmp_path/'features.csv'
+    f = pd.DataFrame([dict(season='s', fixture_uuid='f', player_uuid=pid,
+        cutoff='2026-01-01T00:00:00Z', return_active=True, return_kind=kind,
+        max_history_known_at='2025-12-31T00:00:00Z') for pid, kind in
+        [('injury', 'medical_selection'), ('suspended', 'suspension_selection')]])
+    f.to_csv(p, index=False)
+    r = [dict(season='s', fixture_uuid='f', cutoff='2026-01-01T00:00:00Z',
+        meta={pid: dict(return_active=True) for pid in ['injury', 'suspended']})]
+    annotate_return_kinds(r, p)
+    assert r[0]['meta']['injury']['return_kind'] == 'medical_selection'
+    assert r[0]['meta']['suspended']['return_kind'] == 'suspension_selection'
+    f.loc[0, 'max_history_known_at'] = f.loc[0, 'cutoff']
+    f.to_csv(p, index=False)
+    with pytest.raises(ValueError, match='Future'):
+        annotate_return_kinds(r, p)
