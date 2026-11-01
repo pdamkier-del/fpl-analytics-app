@@ -1,0 +1,44 @@
+name: Return and P90 isolated candidate
+on:
+  pull_request:
+    branches: [audit-systematic-precision-20261101]
+    paths:
+      - 'analysis/precision_audit/return_p90.py'
+      - 'analysis/precision_audit/evaluate_return_p90.py'
+      - 'tests/test_return_p90_candidate.py'
+      - '.github/workflows/return-p90-candidate.yml'
+permissions:
+  contents: read
+jobs:
+  frozen-diagnostics:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    env:
+      PYTHONPATH: src:scripts:.:analysis
+      OPENBLAS_NUM_THREADS: '1'
+      OMP_NUM_THREADS: '1'
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+          fetch-depth: 0
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: pip
+      - run: pip install -r requirements-model-checkpoint.txt pytest requests
+      - name: Verify protected source identity against PR29
+        run: |
+          git diff --exit-code c18cfa4b5f795ff5cf59022f1cc31c2cd4878e11 HEAD -- app src scripts model service publisher
+          git diff --exit-code c18cfa4b5f795ff5cf59022f1cc31c2cd4878e11 HEAD -- .github/workflows ':!.github/workflows/return-p90-candidate.yml'
+      - name: Candidate and existing physical/event regression tests
+        run: pytest -q tests/test_return_p90_candidate.py tests/test_physical_timeline.py tests/test_b_event_conservation.py tests/test_gk_solo_role.py tests/test_point_accounting.py
+      - name: Full frozen historical analytic comparison and paired point controls
+        run: |
+          python scripts/locked_numerical_runtime.py analysis/precision_audit/evaluate_return_p90.py --inputs analysis/results/systematic-precision-audit-20261101/inputs/historical-inputs.json.gz --points-controls analysis/results/systematic-precision-audit-20261101/inputs/mc-inputs.json.gz --out work/return-p90-results --draws 2000
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: return-p90-candidate-evidence
+          path: work/return-p90-results
+          retention-days: 90
