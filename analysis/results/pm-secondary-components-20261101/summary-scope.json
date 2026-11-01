@@ -1,0 +1,10 @@
+{
+  "fixtures": 341,
+  "player_fixture_rows": 27092,
+  "cs_label": "RULE-DERIVED ONLY from actual FPL minutes and player goals_conceded_on_pitch; independent direct FPL CS label NOT AVAILABLE",
+  "dc_2024": "Direct label NOT AVAILABLE; season-specific model DC is identically zero",
+  "bps_background": "Partial event residual; exact generated-event partition for all 2024/25 rows and non-scorers in 2025/26. Scoring 2025/26 rows have bounds only because penalty-goal split NOT AVAILABLE. Unavailable Opta terms remain in background; 2025/26 brace variance not independently identified",
+  "log_loss_clip": 1e-06,
+  "intervals": "1000 deterministic percentile cluster bootstrap repetitions separately by fixture, player and GW; overlapping groups descriptive; no multiple-testing-adjusted candidate selection",
+  "acceptance": "No parameter fitting on reused historical labels. Model change requires documented semantics defect or prospective/untouched improvement. No 2026/27 actual-label validation."
+}

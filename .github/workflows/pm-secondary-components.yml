@@ -1,0 +1,54 @@
+name: PM secondary components (isolated)
+on:
+  pull_request:
+    paths:
+      - 'analysis/secondary_*.py'
+      - 'analysis/results/pm-secondary-components-20261101/**'
+      - 'src/fpl_v1_1_model/experimental_keeper_save_reserve.py'
+      - 'tests/test_secondary_components.py'
+      - 'tests/test_b_keeper_save_reserve.py'
+      - '.github/workflows/pm-secondary-components.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  contracts-and-evidence:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    env:
+      PYTHONPATH: 'src:scripts:.:analysis'
+      OPENBLAS_NUM_THREADS: '1'
+    steps:
+      - uses: actions/checkout@v4
+        with: {fetch-depth: 0}
+      - uses: actions/setup-python@v5
+        with: {python-version: '3.12'}
+      - run: pip install -r requirements-model-checkpoint.txt pytest requests
+      - name: Protect original model, application and locks
+        run: |
+          git diff --name-only 20dfdd953ef99c382ea969836cd6a514b8182cc4 -- src scripts app model service | python -c 'import sys; names=sys.stdin.read().splitlines(); assert names == ["src/fpl_v1_1_model/experimental_keeper_save_reserve.py"], names'
+      - name: Scoring, reserve conservation and evidence boundaries
+        run: pytest -q tests/test_b_keeper_save_reserve.py tests/test_secondary_components.py tests/test_b_event_conservation.py tests/test_v1_1_bps.py tests/test_v1_1_defcon.py tests/test_point_accounting.py tests/test_precision_audit_oracles.py tests/test_separated_goal_replay_reporting.py
+      - name: Verify committed evidence
+        run: cd analysis/results/pm-secondary-components-20261101 && sha256sum -c SHA256SUMS
+      - name: Replay one fixture with the pinned original model
+        run: |
+          git worktree add --detach /tmp/pm-secondary-baseline 20dfdd953ef99c382ea969836cd6a514b8182cc4
+          cp analysis/secondary_components.py /tmp/pm-secondary-baseline/analysis/
+          cd /tmp/pm-secondary-baseline
+          python scripts/locked_numerical_runtime.py analysis/secondary_components.py --out /tmp/pm-secondary-smoke --workers 1 --limit 1
+      - name: Compare all forecast components with saved baseline
+        run: |
+          python - <<'PY'
+          import pandas as pd
+          saved=pd.read_csv('analysis/results/pm-secondary-components-20261101/baseline-predictions.csv.gz')
+          replay=pd.read_csv('/tmp/pm-secondary-smoke/predictions.csv.gz')
+          keys=['season','fixture_uuid','player_uuid','draws','rep','seed']
+          cols=[c for c in replay if c.startswith('p_')]
+          joined=replay.merge(saved,on=keys,suffixes=('_new','_saved'),validate='one_to_one')
+          assert len(joined)==len(replay)
+          for c in cols:
+              d=(joined[c+'_new']-joined[c+'_saved']).abs().dropna()
+              assert d.empty or d.max()<1e-12,(c,d.max())
+          print('Identical baseline forecast rows:',len(joined))
+          PY

@@ -1,0 +1,136 @@
+"""Isolated secondary-component replay of frozen predeadline inputs.
+
+No oracle is used; actual labels are read only after each simulation completes.
+Run with PYTHONPATH=src:scripts:.:analysis via locked_numerical_runtime.py.
+"""
+import argparse
+import copy
+import gzip
+import hashlib
+import json
+from concurrent.futures import ProcessPoolExecutor, as_completed
+from pathlib import Path
+
+import numpy as np
+import pandas as pd
+from precision_audit.dataset import load
+from precision_audit.oracles import OracleTimeline, simulate
+from test_separated_goal_head import decode
+from fpl_v1_1_model.point_accounting import point_components
+
+ROOT = Path(__file__).resolve().parents[1]
+INPUT = ROOT/'analysis/results/systematic-precision-audit-20261101/inputs/historical-inputs.json.gz'
+FIELDS = ['minutes', 'p60', 'cs', 'saves', 'save3', 'save6', 'save9', 'save_pts',
+          'penalty_save_pts', 'dc_hit', 'dc_pts', 'bonus', 'bonus1', 'bonus2',
+          'bonus3', 'bps', 'gc_pts', 'negative_pts']
+
+
+def observed(a, season):
+    """Missing direct labels stay missing; CS is separately marked rule-derived."""
+    def get(k):
+        v = a.get(k)
+        return np.nan if v is None else float(v)
+    saves, dc = get('saves'), get('defcon_points')
+    m, gc = get('minutes'), get('goals_conceded_on_pitch')
+    bonus = get('bonus')
+    pos = a.get('fpl_position')
+    return dict(minutes=m, p60=float(m >= 60) if np.isfinite(m) else np.nan,
+                cs=float(m >= 60 and gc == 0) if np.isfinite(m+gc) else np.nan,
+                saves=saves, save3=float(saves >= 3) if np.isfinite(saves) else np.nan,
+                save6=float(saves >= 6) if np.isfinite(saves) else np.nan,
+                save9=float(saves >= 9) if np.isfinite(saves) else np.nan,
+                save_pts=np.floor(saves/3), penalty_save_pts=5*get('penalty_saves'),
+                dc_hit=float(dc > 0) if np.isfinite(dc) else np.nan, dc_pts=dc,
+                bonus=bonus, **{f'bonus{k}': float(bonus == k) if np.isfinite(bonus) else np.nan for k in (1,2,3)},
+                bps=get('bps'), gc_pts=-np.floor(gc/2) if pos in ('GK','GKP','DEF') else 0.,
+                negative_pts=-get('yellow_cards')-3*get('fpl_red_cards')-2*get('own_goals')-2*get('penalty_misses'))
+
+
+def run(task):
+    record, n, rep, out = task
+    seed = 20261101+int(hashlib.sha256((record['season']+record['fixture_uuid']).encode()).hexdigest()[:7], 16)+rep*1000003
+    key = f"{record['season']}-{record['fixture_uuid']}-{n}-{rep}"
+    path = Path(out)/'cache'/(key+'.csv.gz')
+    if path.exists():
+        return str(path)
+    inp = decode(copy.deepcopy(record['input']))
+    # No outcomes are supplied to the baseline physical timeline.
+    clock = OracleTimeline(inp, record['dist'], {}, 0)
+    rng = np.random.default_rng(seed)
+    ps = list(inp.players)
+    samples = np.zeros((n,len(ps),len(FIELDS)), dtype=np.float32)
+    teams = [inp.home_team,inp.away_team]
+    fixture_samples = np.zeros((n,4), dtype=np.float32)
+    for i in range(n):
+        result = simulate(inp,rng,clock.sample(rng))
+        for j,p in enumerate(ps):
+            r = result[p.player_id]
+            c = point_components(p.position,p.is_keeper,r)
+            samples[i,j] = [r.minutes,r.minutes>=60,r.clean_sheet,r.saves,
+                r.saves>=3,r.saves>=6,r.saves>=9,c['save_pts'],c['penalty_save_pts'],
+                r.dc_points>0,r.dc_points,r.bonus,r.bonus==1,r.bonus==2,r.bonus==3,
+                r.bps,c['gc_pts'],c['negative_pts']]
+        # Team CS uses total scoring events, including own goals.
+        for j,team in enumerate(teams):
+            goals = sum(r.goals for p in ps if p.team!=team for r in [result[p.player_id]])+sum(result[p.player_id].own_goal for p in ps if p.team==team)
+            fixture_samples[i,j] = goals == 0
+        scores = [r.bps for r in result.values() if r.minutes>0]
+        top = sorted(scores,reverse=True)
+        fixture_samples[i,2] = len(top)>=2 and top[0]==top[1]
+        fixture_samples[i,3] = sum(r.bonus>0 for r in result.values())
+    rows=[]
+    for size in [k for k in (400,2000,10000) if k<=n]:
+        means=samples[:size].mean(axis=0,dtype=np.float64)
+        for j,p in enumerate(ps):
+            if p.player_id.startswith('UNKNOWN'): continue
+            a=record['actual'].get(p.player_id,{})
+            meta=record['meta'].get(p.player_id,{})
+            row=dict(season=record['season'],fixture_uuid=record['fixture_uuid'],player_uuid=p.player_id,
+                position=p.position,team=p.team,gw=record['gw'],cutoff=record['cutoff'],draws=size,rep=rep,seed=seed,
+                source=a.get('source_name','NOT AVAILABLE'),actual_minutes=a.get('minutes'),
+                started=a.get('started'),dc_count=a.get('defcon_count'),goals=a.get('goals'),red=a.get('fpl_red_cards'),
+                prior_type=meta.get('prior_type'),news_state=meta.get('news_state'),
+                lambda_opp=inp.lambda_away_goals if p.team==inp.home_team else inp.lambda_home_goals,
+                bg_rate=p.bps_background_rate90,bg_sd=p.bps_background_sd90)
+            row.update({f'p_{k}':float(means[j,c]) for c,k in enumerate(FIELDS)})
+            row.update({f'y_{k}':v for k,v in observed(a,record['season']).items()})
+            rows.append(row)
+        for j,team in enumerate(teams):
+            rows.append(dict(season=record['season'],fixture_uuid=record['fixture_uuid'],player_uuid='TEAM:'+team,
+                position='TEAM',team=team,gw=record['gw'],draws=size,rep=rep,seed=seed,
+                p_cs=float(fixture_samples[:size,j].mean()),y_cs=float(record['goals'][str(inp.away_team if team==inp.home_team else inp.home_team)]==0),
+                p_top_tie=float(fixture_samples[:size,2].mean()),p_bonus_recipients=float(fixture_samples[:size,3].mean())))
+    path.parent.mkdir(parents=True,exist_ok=True)
+    pd.DataFrame(rows).to_csv(path,index=False,compression={'method':'gzip','mtime':0})
+    return str(path)
+
+
+def main():
+    parser=argparse.ArgumentParser()
+    parser.add_argument('--out',type=Path,required=True)
+    parser.add_argument('--workers',type=int,default=4)
+    parser.add_argument('--limit',type=int)
+    args=parser.parse_args()
+    records=load(INPUT)
+    chosen=set()
+    for season in sorted({r['season'] for r in records}):
+        group=sorted([r for r in records if r['season']==season],key=lambda r:(r['gw'],r['fixture_uuid']))
+        chosen.update(r['fixture_uuid'] for r in [group[i] for i in np.unique(np.linspace(0,len(group)-1,7,dtype=int))])
+    if args.limit: records=records[:args.limit]
+    tasks=[]
+    for r in records:
+        deep=r['fixture_uuid'] in chosen
+        tasks.append((r,10000 if deep else 2000,0,str(args.out)))
+        if deep: tasks.append((r,10000,1,str(args.out)))
+    files=[]
+    with ProcessPoolExecutor(args.workers) as pool:
+        for i,future in enumerate(as_completed([pool.submit(run,t) for t in tasks]),1):
+            files.append(future.result())
+            if i%10==0 or i==len(tasks): print(f'{i}/{len(tasks)} fixtures/seeds',flush=True)
+    df=pd.concat([pd.read_csv(p,low_memory=False) for p in files],ignore_index=True)
+    args.out.mkdir(parents=True,exist_ok=True)
+    df.sort_values(['season','fixture_uuid','player_uuid','rep','draws']).to_csv(args.out/'predictions.csv.gz',index=False,compression={'method':'gzip','mtime':0})
+    sources=[Path(__file__),*sorted((ROOT/'src/fpl_v1_1_model').glob('*.py')),*sorted((ROOT/'analysis/precision_audit').glob('*.py'))]
+    (args.out/'manifest.json').write_text(json.dumps(dict(input_sha256=hashlib.sha256(INPUT.read_bytes()).hexdigest(),fixtures=len(records),deep_fixtures=sorted(chosen),seed_rule='20261101+sha256(season+fixture)[:7]+rep*1000003',source_sha256={str(p.relative_to(ROOT)):hashlib.sha256(p.read_bytes()).hexdigest() for p in sources},scope='Reused research cohort; inherited parameter training chronology not established; no pristine holdout; 2024 NP coefficients fit 2025 labels; no 2026/27 actuals'),indent=2)+'\n')
+
+if __name__=='__main__': main()
