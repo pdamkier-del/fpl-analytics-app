@@ -27,7 +27,22 @@ jobs:
           git diff --name-only 736d65cacc1afeeaf8c3dcfad317d7ee745b48fa -- .github/workflows | python -c 'import sys; names=sys.stdin.read().splitlines(); assert names == [".github/workflows/systematic-precision-audit.yml"], names'
       - name: Oracle, decision and append-only log contracts
         env: {PYTHONPATH: 'src:scripts:.:analysis', OPENBLAS_NUM_THREADS: '1'}
-        run: pytest -q tests/test_precision_audit_oracles.py tests/test_precision_audit_prospective.py
+        run: pytest -q tests/test_precision_audit_oracles.py tests/test_precision_audit_prospective.py tests/test_precision_audit_decisions.py
+      - name: Reproduce one baseline and all eight oracle arms from frozen inputs
+        env: {PYTHONPATH: 'src:scripts:.:analysis', OPENBLAS_NUM_THREADS: '1'}
+        run: |
+          python scripts/locked_numerical_runtime.py analysis/precision_audit/runner.py --inputs analysis/results/systematic-precision-audit-20261101/inputs/historical-inputs.json.gz --out /tmp/precision-baseline --mode baseline --workers 2 --limit 1
+          python scripts/locked_numerical_runtime.py analysis/precision_audit/runner.py --inputs analysis/results/systematic-precision-audit-20261101/inputs/historical-inputs.json.gz --out /tmp/precision-oracle --mode oracle --workers 2 --limit 1
+      - name: Compare independent numerical replay with audit reference
+        env: {PYTHONPATH: 'src:scripts:.:analysis'}
+        run: |
+          python -m precision_audit.verify_replay --actual /tmp/precision-baseline/predictions.csv.gz --reference analysis/results/systematic-precision-audit-20261101/raw/baseline-predictions.csv.gz
+          python -m precision_audit.verify_replay --actual /tmp/precision-oracle/predictions.csv.gz --reference analysis/results/systematic-precision-audit-20261101/raw/oracle-predictions.csv.gz
+      - name: Verify frozen evidence hashes and historical decisions
+        env: {PYTHONPATH: 'src:scripts:.:analysis', OPENBLAS_NUM_THREADS: '1'}
+        run: |
+          (cd analysis/results/systematic-precision-audit-20261101 && sha256sum -c SHA256SUMS)
+          python scripts/locked_numerical_runtime.py analysis/precision_audit/decisions.py --work analysis/results/systematic-precision-audit-20261101/inputs --out analysis/results/systematic-precision-audit-20261101 --mode historical-frozen
       - name: Verify sealed prospective evidence
         env: {PYTHONPATH: 'src:scripts:.:analysis'}
         run: python -m precision_audit.prospective --out analysis/results/systematic-precision-audit-20261101/prospective --verify-only

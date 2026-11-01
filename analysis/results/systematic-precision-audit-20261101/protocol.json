@@ -10,7 +10,11 @@
   "baseline_draws": 400,
   "baseline_independent_repetitions": 3,
   "oracle_sample": "Up to 24 eligible fixtures per season, evenly spaced in (GW,fixture UUID) order; no residual-based selection",
-  "oracle_factorial": {"M": 1, "S": 2, "G": 4},
+  "oracle_factorial": {
+    "M": 1,
+    "S": 2,
+    "G": 4
+  },
   "oracle_minutes": "Actual FPL scoring minutes preserved exactly. A distinct physical clock is minimally reconciled to legal paired substitutions and <=3 windows. M alone infers starting XI by observed duration then pregame p ties; M+S uses actual starters. This reflects information overlap and is not a posterior of the B role mixture. Clock reconstruction is not observed substitution timing.",
   "oracle_starters": "Actual XI fixed; unchanged B conditional durations and event law",
   "oracle_goals": "Exact total-score conditioning of independent Bernoulli own goals plus Poisson ordinary/penalty success processes; misses independently thinned. Never Poisson(lambda=actual goals).",
@@ -21,11 +25,24 @@
   "CRN": "Oracle timeline and event RNG reset separately per fixture/rep/draw. Common stream starts where possible; score conditioning consumes a different sequence so this is not full eventwise CRN. Empirical seed uncertainty reported separately.",
   "MC_cases": "All 10 current GW10 fixtures plus first UUID fixture at GW24 and GW32 in each historical season; Penders and Le Fee current included",
   "MC_independent_seeds": 6,
-  "MC_N": [400,2000,10000],
+  "MC_N": [
+    400,
+    2000,
+    10000
+  ],
   "MC_pairing": "Nested draw prefixes within each independent seed; read-only collector consumes no RNG",
-  "metrics": ["xP MAE","xP RMSE","xP bias","goals/assists/CS means and binary calibration","start/60+/90-minute Brier","minute MAE/RMSE/bias","ranking and decision changes","runtime and RSS"],
+  "metrics": [
+    "xP MAE",
+    "xP RMSE",
+    "xP bias",
+    "goals/assists/CS means and binary calibration",
+    "start/60+/90-minute Brier",
+    "minute MAE/RMSE/bias",
+    "ranking and decision changes",
+    "runtime and RSS"
+  ],
   "MM_groups": "Pregame position, club, p>=.90 regular, .20<=p<.90 rotation, p<.20 reserve, known injury/return, >=180 minutes/7d high load, verified non-PL/UEFA subset. Overlapping diagnostic groups must not be summed. National-team workload unavailable unless source is established.",
-  "TS": "Realistic model-managed historical states from prior-origin forecasts/prices; bounded exact <=2-transfer universe and legal XI/bench/C/VC. No invented human history. No stitching later-origin forecasts into a six-GW prediction at an earlier cutoff. Mark full six-GW replay unavailable if true origin-target forecasts/prices/bank provenance missing.",
+  "TS": "Historical prices and previous-three-match observations construct prior-deadline model-managed states; bounded exact <=2-transfer comparison under same B lineup scorer, plus separate exact joint XI/bench/C/VC for initial squad. No human history, no global six-GW optimum. No future-origin stitching.",
   "uncertainty": "Fixture-cluster bootstrap; retain matched seeds. Monte Carlo SE and between-fixture uncertainty separately reported. Rare subgroup estimates flagged, not tuned.",
   "prospective": "Capture full sealed GW10-15 forecast strictly before deadline, append-only SHA-linked manifest and CI artifact; no outcome retrofill or overwriting. Freeze evaluation definitions now.",
   "priority_rubric": "Potential accuracy gain x evidence strength / implementation complexity. Oracle effects are diagnostic ceilings, not promises of achievable improvement; unknown expected gains remain unknown. Complexity and evidence ratings are disclosed judgment, not tuned model parameters."
