@@ -1,0 +1,53 @@
+name: Canonical data and parameter explorer validation
+on:
+  push:
+    branches:
+      - refactor-canonical-fixture-input-20261102
+  pull_request:
+    paths:
+      - 'src/fpl_v1_1_model/canonical_fixture_input.py'
+      - 'src/fpl_v1_1_model/feature_registry.py'
+      - 'src/fpl_v1_1_model/parameter_catalogue.py'
+      - 'tests/test_canonical_fixture_input.py'
+      - 'tests/test_canonical_seeded_pm_parity.py'
+      - 'tests/test_feature_registry.py'
+      - 'tests/test_parameter_catalogue.py'
+      - 'app/parameter-map.html'
+      - 'app/parameter-map-data.js'
+      - 'app/models.html'
+      - '.github/workflows/canonical-input-validation.yml'
+  workflow_dispatch:
+jobs:
+  parity:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install test dependencies
+        run: python -m pip install pytest numpy pandas scipy
+      - name: Run contract tests
+        env:
+          PYTHONPATH: src
+        run: python -m pytest -q tests/test_feature_registry.py tests/test_parameter_catalogue.py tests/test_canonical_fixture_input.py tests/test_canonical_seeded_pm_parity.py tests/test_fixture_input.py
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Check app explorer syntax and links
+        run: |
+          node --check app/parameter-map-data.js
+          node --check app/model-tree-data.js
+          python - <<'PY'
+          from pathlib import Path
+          html=Path('app/parameter-map.html').read_text()
+          original=Path('app/models.html').read_text()
+          data=Path('app/parameter-map-data.js').read_text()
+          assert 'parameter-map-data.js' in html
+          assert 'parameter-map.html' in original
+          assert 'window.FPL_PARAMETER_MAP=' in data
+          for fragment in ('lambda_home_goals','p_start','dc_alpha','bg_sd90'):
+              assert fragment in data
+          print('App explorer static validation: PASS')
+          PY
