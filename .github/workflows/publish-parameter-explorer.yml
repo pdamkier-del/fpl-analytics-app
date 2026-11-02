@@ -1,0 +1,96 @@
+name: Publish documentation-only parameter explorer
+on:
+  push:
+    branches: [main]
+    paths: ['.github/workflows/publish-parameter-explorer.yml']
+  workflow_dispatch:
+permissions:
+  contents: read
+  actions: read
+  pages: write
+  id-token: write
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    concurrency:
+      group: fpl-pages-publication
+      cancel-in-progress: false
+    environment:
+      name: github-pages
+      url: https://pdamkier-del.github.io/fpl-analytics-app/mm-preview/app/parameter-map.html
+    steps:
+      - uses: actions/checkout@v4
+      - name: Retrieve newest successful validated Pages package
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          python - <<'PY'
+          import json,os,subprocess
+          def api(path):
+              return json.loads(subprocess.check_output(['gh','api','repos/pdamkier-del/fpl-analytics-app/'+path],text=True))
+          runs=api('actions/runs?per_page=70')['workflow_runs']
+          matches=[]
+          for run in runs:
+              if run['name']!='Refresh isolated current B preview' or run['conclusion']!='success':
+                  continue
+              artifacts=api(f"actions/runs/{run['id']}/artifacts?per_page=100")['artifacts']
+              target=f"mm-current-preview-pages-{run['id']}"
+              if any(a['name']==target and not a['expired'] for a in artifacts):
+                  matches.append((run['id'],target));break
+          if not matches: raise SystemExit('No verified Pages artifact found; existing production is preserved')
+          run_id,name=matches[0]
+          with open(os.environ['GITHUB_ENV'],'a') as f:
+              f.write('VALIDATED_PAGES_RUN='+str(run_id)+'\n')
+              f.write('VALIDATED_PAGES_ARTIFACT='+name+'\n')
+          print('Reusing verified Pages artifact',run_id,name)
+          PY
+      - uses: actions/download-artifact@v4
+        with:
+          github-token: ${{ github.token }}
+          run-id: ${{ env.VALIDATED_PAGES_RUN }}
+          name: ${{ env.VALIDATED_PAGES_ARTIFACT }}
+          path: .existing-pages
+      - name: Patch only documentation assets; prove every other byte unchanged
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          import tarfile,hashlib
+          root=Path('.existing-pages')
+          tar=root/'artifact.tar'
+          if not tar.is_file(): raise SystemExit('Validated Pages archive missing')
+          site=Path('.pages-parameter-docs');site.mkdir()
+          with tarfile.open(tar) as a:
+              a.extractall(site,filter='data')
+          app=site/'mm-preview'/'app'
+          if not (app/'overview.html').is_file() or not (site/'mm-preview/current/forecast.json').is_file():
+              raise SystemExit('Unexpected Pages structure; aborting')
+          def hashes():
+              return {str(p.relative_to(site)):hashlib.sha256(p.read_bytes()).hexdigest() for p in site.rglob('*') if p.is_file()}
+          before=hashes()
+          for name in ('parameter-map.html','parameter-map-data.js'):
+              (app/name).write_bytes((Path('app')/name).read_bytes())
+          overview=app/'overview.html'
+          old=overview.read_text()
+          link='<a href="parameter-map.html" style="display:inline-block;margin:12px 0;padding:9px 13px;border-radius:9px;background:#12382d;color:#fff;font-weight:700;text-decoration:none">Variabler og konstanter</a>'
+          if 'href="parameter-map.html"' not in old:
+              if '</main>' in old: new=old.replace('</main>',link+'</main>',1)
+              elif '</body>' in old: new=old.replace('</body>',link+'</body>',1)
+              else: raise SystemExit('No safe link insertion point')
+              overview.write_text(new)
+          after=hashes()
+          allowed={'mm-preview/app/overview.html','mm-preview/app/parameter-map.html','mm-preview/app/parameter-map-data.js'}
+          changed={p for p in set(before)|set(after) if before.get(p)!=after.get(p)}
+          assert changed<=allowed,(changed-allowed)
+          assert {'mm-preview/app/parameter-map.html','mm-preview/app/parameter-map-data.js'}<=set(after)
+          assert before['mm-preview/current/forecast.json']==after['mm-preview/current/forecast.json']
+          print('All existing forecast files and unmodified assets byte-identical; changed:',sorted(changed))
+          PY
+      - uses: actions/configure-pages@v5
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: .pages-parameter-docs
+          name: parameter-explorer-pages-${{ github.run_id }}
+      - uses: actions/deploy-pages@v4
+        with:
+          artifact_name: parameter-explorer-pages-${{ github.run_id }}
