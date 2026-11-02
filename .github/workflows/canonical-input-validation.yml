@@ -9,6 +9,7 @@ on:
       - 'src/fpl_v1_1_model/feature_registry.py'
       - 'src/fpl_v1_1_model/parameter_catalogue.py'
       - 'tests/test_canonical_fixture_input.py'
+      - 'tests/test_canonical_seeded_pm_parity.py'
       - 'tests/test_feature_registry.py'
       - 'tests/test_parameter_catalogue.py'
       - 'app/parameter-map.html'
@@ -30,7 +31,7 @@ jobs:
       - name: Run contract tests
         env:
           PYTHONPATH: src
-        run: python -m pytest -q tests/test_feature_registry.py tests/test_parameter_catalogue.py tests/test_canonical_fixture_input.py tests/test_fixture_input.py
+        run: python -m pytest -q tests/test_feature_registry.py tests/test_parameter_catalogue.py tests/test_canonical_fixture_input.py tests/test_canonical_seeded_pm_parity.py tests/test_fixture_input.py
       - uses: actions/setup-node@v4
         with:
           node-version: '22'
