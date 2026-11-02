@@ -27,6 +27,13 @@ def legacy_frame():
     frame["pen_conversion"] = .8
     frame["bg_mean_rate90"] = 5.
     frame["bg_sd90"] = 2.
+    # Parity test targets the subset where the two minute variants agree.
+    # Different experimental variants must remain on the legacy explicit path.
+    frame["v4_workload_start_p_start"] = frame["control_p_start"]
+    frame["v4_workload_start_xmins"] = frame["control_xmins"]
+    frame["v4_p_cameo_given_bench"] = frame["p_cameo_given_bench"]
+    frame["v4_start_minutes_mean"] = frame["start_minutes_mean"]
+    frame["v4_cameo_minutes_mean"] = frame["cameo_minutes_mean"]
     return frame
 
 
