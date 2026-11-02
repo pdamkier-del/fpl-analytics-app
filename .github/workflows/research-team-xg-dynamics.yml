@@ -16,7 +16,10 @@ jobs:
           python-version: '3.12'
       - run: pip install pandas numpy
       - run: python analysis/team_xg_dynamics_experiment.py
+      - run: python analysis/team_xg_opponent_adjusted.py
       - uses: actions/upload-artifact@v4
         with:
           name: team-xg-dynamics-results
-          path: team-xg-dynamics-results.json
+          path: |
+            team-xg-dynamics-results.json
+            team-xg-opponent-results.json
