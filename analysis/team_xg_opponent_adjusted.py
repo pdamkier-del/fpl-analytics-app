@@ -18,8 +18,12 @@ def main():
  histories=defaultdict(list);rows=[]
  for when,batch in g.groupby('kickoff_time',sort=True):
   predictions=[]
+  fixture_teams={fid:[str(t) for t in group.team] for fid,group in batch.groupby('fixture') if len(group)==2}
   for x in batch.itertuples(index=False):
-   t=str(x.team);o=str(x.opponent_team);h=bool(x.was_home);own=histories[t];opp=histories[o]
+   t=str(x.team);other=fixture_teams.get(x.fixture,[])
+   if len(other)!=2 or t not in other:continue
+   o=other[1] if other[0]==t else other[0]
+   h=bool(x.was_home);own=histories[t];opp=histories[o]
    if len(own)<5 or len(opp)<5:continue
    def rate(series,alpha):
     z=np.array([v[0] for v in series]);return float(z.mean()) if alpha is None else float(np.average(z,weights=(1-alpha)**np.arange(len(z)-1,-1,-1)))
@@ -37,10 +41,12 @@ def main():
   for x in batch.itertuples(index=False):
    histories[str(x.team)].append((float(x.xg),np.nan)) 
   # Populate actual xGA with opponent's complete same-fixture xG, only after batch forecasts.
-  lookup={str(x.team):(x.fixture,float(x.xg)) for x in batch.itertuples(index=False)}
+  lookup={(x.fixture,str(x.team)):float(x.xg) for x in batch.itertuples(index=False)}
   for x in batch.itertuples(index=False):
-   opp=lookup.get(str(x.opponent_team))
-   if opp and opp[0]==x.fixture: histories[str(x.team)][-1]=(float(x.xg),opp[1])
+   other=fixture_teams.get(x.fixture,[])
+   opponent=(other[1] if other[0]==str(x.team) else other[0]) if len(other)==2 and str(x.team) in other else None
+   opp=lookup.get((x.fixture,opponent))
+   if opp is not None: histories[str(x.team)][-1]=(float(x.xg),opp)
    else:histories[str(x.team)].pop() # missing opposing team: exclude for consistent xGA
   if when>=cutoff:rows.extend(predictions)
  assert len(rows)>=100
