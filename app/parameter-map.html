@@ -1,6 +1,6 @@
 <!doctype html>
 <html lang="da"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Datakæde og parametre · FPL Analytics</title><link rel="stylesheet" href="assets.css">
+<title>Datakæde og parametre · FPL Analytics</title>
 <style>
 :root{--bg:#f4f6f8;--ink:#14232b;--muted:#61717b;--border:#dfe6e9;--accent:#096847}
 *{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.55 system-ui,-apple-system,sans-serif}main{max-width:1120px;margin:auto;padding:24px 18px 75px}
@@ -13,13 +13,13 @@ details{background:#fff;border:1px solid var(--border);border-radius:11px;margin
 table{width:100%;border-collapse:collapse;font-size:13px}td,th{text-align:left;padding:9px 8px;border-bottom:1px solid #edf1f2;vertical-align:top}th{color:#63717a;font-weight:800}code{word-break:break-word;font-size:12px}.tag{display:inline-block;background:#eef1f2;border-radius:5px;padding:2px 6px;font-size:11px}.small{font-size:12px;color:var(--muted)}.empty{padding:24px;color:var(--muted)}
 @media(max-width:740px){.flow{grid-template-columns:1fr 1fr}.filters{grid-template-columns:1fr}table{display:block;overflow:auto;white-space:nowrap}}
 </style></head><body><main>
-<nav class="nav"><a href="models.html">← Modelforklaring</a><a href="overview.html">Oversigt</a><a href="my-team-classic.html">Mit hold</a></nav>
+<nav class="nav"><a href="overview.html">← Oversigt</a><a href="overview.html">Oversigt</a><a href="my-team-classic.html">Mit hold</a></nav>
 <h1>Data, regler og parametre</h1><p class="lead">Én samlet visning af, hvilke værdier der indgår i prognoserne, hvor de kommer fra, og hvad der er en fast regel versus en dynamisk spiller- eller kampværdi.</p>
 <div class="note"><strong>Låst prognosemotor · dokumentationsvisning.</strong> Denne side ændrer ingen forecast. Tal fra historiske kalibreringsforsøg er mærket <em>Historisk</em> og må ikke forveksles med de aktuelle live-indstillinger.</div>
 <div class="flow" aria-label="Datakæde"><div class="stage"><strong>Rådata</strong><span>Historik og deadlines</span></div><div class="stage"><strong>Hold</strong><span>Mål og modstander</span></div><div class="stage"><strong>Rolle + spiller</strong><span>Position og rater</span></div><div class="stage"><strong>MM → PM</strong><span>Minutter og point</span></div><div class="stage"><strong>TS</strong><span>Beslutninger</span></div></div>
 <section class="panel"><h2>Hvad kan forenkles?</h2><p>En variabel kan fjernes fra råinput, deles mellem flere spillere eller bevares, fordi den påvirker en vigtig FPL-hændelse. Ingen aktive parametre fjernes på grundlag af korrelation alene.</p><p class="small">Forenkling af datakæden kræver inputparitet. Ændring af den statistiske model kræver historisk xP-holdout og kalibrering.</p></section>
 <section><h2>Find en variabel</h2><div class="filters"><div><label for="search">Søg på navn, funktion eller kilde</label><input id="search" type="search" placeholder="Fx xG, dc_alpha, startchance"></div><div><label for="category">Modeldel</label><select id="category"><option value="">Alle</option></select></div></div><div id="counter" class="small" aria-live="polite"></div><div id="catalogue"></div></section>
-<section class="panel"><h2>Kontrol og kilde</h2><p>Dette katalog viser verificerede kildehenvisninger og historiske parametre fra repositoryet. For at vise <em>den nøjagtige aktuelle værdi for en spiller/GW</em> skal appen læse det pågældende forseglede prognosesnapshot med samme cutoff. Det er endnu ikke koblet på denne visning.</p><p><a href="models.html">Tilbage til eksisterende modeltræ og matematik</a></p></section>
+<section class="panel"><h2>Kontrol og kilde</h2><p>Dette katalog viser verificerede kildehenvisninger og historiske parametre fra repositoryet. For at vise <em>den nøjagtige aktuelle værdi for en spiller/GW</em> skal appen læse det pågældende forseglede prognosesnapshot med samme cutoff. Det er endnu ikke koblet på denne visning.</p><p><a href="overview.html">Tilbage til appens oversigt</a></p></section>
 </main><script src="parameter-map-data.js"></script><script>
 (function(){
 const data=window.FPL_PARAMETER_MAP||[];
