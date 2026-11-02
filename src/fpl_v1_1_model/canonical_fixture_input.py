@@ -54,7 +54,7 @@ def expand_canonical_fixture(frame: pd.DataFrame) -> pd.DataFrame:
     if ((p < 0) | (p > 1) | (q < 0) | (q > 1)).any():
         raise ValueError("Invalid canonical minute probabilities")
     duration = out[["xmins", "start_minutes_mean", "cameo_minutes_mean"]].to_numpy(float)
-    if ((duration < 0) | (duration > 90)).any():
+    if ((duration < -1e-8) | (duration > 90 + 1e-8)).any():
         raise ValueError("Invalid canonical minute durations")
     expected = p * out["start_minutes_mean"].to_numpy(float) + (
         (1 - p) * q * out["cameo_minutes_mean"].to_numpy(float)
