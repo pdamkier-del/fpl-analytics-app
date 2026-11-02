@@ -18,7 +18,7 @@ table{width:100%;border-collapse:collapse;font-size:13px}td,th{text-align:left;p
 <div class="note"><strong>Låst prognosemotor · dokumentationsvisning.</strong> Denne side ændrer ingen forecast. Tal fra historiske kalibreringsforsøg er mærket <em>Historisk</em> og må ikke forveksles med de aktuelle live-indstillinger.</div>
 <div class="flow" aria-label="Datakæde"><div class="stage"><strong>Rådata</strong><span>Historik og deadlines</span></div><div class="stage"><strong>Hold</strong><span>Mål og modstander</span></div><div class="stage"><strong>Rolle + spiller</strong><span>Position og rater</span></div><div class="stage"><strong>MM → PM</strong><span>Minutter og point</span></div><div class="stage"><strong>TS</strong><span>Beslutninger</span></div></div>
 <section class="panel"><h2>Hvad kan forenkles?</h2><p>En variabel kan fjernes fra råinput, deles mellem flere spillere eller bevares, fordi den påvirker en vigtig FPL-hændelse. Ingen aktive parametre fjernes på grundlag af korrelation alene.</p><p class="small">Forenkling af datakæden kræver inputparitet. Ændring af den statistiske model kræver historisk xP-holdout og kalibrering.</p></section>
-<section><h2>Find en variabel</h2><div class="filters"><div><label for="search">Søg på navn, funktion eller kilde</label><input id="search" type="search" placeholder="Fx xG, dc_alpha, startchance"></div><div><label for="category">Modeldel</label><select id="category"><option value="">Alle</option></select></div></div><div id="counter" class="small" aria-live="polite"></div><div id="catalogue"></div></section>
+<section class="panel" id="live-forecast"><h2>Aktuelle forecastdata · verificeret snapshot</h2><p class="small" id="live-status" aria-live="polite">Henter seneste forecast …</p><div class="filters"><div><label for="live-player">Spiller</label><select id="live-player" disabled><option>Indlæser …</option></select></div><div><label for="live-gw">Gameweek</label><select id="live-gw" disabled></select></div></div><div id="live-values" aria-live="polite"></div><p class="small">Værdierne læses direkte fra appens publicerede og versionskontrollerede B-forecast. De viser prognosen på beregningstidspunktet, ikke nødvendigvis nye skader og nyheder efter den dato. Interne input som xG-prior, DefCon-spredning og BPS-konstanter vises kun, hvis de faktisk er med i den verificerede kilde.</p></section><section><h2>Find en variabel</h2><div class="filters"><div><label for="search">Søg på navn, funktion eller kilde</label><input id="search" type="search" placeholder="Fx xG, dc_alpha, startchance"></div><div><label for="category">Modeldel</label><select id="category"><option value="">Alle</option></select></div></div><div id="counter" class="small" aria-live="polite"></div><div id="catalogue"></div></section>
 <section class="panel"><h2>Kontrol og kilde</h2><p>Dette katalog viser verificerede kildehenvisninger og historiske parametre fra repositoryet. For at vise <em>den nøjagtige aktuelle værdi for en spiller/GW</em> skal appen læse det pågældende forseglede prognosesnapshot med samme cutoff. Det er endnu ikke koblet på denne visning.</p><p><a href="overview.html">Tilbage til appens oversigt</a></p></section>
 </main><script src="parameter-map-data.js"></script><script>
 (function(){
@@ -39,5 +39,50 @@ function render(){
  }if(!matches.length)out.append(el('p','Ingen matchende variable.'))
 }
 search.addEventListener('input',render);filter.addEventListener('change',render);render();
+})();
+</script><script>
+(async function(){
+ const status=document.getElementById('live-status'),playerSelect=document.getElementById('live-player'),gwSelect=document.getElementById('live-gw'),display=document.getElementById('live-values');
+ const base=new URL('../current/',location.href);
+ const txt=(tag,s)=>{let e=document.createElement(tag);e.textContent=String(s);return e};
+ const fmt=(x,dec=2)=>typeof x==='number'&&Number.isFinite(x)?x.toLocaleString('da-DK',{minimumFractionDigits:dec,maximumFractionDigits:dec}):'Ikke oplyst';
+ try{
+  const ir=await fetch(new URL('index.json',base),{cache:'no-store'});
+  if(!ir.ok)throw Error('Verificeret forecastindeks er ikke tilgængeligt');
+  const index=await ir.json();
+  if(!['B_locked_PM_preview','B-MM-PM-TS-v1'].includes(index.model)||index.locked_model_active!==false||!index.forecast_file||!index.forecast_file_sha256)throw Error('Forecastindeks er ikke et gyldigt B-snapshot');
+  const url=new URL(index.forecast_file,base);
+  if(url.origin!==base.origin||!url.pathname.startsWith(base.pathname))throw Error('Ugyldig forecaststi');
+  const fr=await fetch(url,{cache:'no-store'});
+  if(!fr.ok)throw Error('Prognosefil mangler');
+  const bytes=await fr.arrayBuffer();
+  if(!crypto.subtle)throw Error('SHA-256 verifikation understøttes ikke i browseren');
+  const checksum=Array.from(new Uint8Array(await crypto.subtle.digest('SHA-256',bytes))).map(n=>n.toString(16).padStart(2,'0')).join('');
+  if(checksum!==index.forecast_file_sha256)throw Error('Forecast-kontrolsum stemmer ikke');
+  const f=JSON.parse(new TextDecoder().decode(bytes));
+  if(f.forecast_sha256!==index.forecast_sha256||!Array.isArray(f.players)||!Array.isArray(f.gws))throw Error('Forecast og indeks stemmer ikke overens');
+  const players=f.players.filter(p=>Array.isArray(p.weeks)&&p.weeks.length).sort((a,b)=>String(a.name||a.id).localeCompare(String(b.name||b.id),'da'));
+  if(!players.length)throw Error('Ingen spillere i verificeret forecast');
+  playerSelect.replaceChildren();
+  for(const p of players){const o=txt('option',p.name||p.id);o.value=String(p.id);playerSelect.append(o)}
+  gwSelect.replaceChildren();
+  for(const gw of f.gws){const o=txt('option','GW '+gw);o.value=String(gw);gwSelect.append(o)}
+  playerSelect.disabled=gwSelect.disabled=false;
+  let asof=f.data_asof?new Date(f.data_asof).toLocaleString('da-DK',{dateStyle:'medium',timeStyle:'short',timeZone:'Europe/Copenhagen'}):'Ukendt dato';
+  status.textContent='Datagrundlag: '+asof+' · '+players.length+' spillere · '+f.model+' · verificeret SHA-256';
+  function draw(){
+   const p=players.find(p=>String(p.id)===playerSelect.value),gw=Number(gwSelect.value);
+   const week=p?.weeks?.find(w=>Number(w.gw)===gw);
+   const table=txt('table',''),head=txt('thead',''),hrow=txt('tr','');
+   for(const h of ['Felt','Faktisk prognoseværdi'])hrow.append(txt('th',h));
+   head.append(hrow);table.append(head);const body=txt('tbody','');
+   const data=[['Spiller',p?.name||'—'],['Gameweek','GW '+gw],['Forventede point (xP)',fmt(week?.xpts)],['Forventede minutter (xM)',fmt(week?.xmins,1)],['Modellens startchance',week?.p_start==null?'Ikke publiceret':fmt(week.p_start*100,1)+' %'],['Forecast-dato',asof],['Forecast SHA-256',f.forecast_sha256]];
+   for(const [k,v] of data){const tr=txt('tr','');tr.append(txt('td',k),txt('td',v));body.append(tr)}table.append(body);display.replaceChildren(table);
+  }
+  playerSelect.addEventListener('change',draw);gwSelect.addEventListener('change',draw);draw();
+ }catch(e){
+  status.textContent='Liveværdier er ikke tilgængelige: '+e.message+'. Ingen historiske eller opdigtede tal vises som aktuelle.';
+  display.replaceChildren();
+ }
 })();
 </script></body></html>
