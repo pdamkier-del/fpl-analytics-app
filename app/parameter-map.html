@@ -12,13 +12,32 @@ label{font-size:13px;font-weight:700}input,select{background:white;border:1px so
 details{background:#fff;border:1px solid var(--border);border-radius:11px;margin:9px 0;overflow:hidden}summary{cursor:pointer;padding:13px 15px;font-weight:800}summary:hover{background:#f8faf9}.inside{border-top:1px solid var(--border);padding:12px 15px}
 table{width:100%;border-collapse:collapse;font-size:13px}td,th{text-align:left;padding:9px 8px;border-bottom:1px solid #edf1f2;vertical-align:top}th{color:#63717a;font-weight:800}code{word-break:break-word;font-size:12px}.tag{display:inline-block;background:#eef1f2;border-radius:5px;padding:2px 6px;font-size:11px}.small{font-size:12px;color:var(--muted)}.empty{padding:24px;color:var(--muted)}
 @media(max-width:740px){.flow{grid-template-columns:1fr 1fr}.filters{grid-template-columns:1fr}table{display:block;overflow:auto;white-space:nowrap}}
+</style><style>
+html{scroll-behavior:smooth;scroll-padding-top:100px}body{background:#f5f8f6}
+main{max-width:1260px}h1{font-size:clamp(30px,5vw,48px)}.panel,.note{box-shadow:0 8px 27px #173b2b0d}
+.nav{position:sticky;top:0;z-index:30;background:#f4f8f6f2;backdrop-filter:blur(12px);padding:12px;border:1px solid #e1ebe6;border-radius:12px}
+.quicknav{position:sticky;top:59px;z-index:20;background:#f5f8f6;display:flex;gap:8px;padding:10px 0;overflow-x:auto}
+.quicknav a{flex:none;padding:8px 13px;border:1px solid #d9e7df;background:white;border-radius:999px;text-decoration:none;font-size:12px;font-weight:700}
+.catalogue-section{scroll-margin-top:130px}.catalogue-section details{overflow:visible}.catalogue-section summary{font-size:17px}
+.variable-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+.variable-card{position:relative;padding:16px;border:1px solid #dfebe5;border-radius:14px;background:#fff;min-width:0}
+.variable-card:hover,.variable-card:focus-within{border-color:#72b995;box-shadow:0 8px 22px #174f3420}
+.variable-head{display:flex;justify-content:space-between;align-items:center;gap:8px}.variable-head code{overflow-wrap:anywhere}
+.variable-name{font-size:14px;font-weight:800;margin-top:7px}.variable-value{font-size:13px;font-weight:800;color:#0d7451;margin-top:10px}
+.variable-source{font-size:11px;color:#71847b;margin-top:10px;overflow-wrap:anywhere}
+.info-trigger{border:1px solid #b5d9c6;background:#edf8f1;border-radius:50%;width:30px;height:30px;flex:none;cursor:help;font-weight:900;color:#086444}
+.info-tooltip{display:none;position:absolute;right:12px;top:50px;z-index:50;width:min(330px,calc(100% - 24px));background:#142e25;color:white;padding:14px;border-radius:11px;box-shadow:0 10px 30px #09221b55;font-size:12px;line-height:1.55}
+.info-trigger:hover + .info-tooltip,.info-trigger:focus + .info-tooltip,.tooltip-open .info-tooltip{display:block}
+#live-values td{overflow-wrap:anywhere}
+@media(max-width:700px){.variable-grid{grid-template-columns:1fr}.flow{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}}
 </style></head><body><main>
 <nav class="nav"><a href="overview.html">← Oversigt</a><a href="overview.html">Oversigt</a><a href="my-team-classic.html">Mit hold</a></nav>
 <h1>Data, regler og parametre</h1><p class="lead">Én samlet visning af, hvilke værdier der indgår i prognoserne, hvor de kommer fra, og hvad der er en fast regel versus en dynamisk spiller- eller kampværdi.</p>
 <div class="note"><strong>Låst prognosemotor · dokumentationsvisning.</strong> Denne side ændrer ingen forecast. Tal fra historiske kalibreringsforsøg er mærket <em>Historisk</em> og må ikke forveksles med de aktuelle live-indstillinger.</div>
-<div class="flow" aria-label="Datakæde"><div class="stage"><strong>Rådata</strong><span>Historik og deadlines</span></div><div class="stage"><strong>Hold</strong><span>Mål og modstander</span></div><div class="stage"><strong>Rolle + spiller</strong><span>Position og rater</span></div><div class="stage"><strong>MM → PM</strong><span>Minutter og point</span></div><div class="stage"><strong>TS</strong><span>Beslutninger</span></div></div>
+<nav class="quicknav" aria-label="Hurtig navigation"><a href="#live-forecast">Liveværdier</a><a href="#variable-index">Variabler</a><a href="#catalogue">Modeldele</a></nav><div class="flow" aria-label="Datakæde"><div class="stage"><strong>Rådata</strong><span>Historik og deadlines</span></div><div class="stage"><strong>Hold</strong><span>Mål og modstander</span></div><div class="stage"><strong>Rolle + spiller</strong><span>Position og rater</span></div><div class="stage"><strong>MM → PM</strong><span>Minutter og point</span></div><div class="stage"><strong>TS</strong><span>Beslutninger</span></div></div>
 <section class="panel"><h2>Hvad kan forenkles?</h2><p>En variabel kan fjernes fra råinput, deles mellem flere spillere eller bevares, fordi den påvirker en vigtig FPL-hændelse. Ingen aktive parametre fjernes på grundlag af korrelation alene.</p><p class="small">Forenkling af datakæden kræver inputparitet. Ændring af den statistiske model kræver historisk xP-holdout og kalibrering.</p></section>
-<section class="panel" id="live-forecast"><h2>Aktuelle forecastdata · verificeret snapshot</h2><p class="small" id="live-status" aria-live="polite">Henter seneste forecast …</p><div class="filters"><div><label for="live-player">Spiller</label><select id="live-player" disabled><option>Indlæser …</option></select></div><div><label for="live-gw">Gameweek</label><select id="live-gw" disabled></select></div></div><div id="live-values" aria-live="polite"></div><p class="small">Værdierne læses direkte fra appens publicerede og versionskontrollerede B-forecast. De viser prognosen på beregningstidspunktet, ikke nødvendigvis nye skader og nyheder efter den dato. Interne input som xG-prior, DefCon-spredning og BPS-konstanter vises kun, hvis de faktisk er med i den verificerede kilde.</p></section><section><h2>Find en variabel</h2><div class="filters"><div><label for="search">Søg på navn, funktion eller kilde</label><input id="search" type="search" placeholder="Fx xG, dc_alpha, startchance"></div><div><label for="category">Modeldel</label><select id="category"><option value="">Alle</option></select></div></div><div id="counter" class="small" aria-live="polite"></div><div id="catalogue"></div></section>
+<section class="panel" id="live-forecast"><h2>Aktuelle forecastdata · verificeret snapshot</h2><p class="small" id="live-status" aria-live="polite">Henter seneste forecast …</p><div class="filters"><div><label for="live-player">Spiller</label><select id="live-player" disabled><option>Indlæser …</option></select></div><div><label for="live-gw">Gameweek</label><select id="live-gw" disabled></select></div></div><div id="live-values" aria-live="polite"></div><p class="small">Værdierne læses direkte fra appens publicerede og versionskontrollerede B-forecast. De viser prognosen på beregningstidspunktet, ikke nødvendigvis nye skader og nyheder efter den dato. Interne input som xG-prior, DefCon-spredning og BPS-konstanter vises kun, hvis de faktisk er med i den verificerede kilde.</p></section><section id="variable-index"><h2>Find en variabel</h2><div class="filters"><div><label for="search">Søg på navn, funktion eller kilde</label><input id="search" type="search" placeholder="Fx xG, dc_alpha, startchance"></div><div><label for="category">Modeldel</label><select id="category"><option value="">Alle</option></select></div></div><div id="counter" class="small" aria-live="polite"></div><div id="catalogue"></div></section>
 <section class="panel"><h2>Kontrol og kilde</h2><p>Dette katalog viser verificerede kildehenvisninger og historiske parametre fra repositoryet. For at vise <em>den nøjagtige aktuelle værdi for en spiller/GW</em> skal appen læse det pågældende forseglede prognosesnapshot med samme cutoff. Det er endnu ikke koblet på denne visning.</p><p><a href="overview.html">Tilbage til appens oversigt</a></p></section>
 </main><script src="parameter-map-data.js"></script><script>
 (function(){
@@ -32,10 +51,24 @@ function render(){
  const matches=data.filter(p=>(!g||p.group===g)&&(!term||[p.key,p.name,p.desc,p.source,p.type].join(' ').toLocaleLowerCase('da').includes(term)));
  out.replaceChildren();counter.textContent=matches.length+' af '+data.length+' felter og parametre';
  for(const group of categories){const rows=matches.filter(x=>x.group===group);if(!rows.length)continue;
- const d=document.createElement('details');d.open=!!term||!!g||group==='Hold og kamp';d.append(el('summary',group+' · '+rows.length));
- const inside=el('div');inside.className='inside';const t=el('table'),thead=el('thead'),tr=el('tr');
- for(const h of ['Variabel','Funktion','Værdi og type','Kilde'])tr.append(el('th',h));thead.append(tr);t.append(thead);const tb=el('tbody');
- for(const p of rows){const row=el('tr'),name=el('td');name.append(el('code',p.key));name.append(el('div',p.name));row.append(name,el('td',p.desc),el('td',(p.value==null?'Afhænger af kamp/spiller':p.value)+' · '+p.type),el('td',p.source));tb.append(row)}t.append(tb);inside.append(t);d.append(inside);out.append(d)
+ const d=document.createElement('details');d.className='catalogue-section';d.open=!!term||!!g||group==='Hold og kamp';d.append(el('summary',group+' · '+rows.length));
+ const inside=el('div');inside.className='inside';const cards=el('div');cards.className='variable-grid';
+ for(const p of rows){
+  const card=el('article');card.className='variable-card';
+  const head=el('div');head.className='variable-head';
+  head.append(el('code',p.key));
+  const button=el('button','?');button.type='button';button.className='info-trigger';
+  button.setAttribute('aria-label','Forklaring af '+p.name);button.setAttribute('aria-expanded','false');
+  const tip=el('div',p.desc+' Kilde: '+p.source);tip.className='info-tooltip';tip.setAttribute('role','tooltip');
+  button.addEventListener('click',()=>{const open=card.classList.toggle('tooltip-open');button.setAttribute('aria-expanded',String(open))});
+  button.addEventListener('blur',()=>{card.classList.remove('tooltip-open');button.setAttribute('aria-expanded','false')});
+  head.append(button,tip);card.append(head);
+  const name=el('div',p.name);name.className='variable-name';card.append(name);
+  const value=el('div',p.value==null?'Beregnes pr. spiller eller kamp':p.value);value.className='variable-value';card.append(value);
+  const tag=el('span',p.type);tag.className='tag';card.append(tag);
+  const source=el('div','Kilde: '+p.source);source.className='variable-source';card.append(source);
+  cards.append(card);
+ }inside.append(cards);d.append(inside);out.append(d)
  }if(!matches.length)out.append(el('p','Ingen matchende variable.'))
 }
 search.addEventListener('input',render);filter.addEventListener('change',render);render();
