@@ -4,12 +4,12 @@
   "chips_status": "diagnostic",
   "ts_ran": true,
   "chips_ran": true,
-  "forecast_cutoff": "2026-11-06T06:45:30.839003+00:00",
-  "forecast_sha256": "3814274ab668de119e89dd367835b239937e4f7c6e6b3021eb838185de21b8d2",
+  "forecast_cutoff": "2026-11-06T15:01:17.552411+00:00",
+  "forecast_sha256": "a57a846f269cbaf0276977c98d2c60df6643c539e53e0054e1c7aa53bdcb66be",
   "gw": 10,
   "origin_deadline": "2026-11-06T18:30:00Z",
   "manager_state_source": "SYNTHETIC_VALIDATION_SQUAD_NOT_USER_TEAM_CURRENT_VERIFIED_PRICES",
-  "manager_state_sha256": "8426a23329f6089f1519c3397865eb8633114322b491f61e20545a66c64a7b63",
+  "manager_state_sha256": "c8e39fde77eda110d090326f06542335969fc1aac06c582e930bb2aa9b3f390c",
   "plan": {
     "current_gw": 10,
     "horizon_gws": [
@@ -28,7 +28,7 @@
       0.1296,
       0.07776
     ],
-    "objective": 95.95257191546638,
+    "objective": 95.5668361703237,
     "path": [
       {
         "gw": 10,
@@ -36,101 +36,99 @@
           50,
           107,
           270,
-          278,
-          323
+          272,
+          278
         ],
         "incoming": [
           4,
-          68,
+          154,
+          379,
           411,
-          426,
-          542
+          426
         ],
         "transfers": 5,
         "official_hit_points": 12,
         "uncertainty_penalty": 3.0,
-        "projected_manager_score": 42.23651350542326,
-        "utility_this_gw": 27.23651350542326,
+        "projected_manager_score": 42.4335903674217,
+        "utility_this_gw": 27.4335903674217,
         "free_transfers_before": 2,
         "free_transfers_after": 1,
         "bank_before": 375,
-        "bank_after": 110
+        "bank_after": 44
       },
       {
         "gw": 11,
         "outgoing": [
           51,
-          179,
-          272
+          177,
+          323
         ],
         "incoming": [
+          68,
           112,
-          183,
-          379
+          183
         ],
         "transfers": 3,
         "official_hit_points": 8,
         "uncertainty_penalty": 2.0,
-        "projected_manager_score": 55.73179079682869,
-        "utility_this_gw": 45.73179079682869,
+        "projected_manager_score": 55.50849336037318,
+        "utility_this_gw": 45.50849336037318,
         "free_transfers_before": 1,
         "free_transfers_after": 1,
-        "bank_before": 110,
-        "bank_after": 46
+        "bank_before": 44,
+        "bank_after": 5
       },
       {
         "gw": 12,
         "outgoing": [
-          212
-        ],
-        "incoming": [
-          480
-        ],
-        "transfers": 1,
-        "official_hit_points": 0,
-        "uncertainty_penalty": 0.0,
-        "projected_manager_score": 53.99971374931291,
-        "utility_this_gw": 53.99971374931291,
-        "free_transfers_before": 1,
-        "free_transfers_after": 1,
-        "bank_before": 46,
-        "bank_after": 11
-      },
-      {
-        "gw": 13,
-        "outgoing": [
           58
         ],
         "incoming": [
-          496
+          57
         ],
         "transfers": 1,
         "official_hit_points": 0,
         "uncertainty_penalty": 0.0,
-        "projected_manager_score": 59.99064311286757,
-        "utility_this_gw": 59.99064311286757,
+        "projected_manager_score": 53.74160158325891,
+        "utility_this_gw": 53.74160158325891,
         "free_transfers_before": 1,
         "free_transfers_after": 1,
-        "bank_before": 11,
-        "bank_after": 7
+        "bank_before": 5,
+        "bank_after": 0
+      },
+      {
+        "gw": 13,
+        "outgoing": [],
+        "incoming": [],
+        "transfers": 0,
+        "official_hit_points": 0,
+        "uncertainty_penalty": 0.0,
+        "projected_manager_score": 59.593844238199864,
+        "utility_this_gw": 59.593844238199864,
+        "free_transfers_before": 1,
+        "free_transfers_after": 2,
+        "bank_before": 0,
+        "bank_after": 0
       },
       {
         "gw": 14,
         "outgoing": [
-          177
+          154,
+          212
         ],
         "incoming": [
-          64
+          480,
+          542
         ],
-        "transfers": 1,
+        "transfers": 2,
         "official_hit_points": 0,
         "uncertainty_penalty": 0.0,
-        "projected_manager_score": 61.50560729475465,
-        "utility_this_gw": 61.50560729475465,
-        "free_transfers_before": 1,
+        "projected_manager_score": 60.532387356633066,
+        "utility_this_gw": 60.532387356633066,
+        "free_transfers_before": 2,
         "free_transfers_after": 1,
-        "bank_before": 7,
-        "bank_after": 1
+        "bank_before": 0,
+        "bank_after": 6
       },
       {
         "gw": 15,
@@ -143,12 +141,12 @@
         "transfers": 1,
         "official_hit_points": 0,
         "uncertainty_penalty": 0.0,
-        "projected_manager_score": 63.11704429544319,
-        "utility_this_gw": 63.11704429544319,
+        "projected_manager_score": 61.264216304450144,
+        "utility_this_gw": 61.264216304450144,
         "free_transfers_before": 1,
         "free_transfers_after": 1,
-        "bank_before": 1,
-        "bank_after": 12
+        "bank_before": 6,
+        "bank_after": 17
       }
     ]
   },
@@ -160,17 +158,17 @@
       "in": "Gabriel",
       "hit": 0,
       "decision_buffer": 3.0,
-      "bank_after": 110,
+      "bank_after": 44,
       "planner": "rolling_6gw_v3"
     },
     {
       "out_id": 50,
-      "in_id": 68,
+      "in_id": 154,
       "out": "Burrowes",
-      "in": "Tavernier",
+      "in": "Palmer",
       "hit": 0,
       "decision_buffer": 3.0,
-      "bank_after": 110,
+      "bank_after": 44,
       "planner": "rolling_6gw_v3"
     },
     {
@@ -180,27 +178,27 @@
       "in": "B.Fernandes",
       "hit": 4,
       "decision_buffer": 3.0,
-      "bank_after": 110,
-      "planner": "rolling_6gw_v3"
-    },
-    {
-      "out_id": 323,
-      "in_id": 542,
-      "out": "McAteer",
-      "in": "E.Le F\u00e9e",
-      "hit": 4,
-      "decision_buffer": 3.0,
-      "bank_after": 110,
+      "bank_after": 44,
       "planner": "rolling_6gw_v3"
     },
     {
       "out_id": 107,
-      "in_id": 411,
+      "in_id": 379,
       "out": "Furo",
+      "in": "Isak",
+      "hit": 4,
+      "decision_buffer": 3.0,
+      "bank_after": 44,
+      "planner": "rolling_6gw_v3"
+    },
+    {
+      "out_id": 272,
+      "in_id": 411,
+      "out": "Kusi-Asare",
       "in": "Haaland",
       "hit": 4,
       "decision_buffer": 3.0,
-      "bank_after": 110,
+      "bank_after": 44,
       "planner": "rolling_6gw_v3"
     }
   ],
@@ -208,32 +206,32 @@
     "hold_squad_without_transfers": [
       {
         "gw": 10,
-        "expected_score": 11.468385272852943
+        "expected_score": 10.8542717246267
       },
       {
         "gw": 11,
-        "expected_score": 12.843312707496569
+        "expected_score": 12.680761118650716
       },
       {
         "gw": 12,
-        "expected_score": 11.748312707496568
+        "expected_score": 12.686936514589107
       },
       {
         "gw": 13,
-        "expected_score": 12.998023275223737
+        "expected_score": 13.708538569344139
       },
       {
         "gw": 14,
-        "expected_score": 10.892310166409322
+        "expected_score": 11.141374624684591
       },
       {
         "gw": 15,
-        "expected_score": 13.150094812086053
+        "expected_score": 13.132767518416546
       }
     ],
-    "hold_weighted_objective": 28.645533269652436,
-    "plan_gain_over_hold": 67.30703864581395,
-    "current_gw_gain_before_hits": 30.76812823257032,
+    "hold_weighted_objective": 28.456196025638736,
+    "plan_gain_over_hold": 67.11064014468496,
+    "current_gw_gain_before_hits": 31.57931864279501,
     "current_gw_official_hit_points": 12
   },
   "reason": "The original six-GW planner maximizes weighted XI plus captain points after official hits and the locked paid-transfer uncertainty buffer; compared below with keeping the same squad.",
@@ -244,8 +242,8 @@
       "position": "MID",
       "gw": 10,
       "origin_gw": 9,
-      "xpts_mean": 5.815,
-      "p_play": 0.9505192315,
+      "xpts_mean": 6.4775,
+      "p_play": 0.9591545333,
       "fixtures": 1,
       "role": "C"
     },
@@ -255,8 +253,8 @@
       "position": "DEF",
       "gw": 10,
       "origin_gw": 9,
-      "xpts_mean": 5.9925,
-      "p_play": 0.9828847597,
+      "xpts_mean": 5.9025,
+      "p_play": 0.9784688008,
       "fixtures": 1,
       "role": "VC"
     },
@@ -266,8 +264,8 @@
       "position": "DEF",
       "gw": 10,
       "origin_gw": 9,
-      "xpts_mean": 3.235,
-      "p_play": 0.9462277746,
+      "xpts_mean": 2.9275,
+      "p_play": 0.9464798874,
       "fixtures": 1,
       "role": "XI"
     },
@@ -277,8 +275,8 @@
       "position": "DEF",
       "gw": 10,
       "origin_gw": 9,
-      "xpts_mean": 2.8525,
-      "p_play": 0.9755624019,
+      "xpts_mean": 2.8825,
+      "p_play": 0.9747590774,
       "fixtures": 1,
       "role": "XI"
     },
@@ -288,8 +286,19 @@
       "position": "DEF",
       "gw": 10,
       "origin_gw": 9,
-      "xpts_mean": 0.33,
-      "p_play": 0.1871596167,
+      "xpts_mean": 0.35,
+      "p_play": 0.1851131805,
+      "fixtures": 1,
+      "role": "XI"
+    },
+    {
+      "id": 379,
+      "web_name": "Isak",
+      "position": "FWD",
+      "gw": 10,
+      "origin_gw": 9,
+      "xpts_mean": 5.515,
+      "p_play": 0.9357739432,
       "fixtures": 1,
       "role": "XI"
     },
@@ -299,8 +308,8 @@
       "position": "FWD",
       "gw": 10,
       "origin_gw": 9,
-      "xpts_mean": 5.5125,
-      "p_play": 0.9722987779,
+      "xpts_mean": 5.34,
+      "p_play": 0.9707341206,
       "fixtures": 1,
       "role": "XI"
     },
@@ -311,29 +320,18 @@
       "gw": 10,
       "origin_gw": 9,
       "xpts_mean": 0.03,
-      "p_play": 0.0086610088,
+      "p_play": 0.0083677693,
       "fixtures": 1,
       "role": "XI"
     },
     {
-      "id": 542,
-      "web_name": "E.Le F\u00e9e",
+      "id": 154,
+      "web_name": "Palmer",
       "position": "MID",
       "gw": 10,
       "origin_gw": 9,
-      "xpts_mean": 5.6825,
-      "p_play": 0.9830046342,
-      "fixtures": 1,
-      "role": "XI"
-    },
-    {
-      "id": 68,
-      "web_name": "Tavernier",
-      "position": "MID",
-      "gw": 10,
-      "origin_gw": 9,
-      "xpts_mean": 5.68,
-      "p_play": 0.9692390905,
+      "xpts_mean": 5.3725,
+      "p_play": 0.9812069565,
       "fixtures": 1,
       "role": "XI"
     },
@@ -343,8 +341,8 @@
       "position": "MID",
       "gw": 10,
       "origin_gw": 9,
-      "xpts_mean": 0.6625,
-      "p_play": 0.3815166966,
+      "xpts_mean": 0.62,
+      "p_play": 0.3729638932,
       "fixtures": 1,
       "role": "XI"
     },
@@ -354,8 +352,8 @@
       "position": "MID",
       "gw": 10,
       "origin_gw": 9,
-      "xpts_mean": 0.3325,
-      "p_play": 0.2508826684,
+      "xpts_mean": 0.2975,
+      "p_play": 0.2474112126,
       "fixtures": 1,
       "role": "XI"
     },
@@ -365,19 +363,19 @@
       "position": "DEF",
       "gw": 10,
       "origin_gw": 9,
-      "xpts_mean": 0.14,
-      "p_play": 0.0999987243,
+      "xpts_mean": 0.21,
+      "p_play": 0.100054862,
       "fixtures": 1,
       "role": "Bench 1"
     },
     {
-      "id": 272,
-      "web_name": "Kusi-Asare",
-      "position": "FWD",
+      "id": 323,
+      "web_name": "McAteer",
+      "position": "MID",
       "gw": 10,
       "origin_gw": 9,
-      "xpts_mean": 0.0725,
-      "p_play": 0.0094137159,
+      "xpts_mean": 0.205,
+      "p_play": 0.0954766285,
       "fixtures": 1,
       "role": "Bench 2"
     },
@@ -387,8 +385,8 @@
       "position": "FWD",
       "gw": 10,
       "origin_gw": 9,
-      "xpts_mean": 0.055,
-      "p_play": 0.0149050371,
+      "xpts_mean": 0.115,
+      "p_play": 0.0139327969,
       "fixtures": 1,
       "role": "Bench 3"
     },
@@ -420,8 +418,8 @@
             "web_name": "B.Fernandes",
             "team": 16,
             "position": "MID",
-            "xpts_mean": 5.815,
-            "p_play": 0.9505192315,
+            "xpts_mean": 6.4775,
+            "p_play": 0.9591545333,
             "gw": 10,
             "role": "C"
           },
@@ -430,8 +428,8 @@
             "web_name": "Gabriel",
             "team": 1,
             "position": "DEF",
-            "xpts_mean": 5.9925,
-            "p_play": 0.9828847597,
+            "xpts_mean": 5.9025,
+            "p_play": 0.9784688008,
             "gw": 10,
             "role": "VC"
           },
@@ -440,8 +438,8 @@
             "web_name": "Calafiori",
             "team": 1,
             "position": "DEF",
-            "xpts_mean": 5.74,
-            "p_play": 0.9972456084,
+            "xpts_mean": 5.2925,
+            "p_play": 0.9965324088,
             "gw": 10,
             "role": "XI"
           },
@@ -450,18 +448,8 @@
             "web_name": "Muharemovi\u0107",
             "team": 13,
             "position": "DEF",
-            "xpts_mean": 4.72,
-            "p_play": 0.9734855663,
-            "gw": 10,
-            "role": "XI"
-          },
-          {
-            "id": 249,
-            "web_name": "Barry",
-            "team": 9,
-            "position": "FWD",
-            "xpts_mean": 5.4975,
-            "p_play": 0.9651718194,
+            "xpts_mean": 5.09,
+            "p_play": 0.972921227,
             "gw": 10,
             "role": "XI"
           },
@@ -470,48 +458,28 @@
             "web_name": "Isak",
             "team": 14,
             "position": "FWD",
-            "xpts_mean": 5.325,
-            "p_play": 0.9358571884,
+            "xpts_mean": 5.515,
+            "p_play": 0.9357739432,
             "gw": 10,
             "role": "XI"
           },
           {
-            "id": 1,
-            "web_name": "Raya",
-            "team": 1,
+            "id": 249,
+            "web_name": "Barry",
+            "team": 9,
+            "position": "FWD",
+            "xpts_mean": 5.3725,
+            "p_play": 0.9640493415,
+            "gw": 10,
+            "role": "XI"
+          },
+          {
+            "id": 385,
+            "web_name": "Trafford",
+            "team": 13,
             "position": "GKP",
-            "xpts_mean": 4.3975,
-            "p_play": 0.9938194039,
-            "gw": 10,
-            "role": "XI"
-          },
-          {
-            "id": 542,
-            "web_name": "E.Le F\u00e9e",
-            "team": 20,
-            "position": "MID",
-            "xpts_mean": 5.6825,
-            "p_play": 0.9830046342,
-            "gw": 10,
-            "role": "XI"
-          },
-          {
-            "id": 68,
-            "web_name": "Tavernier",
-            "team": 3,
-            "position": "MID",
-            "xpts_mean": 5.68,
-            "p_play": 0.9692390905,
-            "gw": 10,
-            "role": "XI"
-          },
-          {
-            "id": 427,
-            "web_name": "Mbeumo",
-            "team": 16,
-            "position": "MID",
-            "xpts_mean": 5.2825,
-            "p_play": 0.9747034563,
+            "xpts_mean": 4.245,
+            "p_play": 0.9937263043,
             "gw": 10,
             "role": "XI"
           },
@@ -520,68 +488,98 @@
             "web_name": "Palmer",
             "team": 6,
             "position": "MID",
-            "xpts_mean": 5.1925,
-            "p_play": 0.9831810892,
+            "xpts_mean": 5.3725,
+            "p_play": 0.9812069565,
             "gw": 10,
             "role": "XI"
           },
           {
-            "id": 175,
-            "web_name": "van Ewijk",
-            "team": 7,
+            "id": 68,
+            "web_name": "Tavernier",
+            "team": 3,
+            "position": "MID",
+            "xpts_mean": 5.3275,
+            "p_play": 0.9662971024,
+            "gw": 10,
+            "role": "XI"
+          },
+          {
+            "id": 542,
+            "web_name": "E.Le F\u00e9e",
+            "team": 20,
+            "position": "MID",
+            "xpts_mean": 5.255,
+            "p_play": 0.9822014717,
+            "gw": 10,
+            "role": "XI"
+          },
+          {
+            "id": 15,
+            "web_name": "\u00d8degaard",
+            "team": 1,
+            "position": "MID",
+            "xpts_mean": 5.2275,
+            "p_play": 0.9580046904,
+            "gw": 10,
+            "role": "XI"
+          },
+          {
+            "id": 502,
+            "web_name": "Robertson",
+            "team": 19,
             "position": "DEF",
-            "xpts_mean": 3.235,
-            "p_play": 0.9462277746,
+            "xpts_mean": 3.695,
+            "p_play": 0.9128280356,
             "gw": 10,
             "role": "Bench 1"
           },
           {
-            "id": 304,
-            "web_name": "O'Shea",
-            "team": 12,
+            "id": 36,
+            "web_name": "Maatsen",
+            "team": 2,
             "position": "DEF",
-            "xpts_mean": 3.0825,
-            "p_play": 0.9585748007,
+            "xpts_mean": 3.1025,
+            "p_play": 0.9775147491,
             "gw": 10,
             "role": "Bench 2"
           },
           {
-            "id": 321,
-            "web_name": "Walle Egeli",
-            "team": 12,
+            "id": 493,
+            "web_name": "Kalimuendo",
+            "team": 18,
             "position": "FWD",
-            "xpts_mean": 0.2975,
-            "p_play": 0.1451320389,
+            "xpts_mean": 1.6875,
+            "p_play": 0.7194656043,
             "gw": 10,
             "role": "Bench 3"
           },
           {
-            "id": 301,
-            "web_name": "Palmer",
+            "id": 302,
+            "web_name": "Button",
             "team": 12,
             "position": "GKP",
-            "xpts_mean": 0.065,
-            "p_play": 0.0119247212,
+            "xpts_mean": 0.07,
+            "p_play": 0.0119864461,
             "gw": 10,
             "role": "GK bench"
           }
         ],
-        "expected_score": 65.43651350542325,
+        "expected_score": 65.7960903674217,
         "squad_ids": [
-          1,
           4,
           8,
+          15,
+          36,
           68,
           154,
-          175,
           249,
-          301,
-          304,
-          321,
+          302,
           334,
           379,
+          385,
           426,
-          427,
+          493,
+          502,
           542
         ]
       },
@@ -593,8 +591,8 @@
             "position": "MID",
             "gw": 10,
             "origin_gw": 9,
-            "xpts_mean": 5.815,
-            "p_play": 0.9505192315,
+            "xpts_mean": 6.4775,
+            "p_play": 0.9591545333,
             "fixtures": 1,
             "role": "C"
           },
@@ -604,8 +602,8 @@
             "position": "DEF",
             "gw": 10,
             "origin_gw": 9,
-            "xpts_mean": 5.9925,
-            "p_play": 0.9828847597,
+            "xpts_mean": 5.9025,
+            "p_play": 0.9784688008,
             "fixtures": 1,
             "role": "VC"
           },
@@ -615,8 +613,8 @@
             "position": "DEF",
             "gw": 10,
             "origin_gw": 9,
-            "xpts_mean": 5.74,
-            "p_play": 0.9972456084,
+            "xpts_mean": 5.2925,
+            "p_play": 0.9965324088,
             "fixtures": 1,
             "role": "XI"
           },
@@ -626,30 +624,8 @@
             "position": "DEF",
             "gw": 10,
             "origin_gw": 9,
-            "xpts_mean": 4.72,
-            "p_play": 0.9734855663,
-            "fixtures": 1,
-            "role": "XI"
-          },
-          {
-            "id": 112,
-            "web_name": "Van Hecke",
-            "position": "DEF",
-            "gw": 10,
-            "origin_gw": 9,
-            "xpts_mean": 4.67,
-            "p_play": 0.9831372932,
-            "fixtures": 1,
-            "role": "XI"
-          },
-          {
-            "id": 411,
-            "web_name": "Haaland",
-            "position": "FWD",
-            "gw": 10,
-            "origin_gw": 9,
-            "xpts_mean": 5.5125,
-            "p_play": 0.9722987779,
+            "xpts_mean": 5.09,
+            "p_play": 0.972921227,
             "fixtures": 1,
             "role": "XI"
           },
@@ -659,30 +635,30 @@
             "position": "FWD",
             "gw": 10,
             "origin_gw": 9,
-            "xpts_mean": 5.4975,
-            "p_play": 0.9651718194,
+            "xpts_mean": 5.3725,
+            "p_play": 0.9640493415,
             "fixtures": 1,
             "role": "XI"
           },
           {
-            "id": 1,
-            "web_name": "Raya",
+            "id": 411,
+            "web_name": "Haaland",
+            "position": "FWD",
+            "gw": 10,
+            "origin_gw": 9,
+            "xpts_mean": 5.34,
+            "p_play": 0.9707341206,
+            "fixtures": 1,
+            "role": "XI"
+          },
+          {
+            "id": 385,
+            "web_name": "Trafford",
             "position": "GKP",
             "gw": 10,
             "origin_gw": 9,
-            "xpts_mean": 4.3975,
-            "p_play": 0.9938194039,
-            "fixtures": 1,
-            "role": "XI"
-          },
-          {
-            "id": 542,
-            "web_name": "E.Le F\u00e9e",
-            "position": "MID",
-            "gw": 10,
-            "origin_gw": 9,
-            "xpts_mean": 5.6825,
-            "p_play": 0.9830046342,
+            "xpts_mean": 4.245,
+            "p_play": 0.9937263043,
             "fixtures": 1,
             "role": "XI"
           },
@@ -692,19 +668,41 @@
             "position": "MID",
             "gw": 10,
             "origin_gw": 9,
-            "xpts_mean": 5.68,
-            "p_play": 0.9692390905,
+            "xpts_mean": 5.3275,
+            "p_play": 0.9662971024,
             "fixtures": 1,
             "role": "XI"
           },
           {
-            "id": 591,
-            "web_name": "Enciso",
+            "id": 542,
+            "web_name": "E.Le F\u00e9e",
             "position": "MID",
             "gw": 10,
             "origin_gw": 9,
-            "xpts_mean": 4.7975,
-            "p_play": 0.9809122785,
+            "xpts_mean": 5.255,
+            "p_play": 0.9822014717,
+            "fixtures": 1,
+            "role": "XI"
+          },
+          {
+            "id": 15,
+            "web_name": "\u00d8degaard",
+            "position": "MID",
+            "gw": 10,
+            "origin_gw": 9,
+            "xpts_mean": 5.2275,
+            "p_play": 0.9580046904,
+            "fixtures": 1,
+            "role": "XI"
+          },
+          {
+            "id": 183,
+            "web_name": "Rudoni",
+            "position": "MID",
+            "gw": 10,
+            "origin_gw": 9,
+            "xpts_mean": 4.6575,
+            "p_play": 0.9980979883,
             "fixtures": 1,
             "role": "XI"
           },
@@ -714,19 +712,19 @@
             "position": "DEF",
             "gw": 10,
             "origin_gw": 9,
-            "xpts_mean": 4.5975,
-            "p_play": 0.9806109315,
+            "xpts_mean": 4.6025,
+            "p_play": 0.9797729207,
             "fixtures": 1,
             "role": "Bench 1"
           },
           {
-            "id": 183,
-            "web_name": "Rudoni",
-            "position": "MID",
+            "id": 112,
+            "web_name": "Van Hecke",
+            "position": "DEF",
             "gw": 10,
             "origin_gw": 9,
-            "xpts_mean": 4.4475,
-            "p_play": 0.9982335167,
+            "xpts_mean": 4.53,
+            "p_play": 0.9763242649,
             "fixtures": 1,
             "role": "Bench 2"
           },
@@ -736,8 +734,8 @@
             "position": "FWD",
             "gw": 10,
             "origin_gw": 9,
-            "xpts_mean": 0.0725,
-            "p_play": 0.0094137159,
+            "xpts_mean": 0.0575,
+            "p_play": 0.0100077788,
             "fixtures": 1,
             "role": "Bench 3"
           },
@@ -747,29 +745,29 @@
             "position": "GKP",
             "gw": 10,
             "origin_gw": 9,
-            "xpts_mean": 3.6175,
-            "p_play": 0.9745660032,
+            "xpts_mean": 3.6275,
+            "p_play": 0.9738103053,
             "fixtures": 1,
             "role": "GK bench"
           }
         ],
-        "expected_score": 64.61651350542326,
+        "expected_score": 64.90609036742171,
         "squad_ids": [
-          1,
           4,
           8,
+          15,
           68,
           112,
           183,
           249,
           272,
           334,
+          385,
           411,
           426,
           496,
           504,
-          542,
-          591
+          542
         ],
         "bank_after": 0,
         "outgoing": [
@@ -789,29 +787,29 @@
           323
         ],
         "incoming": [
-          1,
           4,
           8,
+          15,
           68,
           112,
           183,
           249,
           334,
+          385,
           411,
           426,
           496,
           504,
-          542,
-          591
+          542
         ]
       }
     },
-    "fh_gain": 23.19999999999999,
-    "wc_gain": 54.450497516032144,
-    "bb_gain": 0.0056394061893819125,
-    "q_fh": 18.19999999999999,
-    "q_wc": 44.450497516032144,
-    "q_bb": -9.994360593810619,
+    "fh_gain": 23.36249999999999,
+    "wc_gain": 54.11437452087735,
+    "bb_gain": 0.012646807401401339,
+    "q_fh": 18.36249999999999,
+    "q_wc": 44.11437452087735,
+    "q_bb": -9.987353192598599,
     "availability": {
       "wildcard": true,
       "triple_captain": true,
@@ -824,17 +822,17 @@
       "period_end_gw": 19,
       "candidate_id": null,
       "candidate_name": null,
-      "use_now_value": 6.1925,
-      "concrete_save_option_value": 7.357356266665734,
+      "use_now_value": 5.9675,
+      "concrete_save_option_value": 7.53561097280367,
       "latent_dgw_option_value": 9.494687500000001,
       "unresolved_dgw_probability": 0.25,
       "structural_dgw_probability": 0.25,
       "concrete_dgw_probability": 0.0,
       "save_option_value": 9.494687500000001,
       "save_source": "latent_dgw",
-      "best_future_gw": 15,
-      "best_future_candidate_name": "B.Fernandes",
-      "use_edge": -3.3021875000000014
+      "best_future_gw": 16,
+      "best_future_candidate_name": "Haaland",
+      "use_edge": -3.527187500000001
     },
     "tc_status": "diagnostic_manual_confirmation_required",
     "future_chip_gw": null,
@@ -852,8 +850,8 @@
         "chip": "free_hit",
         "decision": "SAVE",
         "expected_use_gw": null,
-        "expected_gain": 23.19999999999999,
-        "net_value": 18.19999999999999,
+        "expected_gain": 23.36249999999999,
+        "net_value": 18.36249999999999,
         "reason": "Keep this chip: another action has the highest locked net value; reassess at the next deadline.",
         "manual_decision_required": false
       },
@@ -861,8 +859,8 @@
         "chip": "wildcard",
         "decision": "USE_NOW_DIAGNOSTIC",
         "expected_use_gw": 10,
-        "expected_gain": 54.450497516032144,
-        "net_value": 44.450497516032144,
+        "expected_gain": 54.11437452087735,
+        "net_value": 44.11437452087735,
         "reason": "Original coordinator prefers this current chip over normal transfers and competing chips.",
         "manual_decision_required": false
       },
@@ -870,8 +868,8 @@
         "chip": "bench_boost",
         "decision": "SAVE",
         "expected_use_gw": null,
-        "expected_gain": 0.0056394061893819125,
-        "net_value": -9.994360593810619,
+        "expected_gain": 0.012646807401401339,
+        "net_value": -9.987353192598599,
         "reason": "Keep this chip: another action has the highest locked net value; reassess at the next deadline.",
         "manual_decision_required": false
       },
@@ -879,10 +877,10 @@
         "chip": "triple_captain",
         "decision": "SAVE_TC",
         "expected_use_gw": null,
-        "expected_gain": 6.1925,
+        "expected_gain": 5.9675,
         "save_value": 9.494687500000001,
-        "concrete_future_option_gw": 15,
-        "concrete_future_option_value": 7.357356266665734,
+        "concrete_future_option_gw": 16,
+        "concrete_future_option_value": 7.53561097280367,
         "reason": "Original TC stopping policy compares use now with concrete future options and its anonymous DGW prior. TC requires a manual choice; no fixed future use GW is inferred.",
         "manual_decision_required": true
       }
