@@ -1,0 +1,14 @@
+'use strict';
+const assert=require('node:assert/strict'),fs=require('node:fs'),vm=require('node:vm');
+const source=fs.readFileSync('app/my-team-classic.html','utf8');
+const store=new Map(),ctx={localStorage:{getItem:k=>store.get(k)||null}};vm.createContext(ctx);
+vm.runInContext(source.slice(source.indexOf('function savedActualTeam('),source.indexOf('async function save(')),ctx);
+const picks=Array.from({length:15},(_,i)=>({element:i+1,position:i+1,is_captain:i===2,is_vice_captain:i===3}));
+const week={gw:9,source_kind:'official_export',source_observed_at:'2026-11-07T10:00:00Z',picks,entry_history:{bank:12}};
+const archive={seasons:{'2026-27':{actual:{9:week}}}};
+store.set('fpl-season-team-history-v1',JSON.stringify(archive));
+let team=ctx.savedActualTeam('2026-27');assert.equal(team.squad.length,15);assert.equal(team.official_lineup.captain,3);assert.equal(team.official_lineup.ids[11],12);assert.equal(team.bank_tenths,12);assert.equal(team.free_transfers,null);assert.equal(team.squad[0].purchase_price_tenths,undefined);assert.equal(ctx.savedActualTeam('2025-26'),null);
+const local={season:'2026-27',squad:picks.map(p=>({id:p.element+20}))};store.set('fpl-manager-state-v1',JSON.stringify(local));assert.equal(ctx.savedActualTeam('2026-27').squad[0].id,21,'Preserve confirmed local transfers');
+store.delete('fpl-manager-state-v1');week.nominated_picks=picks.map(p=>({...p,position:p.position===1?2:p.position===2?1:p.position}));store.set('fpl-season-team-history-v1',JSON.stringify(archive));assert.equal(ctx.savedActualTeam('2026-27').official_lineup.ids[0],2,'Use nominated lineup before autosubs');
+week.picks[1].element=1;delete week.nominated_picks;store.set('fpl-season-team-history-v1',JSON.stringify(archive));assert.equal(ctx.savedActualTeam('2026-27'),null,'Reject duplicate players');
+console.log('PASS official FPL squad appears in saved team; local changes, lineup and unknown finances preserved');
