@@ -130,3 +130,28 @@ def test_actual_history_season_comes_from_fixture_start_year_not_catalogue():
     assert traces['players'][0]['actual_history'][0]['points']==6
     history['season']=2025;attach_actual_history(traces,history,catalogue,bootstrap)
     assert traces['players'][0]['actual_history']==[]
+
+
+@pytest.mark.parametrize("field", ["p_start", "p_play", "p60", "p90"])
+@pytest.mark.parametrize("value, boundary", [(-8.881784197001252e-16, 0.0), (1.0000000000000002, 1.0)])
+def test_archived_probability_roundoff_matches_boundary_without_mutation(field, value, boundary):
+    r, a, b = fixture()
+    # Keep the complete minute-event hierarchy consistent at each boundary.
+    for row in r['records']:
+        for name in ['p_start', 'p_play', 'p60', 'p90']:
+            row[name] = boundary
+    exact = report([deepcopy(r)], b, [], a, now=NOW)
+    r['records'][0][field] = value
+    before = deepcopy(r)
+    actual = report([r], b, [], a, now=NOW)
+    assert actual == exact
+    assert r == before
+
+
+@pytest.mark.parametrize("value", [-1e-6, 1.000001, float('nan'), float('inf'), -float('inf')])
+@pytest.mark.parametrize("field", ["p_start", "p_play", "p60", "p90"])
+def test_materially_invalid_archived_probability_still_blocks_scoring(field, value):
+    r, a, b = fixture()
+    r['records'][0][field] = value
+    with pytest.raises(ValueError, match='Invalid archived probability'):
+        report([r], b, [], a, now=NOW)

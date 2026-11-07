@@ -36,8 +36,15 @@ def score(manifest,records,outcomes,*,asof):
         actual=available.get(key)
         if actual is None:pending+=1;continue
         if actual.team_id!=p['team_id']or utc(actual.kickoff)!=utc(p['kickoff']):raise ValueError('Prediction/result identity mismatch')
+        # Summing mixture weights can leave a probability a few ulps outside
+        # [0, 1]. Normalize only this roundoff in a local copy; immutable
+        # forecast receipts stay byte-identical and material errors still fail.
+        p = dict(p)
         for name in ['p_start','p_play','p60','p90']:
-            if not math.isfinite(p[name])or not 0<=p[name]<=1:raise ValueError('Invalid archived probability')
+            value = p[name]
+            if not math.isfinite(value) or not -1e-12 <= value <= 1 + 1e-12:
+                raise ValueError('Invalid archived probability')
+            p[name] = min(1.0, max(0.0, value))
         if not p['p90']<=p['p60']<=p['p_play']+1e-10:raise ValueError('Inconsistent minute probabilities')
         if not math.isfinite(p['expected_minutes'])or not 0<=p['expected_minutes']<=90 or not math.isfinite(p['xp']):raise ValueError('Invalid archived expectation')
         joined.append(dict(fixture=p['fixture_uuid'],position=p['position'],p_start=p['p_start'],p0=1-p['p_play'],p60=p['p60'],p90=p['p90'],ystart=int(actual.started),y0=int(actual.minutes==0),y60=int(actual.minutes>=60),y90=int(actual.minutes==90),minute_error=p['expected_minutes']-actual.minutes,xp_error=p['xp']-actual.total_points))
