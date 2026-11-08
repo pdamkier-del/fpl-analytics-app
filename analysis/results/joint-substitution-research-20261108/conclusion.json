@@ -1,0 +1,35 @@
+{
+  "decision": "Keep as offline research candidate; no production activation",
+  "findings": {
+    "p90_brier_relative_change": -0.13586153456065242,
+    "point_crps": {
+      "delta": -0.009545755908144042,
+      "match_cluster_ci95": [
+        -0.01671348802104262,
+        -0.0023089071089969393
+      ]
+    },
+    "minute_mae_change": {
+      "delta": 0.9300117099222707,
+      "match_cluster_ci95": [
+        0.704589179093054,
+        1.153098774338444
+      ]
+    },
+    "point_mse": {
+      "delta": -0.033753842015057704,
+      "match_cluster_ci95": [
+        -0.08936161251285075,
+        0.024387666026585323
+      ]
+    }
+  },
+  "reason": "Participation and P90 probabilities and point CRPS improve in reused reconstructed evaluation, but minute MAE worsens and point-mean improvement is uncertain",
+  "limits": [
+    "No verified true event times or pair labels; reported minutes proxies",
+    "Only reused reconstructed GW6/7 evaluation",
+    "Current public GK/goal policies not exactly reproduced",
+    "No match-score conditional fit or new-round validation"
+  ],
+  "production_changed": false
+}

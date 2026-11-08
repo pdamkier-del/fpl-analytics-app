@@ -1,0 +1,31 @@
+{
+  "version": "joint-substitution-research-v1",
+  "scope": "Offline hierarchical joint count/incoming/outgoing/timing model; no production activation",
+  "fit": "Conditional heads: fit2024-25, diagnose2025-26, then refit both before evaluating2026-27 GW6/7",
+  "evaluation": "20 reused reconstructed GW6/7 matches, not independent or exact current-app forecast replay",
+  "count": "Dirichlet-smoothed empirical team outfield-substitution counts; reserve a slot for an actual simulated keeper replacement",
+  "incoming": "Ridge logistic conditional cameo propensity; weighted race without replacement among medically available bench players",
+  "outgoing": "Ridge logistic exit propensity from frozen starter-duration mean and FPL position; weighted race among starters",
+  "time": "Position-pooled historical starter reported minutes and substitute reported minutes, coupled to a single pair entry/exit time; at most3 windows",
+  "preserved": [
+    "Original XI weights and starter probabilities",
+    "Exclusive keeper law",
+    "Reported medical availability bounds",
+    "10 outfield and1 keeper active,900+90 physical minutes",
+    "At most5 substitutions and3 windows",
+    "Same event/scoring engine and goal inputs"
+  ],
+  "changed": "Old q_sub is a soft propensity, no longer an immutable appearance ceiling; medical caps remain hard",
+  "fixed_hyperparameters": {
+    "ridge": 10,
+    "time_pool_strength": 20,
+    "count_pseudocount_per_category": 0.5,
+    "conditional_states": 128
+  },
+  "data_limits": [
+    "No verified exact substitution times, causes or pair identities; reported FPL minutes are explicit proxies",
+    "No fitted match-score dependence, coaching statements or injury mechanisms",
+    "FPL position matching is an engineering preference, not observed tactical pair labels",
+    "Inherited audit cohort and upstream-fit provenance limitations remain"
+  ]
+}

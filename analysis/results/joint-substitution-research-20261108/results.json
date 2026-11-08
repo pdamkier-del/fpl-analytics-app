@@ -1,0 +1,1290 @@
+{
+  "distribution_crps": {
+    "all": {
+      "baseline": 0.7433411708657351,
+      "candidate": 0.734756886690989
+    },
+    "outfield": {
+      "baseline": 0.7918634789961355,
+      "candidate": 0.7823177230879915
+    },
+    "active_outfield": {
+      "baseline": 1.462279135079095,
+      "candidate": 1.4500472459829215
+    },
+    "rotation": {
+      "baseline": 1.3794734683301715,
+      "candidate": 1.366970099343194
+    },
+    "regular": {
+      "baseline": 1.6397198495410739,
+      "candidate": 1.628069703068052
+    }
+  },
+  "deterministic_repeat_matches_first_pass": true,
+  "summary": {
+    "all_outfield": {
+      "n": 1188,
+      "fixtures": 20,
+      "baseline": {
+        "xp_mae": 1.1700809363162878,
+        "xp_rmse": 2.1082013435377736,
+        "xp_bias": 0.008516562105429292,
+        "minute_mae": 12.752335160191425,
+        "minute_rmse": 22.21442855073207,
+        "minute_bias": 0.32996632996632946,
+        "start_brier": 0.08680060385754552,
+        "p60_brier": 0.08966631043516061,
+        "p90_brier": 0.09627250471746278
+      },
+      "candidate": {
+        "xp_mae": 1.1886787799873737,
+        "xp_rmse": 2.100180721480753,
+        "xp_bias": 0.047587693339646464,
+        "minute_mae": 13.682346870113697,
+        "minute_rmse": 22.14173135073554,
+        "minute_bias": 0.3299663299663292,
+        "start_brier": 0.08680060385754552,
+        "p60_brier": 0.08957453102964551,
+        "p90_brier": 0.08319277449055064
+      }
+    },
+    "active_outfield": {
+      "n": 528,
+      "fixtures": 20,
+      "baseline": {
+        "xp_mae": 2.2022048487807764,
+        "xp_rmse": 2.9228362129079586,
+        "xp_bias": 0.13749833540482956,
+        "minute_mae": 20.99437023637661,
+        "minute_rmse": 28.528882024425364,
+        "minute_bias": 2.645072522481005,
+        "start_brier": 0.14317823007792818,
+        "p60_brier": 0.16046232969021895,
+        "p90_brier": 0.19821082113341773
+      },
+      "candidate": {
+        "xp_mae": 2.191901004675663,
+        "xp_rmse": 2.911746258973288,
+        "xp_bias": 0.11167491566051137,
+        "minute_mae": 22.113849739295713,
+        "minute_rmse": 28.45704148363854,
+        "minute_bias": 0.6870825016159804,
+        "start_brier": 0.14317823007792818,
+        "p60_brier": 0.16019307261504462,
+        "p90_brier": 0.16941666602005964
+      }
+    },
+    "rotation_outfield": {
+      "n": 360,
+      "fixtures": 20,
+      "baseline": {
+        "xp_mae": 2.0535658094618054,
+        "xp_rmse": 2.8245525022788818,
+        "xp_bias": 0.03222791883680556,
+        "minute_mae": 25.049071702383067,
+        "minute_rmse": 31.17457137215747,
+        "minute_bias": 2.997892939469471,
+        "start_brier": 0.18176481268910025,
+        "p60_brier": 0.19051436989868245,
+        "p90_brier": 0.19526355026430978
+      },
+      "candidate": {
+        "xp_mae": 2.0571044921875,
+        "xp_rmse": 2.8203186582226265,
+        "xp_bias": 0.030607096354166665,
+        "minute_mae": 25.818497533623866,
+        "minute_rmse": 31.182544998467144,
+        "minute_bias": 1.6589037769038772,
+        "start_brier": 0.18176481268910025,
+        "p60_brier": 0.1912051346524832,
+        "p90_brier": 0.1676150213011131
+      }
+    },
+    "regular_outfield": {
+      "n": 168,
+      "fixtures": 20,
+      "baseline": {
+        "xp_mae": 2.520717075892857,
+        "xp_rmse": 3.123046155661548,
+        "xp_bias": 0.3630777994791667,
+        "minute_mae": 12.305724237791358,
+        "minute_rmse": 21.804088433242693,
+        "minute_bias": 1.8890287717914331,
+        "start_brier": 0.06049269591113081,
+        "p60_brier": 0.09606510067208285,
+        "p90_brier": 0.2045264015672205
+      },
+      "candidate": {
+        "xp_mae": 2.4807506742931547,
+        "xp_rmse": 3.0985918017569682,
+        "xp_bias": 0.2853916713169643,
+        "minute_mae": 14.175318751449671,
+        "minute_rmse": 21.482231632252088,
+        "minute_bias": -1.395391659715228,
+        "start_brier": 0.06049269591113081,
+        "p60_brier": 0.09373865396339048,
+        "p90_brier": 0.17327733327494516
+      }
+    },
+    "all_players": {
+      "n": 1334,
+      "fixtures": 20,
+      "baseline": {
+        "xp_mae": 1.1035884645567842,
+        "xp_rmse": 2.035332606037713,
+        "xp_bias": 0.009812110546289355
+      },
+      "candidate": {
+        "xp_mae": 1.120542145919228,
+        "xp_rmse": 2.02793993800272,
+        "xp_bias": 0.04536367070371065
+      }
+    }
+  },
+  "per_gw": {
+    "6": {
+      "all_outfield": {
+        "n": 594,
+        "fixtures": 10,
+        "baseline": {
+          "xp_mae": 1.1524423926767677,
+          "xp_rmse": 2.136437829642474,
+          "xp_bias": -0.03703868108164983,
+          "minute_mae": 12.625029673984784,
+          "minute_rmse": 21.561444569405438,
+          "minute_bias": 0.2659932659932652,
+          "start_brier": 0.08229886176269427,
+          "p60_brier": 0.08885771688579887,
+          "p90_brier": 0.10662550212536819
+        },
+        "candidate": {
+          "xp_mae": 1.1834992174347643,
+          "xp_rmse": 2.128676738710243,
+          "xp_bias": 0.023545184922138047,
+          "minute_mae": 13.790359885292466,
+          "minute_rmse": 21.663117061240232,
+          "minute_bias": 0.2659932659932632,
+          "start_brier": 0.08229886176269427,
+          "p60_brier": 0.08852675938637618,
+          "p90_brier": 0.08857042270968964
+        }
+      },
+      "active_outfield": {
+        "n": 272,
+        "fixtures": 10,
+        "baseline": {
+          "xp_mae": 2.1502667595358456,
+          "xp_rmse": 2.9563170593318953,
+          "xp_bias": 0.028350830078125,
+          "minute_mae": 20.654290248490785,
+          "minute_rmse": 27.563648317800144,
+          "minute_bias": 1.806166722760663,
+          "start_brier": 0.13436149104128486,
+          "p60_brier": 0.15786964408514662,
+          "p90_brier": 0.2147889415800466
+        },
+        "candidate": {
+          "xp_mae": 2.1557599235983456,
+          "xp_rmse": 2.946168068013843,
+          "xp_bias": 0.02248068416819853,
+          "minute_mae": 22.034523669181205,
+          "minute_rmse": 27.696879568198536,
+          "minute_bias": -0.3267424930155669,
+          "start_brier": 0.13436149104128486,
+          "p60_brier": 0.15715128890857952,
+          "p90_brier": 0.17618816634780454
+        }
+      },
+      "rotation_outfield": {
+        "n": 204,
+        "fixtures": 10,
+        "baseline": {
+          "xp_mae": 1.953634823069853,
+          "xp_rmse": 2.7682474576338647,
+          "xp_bias": -0.08583457797181372,
+          "minute_mae": 23.394602690259212,
+          "minute_rmse": 29.276733714810796,
+          "minute_bias": 1.2828608787978173,
+          "start_brier": 0.1612327162323983,
+          "p60_brier": 0.1763835492672873,
+          "p90_brier": 0.20931931179044377
+        },
+        "candidate": {
+          "xp_mae": 1.9689534505208333,
+          "xp_rmse": 2.759625784055582,
+          "xp_bias": -0.06943885952818628,
+          "minute_mae": 24.60853825331807,
+          "minute_rmse": 29.467954603629845,
+          "minute_bias": -0.29689589081689816,
+          "start_brier": 0.1612327162323983,
+          "p60_brier": 0.17619044965103617,
+          "p90_brier": 0.168188756026295
+        }
+      },
+      "regular_outfield": {
+        "n": 68,
+        "fixtures": 10,
+        "baseline": {
+          "xp_mae": 2.7401625689338234,
+          "xp_rmse": 3.4597196795547,
+          "xp_bias": 0.3709070542279412,
+          "minute_mae": 12.433352923185495,
+          "minute_rmse": 21.624925972720682,
+          "minute_bias": 3.376084254649199,
+          "start_brier": 0.053747815467944444,
+          "p60_brier": 0.10232792853872465,
+          "p90_brier": 0.23119783094885515
+        },
+        "candidate": {
+          "xp_mae": 2.7161793428308822,
+          "xp_rmse": 3.4457251393378034,
+          "xp_bias": 0.2982393152573529,
+          "minute_mae": 14.312479916770613,
+          "minute_rmse": 21.526437366559442,
+          "minute_bias": -0.4162822996115717,
+          "start_brier": 0.053747815467944444,
+          "p60_brier": 0.10003380668120954,
+          "p90_brier": 0.20018639731233318
+        }
+      },
+      "all_players": {
+        "n": 667,
+        "fixtures": 10,
+        "baseline": {
+          "xp_mae": 1.0886124320652173,
+          "xp_rmse": 2.0617963618268735,
+          "xp_bias": -0.0162999554910045
+        },
+        "candidate": {
+          "xp_mae": 1.1166011232664919,
+          "xp_rmse": 2.054597311541153,
+          "xp_bias": 0.038361922554347824
+        }
+      }
+    },
+    "7": {
+      "all_outfield": {
+        "n": 594,
+        "fixtures": 10,
+        "baseline": {
+          "xp_mae": 1.1877194799558082,
+          "xp_rmse": 2.079581498730333,
+          "xp_bias": 0.05407180529250842,
+          "minute_mae": 12.87964064639807,
+          "minute_rmse": 22.84875882299993,
+          "minute_bias": 0.39393939393939387,
+          "start_brier": 0.09130234595239677,
+          "p60_brier": 0.09047490398452238,
+          "p90_brier": 0.08591950730955736
+        },
+        "candidate": {
+          "xp_mae": 1.1938583425399831,
+          "xp_rmse": 2.071292704528443,
+          "xp_bias": 0.07163020175715488,
+          "minute_mae": 13.574333854934931,
+          "minute_rmse": 22.61021657585996,
+          "minute_bias": 0.39393939393939525,
+          "start_brier": 0.09130234595239677,
+          "p60_brier": 0.09062230267291486,
+          "p90_brier": 0.07781512627141166
+        }
+      },
+      "active_outfield": {
+        "n": 256,
+        "fixtures": 10,
+        "baseline": {
+          "xp_mae": 2.2573890686035156,
+          "xp_rmse": 2.88683738032424,
+          "xp_bias": 0.2534675598144531,
+          "minute_mae": 21.355705223505304,
+          "minute_rmse": 29.519881615629966,
+          "minute_bias": 3.5364099346838684,
+          "start_brier": 0.1525460153043617,
+          "p60_brier": 0.16321705814560827,
+          "p90_brier": 0.18059656815887457
+        },
+        "candidate": {
+          "xp_mae": 2.2303009033203125,
+          "xp_rmse": 2.8747215113440534,
+          "xp_bias": 0.20644378662109375,
+          "minute_mae": 22.198133688792375,
+          "minute_rmse": 29.243070319297793,
+          "minute_bias": 1.764271558411999,
+          "start_brier": 0.1525460153043617,
+          "p60_brier": 0.1634249678031638,
+          "p90_brier": 0.16222194692183073
+        }
+      },
+      "rotation_outfield": {
+        "n": 156,
+        "fixtures": 10,
+        "baseline": {
+          "xp_mae": 2.1842447916666665,
+          "xp_rmse": 2.896531179638828,
+          "xp_bias": 0.1866173377403846,
+          "minute_mae": 27.212608102852716,
+          "minute_rmse": 33.49449515964955,
+          "minute_bias": 5.240627172655481,
+          "start_brier": 0.2086144772863259,
+          "p60_brier": 0.20899313533973762,
+          "p90_brier": 0.17688293903782684
+        },
+        "candidate": {
+          "xp_mae": 2.1723789312900643,
+          "xp_rmse": 2.8977688242076307,
+          "xp_bias": 0.16143642327724358,
+          "minute_mae": 27.400751977100672,
+          "minute_rmse": 33.29172622159333,
+          "minute_bias": 4.216487957769507,
+          "start_brier": 0.2086144772863259,
+          "p60_brier": 0.21083972273129858,
+          "p90_brier": 0.1668647528143368
+        }
+      },
+      "regular_outfield": {
+        "n": 100,
+        "fixtures": 10,
+        "baseline": {
+          "xp_mae": 2.371494140625,
+          "xp_rmse": 2.8716497123278284,
+          "xp_bias": 0.35775390625,
+          "minute_mae": 12.218936731723344,
+          "minute_rmse": 21.925082662977584,
+          "minute_bias": 0.8778310434481524,
+          "start_brier": 0.06507921461249754,
+          "p60_brier": 0.09180637772276645,
+          "p90_brier": 0.18638982958770892
+        },
+        "candidate": {
+          "xp_mae": 2.3206591796875,
+          "xp_rmse": 2.8383940456163157,
+          "xp_bias": 0.2766552734375,
+          "minute_mae": 14.082049159031426,
+          "minute_rmse": 21.452119700424795,
+          "minute_bias": -2.061186024585714,
+          "start_brier": 0.06507921461249754,
+          "p60_brier": 0.08945795011527351,
+          "p90_brier": 0.15497916972952128
+        }
+      },
+      "all_players": {
+        "n": 667,
+        "fixtures": 10,
+        "baseline": {
+          "xp_mae": 1.1185644970483508,
+          "xp_rmse": 2.0085202007343628,
+          "xp_bias": 0.03592417658358321
+        },
+        "candidate": {
+          "xp_mae": 1.124483168571964,
+          "xp_rmse": 2.0009274528829915,
+          "xp_bias": 0.05236541885307346
+        }
+      }
+    }
+  },
+  "paired": {
+    "minute_mae": {
+      "delta": 0.9300117099222707,
+      "match_cluster_ci95": [
+        0.704589179093054,
+        1.153098774338444
+      ]
+    },
+    "minute_mse": {
+      "delta": -3.2245686274351812,
+      "match_cluster_ci95": [
+        -16.641759314424196,
+        9.500952688675492
+      ]
+    },
+    "pplay_brier": {
+      "delta": -0.011700001241095983,
+      "match_cluster_ci95": [
+        -0.017312942273393663,
+        -0.006491298962310726
+      ]
+    },
+    "p60_brier": {
+      "delta": -9.177940551509411e-05,
+      "match_cluster_ci95": [
+        -0.0009355287898834665,
+        0.000751888406948919
+      ]
+    },
+    "p90_brier": {
+      "delta": -0.013079730226912126,
+      "match_cluster_ci95": [
+        -0.018371679008777956,
+        -0.007860248045510809
+      ]
+    },
+    "point_crps": {
+      "delta": -0.009545755908144042,
+      "match_cluster_ci95": [
+        -0.01671348802104262,
+        -0.0023089071089969393
+      ]
+    },
+    "xp_mse": {
+      "delta": -0.033753842015057704,
+      "match_cluster_ci95": [
+        -0.08936161251285075,
+        0.024387666026585323
+      ]
+    }
+  },
+  "audits": [
+    {
+      "fixture": "live-2026-27-fpl-52",
+      "gw": 6,
+      "audit": [
+        {
+          "version": "B-normal-timeline-v1",
+          "clock": "normalized_regulation_0_90",
+          "scope": "normal match before dismissal/removal events",
+          "draws": 2048,
+          "physical_outfield_minutes": 900,
+          "physical_keeper_minutes": 90,
+          "paired_entry_exit": true,
+          "substitution_limit": 5,
+          "window_limit": 3,
+          "reported_FPL_minutes_required_to_sum_990": false,
+          "physical_to_FPL_clock_calibrated": false,
+          "red_card_removals_modeled": false,
+          "concussion_exceptions_modeled": false,
+          "max_substitutions": 5,
+          "max_windows": 3
+        },
+        {
+          "version": "joint-substitution-research-v1",
+          "clock": "normalized_regulation_0_90",
+          "scope": "normal match before dismissal/removal events",
+          "draws": 2048,
+          "physical_outfield_minutes": 900,
+          "physical_keeper_minutes": 90,
+          "paired_entry_exit": true,
+          "substitution_limit": 5,
+          "window_limit": 3,
+          "reported_FPL_minutes_required_to_sum_990": false,
+          "physical_to_FPL_clock_calibrated": false,
+          "red_card_removals_modeled": false,
+          "concussion_exceptions_modeled": false,
+          "max_substitutions": 5,
+          "max_windows": 3
+        }
+      ],
+      "medical_caps_preserved": true,
+      "each_paired_draw_XI_and_keeper_timeline_identical": true
+    },
+    {
+      "fixture": "live-2026-27-fpl-53",
+      "gw": 6,
+      "audit": [
+        {
+          "version": "B-normal-timeline-v1",
+          "clock": "normalized_regulation_0_90",
+          "scope": "normal match before dismissal/removal events",
+          "draws": 2048,
+          "physical_outfield_minutes": 900,
+          "physical_keeper_minutes": 90,
+          "paired_entry_exit": true,
+          "substitution_limit": 5,
+          "window_limit": 3,
+          "reported_FPL_minutes_required_to_sum_990": false,
+          "physical_to_FPL_clock_calibrated": false,
+          "red_card_removals_modeled": false,
+          "concussion_exceptions_modeled": false,
+          "max_substitutions": 5,
+          "max_windows": 3
+        },
+        {
+          "version": "joint-substitution-research-v1",
+          "clock": "normalized_regulation_0_90",
+          "scope": "normal match before dismissal/removal events",
+          "draws": 2048,
+          "physical_outfield_minutes": 900,
+          "physical_keeper_minutes": 90,
+          "paired_entry_exit": true,
+          "substitution_limit": 5,
+          "window_limit": 3,
+          "reported_FPL_minutes_required_to_sum_990": false,
+          "physical_to_FPL_clock_calibrated": false,
+          "red_card_removals_modeled": false,
+          "concussion_exceptions_modeled": false,
+          "max_substitutions": 5,
+          "max_windows": 3
+        }
+      ],
+      "medical_caps_preserved": true,
+      "each_paired_draw_XI_and_keeper_timeline_identical": true
+    },
+    {
+      "fixture": "live-2026-27-fpl-54",
+      "gw": 6,
+      "audit": [
+        {
+          "version": "B-normal-timeline-v1",
+          "clock": "normalized_regulation_0_90",
+          "scope": "normal match before dismissal/removal events",
+          "draws": 2048,
+          "physical_outfield_minutes": 900,
+          "physical_keeper_minutes": 90,
+          "paired_entry_exit": true,
+          "substitution_limit": 5,
+          "window_limit": 3,
+          "reported_FPL_minutes_required_to_sum_990": false,
+          "physical_to_FPL_clock_calibrated": false,
+          "red_card_removals_modeled": false,
+          "concussion_exceptions_modeled": false,
+          "max_substitutions": 5,
+          "max_windows": 3
+        },
+        {
+          "version": "joint-substitution-research-v1",
+          "clock": "normalized_regulation_0_90",
+          "scope": "normal match before dismissal/removal events",
+          "draws": 2048,
+          "physical_outfield_minutes": 900,
+          "physical_keeper_minutes": 90,
+          "paired_entry_exit": true,
+          "substitution_limit": 5,
+          "window_limit": 3,
+          "reported_FPL_minutes_required_to_sum_990": false,
+          "physical_to_FPL_clock_calibrated": false,
+          "red_card_removals_modeled": false,
+          "concussion_exceptions_modeled": false,
+          "max_substitutions": 5,
+          "max_windows": 3
+        }
+      ],
+      "medical_caps_preserved": true,
+      "each_paired_draw_XI_and_keeper_timeline_identical": true
+    },
+    {
+      "fixture": "live-2026-27-fpl-51",
+      "gw": 6,
+      "audit": [
+        {
+          "version": "B-normal-timeline-v1",
+          "clock": "normalized_regulation_0_90",
+          "scope": "normal match before dismissal/removal events",
+          "draws": 2048,
+          "physical_outfield_minutes": 900,
+          "physical_keeper_minutes": 90,
+          "paired_entry_exit": true,
+          "substitution_limit": 5,
+          "window_limit": 3,
+          "reported_FPL_minutes_required_to_sum_990": false,
+          "physical_to_FPL_clock_calibrated": false,
+          "red_card_removals_modeled": false,
+          "concussion_exceptions_modeled": false,
+          "max_substitutions": 5,
+          "max_windows": 3
+        },
+        {
+          "version": "joint-substitution-research-v1",
+          "clock": "normalized_regulation_0_90",
+          "scope": "normal match before dismissal/removal events",
+          "draws": 2048,
+          "physical_outfield_minutes": 900,
+          "physical_keeper_minutes": 90,
+          "paired_entry_exit": true,
+          "substitution_limit": 5,
+          "window_limit": 3,
+          "reported_FPL_minutes_required_to_sum_990": false,
+          "physical_to_FPL_clock_calibrated": false,
+          "red_card_removals_modeled": false,
+          "concussion_exceptions_modeled": false,
+          "max_substitutions": 5,
+          "max_windows": 3
+        }
+      ],
+      "medical_caps_preserved": true,
+      "each_paired_draw_XI_and_keeper_timeline_identical": true
+    },
+    {
+      "fixture": "live-2026-27-fpl-55",
+      "gw": 6,
+      "audit": [
+        {
+          "version": "B-normal-timeline-v1",
+          "clock": "normalized_regulation_0_90",
+          "scope": "normal match before dismissal/removal events",
+          "draws": 2048,
+          "physical_outfield_minutes": 900,
+          "physical_keeper_minutes": 90,
+          "paired_entry_exit": true,
+          "substitution_limit": 5,
+          "window_limit": 3,
+          "reported_FPL_minutes_required_to_sum_990": false,
+          "physical_to_FPL_clock_calibrated": false,
+          "red_card_removals_modeled": false,
+          "concussion_exceptions_modeled": false,
+          "max_substitutions": 5,
+          "max_windows": 3
+        },
+        {
+          "version": "joint-substitution-research-v1",
+          "clock": "normalized_regulation_0_90",
+          "scope": "normal match before dismissal/removal events",
+          "draws": 2048,
+          "physical_outfield_minutes": 900,
+          "physical_keeper_minutes": 90,
+          "paired_entry_exit": true,
+          "substitution_limit": 5,
+          "window_limit": 3,
+          "reported_FPL_minutes_required_to_sum_990": false,
+          "physical_to_FPL_clock_calibrated": false,
+          "red_card_removals_modeled": false,
+          "concussion_exceptions_modeled": false,
+          "max_substitutions": 5,
+          "max_windows": 3
+        }
+      ],
+      "medical_caps_preserved": true,
+      "each_paired_draw_XI_and_keeper_timeline_identical": true
+    },
+    {
+      "fixture": "live-2026-27-fpl-57",
+      "gw": 6,
+      "audit": [
+        {
+          "version": "B-normal-timeline-v1",
+          "clock": "normalized_regulation_0_90",
+          "scope": "normal match before dismissal/removal events",
+          "draws": 2048,
+          "physical_outfield_minutes": 900,
+          "physical_keeper_minutes": 90,
+          "paired_entry_exit": true,
+          "substitution_limit": 5,
+          "window_limit": 3,
+          "reported_FPL_minutes_required_to_sum_990": false,
+          "physical_to_FPL_clock_calibrated": false,
+          "red_card_removals_modeled": false,
+          "concussion_exceptions_modeled": false,
+          "max_substitutions": 5,
+          "max_windows": 3
+        },
+        {
+          "version": "joint-substitution-research-v1",
+          "clock": "normalized_regulation_0_90",
+          "scope": "normal match before dismissal/removal events",
+          "draws": 2048,
+          "physical_outfield_minutes": 900,
+          "physical_keeper_minutes": 90,
+          "paired_entry_exit": true,
+          "substitution_limit": 5,
+          "window_limit": 3,
+          "reported_FPL_minutes_required_to_sum_990": false,
+          "physical_to_FPL_clock_calibrated": false,
+          "red_card_removals_modeled": false,
+          "concussion_exceptions_modeled": false,
+          "max_substitutions": 5,
+          "max_windows": 3
+        }
+      ],
+      "medical_caps_preserved": true,
+      "each_paired_draw_XI_and_keeper_timeline_identical": true
+    },
+    {
+      "fixture": "live-2026-27-fpl-58",
+      "gw": 6,
+      "audit": [
+        {
+          "version": "B-normal-timeline-v1",
+          "clock": "normalized_regulation_0_90",
+          "scope": "normal match before dismissal/removal events",
+          "draws": 2048,
+          "physical_outfield_minutes": 900,
+          "physical_keeper_minutes": 90,
+          "paired_entry_exit": true,
+          "substitution_limit": 5,
+          "window_limit": 3,
+          "reported_FPL_minutes_required_to_sum_990": false,
+          "physical_to_FPL_clock_calibrated": false,
+          "red_card_removals_modeled": false,
+          "concussion_exceptions_modeled": false,
+          "max_substitutions": 5,
+          "max_windows": 3
+        },
+        {
+          "version": "joint-substitution-research-v1",
+          "clock": "normalized_regulation_0_90",
+          "scope": "normal match before dismissal/removal events",
+          "draws": 2048,
+          "physical_outfield_minutes": 900,
+          "physical_keeper_minutes": 90,
+          "paired_entry_exit": true,
+          "substitution_limit": 5,
+          "window_limit": 3,
+          "reported_FPL_minutes_required_to_sum_990": false,
+          "physical_to_FPL_clock_calibrated": false,
+          "red_card_removals_modeled": false,
+          "concussion_exceptions_modeled": false,
+          "max_substitutions": 5,
+          "max_windows": 3
+        }
+      ],
+      "medical_caps_preserved": true,
+      "each_paired_draw_XI_and_keeper_timeline_identical": true
+    },
+    {
+      "fixture": "live-2026-27-fpl-59",
+      "gw": 6,
+      "audit": [
+        {
+          "version": "B-normal-timeline-v1",
+          "clock": "normalized_regulation_0_90",
+          "scope": "normal match before dismissal/removal events",
+          "draws": 2048,
+          "physical_outfield_minutes": 900,
+          "physical_keeper_minutes": 90,
+          "paired_entry_exit": true,
+          "substitution_limit": 5,
+          "window_limit": 3,
+          "reported_FPL_minutes_required_to_sum_990": false,
+          "physical_to_FPL_clock_calibrated": false,
+          "red_card_removals_modeled": false,
+          "concussion_exceptions_modeled": false,
+          "max_substitutions": 5,
+          "max_windows": 3
+        },
+        {
+          "version": "joint-substitution-research-v1",
+          "clock": "normalized_regulation_0_90",
+          "scope": "normal match before dismissal/removal events",
+          "draws": 2048,
+          "physical_outfield_minutes": 900,
+          "physical_keeper_minutes": 90,
+          "paired_entry_exit": true,
+          "substitution_limit": 5,
+          "window_limit": 3,
+          "reported_FPL_minutes_required_to_sum_990": false,
+          "physical_to_FPL_clock_calibrated": false,
+          "red_card_removals_modeled": false,
+          "concussion_exceptions_modeled": false,
+          "max_substitutions": 5,
+          "max_windows": 3
+        }
+      ],
+      "medical_caps_preserved": true,
+      "each_paired_draw_XI_and_keeper_timeline_identical": true
+    },
+    {
+      "fixture": "live-2026-27-fpl-56",
+      "gw": 6,
+      "audit": [
+        {
+          "version": "B-normal-timeline-v1",
+          "clock": "normalized_regulation_0_90",
+          "scope": "normal match before dismissal/removal events",
+          "draws": 2048,
+          "physical_outfield_minutes": 900,
+          "physical_keeper_minutes": 90,
+          "paired_entry_exit": true,
+          "substitution_limit": 5,
+          "window_limit": 3,
+          "reported_FPL_minutes_required_to_sum_990": false,
+          "physical_to_FPL_clock_calibrated": false,
+          "red_card_removals_modeled": false,
+          "concussion_exceptions_modeled": false,
+          "max_substitutions": 5,
+          "max_windows": 3
+        },
+        {
+          "version": "joint-substitution-research-v1",
+          "clock": "normalized_regulation_0_90",
+          "scope": "normal match before dismissal/removal events",
+          "draws": 2048,
+          "physical_outfield_minutes": 900,
+          "physical_keeper_minutes": 90,
+          "paired_entry_exit": true,
+          "substitution_limit": 5,
+          "window_limit": 3,
+          "reported_FPL_minutes_required_to_sum_990": false,
+          "physical_to_FPL_clock_calibrated": false,
+          "red_card_removals_modeled": false,
+          "concussion_exceptions_modeled": false,
+          "max_substitutions": 5,
+          "max_windows": 3
+        }
+      ],
+      "medical_caps_preserved": true,
+      "each_paired_draw_XI_and_keeper_timeline_identical": true
+    },
+    {
+      "fixture": "live-2026-27-fpl-60",
+      "gw": 6,
+      "audit": [
+        {
+          "version": "B-normal-timeline-v1",
+          "clock": "normalized_regulation_0_90",
+          "scope": "normal match before dismissal/removal events",
+          "draws": 2048,
+          "physical_outfield_minutes": 900,
+          "physical_keeper_minutes": 90,
+          "paired_entry_exit": true,
+          "substitution_limit": 5,
+          "window_limit": 3,
+          "reported_FPL_minutes_required_to_sum_990": false,
+          "physical_to_FPL_clock_calibrated": false,
+          "red_card_removals_modeled": false,
+          "concussion_exceptions_modeled": false,
+          "max_substitutions": 5,
+          "max_windows": 3
+        },
+        {
+          "version": "joint-substitution-research-v1",
+          "clock": "normalized_regulation_0_90",
+          "scope": "normal match before dismissal/removal events",
+          "draws": 2048,
+          "physical_outfield_minutes": 900,
+          "physical_keeper_minutes": 90,
+          "paired_entry_exit": true,
+          "substitution_limit": 5,
+          "window_limit": 3,
+          "reported_FPL_minutes_required_to_sum_990": false,
+          "physical_to_FPL_clock_calibrated": false,
+          "red_card_removals_modeled": false,
+          "concussion_exceptions_modeled": false,
+          "max_substitutions": 5,
+          "max_windows": 3
+        }
+      ],
+      "medical_caps_preserved": true,
+      "each_paired_draw_XI_and_keeper_timeline_identical": true
+    },
+    {
+      "fixture": "live-2026-27-fpl-61",
+      "gw": 7,
+      "audit": [
+        {
+          "version": "B-normal-timeline-v1",
+          "clock": "normalized_regulation_0_90",
+          "scope": "normal match before dismissal/removal events",
+          "draws": 2048,
+          "physical_outfield_minutes": 900,
+          "physical_keeper_minutes": 90,
+          "paired_entry_exit": true,
+          "substitution_limit": 5,
+          "window_limit": 3,
+          "reported_FPL_minutes_required_to_sum_990": false,
+          "physical_to_FPL_clock_calibrated": false,
+          "red_card_removals_modeled": false,
+          "concussion_exceptions_modeled": false,
+          "max_substitutions": 5,
+          "max_windows": 3
+        },
+        {
+          "version": "joint-substitution-research-v1",
+          "clock": "normalized_regulation_0_90",
+          "scope": "normal match before dismissal/removal events",
+          "draws": 2048,
+          "physical_outfield_minutes": 900,
+          "physical_keeper_minutes": 90,
+          "paired_entry_exit": true,
+          "substitution_limit": 5,
+          "window_limit": 3,
+          "reported_FPL_minutes_required_to_sum_990": false,
+          "physical_to_FPL_clock_calibrated": false,
+          "red_card_removals_modeled": false,
+          "concussion_exceptions_modeled": false,
+          "max_substitutions": 5,
+          "max_windows": 3
+        }
+      ],
+      "medical_caps_preserved": true,
+      "each_paired_draw_XI_and_keeper_timeline_identical": true
+    },
+    {
+      "fixture": "live-2026-27-fpl-62",
+      "gw": 7,
+      "audit": [
+        {
+          "version": "B-normal-timeline-v1",
+          "clock": "normalized_regulation_0_90",
+          "scope": "normal match before dismissal/removal events",
+          "draws": 2048,
+          "physical_outfield_minutes": 900,
+          "physical_keeper_minutes": 90,
+          "paired_entry_exit": true,
+          "substitution_limit": 5,
+          "window_limit": 3,
+          "reported_FPL_minutes_required_to_sum_990": false,
+          "physical_to_FPL_clock_calibrated": false,
+          "red_card_removals_modeled": false,
+          "concussion_exceptions_modeled": false,
+          "max_substitutions": 5,
+          "max_windows": 3
+        },
+        {
+          "version": "joint-substitution-research-v1",
+          "clock": "normalized_regulation_0_90",
+          "scope": "normal match before dismissal/removal events",
+          "draws": 2048,
+          "physical_outfield_minutes": 900,
+          "physical_keeper_minutes": 90,
+          "paired_entry_exit": true,
+          "substitution_limit": 5,
+          "window_limit": 3,
+          "reported_FPL_minutes_required_to_sum_990": false,
+          "physical_to_FPL_clock_calibrated": false,
+          "red_card_removals_modeled": false,
+          "concussion_exceptions_modeled": false,
+          "max_substitutions": 5,
+          "max_windows": 3
+        }
+      ],
+      "medical_caps_preserved": true,
+      "each_paired_draw_XI_and_keeper_timeline_identical": true
+    },
+    {
+      "fixture": "live-2026-27-fpl-64",
+      "gw": 7,
+      "audit": [
+        {
+          "version": "B-normal-timeline-v1",
+          "clock": "normalized_regulation_0_90",
+          "scope": "normal match before dismissal/removal events",
+          "draws": 2048,
+          "physical_outfield_minutes": 900,
+          "physical_keeper_minutes": 90,
+          "paired_entry_exit": true,
+          "substitution_limit": 5,
+          "window_limit": 3,
+          "reported_FPL_minutes_required_to_sum_990": false,
+          "physical_to_FPL_clock_calibrated": false,
+          "red_card_removals_modeled": false,
+          "concussion_exceptions_modeled": false,
+          "max_substitutions": 5,
+          "max_windows": 3
+        },
+        {
+          "version": "joint-substitution-research-v1",
+          "clock": "normalized_regulation_0_90",
+          "scope": "normal match before dismissal/removal events",
+          "draws": 2048,
+          "physical_outfield_minutes": 900,
+          "physical_keeper_minutes": 90,
+          "paired_entry_exit": true,
+          "substitution_limit": 5,
+          "window_limit": 3,
+          "reported_FPL_minutes_required_to_sum_990": false,
+          "physical_to_FPL_clock_calibrated": false,
+          "red_card_removals_modeled": false,
+          "concussion_exceptions_modeled": false,
+          "max_substitutions": 5,
+          "max_windows": 3
+        }
+      ],
+      "medical_caps_preserved": true,
+      "each_paired_draw_XI_and_keeper_timeline_identical": true
+    },
+    {
+      "fixture": "live-2026-27-fpl-63",
+      "gw": 7,
+      "audit": [
+        {
+          "version": "B-normal-timeline-v1",
+          "clock": "normalized_regulation_0_90",
+          "scope": "normal match before dismissal/removal events",
+          "draws": 2048,
+          "physical_outfield_minutes": 900,
+          "physical_keeper_minutes": 90,
+          "paired_entry_exit": true,
+          "substitution_limit": 5,
+          "window_limit": 3,
+          "reported_FPL_minutes_required_to_sum_990": false,
+          "physical_to_FPL_clock_calibrated": false,
+          "red_card_removals_modeled": false,
+          "concussion_exceptions_modeled": false,
+          "max_substitutions": 5,
+          "max_windows": 3
+        },
+        {
+          "version": "joint-substitution-research-v1",
+          "clock": "normalized_regulation_0_90",
+          "scope": "normal match before dismissal/removal events",
+          "draws": 2048,
+          "physical_outfield_minutes": 900,
+          "physical_keeper_minutes": 90,
+          "paired_entry_exit": true,
+          "substitution_limit": 5,
+          "window_limit": 3,
+          "reported_FPL_minutes_required_to_sum_990": false,
+          "physical_to_FPL_clock_calibrated": false,
+          "red_card_removals_modeled": false,
+          "concussion_exceptions_modeled": false,
+          "max_substitutions": 5,
+          "max_windows": 3
+        }
+      ],
+      "medical_caps_preserved": true,
+      "each_paired_draw_XI_and_keeper_timeline_identical": true
+    },
+    {
+      "fixture": "live-2026-27-fpl-65",
+      "gw": 7,
+      "audit": [
+        {
+          "version": "B-normal-timeline-v1",
+          "clock": "normalized_regulation_0_90",
+          "scope": "normal match before dismissal/removal events",
+          "draws": 2048,
+          "physical_outfield_minutes": 900,
+          "physical_keeper_minutes": 90,
+          "paired_entry_exit": true,
+          "substitution_limit": 5,
+          "window_limit": 3,
+          "reported_FPL_minutes_required_to_sum_990": false,
+          "physical_to_FPL_clock_calibrated": false,
+          "red_card_removals_modeled": false,
+          "concussion_exceptions_modeled": false,
+          "max_substitutions": 5,
+          "max_windows": 3
+        },
+        {
+          "version": "joint-substitution-research-v1",
+          "clock": "normalized_regulation_0_90",
+          "scope": "normal match before dismissal/removal events",
+          "draws": 2048,
+          "physical_outfield_minutes": 900,
+          "physical_keeper_minutes": 90,
+          "paired_entry_exit": true,
+          "substitution_limit": 5,
+          "window_limit": 3,
+          "reported_FPL_minutes_required_to_sum_990": false,
+          "physical_to_FPL_clock_calibrated": false,
+          "red_card_removals_modeled": false,
+          "concussion_exceptions_modeled": false,
+          "max_substitutions": 5,
+          "max_windows": 3
+        }
+      ],
+      "medical_caps_preserved": true,
+      "each_paired_draw_XI_and_keeper_timeline_identical": true
+    },
+    {
+      "fixture": "live-2026-27-fpl-66",
+      "gw": 7,
+      "audit": [
+        {
+          "version": "B-normal-timeline-v1",
+          "clock": "normalized_regulation_0_90",
+          "scope": "normal match before dismissal/removal events",
+          "draws": 2048,
+          "physical_outfield_minutes": 900,
+          "physical_keeper_minutes": 90,
+          "paired_entry_exit": true,
+          "substitution_limit": 5,
+          "window_limit": 3,
+          "reported_FPL_minutes_required_to_sum_990": false,
+          "physical_to_FPL_clock_calibrated": false,
+          "red_card_removals_modeled": false,
+          "concussion_exceptions_modeled": false,
+          "max_substitutions": 5,
+          "max_windows": 3
+        },
+        {
+          "version": "joint-substitution-research-v1",
+          "clock": "normalized_regulation_0_90",
+          "scope": "normal match before dismissal/removal events",
+          "draws": 2048,
+          "physical_outfield_minutes": 900,
+          "physical_keeper_minutes": 90,
+          "paired_entry_exit": true,
+          "substitution_limit": 5,
+          "window_limit": 3,
+          "reported_FPL_minutes_required_to_sum_990": false,
+          "physical_to_FPL_clock_calibrated": false,
+          "red_card_removals_modeled": false,
+          "concussion_exceptions_modeled": false,
+          "max_substitutions": 5,
+          "max_windows": 3
+        }
+      ],
+      "medical_caps_preserved": true,
+      "each_paired_draw_XI_and_keeper_timeline_identical": true
+    },
+    {
+      "fixture": "live-2026-27-fpl-67",
+      "gw": 7,
+      "audit": [
+        {
+          "version": "B-normal-timeline-v1",
+          "clock": "normalized_regulation_0_90",
+          "scope": "normal match before dismissal/removal events",
+          "draws": 2048,
+          "physical_outfield_minutes": 900,
+          "physical_keeper_minutes": 90,
+          "paired_entry_exit": true,
+          "substitution_limit": 5,
+          "window_limit": 3,
+          "reported_FPL_minutes_required_to_sum_990": false,
+          "physical_to_FPL_clock_calibrated": false,
+          "red_card_removals_modeled": false,
+          "concussion_exceptions_modeled": false,
+          "max_substitutions": 5,
+          "max_windows": 3
+        },
+        {
+          "version": "joint-substitution-research-v1",
+          "clock": "normalized_regulation_0_90",
+          "scope": "normal match before dismissal/removal events",
+          "draws": 2048,
+          "physical_outfield_minutes": 900,
+          "physical_keeper_minutes": 90,
+          "paired_entry_exit": true,
+          "substitution_limit": 5,
+          "window_limit": 3,
+          "reported_FPL_minutes_required_to_sum_990": false,
+          "physical_to_FPL_clock_calibrated": false,
+          "red_card_removals_modeled": false,
+          "concussion_exceptions_modeled": false,
+          "max_substitutions": 5,
+          "max_windows": 3
+        }
+      ],
+      "medical_caps_preserved": true,
+      "each_paired_draw_XI_and_keeper_timeline_identical": true
+    },
+    {
+      "fixture": "live-2026-27-fpl-69",
+      "gw": 7,
+      "audit": [
+        {
+          "version": "B-normal-timeline-v1",
+          "clock": "normalized_regulation_0_90",
+          "scope": "normal match before dismissal/removal events",
+          "draws": 2048,
+          "physical_outfield_minutes": 900,
+          "physical_keeper_minutes": 90,
+          "paired_entry_exit": true,
+          "substitution_limit": 5,
+          "window_limit": 3,
+          "reported_FPL_minutes_required_to_sum_990": false,
+          "physical_to_FPL_clock_calibrated": false,
+          "red_card_removals_modeled": false,
+          "concussion_exceptions_modeled": false,
+          "max_substitutions": 5,
+          "max_windows": 3
+        },
+        {
+          "version": "joint-substitution-research-v1",
+          "clock": "normalized_regulation_0_90",
+          "scope": "normal match before dismissal/removal events",
+          "draws": 2048,
+          "physical_outfield_minutes": 900,
+          "physical_keeper_minutes": 90,
+          "paired_entry_exit": true,
+          "substitution_limit": 5,
+          "window_limit": 3,
+          "reported_FPL_minutes_required_to_sum_990": false,
+          "physical_to_FPL_clock_calibrated": false,
+          "red_card_removals_modeled": false,
+          "concussion_exceptions_modeled": false,
+          "max_substitutions": 5,
+          "max_windows": 3
+        }
+      ],
+      "medical_caps_preserved": true,
+      "each_paired_draw_XI_and_keeper_timeline_identical": true
+    },
+    {
+      "fixture": "live-2026-27-fpl-68",
+      "gw": 7,
+      "audit": [
+        {
+          "version": "B-normal-timeline-v1",
+          "clock": "normalized_regulation_0_90",
+          "scope": "normal match before dismissal/removal events",
+          "draws": 2048,
+          "physical_outfield_minutes": 900,
+          "physical_keeper_minutes": 90,
+          "paired_entry_exit": true,
+          "substitution_limit": 5,
+          "window_limit": 3,
+          "reported_FPL_minutes_required_to_sum_990": false,
+          "physical_to_FPL_clock_calibrated": false,
+          "red_card_removals_modeled": false,
+          "concussion_exceptions_modeled": false,
+          "max_substitutions": 5,
+          "max_windows": 3
+        },
+        {
+          "version": "joint-substitution-research-v1",
+          "clock": "normalized_regulation_0_90",
+          "scope": "normal match before dismissal/removal events",
+          "draws": 2048,
+          "physical_outfield_minutes": 900,
+          "physical_keeper_minutes": 90,
+          "paired_entry_exit": true,
+          "substitution_limit": 5,
+          "window_limit": 3,
+          "reported_FPL_minutes_required_to_sum_990": false,
+          "physical_to_FPL_clock_calibrated": false,
+          "red_card_removals_modeled": false,
+          "concussion_exceptions_modeled": false,
+          "max_substitutions": 5,
+          "max_windows": 3
+        }
+      ],
+      "medical_caps_preserved": true,
+      "each_paired_draw_XI_and_keeper_timeline_identical": true
+    },
+    {
+      "fixture": "live-2026-27-fpl-70",
+      "gw": 7,
+      "audit": [
+        {
+          "version": "B-normal-timeline-v1",
+          "clock": "normalized_regulation_0_90",
+          "scope": "normal match before dismissal/removal events",
+          "draws": 2048,
+          "physical_outfield_minutes": 900,
+          "physical_keeper_minutes": 90,
+          "paired_entry_exit": true,
+          "substitution_limit": 5,
+          "window_limit": 3,
+          "reported_FPL_minutes_required_to_sum_990": false,
+          "physical_to_FPL_clock_calibrated": false,
+          "red_card_removals_modeled": false,
+          "concussion_exceptions_modeled": false,
+          "max_substitutions": 5,
+          "max_windows": 3
+        },
+        {
+          "version": "joint-substitution-research-v1",
+          "clock": "normalized_regulation_0_90",
+          "scope": "normal match before dismissal/removal events",
+          "draws": 2048,
+          "physical_outfield_minutes": 900,
+          "physical_keeper_minutes": 90,
+          "paired_entry_exit": true,
+          "substitution_limit": 5,
+          "window_limit": 3,
+          "reported_FPL_minutes_required_to_sum_990": false,
+          "physical_to_FPL_clock_calibrated": false,
+          "red_card_removals_modeled": false,
+          "concussion_exceptions_modeled": false,
+          "max_substitutions": 5,
+          "max_windows": 3
+        }
+      ],
+      "medical_caps_preserved": true,
+      "each_paired_draw_XI_and_keeper_timeline_identical": true
+    }
+  ],
+  "draws_per_arm": 2048,
+  "total_match_draws": 81920,
+  "mc": {
+    "median_paired_xp_se": 0.036066050909801216,
+    "independent_half_xp_mse_deltas": [
+      -0.03548268436984181,
+      -0.03302698183541346
+    ]
+  },
+  "production_changed": false
+}
