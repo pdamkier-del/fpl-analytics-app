@@ -1,0 +1,44 @@
+{
+  "schema": "joint-substitution-validation-plan-v1",
+  "registered_at": "2026-11-08T16:13:20.376103+00:00",
+  "candidate_model_sha256": "726ae5cf7d7bf5645672c98e02fefadc14a7004fcfda04e0e0737dbc6a9a5fdb",
+  "candidate_version": "joint-substitution-research-v1",
+  "candidate_fit_frozen": true,
+  "primary_group": "Outfield players with baseline P(start)>=0.2, defined before outcomes",
+  "primary_score": "Mean point CRPS",
+  "minimum_prospective_completed_gws": 8,
+  "minimum_prospective_matches": 80,
+  "selection": "Latest valid matched reference/candidate forecast issued before each GW deadline; same source snapshot and model identity; never backfill predictions from outcomes",
+  "promotion_requirements": [
+    "Primary CRPS improvement with95percent paired GW-block interval strictly below0",
+    "Point-mean MSE non-inferiority:95percent upper bound no worse than1percent of reference MSE",
+    "Point CRPS point estimates do not deteriorate in either rotation or regular starter subgroup",
+    "Minute RMSE point estimate does not deteriorate by more than1percent",
+    "All timeline, availability, identity and timestamp gates pass"
+  ],
+  "interpretation": "Research acceptance gates only; no automatic production switch",
+  "uncertainty": "Use whole-GW paired resampling; small samples are labelled inconclusive",
+  "frozen_comparisons": [
+    "Participation and90-minute Brier as secondary diagnostics",
+    "Minute MAE descriptive only; not the optimisation target for an expected-value forecast",
+    "Count and timing diagnostics; no new coefficient selection on evaluation rounds"
+  ],
+  "current_status": {
+    "prototype_implemented_and_tested": true,
+    "input_capture_hook_tested": true,
+    "capture_hook_connected_to_publisher": false,
+    "prospective_candidate_forecasts_published": false,
+    "new_round_validation_completed": false,
+    "production_model_changed": false
+  },
+  "blockers": [
+    "Exact fresh CI artifacts could not be downloaded in this execution environment because the artifact storage host was blocked by its proxy",
+    "The optional capture hook still needs integration into the numerical CI job before a prospective candidate forecast can be issued"
+  ],
+  "next_steps": [
+    "Connect optional input capture to a research-only CI run without changing active model behaviour",
+    "Generate and timestamp paired candidate/reference forecasts before the upcoming deadline",
+    "Collect official final outcomes and apply the frozen evaluation protocol",
+    "Review timing proxies using genuine event data when available; do not infer tactical causes from FPL minutes"
+  ]
+}
