@@ -32,6 +32,11 @@ def bounds(asof,deadline,now):
  if not utc(asof)<=now<utc(deadline):raise ValueError('Forecast must be issued before deadline and after source cutoff')
  if (now-utc(asof)).total_seconds()>86400:raise ValueError('Stale source snapshot')
 
+def read_keeper_evidence(path):
+ squads=pd.read_csv(path)
+ for column in ['clock','kick']:squads[column]=pd.to_datetime(squads[column],utc=True,format='mixed')
+ return squads
+
 def prepare_tasks(source,published):
  source=Path(source);published=Path(published);inputs=source/'work/current-B-inputs';f=load(published/'current/forecast.json');index=load(published/'current/index.json');now=datetime.now(timezone.utc)
  bounds(f['data_asof'],f['origin_deadline'],now)
@@ -43,12 +48,13 @@ def prepare_tasks(source,published):
  if hashlib.sha256(gzip.decompress((source/'work/joint-gk-current/role-squad-evidence.csv.gz').read_bytes())).hexdigest()!=f['goalkeeper_role_fit']['squad_evidence_sha256']:raise ValueError('Keeper evidence mismatch')
  for name,digest in f['code_sha256'].items():
   if sha(ROOT/name)!=digest:raise ValueError('Numerical code mismatch: '+name)
- h=pd.read_csv(inputs/'history.csv.gz',low_memory=False);target=pd.read_csv(inputs/'target.csv.gz',low_memory=False);prov=load(inputs/'provenance.json');bootstrap=load(inputs/'bootstrap.json');pred,_=infer_B(h,target,prov)
+ h=pd.read_csv(inputs/'history.csv.gz',low_memory=False);target=pd.read_csv(inputs/'target.csv.gz',low_memory=False);prov=load(inputs/'provenance.json');bootstrap=load(inputs/'bootstrap.json')
+ if not prov.get('physical_feature_version'):raise ValueError('Conserved-event source contract required')
+ if f.get('normal_match_timeline',{}).get('conditional_states')!=128:raise ValueError('Unsupported reference conditional state count')
+ pred,_=infer_B(h,target,prov)
  evidence=source/'work/gk-official-evidence/fpl_bootstrap.json';fresh=load(evidence)if evidence.exists()else bootstrap;pred=mark_horizon_absences(pred,fresh)
  frame=attach_mm(pd.read_csv(inputs/'pm.csv.gz',low_memory=False),pred);gw=int(f['gws'][0]);frame=frame[frame.target_gw.eq(gw)]if 'target_gw'in frame else frame[frame.gw.eq(gw)]
- squads=pd.read_csv(source/'work/joint-gk-current/role-squad-evidence.csv.gz')
- for column in ['clock','kick']:squads[column]=pd.to_datetime(squads[column],utc=True,format='mixed')
- policy=SoloRolePolicy(h,squads)
+ squads=read_keeper_evidence(source/'work/joint-gk-current/role-squad-evidence.csv.gz');policy=SoloRolePolicy(h,squads)
  if abs(policy.risk-f['goalkeeper_role_fit']['predictive_other_start_probability'])>1e-10:raise ValueError('Keeper policy mismatch')
  rolehistory=AssignmentHistory(pd.read_csv(inputs/'roles.csv.gz'));strength=f['role_assignment']['strength'];weights=pd.read_csv(source/'work/joint-gk-current/nonpenalty-goal-head.csv.gz').set_index(['fixture_uuid','player_uuid'])
  # Historical core is restored unchanged by the workflow; current observations come from this source artifact only.
@@ -97,6 +103,7 @@ def prepare_tasks(source,published):
 def forecast(source,published,ledger,run_id,draws):
  ledger=Path(ledger);model=load(MODEL);plan=load(PLAN)
  if sha(MODEL)!=plan['candidate_model_sha256']:raise ValueError('Frozen candidate model hash changed')
+ if sha(ROOT/'src/fpl_v1_1_model/experimental_joint_substitutions.py')!=plan['candidate_kernel_sha256']:raise ValueError('Frozen candidate algorithm changed')
  f,bootstrap,tasks=prepare_tasks(source,published);deadline=f['origin_deadline'];start=datetime.now(timezone.utc);gw=int(f['gws'][0]);stamp=start.strftime('%Y%m%dT%H%M%SZ');rows=[];code={p:sha(ROOT/p)for p in ['src/fpl_v1_1_model/experimental_joint_substitutions.py','scripts/joint_substitution_automation.py']}
  for n,(fx,inp,dist,caps,pub)in enumerate(tasks):
   kernels=[PhysicalKernel(inp,dist),JointSubstitutionKernel(inp,dist,caps,fx,model)];players=list(inp.players);samples=np.zeros((2,len(players),draws),dtype=np.int16);seed=int(hashlib.sha256(fx.encode()).hexdigest()[:8],16)
@@ -120,6 +127,8 @@ def score(ledger):
  for path in ledger.glob('20??-??/GW*/*.json.gz'):
   d=json.loads(gzip.decompress(path.read_bytes()))
   if d.get('validation_only')or utc(d['issued_at'])>=utc(d['deadline']):continue
+  plan=load(PLAN)
+  if d.get('candidate_model_sha256')!=plan['candidate_model_sha256']or d.get('code',{}).get('src/fpl_v1_1_model/experimental_joint_substitutions.py')!=plan['candidate_kernel_sha256']:raise ValueError('Archive belongs to another research candidate')
   key=d['season'],d['gw'];old=chosen.get(key)
   if old is None or utc(old[1]['issued_at'])<utc(d['issued_at']):chosen[key]=(path,d)
  all_rows=[];rounds=[]
@@ -134,21 +143,26 @@ def score(ledger):
     x=np.sum(np.array([r[arm+'_points']for r in rs],float),axis=0);n=len(x);row[arm+'_xp']=float(x.mean());row[arm+'_crps']=float(abs(x-point).mean()-np.sum((2*np.arange(1,n+1)-n-1)*np.sort(x))/n**2)
    if len(rs)==1 and rs[0]['pstart']is not None:
     r=rs[0];minutes=actual[pid]['stats']['minutes'];row['actual_minutes']=minutes
-    for arm in ['baseline','candidate']:row[arm+'_minute_sq']=(r[arm+'_minutes']-minutes)**2;row[arm+'_p90_brier']=(r[arm+'_p90']-int(minutes==90))**2
+    for arm in ['baseline','candidate']:row[arm+'_minute_sq']=(r[arm+'_minutes']-minutes)**2;row[arm+'_p90_brier']=(r[arm+'_p90']-int(minutes==90))**2;row[arm+'_pplay_brier']=(r[arm+'_pplay']-int(minutes>0))**2 if arm+'_pplay'in r else None
    weekrows.append(row)
-  all_rows.extend(weekrows);rounds.append({'gw':gw,'status':'complete','rows':len(weekrows),'source':str(path.relative_to(ledger))})
+  all_rows.extend(weekrows);rounds.append({'gw':gw,'status':'complete','rows':len(weekrows),'source':str(path.relative_to(ledger)),'fixtures':sorted({r['fixture']for r in d['rows']})})
  f=pd.DataFrame(all_rows);summary={}
  if len(f):
   for name,g in [('all',f),('active',f[f.active]),('rotation',f[f.rotation]),('regular',f[f.regular])]:
    summary[name]={'rows':len(g)}
    if not len(g):continue
    for arm in ['baseline','candidate']:summary[name][arm]={'crps':float(g[arm+'_crps'].mean()),'xp_mse':float(((g[arm+'_xp']-g.actual_points)**2).mean())}
+   for arm in ['baseline','candidate']:
+    for score_name in ['minute_sq','p90_brier','pplay_brier']:
+     if arm+'_'+score_name in g and g[arm+'_'+score_name].notna().any():summary[name][arm]['minute_rmse'if score_name=='minute_sq'else score_name]=float(np.sqrt(g[arm+'_'+score_name].mean()))if score_name=='minute_sq'else float(g[arm+'_'+score_name].mean())
  uncertainty={}
  if len(f) and f[f.active].gw.nunique()>=2:
   active=f[f.active];rng=np.random.default_rng(20261115)
   for name,delta in [('point_crps',active.candidate_crps-active.baseline_crps),('point_mse',(active.candidate_xp-active.actual_points)**2-(active.baseline_xp-active.actual_points)**2)]:
    blocks=active.assign(delta=delta).groupby('gw').delta.agg(['sum','count']).to_numpy();b=blocks[rng.integers(len(blocks),size=(5000,len(blocks)))].sum(axis=1);uncertainty[name]={'candidate_minus_baseline':float(delta.mean()),'paired_GW_block_ci95':np.quantile(b[:,0]/b[:,1],[.025,.975]).tolist()}
- report={'uncertainty':uncertainty,'schema':'joint-substitution-prospective-evaluation-v1','updated_at':datetime.now(timezone.utc).isoformat(),'rounds':rounds,'summary':summary,'completed_gws':sum(r['status']=='complete'for r in rounds),'promotion':'not_authorised_automatically','app_model_changed':False};save(ledger/'evaluation.json',report);return report
+ complete=sum(r['status']=='complete'for r in rounds);matches=sum(len(r.get('fixtures',[]))for r in rounds);plan=load(PLAN)
+ if len(f):f.to_csv(ledger/'scored-players.csv',index=False)
+ report={'validation_stage':'ready_for_review'if complete>=plan['minimum_prospective_completed_gws']and matches>=plan['minimum_prospective_matches']else'collecting_new_rounds','completed_matches':matches,'uncertainty':uncertainty,'schema':'joint-substitution-prospective-evaluation-v1','updated_at':datetime.now(timezone.utc).isoformat(),'rounds':rounds,'summary':summary,'completed_gws':sum(r['status']=='complete'for r in rounds),'promotion':'not_authorised_automatically','app_model_changed':False};save(ledger/'evaluation.json',report);return report
 
 def main():
  ap=argparse.ArgumentParser();ap.add_argument('--source',type=Path);ap.add_argument('--published',type=Path);ap.add_argument('--ledger',type=Path,required=True);ap.add_argument('--run-id',required=True);ap.add_argument('--draws',type=int,default=2048);ap.add_argument('--score-only',action='store_true');a=ap.parse_args();a.ledger.mkdir(parents=True,exist_ok=True)
