@@ -46,7 +46,9 @@ def prepare_tasks(source,published):
  h=pd.read_csv(inputs/'history.csv.gz',low_memory=False);target=pd.read_csv(inputs/'target.csv.gz',low_memory=False);prov=load(inputs/'provenance.json');bootstrap=load(inputs/'bootstrap.json');pred,_=infer_B(h,target,prov)
  evidence=source/'work/gk-official-evidence/fpl_bootstrap.json';fresh=load(evidence)if evidence.exists()else bootstrap;pred=mark_horizon_absences(pred,fresh)
  frame=attach_mm(pd.read_csv(inputs/'pm.csv.gz',low_memory=False),pred);gw=int(f['gws'][0]);frame=frame[frame.target_gw.eq(gw)]if 'target_gw'in frame else frame[frame.gw.eq(gw)]
- squads=pd.read_csv(source/'work/joint-gk-current/role-squad-evidence.csv.gz');policy=SoloRolePolicy(h,squads)
+ squads=pd.read_csv(source/'work/joint-gk-current/role-squad-evidence.csv.gz')
+ for column in ['clock','kick']:squads[column]=pd.to_datetime(squads[column],utc=True,format='mixed')
+ policy=SoloRolePolicy(h,squads)
  if abs(policy.risk-f['goalkeeper_role_fit']['predictive_other_start_probability'])>1e-10:raise ValueError('Keeper policy mismatch')
  rolehistory=AssignmentHistory(pd.read_csv(inputs/'roles.csv.gz'));strength=f['role_assignment']['strength'];weights=pd.read_csv(source/'work/joint-gk-current/nonpenalty-goal-head.csv.gz').set_index(['fixture_uuid','player_uuid'])
  # Historical core is restored unchanged by the workflow; current observations come from this source artifact only.
