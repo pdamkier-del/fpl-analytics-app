@@ -27,19 +27,28 @@
     "prototype_implemented_and_tested": true,
     "input_capture_hook_tested": true,
     "capture_hook_connected_to_publisher": false,
-    "prospective_candidate_forecasts_published": false,
+    "prospective_candidate_forecasts_published": true,
     "new_round_validation_completed": false,
-    "production_model_changed": false
+    "production_model_changed": false,
+    "automated_research_runner_active": true,
+    "source_artifact_replay_connected": true
   },
-  "blockers": [
-    "Exact fresh CI artifacts could not be downloaded in this execution environment because the artifact storage host was blocked by its proxy",
-    "The optional capture hook still needs integration into the numerical CI job before a prospective candidate forecast can be issued"
-  ],
+  "blockers": [],
   "next_steps": [
-    "Connect optional input capture to a research-only CI run without changing active model behaviour",
-    "Generate and timestamp paired candidate/reference forecasts before the upcoming deadline",
-    "Collect official final outcomes and apply the frozen evaluation protocol",
-    "Review timing proxies using genuine event data when available; do not infer tactical causes from FPL minutes"
+    "Run daily paired predeadline forecasts using the frozen candidate and exact source linkage",
+    "Score only officially final checked rounds and retain source/publication clocks",
+    "Apply the frozen minimum-cohort and proper-score review protocol; never auto-activate"
   ],
-  "candidate_kernel_sha256": "abfb400bf4030d3c50101edf19db4390d2d2d31cb4e7e0e669f9744b820bf6d8"
+  "candidate_kernel_sha256": "abfb400bf4030d3c50101edf19db4390d2d2d31cb4e7e0e669f9744b820bf6d8",
+  "operations_updated_at": "2026-11-15T16:51:02.494237+00:00",
+  "capture_strategy": "Independent daily GitHub job reads linked original source/forecast artifacts and requires exact reference-minute marginal parity; the optional publisher hook is not installed",
+  "first_successful_prospective_run": {
+    "run_id": 43736795793,
+    "gw": 11,
+    "rows": 672,
+    "issued_at": "2026-11-15T16:47:18.040551+00:00",
+    "deadline": "2026-11-21T11:00:00Z",
+    "source_forecast_sha256": "e34ccd83bea04987961180e26e56a813b0d118627a828495a4c7f1bc7f752086",
+    "archive_sha256": "657d871d3e004aa5fab77c0f9a4c46df172883b90f9161a2f6ac21970d56a702"
+  }
 }

@@ -1,25 +1,32 @@
-# Managed research plan
+# Managed research plan — active
 
-Keep the app's active model unchanged. Freeze the fitted candidate and judge
-probability distributions with proper scores; high rotation-player MAE alone
-is not a model defect. The primary research target is prospective active-player
-point CRPS. Criteria and minimum cohort are fixed in prospective-plan.json.
+The daily independent GitHub workflow `Joint substitution prospective research`
+is enabled at08:35 UTC. It reconstructs the original reference from checksum-linked
+source artifacts, verifies the exact reference minute marginals, and records
+matched reference/candidate point scenarios before the origin deadline. It uses
+no private manager state. Existing app publication and model pins are untouched.
 
-Completed: isolated reusable module, fitted model, diagnostic physical/point
-comparison, deterministic repeat, saved point draws, CRPS verification, and six
-structural/capture tests. The input recorder is opt-in and restores hooks after
-use; it does not activate the candidate or alter baseline calculations.
+First successful run:43736795793. GW11 forecasts for672 players were issued on
+2026-11-15T16:47:18.040551+00:00, before2026-11-21T11:00:00Z. The compressed archive
+checksum was independently verified after the Git commit. The matched source
+forecast identity is recorded in prospective-plan.json and the ledger payload.
 
-Not completed: capture integration into the numerical publisher, generating and
-publishing new candidate forecasts, and scoring new rounds. No unattended
-research job has been enabled. The current baseline publisher's existing
-forecast archive remains separate from this candidate.
+The original workspace artifact-download block is avoided by running normal
+research computation inside the repository's own GitHub job; original input
+files are not relayed into the workspace. The optional publisher capture hook is
+not installed because exact, checked artifact replay supplies the input path.
 
-Fresh original CI source artifacts are blocked at their storage host in this
-execution environment. No alternate network route or production change was used
-to work around that block. The capture adapter prepares a direct input path
-inside the existing numerical job once the research integration is completed.
+Research receipts and daily outcome evaluation live only on the separate branch
+research/joint-substitution-ledger. Forecast files are append-only; captures
+issued after deadline are rejected. Only finished, data-checked official FPL
+rounds are scored. Late or stale origins still allow previous forecasts to be
+scored. No promotion or app deployment is performed by this workflow.
 
-Report only material conclusions to the user. Do not ask them to pick calibration
-parameters. Do not promote a candidate because one component improved or because
-an exploratory retrospective confidence interval excluded zero.
+The candidate weights and algorithm hash are frozen. At least8 prospective GWs
+and80 matches are required by the review plan. The primary score is active
+outfield-player point CRPS; rotation MAE alone is not a model defect. Changing
+criteria or coefficients after seeing these outcomes is not permitted within
+this candidate's evaluation.
+
+Current research status: collecting new rounds. No prospective outcome claim is
+made from the older reused diagnostic cohort or from pending GW11 results.
