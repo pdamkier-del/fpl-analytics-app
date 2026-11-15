@@ -1,0 +1,95 @@
+name: Joint substitution prospective research
+on:
+  schedule:
+    - cron: '35 8 * * *'
+  workflow_dispatch:
+permissions:
+  contents: write
+  actions: read
+concurrency:
+  group: joint-substitution-prospective-research
+  cancel-in-progress: false
+jobs:
+  research:
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    env:
+      GH_TOKEN: ${{ github.token }}
+      PYTHONPATH: src:scripts:.
+      OPENBLAS_NUM_THREADS: '1'
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: research/joint-substitutions-20261108
+          fetch-depth: 0
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Select the latest complete original input and forecast pair
+        id: origin
+        run: |
+          python - <<'PY'
+          import json,os,subprocess
+          def gh(path):return json.loads(subprocess.check_output(['gh','api',path]))
+          base='repos/'+os.environ['GITHUB_REPOSITORY']
+          runs=gh(base+'/actions/workflows/mm-current-preview-publication.yml/runs?status=success&branch=main&per_page=15')['workflow_runs']
+          for run in runs:
+              artifacts=gh(base+'/actions/runs/'+str(run['id'])+'/artifacts')['artifacts']
+              names={a['name']for a in artifacts if not a['expired']}
+              if {'current-B-origin-input-evidence','mm-current-live-preview'}<=names:
+                  with open(os.environ['GITHUB_OUTPUT'],'a')as f:f.write('run='+str(run['id'])+'\n')
+                  break
+          else:raise SystemExit('No paired original source artifacts available')
+          PY
+      - uses: actions/download-artifact@v4
+        with:
+          name: current-B-origin-input-evidence
+          run-id: ${{ steps.origin.outputs.run }}
+          github-token: ${{ github.token }}
+          path: .research-source
+      - uses: actions/download-artifact@v4
+        with:
+          name: mm-current-live-preview
+          run-id: ${{ steps.origin.outputs.run }}
+          github-token: ${{ github.token }}
+          path: .research-published
+      - name: Open the independent research ledger
+        run: |
+          git config user.name 'FPL research automation'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          if git ls-remote --exit-code --heads origin research/joint-substitution-ledger > /dev/null; then
+            git fetch origin research/joint-substitution-ledger
+            git worktree add -B research-ledger .research-ledger FETCH_HEAD
+          else
+            git worktree add --detach .research-ledger
+            git -C .research-ledger checkout --orphan research-ledger
+            git -C .research-ledger rm -rf .
+          fi
+      - name: Install the unchanged numerical runtime and verify the prototype
+        run: |
+          pip install -r requirements-model-checkpoint.txt -r requirements-model-tests.txt requests tabulate==0.10.0
+          python -m pytest -q tests/test_joint_substitutions.py tests/test_joint_substitution_capture.py tests/test_joint_substitution_automation.py
+          python scripts/restore_core_checkpoint.py
+      - name: Record paired research forecasts and evaluate completed rounds
+        run: |
+          python scripts/locked_numerical_runtime.py scripts/joint_substitution_automation.py --source .research-source --published .research-published --ledger .research-ledger --run-id '${{ github.run_id }}' --draws 2048
+      - name: Publish research receipts only
+        if: always()
+        run: |
+          if [ -d .research-ledger/.git ] || [ -f .research-ledger/.git ]; then
+            git -C .research-ledger add .
+            if ! git -C .research-ledger diff --cached --quiet; then
+              git -C .research-ledger commit -m 'Record frozen substitution research forecast and evaluation'
+              git -C .research-ledger push origin HEAD:refs/heads/research/joint-substitution-ledger
+            fi
+          fi
+      - name: Keep research evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: joint-substitution-research-${{ github.run_id }}
+          path: |
+            .research-ledger/status.json
+            .research-ledger/evaluation.json
+          if-no-files-found: ignore
+          retention-days: 90
