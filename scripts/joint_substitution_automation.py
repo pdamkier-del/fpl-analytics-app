@@ -38,6 +38,9 @@ def prepare_tasks(source,published):
  if sha(published/'current/forecast.json')!=index['forecast_file_sha256']:raise ValueError('Published forecast checksum mismatch')
  for name,digest in f['input_sha256'].items():
   if sha(inputs/name)!=digest:raise ValueError('Input snapshot mismatch: '+name)
+ if sha(inputs/'roles.csv.gz')!=f['role_assignment']['role_input_sha256']:raise ValueError('Tactical source checksum mismatch')
+ if sha(source/'work/joint-gk-current/nonpenalty-goal-head.csv.gz')!=f['nonpenalty_goal_head']['goal_head_audit_sha256']:raise ValueError('Goal allocation source mismatch')
+ if hashlib.sha256(gzip.decompress((source/'work/joint-gk-current/role-squad-evidence.csv.gz').read_bytes())).hexdigest()!=f['goalkeeper_role_fit']['squad_evidence_sha256']:raise ValueError('Keeper evidence mismatch')
  for name,digest in f['code_sha256'].items():
   if sha(ROOT/name)!=digest:raise ValueError('Numerical code mismatch: '+name)
  h=pd.read_csv(inputs/'history.csv.gz',low_memory=False);target=pd.read_csv(inputs/'target.csv.gz',low_memory=False);prov=load(inputs/'provenance.json');bootstrap=load(inputs/'bootstrap.json');pred,_=infer_B(h,target,prov)
@@ -149,7 +152,11 @@ def main():
  ap=argparse.ArgumentParser();ap.add_argument('--source',type=Path);ap.add_argument('--published',type=Path);ap.add_argument('--ledger',type=Path,required=True);ap.add_argument('--run-id',required=True);ap.add_argument('--draws',type=int,default=2048);ap.add_argument('--score-only',action='store_true');a=ap.parse_args();a.ledger.mkdir(parents=True,exist_ok=True)
  status={'run_id':a.run_id,'updated_at':datetime.now(timezone.utc).isoformat(),'app_model_changed':False}
  try:
-  if not a.score_only:status['capture']=forecast(a.source,a.published,a.ledger,a.run_id,a.draws)
+  status['evaluation']=score(a.ledger)
+  if not a.score_only:
+   source_forecast=load(a.published/'current/forecast.json');now=datetime.now(timezone.utc)
+   if now>=utc(source_forecast['origin_deadline']) or (now-utc(source_forecast['data_asof'])).total_seconds()>86400:status['capture']={'status':'skipped','reason':'Origin deadline passed or source older than24h; existing forecasts still scored'}
+   else:status['capture']=forecast(a.source,a.published,a.ledger,a.run_id,a.draws)
   status['evaluation']=score(a.ledger);status['status']='success';save(a.ledger/'status.json',status)
  except Exception as e:
   status.update(status='failed',error_type=type(e).__name__,message=str(e).split('?')[0][:500]);save(a.ledger/'status.json',status);raise
