@@ -68,6 +68,12 @@ jobs:
                   r=calculate(f,state,snapshot_at=datetime.datetime.now(datetime.timezone.utc).isoformat())
                   assess=r.get('chip_assessment') or {}
                   cand=(assess.get('candidate_lineups') or {}).get('wildcard') or {}
+                  normal=(r.get('plan') or {}).get('path') or []
+                  follow=(r.get('wildcard_followup') or {})
+                  def slim_path(path):
+                      return [{'gw':a.get('gw'),'expected':a.get('projected_manager_score'),'hits':a.get('official_hit_points'),'in':[player[i]['name'] for i in a.get('incoming',[])],'out':[player[i]['name'] for i in a.get('outgoing',[])]} for a in path]
+                  print('COMPACT_NORMAL',ft,json.dumps(slim_path(normal),ensure_ascii=False),flush=True)
+                  print('COMPACT_WC',ft,json.dumps({'choice':assess.get('provisional_choice_without_missing_tc'),'q_wc':assess.get('q_wc'),'q_bb':assess.get('q_bb'),'wc_gain':assess.get('wc_gain'),'wc_gw11':cand.get('expected_score'),'wc_names':[player[i]['name'] for i in cand.get('squad_ids',[])],'wc_in':[player[i]['name'] for i in cand.get('incoming',[])],'wc_out':[player[i]['name'] for i in cand.get('outgoing',[])],'wc_followup':slim_path(follow.get('path') or []),'wc_6gw_total':follow.get('wc_without_bb_six_gw_xp_after_hits'),'wc_bb_6gw_total':follow.get('six_gw_xp_after_hits'),'wc_weighted':follow.get('wc_without_bb_weighted_objective'),'wc_bb_weighted':follow.get('weighted_objective_before_chip_timing_threshold'),'normal_weighted':r.get('plan',{}).get('objective')},ensure_ascii=False),flush=True)
                   print('FULL_TS',ft,json.dumps({'gw':r.get('gw'),'comparison':r.get('comparison'),'normal_path_first':(r.get('plan') or {}).get('path',[None])[0],'chip_assessment':{k:v for k,v in assess.items() if k!='candidate_lineups'},'wc_candidate':{'expected_score':cand.get('expected_score'),'squad_ids':cand.get('squad_ids'),'incoming':cand.get('incoming'),'outgoing':cand.get('outgoing'),'bank_after':cand.get('bank_after')},'wc_followup':{k:v for k,v in (r.get('wildcard_followup') or {}).items() if k!='path'}},ensure_ascii=False,default=str)[:10000],flush=True)
               except Exception as e:
                   print('FULL_TS_ERROR',ft,type(e).__name__,str(e)[:1100],flush=True)
