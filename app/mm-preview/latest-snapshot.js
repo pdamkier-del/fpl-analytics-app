@@ -2,11 +2,13 @@
 (function(root){
  const POLICY='latest_verified_snapshot_v1',MODEL='B-MM-PM-TS-v1';
  const clock=x=>new Date(x).toLocaleString('da-DK',{timeZone:'Europe/Copenhagen'});
+ const MAX_AGE_MS=36*60*60*1000; // An expired data capture must never silently produce a new-looking transfer plan.
  const api={enabled:true,policy:POLICY};
  api.installWindow=()=>{const original=FplForecastWindow.check;FplForecastWindow.check=(f,o,now=Date.now())=>{
   if(f?.model!==MODEL)return original(f,o,now);
   const cutoff=Date.parse(f.data_asof),deadline=Date.parse(f.origin_deadline);
-  if(!Number.isFinite(cutoff)||cutoff>now||!Number.isFinite(deadline)||now>=deadline||o?.next_gw!==f.gws?.[0])return {usable:false,reason:'Denne gameweeks prognose er udløbet eller mangler. En ny modelopdatering kræves.'};
+  if(!Number.isFinite(cutoff)||cutoff>now||!Number.isFinite(deadline)||now>=deadline||o?.next_gw!==f.gws?.[0])return {usable:false,reason:'Prognosen er ikke til den aktuelle gameweek, eller deadline er passeret. Transferplanen må ikke genberegnes på den.'};
+  if(now-cutoff>MAX_AGE_MS)return {usable:false,reason:'Prognosen er mere end 36 timer gammel ('+clock(f.data_asof)+'). Der kræves en ny verificeret MM/PM-opdatering før en ny transferplan.'};
   return {usable:true,snapshot:true,reason:'Seneste validerede prognose · '+clock(f.data_asof)};
  };};
  api.installNews=()=>{const original=FplTeamNews.evaluate;FplTeamNews.evaluate=(c,now=Date.now())=>{
@@ -23,8 +25,8 @@
   original(c);if(!c?.forecast)return;document.getElementById('latest-snapshot-info')?.remove();
   const host=document.getElementById('planner-context');if(!host)return;
   const box=document.createElement('section');box.id='latest-snapshot-info';box.className='panel';
-  const h=document.createElement('h2');h.textContent='Planens datagrundlag';const p=document.createElement('p');p.textContent='Prognose og priser: '+clock(c.forecast.data_asof)+(c.plan?' · Plan beregnet: '+clock(c.plan.computed_at):'')+'.';
-  const note=document.createElement('p');note.textContent='Planen bruger den seneste validerede prognose. Nyere skader og prisændringer kan stå i nyhederne uden at være medregnet. Kontrollér dem før du handler. En ny holdbekræftelse kræver ikke en ny modelkørsel.';
+  const h=document.createElement('h2');h.textContent='Planens datagrundlag';const p=document.createElement('p');p.textContent='GW '+c.forecast.gws[0]+'–'+c.forecast.gws.at(-1)+' · Model '+c.forecast.model+' · Prognose og priser: '+clock(c.forecast.data_asof)+(c.plan?' · Plan beregnet: '+clock(c.plan.computed_at):'')+'.';
+  const note=document.createElement('p');note.textContent='Vis nyeste transferplan henter det nyeste publicerede verificerede snapshot og genberegner transferoptimering, hvis nødvendigt. Knappen starter ikke selv en ny MM/PM-modelkørsel. Prognoser ældre end 36 timer eller for forkert GW blokeres. Nyere skader og prisændringer kan stadig mangle; kontrollér dem før du handler.';
   box.append(h,p,note);host.after(box);root.FplTransferResultSummary?.placeData();
  };};
  root.FplLatestSnapshot=api;if(typeof module!=='undefined')module.exports=api;
