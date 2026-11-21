@@ -32,7 +32,7 @@ function squadDriftMessage(c,drift){
  const advice=document.createElement('p');advice.textContent='Kontrollér dit aktuelle hold i FPL og opdatér det i Mit gemte hold. GW '+drift.gw+' er historik; nyere transfers efter deadline fremgår ikke nødvendigvis. Den gamle Wildcard-plan er skjult indtil du bekræfter forskellen.';
  const link=document.createElement('a');link.href='my-team-classic.html';link.textContent='Åbn Mit gemte hold og ret truppen →';
  const acknowledge=document.createElement('button');acknowledge.type='button';acknowledge.className='btn secondary';acknowledge.style.marginLeft='12px';acknowledge.textContent='Jeg har verificeret, at transferholdet er aktuelt';
- acknowledge.onclick=()=>{const officialIds=[...drift.missing,...c.state.squad.map(p=>p.id)].filter((v,i,a)=>a.indexOf(v)===i).sort((a,b)=>a-b);const savedIds=c.state.squad.map(p=>p.id).sort((a,b)=>a-b);localStorage.setItem('fpl-ts-history-drift-confirmed-v1',JSON.stringify([c.forecast.season,c.forecast.gws[0],drift.gw,officialIds,savedIds]));draw();};
+ acknowledge.onclick=()=>{const extra=new Set(drift.extra),officialIds=[...drift.missing,...c.state.squad.map(p=>p.id).filter(id=>!extra.has(id))].sort((a,b)=>a-b);const savedIds=c.state.squad.map(p=>p.id).sort((a,b)=>a-b);localStorage.setItem('fpl-ts-history-drift-confirmed-v1',JSON.stringify([c.forecast.season,c.forecast.gws[0],drift.gw,officialIds,savedIds]));draw();};
  box.append(heading,msg,detail,advice,link,acknowledge);return box;
 }
 function disclosure(id,title,description,content){
