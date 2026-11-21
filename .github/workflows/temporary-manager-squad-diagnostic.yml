@@ -40,3 +40,24 @@ jobs:
               x=fc.get(key) if isinstance(fc,dict) else None
               if isinstance(x,list):print('B_FIELD',key,'length',len(x),'first',json.dumps(x[0],ensure_ascii=False)[:1900] if x else '')
           PY
+      - name: Compare official 15-player GW10 squad to public B GW11-16 projections
+        run: |
+          python - <<'PY'
+          import urllib.request,json
+          def get(url):
+              with urllib.request.urlopen(urllib.request.Request(url,headers={'User-Agent':'Mozilla/5.0'}),timeout=45) as r:return json.load(r)
+          ids=[x['element'] for x in get('https://fantasy.premierleague.com/api/entry/7647524/event/10/picks/')['picks']]
+          fc=get('https://raw.githubusercontent.com/pdamkier-del/fpl-analytics-app/free-github-static-20261010/app/mm-preview/current/forecast.json')
+          weights=(1.,.6,.36,.216,.1296,.07776)
+          def summary(p):
+              w=p.get('weeks',[])
+              xs=[float(next((v.get('xpts',0) for v in w if v.get('gw')==g),0)) for g in range(11,17)]
+              return {'id':p['id'],'name':p['name'],'pos':p['position'],'team':p['team'],'price':p['price_tenths']/10,'gw11':round(xs[0],2),'xp6':round(sum(xs),2),'weighted':round(sum(a*b for a,b in zip(xs,weights)),2),'each':[round(x,2) for x in xs]}
+          players=[summary(p) for p in fc['players']]
+          by={p['id']:p for p in players}
+          print('YOUR_15',json.dumps([by[i] for i in ids],ensure_ascii=False))
+          for pos in range(1,5):
+              opts=sorted((p for p in players if p['pos']==pos),key=lambda p:p['weighted'],reverse=True)[:14]
+              print('TOP_'+str(pos),json.dumps(opts,ensure_ascii=False))
+          print('EXPECTED_SELECTED_XP11',sum(by[i]['gw11'] for i in ids))
+          PY
