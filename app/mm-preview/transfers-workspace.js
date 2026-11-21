@@ -54,7 +54,7 @@ function disclosure(id,title,description,content){
 }
 function draw(){
  const c=FplManagerClient.snapshot(),drift=officialSquadDrift(c);status.style.removeProperty('display');document.querySelector('.transfer-workspace').dataset.planReady=String(!!c.plan&&c.usable&&c.stateValid&&!c.busy);target.replaceChildren();button.disabled=c.busy;FplPlannerExperience.mount(c);
- document.getElementById('appState').textContent='B-preview · forecast '+c.forecast.data_asof;
+ document.getElementById('appState').textContent='B-preview · holdsynkronisering v2 · forecast '+c.forecast.data_asof;
  document.getElementById('transfer-retry').hidden=true;document.querySelector('[data-recompute-plan]').hidden=!c.plan;
  document.getElementById('transfer-gw').textContent='GW '+c.forecast.gws[0]+'–'+c.forecast.gws.at(-1);
  const metrics=document.getElementById('transfer-squad');
