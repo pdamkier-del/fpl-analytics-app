@@ -30,10 +30,22 @@ function squadDriftMessage(c,drift){
  const msg=document.createElement('p');msg.textContent='Dashboardets offentliggjorte hold fra GW '+drift.gw+' afviger fra de 15 spillere, som transferberegningen bruger. Manager-ID henter historik, men opdaterer ikke automatisk de private købspriser og gratis transfers.';
  const detail=document.createElement('p');detail.textContent='Kun i officielt hold: '+(names(drift.missing)||'ingen')+' · Kun i transferhold: '+(names(drift.extra)||'ingen')+'.';
  const advice=document.createElement('p');advice.textContent='Kontrollér dit aktuelle hold i FPL og opdatér det i Mit gemte hold. GW '+drift.gw+' er historik; nyere transfers efter deadline fremgår ikke nødvendigvis. Den gamle Wildcard-plan er skjult indtil du bekræfter forskellen.';
- const link=document.createElement('a');link.href='my-team-classic.html';link.textContent='Åbn Mit gemte hold og ret truppen →';
+ const link=document.createElement('a');link.href='my-team-classic.html';link.textContent='Åbn Mit gemte hold →';
+ const importDraft=document.createElement('button');importDraft.type='button';importDraft.className='btn primary';importDraft.style.marginLeft='12px';importDraft.textContent='Overfør officielt hold som kladde';
+ importDraft.onclick=()=>{
+  // Official GW picks are past observations, never silently the current live
+  // squad. Purchase prices for NEW players cannot be inferred from history.
+  const saved=new Map(c.state.squad.map(p=>[Number(p.id),p]));
+  const extra=new Set(drift.extra);
+  const ids=[...drift.missing,...c.state.squad.map(p=>Number(p.id)).filter(id=>!extra.has(id))];
+  const squad=ids.map(id=>({id,...(Number.isInteger(saved.get(id)?.purchase_price_tenths)?{purchase_price_tenths:saved.get(id).purchase_price_tenths}:{})}));
+  const draft={gw:c.forecast.gws[0],source:'Kontrollér officielt GW '+drift.gw+'-hold og eventuelle nyere transfers i FPL',observed:'',bank_tenths:undefined,free_transfers:undefined,squad,chips_used:c.state.chips_used};
+  localStorage.setItem('fpl-manager-draft-v1',JSON.stringify(draft));
+  location.href='manager-state.html';
+ };
  const acknowledge=document.createElement('button');acknowledge.type='button';acknowledge.className='btn secondary';acknowledge.style.marginLeft='12px';acknowledge.textContent='Jeg har verificeret, at transferholdet er aktuelt';
  acknowledge.onclick=()=>{const extra=new Set(drift.extra),officialIds=[...drift.missing,...c.state.squad.map(p=>p.id).filter(id=>!extra.has(id))].sort((a,b)=>a-b);const savedIds=c.state.squad.map(p=>p.id).sort((a,b)=>a-b);localStorage.setItem('fpl-ts-history-drift-confirmed-v1',JSON.stringify([c.forecast.season,c.forecast.gws[0],drift.gw,officialIds,savedIds]));draw();};
- box.append(heading,msg,detail,advice,link,acknowledge);return box;
+ box.append(heading,msg,detail,advice,link,importDraft,acknowledge);return box;
 }
 function disclosure(id,title,description,content){
  const d=document.createElement('details');d.id=id;d.className='transfer-disclosure';d.open=expanded.has(id);
