@@ -8,8 +8,14 @@ permissions:
 jobs:
   evaluate:
     runs-on: ubuntu-latest
-    timeout-minutes: 8
+    timeout-minutes: 15
     steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: 161b67b6fb8786a38e78c245b92a03ad841575d8
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
       - name: Read public FPL GW10 team and sealed B snapshot
         run: |
           python - <<'PY'
@@ -39,6 +45,32 @@ jobs:
           for key in ['players','forecasts','weeks','gws']:
               x=fc.get(key) if isinstance(fc,dict) else None
               if isinstance(x,list):print('B_FIELD',key,'length',len(x),'first',json.dumps(x[0],ensure_ascii=False)[:1900] if x else '')
+          PY
+      - name: Run unchanged full B MM PM TS v3 with WC for official FPL squad
+        timeout-minutes: 8
+        run: |
+          python -m pip install -q -r requirements-model-checkpoint.txt -r requirements-model-tests.txt requests tabulate==0.10.0
+          PYTHONPATH=src:scripts:. OPENBLAS_NUM_THREADS=1 python - <<'PY'
+          import os,json,urllib.request,datetime
+          from service.preview_manager_job import calculate
+          def get(url):
+              with urllib.request.urlopen(urllib.request.Request(url,headers={'User-Agent':'Mozilla/5.0','Accept':'application/json'}),timeout=45) as r:return json.load(r)
+          base='https://raw.githubusercontent.com/pdamkier-del/fpl-analytics-app/free-github-static-20261010/app/mm-preview/current/'
+          f=get(base+'forecast.json');index=get(base+'index.json')
+          assert f['forecast_sha256']==index['forecast_sha256'] and f['gws'][0]==11
+          picks=get('https://fantasy.premierleague.com/api/entry/7647524/event/10/picks/')
+          player={p['id']:p for p in f['players']}
+          squad=[dict(id=p['element'],purchase_price_tenths=player[p['element']]['price_tenths']) for p in picks['picks']]
+          print('PRICE_ASSUMPTION: each purchase price approximated by forecast current price; bank £1.4m from official GW10; FT assumed 1; WC/FH/BB unused; TC GW5')
+          for ft in [1,2]:
+              state=dict(season=f['season'],gw=11,source='public_7647524_gw10_proxy_purchase_prices',observed_at=f['data_asof'],bank_tenths=14,free_transfers=ft,squad=squad,chips_used={'wildcard':[],'free_hit':[],'bench_boost':[],'triple_captain':[5]})
+              try:
+                  r=calculate(f,state,snapshot_at=datetime.datetime.now(datetime.timezone.utc).isoformat())
+                  assess=r.get('chip_assessment') or {}
+                  cand=(assess.get('candidate_lineups') or {}).get('wildcard') or {}
+                  print('FULL_TS',ft,json.dumps({'gw':r.get('gw'),'comparison':r.get('comparison'),'normal_path_first':(r.get('plan') or {}).get('path',[None])[0],'chip_assessment':{k:v for k,v in assess.items() if k!='candidate_lineups'},'wc_candidate':{'expected_score':cand.get('expected_score'),'squad_ids':cand.get('squad_ids'),'incoming':cand.get('incoming'),'outgoing':cand.get('outgoing'),'bank_after':cand.get('bank_after')},'wc_followup':{k:v for k,v in (r.get('wildcard_followup') or {}).items() if k!='path'}},ensure_ascii=False,default=str)[:10000],flush=True)
+              except Exception as e:
+                  print('FULL_TS_ERROR',ft,type(e).__name__,str(e)[:1100],flush=True)
           PY
       - name: Compare official 15-player GW10 squad to public B GW11-16 projections
         run: |
