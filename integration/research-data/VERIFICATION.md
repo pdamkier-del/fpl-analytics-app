@@ -1,6 +1,6 @@
 # Verification — C2 original data retention
 
-22 November2026. Base PR46 `876e61b0`; frozen numerical runtime `161b67b6`.
+22 November 2026. Base PR46 `876e61b0`; frozen numerical runtime `161b67b6`.
 
 ## Reproduction
 
@@ -69,6 +69,36 @@ No local private mount is configured. The connected Render tool rejected resourc
 inspection because no user-confirmed workspace is selected. No workspace was
 guessed, resource provisioned, storage permissions changed or deployment triggered.
 
-Archive-only live workflow probe and release outcome will be recorded separately;
-until that succeeds, public end-to-end operational readiness remains unverified.
-Private readiness remains blocked regardless of the public probe.
+## Verified live public archive, with no app deployment
+
+Archive-only [run 45076646704](https://github.com/pdamkier-del/fpl-analytics-app/actions/runs/45076646704)
+SUCCEEDED using the already-computed public producer run 45061627661. Both the
+`current` model computation and `preview` Pages job were SKIPPED. The source
+verification and permanent archive job succeeded. No private service was deployed.
+
+[Permanent original GW12–17 release](https://github.com/pdamkier-del/fpl-analytics-app/releases/tag/fpl-forecast-2026-27-gw12-90229f06fead26e48ae05f9b1b308245f8b196c79d476ab7c08028915d2ef10d):
+release 454789206, revision90229f06…, forecast179ad0e4…,4,044 player-fixture rows.
+Original cutoff22Nov19:53:22UTC; producer completed by20:10:25UTC; archive capture
+22:15:29UTC; all data assets published by22:15:45UTC and completion receipt
+22:15:51 UTC, **before official27Nov18:30UTCdeadline**. This issue occupies about
+2.5MiB of release assets; future storage grows with original revisions.
+
+Independent recovery on this execution host fetched all11data/manifest assets
+**from Releases only**, verified every byte and original publication receipt,
+and needed neither an Actions artifact nor a model run. Exact manifest,
+publication and recovery receipts are retained in [evidence/](evidence/).
+The earlier artifact download limitation remains an initial observation; it no
+longer prevents accessing this archived issue via the permanent release.
+
+A new-runner retry preserves the first capture manifest instead of trying
+to replace its timestamp; the regression test verifies identical public receipts.
+Cold-runner retry [45076965409](https://github.com/pdamkier-del/fpl-analytics-app/actions/runs/45076965409)
+also SUCCEEDED: all 12 release asset IDs, digests, sizes and creation timestamps
+remained unchanged. No asset or first-capture clock was overwritten. Source
+computation and Pages were skipped again. Exact observations are in
+[live-workflow-verification.json](evidence/live-workflow-verification.json). Main's automatic archive job is not activated by an
+unmerged feature-branch test. This proves one valid retained issue and recovery,
+not a record of every future GW or final-result scientific accuracy. Private
+operational readiness remains blocked by the separately stated storage/auth gates.
+
+**Delivery:** [integration PR #51](https://github.com/pdamkier-del/fpl-analytics-app/pull/51), stacked on #46. 107 tests pass; [test receipt](evidence/test-receipt.json) pins tested code and commands. Public live verification succeeded; private operational gates remain blocked. No merge or service/app deploy.

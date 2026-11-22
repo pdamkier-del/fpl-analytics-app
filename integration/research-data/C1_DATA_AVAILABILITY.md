@@ -21,11 +21,17 @@ unverified and ineligible for realized-policy scoring; recommendations are not
 intentions or performed transfers. Local clock proof is not an independent
 timestamp authority. Operator/private-storage and authentication gates remain.
 
-**Not yet established by local tests:** automatic capture of every coming GW,
-actual GitHub release durability/recovery, private mounted-disk restart/restore,
+**Verified on a real public issue:** GW12–17, revision90229f06…/forecast179ad0e4…,
+4,044 player-fixture rows, source161b67b6. Release 454789206was published before
+27November18:30UTCdeadline, then recovered independently with all checksums and
+original publication receipt. See VERIFICATION and exact evidence/live-*.json.
+No original forecast or model was regenerated; Pages and model jobs were skipped.
+
+**Not yet established:** automatic capture of every coming GW after merge,
+private mounted-disk restart/restore,
 complete official executed-transfer trajectories or post-restart browser access.
-See the separately recorded live archive-only probe and VERIFICATION before
-changing this status. Shared total-point/minute draws do not supply missing
+The public live archive-only probe succeeded; it does not certify private storage.
+See VERIFICATION before changing the remaining status. Shared total-point/minute draws do not supply missing
 per-draw BPS background/subtype data identified by PR49.
 
 For MM/PM prospective work, register a genuinely future origin only after its
@@ -39,3 +45,10 @@ For TS real-input/realized research, wait for genuine privately authorized state
 confirmed capture/storage, verified execution where required and a separate
 registered stateful design. Synthetic integration tests cannot fill those gaps.
 The protected substitution protocol and its eligible-count gates are unchanged.
+
+Deduplicate scientific observations by original forecast/config/origin, not download or retry count. Two archival attempts are not two new forecasts.
+
+Delivery is [PR #51](https://github.com/pdamkier-del/fpl-analytics-app/pull/51),
+stacked on #46. Actual public archive-only runs 45076646704 and 45076965409 both
+passed; the retry changed no release assets. The generic private-state dataset
+is still empty/unverified for research. No private manager records were published.

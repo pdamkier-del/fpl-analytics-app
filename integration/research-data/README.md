@@ -130,6 +130,12 @@ Only the original public producer inputs are permitted in release bundles.
 
 ## Readiness and verification
 
+**Live public proof:** archive-only run 45076646704retained original GW12–17 in
+release 454789206, with a before-deadline GitHub publication receipt; independent
+release-only recovery verified every file. See the exact manifest/recovery evidence.
+Automatic collection on main still requires review/activation; private capture
+has no verified real host mount or durable authenticated execution source.
+
 See [VERIFICATION.md](VERIFICATION.md), [C1 data contract](C1_DATA_AVAILABILITY.md)
 and [C2 handoff](../C2_HANDOFF.md). Local success is not a live capture certificate.
 Private operational readiness remains blocked until real storage/authentication

@@ -1,6 +1,8 @@
 # C2 handoff — permanent research-data integration
 
-22 November2026. Separate integration branch
+**Delivered:** [PR #51](https://github.com/pdamkier-del/fpl-analytics-app/pull/51), stacked on #46; no merge or service/app deployment.
+
+22 November 2026. Separate integration branch
 `integration/c2-permanent-research-data-20261122`, from PR46 `876e61b0`.
 Read [research-data/README.md](research-data/README.md),
 [VERIFICATION](research-data/VERIFICATION.md), [C1 contract](research-data/C1_DATA_AVAILABILITY.md)
@@ -29,9 +31,11 @@ the live probe receipt before claiming public production readiness.
 
 ## Remaining gates / minimal next steps
 
-1. Verify an archive-only workflow run with an eligible original producer artifact,
-   before deadline; recover every release byte and original publication receipt
-   independently. Keep the app/Pages job skipped. No blind historical backfill.
+1. **Public issue verified:** archive-only run 45076646704succeeded; original
+   GW12–17release 454789206/revision90229f06… and all11data/manifest assets were
+   independently recovered before27Nov18:30UTCdeadline. Pages and model
+   computation skipped. Cold-runner retry 45076965409 also succeeded with all 12 asset IDs/digests/clocks unchanged.
+   Next review/activate automatic capture on main. No historical backfill.
 2. Confirm the intended Render workspace or existing private host, then inspect its
    storage without guessing. Provision/verify a private persistent mount and
    private backups; no paid resource has been created here. Configure exact
@@ -52,5 +56,5 @@ Render inspection is currently blocked by unselected workspace, and the local
 private service health request timed out. The current Pages forecast was expired
 GW11 at observation. Source/job metadata can be verified, but direct artifact
 download failed here. Complete unaffected work; do not bypass access or call the
-private system operational. C1gets schemas/tested recovery now, not fabricated
+private system operational. C1 gets schemas/tested recovery now, not fabricated
 fresh manager observations or permission to rerun completed research.
