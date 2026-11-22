@@ -1,0 +1,10 @@
+name: Legacy daily publisher — original forecast only
+on:
+  workflow_dispatch:
+permissions:
+  contents: write
+  pages: write
+  id-token: write
+jobs:
+  original-forecast:
+    uses: ./.github/workflows/current-diagnostic-forecast.yml

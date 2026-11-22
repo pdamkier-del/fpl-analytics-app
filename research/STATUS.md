@@ -4,6 +4,7 @@ Snapshot as of programme registration, 22 November 2026. Generated from registry
 
 | Experiment | State | Priority | Execution-ready | Next action |
 | --- | --- | --- | --- | --- |
+| [EXP-TS-FUNDING-001](experiments/EXP-TS-FUNDING-001.json) | completed | 1 | completed; no model promotion | Read completion evidence in append-only events and SESSION_HANDOFF; original protocol remains unchanged. |
 | [EXP-TS-SEARCH-001](experiments/EXP-TS-SEARCH-001.json) | completed | 1 | completed; no model promotion | Read completion evidence in append-only events and SESSION_HANDOFF; original protocol remains unchanged. |
 | [EXP-MM-SUB-20261108](experiments/EXP-MM-SUB-20261108.json) | awaiting_data | 2 | no; see prerequisites/implementation | Observe existing job and final GW labels; do not refit, retune or count old20fixtures. |
 | [EXP-MM-LIVE-001](experiments/EXP-MM-LIVE-001.json) | awaiting_data | 3 | no; see prerequisites/implementation | Finish the original-vintage collector tests, then freeze the first GW12-or-later source. Do not regenerate historical forecasts. |
@@ -70,6 +71,6 @@ Snapshot as of programme registration, 22 November 2026. Generated from registry
 
 `ready` means scientific/data prerequisites support starting implementation. It does not claim the execution harness exists. `awaiting_data` is not a failed model. Historical accepted/rejected decisions have the narrow scope in their evidence.
 
-Stage 0 inventory review remains pending. Completed research: TS-search in results/EXP-TS-SEARCH-001/REPORT.md; PM definitions in results/EXP-PM-DEFS-001/REPORT.md. Next existing ready registration: EXP-OPS-CAPTURE-001; check SESSION_HANDOFF for ownership and remaining gates. No model promotion or C2 integration; protected substitution trial unchanged.
+Stage 0 inventory review remains pending. Completed research: TS-search in results/EXP-TS-SEARCH-001/REPORT.md; PM definitions in results/EXP-PM-DEFS-001/REPORT.md; isolated TS funding comparison in results/EXP-TS-FUNDING-001/REPORT.md (practical two-family gate failed; no promotion). Next existing ready registration: EXP-OPS-CAPTURE-001; check SESSION_HANDOFF for ownership and remaining gates. No model promotion or C2 integration; protected substitution trial unchanged.
 
 Never count seen GW8–10 again as new validation. New MM/PM holdouts begin at an eligible later origin, not after reviewing current GW11 outcomes.

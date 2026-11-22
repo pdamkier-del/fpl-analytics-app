@@ -1,0 +1,1923 @@
+{
+  "observed_at": "2026-11-22T21:29:48.367694+00:00",
+  "documents": {
+    "input-audit/prospective-ledger-manifest.json": {
+      "url": "https://pdamkier-del.github.io/fpl-analytics-app/mm-preview/input-audit/prospective-ledger-manifest.json",
+      "byte_sha256": "33be0000fe2451e06b748134defb53ac61128f067d82213a709cd6e25161f3fb",
+      "bytes": 4251,
+      "top_level_fields": [
+        "archiver_code_sha256",
+        "data_asof",
+        "eligible_records",
+        "file",
+        "forecast_code_sha256",
+        "forecast_input_sha256",
+        "forecast_sha256",
+        "limitation",
+        "minute_definition",
+        "missing_stable_player_codes",
+        "origin_deadline",
+        "physical_to_reported_minute_conversion_independently_validated",
+        "private_user_state_used",
+        "production_changed",
+        "publication_run",
+        "recorded_at",
+        "records",
+        "schema",
+        "season",
+        "sha256",
+        "whole_model_certification"
+      ],
+      "manifest": {
+        "schema": "B-prospective-player-ledger-v1",
+        "season": "2026-27",
+        "minute_definition": "Model expected minute marginals; reported FPL totals are not a conserved physical clock",
+        "physical_to_reported_minute_conversion_independently_validated": false,
+        "forecast_sha256": "7a890e936b6622b4af5bb417491c8ee534cb5b7170b3a6dcf558515a71c7894d",
+        "data_asof": "2026-11-21T10:23:05.948306+00:00",
+        "recorded_at": "2026-11-21T10:38:03.664971+00:00",
+        "origin_deadline": "2026-11-21T11:00:00Z",
+        "records": 4032,
+        "eligible_records": 4032,
+        "forecast_code_sha256": {
+          "scripts/b_chain_contract.py": "1563948bd13334c93e5746e82ba5a0f54b311fb9fb8fa97a766e48d61fef8d52",
+          "scripts/b_horizon_eligibility.py": "b2c8d29ea733555ffdab78059c8e8158c4256f06ff3fcd31494a26f53fdbf3b9",
+          "scripts/b_medical_return.py": "5ba0152f3ebe472355f0b3065fb13556dbe2341620be7dbad604f99dac2f486b",
+          "scripts/b_physical_workload.py": "2d861d05ddd8dfe9b58693273751c9b78922f2d263a66b8b2e3490761134e737",
+          "scripts/b_preview_ts.py": "79160ea3fa20a35347393a0ea08c48ec65be50b88c5d8080d77d78251f98ad2c",
+          "scripts/gk_joint_bridge.py": "aaa357f2239ab04b32f080e7d27e1fba9e7693f8916bb0a0a0b95c02715d14d3",
+          "scripts/gk_solo_role.py": "2ead4aa1f274bdf8921b7dd2d2460050b828746841492ab35b83244865e6c848",
+          "scripts/joint_role_bridge.py": "3c7ecf0f703b134271736bebb226388039a6e6802f321390f7c76f4cf9114cab",
+          "scripts/mm_candidate_forecast.py": "4f6fc21b99111b7070f550339d246be24ec48f1616f291003c8e67f9038988c5",
+          "scripts/nonpenalty_goal_bridge.py": "41d5e30eb6e8c290f25358f7c3247d99721db2d9b733697d3660c66b43cd2158",
+          "scripts/pm_preview_distributions.py": "88207ef11d5a91f72df5dda98d38e9c89b7b6049d75f7efe136ee040f4b8e084",
+          "scripts/run_joint_gk_preview.py": "df61142632345d4c247cb6926f253aa17404cae225a2b9a5bac0e5d29829474a",
+          "src/fpl_v1_1_model/b_event_simulator.py": "261ab1cabafcd6146125c1c499313d275e6019f5a296780ec92f7ee7df37a68b",
+          "src/fpl_v1_1_model/experimental_joint_role_assignment.py": "f1f1c7b6f57539019012e6d946615d5fd78f5b24a493852c10bc3039d133f2d6",
+          "src/fpl_v1_1_model/experimental_nonpenalty_allocation.py": "db848595111d46828402cce08bd2c7a9d1426e6d96fa69fcb5fd300eaec895a5",
+          "src/fpl_v1_1_model/experimental_penalty_neutral.py": "e3bcf29cb27c801cd2b9e868e990c415aadadb55631270b5d30422cb06f5b03b",
+          "src/fpl_v1_1_model/experimental_physical_timeline.py": "6240c1f9b3e11618f7e6d1c5d48c804d17c400cfd8cc46b6d53f8e77fb52e159",
+          "src/fpl_v1_1_model/experimental_role_assignment_history.py": "cc6bc4165f7be7b9444c8f8f2b5ae9214616ca19d6bf5afe1992a478011d52c0",
+          "src/fpl_v1_1_model/experimental_role_importance.py": "3165567261d0d56abffa6e67dd91dcdd6e2d256d30123a3a4d943249da748b3a",
+          "src/fpl_v1_1_model/joint_simulator.py": "557857c7bc3bf56db75e0505a50606b4704c3534fdcced502783a3da34e0c953"
+        },
+        "forecast_input_sha256": {
+          "bootstrap.json": "a06998bbf6f1fb23fd1f76e36647dccbcad9fa165ac7d23f5a02182f2d778904",
+          "historical-physical-ledger.csv.gz": "9cada2d783fb92c46c3eaa5cd0878531685430a0f19ff9f4dccd05424022493d",
+          "history.csv.gz": "7c4ae794a1fec5527927662e24f70c58c965ad16e05135019acbd91bfefa8cf1",
+          "medical-return-training.csv.gz": "a76aa9d2cb61ec2bcca2b6169dfdc90889700396d1184d8f81c44dd17d9d94b4",
+          "physical-ledger.csv.gz": "cb523dd5c82c150defeed094b5780ec5452d53de9d62a9d5454f63db817960b6",
+          "pm.csv.gz": "fa4ff456b19390f971b779e87659bbdbe3d908ec280dff8b41cea2f11a1b5251",
+          "provenance.json": "9430e6d1134889442f7a69a0b63d7086cdc1c94ad166c93279d5929ac3854728",
+          "roles.csv.gz": "e67dd02367c2a63110a8109aa5b85c589c72fd9942c04d705e52c4560ba2413c",
+          "target.csv.gz": "ddf8934e98be2aecc679cc3da7364d06657f76dbdfba95c3e8591e9494219324"
+        },
+        "missing_stable_player_codes": 0,
+        "whole_model_certification": false,
+        "production_changed": false,
+        "private_user_state_used": false,
+        "limitation": "Recording a prediction does not certify its quality. Later captures are not retrospectively pre-deadline predictions.",
+        "publication_run": "44892997536",
+        "archiver_code_sha256": "694639124d7a72fd5a33a9d75f6927744e51fd6d851c9c43ad29ada2582e3c20",
+        "file": "prospective-ledger.jsonl.gz",
+        "sha256": "c4c0d00e03099c7833a88c7eb14c14cafd15835f858b33607a6a7674f53d921a"
+      }
+    },
+    "current/forecast.json": {
+      "url": "https://pdamkier-del.github.io/fpl-analytics-app/mm-preview/current/forecast.json",
+      "byte_sha256": "afd0353f034929eb8fe52071070772afaa39cc67467522a2d473d5b5ceda496e",
+      "bytes": 12787287,
+      "top_level_fields": [
+        "blockers",
+        "chain_version",
+        "code_sha256",
+        "component_source_asof",
+        "data_asof",
+        "event_conservation",
+        "fixtures",
+        "forecast_sha256",
+        "freshness_limit_hours",
+        "gk_horizon_absences",
+        "gk_team_fixtures",
+        "goalkeeper_role_fit",
+        "gws",
+        "horizon_absences",
+        "input_sha256",
+        "locked_model_active",
+        "minute_sampler_audit",
+        "mm_version",
+        "model",
+        "model_revision",
+        "nonpenalty_goal_head",
+        "normal_match_timeline",
+        "official_gk_evidence",
+        "official_gk_status",
+        "origin_deadline",
+        "parts",
+        "penalty_role_source",
+        "penalty_roles",
+        "player_fixture_rows",
+        "players",
+        "quality",
+        "recommendations",
+        "role_assignment",
+        "scenario_contract",
+        "scope",
+        "season",
+        "source_repairs",
+        "source_workflow"
+      ],
+      "metadata": {
+        "chain_version": "B-MM-PM-TS-v1",
+        "code_sha256": {
+          "scripts/b_chain_contract.py": "1563948bd13334c93e5746e82ba5a0f54b311fb9fb8fa97a766e48d61fef8d52",
+          "scripts/b_horizon_eligibility.py": "b2c8d29ea733555ffdab78059c8e8158c4256f06ff3fcd31494a26f53fdbf3b9",
+          "scripts/b_medical_return.py": "5ba0152f3ebe472355f0b3065fb13556dbe2341620be7dbad604f99dac2f486b",
+          "scripts/b_physical_workload.py": "2d861d05ddd8dfe9b58693273751c9b78922f2d263a66b8b2e3490761134e737",
+          "scripts/b_preview_ts.py": "79160ea3fa20a35347393a0ea08c48ec65be50b88c5d8080d77d78251f98ad2c",
+          "scripts/gk_joint_bridge.py": "aaa357f2239ab04b32f080e7d27e1fba9e7693f8916bb0a0a0b95c02715d14d3",
+          "scripts/gk_solo_role.py": "2ead4aa1f274bdf8921b7dd2d2460050b828746841492ab35b83244865e6c848",
+          "scripts/joint_role_bridge.py": "3c7ecf0f703b134271736bebb226388039a6e6802f321390f7c76f4cf9114cab",
+          "scripts/mm_candidate_forecast.py": "4f6fc21b99111b7070f550339d246be24ec48f1616f291003c8e67f9038988c5",
+          "scripts/nonpenalty_goal_bridge.py": "41d5e30eb6e8c290f25358f7c3247d99721db2d9b733697d3660c66b43cd2158",
+          "scripts/pm_preview_distributions.py": "88207ef11d5a91f72df5dda98d38e9c89b7b6049d75f7efe136ee040f4b8e084",
+          "scripts/run_joint_gk_preview.py": "df61142632345d4c247cb6926f253aa17404cae225a2b9a5bac0e5d29829474a",
+          "src/fpl_v1_1_model/b_event_simulator.py": "261ab1cabafcd6146125c1c499313d275e6019f5a296780ec92f7ee7df37a68b",
+          "src/fpl_v1_1_model/experimental_joint_role_assignment.py": "f1f1c7b6f57539019012e6d946615d5fd78f5b24a493852c10bc3039d133f2d6",
+          "src/fpl_v1_1_model/experimental_nonpenalty_allocation.py": "db848595111d46828402cce08bd2c7a9d1426e6d96fa69fcb5fd300eaec895a5",
+          "src/fpl_v1_1_model/experimental_penalty_neutral.py": "e3bcf29cb27c801cd2b9e868e990c415aadadb55631270b5d30422cb06f5b03b",
+          "src/fpl_v1_1_model/experimental_physical_timeline.py": "6240c1f9b3e11618f7e6d1c5d48c804d17c400cfd8cc46b6d53f8e77fb52e159",
+          "src/fpl_v1_1_model/experimental_role_assignment_history.py": "cc6bc4165f7be7b9444c8f8f2b5ae9214616ca19d6bf5afe1992a478011d52c0",
+          "src/fpl_v1_1_model/experimental_role_importance.py": "3165567261d0d56abffa6e67dd91dcdd6e2d256d30123a3a4d943249da748b3a",
+          "src/fpl_v1_1_model/joint_simulator.py": "557857c7bc3bf56db75e0505a50606b4704c3534fdcced502783a3da34e0c953"
+        },
+        "component_source_asof": {
+          "official_GK_roster": "2026-11-21T10:23:05.948306+00:00",
+          "original_B_PM": "2026-11-21T10:15:42.165452+00:00"
+        },
+        "data_asof": "2026-11-21T10:23:05.948306+00:00",
+        "event_conservation": {
+          "inclusive_goal_budget": "ordinary + conditional penalties + opponent own goals",
+          "red_card_exit_process": "Not Available",
+          "special_assist_occurrence_rates": "Not Available: no calibrated penalty-winner/own-goal attacking-touch source",
+          "strict_scorer_attribution": true,
+          "version": "B-conserved-goal-events-v1"
+        },
+        "forecast_sha256": "7a890e936b6622b4af5bb417491c8ee534cb5b7170b3a6dcf558515a71c7894d",
+        "freshness_limit_hours": 24,
+        "goalkeeper_role_fit": {
+          "global_contexts": 660,
+          "global_new_role_starts": 3,
+          "global_rate": 0.00529500756429652,
+          "interval_scope": "Conditional empirical-Bayes posterior; excludes uncertainty in the population-rate estimate.",
+          "last_training_label_known_at": "2025-05-25T19:00:00+00:00",
+          "limitation": "Sparse sole-candidate cohort; posterior uncertainty is not independent calibration certification.",
+          "other_risk_credible90": [
+            3.94537355048722e-51,
+            0.008547832601028567
+          ],
+          "predictive_other_start_probability": 0.002406821620134782,
+          "shrinkage_strength": 5,
+          "sole_contexts": 6,
+          "sole_new_role_starts": 0,
+          "squad_evidence_sha256": "219eef0bfd43105b080aca3447be1616ecca5bd5ea16876325d0f926ff76fe97",
+          "training_season": "2024-25"
+        },
+        "input_sha256": {
+          "bootstrap.json": "a06998bbf6f1fb23fd1f76e36647dccbcad9fa165ac7d23f5a02182f2d778904",
+          "historical-physical-ledger.csv.gz": "9cada2d783fb92c46c3eaa5cd0878531685430a0f19ff9f4dccd05424022493d",
+          "history.csv.gz": "7c4ae794a1fec5527927662e24f70c58c965ad16e05135019acbd91bfefa8cf1",
+          "medical-return-training.csv.gz": "a76aa9d2cb61ec2bcca2b6169dfdc90889700396d1184d8f81c44dd17d9d94b4",
+          "physical-ledger.csv.gz": "cb523dd5c82c150defeed094b5780ec5452d53de9d62a9d5454f63db817960b6",
+          "pm.csv.gz": "fa4ff456b19390f971b779e87659bbdbe3d908ec280dff8b41cea2f11a1b5251",
+          "provenance.json": "9430e6d1134889442f7a69a0b63d7086cdc1c94ad166c93279d5929ac3854728",
+          "roles.csv.gz": "e67dd02367c2a63110a8109aa5b85c589c72fd9942c04d705e52c4560ba2413c",
+          "target.csv.gz": "ddf8934e98be2aecc679cc3da7364d06657f76dbdfba95c3e8591e9494219324"
+        },
+        "locked_model_active": false,
+        "minute_sampler_audit": {
+          "all_MM_to_PM_means_consistent": true,
+          "goalkeeper_MM_to_PM_mean_consistent": true,
+          "normal_match_timeline": true,
+          "outfield_minute_budget_enforced": true,
+          "physical_clock": "normalized_regulation_0_90",
+          "red_card_removals_modeled": false,
+          "reported_FPL_total_enforced": false,
+          "sampler": "B-MM-PM-TS-v1",
+          "substitution_limit_enforced": true
+        },
+        "mm_version": "B-MM-PM-TS-v1",
+        "model": "B-MM-PM-TS-v1",
+        "model_revision": "B-integrated-source-event-repair-v2",
+        "nonpenalty_goal_head": {
+          "form_window": "previous three known PL observations; no missing cup events assumed zero",
+          "goal_head_audit_sha256": "4d6dcf589e397a41aa3b8ffd9f98c03bfa47ea5c1996093d4fad5920324c037e",
+          "historical_fixtures": 100,
+          "ordinary_head": "FPL-scale NP history, NP role priors and NP-only refitted coefficients",
+          "penalty_fallback": "frozen separately before replacing ordinary weights",
+          "policy": {
+            "approved": true,
+            "behavior_preserving_fixture_input_refactor": "analysis/results/fixture-input-contract-20261025/verification.json",
+            "behavior_preserving_scoring_refactor": "analysis/results/point-accounting-cleanup-20261025/verification.json",
+            "behavior_preserving_single_pass_refactor": "analysis/results/single-pass-pm-20261025/verification.json",
+            "composition_baseline_sha256": "10097664237c9db45054b5bc761c9d1af8a807babca9dd9ed3ba7ccaa4852d57",
+            "decision": "analysis/results/separated-goal-head-v2-validation-20261023/decision.json",
+            "known_limitations": [
+              "Penalty-taker historical bias worsens; full metrics retained",
+              "The earlier blanket no-increase-in-taker-bias research gate is not a correctness requirement for this user-requested full separation; new correctness/noninferiority protocol was fixed before scoring this refitted candidate",
+              "Reused historical periods, 2024 conditional robustness, no independent calibration certification",
+              "Count-based FPL-scale npxG estimate, not provider-native per-shot npxG",
+              "Ordinary short-form predictors use known PL NP-xG observations; existing all-competition MM remains unchanged",
+              "Special penalty-winner assists are not yet modeled completely",
+              "Outfield substitutions are not a fully joint physical process; full-model certification is not established"
+            ],
+            "model": "analysis/results/nonpenalty-goal-head-20261023/final-v2/model.json",
+            "production_changed": false,
+            "protocol": "analysis/results/separated-goal-head-v2-validation-20261023/protocol.json",
+            "scope": "B integrated source/event repair; original NP coefficients and selection retained; not production activation",
+            "sha256": {
+              "analysis/fit_nonpenalty_allocation.py": "a95717d1b4526c8f882a0ef051a0049ab39005fb528281aba517d1a7dcfe10ac",
+              "analysis/results/fixture-input-contract-20261025/verification.json": "04fce0b81fc753b4c1472fe159683e9e1cc196b5d700ef6b7b23e7bfe844f3e9",
+              "analysis/results/nonpenalty-goal-head-20261023/final-v2/model.json": "dc254f5a3bbacfe979583f224dd9408f0f1e4f0fe156caf6870de4ab601ff4b2",
+              "analysis/results/normal-match-correctness-20261025/protocol.json": "29747af67b5cda492012be7cb0f440452d8505c66b00a11531e3873b0eafa530",
+              "analysis/results/penalty-neutral-sources-20261023/predeadline-roles-2024.csv.gz": "58220ef8dbff2afdbba58d228d1c99a6a711e36b8af0481644df3ae82c8d4942",
+              "analysis/results/penalty-neutral-sources-20261023/verified-attempts.csv": "7e683b606096d3a4c5f75644c9fa2a1f99061bb8c2771dee92b5786df755e99a",
+              "analysis/results/point-accounting-cleanup-20261025/verification.json": "6e5df49c61a288e9628623ea0057ab9c1265ad77eccbf4fda56b1727e698242e",
+              "analysis/results/separated-goal-head-v2-validation-20261023/decision.json": "5f90a9d6950bedc5ac2bb25f4ebcb8ad7a60f7bf0b0973d76a1ef41701d86780",
+              "analysis/results/separated-goal-head-v2-validation-20261023/protocol.json": "7ecdc31fb1037065756dddf1a508dab97e6fc2dfafe8bab08bdd0df85257d8df",
+              "analysis/results/single-pass-pm-20261025/verification.json": "14f7b95f49dcf672d5164c11241455ca806bf7b6e95ab14239820a338bf06889",
+              "analysis/test_separated_goal_head.py": "cf304ca7d755f43b70b94fed8ce994a25852ee4e30538ee4004a69daacf2c82a",
+              "scripts/b_chain_contract.py": "1563948bd13334c93e5746e82ba5a0f54b311fb9fb8fa97a766e48d61fef8d52",
+              "scripts/b_horizon_eligibility.py": "b2c8d29ea733555ffdab78059c8e8158c4256f06ff3fcd31494a26f53fdbf3b9",
+              "scripts/b_medical_return.py": "5ba0152f3ebe472355f0b3065fb13556dbe2341620be7dbad604f99dac2f486b",
+              "scripts/b_physical_workload.py": "2d861d05ddd8dfe9b58693273751c9b78922f2d263a66b8b2e3490761134e737",
+              "scripts/mm_candidate_forecast.py": "4f6fc21b99111b7070f550339d246be24ec48f1616f291003c8e67f9038988c5",
+              "scripts/nonpenalty_goal_bridge.py": "41d5e30eb6e8c290f25358f7c3247d99721db2d9b733697d3660c66b43cd2158",
+              "scripts/pm_preview_distributions.py": "88207ef11d5a91f72df5dda98d38e9c89b7b6049d75f7efe136ee040f4b8e084",
+              "scripts/run_joint_gk_preview.py": "df61142632345d4c247cb6926f253aa17404cae225a2b9a5bac0e5d29829474a",
+              "scripts/run_vfinal_integrated.py": "5b0722119e32552b5e180234535c5e8494a5662f34b291469598a3485d7709b0",
+              "src/fpl_v1_1_model/b_event_simulator.py": "261ab1cabafcd6146125c1c499313d275e6019f5a296780ec92f7ee7df37a68b",
+              "src/fpl_v1_1_model/experimental_nonpenalty_allocation.py": "db848595111d46828402cce08bd2c7a9d1426e6d96fa69fcb5fd300eaec895a5",
+              "src/fpl_v1_1_model/experimental_penalty_neutral.py": "e3bcf29cb27c801cd2b9e868e990c415aadadb55631270b5d30422cb06f5b03b",
+              "src/fpl_v1_1_model/experimental_physical_timeline.py": "6240c1f9b3e11618f7e6d1c5d48c804d17c400cfd8cc46b6d53f8e77fb52e159",
+              "src/fpl_v1_1_model/fixture_input.py": "2a738326f18355c9515d410fd5ca907725531c22475175ec40560738be673037",
+              "src/fpl_v1_1_model/joint_simulator.py": "557857c7bc3bf56db75e0505a50606b4704c3534fdcced502783a3da34e0c953",
+              "src/fpl_v1_1_model/paired_joint.py": "f3eda1cc3e1bf326c74c09b150212883a389b02f1b3744ec82369e2e3c876ad6",
+              "src/fpl_v1_1_model/phase4b.py": "0ed9955bec53077b135c50687325be0d83976be6ce27917ca311e5007b3fc0fa",
+              "src/fpl_v1_1_model/point_accounting.py": "3256eb0d422064b24340e985863f84ed2b3c203c1db1ac03d5534a331b72b26d"
+            },
+            "structural_correctness_update": "analysis/results/normal-match-correctness-20261025/protocol.json",
+            "version": "nonpenalty-goal-head-v1"
+          },
+          "source_sha256": {
+            "classified_starters": "922881dcb941682248fd952a8f992891194d768a2b09c113c1b35ec3a51eafb9",
+            "player_fixture_observations": "73cc566817c28449aadca1490264ecbdb354011f6df476aeea2398128a869566",
+            "reconstructed_training_features": "e11210608c741044f4507962408981f825539d1f47dbf46955d2fd84d0d3e8d9",
+            "verified_penalty_attempts": "b9d2f359663f97599ef4d650cfb1fe6f7e717b4633d3a2b570601a9f34264d5c",
+            "verified_penalty_team_sides": "781c4677778eea478212caa7cf8e8f2dc6d877e490fb9fcdbed31bce2cc657cb"
+          },
+          "team_penalty_fixtures": [
+            {
+              "expected_attempts": 0.12,
+              "fixture_id": "live-2026-27-fpl-101",
+              "p_at_least_one": 0.11307956328284248,
+              "team_id": 2
+            },
+            {
+              "expected_attempts": 0.1533333333333333,
+              "fixture_id": "live-2026-27-fpl-101",
+              "p_at_least_one": 0.1421562737606332,
+              "team_id": 20
+            },
+            {
+              "expected_attempts": 0.07,
+              "fixture_id": "live-2026-27-fpl-102",
+              "p_at_least_one": 0.06760618009405178,
+              "team_id": 3
+            },
+            {
+              "expected_attempts": 0.1033333333333333,
+              "fixture_id": "live-2026-27-fpl-102",
+              "p_at_least_one": 0.09817368539704703,
+              "team_id": 18
+            },
+            {
+              "expected_attempts": 0.0866666666666666,
+              "fixture_id": "live-2026-27-fpl-103",
+              "p_at_least_one": 0.08301729440280564,
+              "team_id": 4
+            },
+            {
+              "expected_attempts": 0.12,
+              "fixture_id": "live-2026-27-fpl-103",
+              "p_at_least_one": 0.11307956328284248,
+              "team_id": 9
+            },
+            {
+              "expected_attempts": 0.0866666666666666,
+              "fixture_id": "live-2026-27-fpl-104",
+              "p_at_least_one": 0.08301729440280564,
+              "team_id": 6
+            },
+            {
+              "expected_attempts": 0.0866666666666666,
+              "fixture_id": "live-2026-27-fpl-104",
+              "p_at_least_one": 0.08301729440280564,
+              "team_id": 13
+            },
+            {
+              "expected_attempts": 0.0866666666666666,
+              "fixture_id": "live-2026-27-fpl-105",
+              "p_at_least_one": 0.08301729440280564,
+              "team_id": 7
+            },
+            {
+              "expected_attempts": 0.12,
+              "fixture_id": "live-2026-27-fpl-105",
+              "p_at_least_one": 0.11307956328284248,
+              "team_id": 8
+            },
+            {
+              "expected_attempts": 0.0866666666666666,
+              "fixture_id": "live-2026-27-fpl-106",
+              "p_at_least_one": 0.08301729440280564,
+              "team_id": 11
+            },
+            {
+              "expected_attempts": 0.12,
+              "fixture_id": "live-2026-27-fpl-106",
+              "p_at_least_one": 0.11307956328284248,
+              "team_id": 5
+            },
+            {
+              "expected_attempts": 0.12,
+              "fixture_id": "live-2026-27-fpl-107",
+              "p_at_least_one": 0.11307956328284248,
+              "team_id": 14
+            },
+            {
+              "expected_attempts": 0.1366666666666666,
+              "fixture_id": "live-2026-27-fpl-107",
+              "p_at_least_one": 0.12773906867767315,
+              "team_id": 16
+            },
+            {
+              "expected_attempts": 0.0866666666666666,
+              "fixture_id": "live-2026-27-fpl-108",
+              "p_at_least_one": 0.08301729440280564,
+              "team_id": 15
+            },
+            {
+              "expected_attempts": 0.0866666666666666,
+              "fixture_id": "live-2026-27-fpl-108",
+              "p_at_least_one": 0.08301729440280564,
+              "team_id": 10
+            },
+            {
+              "expected_attempts": 0.1033333333333333,
+              "fixture_id": "live-2026-27-fpl-109",
+              "p_at_least_one": 0.09817368539704703,
+              "team_id": 17
+            },
+            {
+              "expected_attempts": 0.12,
+              "fixture_id": "live-2026-27-fpl-109",
+              "p_at_least_one": 0.11307956328284248,
+              "team_id": 1
+            },
+            {
+              "expected_attempts": 0.0866666666666666,
+              "fixture_id": "live-2026-27-fpl-110",
+              "p_at_least_one": 0.08301729440280564,
+              "team_id": 19
+            },
+            {
+              "expected_attempts": 0.12,
+              "fixture_id": "live-2026-27-fpl-110",
+              "p_at_least_one": 0.11307956328284248,
+              "team_id": 12
+            },
+            {
+              "expected_attempts": 0.1033333333333333,
+              "fixture_id": "live-2026-27-fpl-111",
+              "p_at_least_one": 0.09817368539704703,
+              "team_id": 1
+            },
+            {
+              "expected_attempts": 0.0866666666666666,
+              "fixture_id": "live-2026-27-fpl-111",
+              "p_at_least_one": 0.08301729440280564,
+              "team_id": 15
+            },
+            {
+              "expected_attempts": 0.1366666666666666,
+              "fixture_id": "live-2026-27-fpl-112",
+              "p_at_least_one": 0.12773906867767315,
+              "team_id": 5
+            },
+            {
+              "expected_attempts": 0.0866666666666666,
+              "fixture_id": "live-2026-27-fpl-112",
+              "p_at_least_one": 0.08301729440280564,
+              "team_id": 17
+            },
+            {
+              "expected_attempts": 0.1033333333333333,
+              "fixture_id": "live-2026-27-fpl-113",
+              "p_at_least_one": 0.09817368539704703,
+              "team_id": 8
+            },
+            {
+              "expected_attempts": 0.0866666666666666,
+              "fixture_id": "live-2026-27-fpl-113",
+              "p_at_least_one": 0.08301729440280564,
+              "team_id": 11
+            },
+            {
+              "expected_attempts": 0.1033333333333333,
+              "fixture_id": "live-2026-27-fpl-114",
+              "p_at_least_one": 0.09817368539704703,
+              "team_id": 9
+            },
+            {
+              "expected_attempts": 0.0866666666666666,
+              "fixture_id": "live-2026-27-fpl-114",
+              "p_at_least_one": 0.08301729440280564,
+              "team_id": 14
+            },
+            {
+              "expected_attempts": 0.0866666666666666,
+              "fixture_id": "live-2026-27-fpl-115",
+              "p_at_least_one": 0.08301729440280564,
+              "team_id": 10
+            },
+            {
+              "expected_attempts": 0.0866666666666666,
+              "fixture_id": "live-2026-27-fpl-115",
+              "p_at_least_one": 0.08301729440280564,
+              "team_id": 3
+            },
+            {
+              "expected_attempts": 0.12,
+              "fixture_id": "live-2026-27-fpl-116",
+              "p_at_least_one": 0.11307956328284248,
+              "team_id": 12
+            },
+            {
+              "expected_attempts": 0.12,
+              "fixture_id": "live-2026-27-fpl-116",
+              "p_at_least_one": 0.11307956328284248,
+              "team_id": 2
+            },
+            {
+              "expected_attempts": 0.1033333333333333,
+              "fixture_id": "live-2026-27-fpl-117",
+              "p_at_least_one": 0.09817368539704703,
+              "team_id": 13
+            },
+            {
+              "expected_attempts": 0.0866666666666666,
+              "fixture_id": "live-2026-27-fpl-117",
+              "p_at_least_one": 0.08301729440280564,
+              "team_id": 7
+            },
+            {
+              "expected_attempts": 0.1533333333333333,
+              "fixture_id": "live-2026-27-fpl-118",
+              "p_at_least_one": 0.1421562737606332,
+              "team_id": 16
+            },
+            {
+              "expected_attempts": 0.12,
+              "fixture_id": "live-2026-27-fpl-118",
+              "p_at_least_one": 0.11307956328284248,
+              "team_id": 4
+            },
+            {
+              "expected_attempts": 0.1033333333333333,
+              "fixture_id": "live-2026-27-fpl-119",
+              "p_at_least_one": 0.09817368539704703,
+              "team_id": 18
+            },
+            {
+              "expected_attempts": 0.0866666666666666,
+              "fixture_id": "live-2026-27-fpl-119",
+              "p_at_least_one": 0.08301729440280564,
+              "team_id": 6
+            },
+            {
+              "expected_attempts": 0.1533333333333333,
+              "fixture_id": "live-2026-27-fpl-120",
+              "p_at_least_one": 0.1421562737606332,
+              "team_id": 20
+            },
+            {
+              "expected_attempts": 0.0866666666666666,
+              "fixture_id": "live-2026-27-fpl-120",
+              "p_at_least_one": 0.08301729440280564,
+              "team_id": 19
+            },
+            {
+              "expected_attempts": 0.1033333333333333,
+              "fixture_id": "live-2026-27-fpl-121",
+              "p_at_least_one": 0.09817368539704703,
+              "team_id": 2
+            },
+            {
+              "expected_attempts": 0.0866666666666666,
+              "fixture_id": "live-2026-27-fpl-121",
+              "p_at_least_one": 0.08301729440280564,
+              "team_id": 9
+            },
+            {
+              "expected_attempts": 0.07,
+              "fixture_id": "live-2026-27-fpl-122",
+              "p_at_least_one": 0.06760618009405178,
+              "team_id": 3
+            },
+            {
+              "expected_attempts": 0.12,
+              "fixture_id": "live-2026-27-fpl-122",
+              "p_at_least_one": 0.11307956328284248,
+              "team_id": 5
+            },
+            {
+              "expected_attempts": 0.1033333333333333,
+              "fixture_id": "live-2026-27-fpl-123",
+              "p_at_least_one": 0.09817368539704703,
+              "team_id": 4
+            },
+            {
+              "expected_attempts": 0.1366666666666666,
+              "fixture_id": "live-2026-27-fpl-123",
+              "p_at_least_one": 0.12773906867767315,
+              "team_id": 1
+            },
+            {
+              "expected_attempts": 0.0866666666666666,
+              "fixture_id": "live-2026-27-fpl-124",
+              "p_at_least_one": 0.08301729440280564,
+              "team_id": 6
+            },
+            {
+              "expected_attempts": 0.1033333333333333,
+              "fixture_id": "live-2026-27-fpl-124",
+              "p_at_least_one": 0.09817368539704703,
+              "team_id": 8
+            },
+            {
+              "expected_attempts": 0.1033333333333333,
+              "fixture_id": "live-2026-27-fpl-125",
+              "p_at_least_one": 0.09817368539704703,
+              "team_id": 7
+            },
+            {
+              "expected_attempts": 0.1366666666666666,
+              "fixture_id": "live-2026-27-fpl-125",
+              "p_at_least_one": 0.12773906867767315,
+              "team_id": 12
+            },
+            {
+              "expected_attempts": 0.0866666666666666,
+              "fixture_id": "live-2026-27-fpl-126",
+              "p_at_least_one": 0.08301729440280564,
+              "team_id": 11
+            },
+            {
+              "expected_attempts": 0.1033333333333333,
+              "fixture_id": "live-2026-27-fpl-126",
+              "p_at_least_one": 0.09817368539704703,
+              "team_id": 18
+            },
+            {
+              "expected_attempts": 0.1033333333333333,
+              "fixture_id": "live-2026-27-fpl-127",
+              "p_at_least_one": 0.09817368539704703,
+              "team_id": 14
+            },
+            {
+              "expected_attempts": 0.1699999999999999,
+              "fixture_id": "live-2026-27-fpl-127",
+              "p_at_least_one": 0.15633518340361624,
+              "team_id": 20
+            },
+            {
+              "expected_attempts": 0.07,
+              "fixture_id": "live-2026-27-fpl-128",
+              "p_at_least_one": 0.06760618009405178,
+              "team_id": 15
+            },
+            {
+              "expected_attempts": 0.0866666666666666,
+              "fixture_id": "live-2026-27-fpl-128",
+              "p_at_least_one": 0.08301729440280564,
+              "team_id": 13
+            },
+            {
+              "expected_attempts": 0.12,
+              "fixture_id": "live-2026-27-fpl-129",
+              "p_at_least_one": 0.11307956328284248,
+              "team_id": 17
+            },
+            {
+              "expected_attempts": 0.1366666666666666,
+              "fixture_id": "live-2026-27-fpl-129",
+              "p_at_least_one": 0.12773906867767315,
+              "team_id": 16
+            },
+            {
+              "expected_attempts": 0.0866666666666666,
+              "fixture_id": "live-2026-27-fpl-130",
+              "p_at_least_one": 0.08301729440280564,
+              "team_id": 19
+            },
+            {
+              "expected_attempts": 0.0866666666666666,
+              "fixture_id": "live-2026-27-fpl-130",
+              "p_at_least_one": 0.08301729440280564,
+              "team_id": 10
+            },
+            {
+              "expected_attempts": 0.1033333333333333,
+              "fixture_id": "live-2026-27-fpl-131",
+              "p_at_least_one": 0.09817368539704703,
+              "team_id": 2
+            },
+            {
+              "expected_attempts": 0.1033333333333333,
+              "fixture_id": "live-2026-27-fpl-131",
+              "p_at_least_one": 0.09817368539704703,
+              "team_id": 8
+            },
+            {
+              "expected_attempts": 0.0866666666666666,
+              "fixture_id": "live-2026-27-fpl-132",
+              "p_at_least_one": 0.08301729440280564,
+              "team_id": 3
+            },
+            {
+              "expected_attempts": 0.1033333333333333,
+              "fixture_id": "live-2026-27-fpl-132",
+              "p_at_least_one": 0.09817368539704703,
+              "team_id": 11
+            },
+            {
+              "expected_attempts": 0.1033333333333333,
+              "fixture_id": "live-2026-27-fpl-133",
+              "p_at_least_one": 0.09817368539704703,
+              "team_id": 4
+            },
+            {
+              "expected_attempts": 0.12,
+              "fixture_id": "live-2026-27-fpl-133",
+              "p_at_least_one": 0.11307956328284248,
+              "team_id": 15
+            },
+            {
+              "expected_attempts": 0.12,
+              "fixture_id": "live-2026-27-fpl-134",
+              "p_at_least_one": 0.11307956328284248,
+              "team_id": 6
+            },
+            {
+              "expected_attempts": 0.1033333333333333,
+              "fixture_id": "live-2026-27-fpl-134",
+              "p_at_least_one": 0.09817368539704703,
+              "team_id": 14
+            },
+            {
+              "expected_attempts": 0.0866666666666666,
+              "fixture_id": "live-2026-27-fpl-135",
+              "p_at_least_one": 0.08301729440280564,
+              "team_id": 9
+            },
+            {
+              "expected_attempts": 0.07,
+              "fixture_id": "live-2026-27-fpl-135",
+              "p_at_least_one": 0.06760618009405178,
+              "team_id": 10
+            },
+            {
+              "expected_attempts": 0.0866666666666666,
+              "fixture_id": "live-2026-27-fpl-136",
+              "p_at_least_one": 0.08301729440280564,
+              "team_id": 13
+            },
+            {
+              "expected_attempts": 0.1033333333333333,
+              "fixture_id": "live-2026-27-fpl-136",
+              "p_at_least_one": 0.09817368539704703,
+              "team_id": 12
+            },
+            {
+              "expected_attempts": 0.1366666666666666,
+              "fixture_id": "live-2026-27-fpl-137",
+              "p_at_least_one": 0.12773906867767315,
+              "team_id": 16
+            },
+            {
+              "expected_attempts": 0.12,
+              "fixture_id": "live-2026-27-fpl-137",
+              "p_at_least_one": 0.11307956328284248,
+              "team_id": 7
+            },
+            {
+              "expected_attempts": 0.1033333333333333,
+              "fixture_id": "live-2026-27-fpl-138",
+              "p_at_least_one": 0.09817368539704703,
+              "team_id": 17
+            },
+            {
+              "expected_attempts": 0.1699999999999999,
+              "fixture_id": "live-2026-27-fpl-138",
+              "p_at_least_one": 0.15633518340361624,
+              "team_id": 20
+            },
+            {
+              "expected_attempts": 0.0866666666666666,
+              "fixture_id": "live-2026-27-fpl-139",
+              "p_at_least_one": 0.08301729440280564,
+              "team_id": 18
+            },
+            {
+              "expected_attempts": 0.1033333333333333,
+              "fixture_id": "live-2026-27-fpl-139",
+              "p_at_least_one": 0.09817368539704703,
+              "team_id": 5
+            },
+            {
+              "expected_attempts": 0.0866666666666666,
+              "fixture_id": "live-2026-27-fpl-140",
+              "p_at_least_one": 0.08301729440280564,
+              "team_id": 19
+            },
+            {
+              "expected_attempts": 0.1033333333333333,
+              "fixture_id": "live-2026-27-fpl-140",
+              "p_at_least_one": 0.09817368539704703,
+              "team_id": 1
+            },
+            {
+              "expected_attempts": 0.1033333333333333,
+              "fixture_id": "live-2026-27-fpl-141",
+              "p_at_least_one": 0.09817368539704703,
+              "team_id": 1
+            },
+            {
+              "expected_attempts": 0.0866666666666666,
+              "fixture_id": "live-2026-27-fpl-141",
+              "p_at_least_one": 0.08301729440280564,
+              "team_id": 3
+            },
+            {
+              "expected_attempts": 0.1033333333333333,
+              "fixture_id": "live-2026-27-fpl-142",
+              "p_at_least_one": 0.09817368539704703,
+              "team_id": 5
+            },
+            {
+              "expected_attempts": 0.07,
+              "fixture_id": "live-2026-27-fpl-142",
+              "p_at_least_one": 0.06760618009405178,
+              "team_id": 9
+            },
+            {
+              "expected_attempts": 0.1033333333333333,
+              "fixture_id": "live-2026-27-fpl-143",
+              "p_at_least_one": 0.09817368539704703,
+              "team_id": 7
+            },
+            {
+              "expected_attempts": 0.1366666666666666,
+              "fixture_id": "live-2026-27-fpl-143",
+              "p_at_least_one": 0.12773906867767315,
+              "team_id": 2
+            },
+            {
+              "expected_attempts": 0.12,
+              "fixture_id": "live-2026-27-fpl-144",
+              "p_at_least_one": 0.11307956328284248,
+              "team_id": 8
+            },
+            {
+              "expected_attempts": 0.1033333333333333,
+              "fixture_id": "live-2026-27-fpl-144",
+              "p_at_least_one": 0.09817368539704703,
+              "team_id": 16
+            },
+            {
+              "expected_attempts": 0.12,
+              "fixture_id": "live-2026-27-fpl-145",
+              "p_at_least_one": 0.11307956328284248,
+              "team_id": 10
+            },
+            {
+              "expected_attempts": 0.1033333333333333,
+              "fixture_id": "live-2026-27-fpl-145",
+              "p_at_least_one": 0.09817368539704703,
+              "team_id": 4
+            },
+            {
+              "expected_attempts": 0.1033333333333333,
+              "fixture_id": "live-2026-27-fpl-146",
+              "p_at_least_one": 0.09817368539704703,
+              "team_id": 11
+            },
+            {
+              "expected_attempts": 0.0866666666666666,
+              "fixture_id": "live-2026-27-fpl-146",
+              "p_at_least_one": 0.08301729440280564,
+              "team_id": 19
+            },
+            {
+              "expected_attempts": 0.1366666666666666,
+              "fixture_id": "live-2026-27-fpl-147",
+              "p_at_least_one": 0.12773906867767315,
+              "team_id": 12
+            },
+            {
+              "expected_attempts": 0.1033333333333333,
+              "fixture_id": "live-2026-27-fpl-147",
+              "p_at_least_one": 0.09817368539704703,
+              "team_id": 17
+            },
+            {
+              "expected_attempts": 0.0866666666666666,
+              "fixture_id": "live-2026-27-fpl-148",
+              "p_at_least_one": 0.08301729440280564,
+              "team_id": 14
+            },
+            {
+              "expected_attempts": 0.1033333333333333,
+              "fixture_id": "live-2026-27-fpl-148",
+              "p_at_least_one": 0.09817368539704703,
+              "team_id": 13
+            },
+            {
+              "expected_attempts": 0.0866666666666666,
+              "fixture_id": "live-2026-27-fpl-149",
+              "p_at_least_one": 0.08301729440280564,
+              "team_id": 15
+            },
+            {
+              "expected_attempts": 0.1033333333333333,
+              "fixture_id": "live-2026-27-fpl-149",
+              "p_at_least_one": 0.09817368539704703,
+              "team_id": 6
+            },
+            {
+              "expected_attempts": 0.1366666666666666,
+              "fixture_id": "live-2026-27-fpl-150",
+              "p_at_least_one": 0.12773906867767315,
+              "team_id": 20
+            },
+            {
+              "expected_attempts": 0.1033333333333333,
+              "fixture_id": "live-2026-27-fpl-150",
+              "p_at_least_one": 0.09817368539704703,
+              "team_id": 18
+            },
+            {
+              "expected_attempts": 0.12,
+              "fixture_id": "live-2026-27-fpl-151",
+              "p_at_least_one": 0.11307956328284248,
+              "team_id": 1
+            },
+            {
+              "expected_attempts": 0.12,
+              "fixture_id": "live-2026-27-fpl-151",
+              "p_at_least_one": 0.11307956328284248,
+              "team_id": 16
+            },
+            {
+              "expected_attempts": 0.1033333333333333,
+              "fixture_id": "live-2026-27-fpl-152",
+              "p_at_least_one": 0.09817368539704703,
+              "team_id": 3
+            },
+            {
+              "expected_attempts": 0.1033333333333333,
+              "fixture_id": "live-2026-27-fpl-152",
+              "p_at_least_one": 0.09817368539704703,
+              "team_id": 7
+            },
+            {
+              "expected_attempts": 0.12,
+              "fixture_id": "live-2026-27-fpl-153",
+              "p_at_least_one": 0.11307956328284248,
+              "team_id": 4
+            },
+            {
+              "expected_attempts": 0.1366666666666666,
+              "fixture_id": "live-2026-27-fpl-153",
+              "p_at_least_one": 0.12773906867767315,
+              "team_id": 17
+            },
+            {
+              "expected_attempts": 0.12,
+              "fixture_id": "live-2026-27-fpl-154",
+              "p_at_least_one": 0.11307956328284248,
+              "team_id": 5
+            },
+            {
+              "expected_attempts": 0.1033333333333333,
+              "fixture_id": "live-2026-27-fpl-154",
+              "p_at_least_one": 0.09817368539704703,
+              "team_id": 12
+            },
+            {
+              "expected_attempts": 0.1033333333333333,
+              "fixture_id": "live-2026-27-fpl-155",
+              "p_at_least_one": 0.09817368539704703,
+              "team_id": 6
+            },
+            {
+              "expected_attempts": 0.12,
+              "fixture_id": "live-2026-27-fpl-155",
+              "p_at_least_one": 0.11307956328284248,
+              "team_id": 2
+            },
+            {
+              "expected_attempts": 0.0866666666666666,
+              "fixture_id": "live-2026-27-fpl-156",
+              "p_at_least_one": 0.08301729440280564,
+              "team_id": 13
+            },
+            {
+              "expected_attempts": 0.07,
+              "fixture_id": "live-2026-27-fpl-156",
+              "p_at_least_one": 0.06760618009405178,
+              "team_id": 10
+            },
+            {
+              "expected_attempts": 0.1033333333333333,
+              "fixture_id": "live-2026-27-fpl-157",
+              "p_at_least_one": 0.09817368539704703,
+              "team_id": 14
+            },
+            {
+              "expected_attempts": 0.1033333333333333,
+              "fixture_id": "live-2026-27-fpl-157",
+              "p_at_least_one": 0.09817368539704703,
+              "team_id": 19
+            },
+            {
+              "expected_attempts": 0.0866666666666666,
+              "fixture_id": "live-2026-27-fpl-158",
+              "p_at_least_one": 0.08301729440280564,
+              "team_id": 15
+            },
+            {
+              "expected_attempts": 0.1033333333333333,
+              "fixture_id": "live-2026-27-fpl-158",
+              "p_at_least_one": 0.09817368539704703,
+              "team_id": 11
+            },
+            {
+              "expected_attempts": 0.0866666666666666,
+              "fixture_id": "live-2026-27-fpl-159",
+              "p_at_least_one": 0.08301729440280564,
+              "team_id": 18
+            },
+            {
+              "expected_attempts": 0.07,
+              "fixture_id": "live-2026-27-fpl-159",
+              "p_at_least_one": 0.06760618009405178,
+              "team_id": 9
+            },
+            {
+              "expected_attempts": 0.1366666666666666,
+              "fixture_id": "live-2026-27-fpl-160",
+              "p_at_least_one": 0.12773906867767315,
+              "team_id": 20
+            },
+            {
+              "expected_attempts": 0.1033333333333333,
+              "fixture_id": "live-2026-27-fpl-160",
+              "p_at_least_one": 0.09817368539704703,
+              "team_id": 8
+            }
+          ],
+          "verified_penalty_attempts": 21,
+          "version": "nonpenalty-goal-head-v1"
+        },
+        "normal_match_timeline": {
+          "acceptance": "Structural correctness required by user; predictive gains are not an activation prerequisite",
+          "concussion_exceptions_modeled": false,
+          "conditional_states": 128,
+          "dismissal_removals_modeled": false,
+          "reported_FPL_total_required_to_equal_990": false,
+          "scope": "normal match before dismissals/removal events; no empirical FPL clock conversion",
+          "version": "B-normal-timeline-v1"
+        },
+        "official_gk_evidence": {
+          "first_team_goalkeepers": [
+            {
+              "name": "Emiliano Martinez",
+              "url": "https://www.chelseafc.com/en/teams/profile/emiliano-martinez"
+            },
+            {
+              "name": "Teddy Sharman-Lowe",
+              "url": "https://www.chelseafc.com/en/teams/profile/teddy-sharman-lowe"
+            },
+            {
+              "name": "Mike  Penders",
+              "url": "https://www.chelseafc.com/en/teams/profile/mike-penders"
+            },
+            {
+              "name": "Gaga Slonina",
+              "url": "https://www.chelseafc.com/en/teams/profile/gabriel-slonina"
+            }
+          ],
+          "fpl_goalkeepers": [
+            {
+              "chance_of_playing_next_round": 100,
+              "id": 28,
+              "news": "",
+              "news_added": "2026-10-17T13:30:08.724000Z",
+              "status": "a",
+              "web_name": "Martinez"
+            },
+            {
+              "chance_of_playing_next_round": 0,
+              "id": 140,
+              "news": "Has joined Como on loan for the rest of the season",
+              "news_added": "2026-09-02T16:20:41.841936Z",
+              "status": "u",
+              "web_name": "S\u00e1nchez"
+            },
+            {
+              "chance_of_playing_next_round": 0,
+              "id": 141,
+              "news": "Has joined RC Strasbourg on loan for the rest of the season",
+              "news_added": "2026-08-12T14:07:02.607115Z",
+              "status": "u",
+              "web_name": "J\u00f6rgensen"
+            },
+            {
+              "chance_of_playing_next_round": null,
+              "id": 560,
+              "news": "",
+              "news_added": null,
+              "status": "a",
+              "web_name": "Penders"
+            },
+            {
+              "chance_of_playing_next_round": null,
+              "id": 669,
+              "news": "",
+              "news_added": null,
+              "status": "a",
+              "web_name": "Sharman-Lowe"
+            }
+          ],
+          "fpl_goalkeepers_missing_from_club_registration_page": [
+            "S\u00e1nchez",
+            "J\u00f6rgensen"
+          ],
+          "hierarchy_review": {
+            "interpretation": "Penders is the best-supported immediate deputy. Registration alone does not establish next-match availability or a 40.29% collective start chance.",
+            "martinez": "Fractured jaw, successful surgery; FPL chance 0 for next round. No official return date.",
+            "model_limitation": "Published v1 pool probability is residual original MM mass, not an estimate calibrated to these individual competitors. Do not interpret it as their verified combined start probability.",
+            "penders": "Sole goalkeeper substitute vs Everton on 17 October; replaced Martinez. Two cup starts supported by club profile and coach comments. Alonso: full trust with him.",
+            "review_date": "2026-10-18",
+            "scope": "Official evidence review; qualitative hierarchy is not a calibrated start forecast.",
+            "sharman_lowe": "First-team registration; absent from 17 October match squad. Profile records return from loan in January 2026. No current injury or next-match availability confirmed.",
+            "slonina": "First-team registration; absent from 17 October match squad. Profile records earlier bench appearances, not current selection. No current injury or next-match availability confirmed."
+          },
+          "loan_goalkeepers": [
+            {
+              "name": "Robert Sanchez",
+              "teams": [
+                "onLoan"
+              ]
+            },
+            {
+              "name": "Filip Jorgensen",
+              "teams": [
+                "onLoan"
+              ]
+            },
+            {
+              "name": "Ted Curd",
+              "teams": [
+                "onLoan"
+              ]
+            },
+            {
+              "name": "Max Merrick",
+              "teams": [
+                "onLoan"
+              ]
+            },
+            {
+              "name": "Hudson Sands",
+              "teams": [
+                "onLoan"
+              ]
+            }
+          ],
+          "observed_at": "2026-11-21T10:23:05.948306+00:00",
+          "registration_absence_interpretation": "Missing from the parsed club page is not evidence of injury, loan or next-match unavailability.",
+          "sources": {
+            "chelsea_coach_update": {
+              "observed_at": "2026-11-21T10:23:04.570646+00:00",
+              "published_at": "2026-10-17T14:45:00.0000000+00:00",
+              "sha256": "d908fd1b451372e463ed7a126e95b767a30083493de2a1f49644f228b7e945a6",
+              "url": "https://www.chelseafc.com/en/news/article/alonso-issues-emiliano-martinez-update"
+            },
+            "chelsea_everton_lineup": {
+              "observed_at": "2026-11-21T10:23:03.877801+00:00",
+              "published_at": "2026-10-17T10:15:00.0000000+00:00",
+              "sha256": "8ae991d6aefce0e401da49c2b530553784198aad044b96cee4304fafed163f1c",
+              "url": "https://www.chelseafc.com/en/news/article/confirmed-chelsea-line-up-vs-everton-171026"
+            },
+            "chelsea_everton_report": {
+              "observed_at": "2026-11-21T10:23:04.316818+00:00",
+              "published_at": "2026-10-17T13:40:00.0000000+00:00",
+              "sha256": "0884a1982d60385f1a53a7120c0ba00d66c0484ef8bf95b01383beb284af2bf2",
+              "url": "https://www.chelseafc.com/en/news/article/match-report-everton-0-2-chelsea"
+            },
+            "chelsea_injury": {
+              "observed_at": "2026-11-21T10:23:03.553445+00:00",
+              "published_at": "2026-10-18T09:10:00.0000000+00:00",
+              "sha256": "0945da9bc006f58594124858569d891b8b16bf1c54803c584b30e0ae57307a2d",
+              "url": "https://www.chelseafc.com/en/news/article/injury-update-emiliano-martinez"
+            },
+            "chelsea_penders_profile": {
+              "observed_at": "2026-11-21T10:23:04.926090+00:00",
+              "published_at": "2025-06-11T14:06:10.5300000Z",
+              "sha256": "eb80d610689ed6bfa2d2cda4fc152218137c381c9ef115f74af1c2181bd75128",
+              "url": "https://www.chelseafc.com/en/teams/profile/mike-penders"
+            },
+            "chelsea_sharman_lowe_profile": {
+              "observed_at": "2026-11-21T10:23:05.261946+00:00",
+              "published_at": "2022-06-09T10:41:19.1440000Z",
+              "sha256": "11147c5d310d5656d3000d2090fc8fe8f3d1528c0658dd876aae254626f6c582",
+              "url": "https://www.chelseafc.com/en/teams/profile/teddy-sharman-lowe"
+            },
+            "chelsea_slonina_profile": {
+              "observed_at": "2026-11-21T10:23:05.914735+00:00",
+              "published_at": "2022-08-02T19:28:41.6720000Z",
+              "sha256": "cc996db0f355015367dd88eec1ac1107cc3c612e521d50a8c6c3b4c46a08cf7e",
+              "url": "https://www.chelseafc.com/en/teams/profile/gabriel-slonina"
+            },
+            "chelsea_squad": {
+              "observed_at": "2026-11-21T10:23:03.204203+00:00",
+              "published_at": "2022-06-15T15:12:03.5230000Z",
+              "rejected_responses": [],
+              "requested_url": "https://www.chelseafc.com/en/teams/mens-profiles",
+              "retrieval_attempt": 1,
+              "sha256": "fc85ea826b4fc345400127174dde80157323fdeb81d86d7ea3935694b394c05d",
+              "squad_scope": "Parsed first-team goalkeeper registrations; registration is not match availability.",
+              "url": "https://www.chelseafc.com/en/teams/mens-profiles"
+            },
+            "fpl_bootstrap": {
+              "observed_at": "2026-11-21T10:23:05.948306+00:00",
+              "sha256": "18bf44667ce5ac01c0b5270a207291399ff2eb36c48b8e16e9530d48c37dac06",
+              "url": "https://fantasy.premierleague.com/api/bootstrap-static/"
+            }
+          },
+          "team_id": 6,
+          "unlisted_competitors": [
+            "Gaga Slonina"
+          ]
+        },
+        "official_gk_status": {
+          "1": {
+            "chance_of_playing_next_round": null,
+            "news": "",
+            "status": "a"
+          },
+          "109": {
+            "chance_of_playing_next_round": null,
+            "news": "",
+            "status": "a"
+          },
+          "110": {
+            "chance_of_playing_next_round": null,
+            "news": "",
+            "status": "a"
+          },
+          "111": {
+            "chance_of_playing_next_round": null,
+            "news": "",
+            "status": "a"
+          },
+          "140": {
+            "chance_of_playing_next_round": 0,
+            "news": "Has joined Como on loan for the rest of the season",
+            "status": "u"
+          },
+          "141": {
+            "chance_of_playing_next_round": 0,
+            "news": "Has joined RC Strasbourg on loan for the rest of the season",
+            "status": "u"
+          },
+          "171": {
+            "chance_of_playing_next_round": 0,
+            "news": "not included in squad.",
+            "status": "u"
+          },
+          "172": {
+            "chance_of_playing_next_round": null,
+            "news": "",
+            "status": "a"
+          },
+          "198": {
+            "chance_of_playing_next_round": 100,
+            "news": "",
+            "status": "a"
+          },
+          "199": {
+            "chance_of_playing_next_round": null,
+            "news": "",
+            "status": "a"
+          },
+          "2": {
+            "chance_of_playing_next_round": null,
+            "news": "",
+            "status": "a"
+          },
+          "226": {
+            "chance_of_playing_next_round": null,
+            "news": "",
+            "status": "a"
+          },
+          "227": {
+            "chance_of_playing_next_round": null,
+            "news": "",
+            "status": "a"
+          },
+          "228": {
+            "chance_of_playing_next_round": null,
+            "news": "",
+            "status": "a"
+          },
+          "250": {
+            "chance_of_playing_next_round": null,
+            "news": "",
+            "status": "a"
+          },
+          "251": {
+            "chance_of_playing_next_round": 0,
+            "news": "Achilles injury - Unknown return date",
+            "status": "i"
+          },
+          "252": {
+            "chance_of_playing_next_round": 0,
+            "news": "Has joined York City on loan for the rest of the season",
+            "status": "u"
+          },
+          "273": {
+            "chance_of_playing_next_round": null,
+            "news": "",
+            "status": "a"
+          },
+          "274": {
+            "chance_of_playing_next_round": 100,
+            "news": "",
+            "status": "a"
+          },
+          "275": {
+            "chance_of_playing_next_round": 0,
+            "news": "Has joined Grimsby Town on loan for the rest of the season",
+            "status": "u"
+          },
+          "276": {
+            "chance_of_playing_next_round": 0,
+            "news": "Has joined Colchester United on loan for the rest of the season",
+            "status": "u"
+          },
+          "28": {
+            "chance_of_playing_next_round": 100,
+            "news": "",
+            "status": "a"
+          },
+          "29": {
+            "chance_of_playing_next_round": 100,
+            "news": "",
+            "status": "a"
+          },
+          "3": {
+            "chance_of_playing_next_round": null,
+            "news": "",
+            "status": "a"
+          },
+          "300": {
+            "chance_of_playing_next_round": null,
+            "news": "",
+            "status": "a"
+          },
+          "301": {
+            "chance_of_playing_next_round": null,
+            "news": "",
+            "status": "a"
+          },
+          "302": {
+            "chance_of_playing_next_round": null,
+            "news": "",
+            "status": "a"
+          },
+          "325": {
+            "chance_of_playing_next_round": 75,
+            "news": "Unspecified injury - 75% chance of playing",
+            "status": "d"
+          },
+          "326": {
+            "chance_of_playing_next_round": 0,
+            "news": "Has joined Torino on loan for the rest of the season",
+            "status": "u"
+          },
+          "350": {
+            "chance_of_playing_next_round": null,
+            "news": "",
+            "status": "a"
+          },
+          "351": {
+            "chance_of_playing_next_round": null,
+            "news": "",
+            "status": "a"
+          },
+          "352": {
+            "chance_of_playing_next_round": null,
+            "news": "",
+            "status": "a"
+          },
+          "353": {
+            "chance_of_playing_next_round": 0,
+            "news": "Has joined TSV Hartberg on loan for the rest of the season",
+            "status": "u"
+          },
+          "354": {
+            "chance_of_playing_next_round": 0,
+            "news": "Knee injury - Unknown return date",
+            "status": "i"
+          },
+          "355": {
+            "chance_of_playing_next_round": null,
+            "news": "",
+            "status": "a"
+          },
+          "384": {
+            "chance_of_playing_next_round": null,
+            "news": "",
+            "status": "a"
+          },
+          "385": {
+            "chance_of_playing_next_round": null,
+            "news": "",
+            "status": "a"
+          },
+          "386": {
+            "chance_of_playing_next_round": null,
+            "news": "",
+            "status": "a"
+          },
+          "412": {
+            "chance_of_playing_next_round": null,
+            "news": "",
+            "status": "a"
+          },
+          "413": {
+            "chance_of_playing_next_round": 0,
+            "news": "Has joined Celta Vigo on loan for the rest of the season",
+            "status": "u"
+          },
+          "414": {
+            "chance_of_playing_next_round": 100,
+            "news": "",
+            "status": "a"
+          },
+          "442": {
+            "chance_of_playing_next_round": null,
+            "news": "",
+            "status": "a"
+          },
+          "443": {
+            "chance_of_playing_next_round": null,
+            "news": "",
+            "status": "a"
+          },
+          "444": {
+            "chance_of_playing_next_round": 0,
+            "news": "Hamstring injury - Unknown return date",
+            "status": "i"
+          },
+          "467": {
+            "chance_of_playing_next_round": null,
+            "news": "",
+            "status": "a"
+          },
+          "468": {
+            "chance_of_playing_next_round": null,
+            "news": "",
+            "status": "a"
+          },
+          "494": {
+            "chance_of_playing_next_round": 0,
+            "news": "Has joined Juventus on loan for the rest of the season",
+            "status": "u"
+          },
+          "495": {
+            "chance_of_playing_next_round": null,
+            "news": "",
+            "status": "a"
+          },
+          "496": {
+            "chance_of_playing_next_round": null,
+            "news": "",
+            "status": "a"
+          },
+          "497": {
+            "chance_of_playing_next_round": null,
+            "news": "",
+            "status": "a"
+          },
+          "529": {
+            "chance_of_playing_next_round": null,
+            "news": "",
+            "status": "a"
+          },
+          "530": {
+            "chance_of_playing_next_round": 0,
+            "news": "Has joined Wrexham permanently",
+            "status": "u"
+          },
+          "531": {
+            "chance_of_playing_next_round": null,
+            "news": "",
+            "status": "a"
+          },
+          "554": {
+            "chance_of_playing_next_round": 0,
+            "news": "Has joined Valencia on loan for the rest of the season",
+            "status": "u"
+          },
+          "555": {
+            "chance_of_playing_next_round": null,
+            "news": "",
+            "status": "a"
+          },
+          "560": {
+            "chance_of_playing_next_round": null,
+            "news": "",
+            "status": "a"
+          },
+          "564": {
+            "chance_of_playing_next_round": null,
+            "news": "",
+            "status": "a"
+          },
+          "567": {
+            "chance_of_playing_next_round": null,
+            "news": "",
+            "status": "a"
+          },
+          "57": {
+            "chance_of_playing_next_round": null,
+            "news": "",
+            "status": "a"
+          },
+          "572": {
+            "chance_of_playing_next_round": null,
+            "news": "",
+            "status": "a"
+          },
+          "58": {
+            "chance_of_playing_next_round": null,
+            "news": "",
+            "status": "a"
+          },
+          "587": {
+            "chance_of_playing_next_round": null,
+            "news": "",
+            "status": "a"
+          },
+          "59": {
+            "chance_of_playing_next_round": 0,
+            "news": "Has joined MK Dons permanently",
+            "status": "u"
+          },
+          "590": {
+            "chance_of_playing_next_round": null,
+            "news": "",
+            "status": "a"
+          },
+          "597": {
+            "chance_of_playing_next_round": null,
+            "news": "",
+            "status": "a"
+          },
+          "615": {
+            "chance_of_playing_next_round": null,
+            "news": "",
+            "status": "a"
+          },
+          "623": {
+            "chance_of_playing_next_round": null,
+            "news": "",
+            "status": "a"
+          },
+          "625": {
+            "chance_of_playing_next_round": null,
+            "news": "",
+            "status": "a"
+          },
+          "629": {
+            "chance_of_playing_next_round": null,
+            "news": "",
+            "status": "a"
+          },
+          "661": {
+            "chance_of_playing_next_round": null,
+            "news": "",
+            "status": "a"
+          },
+          "667": {
+            "chance_of_playing_next_round": null,
+            "news": "",
+            "status": "a"
+          },
+          "669": {
+            "chance_of_playing_next_round": null,
+            "news": "",
+            "status": "a"
+          },
+          "671": {
+            "chance_of_playing_next_round": null,
+            "news": "",
+            "status": "a"
+          },
+          "82": {
+            "chance_of_playing_next_round": null,
+            "news": "",
+            "status": "a"
+          },
+          "83": {
+            "chance_of_playing_next_round": null,
+            "news": "",
+            "status": "a"
+          }
+        },
+        "origin_deadline": "2026-11-21T11:00:00Z",
+        "parts": {
+          "mm": "B_joint_role_aware",
+          "pm_vfinal": "B_separate_nonpenalty_and_penalty_goals",
+          "ts": "B_shared_scenarios_autosubs"
+        },
+        "penalty_role_source": {
+          "observed_at": "2026-11-21T10:15:35.800952+00:00",
+          "source": "official FPL bootstrap"
+        },
+        "penalty_roles": {
+          "106": 1,
+          "12": 1,
+          "124": 1,
+          "126": 3,
+          "15": 3,
+          "154": 1,
+          "157": 2,
+          "166": 3,
+          "167": 3,
+          "183": 1,
+          "184": 4,
+          "188": 3,
+          "193": 2,
+          "194": 5,
+          "208": 3,
+          "215": 4,
+          "223": 1,
+          "224": 2,
+          "239": 2,
+          "249": 1,
+          "25": 2,
+          "254": 2,
+          "261": 3,
+          "295": 1,
+          "313": 1,
+          "318": 3,
+          "346": 1,
+          "347": 2,
+          "348": 3,
+          "366": 4,
+          "367": 3,
+          "368": 1,
+          "372": 5,
+          "379": 2,
+          "389": 4,
+          "397": 2,
+          "400": 3,
+          "401": 2,
+          "41": 2,
+          "411": 1,
+          "426": 1,
+          "427": 2,
+          "43": 3,
+          "45": 1,
+          "452": 4,
+          "464": 1,
+          "465": 2,
+          "480": 1,
+          "490": 2,
+          "491": 4,
+          "492": 6,
+          "512": 3,
+          "513": 4,
+          "526": 1,
+          "542": 1,
+          "543": 2,
+          "569": 1,
+          "594": 2,
+          "640": 2,
+          "68": 3,
+          "70": 2,
+          "78": 1,
+          "94": 2,
+          "97": 3
+        },
+        "player_fixture_rows": 4032,
+        "quality": {
+          "missing_bps_fields": {
+            "accurate_passes_percent": 30,
+            "chances_created": 192,
+            "dispossessed": 201,
+            "tackles_won": 1547,
+            "was_fouled": 500
+          },
+          "quarantined_bps_player_matches": 1880,
+          "verified_bps_player_matches": 1204
+        },
+        "recommendations": {
+          "chips": {
+            "status": "Not Available"
+          },
+          "transfers": {
+            "status": "Not Available"
+          }
+        },
+        "role_assignment": {
+          "competition_importance": "existing MI formula with provider codes normalized; observed participation; no inferred knockout progress",
+          "evidence_sha256": {
+            "analysis/results/joint-role-candidate-20261022/decision.json": "d340bed100cea6619c89d1a9cde9b3e7165078f7bd410aa4d62982a40c0c245a",
+            "analysis/results/joint-role-candidate-20261022/metrics.csv": "01f77ec35694a8a076fb3e9b49da6ca9e7cc80ef4c24b01b32dc4e7ada03efd8",
+            "analysis/results/joint-role-candidate-20261022/pm-decision.json": "7b2b746a96dea46d438b73bb4a37b7688c248fca8526d28cd9d69a3207d399e6",
+            "analysis/results/joint-role-candidate-20261022/pm-metrics.csv": "e7b9085973b6b8e2260bad2a6b1584a10b199974693e8c652eca0da674385605",
+            "analysis/results/joint-role-candidate-20261022/pm-protocol.json": "a0c3603014621315eed948f26e961bf7f643f3757861ffe67c54f0aaf34fbee5",
+            "analysis/results/joint-role-candidate-20261022/probability-calibration.json": "03b5d40671f081c613cedba1c40cc59d9e19cc81157b928f06f53582bb8cae8c",
+            "analysis/results/joint-role-candidate-20261022/protocol.json": "cdb951f896b5d2d6d7c6d50b4260ff4e88aea75196504e2f2d6acde7ef6a96df",
+            "analysis/results/joint-role-candidate-20261022/source-manifest.json": "e4fb89fcf7f0cc6338c35ff00453efde4f7dabec7b7874f95f858519806640b3",
+            "scripts/joint_role_bridge.py": "3c7ecf0f703b134271736bebb226388039a6e6802f321390f7c76f4cf9114cab",
+            "src/fpl_v1_1_model/experimental_joint_role_assignment.py": "f1f1c7b6f57539019012e6d946615d5fd78f5b24a493852c10bc3039d133f2d6",
+            "src/fpl_v1_1_model/experimental_role_assignment_history.py": "cc6bc4165f7be7b9444c8f8f2b5ae9214616ca19d6bf5afe1992a478011d52c0",
+            "src/fpl_v1_1_model/experimental_role_importance.py": "3165567261d0d56abffa6e67dd91dcdd6e2d256d30123a3a4d943249da748b3a"
+          },
+          "excluded_current_role_games": 0,
+          "future_priority": "neutral; no complete pre-cutoff historical upcoming-calendar certification",
+          "independent_certification": false,
+          "role_evidence": "prior confirmed tactical roles and observed minutes; 2024 structural proxies labelled",
+          "role_input_sha256": "e67dd02367c2a63110a8109aa5b85c589c72fd9942c04d705e52c4560ba2413c",
+          "scope": "B_preview_only",
+          "strength": 0.5,
+          "version": "joint-role-assignment-v1",
+          "xp_improvement_established": false
+        },
+        "scenario_contract": {
+          "across_fixtures": "independent seeded draws",
+          "draws": 400,
+          "outfield_substitutions": "paired normal-match timeline; shared MM/PM marginal law",
+          "parameter_uncertainty_included": false,
+          "version": "shared-PM-match-draws-v1",
+          "within_match": "shared"
+        },
+        "scope": "prospective_preview",
+        "season": "2026-27",
+        "source_repairs": {
+          "coverage": {
+            "2024-25": "verified PL + 3252 mapped non-PL player-match observations; historical coverage is a sourced subset, not certified complete",
+            "2025-26": "verified PL + audited recovered cup/UEFA subset; completeness not claimed",
+            "availability": "historical +3/+4h proxies, not certified publication clocks"
+          },
+          "dated_medical_return": "prior fitted conditional first-appearance survival",
+          "persistent_departures_all_positions": true,
+          "physical_feature_version": "B-verified-physical-workload-v2"
+        },
+        "source_workflow": "https://github.com/pdamkier-del/fpl-analytics-app/actions/runs/38056989718"
+      },
+      "player_rows": 672,
+      "first_player_fields": [
+        "id",
+        "name",
+        "player_uuid",
+        "position",
+        "price_tenths",
+        "team",
+        "team_id",
+        "weeks"
+      ],
+      "gws": [
+        11,
+        12,
+        13,
+        14,
+        15,
+        16
+      ],
+      "unique_player_ids": 672,
+      "missing_player_uuid": 0,
+      "player_week_rows": 4032,
+      "player_fixture_rows": 4032,
+      "first_week_fields": [
+        "fixtures",
+        "gw",
+        "p_play",
+        "pm_analytic_minutes",
+        "scenarios",
+        "unavailable",
+        "xmins",
+        "xpts"
+      ],
+      "first_fixture_fields": [
+        "components",
+        "distribution",
+        "fixture_uuid",
+        "goalkeeper_model",
+        "kickoff",
+        "p_60_plus",
+        "p_90",
+        "p_start",
+        "penalty",
+        "penalty_miss_points_subset_of_negative",
+        "pm_analytic_minutes",
+        "q_sub",
+        "simulated_minutes",
+        "xmins",
+        "xpts"
+      ],
+      "all_player_horizons_match": true,
+      "fixture_identity_missing": 0,
+      "scenario_contract": {
+        "across_fixtures": "independent seeded draws",
+        "draws": 400,
+        "outfield_substitutions": "paired normal-match timeline; shared MM/PM marginal law",
+        "parameter_uncertainty_included": false,
+        "version": "shared-PM-match-draws-v1",
+        "within_match": "shared"
+      },
+      "scenario_fields": [
+        "minutes",
+        "points"
+      ]
+    },
+    "current/mm.json": {
+      "url": "https://pdamkier-del.github.io/fpl-analytics-app/mm-preview/current/mm.json",
+      "byte_sha256": "d282e71e725661da51bf2f6474fe1bb1f7f8a423b20a8c87ca8a63c700ca1992",
+      "bytes": 4436264,
+      "top_level_fields": [
+        "calibration",
+        "code_sha256",
+        "content_sha256",
+        "contract",
+        "data_at",
+        "deadline_correct",
+        "independently_validated",
+        "locked_model_active",
+        "model_version",
+        "origin_deadline",
+        "players",
+        "role_assignment",
+        "scope",
+        "source_sha256",
+        "teams"
+      ],
+      "metadata": {
+        "calibration": {
+          "alpha": 10.0,
+          "feature_columns": [
+            "logit_p",
+            "logit_q",
+            "normal_p",
+            "stable_p",
+            "starter_mean",
+            "cameo_mean",
+            "history_n",
+            "start_n",
+            "cameo_n",
+            "last_start_minutes",
+            "last_started",
+            "rest_days",
+            "team_rest_days",
+            "minutes_7d",
+            "minutes_14d",
+            "role_jump"
+          ],
+          "independently_validated": false,
+          "last_label_known_at": "2026-05-24 18:00:00+00:00",
+          "training_rows": 35169
+        },
+        "code_sha256": {
+          "scripts/mm_candidate.py": "13d542d9c8e458ea3435a844c403245984e65eedc1ac3d3d72b3e8b650e0169d",
+          "scripts/mm_candidate_forecast.py": "4f6fc21b99111b7070f550339d246be24ec48f1616f291003c8e67f9038988c5",
+          "scripts/mm_locked_bridge.py": "5a7879f22eb0e2162c23255ddbc8f7b365cfbe414b354ba6ac9e01b5184062d6",
+          "scripts/research_individual_mm_refinement.py": "d25288ddbd5100d7711d41360ef764a63e3a46f6c17a4493345ba3fd354ad200",
+          "scripts/run_joint_fh_wc_stopping_replay.py": "829c5ace1fc24c9d78343a046cd7902a6316d5bd90d6b094ce78fe8b8f40a161",
+          "scripts/run_live_locked_ts.py": "018fa6b0620c6c853bc053cebcaa09addeebf24c7ebb1bd7e07f5840300d9efb",
+          "scripts/run_mm_locked_preview.py": "023f1ccccfd4d7ecc94ceaf3fdc0c9ab4d42462fffd1ad30d947c93fe0c3450b",
+          "scripts/run_vfinal_integrated.py": "5b0722119e32552b5e180234535c5e8494a5662f34b291469598a3485d7709b0",
+          "src/fpl_v1_1_model/joint_simulator.py": "557857c7bc3bf56db75e0505a50606b4704c3534fdcced502783a3da34e0c953",
+          "src/fpl_v1_1_model/paired_joint.py": "f3eda1cc3e1bf326c74c09b150212883a389b02f1b3744ec82369e2e3c876ad6",
+          "src/fpl_v1_1_model/phase4b.py": "0ed9955bec53077b135c50687325be0d83976be6ce27917ca311e5007b3fc0fa",
+          "src/fpl_xpts/transfer_planner.py": "1b424db371b1ec86d30f1162528437d20637fa6e10dcdf6a667d987b95ec6f04"
+        },
+        "content_sha256": "e02b2a0a79fbf5a43ff68bdf60a3435fcdfcd2050fe491341d1c864cbf6a2f5b",
+        "contract": "fpl.mm/1.0",
+        "data_at": "2026-11-21T10:23:05.948306+00:00",
+        "deadline_correct": false,
+        "independently_validated": false,
+        "locked_model_active": false,
+        "model_version": "B-MM-PM-TS-v1",
+        "origin_deadline": "2026-11-21T11:00:00+00:00",
+        "role_assignment": {
+          "competition_importance": "existing MI formula with provider codes normalized; observed participation; no inferred knockout progress",
+          "evidence_sha256": {
+            "analysis/results/joint-role-candidate-20261022/decision.json": "d340bed100cea6619c89d1a9cde9b3e7165078f7bd410aa4d62982a40c0c245a",
+            "analysis/results/joint-role-candidate-20261022/metrics.csv": "01f77ec35694a8a076fb3e9b49da6ca9e7cc80ef4c24b01b32dc4e7ada03efd8",
+            "analysis/results/joint-role-candidate-20261022/pm-decision.json": "7b2b746a96dea46d438b73bb4a37b7688c248fca8526d28cd9d69a3207d399e6",
+            "analysis/results/joint-role-candidate-20261022/pm-metrics.csv": "e7b9085973b6b8e2260bad2a6b1584a10b199974693e8c652eca0da674385605",
+            "analysis/results/joint-role-candidate-20261022/pm-protocol.json": "a0c3603014621315eed948f26e961bf7f643f3757861ffe67c54f0aaf34fbee5",
+            "analysis/results/joint-role-candidate-20261022/probability-calibration.json": "03b5d40671f081c613cedba1c40cc59d9e19cc81157b928f06f53582bb8cae8c",
+            "analysis/results/joint-role-candidate-20261022/protocol.json": "cdb951f896b5d2d6d7c6d50b4260ff4e88aea75196504e2f2d6acde7ef6a96df",
+            "analysis/results/joint-role-candidate-20261022/source-manifest.json": "e4fb89fcf7f0cc6338c35ff00453efde4f7dabec7b7874f95f858519806640b3",
+            "scripts/joint_role_bridge.py": "3c7ecf0f703b134271736bebb226388039a6e6802f321390f7c76f4cf9114cab",
+            "src/fpl_v1_1_model/experimental_joint_role_assignment.py": "f1f1c7b6f57539019012e6d946615d5fd78f5b24a493852c10bc3039d133f2d6",
+            "src/fpl_v1_1_model/experimental_role_assignment_history.py": "cc6bc4165f7be7b9444c8f8f2b5ae9214616ca19d6bf5afe1992a478011d52c0",
+            "src/fpl_v1_1_model/experimental_role_importance.py": "3165567261d0d56abffa6e67dd91dcdd6e2d256d30123a3a4d943249da748b3a"
+          },
+          "excluded_current_role_games": 0,
+          "future_priority": "neutral; no complete pre-cutoff historical upcoming-calendar certification",
+          "independent_certification": false,
+          "role_evidence": "prior confirmed tactical roles and observed minutes; 2024 structural proxies labelled",
+          "role_input_sha256": "e67dd02367c2a63110a8109aa5b85c589c72fd9942c04d705e52c4560ba2413c",
+          "scope": "B_preview_only",
+          "strength": 0.5,
+          "version": "joint-role-assignment-v1",
+          "xp_improvement_established": false
+        },
+        "scope": "prospective_preview",
+        "source_sha256": "d22febb881091137d1ba6aaf94cb0736b517fa2efa3ecb35ae0a0dcfd99e9929"
+      },
+      "player_rows": 4032,
+      "first_player_fields": [
+        "availability",
+        "club",
+        "club_id",
+        "data_at",
+        "expected_xi",
+        "fixture_id",
+        "forecast_at",
+        "formation",
+        "fpl_element",
+        "gw",
+        "interval_method",
+        "model_version",
+        "name",
+        "normal_role",
+        "p_60_plus",
+        "p_90",
+        "p_play",
+        "p_start",
+        "p_sub_given_not_start",
+        "player_id",
+        "primary_role",
+        "role_probabilities",
+        "role_status",
+        "season",
+        "secondary_role",
+        "slot",
+        "slot_index",
+        "start_minutes",
+        "sub_minutes",
+        "uncertainty_status",
+        "xi_selection_rule",
+        "xmins"
+      ],
+      "first_row_identity_fields": {
+        "player_id": true,
+        "fixture_id": true,
+        "player_uuid": false,
+        "fpl_element": true,
+        "fpl_fixture_id": false
+      }
+    }
+  },
+  "source_copies": {
+    "analysis/archive_prospective_player_forecast.py": {
+      "source_commit": "27bf5e1e1a17360bdbbfb41fbce7fe55679c6870",
+      "sha256": "694639124d7a72fd5a33a9d75f6927744e51fd6d851c9c43ad29ada2582e3c20"
+    },
+    "scripts/build_preview_history_archive.py": {
+      "source_commit": "27bf5e1e1a17360bdbbfb41fbce7fe55679c6870",
+      "sha256": "93590206b141aaebd36a955053291f72b032d6fbd7ee49080937af022f9c775c"
+    }
+  }
+}

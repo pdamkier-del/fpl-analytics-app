@@ -13,7 +13,7 @@ def reseal_synthetic_initial_registry(root):
  (root/'events.jsonl').write_text(''.join(json.dumps(e)+'\n'for e in rows))
 
 def test_all_evidence_and_protected_protocol_validate():
- r=reg.validate();assert r['experiments']==63 and r['existing_protocol_unchanged'];p=reg.read()['EXP-MM-SUB-20261108']['protocol'];assert p['sample_size']['minimum_gws']==8 and p['sample_size']['minimum_matches']==80
+ r=reg.validate();assert r['experiments']==64 and r['existing_protocol_unchanged'];p=reg.read()['EXP-MM-SUB-20261108']['protocol'];assert p['sample_size']['minimum_gws']==8 and p['sample_size']['minimum_matches']==80
 
 def test_registered_protocol_cannot_be_silently_edited(temporary):
  p=temporary/'experiments/EXP-TS-SEARCH-001.json';j=json.loads(p.read_text());j['question']='edited';p.write_text(json.dumps(j))
