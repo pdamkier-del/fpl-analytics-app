@@ -2,6 +2,8 @@
 
 Den fælles retning og etapeplan findes i **[research/MASTER_PLAN.md](research/MASTER_PLAN.md)**.
 
+**C1 (Codex modelarbejde) starter altid med [research/C1_README.md](research/C1_README.md)** — afkrydsningsliste, videnskabelige krav, historisk evidens og præcis første opgave. C1-filen suppleres af det officielle forskningsregister; afkrydsning alene ændrer ikke et eksperimentresultat.
+
 Før næste arbejde:
 
 ```sh
