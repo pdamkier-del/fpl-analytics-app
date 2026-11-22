@@ -1,3 +1,39 @@
+# Current C1 handoff — Phase 1 completed, 22 November 2026
+
+**Delivered PR:** [#48](https://github.com/pdamkier-del/fpl-analytics-app/pull/48), stacked on #47; not merged or deployed.
+
+**Experiment:** EXP-TS-SEARCH-001 completed, not accepted/promoted. Separate branch `research/c1-ts-search-20261122` based on PR47 at `089bc44c`. Original protocols, MM B, PM vFinal, TS v3, app, C2 branches and substitutions trial unchanged. No real manager data, fit or deployment.
+
+1. Read `results/EXP-TS-SEARCH-001/REPORT.md`, `ts_search/DESIGN.md`, `ts_search/REPRODUCIBILITY.md` and the result PR review.
+2. Run registry `validate`, `status`, `next`, offline result verification and the relevant research tests. The original protocol intentionally still has its registration-time wording; completion is in append-only events75–77. Do not edit it to update its narrative.
+3. Scoped PR47 review6013306012 supports only TS-overlap/novelty. Overall Stage0 inventory review remains unchecked; result/code review for this new study is also pending. Neither is supplied by self-tests.
+
+## Exact result and boundary
+
+A single42-case run completed in16.095455seconds under the original120-second initial cap:30deterministic and12restricted-DNP cases, pool≤17, ≤2net transfers per step, scenarios≤8, six-GW objective. The actual frozen config is loaded unchanged (including original max5parameter; pool17 bounds net differences to2). No illegal path actions among252; no scorer disagreement across11,880checks. All532pinned Python source files match after execution.
+
+Eleven deterministic instances have strict search gaps:6budget-enabler and5sale-price funding cases. Other19deterministic and all12DNP cases match the specified finite optimum within1e-9; DNP optima cover three fixed XI/allC-VC/bench permutations, not all possible nominations or stochastic transfer paths. Max gap66.73408 is a constructed weighted-utility difference, not a representative forecast/realized-point gain.
+
+D01 hand witness: keep score214.5024, exact247.40288, gap32.90048. Negative DEF funding leg is excluded by frozen fast-local generation; both fixed-nomination and joint exact references expose the same loss. This mechanism was already documented; the new evidence is an exact current-scorer six-GW measurement. No scorer bug or new nomination gap was found in this limited suite. All42cases, fullpaths, source hashes and raw float roundoff retained. Tied optimal paths may include pointless free reserve swaps because the original objective has no free-transfer charge/terminal salvage; do not modify the objective to hide that tie.
+
+## Next valid scientific work
+
+Registry `next` should return **EXP-PM-DEFS-001**. Reuse PR32/42's existing CS/DC/save/BPS definitions and coverage; consolidate the versioned event dictionary rather than repeat their audit or tune parameters. Current user scope was the TS study, so this PR recommends that work and stops before executing another study.
+
+A TS-specific repair requires a **new** preregistered candidate: permit beneficial joint funding bundles while checking exact-domain gaps, legality and runtime. This42-case suite is now seen regression/development evidence, never a new holdout for the candidate. Predeclare a broader unseen finite-domain set before claiming general search-quality gain; real policy value still needs original private six-GW data and stateful prospective evaluation. Do not change TS v3 or deploy based on these synthetic gaps.
+
+Protected substitutions trial retains original8GW/80matches and hashes. No new trial capture/scoring or status refresh was performed by Phase1; the prior observation remains dated. Do not label old GW8–10 or20substitution matches as new. Private manager data remains excluded.
+
+## Reproduction and end of next session
+
+Original implementation committed9f9ae6e3; implementation+running events committed759ccf51before execution. Runner requires that registered running state and a fresh output directory. For a future full reproduction use the original759ccf51checkout, not a reset/overwrite of the current canonical completed registry. Offline verifier from this PR runs without loading TS and independently replays504exact-path nominations and D01 arithmetic; it is not a second optimizer run or independent scientific review. See REPRODUCIBILITY.md for full commands and limitations, including fractional synthetic payoffs and machine-dependent rounding/runtime.
+
+Append state/evidence decisions only; preserve original protocols and original source hashes. No new full-suite runs, parameters or budget extensions were attempted after seeing these results. Preparation had one rejected registry state-write path (moved the evidence copy to the existing allowed results namespace) and one old test's stale global no-running assumption (narrowed to imported legacy studies); neither changed any experimental input or optimizer result.
+
+---
+
+# Prior handoff from PR47 — retained for chronology
+
 # Current C1 handoff — Stage 0, 22 November 2026
 
 **Separate research PR:** [#47](https://github.com/pdamkier-del/fpl-analytics-app/pull/47), based on PR #45. No merge/deploy.

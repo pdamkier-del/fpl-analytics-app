@@ -1,0 +1,26 @@
+{
+  "command": "OPENBLAS_NUM_THREADS=1 /workspace/fpl-venv/bin/python -m pytest research/tests research/stage0/tests research/ts_search/tests -q",
+  "result": "29 passed in1.39s",
+  "pre_run_primitive_tests": "6 passed in0.11s; no TS calls",
+  "scope": "Metadata invariants, independently hand-scored primitive witnesses, original input regeneration and offline chosen-path replay; no extra full TS-suite execution",
+  "failures_and_resolutions": [
+    {
+      "stage": "pre-run state registration",
+      "failure": "Evidence path research/ts_search outside existing allowed result namespaces; no state event written",
+      "resolution": "Copied fixed implementation manifest into research/results without changing protocol or registry allowlist"
+    },
+    {
+      "stage": "post-run regressions",
+      "failure": "One old Stage0 test asserted no study could ever be running",
+      "resolution": "Scope no-running assertion to historical legacy records; preserve correct legitimate experimental state"
+    }
+  ],
+  "test_and_postprocess_code_sha256": {
+    "research/tools/registry.py": "394e2f09751b8f39468744ef9d0619fdd3bf622634e00fdef105744dd2e5acdf",
+    "research/tests/test_registry.py": "3f5f54266eba9585fb9e6ecd54c932acbb29eb4e74e1f06329f487558f4d5e4d",
+    "research/stage0/tests/test_stage0.py": "2d3a6096fe54be22decaac4be7e33a35a986ba2ed509a9edbbff4ec3486d6334",
+    "research/ts_search/code/verify_results.py": "96c36d802005491af973f1294e5ca0c51ecb983d8202796dbb5ad777d2b2b23b",
+    "research/ts_search/code/summarize_results.py": "f1b6fc2ddfeca6ba541e098f05e07a481a57ea8c2da1ac2affb82259a4c47f57",
+    "research/ts_search/tests/test_results.py": "26d5640b70652c53f9b549b5c1bd1b6e0828d54da17f17b47f1be6c92ef19c7d"
+  }
+}
