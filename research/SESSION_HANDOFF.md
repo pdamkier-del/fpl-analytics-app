@@ -1,5 +1,7 @@
 # Current C1 handoff — Phase 1 completed, 22 November 2026
 
+**Delivered PR:** [#48](https://github.com/pdamkier-del/fpl-analytics-app/pull/48), stacked on #47; not merged or deployed.
+
 **Experiment:** EXP-TS-SEARCH-001 completed, not accepted/promoted. Separate branch `research/c1-ts-search-20261122` based on PR47 at `089bc44c`. Original protocols, MM B, PM vFinal, TS v3, app, C2 branches and substitutions trial unchanged. No real manager data, fit or deployment.
 
 1. Read `results/EXP-TS-SEARCH-001/REPORT.md`, `ts_search/DESIGN.md`, `ts_search/REPRODUCIBILITY.md` and the result PR review.

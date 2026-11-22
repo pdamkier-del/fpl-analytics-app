@@ -145,7 +145,7 @@ This table is **an index, not proof of exhaustive coverage**. Stage 0 must verif
 - [x] Report effect size in natural units with valid uncertainty where inferential; report deterministic search witnesses without inappropriate p-values.
 - [x] Record all attempted experiments (including failed, null and blocked); don't cherry-pick.
 - [x] Append dated registry events and decision log; explicitly regenerate status and handoff. A GitHub checkbox is **not** the official experiment state.
-- [ ] Open a *single bounded* research PR with evidence, remaining blocker and next valid action.
+- [x] Open a *single bounded* research PR with evidence, remaining blocker and next valid action.
 - [x] Leave production models and C2 integration branches untouched.
 
 ## F. Ownership and handoff to C2
@@ -163,3 +163,5 @@ This table is **an index, not proof of exhaustive coverage**. Stage 0 must verif
 **Stage-0 delivery:** [PR #47](https://github.com/pdamkier-del/fpl-analytics-app/pull/47), stacked on PR #45. Independent scientific review remains the only unchecked Stage-0 review item; no Stage1–6 experiment started.
 
 **Phase-1 continuation, 22 November 2026:** PR47 review6013306012 confirms the scoped TS novelty boundary; it does not close the overall Stage0 inventory-review box. EXP-TS-SEARCH-001 is now completed through append-only events. Next existing ready registration is EXP-PM-DEFS-001; read the current handoff before any additional execution.
+
+**Phase-1 delivery:** [PR #48](https://github.com/pdamkier-del/fpl-analytics-app/pull/48), stacked on #47. All 42 cases retained, 29 tests passing; no merge/deploy or model promotion. Result/code review remains pending.
