@@ -1,0 +1,50 @@
+{
+  "assist_families": {
+    "creation": [
+      "perf_last_xgi",
+      "perf_last_chances",
+      "perf_last_dribbles",
+      "perf_last_pass_acc"
+    ],
+    "rating": [
+      "perf_last_rating_proxy"
+    ],
+    "rating_creation": [
+      "perf_last_rating_proxy",
+      "perf_last_xgi",
+      "perf_last_chances",
+      "perf_last_dribbles",
+      "perf_last_pass_acc"
+    ]
+  },
+  "baseline": "existing soft-role + individual-history player rates",
+  "development": "GW16-21 leave-one-GW-out CV; conditional allocation loss",
+  "evaluation": "GW22-38 reused joint diagnostic only",
+  "formula": "share_i proportional to base_rate90_i * exposure_i * exp(beta*x_i)",
+  "goal_families": {
+    "finishing": [
+      "perf_last_xgi",
+      "perf_last_sot",
+      "perf_last_goal_assist"
+    ],
+    "rating": [
+      "perf_last_rating_proxy"
+    ],
+    "rating_finishing": [
+      "perf_last_rating_proxy",
+      "perf_last_xgi",
+      "perf_last_sot",
+      "perf_last_goal_assist",
+      "perf_last_dribbles"
+    ]
+  },
+  "l2": [
+    0.5,
+    2.0,
+    10.0,
+    50.0
+  ],
+  "model": "team-total-preserving hierarchical player allocation",
+  "promotion_allowed": false,
+  "team_totals": "exactly preserved for goals and assists"
+}

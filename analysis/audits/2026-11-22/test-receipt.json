@@ -1,0 +1,33 @@
+{
+  "audit_tests": {
+    "command": "python -m pytest -q analysis/audits/2026-11-22/tests",
+    "passed": 8
+  },
+  "existing_correctness_tests": {
+    "source_checkout": "fd3907f4",
+    "files": [
+      "test_v1_1_bps.py",
+      "test_v1_1_defcon.py",
+      "test_v1_1_negative_events.py",
+      "test_season_2025_26_rules.py"
+    ],
+    "passed": 22
+  },
+  "existing_JS_tests": {
+    "commands": [
+      "node tests/test_round_review.js",
+      "node tests/test_season_team_comparison.js"
+    ],
+    "both_passed": true
+  },
+  "scoring_replay": {
+    "fixtures": 30,
+    "official_player_rows": 2011,
+    "dc_threshold_mismatches": 0,
+    "dc_count_mismatches": 0,
+    "bonus_fixture_mismatches": 0,
+    "scope": "Actual known-event rules; does not validate probabilistic event forecasts or missing background BPS"
+  },
+  "full_simulation_regression_run": false,
+  "note": "Other indexed tests were inventoried, not all rerun."
+}

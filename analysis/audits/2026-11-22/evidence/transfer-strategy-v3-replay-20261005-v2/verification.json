@@ -1,0 +1,58 @@
+{
+  "starting_head": "60b890a2feb84f68728495e7d2ebafeaf874cef0",
+  "tests": "16 passed: test_transfer_planner.py + test_season_replay.py",
+  "candidate_equivalence": {
+    "deadline": 1,
+    "identical_candidate_squads_in_order": 61,
+    "head_seconds": 1.4293283700000075,
+    "optimized_seconds": 0.0429704270000002
+  },
+  "path_equivalence": {
+    "full_path_identical": true,
+    "old_planner_seconds": 127.25980501100003,
+    "objective": 207.83851402300442
+  },
+  "optimized_gw1_planner_seconds": 3.3140987220000113,
+  "resume_check": {
+    "resumed_from_gw": 23,
+    "next_gw": 24,
+    "history_preserved": true,
+    "action": {
+      "bank_after": 1.1,
+      "bank_before": 0.2,
+      "free_transfers_after": 1,
+      "free_transfers_before": 1,
+      "incoming": "120",
+      "is_executed": true,
+      "official_hit_points": 0,
+      "origin_gw": 23,
+      "outgoing": "450",
+      "projected_manager_score": 59.565,
+      "step": 1,
+      "target_gw": 23,
+      "transfers": 1,
+      "uncertainty_penalty": 0.0,
+      "utility_this_gw": 59.565
+    }
+  },
+  "environment": {
+    "python": "3.12.14",
+    "numpy": "2.3.5",
+    "pandas": "2.2.3",
+    "scipy": "1.17.0"
+  },
+  "scope": "No point-model changes; search limits unchanged from branch HEAD",
+  "season_invariants": {
+    "gameweeks": 38,
+    "first_action_only": true,
+    "bank_nonnegative": true,
+    "ft_cap_5": true,
+    "transfers_0_to_5": true,
+    "hit_4_and_buffer_1_5": true,
+    "forced_transfers": 0
+  },
+  "code_commit": "eacb255aa1b9a3dcb826fc2d64cbf90b2cd362b2",
+  "archived_v2_checksums_verified": true,
+  "fresh_v2_matches_archived_all_gameweeks": true,
+  "season_totals_verified": true
+}
