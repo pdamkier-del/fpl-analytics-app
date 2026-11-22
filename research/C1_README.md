@@ -156,11 +156,11 @@ This table is **an index, not proof of exhaustive coverage**. Stage 0 must verif
 
 ### First prompt at next C1 availability
 
-> Read the latest Stage-0 PR review and `research/stage0/REPORT.md`, `GAP_MATRIX.md`, `SESSION_HANDOFF.md`; verify registry/source receipts. Resolve independent novelty review before the next model experiment. Do not repeat the six old one-GW TS enumeration cases or the TSv4 MILP/enabler tests as new. The remaining `EXP-TS-SEARCH-001` gap is the unchanged current scorer in its registered finite domain; preserve all original bounds and register the harness before execution. A new session needs scope authorization for Stage 1; this Stage-0 session executed no model experiment.
+> Read PR48's result/code review, `research/results/EXP-TS-SEARCH-001/REPORT.md` and the current `SESSION_HANDOFF.md`; validate registry, source identities and offline result replay. EXP-TS-SEARCH-001 is completed: do not rerun it as a new study or reset its completed state. The next existing ready registration is EXP-PM-DEFS-001, reusing prior PR32/42 definitions. Any TS funding-bundle candidate needs a separate protocol and untouched search-quality cases; the 42 current cases are now seen regression evidence. Preserve all original models/app/protocols and do not start a new study beyond the user's authorized scope.
 
 **Important:** This checklist reflects the 2026-11-22 programme state. When resuming, verify *current* source branches, test status and new original-vintage GW receipts before ticking any box.
 
-**Stage-0 delivery:** [PR #47](https://github.com/pdamkier-del/fpl-analytics-app/pull/47), stacked on PR #45. Independent scientific review remains the only unchecked Stage-0 review item; no Stage1–6 experiment started.
+**Stage-0 delivery:** [PR #47](https://github.com/pdamkier-del/fpl-analytics-app/pull/47), stacked on PR #45. Independent scientific review remains the unchecked Stage-0 review item. No Stage1–6 experiment had started at that delivery; the later Phase1 continuation is recorded below.
 
 **Phase-1 continuation, 22 November 2026:** PR47 review6013306012 confirms the scoped TS novelty boundary; it does not close the overall Stage0 inventory-review box. EXP-TS-SEARCH-001 is now completed through append-only events. Next existing ready registration is EXP-PM-DEFS-001; read the current handoff before any additional execution.
 
