@@ -1,0 +1,11 @@
+{
+  "at": "2026-11-22T20:42:10.129290+00:00",
+  "status": "blocked_execution_before_application",
+  "attempt": 1,
+  "harness": "research/pm_defs/code/run_contract_audit.py",
+  "harness_sha256": "325765e6140a2da0c0f5bc6776cd218f81e33efb34d31ae2867e403f9112ec4c",
+  "error": "digest(__file__) received str, but the helper expected Path: AttributeError read_bytes",
+  "contract_application_executed": false,
+  "model_executed": false,
+  "corrective_action": "Keep v1source unchanged. Register a separate v2harness fixing path coercion; same catalog/schema/inputs. No scientific target or rule changed."
+}
