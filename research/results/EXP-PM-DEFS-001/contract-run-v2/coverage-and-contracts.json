@@ -1,0 +1,466 @@
+{
+  "experiment_id": "EXP-PM-DEFS-001",
+  "catalog_id": "PM-COMPONENTS-1.0.0",
+  "study_class": "definition_and_coverage_contract_not_predictive_evaluation",
+  "scope": "New source/container compatibility and schema tests only; prior performance/CS/DC/BPS studies not rerun",
+  "checks": {
+    "original_vintage_containers": 3,
+    "matched_forecast_fixture_rows": 2007,
+    "penalty_miss_subset_checks": 2007,
+    "goal_origin_partition_checks": 2007,
+    "forecast_partition_matches": 2007,
+    "forecast_ledger_matches": 2007,
+    "actual_ledger_matches": 2007
+  },
+  "failures": [],
+  "rule_config_parity": "all declared goal/CS position weights, PK-save/assist weights and BPSzero-direct-points agree with archived official game_config.scoring",
+  "by_gw": [
+    {
+      "gw": 8,
+      "forecast_players": 668,
+      "official_player_rows": 669,
+      "matched": 668,
+      "official_only_not_scored": 1,
+      "final_labels": true,
+      "original_issue": "b682c2eb723940f156fef38c5b447f57e7f090fec28b3892cdcbf2fdb9d7f357",
+      "cutoff": "2026-10-23T16:11:01.045810+00:00",
+      "published_at": "2026-10-23T16:29:56Z",
+      "deadline": "2026-10-23T17:30:00Z"
+    },
+    {
+      "gw": 9,
+      "forecast_players": 669,
+      "official_player_rows": 670,
+      "matched": 669,
+      "official_only_not_scored": 1,
+      "final_labels": true,
+      "original_issue": "80905646f26560ac37fe6af8ca6d7d509287ecbf0d6a9c34217332fdba41238c",
+      "cutoff": "2026-10-31T09:00:37.714224+00:00",
+      "published_at": "2026-10-31T09:55:31Z",
+      "deadline": "2026-10-31T11:00:00Z"
+    },
+    {
+      "gw": 10,
+      "forecast_players": 670,
+      "official_player_rows": 672,
+      "matched": 670,
+      "official_only_not_scored": 2,
+      "final_labels": true,
+      "original_issue": "6e1a8bfb79cc727a850985d7b94fa72357880dafba236bd3650df4d03dafa2eb",
+      "cutoff": "2026-11-03T11:00:42.881488+00:00",
+      "published_at": "2026-11-03T11:21:57Z",
+      "deadline": "2026-11-06T18:30:00Z"
+    }
+  ],
+  "official_field_coverage": {
+    "assists": {
+      "rows": 2011,
+      "present": 2011,
+      "non_null": 2011,
+      "zero": 1955
+    },
+    "bonus": {
+      "rows": 2011,
+      "present": 2011,
+      "non_null": 2011,
+      "zero": 1915
+    },
+    "bps": {
+      "rows": 2011,
+      "present": 2011,
+      "non_null": 2011,
+      "zero": 1110
+    },
+    "clean_sheets": {
+      "rows": 2011,
+      "present": 2011,
+      "non_null": 2011,
+      "zero": 1783
+    },
+    "clearances_blocks_interceptions": {
+      "rows": 2011,
+      "present": 2011,
+      "non_null": 2011,
+      "zero": 1362
+    },
+    "creativity": {
+      "rows": 2011,
+      "present": 2011,
+      "non_null": 2011,
+      "zero": 0
+    },
+    "defensive_contribution": {
+      "rows": 2011,
+      "present": 2011,
+      "non_null": 2011,
+      "zero": 1225
+    },
+    "expected_assists": {
+      "rows": 2011,
+      "present": 2011,
+      "non_null": 2011,
+      "zero": 0
+    },
+    "expected_goal_involvements": {
+      "rows": 2011,
+      "present": 2011,
+      "non_null": 2011,
+      "zero": 0
+    },
+    "expected_goals": {
+      "rows": 2011,
+      "present": 2011,
+      "non_null": 2011,
+      "zero": 0
+    },
+    "expected_goals_conceded": {
+      "rows": 2011,
+      "present": 2011,
+      "non_null": 2011,
+      "zero": 0
+    },
+    "goals_conceded": {
+      "rows": 2011,
+      "present": 2011,
+      "non_null": 2011,
+      "zero": 1529
+    },
+    "goals_scored": {
+      "rows": 2011,
+      "present": 2011,
+      "non_null": 2011,
+      "zero": 1949
+    },
+    "ict_index": {
+      "rows": 2011,
+      "present": 2011,
+      "non_null": 2011,
+      "zero": 0
+    },
+    "in_dreamteam": {
+      "rows": 2011,
+      "present": 2011,
+      "non_null": 2011,
+      "zero": 1978
+    },
+    "influence": {
+      "rows": 2011,
+      "present": 2011,
+      "non_null": 2011,
+      "zero": 0
+    },
+    "minutes": {
+      "rows": 2011,
+      "present": 2011,
+      "non_null": 2011,
+      "zero": 1085
+    },
+    "own_goals": {
+      "rows": 2011,
+      "present": 2011,
+      "non_null": 2011,
+      "zero": 2006
+    },
+    "penalties_missed": {
+      "rows": 2011,
+      "present": 2011,
+      "non_null": 2011,
+      "zero": 2010
+    },
+    "penalties_saved": {
+      "rows": 2011,
+      "present": 2011,
+      "non_null": 2011,
+      "zero": 2011
+    },
+    "played": {
+      "rows": 2011,
+      "present": 2011,
+      "non_null": 2011,
+      "zero": 1085
+    },
+    "recoveries": {
+      "rows": 2011,
+      "present": 2011,
+      "non_null": 2011,
+      "zero": 1242
+    },
+    "red_cards": {
+      "rows": 2011,
+      "present": 2011,
+      "non_null": 2011,
+      "zero": 2005
+    },
+    "saves": {
+      "rows": 2011,
+      "present": 2011,
+      "non_null": 2011,
+      "zero": 1956
+    },
+    "starts": {
+      "rows": 2011,
+      "present": 2011,
+      "non_null": 2011,
+      "zero": 1351
+    },
+    "tackles": {
+      "rows": 2011,
+      "present": 2011,
+      "non_null": 2011,
+      "zero": 1485
+    },
+    "threat": {
+      "rows": 2011,
+      "present": 2011,
+      "non_null": 2011,
+      "zero": 0
+    },
+    "total_points": {
+      "rows": 2011,
+      "present": 2011,
+      "non_null": 2011,
+      "zero": 1132
+    },
+    "yellow_cards": {
+      "rows": 2011,
+      "present": 2011,
+      "non_null": 2011,
+      "zero": 1885
+    }
+  },
+  "forecast_component_coverage": {
+    "appearance_points": 2007,
+    "assist_points": 2007,
+    "cs_points": 2007,
+    "dc_points": 2007,
+    "expected_bonus": 2007,
+    "gc_points": 2007,
+    "goal_points": 2007,
+    "negative_points": 2007,
+    "penalty_save_points": 2007,
+    "save_points": 2007
+  },
+  "archived_scenario_fields": {
+    "minutes": 2007,
+    "points": 2007
+  },
+  "official_award_identifier_occurrences": {
+    "assists": 56,
+    "bonus": 96,
+    "clean_sheets": 202,
+    "defensive_contribution": 116,
+    "goals_conceded": 100,
+    "goals_scored": 62,
+    "minutes": 2007,
+    "own_goals": 5,
+    "penalties_missed": 1,
+    "red_cards": 6,
+    "saves": 31,
+    "yellow_cards": 126
+  },
+  "prior_evidence": {
+    "status": "prior_study_receipts_only_not_recomputed",
+    "PR32": {
+      "fixtures": 341,
+      "rows": 27092,
+      "label_coverage_rows": 88,
+      "cs_label": "RULE-DERIVED ONLY from actual FPL minutes and player goals_conceded_on_pitch; independent direct FPL CS label NOT AVAILABLE",
+      "dc_2024": "Direct label NOT AVAILABLE; season-specific model DC is identically zero",
+      "bps_background": "Partial event residual; exact generated-event partition for all 2024/25 rows and non-scorers in 2025/26. Scoring 2025/26 rows have bounds only because penalty-goal split NOT AVAILABLE. Unavailable Opta terms remain in background; 2025/26 brace variance not independently identified"
+    },
+    "PR41": {
+      "fixtures": 30,
+      "official_player_rows": 2011,
+      "dc_threshold_mismatches": 0,
+      "dc_count_mismatches": 0,
+      "bonus_fixture_mismatches": 0,
+      "scope": "Actual known-event rules; does not validate probabilistic event forecasts or missing background BPS"
+    },
+    "PR42": {
+      "cs_supported_player_rows": 1308,
+      "cs_unsupported_player_rows": 462,
+      "cs_team_bounds_rows": 57,
+      "cs_team_rows_excluded": 3
+    },
+    "keeper_availability": {
+      "scope": "Previously verified raw-provider availability summary, not raw shot/event data shipped by this PR",
+      "provider_keeper_rows": 141,
+      "inside_rows": 141,
+      "strict_keeper_rows": 133,
+      "xgot_rows": 135,
+      "xgot_reconciled_rows": 133,
+      "big_chance_save_rows": 0
+    }
+  },
+  "unidentified": [
+    {
+      "target": "ordinary_big_chance_saves",
+      "status": "unavailable",
+      "basis": "Keeper metadata0explicit fields; no xGOTthreshold surrogate"
+    },
+    {
+      "target": "ordinary_inside_save_official_BPS_mapping",
+      "status": "partial",
+      "basis": "Provider141/133coverage is not a verified official Opta/FPL mapping or complete2026holdout"
+    },
+    {
+      "target": "per_draw_background_BPS_and_event_covariance",
+      "status": "not_archived",
+      "basis": "Public scenario keys are total points/minutes; bonus means do not identify background"
+    },
+    {
+      "target": "exact_player_CS_from_old_PR32",
+      "status": "rule_derived_only",
+      "basis": "No independent direct labels or sub-second/red-card-exit liability in those inputs"
+    },
+    {
+      "target": "old_penalty_goal_origin",
+      "status": "bounded",
+      "basis": "PR32:2025scorers lack direct penalty-goal split; not borrowed from2026catalog"
+    },
+    {
+      "target": "new_provider_rights",
+      "status": "unverified",
+      "basis": "No new provider acquired; public accessibility is not integration/redistribution permission"
+    },
+    {
+      "target": "full_historical_rule_certification",
+      "status": "partial",
+      "basis": "Selected official2025changes and archived adapter are known; do not relabel all old targets as2026rules"
+    }
+  ],
+  "example_fixture_ledgers": [
+    {
+      "catalog_id": "PM-COMPONENTS-1.0.0",
+      "season": "2026-27",
+      "gw": 8,
+      "fixture_id": 71,
+      "player_code": 154561,
+      "fpl_position_at_deadline": "GK",
+      "rulebook": "fpl-2026-27-v1",
+      "source_sha256": "ef2765847da1fe4822b52aaad718261c0ee07714c0da2076db7bb39884e1499c",
+      "mode": "actual",
+      "fields": {
+        "appearance_points": {
+          "status": "known",
+          "unit": "fpl_points",
+          "value": 2
+        },
+        "goal_points": {
+          "status": "known",
+          "unit": "fpl_points",
+          "value": 0
+        },
+        "assist_points": {
+          "status": "known",
+          "unit": "fpl_points",
+          "value": 0
+        },
+        "cs_points": {
+          "status": "known",
+          "unit": "fpl_points",
+          "value": 4
+        },
+        "save_points": {
+          "status": "known",
+          "unit": "fpl_points",
+          "value": 1
+        },
+        "penalty_save_points": {
+          "status": "known",
+          "unit": "fpl_points",
+          "value": 0
+        },
+        "dc_points": {
+          "status": "known",
+          "unit": "fpl_points",
+          "value": 0
+        },
+        "negative_points": {
+          "status": "known",
+          "unit": "fpl_points",
+          "value": 0
+        },
+        "gc_points": {
+          "status": "known",
+          "unit": "fpl_points",
+          "value": 0
+        },
+        "bonus_points": {
+          "status": "known",
+          "unit": "fpl_points",
+          "value": 0
+        }
+      }
+    },
+    {
+      "catalog_id": "PM-COMPONENTS-1.0.0",
+      "season": "2026-27",
+      "gw": 8,
+      "fixture_id": 71,
+      "player_code": 109745,
+      "fpl_position_at_deadline": "GK",
+      "rulebook": "fpl-2026-27-v1",
+      "source_sha256": "ef2765847da1fe4822b52aaad718261c0ee07714c0da2076db7bb39884e1499c",
+      "mode": "actual",
+      "fields": {
+        "appearance_points": {
+          "status": "known",
+          "unit": "fpl_points",
+          "value": 0
+        },
+        "goal_points": {
+          "status": "known",
+          "unit": "fpl_points",
+          "value": 0
+        },
+        "assist_points": {
+          "status": "known",
+          "unit": "fpl_points",
+          "value": 0
+        },
+        "cs_points": {
+          "status": "known",
+          "unit": "fpl_points",
+          "value": 0
+        },
+        "save_points": {
+          "status": "known",
+          "unit": "fpl_points",
+          "value": 0
+        },
+        "penalty_save_points": {
+          "status": "known",
+          "unit": "fpl_points",
+          "value": 0
+        },
+        "dc_points": {
+          "status": "known",
+          "unit": "fpl_points",
+          "value": 0
+        },
+        "negative_points": {
+          "status": "known",
+          "unit": "fpl_points",
+          "value": 0
+        },
+        "gc_points": {
+          "status": "known",
+          "unit": "fpl_points",
+          "value": 0
+        },
+        "bonus_points": {
+          "status": "known",
+          "unit": "fpl_points",
+          "value": 0
+        }
+      }
+    }
+  ],
+  "fit_executed": false,
+  "simulation_executed": false,
+  "TS_executed": false,
+  "production_changed": false,
+  "elapsed_seconds": 1.5612757350027096,
+  "status": "completed"
+}

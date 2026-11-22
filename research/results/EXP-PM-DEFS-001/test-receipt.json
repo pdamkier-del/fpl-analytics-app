@@ -1,0 +1,30 @@
+{
+  "command": "/workspace/fpl-venv/bin/python -m pytest research/tests research/pm_defs/tests -q",
+  "result": "35 passed in0.93s",
+  "new_PM_tests": 24,
+  "existing_registry_tests": 11,
+  "pre_application_contract_tests": "14passed",
+  "failures": [
+    {
+      "type": "v1preflight path-type error",
+      "action": "Preserved original v1; no archive application; registered separate v2fix before application",
+      "evidence": "attempt-1-blocked.json"
+    },
+    {
+      "type": "post-application test collection syntax error",
+      "action": "Fixed missing spaces in conditional expressions before tests could execute; no data/contract/result change"
+    }
+  ],
+  "old_studies_not_run": [
+    "TSsuite",
+    "PR32CS/DC/save/BPSreplays",
+    "PR41performance audit",
+    "PR42decompositions"
+  ],
+  "test_code_sha256": {
+    "research/pm_defs/tests/test_application.py": "42cbbad4a2789eb571602407d3db2fdf5e370c5aff88b287509b25ba354128ce",
+    "research/pm_defs/tests/test_contracts.py": "23f2e32f1fb69b013acde18659c3bc69f6201782b75f090955cc8b7e9c79767f",
+    "research/pm_defs/tests/test_identifiability.py": "cddc10211ea6b1022daaaf2a9562caed50cb1375cbfe213a0589dc976110e96b",
+    "research/pm_defs/tests/test_partitions.py": "5ab256f45fb205a5ec75d1d4e68994ae9584fb25b896c5239c057a834a306f9e"
+  }
+}

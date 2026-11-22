@@ -1,7 +1,7 @@
 # C1 — Scientific Model Research | README & progress checklist
 
 **Owner:** C1 (Codex model research) · **Programme:** FPL Analytics + FPL Research Lab
-**Last prepared:** 2026-11-22 · **State:** Stage 1 EXP-TS-SEARCH-001 completed; scoped TS novelty review recorded; result review and overall Stage-0 inventory review pending; no model/app changes
+**Last prepared:** 2026-11-22 · **State:** user Phase2 EXP-PM-DEFS-001 completed; TS study remains completed, not repeated; no model/app changes; independent result review pending
 **Canonical scientific plan:** [MASTER_PLAN.md](MASTER_PLAN.md) · **Registry:** [experiments/](experiments/) · **Current snapshot:** [STATUS.md](STATUS.md) · **Session handoff:** [SESSION_HANDOFF.md](SESSION_HANDOFF.md)
 
 > **Mission:** Improve *validated* predictive quality and FPL decision value—not apparent historical fit or model complexity. Research is separate from the stable Analytics app. This README is the human-readable checklist, **not** a replacement for the experiment registry, immutable evidence, or append-only decision log.
@@ -85,15 +85,17 @@ Original programme registration: **25 unchanged entries**; Stage 0 appends **38 
 
 **Exit gate:** reproducible independent evidence, not attractive old GW8–10 fits.
 
-### Stage 3 — PM **target definitions before changes** (`EXP-PM-DEFS-001`)
+### Stage 3 — PM **target definitions — completed in user Phase2** (`EXP-PM-DEFS-001`)
 
-- [ ] Define a versioned event dictionary for team goals, goals credited to players, FPL assists, actual reported minutes, CS eligibility, DC, saves, background/action BPS, bonus allocation and missingness.
-- [ ] Reconcile rules/targets and quantify coverage using PR #42; **no double counting** and no post-outcome data for deployable forecasts.
-- [ ] Distinguish team-level CS from on-pitch qualified CS; mark unobserved save/BPS subtypes unknown rather than zero.
-- [ ] Preserve original MM forecasts for end-to-end PM evaluation; observed-minute and observed-goal studies are **oracle diagnostics only**.
+- [x] Define a versioned event dictionary for team goals, goals credited to players, FPL assists, actual reported minutes, CS eligibility, DC, saves, background/action BPS, bonus allocation and missingness.
+- [x] Reconcile rules/targets and quantify coverage using PR #42; **no double counting** and no post-outcome data for deployable forecasts.
+- [x] Distinguish team-level CS from on-pitch qualified CS; mark unobserved save/BPS subtypes unknown rather than zero.
+- [x] Preserve original MM forecasts for end-to-end PM evaluation; observed-minute and observed-goal studies are **oracle diagnostics only**.
 - [ ] Register any later PM candidate separately with a held-out evaluation plan and downstream safeguards.
 
 **Exit gate:** known event identities reconcile, unknown data are explicit, and a new PM experiment is statistically identifiable.
+
+**Actual delivery:** [PM catalog](pm_defs/CATALOG.md), [definition report](results/EXP-PM-DEFS-001/REPORT.md), [coverage](results/EXP-PM-DEFS-001/COVERAGE.md), [next experiment recommendation](pm_defs/NEXT_EXPERIMENT.md). 24 definitions/3rulebooks; 2,007 forecast and actual ledger matches; 35tests pass. No old component study was rerun. The unchecked candidate-registration line above is a future gate, not unfinished definitions work; no candidate is fitted/registered here. User Phase2 is this PM task, not the prospective-MM Stage2 above.
 
 ### Stage 4 — TS **decision value** (`EXP-TS-POLICY-001`)
 
@@ -145,7 +147,7 @@ This table is **an index, not proof of exhaustive coverage**. Stage 0 must verif
 - [x] Report effect size in natural units with valid uncertainty where inferential; report deterministic search witnesses without inappropriate p-values.
 - [x] Record all attempted experiments (including failed, null and blocked); don't cherry-pick.
 - [x] Append dated registry events and decision log; explicitly regenerate status and handoff. A GitHub checkbox is **not** the official experiment state.
-- [x] Open a *single bounded* research PR with evidence, remaining blocker and next valid action.
+- [ ] Open a *single bounded* research PR with evidence, remaining blocker and next valid action.
 - [x] Leave production models and C2 integration branches untouched.
 
 ## F. Ownership and handoff to C2
@@ -156,7 +158,7 @@ This table is **an index, not proof of exhaustive coverage**. Stage 0 must verif
 
 ### First prompt at next C1 availability
 
-> Read PR48's result/code review, `research/results/EXP-TS-SEARCH-001/REPORT.md` and the current `SESSION_HANDOFF.md`; validate registry, source identities and offline result replay. EXP-TS-SEARCH-001 is completed: do not rerun it as a new study or reset its completed state. The next existing ready registration is EXP-PM-DEFS-001, reusing prior PR32/42 definitions. Any TS funding-bundle candidate needs a separate protocol and untouched search-quality cases; the 42 current cases are now seen regression evidence. Preserve all original models/app/protocols and do not start a new study beyond the user's authorized scope.
+> Read the latest PM-definitions PR, `research/results/EXP-PM-DEFS-001/REPORT.md`, `pm_defs/NEXT_EXPERIMENT.md` and current `SESSION_HANDOFF.md`; validate registry and source hashes. EXP-PM-DEFS-001 and EXP-TS-SEARCH-001 are completed: do not repeat them. Recommend preregistering prospective frozen DC-hit validation using identified per-fixture p=E[DCpoints]/2 and new original outcomes, without fitting a model now. The existing CS/BPS protocol is `EXP-PM-CS-BPS-001`; retain its endpoints/dependencies. `registry next` may return C2's private TS capture; that does not authorize C1 integration. Preserve original models, app and substitution trial and remain inside current user scope.
 
 **Important:** This checklist reflects the 2026-11-22 programme state. When resuming, verify *current* source branches, test status and new original-vintage GW receipts before ticking any box.
 
@@ -165,3 +167,5 @@ This table is **an index, not proof of exhaustive coverage**. Stage 0 must verif
 **Phase-1 continuation, 22 November 2026:** PR47 review6013306012 confirms the scoped TS novelty boundary; it does not close the overall Stage0 inventory-review box. EXP-TS-SEARCH-001 is now completed through append-only events. Next existing ready registration is EXP-PM-DEFS-001; read the current handoff before any additional execution.
 
 **Phase-1 delivery:** [PR #48](https://github.com/pdamkier-del/fpl-analytics-app/pull/48), stacked on #47. All 42 cases retained, 29 tests passing; no merge/deploy or model promotion. Result/code review remains pending.
+
+**Phase2 outcome, 22 November 2026:** PM definitions/coverage contracts completed. All63original protocols and previous TSresults remain unchanged. No TS or old component-efficacy audit executed; next experiment is recommendation only.
