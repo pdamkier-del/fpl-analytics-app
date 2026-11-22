@@ -1,3 +1,35 @@
+# Current C1 handoff — TS funding candidate completed, 22 November 2026
+
+**Delivered PR:** [#50](https://github.com/pdamkier-del/fpl-analytics-app/pull/50), stacked on #49; no merge or deploy.65tests pass; registry64entries.
+
+**Latest user Phase3:** EXP-TS-FUNDING-001, separate branch `research/c1-ts-funding-20261122`, based on PR49 `caf6401f`. New study, not a rerun of EXP-TS-SEARCH-001. No model/app/C2/substitution changes or deployment; no private manager payloads accessed.
+
+Read [REPORT](results/EXP-TS-FUNDING-001/REPORT.md), [locked protocol](ts_funding/PROTOCOL.md), [capture audit](ts_funding/CAPTURE_AUDIT.md), [summaries](results/EXP-TS-FUNDING-001/holdout-summary.json) and current PR review before another task.
+
+## Actual outcome and decision
+
+Candidate only augments original proposals with ≤12 simultaneous negative-funding/positive-upgrade pairs. Frozen source161b67b6, scorer, sixweights, hitbuffer and beams unchanged. Local preregistration/code/generator freeze `f5fd8975` precedes development and holdout generation/execution. Registry events85–87 record new protocol/implementation/running; original63protocols remain byte-identical;64entries total.
+
+Development42cases: all11known misses closed, no worsening; baseline/exact archived, not rerun. New48cases:2improve,0worsen; mean gap reduction0.0980333, median0, totalgap8.95744→4.25184; four residual positive gaps. Improvement only in fixture-window family: **predeclared two-family practical gate FAILED**. No retuning, rerun, exclusions or extension. Candidate not promoted. Exactness only covers finite-pool six-GW transfer paths conditional on frozen nominations, not global joint stochastic FPL optimization. Zero illegal/scoring discrepancies in declared checks.
+
+Development6.0121s, holdout12.4075s; candidate planner1.04412×baseline total (mean0.04145s). Single-run small-pool timing, baseline first/cache caveat; not evidence for600+player practicality or actual FPLpoints. No realistic private-state or realized-policy comparison because required state/provenance evidence is unavailable.
+
+## Existing capture and concrete C2 boundary
+
+Public GW11issue covers11–16with672players/4,032unique player-fixture rows and stable codes; forecast/MMbytehashes and public ledger payload match manifests. Recorded cutoff/ledger/publication metadata precede21Nov11:00UTCdeadline. Original GitHub artifact body download blocked, so immutable artifact-to-current-byte timing witness remains unverified; do not self-certify it. Current paths mutable,90dayartifact expiry; three latest publications and weekly-report runs fail, while source-only capture succeeds. Latest publication computed but preview failed. PR43/44still open drafts at prior heads; no verified private TSdurability or original-worker capture fix demonstrated. Reuse existing producer/archiver/logger; C2must deliver immutable originals, exact identities/config/deadline/witness, private state/control/intent/execution replay, final-label joins and fail-closed evidence. Do not implement C2in this research branch.
+
+## Reproduction and next action
+
+`OPENBLAS_NUM_THREADS=1 /workspace/fpl-venv/bin/python -m pytest -q research/ts_funding/test_funding.py research/tests research/stage0/tests research/pm_defs/tests research/ts_search/tests`
+
+Run registry validate/status/next. Prefer offline checks of completed evidence; do not reset completed registration or overwrite first-run outputs. Full numerical rerun, if independently required, uses pre-execution `f5fd8975` with its running registry and a fresh directory, pinned source and fixed budget. Neither old42nor new48are untouched data any longer. See protocol for both execution commands.
+
+**Next research recommendation:** separately preregister broader independent confirmation of this unchanged candidate, with prespecified time-varying opportunities and a production-size runtime probe; first isolate remaining search restrictions without assuming a scorer error. No tuning on these90cases, no auto-optimization. In parallel C2certifies existing private/original-vintage capture before a separate real-input utility study. PMprospective DCrecommendation from PR49remains valid but requires its own registration/future origins. Registry's remaining ready OPSregistration is C2ownership, not permission to alter the app here. All overall Stage0and completed-result independent reviews remain pending.
+
+---
+
+The following prior handoff is preserved as history and superseded by the current dated entry above.
+
 # Current C1 handoff — PM definitions completed, 22 November 2026
 
 **Delivered PR:** [#49](https://github.com/pdamkier-del/fpl-analytics-app/pull/49), based on #48; no merge or deploy.

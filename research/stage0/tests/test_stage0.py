@@ -23,7 +23,7 @@ def test_complete_directory_coverage_and_exact_copy_deduplication():
  assert all(r['promotion'].startswith('None;')for r in matrix)
 
 def test_all_imported_records_are_historical_not_new_runs():
- records=reg.read();original=load(S/'original-registry.json');added=set(records)-{p[:-5]for p in original['protocols']}
+ records=reg.read();original=load(S/'original-registry.json');added={k for k in records if k.startswith('LEGACY-')}-{p[:-5]for p in original['protocols']}
  assert added=={f'LEGACY-{i:03}'for i in range(16,54)}
  for id in added:
   r=records[id];assert r['protocol']['kind']=='legacy'and r['implementation']is None

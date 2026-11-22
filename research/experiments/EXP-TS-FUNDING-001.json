@@ -1,0 +1,65 @@
+{
+  "id": "EXP-TS-FUNDING-001",
+  "protocol_version": 1,
+  "registered_on": "2026-11-22",
+  "kind": "infrastructure",
+  "question": "Does supplementary negative funding-pair proposal improve frozen TS v3 finite-domain six-GW search?",
+  "statistical_hypothesis": "Paired finite-domain utility-gap improvement; no population or realized-point claim.",
+  "initial_status": "ready",
+  "priority": 1,
+  "primary_metric": "Mean paired baseline_gap minus candidate_gap to exact finite-pool transfer-path optimum conditional on frozen nominations",
+  "secondary_metrics": [
+    "legality",
+    "scorer consistency",
+    "six-GW completeness",
+    "per-arm runtime",
+    "remaining gap",
+    "family effects and regressions"
+  ],
+  "baseline": "Unmodified source161b67b6 B-worker TS v3; identical frozen scorer and config",
+  "candidate_modification": "research/ts_funding/candidate.py supplementary affordable positive-total funding pairs; original proposals retained",
+  "train_development_test": {
+    "train": "none",
+    "development": "42 seen PR48 cases against archived baseline/reference only",
+    "test": "48 locked generator cases in six new independent families; no post-holdout changes"
+  },
+  "data_sources_and_cutoffs": [
+    {
+      "source": "research/ts_funding/PROTOCOL.md",
+      "cutoff_quality": "Locked before generator execution; no real outcomes"
+    }
+  ],
+  "sample_size": {
+    "development": 42,
+    "holdout": 48,
+    "families": 6,
+    "pool_max": 17,
+    "scenarios_max": 8,
+    "six_gw": true,
+    "development_budget_seconds": 120,
+    "holdout_budget_seconds": 240,
+    "holdout_per_case_seconds": 10
+  },
+  "power": {
+    "status": "not_applicable",
+    "reason": "Finite-set exact correctness and utility-gap calculation; no player-level significance test."
+  },
+  "dependencies": [
+    "EXP-TS-SEARCH-001"
+  ],
+  "reproduction_command": "OPENBLAS_NUM_THREADS=1 /workspace/fpl-venv/bin/python research/ts_funding/run.py --frozen-root /workspace/work/fpl-ts-frozen-161 --phase holdout --out research/results/EXP-TS-FUNDING-001/holdout",
+  "reproduction_command_scope": "New registered finite-domain comparison; clean new output directory required",
+  "full_experiment_command": "See research/ts_funding/PROTOCOL.md for development then holdout commands",
+  "execution_ready": true,
+  "acceptance_criteria": [
+    "Zero illegal decisions/scorer disagreements; all48 complete",
+    "No holdout regression >1e-9; positive mean improvement in at least two families",
+    "Candidate planner total <=2x baseline; candidate planner mean <=2seconds",
+    "No production acceptance; independent review and real prospective state evidence required"
+  ],
+  "result_links": [
+    "research/ts_funding/PROTOCOL.md"
+  ],
+  "final_decision": "Not executed at registration",
+  "next_action": "Register immutable implementation, commit before execution, run development then untouched holdout; read-only capture audit"
+}

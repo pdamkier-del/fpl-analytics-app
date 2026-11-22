@@ -1,7 +1,7 @@
 # C1 — Scientific Model Research | README & progress checklist
 
 **Owner:** C1 (Codex model research) · **Programme:** FPL Analytics + FPL Research Lab
-**Last prepared:** 2026-11-22 · **State:** user Phase2 EXP-PM-DEFS-001 completed; TS study remains completed, not repeated; no model/app changes; independent result review pending
+**Last prepared:** 2026-11-22 · **State:** user Phase3 EXP-TS-FUNDING-001 completed; practical two-family gate FAILED; candidate research-only; no model/app changes; independent result review pending
 **Canonical scientific plan:** [MASTER_PLAN.md](MASTER_PLAN.md) · **Registry:** [experiments/](experiments/) · **Current snapshot:** [STATUS.md](STATUS.md) · **Session handoff:** [SESSION_HANDOFF.md](SESSION_HANDOFF.md)
 
 > **Mission:** Improve *validated* predictive quality and FPL decision value—not apparent historical fit or model complexity. Research is separate from the stable Analytics app. This README is the human-readable checklist, **not** a replacement for the experiment registry, immutable evidence, or append-only decision log.
@@ -72,6 +72,19 @@ Original programme registration: **25 unchanged entries**; Stage 0 appends **38 
 **Exit gate:** zero illegal/scoring mismatches on the declared witnesses and an honest quantified search gap. This does **not** certify TS's real-season gain.
 
 **Delivered result:** [decision report](results/EXP-TS-SEARCH-001/REPORT.md), [all 42 cases](results/EXP-TS-SEARCH-001/case-results.csv), [reproduction](ts_search/REPRODUCIBILITY.md). One 16.095455-second run; 0 illegal actions, 0 scorer mismatches, 11/30 deterministic search gaps; 12/12 DNP cases match only within their fixed menus. This is not realized-FPL gain or global FPL optimality. The original protocol and config are unchanged.
+
+### User Phase3 — isolated TS funding candidate and capture audit **completed**
+
+- [x] Read PR49/48 handoff, prior exact-search results, gap matrix, PM next-experiment and LEGACY-040/044/045; define genuinely new contribution.
+- [x] Register new [EXP-TS-FUNDING-001](experiments/EXP-TS-FUNDING-001.json), immutable candidate/generator/harness,48new cases and gates before generation/evaluation; commit `f5fd8975`.
+- [x] Preserve frozen original TS/scorer/config; use old42as development only, archived baseline/reference retained.
+- [x] Execute all48new six-GW finite-domain comparisons; report2improved/0worse, mean utility improvement0.0980333; two-family gate **FAILED**. No tuning or promotion.
+- [x] Verify private/public capture boundaries read-only; [audit](ts_funding/CAPTURE_AUDIT.md) documents existing GW11six-GW ledger, hashes, failed publication jobs and unverified original artifact body/private TS durability.
+- [x] Update registry, decision log, handoff and [result report](results/EXP-TS-FUNDING-001/REPORT.md);64total registered records, no change to old63protocols.
+- [ ] Independent candidate/result review and any later production-scale or genuine private-state validation; no production acceptance.
+- [x] Delivered separate [Phase3 research PR #50](https://github.com/pdamkier-del/fpl-analytics-app/pull/50), stacked on #49; no merge or deploy.
+
+The historical roadmap Stage3 below is PM; this user Phase3 is a separately registered TSstudy. Failed practical acceptance is preserved despite successful execution.
 
 ### Stage 2 — MM **independent predictive quality**
 
