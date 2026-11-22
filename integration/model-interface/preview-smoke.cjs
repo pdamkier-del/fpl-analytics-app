@@ -42,7 +42,7 @@ async function verify() {
         return state;
       }, fixture);
       await page.goto(new URL('transfers-classic.html', base).href);
-      await page.evaluate(() => FplManagerClient.load());
+      await page.evaluate(async () => { await FplManagerClient.load(); });
       assert.deepEqual(await page.evaluate(() => FplManagerStore.read()), saved);
       assert.equal(await page.evaluate(() => FplManagerClient.snapshot().usable), Boolean(liveGw));
       if (fixture) {
@@ -55,7 +55,7 @@ async function verify() {
           return edited;
         });
         await page.reload();
-        await page.evaluate(() => FplManagerClient.load());
+        await page.evaluate(async () => { await FplManagerClient.load(); });
         assert.equal(await page.evaluate(() => FplManagerClient.snapshot().plan), null);
       }
 
