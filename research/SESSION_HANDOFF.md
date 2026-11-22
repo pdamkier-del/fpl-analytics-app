@@ -26,3 +26,7 @@ MM prospective measurement can start collection only after original-vintage pipe
 ## What to update after future work
 
 Append an implementation/state/result event with immutable evidence and the actual outcome, regenerate STATUS explicitly, append a decision-log entry and update this handoff with a dated addition. Never silently edit old protocols/results. If the next user authorizes a different scope, preserve this history and register the new question rather than erasing it.
+
+## Additional open work observed before this plan was finalized
+
+PR44, “Introduce a fail-closed model/TS interface boundary for the live FPL app”, was found open in a concurrent workstream. It has not been reviewed or integrated by this planning task. Read its current diff/status before implementing overlapping interface/capture work in PR43. Its existence is not evidence that the known original-worker capture gate or production certification is resolved. Do not duplicate or overwrite that work.

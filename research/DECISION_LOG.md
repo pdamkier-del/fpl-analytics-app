@@ -15,3 +15,5 @@ Initial decisions, 22 November 2026. Do not rewrite these entries when evidence 
 - **D011:** No expensive new simulation, model fitting or parameter search is performed for this programme setup. Power values are planning scenarios, not measured power or new model settings.
 
 `events.jsonl` records individual immutable registrations and later state/implementation events with a hash chain. Git commits/review anchor history; the chain alone is not an unforgeable timestamp. Hypothesis/metric/period changes require a new protocol ID or explicit version, never an in-place overwrite.
+
+- **D012 — additional observation, 22 November 2026:** Open PR44 introduces a fail-closed model/TS interface boundary. Record it as related concurrent work, not validated evidence or a resolved capture gate. Future integration sessions must inspect it before duplicating boundary work.
