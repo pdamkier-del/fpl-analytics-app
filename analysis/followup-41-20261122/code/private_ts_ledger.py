@@ -26,6 +26,21 @@ def lineup(rows,catalog):
  require(catalog[next(r['id']for r in rows if r['role']=='BGK')]['position']==1,'Keeper bench invalid')
  return ids
 
+def validate_intention(f,state,plan,decision,now):
+ require(now<clock(f.get('origin_deadline')),'Intention must be before deadline')
+ catalog={p['id']:p for p in f['players']};owned=state['squad'];chips=state['chips_used'];gw=f['gws'][0];recommended=lineup(plan.get('lineup'),catalog)
+ chosen=lineup(decision.get('rows'),catalog)
+ require(decision.get('source')and clock(decision.get('observed_at'))<=now,'Decision source/time missing')
+ require(decision.get('semantics')=='intended_predeadline_not_verified_execution','Decision execution must not be invented')
+ require(decision.get('choice')in ['keep_squad','follow_plan','custom'],'Decision choice missing')
+ before={p['id']for p in owned};after=set(chosen)
+ if decision['choice']=='keep_squad':require(after==before,'Keep decision changed squad')
+ if decision['choice']=='follow_plan':require(after==set(recommended),'Follow-plan decision differs from recommendation')
+ require(set(decision.get('incoming',[]))==after-before and set(decision.get('outgoing',[]))==before-after,'Decision transfers do not reconcile')
+ active=decision.get('active_chip');require(active in [None,*chips],'Unknown active chip')
+ if active:require(not any((x<=19)==(gw<=19)for x in chips[active]),'Active chip unavailable in this half')
+ return {k:decision[k]for k in ['source','observed_at','semantics','choice','rows','incoming','outgoing','active_chip']}
+
 def validate(f,state,plan,decision,now):
  require(now.tzinfo is not None,'Clock requires timezone')
  require(f.get('forecast_sha256')==sha(canonical({k:v for k,v in f.items()if k!='forecast_sha256'})),'Forecast content hash mismatch')
@@ -53,22 +68,14 @@ def validate(f,state,plan,decision,now):
  keep=plan.get('comparison',{}).get('hold_squad_without_transfers',[])
  require([r.get('gw')for r in keep]==gws and all(isinstance(r.get('expected_score'),(float,int))and math.isfinite(r['expected_score'])for r in keep),'Keep-squad control missing or incomplete')
  weights=plan.get('plan',{}).get('weights');require(weights==[1.,.6,.36,.216,.1296,.07776][:len(gws)]or tuple(weights or [])==(1.,.6,.36,.216,.1296,.07776)[:len(gws)],'Unexpected TS weights')
- recommended=lineup(plan.get('lineup'),catalog);chosen=lineup(decision.get('rows'),catalog)
- require(decision.get('source')and clock(decision.get('observed_at'))<=now,'Decision source/time missing')
- require(decision.get('semantics')=='intended_predeadline_not_verified_execution','Decision execution must not be invented')
- require(decision.get('choice')in ['keep_squad','follow_plan','custom'],'Decision choice missing')
- before={p['id']for p in owned};after=set(chosen)
- if decision['choice']=='keep_squad':require(after==before,'Keep decision changed squad')
- if decision['choice']=='follow_plan':require(after==set(recommended),'Follow-plan decision differs from recommendation')
- require(set(decision.get('incoming',[]))==after-before and set(decision.get('outgoing',[]))==before-after,'Decision transfers do not reconcile')
- active=decision.get('active_chip');require(active in [None,*chips],'Unknown active chip')
- if active:require(not any((x<=19)==(gw<=19)for x in chips[active]),'Active chip unavailable in this half')
+ recommended=lineup(plan.get('lineup'),catalog)
+ if decision is not None:validate_intention(f,state,plan,decision,now)
  # No secret-bearing arbitrary objects are copied into the archive.
  sanitized_state={k:state[k]for k in ['season','gw','source','observed_at','bank_tenths','free_transfers','chips_used']}
  sanitized_state['squad']=[{k:r[k]for k in ['id','purchase_price_tenths']}for r in owned]
  sanitized_plan={k:plan[k]for k in ['ts_ran','gw','forecast_sha256','manager_state_sha256','computed_at','plan','lineup','comparison','chips_ran','chips_status','chip_assessment','chip_plan']if k in plan}
- sanitized_decision={k:decision[k]for k in ['source','observed_at','semantics','choice','rows','incoming','outgoing','active_chip']}
- return {'schema':'fpl-private-ts-capture-v1','issued_at':now.isoformat(),'deadline':deadline.isoformat(),'clock_proof':'local_system_clock_only_not_independent_timestamp','gw':gw,'horizon_gws':gws,'forecast_sha256':f['forecast_sha256'],'manager_state_sha256':plan['manager_state_sha256'],'forecast':f,'manager_state':sanitized_state,'recommendation':sanitized_plan,'manager_decision':sanitized_decision,'control_scope':'Existing planner keep-squad expected scores; no hindsight optimization; no re-solving performed'}
+ sanitized_decision={k:decision[k]for k in ['source','observed_at','semantics','choice','rows','incoming','outgoing','active_chip']}if decision is not None else None
+ return {'schema':'fpl-private-ts-capture-v1','issued_at':now.isoformat(),'deadline':deadline.isoformat(),'clock_proof':'local_system_clock_only_not_independent_timestamp','gw':gw,'horizon_gws':gws,'forecast_sha256':f['forecast_sha256'],'manager_state_sha256':plan['manager_state_sha256'],'forecast':f,'manager_state':sanitized_state,'recommendation':sanitized_plan,'manager_decision':sanitized_decision,'executed_transfers':None,'capture_kind':'recommendation_with_intent'if decision is not None else 'recommendation_only','control_scope':'Existing planner keep-squad expected scores; no hindsight optimization; no re-solving performed'}
 
 def private_root(path):
  path=Path(path).expanduser().resolve()
@@ -89,7 +96,7 @@ def verify(root):
  require(listed=={p.name for p in root.glob('record-*.json.gz')},'Unindexed private record; manual recovery required')
  return count
 
-def capture(root,f,state,plan,decision,*,now=None):
+def capture(root,f,state,plan,decision=None,*,now=None):
  now=now or datetime.now(timezone.utc);record=validate(f,state,plan,decision,now);root=private_root(root);lock=os.open(root/'.lock',os.O_CREAT|os.O_RDWR,0o600)
  try:
   fcntl.flock(lock,fcntl.LOCK_EX);n=verify(root);index=root/'ledger.jsonl';prior=json.loads(index.read_text().splitlines()[-1])if n else None
@@ -99,7 +106,7 @@ def capture(root,f,state,plan,decision,*,now=None):
   with os.fdopen(fd,'wb')as h:h.write(raw);h.flush();os.fsync(h.fileno())
   e={'sequence':n+1,'issued_at':now.isoformat(),'record':name,'record_sha256':sha(raw),'forecast_sha256':f['forecast_sha256'],'previous':prior['entry_sha256']if prior else None};e['entry_sha256']=sha(canonical(e));fd=os.open(index,os.O_CREAT|os.O_APPEND|os.O_WRONLY,0o600)
   with os.fdopen(fd,'ab')as h:h.write(canonical(e)+b'\n');h.flush();os.fsync(h.fileno())
-  return {'status':'recorded_private','records':n+1,'independent_timestamp':False}
+  return {'status':'recorded_private','records':n+1,'capture_id':e['entry_sha256'],'independent_timestamp':False}
  finally:fcntl.flock(lock,fcntl.LOCK_UN);os.close(lock)
 
 def main():
