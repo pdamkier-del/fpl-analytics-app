@@ -1,0 +1,54 @@
+{
+  "schema": "joint-substitution-validation-plan-v1",
+  "registered_at": "2026-11-08T16:13:20.376103+00:00",
+  "candidate_model_sha256": "726ae5cf7d7bf5645672c98e02fefadc14a7004fcfda04e0e0737dbc6a9a5fdb",
+  "candidate_version": "joint-substitution-research-v1",
+  "candidate_fit_frozen": true,
+  "primary_group": "Outfield players with baseline P(start)>=0.2, defined before outcomes",
+  "primary_score": "Mean point CRPS",
+  "minimum_prospective_completed_gws": 8,
+  "minimum_prospective_matches": 80,
+  "selection": "Latest valid matched reference/candidate forecast issued before each GW deadline; same source snapshot and model identity; never backfill predictions from outcomes",
+  "promotion_requirements": [
+    "Primary CRPS improvement with95percent paired GW-block interval strictly below0",
+    "Point-mean MSE non-inferiority:95percent upper bound no worse than1percent of reference MSE",
+    "Point CRPS point estimates do not deteriorate in either rotation or regular starter subgroup",
+    "Minute RMSE point estimate does not deteriorate by more than1percent",
+    "All timeline, availability, identity and timestamp gates pass"
+  ],
+  "interpretation": "Research acceptance gates only; no automatic production switch",
+  "uncertainty": "Use whole-GW paired resampling; small samples are labelled inconclusive",
+  "frozen_comparisons": [
+    "Participation and90-minute Brier as secondary diagnostics",
+    "Minute MAE descriptive only; not the optimisation target for an expected-value forecast",
+    "Count and timing diagnostics; no new coefficient selection on evaluation rounds"
+  ],
+  "current_status": {
+    "prototype_implemented_and_tested": true,
+    "input_capture_hook_tested": true,
+    "capture_hook_connected_to_publisher": false,
+    "prospective_candidate_forecasts_published": true,
+    "new_round_validation_completed": false,
+    "production_model_changed": false,
+    "automated_research_runner_active": true,
+    "source_artifact_replay_connected": true
+  },
+  "blockers": [],
+  "next_steps": [
+    "Run daily paired predeadline forecasts using the frozen candidate and exact source linkage",
+    "Score only officially final checked rounds and retain source/publication clocks",
+    "Apply the frozen minimum-cohort and proper-score review protocol; never auto-activate"
+  ],
+  "candidate_kernel_sha256": "abfb400bf4030d3c50101edf19db4390d2d2d31cb4e7e0e669f9744b820bf6d8",
+  "operations_updated_at": "2026-11-15T16:51:02.494237+00:00",
+  "capture_strategy": "Independent daily GitHub job reads linked original source/forecast artifacts and requires exact reference-minute marginal parity; the optional publisher hook is not installed",
+  "first_successful_prospective_run": {
+    "run_id": 43736795793,
+    "gw": 11,
+    "rows": 672,
+    "issued_at": "2026-11-15T16:47:18.040551+00:00",
+    "deadline": "2026-11-21T11:00:00Z",
+    "source_forecast_sha256": "e34ccd83bea04987961180e26e56a813b0d118627a828495a4c7f1bc7f752086",
+    "archive_sha256": "657d871d3e004aa5fab77c0f9a4c46df172883b90f9161a2f6ac21970d56a702"
+  }
+}

@@ -1,0 +1,103 @@
+{
+  "classification": "REUSED_HISTORICAL_DURATION_PM_SHADOW_NOT_TS_ACCEPTANCE",
+  "exact_archived_fixture_rows": 26159,
+  "max_archived_xp_difference": 0.0,
+  "forecast_rows": 25750,
+  "missing_actuals_excluded_not_imputed": 0,
+  "results": {
+    "all": {
+      "rows": 25750,
+      "original_mae": 0.9377874757281555,
+      "candidate_mae": 0.9413118446601941,
+      "original_rmse": 1.8969825987220783,
+      "candidate_rmse": 1.8893787485149203,
+      "paired_mae_delta": 0.003524368932038836,
+      "gameweek_block_bootstrap_95_ci": [
+        0.0007679231621457159,
+        0.0065174981139402765
+      ]
+    },
+    "played": {
+      "rows": 9838,
+      "original_mae": 2.052318306566375,
+      "candidate_mae": 2.050507216914007,
+      "original_rmse": 2.948117119853526,
+      "candidate_rmse": 2.9310222868333504,
+      "paired_mae_delta": -0.0018110896523683656,
+      "gameweek_block_bootstrap_95_ci": [
+        -0.008406379415711176,
+        0.004728610679270111
+      ]
+    },
+    "GW6_21": {
+      "rows": 12172,
+      "original_mae": 0.9713264048636214,
+      "candidate_mae": 0.9740870440354914,
+      "original_rmse": 1.9467147199291157,
+      "candidate_rmse": 1.939191699815185,
+      "paired_mae_delta": 0.0027606391718698648,
+      "gameweek_block_bootstrap_95_ci": [
+        -0.0016303739612563322,
+        0.007451187315991575
+      ]
+    },
+    "GW22_38": {
+      "rows": 13578,
+      "original_mae": 0.9077214980114892,
+      "candidate_mae": 0.911930512593902,
+      "original_rmse": 1.851264933849019,
+      "candidate_rmse": 1.843580186399851,
+      "paired_mae_delta": 0.004209014582412728,
+      "gameweek_block_bootstrap_95_ci": [
+        0.0005700470991690772,
+        0.007682642448129592
+      ]
+    },
+    "by_position": {
+      "DEF": {
+        "rows": 8414,
+        "original_mae": 1.1049750415973378,
+        "candidate_mae": 1.109063465652484,
+        "original_rmse": 2.0794566720199237,
+        "candidate_rmse": 2.0721316326217822,
+        "paired_mae_delta": 0.004088424055146187
+      },
+      "FWD": {
+        "rows": 2849,
+        "original_mae": 1.019351526851527,
+        "candidate_mae": 1.0283283608283609,
+        "original_rmse": 2.0366291661442957,
+        "candidate_rmse": 2.030685613872889,
+        "paired_mae_delta": 0.008976833976833978
+      },
+      "GKP": {
+        "rows": 2966,
+        "original_mae": 0.5695928860418071,
+        "candidate_mae": 0.5673862103843561,
+        "original_rmse": 1.3615764259509369,
+        "candidate_rmse": 1.3613383101528502,
+        "paired_mae_delta": -0.002206675657451111
+      },
+      "MID": {
+        "rows": 11521,
+        "original_mae": 0.8903066140092005,
+        "candidate_mae": 0.8935461331481641,
+        "original_rmse": 1.8390039697485168,
+        "candidate_rmse": 1.829191291517974,
+        "paired_mae_delta": 0.0032395191389636303
+      }
+    }
+  },
+  "promotion_allowed": false,
+  "limitations": [
+    "Only current-GW cells exist in the archived benchmark; no six-GW TS comparison",
+    "Existing historical period reused during model development, not pristine holdout",
+    "400 Monte Carlo draws per fixture, paired identical seeds",
+    "Historical publication time remains kickoff+3h proxy"
+  ],
+  "source_sha256": {
+    "archive": "d8434a72b5ed504d5e2653837249c8127aafc9e785cdf691fd308af8e83d6a4d",
+    "original": "a6e411f088e8c5fe40809f35bdabcae5ce6b08736df93a5bd2c8d03206c37c16",
+    "candidate": "423df41a04fcfaea9239ceb7a1d4e0d40afe769dfc2db1ad1cd72ee2f75ace8f"
+  }
+}

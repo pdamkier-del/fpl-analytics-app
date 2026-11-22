@@ -1,0 +1,81 @@
+{
+  "bonus": {
+    "current_v4_event_bps": {
+      "actual_any": 0.039002882821773784,
+      "brier": 0.07246911988981097,
+      "log_loss": 0.18372921754828017,
+      "mae": 0.14534000619014117,
+      "mean_actual": 0.07792097676784805,
+      "mean_pred": 0.0918589989095875,
+      "p_any": 0.04744213296408308,
+      "rmse": 0.40504446461145893
+    },
+    "vFinal": {
+      "actual_any": 0.039002882821773784,
+      "brier": 0.07171042690667163,
+      "log_loss": 0.18371573224675505,
+      "mae": 0.13468628424412157,
+      "mean_actual": 0.07792097676784805,
+      "mean_pred": 0.07797566869108528,
+      "p_any": 0.03879176005429592,
+      "rmse": 0.4026530661457656
+    }
+  },
+  "classification": "vFinal integrated candidate; reused GW22-38 diagnostic, not independent holdout",
+  "components": {
+    "bps": "role+recent-detail mean + position variance; 2025/26 rules for test",
+    "defcon": "soft-role count + threshold calibration finalist",
+    "discipline": "frozen yellow/red; own-goal probability only if present in frozen candidate input",
+    "goal_assist": "soft-role baseline + shared recent performance",
+    "goalkeeper": "frozen baseline",
+    "minutes": "combined candidate",
+    "penalties": "shared occurrence+taker+conversion+keeper save"
+  },
+  "delta_bonus": {
+    "brier": -0.0007586929831393391,
+    "log_loss": -1.3485301525117954e-05,
+    "mae": -0.010653721946019601,
+    "rmse": -0.0023913984656933063
+  },
+  "delta_nonbonus": {
+    "bias": -0.026882313040529085,
+    "mae": -0.01284890622350321,
+    "rmse": -0.0036492678366266684
+  },
+  "delta_total_xpts": {
+    "bias": -0.04076564354756655,
+    "mae": -0.01992580973376301,
+    "rmse": -0.0032397517230144945
+  },
+  "draws_per_fixture": 400,
+  "fixtures": 144,
+  "nonbonus": {
+    "current_v4": {
+      "bias": 0.044973927420722405,
+      "mae": 0.8292689079192809,
+      "rmse": 1.577258516807228
+    },
+    "vFinal": {
+      "bias": 0.01809161438019332,
+      "mae": 0.8164200016957777,
+      "rmse": 1.5736092489706013
+    }
+  },
+  "own_goal_probability_available": false,
+  "promoted": false,
+  "rows": 11794,
+  "season": "2025-26",
+  "total_xpts": {
+    "current_v4_event_bps": {
+      "bias": 0.05891194675258605,
+      "mae": 0.9389950398507716,
+      "rmse": 1.8494047898938495
+    },
+    "vFinal": {
+      "bias": 0.0181463032050195,
+      "mae": 0.9190692301170086,
+      "rmse": 1.846165038170835
+    }
+  },
+  "validation_warning": "GW22-38 has been reused for iterative diagnostics; independent validation is still required before production promotion."
+}

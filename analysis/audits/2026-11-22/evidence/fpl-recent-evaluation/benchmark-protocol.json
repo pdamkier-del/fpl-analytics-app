@@ -1,0 +1,10 @@
+{
+  "baselines": [
+    "Last3: empirical distribution and mean of player points in up to last3 prior GWs; position pool fallback if none",
+    "Shrink5: same prior player history, shrunk with fixed5 pseudo-observations from the prior-position empirical pool"
+  ],
+  "data": "Current official historical outcomes, strictly target GW excluded; not independently timestamp-certified historical label vintages",
+  "parameter_choice": "Window3 and prior strength5 are fixed here, not tuned on GW8/9",
+  "scoring": "Mean forecasts use MSE; distributions use proper CRPS; MAE is secondary",
+  "scope": "Research benchmark, not a feature ablation or a replacement model"
+}

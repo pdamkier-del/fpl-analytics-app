@@ -1,0 +1,46 @@
+{
+  "team_goals": {
+    "credited_goal_scope": "Excludes own-goal goals credited to opponent; sampled player goal component means aggregated by team",
+    "credited_goal_rows": 60,
+    "credited_goal_rmse": 1.0759586326465653,
+    "credited_goal_bias": 0.3604583333333334,
+    "rows": 20,
+    "matches": 10,
+    "missing_explicit_team_law_rows": 40,
+    "unavailable_gws": [
+      8,
+      9
+    ],
+    "rmse": 1.1239591017915198,
+    "bias": -0.05162500000000003,
+    "per_gw": {
+      "10": {
+        "expected": 28.9675,
+        "actual": 30
+      }
+    }
+  },
+  "MM_PM_association": {
+    "minute_point_error_pearson": 0.46376229322634976,
+    "absolute_minute_point_error_pearson": 0.41547998686098264,
+    "scope": "Observed error association; no causal mediation or MM ablation"
+  },
+  "evaluated_rows": 2007,
+  "scored_gws": [
+    8,
+    9,
+    10
+  ],
+  "unavailable_stratifiers": [
+    "verified exact substitution timestamps and causes",
+    "cutoff-certified complete future Europa/cup schedule and travel",
+    "historical injury diagnosis and explicit return date"
+  ],
+  "notes": [
+    "Role/availability are archived labels; no inference from current news",
+    "Premium cohort uses archived price >=9m; it is not a post-outcome star ranking",
+    "Expected goal/assist events are compared with realized goals/FPL assists; observed shot xG/xA is a separate descriptive target",
+    "Conditional individual shot xG or xA latent forecasts are not separately identified by sampled goal/assist components",
+    "Only three GWs; broad intervals and no population-wide fault declarations"
+  ]
+}

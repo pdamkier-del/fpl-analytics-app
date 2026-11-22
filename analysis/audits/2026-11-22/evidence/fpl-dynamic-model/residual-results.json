@@ -1,0 +1,135 @@
+{
+  "scope": "Exploratory correction of expected team goals on reused audit cohort",
+  "selection": {
+    "scope": "Reused 2024/25 development only",
+    "selected": {
+      "strength": 50,
+      "half_life": 14,
+      "mse": 1.3785374060433029
+    },
+    "grid": [
+      {
+        "strength": 2,
+        "half_life": 14,
+        "mse": 1.4914153325725936
+      },
+      {
+        "strength": 2,
+        "half_life": 42,
+        "mse": 1.514454362076168
+      },
+      {
+        "strength": 2,
+        "half_life": 126,
+        "mse": 1.5311766714112576
+      },
+      {
+        "strength": 2,
+        "half_life": null,
+        "mse": 1.544859555903681
+      },
+      {
+        "strength": 5,
+        "half_life": 14,
+        "mse": 1.4219265187345025
+      },
+      {
+        "strength": 5,
+        "half_life": 42,
+        "mse": 1.4470063178293577
+      },
+      {
+        "strength": 5,
+        "half_life": 126,
+        "mse": 1.4638500750898695
+      },
+      {
+        "strength": 5,
+        "half_life": null,
+        "mse": 1.4770232469743858
+      },
+      {
+        "strength": 10,
+        "half_life": 14,
+        "mse": 1.3952197434768938
+      },
+      {
+        "strength": 10,
+        "half_life": 42,
+        "mse": 1.4122406043021558
+      },
+      {
+        "strength": 10,
+        "half_life": 126,
+        "mse": 1.4250623067608825
+      },
+      {
+        "strength": 10,
+        "half_life": null,
+        "mse": 1.435488106357133
+      },
+      {
+        "strength": 20,
+        "half_life": 14,
+        "mse": 1.3835875152051593
+      },
+      {
+        "strength": 20,
+        "half_life": 42,
+        "mse": 1.3925572575909941
+      },
+      {
+        "strength": 20,
+        "half_life": 126,
+        "mse": 1.4002380747295147
+      },
+      {
+        "strength": 20,
+        "half_life": null,
+        "mse": 1.406884050742447
+      },
+      {
+        "strength": 50,
+        "half_life": 14,
+        "mse": 1.3785374060433029
+      },
+      {
+        "strength": 50,
+        "half_life": 42,
+        "mse": 1.3816819411890722
+      },
+      {
+        "strength": 50,
+        "half_life": 126,
+        "mse": 1.3846404577665339
+      },
+      {
+        "strength": 50,
+        "half_life": null,
+        "mse": 1.387340293092401
+      }
+    ],
+    "development_baseline_mse": 1.37670247841678
+  },
+  "selection_sha256": "c6d09157e7d3a43ae2112ac8901b5153769936e3ce0a07a3cceb84d439cadc20",
+  "evaluation_season": "2025-26",
+  "evaluation_matches": 170,
+  "baseline_rmse": 1.0760789369002863,
+  "candidate_rmse": 1.075533204368175,
+  "mse_delta": -0.0011742047419763665,
+  "gw_cluster95": [
+    -0.006702927121939801,
+    0.004110975153954657
+  ],
+  "checks": [
+    "exact baseline means at cold start",
+    "future-label noninterference"
+  ],
+  "no_production_change": true,
+  "limitations": [
+    "Inherited baseline coefficient chronology incomplete",
+    "Existing historical cohort reused in research",
+    "Proxy result availability clocks; not archived release times",
+    "No player xP integration and no claim of independent FPL improvement"
+  ]
+}

@@ -1,0 +1,76 @@
+{
+  "classification": "REUSED_LOCKED_MM_REGULAR_STARTER_CALIBRATION",
+  "definition": "At least six observed prior appearances, last six started; outcomes strictly before target cutoff",
+  "summary": {
+    "rows": 2629,
+    "predicted_start": 0.8770881872549083,
+    "actual_start": 0.8714340053252188,
+    "predicted_minutes": 77.63069906644817,
+    "actual_minutes": 76.09205020920503
+  },
+  "by_position": {
+    "DEF": {
+      "rows": 1016,
+      "predicted_start": 0.8823147727533212,
+      "actual_start": 0.8671259842519685,
+      "predicted_minutes": 78.7848153037436,
+      "actual_minutes": 76.36122047244095
+    },
+    "FWD": {
+      "rows": 219,
+      "predicted_start": 0.8520805003469882,
+      "actual_start": 0.8538812785388128,
+      "predicted_minutes": 72.42404490001115,
+      "actual_minutes": 71.91780821917808
+    },
+    "GK": {
+      "rows": 412,
+      "predicted_start": 0.9370747662350895,
+      "actual_start": 0.9490291262135923,
+      "predicted_minutes": 84.64033711956397,
+      "actual_minutes": 85.4126213592233
+    },
+    "MID": {
+      "rows": 982,
+      "predicted_start": 0.8520902259785461,
+      "actual_start": 0.8472505091649695,
+      "predicted_minutes": 74.65687451194087,
+      "actual_minutes": 72.83401221995926
+    }
+  },
+  "targets_already_known_excluded": 0,
+  "core_sha256": "a4742428fb0c9943ff3ee565f765eb98d733a1690180c566d6df794786ef409f",
+  "core_inventory": [
+    {
+      "season": "2022-23",
+      "player_fixture_rows": 26505,
+      "earliest_capture": "2026-09-20T11:29:02.716303+00:00",
+      "latest_capture": "2026-09-20T11:29:02.716303+00:00"
+    },
+    {
+      "season": "2023-24",
+      "player_fixture_rows": 29725,
+      "earliest_capture": "2026-09-20T11:29:02.716303+00:00",
+      "latest_capture": "2026-09-20T11:29:02.716303+00:00"
+    },
+    {
+      "season": "2024-25",
+      "player_fixture_rows": 27283,
+      "earliest_capture": "2026-09-20T11:29:02.716303+00:00",
+      "latest_capture": "2026-09-20T11:29:02.716303+00:00"
+    },
+    {
+      "season": "2025-26",
+      "player_fixture_rows": 29747,
+      "earliest_capture": "2026-09-20T11:29:02.716303+00:00",
+      "latest_capture": "2026-09-20T11:29:02.716303+00:00"
+    }
+  ],
+  "availability_note": "Archived role/MM outcome clock uses kickoff+3h; current live source and new duration experiments use kickoff+4h. Neither establishes actual publication availability.",
+  "promotion_allowed": false,
+  "limitations": [
+    "Archived GW6-38 predictions are reused diagnostic data, not an independent holdout",
+    "2022-23 and 2023-24 Core observations exist, but verified official deadline and historical future-snapshot bundles are absent from this audit checkout",
+    "No forced P(start)=1 and no player-specific patch"
+  ]
+}

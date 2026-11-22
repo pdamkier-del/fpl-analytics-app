@@ -1,0 +1,172 @@
+{
+  "source": "Official FPL ep_next captured in each original player catalogue",
+  "scope": "Same players and target rounds, same stored source pack; no claim this is each service final predeadline update",
+  "sources": [
+    {
+      "gw": 8,
+      "official_fetched_at": "2026-10-23T16:01:16.164926+00:00",
+      "model_cutoff": "2026-10-23T16:11:01.045810+00:00",
+      "deadline": "2026-10-23T17:30:00Z",
+      "field": "ep_next",
+      "next_gw_confirmed": true
+    },
+    {
+      "gw": 9,
+      "official_fetched_at": "2026-10-31T08:52:19.016256+00:00",
+      "model_cutoff": "2026-10-31T09:00:37.714224+00:00",
+      "deadline": "2026-10-31T11:00:00Z",
+      "field": "ep_next",
+      "next_gw_confirmed": true
+    },
+    {
+      "gw": 10,
+      "official_fetched_at": "2026-11-03T10:53:59.461735+00:00",
+      "model_cutoff": "2026-11-03T11:00:42.881488+00:00",
+      "deadline": "2026-11-06T18:30:00Z",
+      "field": "ep_next",
+      "next_gw_confirmed": true
+    }
+  ],
+  "results": [
+    {
+      "group": "all",
+      "rows": 2007,
+      "matches": 30,
+      "model_mae": 1.0383756851021426,
+      "official_mae": 1.1422521175884404,
+      "model_rmse": 1.9197536069273091,
+      "official_rmse": 2.1954827474316563,
+      "model_bias": 0.0007349277528649627,
+      "official_bias": -0.07717987045341307,
+      "mae_delta_CI95": [
+        -0.17466317512720025,
+        -0.04483456613986718
+      ],
+      "mse_delta_CI95": [
+        -1.689307190502137,
+        -0.7148827988518016
+      ]
+    },
+    {
+      "group": "active",
+      "rows": 855,
+      "matches": 30,
+      "model_mae": 2.1192251461988305,
+      "official_mae": 2.3567251461988303,
+      "model_rmse": 2.826689360582105,
+      "official_rmse": 3.240915328073643,
+      "model_bias": -0.0035935672514619777,
+      "official_bias": -0.12538011695906434,
+      "mae_delta_CI95": [
+        -0.38977909372155467,
+        -0.10127768688446583
+      ],
+      "mse_delta_CI95": [
+        -3.750496409971402,
+        -1.5024305306462713
+      ]
+    },
+    {
+      "group": "rotation",
+      "rows": 518,
+      "matches": 30,
+      "model_mae": 1.8776689189189189,
+      "official_mae": 2.057142857142857,
+      "model_rmse": 2.6052689016127344,
+      "official_rmse": 2.959768852500421,
+      "model_bias": 0.029271235521235537,
+      "official_bias": -0.19150579150579153,
+      "mae_delta_CI95": [
+        -0.30829167461561696,
+        -0.046462099235616394
+      ],
+      "mse_delta_CI95": [
+        -2.848444921037354,
+        -1.1793861643579426
+      ]
+    },
+    {
+      "group": "regular",
+      "rows": 337,
+      "matches": 30,
+      "model_mae": 2.4905192878338283,
+      "official_mae": 2.8172106824925813,
+      "model_rmse": 3.136702893885614,
+      "official_rmse": 3.6308601461077337,
+      "model_bias": -0.054109792284866426,
+      "official_bias": -0.023738872403560873,
+      "mae_delta_CI95": [
+        -0.6004882256010368,
+        -0.08371971471471477
+      ],
+      "mse_delta_CI95": [
+        -5.794452347078806,
+        -1.5898802292668417
+      ]
+    },
+    {
+      "group": "GW8",
+      "rows": 668,
+      "matches": 10,
+      "model_mae": 1.0817252994011977,
+      "official_mae": 1.29685628742515,
+      "model_rmse": 2.012124558184632,
+      "official_rmse": 2.4675893106406552,
+      "model_bias": -0.05203218562874252,
+      "official_bias": -0.12679640718562873,
+      "mae_delta_CI95": [
+        -0.35378181745524295,
+        -0.10983516483516484
+      ],
+      "mse_delta_CI95": [
+        -3.1951128623898284,
+        -1.2299733574561635
+      ]
+    },
+    {
+      "group": "GW9",
+      "rows": 669,
+      "matches": 10,
+      "model_mae": 0.9826718983557549,
+      "official_mae": 1.0144992526158445,
+      "model_rmse": 1.776523486176224,
+      "official_rmse": 1.928896770274058,
+      "model_bias": 0.05296337817638267,
+      "official_bias": -0.032137518684603864,
+      "mae_delta_CI95": [
+        -0.11507218656296853,
+        0.04570641921040957
+      ],
+      "mse_delta_CI95": [
+        -1.2160294242017098,
+        -0.058077486820363
+      ]
+    },
+    {
+      "group": "GW10",
+      "rows": 670,
+      "matches": 10,
+      "model_mae": 1.050776119402985,
+      "official_mae": 1.1156716417910448,
+      "model_rmse": 1.9626448420739304,
+      "official_rmse": 2.157067522936513,
+      "model_bias": 0.001194029850746275,
+      "official_bias": -0.07268656716417912,
+      "mae_delta_CI95": [
+        -0.14646766988278856,
+        0.009124197529102925
+      ],
+      "mse_delta_CI95": [
+        -1.140381467518778,
+        -0.4767861768042494
+      ]
+    }
+  ],
+  "limits": [
+    "Official ep_next is an external simple baseline, not LazyFPL/FPL Review",
+    "Point means only; no external point distributions available",
+    "Model policy changes across rounds; only three GWs",
+    "Fixture bootstrap is exploratory and excludes temporal and policy selection uncertainty"
+  ],
+  "production_changed": false
+}

@@ -1,0 +1,59 @@
+{
+  "scope": "Exploratory conditional full90 save counts, frozen GW1-7 training and GW8-10 evaluation; outcomes previously inspected",
+  "train_rows": 99,
+  "test_rows": 60,
+  "test_matches": 30,
+  "prior_strengths": {
+    "rate_matches": 5,
+    "inside_box_saves": 10,
+    "ridge_lambda": 10
+  },
+  "models": {
+    "save_history": {
+      "mae": 1.5658885060750671,
+      "rmse": 1.9991865427079691,
+      "poisson_nll": 2.0539418873246165,
+      "mean_prediction": 2.898645966179759,
+      "coefficients_standardized": [
+        1.0643453530461193,
+        0.005834740278521366
+      ]
+    },
+    "plus_inside_box_xgot": {
+      "mae": 1.5383848526102066,
+      "rmse": 1.9713967002641035,
+      "poisson_nll": 2.034336564239084,
+      "mean_prediction": 2.891922091153061,
+      "coefficients_standardized": [
+        1.0615188820805173,
+        0.018565688369760577,
+        0.06780862729860701,
+        -0.062233805260215755
+      ]
+    }
+  },
+  "paired_match_bootstrap_nll_delta_CI95": [
+    -0.05496369402205903,
+    0.01378412505160521
+  ],
+  "mean_nll_delta": -0.019605323085532447,
+  "limits": [
+    "Not a comparison against the active keeper law or full point distribution",
+    "Actual full90 participation is conditioned on, not predicted",
+    "No opponent features; only 7 prior rounds",
+    "Training histories reconstructed retrospectively; all held-out feature source captures precede GW8 deadline",
+    "Single feature bundle and fixed penalties; no test-driven tuning",
+    "No production promotion permitted from this diagnostic"
+  ],
+  "production_changed": false,
+  "input_sha256": {
+    "/workspace/work/fpl-keeper-quality/analysis/results/keeper-quality-20261115/raw-keeper-evaluation.csv": "c8f3ce57552098411a0aa8d3b4f5aa46cb547ca3f0fb890ee8b2d05e4ba55d85",
+    "/workspace/work/fpl-keeper-quality/analysis/results/keeper-quality-20261115/validated-keeper-features.csv": "f28e1f564fbbcdb5a77818bbdccdf2804af09ee9ea161d144051d4d9d62c8cf4",
+    "/workspace/work/fpl-root-cause-20261115/actual-rows.csv": "c9db45c54d615059a35b5ae6609c78965d4bc3676d27c422ff264694e68e9466"
+  },
+  "per_gameweek_nll_delta": {
+    "8": -0.05526024954910495,
+    "9": -0.026628573304377477,
+    "10": 0.02307285359688509
+  }
+}
