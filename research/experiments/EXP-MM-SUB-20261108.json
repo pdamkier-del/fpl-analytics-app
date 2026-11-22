@@ -1,0 +1,58 @@
+{
+  "id": "EXP-MM-SUB-20261108",
+  "protocol_version": 1,
+  "registered_on": "2026-11-22",
+  "kind": "existing_prospective",
+  "question": "Existing preregistered joint-substitution experiment",
+  "statistical_hypothesis": "Candidate or diagnostic adds information relative to the stated frozen comparator; assessment is scoped to this protocol and evidence class.",
+  "initial_status": "awaiting_data",
+  "priority": 2,
+  "primary_metric": "Active-outfield point CRPS",
+  "secondary_metrics": [
+    "calibration",
+    "coverage",
+    "subgroup stability",
+    "compute cost"
+  ],
+  "baseline": "Frozen reference matched to same original inputs",
+  "candidate_modification": "Existing candidate only; no changes permitted",
+  "train_development_test": {
+    "training": "Original protocol",
+    "development": "Original reused 20 fixtures; exclude from prospective count",
+    "test": "Original GW11 onward cohort; minimum8 completed new GWs and80 matches"
+  },
+  "data_sources_and_cutoffs": [
+    {
+      "source": "analysis/audits/2026-11-22/evidence/fpl-joint-substitution/prospective-plan.json",
+      "cutoff_quality": "Original immutable registration; no new protocol written here."
+    }
+  ],
+  "sample_size": {
+    "minimum_gws": 8,
+    "minimum_matches": 80,
+    "completed_gws_as_observed": 0,
+    "completed_matches_as_observed": 0
+  },
+  "power": {
+    "status": "existing_protocol_preserved",
+    "note": "Do not replace the existing gate with the new-programme defaults."
+  },
+  "dependencies": [],
+  "reproduction_command": "python research/tools/registry.py evidence EXP-MM-SUB-20261108 --verify",
+  "reproduction_command_scope": "Verify original evidence and protocol only; this is not a new model run.",
+  "full_experiment_command": null,
+  "execution_ready": false,
+  "acceptance_criteria": [
+    "A prespecified proper-score improvement on new target rounds with paired GW-block uncertainty",
+    "No material deterioration in primary downstream score or protected groups",
+    "Complete cutoff/identity/legality/privacy gates; no automatic production promotion"
+  ],
+  "result_links": [
+    "analysis/audits/2026-11-22/evidence/fpl-joint-substitution/prospective-plan.json",
+    "analysis/followup-41-20261122/results/substitution-freeze-check.json",
+    "analysis/followup-41-20261122/results/substitution-status-as-observed.json"
+  ],
+  "final_decision": "Unchanged. Latest observed status21Nov: GW11pending,0completedGWs/0matches. Not promoted.",
+  "next_action": "Observe existing job and final GW labels; do not refit, retune or count old20fixtures.",
+  "protected_external_protocol": true
+}

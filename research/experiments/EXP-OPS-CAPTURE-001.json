@@ -1,0 +1,57 @@
+{
+  "id": "EXP-OPS-CAPTURE-001",
+  "protocol_version": 1,
+  "registered_on": "2026-11-22",
+  "kind": "infrastructure",
+  "question": "Can the unchanged original TS result be captured securely with separate recommendation, intention and execution?",
+  "statistical_hypothesis": "Every valid original result can be archived without numerical change and all unsafe/private/public-boundary violations are rejected; no intention or execution is inferred.",
+  "initial_status": "ready",
+  "priority": 5,
+  "primary_metric": "Privacy/identity/clock/contract violations",
+  "secondary_metrics": [
+    "calibration",
+    "coverage",
+    "subgroup stability",
+    "compute cost"
+  ],
+  "baseline": "PR42 private logger + original worker",
+  "candidate_modification": "Boundary adaptation and private storage verification; not TS modification",
+  "train_development_test": {
+    "train": "none",
+    "development": "Synthetic only",
+    "test": "Original tiny frozen-worker regression plus adversarial storage/API cases"
+  },
+  "data_sources_and_cutoffs": [
+    {
+      "source": "analysis/followup-41-20261122/PRIVATE_TS_LOGGING.md",
+      "cutoff_quality": "No real predeadline manager captures yet."
+    },
+    {
+      "source": "https://github.com/pdamkier-del/fpl-analytics-app/pull/43",
+      "cutoff_quality": "Preserved WIP; failing real-worker contract is not a passed gate."
+    }
+  ],
+  "sample_size": {
+    "real_manager_captures": 0
+  },
+  "power": {
+    "status": "not_applicable",
+    "reason": "Security/correctness gate, not a performance test."
+  },
+  "dependencies": [],
+  "reproduction_command": "python research/tools/registry.py evidence EXP-OPS-CAPTURE-001 --verify",
+  "reproduction_command_scope": "Verify original evidence and protocol only; this is not a new model run.",
+  "full_experiment_command": null,
+  "execution_ready": false,
+  "acceptance_criteria": [
+    "Frozen original-worker test passes with identical numerical and decision outputs",
+    "0 private manager payloads in Git/Pages/CI",
+    "Persistent private storage, timestamps and all six horizon rows verified; fail closed otherwise"
+  ],
+  "result_links": [
+    "analysis/followup-41-20261122/PRIVATE_TS_LOGGING.md",
+    "https://github.com/pdamkier-del/fpl-analytics-app/blob/ddd47e3e7af7536ca21454f68d4810d1d19a0ad2/operational-evaluation/WIP_STATUS.md"
+  ],
+  "final_decision": "WIP integration is blocked: real worker bench labels differ from PR42 logger vocabulary. No private persistent volume verified; no deployment.",
+  "next_action": "On the separate PR43 branch normalize bench labels at the capture boundary, preserve exact original recommendation/hash, then test private storage failure paths. Do not deploy from this planning branch."
+}

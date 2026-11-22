@@ -1,0 +1,55 @@
+{
+  "id": "EXP-MM-ABLATION-001",
+  "protocol_version": 1,
+  "registered_on": "2026-11-22",
+  "kind": "planned",
+  "question": "Which independent role, workload, news and duration features add predictive information after controlled refitting?",
+  "statistical_hypothesis": "For a future candidate-specific protocol, H0: paired log-loss improvement is nonpositive after valid refitting; H1: the registered input family adds out-of-time predictive information.",
+  "initial_status": "proposed",
+  "priority": 20,
+  "primary_metric": "Paired start log-loss delta; downstream point-CRPS safeguard",
+  "secondary_metrics": [
+    "calibration",
+    "coverage",
+    "subgroup stability",
+    "compute cost"
+  ],
+  "baseline": "Fixed MM B plus valid nested baseline",
+  "candidate_modification": "One feature family at a time; refit each candidate using identical prior-only labels",
+  "train_development_test": {
+    "train": "Chronological historical source-certified training only",
+    "development": "Existing reused periods labelled exploratory",
+    "test": "A new future interval reserved before candidate selection"
+  },
+  "data_sources_and_cutoffs": [
+    {
+      "source": "analysis/audits/2026-11-22/reports/D-data-gap-report.md",
+      "cutoff_quality": "Cup schedule/injury clocks incompletely certified."
+    }
+  ],
+  "sample_size": {
+    "status": "not_yet_available"
+  },
+  "power": {
+    "status": "not_estimated",
+    "reason": "No credible paired GW-level variance available; see POWER_ANALYSIS.md"
+  },
+  "dependencies": [
+    "EXP-MM-LIVE-001"
+  ],
+  "reproduction_command": "python research/tools/registry.py evidence EXP-MM-ABLATION-001 --verify",
+  "reproduction_command_scope": "Verify original evidence and protocol only; this is not a new model run.",
+  "full_experiment_command": null,
+  "execution_ready": false,
+  "acceptance_criteria": [
+    "A prespecified proper-score improvement on new target rounds with paired GW-block uncertainty",
+    "No material deterioration in primary downstream score or protected groups",
+    "Complete cutoff/identity/legality/privacy gates; no automatic production promotion"
+  ],
+  "result_links": [
+    "analysis/audits/2026-11-22/reports/00-existing-research-map.md",
+    "analysis/audits/2026-11-22/reports/D-data-gap-report.md"
+  ],
+  "final_decision": "No new fits authorized in this planning task.",
+  "next_action": "Identify a genuinely new information set; do not repeat existing HMM/workload or role-rebuild studies unchanged."
+}

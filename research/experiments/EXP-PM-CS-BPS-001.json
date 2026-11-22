@@ -1,0 +1,56 @@
+{
+  "id": "EXP-PM-CS-BPS-001",
+  "protocol_version": 1,
+  "registered_on": "2026-11-22",
+  "kind": "planned",
+  "question": "Does an isolated CS/BPS candidate improve proper point scores without double counting or minute changes?",
+  "statistical_hypothesis": "For a later frozen candidate, H0: candidate-minus-baseline point CRPS >=0; H1:<0 with prespecified point-MSE and subgroup safeguards. Candidate definition is not yet registered.",
+  "initial_status": "proposed",
+  "priority": 21,
+  "primary_metric": "Active-player point CRPS delta",
+  "secondary_metrics": [
+    "calibration",
+    "coverage",
+    "subgroup stability",
+    "compute cost"
+  ],
+  "baseline": "Same original minute states, team event draws and PM vFinal",
+  "candidate_modification": "One isolated target/coupling/subtype change after coverage and unit validation",
+  "train_development_test": {
+    "train": "Earlier certified fixtures only",
+    "development": "Seen GW8–10 not a validation period",
+    "test": "Fresh future paired rounds; power plan before freezing sample size"
+  },
+  "data_sources_and_cutoffs": [
+    {
+      "source": "analysis/followup-41-20261122/results/pm-decomposition.json",
+      "cutoff_quality": "Conditional/oracle analysis cannot prove gain."
+    }
+  ],
+  "sample_size": {
+    "status": "not_yet_available"
+  },
+  "power": {
+    "status": "not_estimated",
+    "reason": "No credible paired GW-level variance available; see POWER_ANALYSIS.md"
+  },
+  "dependencies": [
+    "EXP-PM-DEFS-001",
+    "EXP-MM-LIVE-001"
+  ],
+  "reproduction_command": "python research/tools/registry.py evidence EXP-PM-CS-BPS-001 --verify",
+  "reproduction_command_scope": "Verify original evidence and protocol only; this is not a new model run.",
+  "full_experiment_command": null,
+  "execution_ready": false,
+  "acceptance_criteria": [
+    "A prespecified proper-score improvement on new target rounds with paired GW-block uncertainty",
+    "No material deterioration in primary downstream score or protected groups",
+    "Complete cutoff/identity/legality/privacy gates; no automatic production promotion"
+  ],
+  "result_links": [
+    "analysis/followup-41-20261122/results/pm-decomposition.json",
+    "analysis/audits/2026-11-22/evidence/fpl-keeper-quality/results.json"
+  ],
+  "final_decision": "No candidate implemented or fitted. Missing per-draw BPS information blocks efficacy claims.",
+  "next_action": "After field contracts pass, write a candidate-specific preregistration and power plan; keep existing substitution trial separate."
+}

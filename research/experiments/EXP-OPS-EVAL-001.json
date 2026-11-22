@@ -1,0 +1,57 @@
+{
+  "id": "EXP-OPS-EVAL-001",
+  "protocol_version": 1,
+  "registered_on": "2026-11-22",
+  "kind": "infrastructure",
+  "question": "Can the automatic final-GW report reproduce original predictions without revisions or fabricated zeros?",
+  "statistical_hypothesis": "Original-vintage scoring equals the source definitions and fails closed for missing/late/mismatched inputs; no forecast regeneration occurs.",
+  "initial_status": "proposed",
+  "priority": 6,
+  "primary_metric": "Original-vintage identity and score-reproduction failures",
+  "secondary_metrics": [
+    "calibration",
+    "coverage",
+    "subgroup stability",
+    "compute cost"
+  ],
+  "baseline": "PR41 audit + PR43 draft report code",
+  "candidate_modification": "Dynamic read-only collector/scorer and report publication only",
+  "train_development_test": {
+    "train": "none",
+    "development": "GW8–10 regression fixtures, not new model research",
+    "test": "Missing labels, DGW, blanks, rescheduling, revisions and after-deadline adversarial cases"
+  },
+  "data_sources_and_cutoffs": [
+    {
+      "source": "analysis/audits/2026-11-22/code/run_audit.py",
+      "cutoff_quality": "Frozen original inputs."
+    },
+    {
+      "source": "https://github.com/pdamkier-del/fpl-analytics-app/pull/43",
+      "cutoff_quality": "Public collector not yet exercised end-to-end; partial test coverage."
+    }
+  ],
+  "sample_size": {
+    "completed_baseline_GWs": 3
+  },
+  "power": {
+    "status": "not_applicable",
+    "reason": "Measurement pipeline correctness."
+  },
+  "dependencies": [],
+  "reproduction_command": "python research/tools/registry.py evidence EXP-OPS-EVAL-001 --verify",
+  "reproduction_command_scope": "Verify original evidence and protocol only; this is not a new model run.",
+  "full_experiment_command": null,
+  "execution_ready": false,
+  "acceptance_criteria": [
+    "A prespecified proper-score improvement on new target rounds with paired GW-block uncertainty",
+    "No material deterioration in primary downstream score or protected groups",
+    "Complete cutoff/identity/legality/privacy gates; no automatic production promotion"
+  ],
+  "result_links": [
+    "analysis/audits/2026-11-22/code/run_audit.py",
+    "analysis/audits/2026-11-22/test-inventory.csv"
+  ],
+  "final_decision": "Do not claim a running automated GW cycle. Draft infrastructure needs gate completion.",
+  "next_action": "Complete DGW/blank, identity and final-label gates, test immutable result revisions and add a report-only workflow in a separate integration PR."
+}

@@ -1,0 +1,63 @@
+{
+  "id": "EXP-TS-SEARCH-001",
+  "protocol_version": 1,
+  "registered_on": "2026-11-22",
+  "kind": "infrastructure",
+  "question": "Does the unchanged TS optimizer return legal choices and how far is its search from exact optima on bounded instances?",
+  "statistical_hypothesis": "Deterministic legality/scoring invariants hold on every declared witness; exact optimum minus heuristic utility quantifies search loss. No statistical significance or universal optimality claim.",
+  "initial_status": "ready",
+  "priority": 1,
+  "primary_metric": "Expected-utility optimality gap on the exact declared finite feasible set",
+  "secondary_metrics": [
+    "calibration",
+    "coverage",
+    "subgroup stability",
+    "compute cost"
+  ],
+  "baseline": "Frozen TS v3 search and original scorer",
+  "candidate_modification": "Measurement harness only; no policy/weight changes",
+  "train_development_test": {
+    "train": "none",
+    "development": "Synthetic deterministic witnesses; not FPL historical outcomes",
+    "test": "Prespecified exhaustive bounded instances and hand-derived examples"
+  },
+  "data_sources_and_cutoffs": [
+    {
+      "source": "analysis/audits/2026-11-22/evidence/active-source/scripts/run_live_locked_ts.py",
+      "cutoff_quality": "Synthetic optimization instances contain no future match labels."
+    },
+    {
+      "source": "analysis/audits/2026-11-22/evidence/active-source/scripts/run_joint_fh_wc_stopping_replay.py",
+      "cutoff_quality": "Frozen weights/search config; actual numerical runtime is immutable Git source161b67b6."
+    }
+  ],
+  "sample_size": {
+    "deterministic_all_legal_instances": 30,
+    "DNP_restricted_nomination_instances": 12,
+    "player_pool_max": 17,
+    "transfer_depth_max": 2,
+    "scenario_rows_max": 8,
+    "runtime_budget_seconds": 120
+  },
+  "power": {
+    "status": "not_applicable",
+    "reason": "Finite-set exact correctness and utility-gap calculation; no player-level significance test."
+  },
+  "dependencies": [],
+  "reproduction_command": "python research/tools/registry.py evidence EXP-TS-SEARCH-001 --verify",
+  "reproduction_command_scope": "Verify original evidence and protocol only; this is not a new model run.",
+  "full_experiment_command": null,
+  "execution_ready": false,
+  "acceptance_criteria": [
+    "0 illegal actions or scoring mismatches",
+    "Exact references agree with hand-derived witnesses and declare the full enumerated domain",
+    "All heuristic utility gaps are reported, including misses; no claim of global FPL optimum outside toy domains"
+  ],
+  "result_links": [
+    "analysis/audits/2026-11-22/evidence/active-source/scripts/run_live_locked_ts.py",
+    "analysis/audits/2026-11-22/evidence/active-source/scripts/run_joint_fh_wc_stopping_replay.py",
+    "analysis/audits/2026-11-22/test-inventory.csv"
+  ],
+  "final_decision": "Not executed. Scientific/data prerequisites ready; exact harness still needs implementation.",
+  "next_action": "Implement the exact bounded harness on a fresh research branch (pool17 permits two genuine incoming transfers); preserve the scorer and register the full command before running."
+}
