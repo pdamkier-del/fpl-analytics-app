@@ -1,0 +1,61 @@
+{
+  "id": "LEGACY-023",
+  "protocol_version": 1,
+  "registered_on": "2026-11-22",
+  "kind": "legacy",
+  "question": "Survival duration, score-context hazards and additive error attribution",
+  "statistical_hypothesis": "Retrospective import of an existing study; preserves its original tested configuration and decision. No new efficacy hypothesis or promotion.",
+  "initial_status": "completed",
+  "priority": 923,
+  "primary_metric": "Original arm-specific metrics in linked matrix/evidence, not pooled across targets",
+  "secondary_metrics": [
+    "Original proper scores where present",
+    "calibration",
+    "coverage",
+    "compute and provenance"
+  ],
+  "baseline": "Original locked MM and partition-only, logistic and duration arms",
+  "candidate_modification": "Original historical modification/diagnostic only; none executed or enabled by Stage0",
+  "train_development_test": {
+    "validation_class": "2024/25 GW11–21 development; GW22–38 plus 2025/26 GW6–38 reused",
+    "outcomes_already_seen": true,
+    "original_design": "See source-specific arm facts in historical-matrix.json.gz; absent fields NOT_AVAILABLE"
+  },
+  "data_sources_and_cutoffs": [
+    {
+      "source": "research/stage0/historical-matrix.json.gz",
+      "cutoff_quality": "2024/25 GW11–21 development; GW22–38 plus 2025/26 GW6–38 reused"
+    }
+  ],
+  "sample_size": {
+    "status": "original_source_specific",
+    "reference": "See original rows/fixtures/cohorts in matrix; correlated and reused rows/arms are not independent samples"
+  },
+  "power": {
+    "status": "not_estimated",
+    "reason": "Historical import; retain original intervals where available, do not invent prospective power"
+  },
+  "dependencies": [],
+  "reproduction_command": "python research/stage0/code/verify_sources.py",
+  "reproduction_command_scope": "Verify source bytes, provenance and selected archived arithmetic only; not a new model test",
+  "full_experiment_command": null,
+  "execution_ready": false,
+  "acceptance_criteria": [
+    "No new acceptance decision; retain original source decisions in exact tested configurations",
+    "Future efficacy requires a separately registered untouched comparison",
+    "No production or app changes"
+  ],
+  "result_links": [
+    "research/stage0/reconciled/LEGACY-023.json",
+    "research/stage0/historical-matrix.json.gz",
+    "research/stage0/primary-evidence.json.gz",
+    "research/stage0/source-receipts.json"
+  ],
+  "final_decision": "Survival and score-context hazards already implemented. Survival reduces starter RMSE 14.7600→11.8991 / 14.6848→11.7979, but combined 2025 overall minute-MAE worsens by .3605 (fixture CI [.3056,.4144]); this is not a reason to optimize MAE blindly.",
+  "next_action": "Read the original evidence and overlap matrix before any genuinely new study; independent reconciliation review pending",
+  "historical_classification": "exploratory",
+  "original_study_directories": [
+    "mm-research-20261014"
+  ],
+  "claim_scope": "completed means the existing record has been reconciled, not that every planned old run finished or that efficacy was independently validated; see original classification and evidence gaps"
+}

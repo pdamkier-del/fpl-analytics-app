@@ -1,0 +1,18 @@
+{
+  "id": "LEGACY-018",
+  "model": "MM",
+  "question": "Three-state starter/sub/zero classifier",
+  "directories": [
+    "v4-three-state-20261005-v1"
+  ],
+  "classification": "rejected",
+  "finding": "Development rule selected v4 rather than three-state replacement; conditional durations unchanged.",
+  "validation": "GW6–15 train, GW16–21 select, GW22–38 reused",
+  "baseline": "Original comparator in source protocol; not silently equated to current production",
+  "stage0_verification": "Original evidence identity and selected arithmetic only; full model/scientific replication not executed",
+  "detail_archive": "research/stage0/historical-matrix.json.gz",
+  "original_result_archive": "research/stage0/primary-evidence.json.gz",
+  "source_receipts": "research/stage0/source-receipts.json",
+  "independent_review": "pending",
+  "production_changed": false
+}

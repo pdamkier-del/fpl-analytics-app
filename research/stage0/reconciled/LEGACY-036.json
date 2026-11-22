@@ -1,0 +1,19 @@
+{
+  "id": "LEGACY-036",
+  "model": "MM",
+  "question": "All-competition physical workload and role transitions",
+  "directories": [
+    "competition-context-20261025",
+    "role-transitions-20261025"
+  ],
+  "classification": "exploratory",
+  "finding": "Strict missingness vs lower-bound workload variants already measured. Minute-MAE deltas -.04919/-.00618; start Brier -.0000268/+.0000684, mixed and source coverage incomplete.",
+  "validation": "Reused/reconstructed historical research; exact periods vary by arm in source facts. Historical publication proxies and inherited parameter-fit clocks are not certified.",
+  "baseline": "Original comparator in source protocol; not silently equated to current production",
+  "stage0_verification": "Original evidence identity and selected arithmetic only; full model/scientific replication not executed",
+  "detail_archive": "research/stage0/historical-matrix.json.gz",
+  "original_result_archive": "research/stage0/primary-evidence.json.gz",
+  "source_receipts": "research/stage0/source-receipts.json",
+  "independent_review": "pending",
+  "production_changed": false
+}

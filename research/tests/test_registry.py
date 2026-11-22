@@ -13,7 +13,7 @@ def reseal_synthetic_initial_registry(root):
  (root/'events.jsonl').write_text(''.join(json.dumps(e)+'\n'for e in rows))
 
 def test_all_evidence_and_protected_protocol_validate():
- r=reg.validate();assert r['experiments']==25 and r['existing_protocol_unchanged'];p=reg.read()['EXP-MM-SUB-20261108']['protocol'];assert p['sample_size']['minimum_gws']==8 and p['sample_size']['minimum_matches']==80
+ r=reg.validate();assert r['experiments']==63 and r['existing_protocol_unchanged'];p=reg.read()['EXP-MM-SUB-20261108']['protocol'];assert p['sample_size']['minimum_gws']==8 and p['sample_size']['minimum_matches']==80
 
 def test_registered_protocol_cannot_be_silently_edited(temporary):
  p=temporary/'experiments/EXP-TS-SEARCH-001.json';j=json.loads(p.read_text());j['question']='edited';p.write_text(json.dumps(j))
@@ -40,12 +40,12 @@ def test_no_direct_acceptance_or_unimplemented_execution(temporary):
  with pytest.raises(ValueError,match='real versioned'):reg.register_implementation(temporary,'EXP-TS-SEARCH-001','python missing.py','missing.py',temporary.parent)
 
 def test_implementation_and_state_history_append_without_overwriting_protocol(temporary):
- id='EXP-TS-SEARCH-001';p=temporary/'experiments'/(id+'.json');original=p.read_bytes();h=temporary/'tools/synthetic_harness.py';h.write_text('# synthetic registry metadata test; no execution\n');result=temporary/'results/proof.json';result.write_text('{"synthetic_public_test":true}')
+ id='EXP-TS-SEARCH-001';p=temporary/'experiments'/(id+'.json');original=p.read_bytes();initial_events=len(reg.read(temporary)[id]['events']);h=temporary/'tools/synthetic_harness.py';h.write_text('# synthetic registry metadata test; no execution\n');result=temporary/'results/proof.json';result.write_text('{"synthetic_public_test":true}')
  reg.register_implementation(temporary,id,'python research/tools/synthetic_harness.py','research/tools/synthetic_harness.py',temporary.parent)
  reg.append_state(temporary,id,'running','synthetic only',['research/results/proof.json']);reg.append_state(temporary,id,'completed','synthetic only',['research/results/proof.json'])
  with pytest.raises(ValueError,match='independent'):reg.append_state(temporary,id,'accepted','synthetic only',['research/results/proof.json'])
  reg.append_state(temporary,id,'accepted','synthetic independently checked correctness',['research/results/proof.json'],True)
- assert reg.read(temporary)[id]['state']=='accepted';assert p.read_bytes()==original;assert len(reg.read(temporary)[id]['events'])==5
+ assert reg.read(temporary)[id]['state']=='accepted';assert p.read_bytes()==original;assert len(reg.read(temporary)[id]['events'])==initial_events+4
 
 def test_ready_is_not_execution_claim():
  r=reg.read();p=r['EXP-TS-SEARCH-001']['protocol'];assert r['EXP-TS-SEARCH-001']['state']=='ready'and p['execution_ready']is False and p['full_experiment_command']is None

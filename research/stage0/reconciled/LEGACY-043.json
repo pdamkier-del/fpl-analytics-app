@@ -1,0 +1,18 @@
+{
+  "id": "LEGACY-043",
+  "model": "PM",
+  "question": "Secondary CS/save/DC/BPS label reconciliation and opt-in reserve repair",
+  "directories": [
+    "pm-secondary-components-20261101"
+  ],
+  "classification": "exploratory",
+  "finding": "341 fixtures / 27,092 rows; all 341 actual-BPS bonus allocations match; 849 DC boundary rows match. Team-CS Brier .177535/.180182. Player CS rule-derived only. GK BPS -.3926 CI[-.6283,-.1705], GK bonus -.0209 CI[-.0374,-.0044] in 2025. Stint reserve repair accepted opt-in only: analytic 1.2/.8→1/1; no fit.",
+  "validation": "Two reused GW22–38 seasons; direct player-CS, 2024 DC and 2025 PK-goal split unavailable",
+  "baseline": "20dfdd953ef99c382ea969836cd6a514b8182cc4, 2,000 draws; 14 deep 10k controls",
+  "stage0_verification": "Original evidence identity and selected arithmetic only; full model/scientific replication not executed",
+  "detail_archive": "research/stage0/historical-matrix.json.gz",
+  "original_result_archive": "research/stage0/primary-evidence.json.gz",
+  "source_receipts": "research/stage0/source-receipts.json",
+  "independent_review": "pending",
+  "production_changed": false
+}

@@ -1,0 +1,61 @@
+{
+  "id": "LEGACY-043",
+  "protocol_version": 1,
+  "registered_on": "2026-11-22",
+  "kind": "legacy",
+  "question": "Secondary CS/save/DC/BPS label reconciliation and opt-in reserve repair",
+  "statistical_hypothesis": "Retrospective import of an existing study; preserves its original tested configuration and decision. No new efficacy hypothesis or promotion.",
+  "initial_status": "completed",
+  "priority": 943,
+  "primary_metric": "Original arm-specific metrics in linked matrix/evidence, not pooled across targets",
+  "secondary_metrics": [
+    "Original proper scores where present",
+    "calibration",
+    "coverage",
+    "compute and provenance"
+  ],
+  "baseline": "20dfdd953ef99c382ea969836cd6a514b8182cc4, 2,000 draws; 14 deep 10k controls",
+  "candidate_modification": "Original historical modification/diagnostic only; none executed or enabled by Stage0",
+  "train_development_test": {
+    "validation_class": "Two reused GW22–38 seasons; direct player-CS, 2024 DC and 2025 PK-goal split unavailable",
+    "outcomes_already_seen": true,
+    "original_design": "See source-specific arm facts in historical-matrix.json.gz; absent fields NOT_AVAILABLE"
+  },
+  "data_sources_and_cutoffs": [
+    {
+      "source": "research/stage0/historical-matrix.json.gz",
+      "cutoff_quality": "Two reused GW22–38 seasons; direct player-CS, 2024 DC and 2025 PK-goal split unavailable"
+    }
+  ],
+  "sample_size": {
+    "status": "original_source_specific",
+    "reference": "See original rows/fixtures/cohorts in matrix; correlated and reused rows/arms are not independent samples"
+  },
+  "power": {
+    "status": "not_estimated",
+    "reason": "Historical import; retain original intervals where available, do not invent prospective power"
+  },
+  "dependencies": [],
+  "reproduction_command": "python research/stage0/code/verify_sources.py",
+  "reproduction_command_scope": "Verify source bytes, provenance and selected archived arithmetic only; not a new model test",
+  "full_experiment_command": null,
+  "execution_ready": false,
+  "acceptance_criteria": [
+    "No new acceptance decision; retain original source decisions in exact tested configurations",
+    "Future efficacy requires a separately registered untouched comparison",
+    "No production or app changes"
+  ],
+  "result_links": [
+    "research/stage0/reconciled/LEGACY-043.json",
+    "research/stage0/historical-matrix.json.gz",
+    "research/stage0/primary-evidence.json.gz",
+    "research/stage0/source-receipts.json"
+  ],
+  "final_decision": "341 fixtures / 27,092 rows; all 341 actual-BPS bonus allocations match; 849 DC boundary rows match. Team-CS Brier .177535/.180182. Player CS rule-derived only. GK BPS -.3926 CI[-.6283,-.1705], GK bonus -.0209 CI[-.0374,-.0044] in 2025. Stint reserve repair accepted opt-in only: analytic 1.2/.8→1/1; no fit.",
+  "next_action": "Read the original evidence and overlap matrix before any genuinely new study; independent reconciliation review pending",
+  "historical_classification": "exploratory",
+  "original_study_directories": [
+    "pm-secondary-components-20261101"
+  ],
+  "claim_scope": "completed means the existing record has been reconciled, not that every planned old run finished or that efficacy was independently validated; see original classification and evidence gaps"
+}

@@ -1,0 +1,59 @@
+{
+  "id": "LEGACY-045",
+  "protocol_version": 1,
+  "registered_on": "2026-11-22",
+  "kind": "legacy",
+  "question": "Joint MILP planner and hand-built FT/enabler correctness tests",
+  "statistical_hypothesis": "Retrospective import of an existing study; preserves its original tested configuration and decision. No new efficacy hypothesis or promotion.",
+  "initial_status": "completed",
+  "priority": 945,
+  "primary_metric": "Original arm-specific metrics in linked matrix/evidence, not pooled across targets",
+  "secondary_metrics": [
+    "Original proper scores where present",
+    "calibration",
+    "coverage",
+    "compute and provenance"
+  ],
+  "baseline": "Earlier TSv3 objective approx207.84; MILP surrogate not silently the exact current shared-PM scorer",
+  "candidate_modification": "Original historical modification/diagnostic only; none executed or enabled by Stage0",
+  "train_development_test": {
+    "validation_class": "Synthetic correctness and one historical smoke; no season gain",
+    "outcomes_already_seen": true,
+    "original_design": "See source-specific arm facts in historical-matrix.json.gz; absent fields NOT_AVAILABLE"
+  },
+  "data_sources_and_cutoffs": [
+    {
+      "source": "research/stage0/historical-matrix.json.gz",
+      "cutoff_quality": "Synthetic correctness and one historical smoke; no season gain"
+    }
+  ],
+  "sample_size": {
+    "status": "original_source_specific",
+    "reference": "See original rows/fixtures/cohorts in matrix; correlated and reused rows/arms are not independent samples"
+  },
+  "power": {
+    "status": "not_estimated",
+    "reason": "Historical import; retain original intervals where available, do not invent prospective power"
+  },
+  "dependencies": [],
+  "reproduction_command": "python research/stage0/code/verify_sources.py",
+  "reproduction_command_scope": "Verify source bytes, provenance and selected archived arithmetic only; not a new model test",
+  "full_experiment_command": null,
+  "execution_ready": false,
+  "acceptance_criteria": [
+    "No new acceptance decision; retain original source decisions in exact tested configurations",
+    "Future efficacy requires a separately registered untouched comparison",
+    "No production or app changes"
+  ],
+  "result_links": [
+    "research/stage0/reconciled/LEGACY-045.json",
+    "research/stage0/historical-matrix.json.gz",
+    "research/stage0/primary-evidence.json.gz",
+    "research/stage0/source-receipts.json"
+  ],
+  "final_decision": "TSv4 already jointly models bank/FT/hits/XI/C/VC. Existing tests cover FT accumulation and cheap enabling transfer. GW1-only smoke: 0 transfers, objective207.8495, 36.82s; no full replay or general exact shared-PM oracle.",
+  "next_action": "Read the original evidence and overlap matrix before any genuinely new study; independent reconciliation review pending",
+  "historical_classification": "exploratory",
+  "original_study_directories": [],
+  "claim_scope": "completed means the existing record has been reconciled, not that every planned old run finished or that efficacy was independently validated; see original classification and evidence gaps"
+}

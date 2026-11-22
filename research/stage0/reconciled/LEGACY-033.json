@@ -1,0 +1,32 @@
+{
+  "id": "LEGACY-033",
+  "model": "MM/PM",
+  "question": "Shared penalties, neutral nonpenalty head and source boundary",
+  "directories": [
+    "shared-penalty-model-20261005-v1",
+    "shared-penalty-joint-20261005-v1",
+    "penalty-audit-20261023",
+    "penalty-conditional-only-20261023",
+    "penalty-current-conditional-20261023",
+    "penalty-neutral-candidate-20261023",
+    "penalty-neutral-combined-20261023",
+    "penalty-neutral-sources-20261023",
+    "nonpenalty-goal-head-20261023",
+    "separated-goal-head-validation-20261023",
+    "separated-goal-head-v2-validation-20261023",
+    "current-separated-goal-head-20261023",
+    "current-separated-goal-head-v2-20261023",
+    "nonpenalty-release-20261023",
+    "lefee-penalty-allocation-20261023"
+  ],
+  "classification": "exploratory",
+  "finding": "First and refit-v2 penalty/NP gates differ; preserve original rejected/superseding research decisions per arm. Approved research wrapper is not proof of production deployment or independent gain.",
+  "validation": "Reused/reconstructed historical research; exact periods vary by arm in source facts. Historical publication proxies and inherited parameter-fit clocks are not certified.",
+  "baseline": "Original comparator in source protocol; not silently equated to current production",
+  "stage0_verification": "Original evidence identity and selected arithmetic only; full model/scientific replication not executed",
+  "detail_archive": "research/stage0/historical-matrix.json.gz",
+  "original_result_archive": "research/stage0/primary-evidence.json.gz",
+  "source_receipts": "research/stage0/source-receipts.json",
+  "independent_review": "pending",
+  "production_changed": false
+}

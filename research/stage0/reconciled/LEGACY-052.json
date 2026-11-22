@@ -1,0 +1,16 @@
+{
+  "id": "LEGACY-052",
+  "model": "MM/PM",
+  "question": "PR41 original-vintage GW8–10 and ep_next audit",
+  "directories": [],
+  "classification": "exploratory",
+  "finding": "2,007 forecast rows /30 matches; minute MAE11.4092256, start Brier.0717313; point MAE1.0383757/RMSE1.9197536/CRPS.6842659; ep_next MAE1.1422521/RMSE2.1954827. Only three already-seen GW; no untouched confirmation.",
+  "validation": "GW8–10 original-before-deadline vintages; hypothesis/outcomes already seen; 30 fixtures / 2,007 rows",
+  "baseline": "Original before-deadline releases and same-vintage official ep_next",
+  "stage0_verification": "Original evidence identity and selected arithmetic only; full model/scientific replication not executed",
+  "detail_archive": "research/stage0/historical-matrix.json.gz",
+  "original_result_archive": "research/stage0/primary-evidence.json.gz",
+  "source_receipts": "research/stage0/source-receipts.json",
+  "independent_review": "pending",
+  "production_changed": false
+}

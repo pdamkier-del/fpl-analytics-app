@@ -1,0 +1,18 @@
+{
+  "id": "LEGACY-041",
+  "model": "MM",
+  "question": "Medical-return/start/P90 factorial candidate",
+  "directories": [
+    "return-p90-candidate-20261101"
+  ],
+  "classification": "inconclusive",
+  "finding": "6 arms / 4 historical control fixtures / 2 seeds / 2,000 draws: return_start xP-MAE .854680→.853718 and .923218→.921429; tiny selected controls, full analytic run described as pending in PR. Do not infer success from a green baseline workflow.",
+  "validation": "Reused/reconstructed historical research; exact periods vary by arm in source facts. Historical publication proxies and inherited parameter-fit clocks are not certified.",
+  "baseline": "Original comparator in source protocol; not silently equated to current production",
+  "stage0_verification": "Original evidence identity and selected arithmetic only; full model/scientific replication not executed",
+  "detail_archive": "research/stage0/historical-matrix.json.gz",
+  "original_result_archive": "research/stage0/primary-evidence.json.gz",
+  "source_receipts": "research/stage0/source-receipts.json",
+  "independent_review": "pending",
+  "production_changed": false
+}

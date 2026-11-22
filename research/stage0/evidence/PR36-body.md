@@ -1,0 +1,1 @@
+Research specification only; NO model/code/production changes. Catalogues peer-reviewed methods, verified overlaps with existing PM shrinkage, MM survival/rating experiments, data-quality gates, exact future evaluation and Codex task. Requires measured data audit before implementation.

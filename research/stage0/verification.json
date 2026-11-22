@@ -1,0 +1,131 @@
+{
+  "scope": "Evidence bytes, original receipt arithmetic and inventory only; no model reruns, no new efficacy tests",
+  "fit_executed": false,
+  "simulation_executed": false,
+  "TS_search_executed": false,
+  "original_protocols_unchanged": 25,
+  "original_events_prefix_unchanged": true,
+  "primary_artifacts_verified": 225,
+  "selected_source_copies_verified": 21,
+  "result_directories_assigned": 184,
+  "historical_families": 54,
+  "unassigned_result_directories": [],
+  "old_TS_cases": {
+    "count": 6,
+    "horizons": [
+      1
+    ],
+    "max_recorded_transfer_utility_gap": 0.0,
+    "max_recorded_XI_gap": 0.17999999999999972,
+    "arithmetic_matches": true,
+    "scoring_limit": "Transfer enumeration still calls heuristic s.decision per squad; exhaustive nomination is only separately applied to unchanged squad; buffer1.5 vs current1.0."
+  },
+  "archived_assist_gate": {
+    "accepted_in_original_gate": true,
+    "no_independent_accuracy_claim": true,
+    "paired_FWD_assist_Brier_delta95": [
+      -0.0006788332909917191,
+      -4.559800345682549e-05
+    ],
+    "differences_recomputed_from_summary": [
+      {
+        "season": "2024-25",
+        "group": "all",
+        "xp_MAE_delta": -0.00022003957037863842,
+        "assist_Brier_delta": -5.977451950254023e-05
+      },
+      {
+        "season": "2024-25",
+        "group": "played",
+        "xp_MAE_delta": 0.0008056448731690313,
+        "assist_Brier_delta": -0.00010129483744193701
+      },
+      {
+        "season": "2024-25",
+        "group": "DEF",
+        "xp_MAE_delta": -0.006256229235880428,
+        "assist_Brier_delta": -7.162925664452174e-05
+      },
+      {
+        "season": "2024-25",
+        "group": "FWD",
+        "xp_MAE_delta": 0.006719543147208129,
+        "assist_Brier_delta": -7.32182741116777e-05
+      },
+      {
+        "season": "2024-25",
+        "group": "GK",
+        "xp_MAE_delta": 0.0004369127516777871,
+        "assist_Brier_delta": -7.046979865767654e-07
+      },
+      {
+        "season": "2024-25",
+        "group": "MID",
+        "xp_MAE_delta": 0.002515948963317416,
+        "assist_Brier_delta": -6.132703349282648e-05
+      },
+      {
+        "season": "2025-26",
+        "group": "all",
+        "xp_MAE_delta": 0.00039368699506681093,
+        "assist_Brier_delta": -4.643572603131238e-05
+      },
+      {
+        "season": "2025-26",
+        "group": "played",
+        "xp_MAE_delta": 0.0019186046511630028,
+        "assist_Brier_delta": -0.00011609551495016246
+      },
+      {
+        "season": "2025-26",
+        "group": "DEF",
+        "xp_MAE_delta": -0.0054788126241449575,
+        "assist_Brier_delta": -5.1660064003530154e-05
+      },
+      {
+        "season": "2025-26",
+        "group": "FWD",
+        "xp_MAE_delta": 0.008061217948717836,
+        "assist_Brier_delta": -0.0004963532051282075
+      },
+      {
+        "season": "2025-26",
+        "group": "GK",
+        "xp_MAE_delta": 0.000459316770186291,
+        "assist_Brier_delta": -2.76614906832319e-06
+      },
+      {
+        "season": "2025-26",
+        "group": "MID",
+        "xp_MAE_delta": 0.002706967865096832,
+        "assist_Brier_delta": 5.7801423798915785e-05
+      }
+    ]
+  },
+  "keeper_reserve_identity": {
+    "old": [
+      1.2,
+      0.8
+    ],
+    "conditional_correct": [
+      1.0,
+      1.0
+    ],
+    "scope": "Artificial fixed-interval expectation only; not historical accuracy or new simulator test"
+  },
+  "PR41_inventory": {
+    "groups": 178,
+    "files": 2471,
+    "hash_matches": 2471,
+    "not_in_pinned_git_tree": [],
+    "hash_mismatches": [],
+    "scope": "Full archived inventory compared to fd3907f4; mismatch is reported, not silently repaired"
+  },
+  "original_test_inventory": {
+    "listed": 236,
+    "source_paths_exist": 236,
+    "missing": [],
+    "executed": false
+  },
+  "public_ref_trees_verified": 48
+}

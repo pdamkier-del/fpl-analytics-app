@@ -1,0 +1,29 @@
+{
+  "observed_on": "2026-11-22",
+  "command": "OPENBLAS_NUM_THREADS=1 /workspace/fpl-venv/bin/python -m pytest research/tests research/stage0/tests -q",
+  "result": "20 passed in 0.83s",
+  "scope": "Registry integrity, historical archive and deterministic bookkeeping only; no old model suites, fits, simulations or optimizer runs",
+  "earlier_implementation_check_failures": [
+    {
+      "count": 2,
+      "causes": [
+        "Existing event-count assertion assumed no reconciliation observation",
+        "Two new legacy IDs lacked zero padding"
+      ],
+      "resolution": "Count appended events from initial length; normalize unpublished import IDs; preserve initial25protocol/event bytes"
+    },
+    {
+      "count": 1,
+      "cause": "Derived STATUS still linked to the two pre-normalization IDs",
+      "resolution": "Regenerate STATUS from registry"
+    }
+  ],
+  "code_sha256": {
+    "research/tools/registry.py": "d13edc4d3592a3ad42106b18dc83b283bc6714b5673df62898195d98eab60f83",
+    "research/tests/test_registry.py": "f25611172593b2fd477d5a76bcb582b88956bcaf5bd166a36016a3054830c466",
+    "research/stage0/code/build_matrices.py": "4645db7e4db5d9399132b5f1f83ae5663be7a8e921df8a4b689d00051c645237",
+    "research/stage0/code/collect_sources.py": "f20dce64e9c9bc8e252bf62c417c75ab6871a9209a3fc141720dde92913ec1a1",
+    "research/stage0/code/verify_sources.py": "d3de22d94c6b67ec17f15e0b83b6d2466f0714f333bccbb3243102b2cc07fe40",
+    "research/stage0/tests/test_stage0.py": "6ead61474f0134839c01af363f9f0a9329c3c737ad6ae25c00a32f7d5cc5e4e6"
+  }
+}

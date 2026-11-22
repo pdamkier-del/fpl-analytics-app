@@ -1,0 +1,23 @@
+{
+  "id": "LEGACY-050",
+  "model": "MM/PM/TS",
+  "question": "Legacy validation, reproduction and release-source consistency",
+  "directories": [
+    "v2-validation",
+    "v2-reproduced",
+    "live-gw7-original-vfinal-20261010-v1",
+    "live-gw7-original-vfinal-20261010-v2",
+    "live-original-vfinal-20261010-v1",
+    "live-raw-reproduction-20261010-v2"
+  ],
+  "classification": "exploratory",
+  "finding": "Original source recovery/reproduction and publication vintages are distinct from a new scientific holdout. Never overwrite old forecast outputs.",
+  "validation": "Reused/reconstructed historical research; exact periods vary by arm in source facts. Historical publication proxies and inherited parameter-fit clocks are not certified.",
+  "baseline": "Original comparator in source protocol; not silently equated to current production",
+  "stage0_verification": "Original evidence identity and selected arithmetic only; full model/scientific replication not executed",
+  "detail_archive": "research/stage0/historical-matrix.json.gz",
+  "original_result_archive": "research/stage0/primary-evidence.json.gz",
+  "source_receipts": "research/stage0/source-receipts.json",
+  "independent_review": "pending",
+  "production_changed": false
+}

@@ -26,6 +26,11 @@ def read(root=R):
   elif e['kind']=='implementation_registered':
    if e['experiment_id']not in registered or v['state']not in ['proposed','ready','awaiting_data']or not e.get('command')or not e.get('harness_sha256'):raise ValueError('Invalid implementation registration')
    v['implementation']=e
+  elif e['kind']=='evidence_reconciled':
+   if e['experiment_id']not in registered or e['state']!=v['state']or not e.get('reason')or not e.get('evidence'):raise ValueError('Reconciliation must preserve state and cite evidence')
+   for item in e['evidence']:
+    path=(root.parent/item['path']).resolve()
+    if not path.is_relative_to(root.parent.resolve())or not path.is_file()or digest(path.read_bytes())!=item['sha256']:raise ValueError('Reconciliation evidence changed or disappeared')
   elif e['kind']=='state_changed':
    if e['experiment_id']not in registered or e['state']not in TRANSITIONS[v['state']]:raise ValueError('Illegal state transition')
    if e['state']=='running'and v['implementation']is None:raise ValueError('Execution harness not registered')
@@ -72,7 +77,7 @@ def table(root=R):
  records=read(root);lines=['# FPL Research Lab — research status','', 'Snapshot as of programme registration, 22 November 2026. Generated from registry; not a live job monitor.','', '| Experiment | State | Priority | Execution-ready | Next action |','| --- | --- | --- | --- | --- |']
  for id,v in sorted(records.items(),key=lambda x:x[1]['protocol']['priority']):
   p=v['protocol'];lines.append(f"| [{id}](experiments/{id}.json) | {v['state']} | {p['priority']} | {'harness registered; check data gates'if v['implementation']is not None else'no; see prerequisites/implementation'} | {p['next_action'].replace('|','/')} |")
- lines+=['','`ready` means scientific/data prerequisites support starting implementation. It does not claim the execution harness exists. `awaiting_data` is not a failed model. Historical accepted/rejected decisions have the narrow scope in their evidence.','', 'Next valid new work: EXP-TS-SEARCH-001. Its bounded exact-reference harness is not yet implemented. The existing substitution trial continues independently under its original protocol.','', 'Never count seen GW8–10 again as new validation. New MM/PM holdouts begin at an eligible later origin, not after reviewing current GW11 outcomes.','']
+ lines+=['','`ready` means scientific/data prerequisites support starting implementation. It does not claim the execution harness exists. `awaiting_data` is not a failed model. Historical accepted/rejected decisions have the narrow scope in their evidence.','', 'Stage 0 reconciliation: 184 public result directories / 54 coverage families; see stage0/REPORT.md and SESSION_HANDOFF.md. Independent scientific review is pending. Next proposed experiment remains EXP-TS-SEARCH-001, restricted to the residual gap beyond the prior six-case exact enumeration and TSv4 MILP. Its current-scorer harness is not yet registered or executed. The substitution trial continues under its original protocol.','', 'Never count seen GW8–10 again as new validation. New MM/PM holdouts begin at an eligible later origin, not after reviewing current GW11 outcomes.','']
  return '\n'.join(lines)
 
 def append_state(root,id,status,reason,links,independent=False):
@@ -91,6 +96,19 @@ def append_state(root,id,status,reason,links,independent=False):
  with(root/'events.jsonl').open('a')as h:h.write(json.dumps(e,sort_keys=True,ensure_ascii=False)+'\n')
  return e
 
+def append_reconciliation(root,id,reason,links):
+ """Append evidence without changing the registered protocol, state or implementation."""
+ root=Path(root);v=read(root)[id]
+ if not reason or not links:raise ValueError('Reason and immutable public evidence required')
+ verified=[]
+ for link in links:
+  path=(root.parent/link).resolve()
+  if not path.is_relative_to(root.parent.resolve())or not path.is_file()or not str(path.relative_to(root.parent.resolve())).startswith(('research/stage0/','research/evidence/')):raise ValueError('Invalid public reconciliation evidence')
+  verified.append({'path':link,'sha256':digest(path.read_bytes())})
+ lines=(root/'events.jsonl').read_text().splitlines();last=json.loads(lines[-1]);e={'sequence':len(lines)+1,'event_id':'RECON-'+str(len(lines)+1),'kind':'evidence_reconciled','experiment_id':id,'at':datetime.now(timezone.utc).isoformat(),'state':v['state'],'protocol_sha256':v['sha256'],'reason':reason,'evidence':verified,'previous':last['sha256']};e['sha256']=digest(canonical(e))
+ with(root/'events.jsonl').open('a')as h:h.write(json.dumps(e,sort_keys=True,ensure_ascii=False)+'\n')
+ return e
+
 def register_implementation(root,id,command,harness,repository=ROOT):
  root=Path(root);records=read(root);v=records[id];path=(Path(repository)/harness).resolve()
  if v['state']not in ['proposed','ready','awaiting_data']or not command or not path.is_relative_to(Path(repository).resolve())or not path.is_file():raise ValueError('Implementation must be a real versioned repository file before running')
@@ -99,7 +117,7 @@ def register_implementation(root,id,command,harness,repository=ROOT):
  return e
 
 def main():
- p=argparse.ArgumentParser(description=__doc__);p.add_argument('action',choices=['validate','status','next','show','search','evidence','record','implement']);p.add_argument('id',nargs='?');p.add_argument('--verify',action='store_true');p.add_argument('--render',action='store_true');p.add_argument('--command');p.add_argument('--harness');p.add_argument('--state',choices=list(TRANSITIONS));p.add_argument('--reason');p.add_argument('--evidence',action='append');p.add_argument('--independent-validation',action='store_true');a=p.parse_args();records=read()
+ p=argparse.ArgumentParser(description=__doc__);p.add_argument('action',choices=['validate','status','next','show','search','evidence','record','implement','reconcile']);p.add_argument('id',nargs='?');p.add_argument('--verify',action='store_true');p.add_argument('--render',action='store_true');p.add_argument('--command');p.add_argument('--harness');p.add_argument('--state',choices=list(TRANSITIONS));p.add_argument('--reason');p.add_argument('--evidence',action='append');p.add_argument('--independent-validation',action='store_true');a=p.parse_args();records=read()
  if a.action=='validate':print(json.dumps(validate(),indent=2))
  elif a.action=='status':
   s=table()
@@ -111,6 +129,7 @@ def main():
  elif a.action=='show':print(json.dumps(records[a.id],indent=2))
  elif a.action=='evidence':print(json.dumps(evidence(a.id),indent=2))
  elif a.action=='implement':print(json.dumps(register_implementation(R,a.id,a.command,a.harness),indent=2))
+ elif a.action=='reconcile':print(json.dumps(append_reconciliation(R,a.id,a.reason,a.evidence),indent=2))
  elif a.action=='record':print(json.dumps(append_state(R,a.id,a.state,a.reason,a.evidence,a.independent_validation),indent=2))
 if __name__=='__main__':
  try:main()

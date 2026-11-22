@@ -1,0 +1,16 @@
+{
+  "id": "LEGACY-045",
+  "model": "TS",
+  "question": "Joint MILP planner and hand-built FT/enabler correctness tests",
+  "directories": [],
+  "classification": "exploratory",
+  "finding": "TSv4 already jointly models bank/FT/hits/XI/C/VC. Existing tests cover FT accumulation and cheap enabling transfer. GW1-only smoke: 0 transfers, objective207.8495, 36.82s; no full replay or general exact shared-PM oracle.",
+  "validation": "Synthetic correctness and one historical smoke; no season gain",
+  "baseline": "Earlier TSv3 objective approx207.84; MILP surrogate not silently the exact current shared-PM scorer",
+  "stage0_verification": "Original evidence identity and selected arithmetic only; full model/scientific replication not executed",
+  "detail_archive": "research/stage0/historical-matrix.json.gz",
+  "original_result_archive": "research/stage0/primary-evidence.json.gz",
+  "source_receipts": "research/stage0/source-receipts.json",
+  "independent_review": "pending",
+  "production_changed": false
+}

@@ -1,0 +1,237 @@
+{
+  "input_sha256": "77bde9be58062413e6cec692257b3ec9fa8109ac68e842f25fd21d585a479010",
+  "source_sha256": {
+    "/workspace/work/return-p90/source/analysis/precision_audit/evaluate_return_p90.py": "c25a178a577b37a5b09df73ff13a608b7658a5eaae8f383e5e27bd51a3bc69ca",
+    "/workspace/work/return-p90/source/analysis/precision_audit/return_p90.py": "611b42a605416d8d2a0cfba76c7635beda2ddba47c2566de200ef7464334d932",
+    "src/fpl_v1_1_model/experimental_physical_timeline.py": "5755afd8284bbd9748735b7dba42edd177ff314fa056b63ba08e17dde54fc8a6",
+    "src/fpl_v1_1_model/b_event_simulator.py": "1b3b4fe69391aa0a8c52db8ea1471bc3910de6a07f3b8de84cf5e36bdc00eb69"
+  },
+  "hypotheses": {
+    "baseline": [
+      1.0,
+      0.0
+    ],
+    "return_only": [
+      0.5,
+      0.0
+    ],
+    "p90_only": [
+      1.0,
+      2.0
+    ],
+    "combined": [
+      0.5,
+      2.0
+    ],
+    "return_start": {
+      "log_odds": 0.5
+    },
+    "return_start_p90": {
+      "log_odds": 0.5,
+      "regular_floor": 0.5
+    }
+  },
+  "historical_fixtures": 4,
+  "scope": "reused retrospective diagnostics; outfield only; no independent gain established",
+  "physical_clock": "normalized 0..90, paired entries/exits; unchanged 900+90 team budget",
+  "label_clock": "actual FPL reported minutes, never forced to sum 990",
+  "returning": "medical_selection only is adjusted; suspension_selection reported separately",
+  "return_features_sha256": "0bb43f3a4a03962e7ab6a61ce7564d6a0fffe14018f9950756a039e7e2b77650",
+  "production_active": false,
+  "ts_v3_changed": false,
+  "points_controls": [
+    {
+      "season": "2024-25",
+      "arm": "baseline",
+      "seed": 20261102,
+      "rows": 158,
+      "mae": 0.8485696202531646,
+      "bias": -0.18992405063291137
+    },
+    {
+      "season": "2024-25",
+      "arm": "baseline",
+      "seed": 20261103,
+      "rows": 158,
+      "mae": 0.8607911392405063,
+      "bias": -0.19471518987341774
+    },
+    {
+      "season": "2024-25",
+      "arm": "combined",
+      "seed": 20261102,
+      "rows": 158,
+      "mae": 0.8503386075949367,
+      "bias": -0.18802215189873414
+    },
+    {
+      "season": "2024-25",
+      "arm": "combined",
+      "seed": 20261103,
+      "rows": 158,
+      "mae": 0.8624430379746837,
+      "bias": -0.19321518987341774
+    },
+    {
+      "season": "2024-25",
+      "arm": "p90_only",
+      "seed": 20261102,
+      "rows": 158,
+      "mae": 0.8503670886075949,
+      "bias": -0.18800632911392406
+    },
+    {
+      "season": "2024-25",
+      "arm": "p90_only",
+      "seed": 20261103,
+      "rows": 158,
+      "mae": 0.8626645569620253,
+      "bias": -0.193126582278481
+    },
+    {
+      "season": "2024-25",
+      "arm": "return_only",
+      "seed": 20261102,
+      "rows": 158,
+      "mae": 0.8485537974683546,
+      "bias": -0.18986392405063288
+    },
+    {
+      "season": "2024-25",
+      "arm": "return_only",
+      "seed": 20261103,
+      "rows": 158,
+      "mae": 0.8605379746835443,
+      "bias": -0.1947658227848101
+    },
+    {
+      "season": "2024-25",
+      "arm": "return_start",
+      "seed": 20261102,
+      "rows": 158,
+      "mae": 0.8458575949367089,
+      "bias": -0.19194620253164554
+    },
+    {
+      "season": "2024-25",
+      "arm": "return_start",
+      "seed": 20261103,
+      "rows": 158,
+      "mae": 0.8615791139240507,
+      "bias": -0.19551582278481014
+    },
+    {
+      "season": "2024-25",
+      "arm": "return_start_p90",
+      "seed": 20261102,
+      "rows": 158,
+      "mae": 0.8464999999999999,
+      "bias": -0.1911645569620253
+    },
+    {
+      "season": "2024-25",
+      "arm": "return_start_p90",
+      "seed": 20261103,
+      "rows": 158,
+      "mae": 0.8622531645569621,
+      "bias": -0.1950253164556962
+    },
+    {
+      "season": "2025-26",
+      "arm": "baseline",
+      "seed": 20261102,
+      "rows": 147,
+      "mae": 0.9268605442176872,
+      "bias": 0.09937074829931976
+    },
+    {
+      "season": "2025-26",
+      "arm": "baseline",
+      "seed": 20261103,
+      "rows": 147,
+      "mae": 0.9195748299319728,
+      "bias": 0.100030612244898
+    },
+    {
+      "season": "2025-26",
+      "arm": "combined",
+      "seed": 20261102,
+      "rows": 147,
+      "mae": 0.9287414965986395,
+      "bias": 0.099421768707483
+    },
+    {
+      "season": "2025-26",
+      "arm": "combined",
+      "seed": 20261103,
+      "rows": 147,
+      "mae": 0.9224353741496598,
+      "bias": 0.0995986394557823
+    },
+    {
+      "season": "2025-26",
+      "arm": "p90_only",
+      "seed": 20261102,
+      "rows": 147,
+      "mae": 0.928452380952381,
+      "bias": 0.09937074829931969
+    },
+    {
+      "season": "2025-26",
+      "arm": "p90_only",
+      "seed": 20261103,
+      "rows": 147,
+      "mae": 0.922751700680272,
+      "bias": 0.09975170068027216
+    },
+    {
+      "season": "2025-26",
+      "arm": "return_only",
+      "seed": 20261102,
+      "rows": 147,
+      "mae": 0.9268707482993197,
+      "bias": 0.0993809523809524
+    },
+    {
+      "season": "2025-26",
+      "arm": "return_only",
+      "seed": 20261103,
+      "rows": 147,
+      "mae": 0.9193197278911563,
+      "bias": 0.09984353741496596
+    },
+    {
+      "season": "2025-26",
+      "arm": "return_start",
+      "seed": 20261102,
+      "rows": 147,
+      "mae": 0.9243333333333332,
+      "bias": 0.09888435374149661
+    },
+    {
+      "season": "2025-26",
+      "arm": "return_start",
+      "seed": 20261103,
+      "rows": 147,
+      "mae": 0.9185238095238097,
+      "bias": 0.09871428571428573
+    },
+    {
+      "season": "2025-26",
+      "arm": "return_start_p90",
+      "seed": 20261102,
+      "rows": 147,
+      "mae": 0.9258639455782312,
+      "bias": 0.09946258503401359
+    },
+    {
+      "season": "2025-26",
+      "arm": "return_start_p90",
+      "seed": 20261103,
+      "rows": 147,
+      "mae": 0.9194693877551019,
+      "bias": 0.09816326530612245
+    }
+  ],
+  "points_input_sha256": "77bde9be58062413e6cec692257b3ec9fa8109ac68e842f25fd21d585a479010"
+}
