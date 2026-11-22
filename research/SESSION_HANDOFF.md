@@ -1,5 +1,7 @@
 # Current C1 handoff — PM definitions completed, 22 November 2026
 
+**Delivered PR:** [#49](https://github.com/pdamkier-del/fpl-analytics-app/pull/49), based on #48; no merge or deploy.
+
 **Latest task:** user Phase2, `EXP-PM-DEFS-001`, on `research/c1-pm-definitions-20261122`, based on PR48 at `b087de22`. This is not another TS study. TS remains completed. No model, app, C2 or substitution-trial changes; no private manager data or deploy.
 
 ## Read and reproduce

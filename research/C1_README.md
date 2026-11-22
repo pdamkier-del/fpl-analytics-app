@@ -147,7 +147,7 @@ This table is **an index, not proof of exhaustive coverage**. Stage 0 must verif
 - [x] Report effect size in natural units with valid uncertainty where inferential; report deterministic search witnesses without inappropriate p-values.
 - [x] Record all attempted experiments (including failed, null and blocked); don't cherry-pick.
 - [x] Append dated registry events and decision log; explicitly regenerate status and handoff. A GitHub checkbox is **not** the official experiment state.
-- [ ] Open a *single bounded* research PR with evidence, remaining blocker and next valid action.
+- [x] Open a *single bounded* research PR with evidence, remaining blocker and next valid action.
 - [x] Leave production models and C2 integration branches untouched.
 
 ## F. Ownership and handoff to C2
@@ -169,3 +169,5 @@ This table is **an index, not proof of exhaustive coverage**. Stage 0 must verif
 **Phase-1 delivery:** [PR #48](https://github.com/pdamkier-del/fpl-analytics-app/pull/48), stacked on #47. All 42 cases retained, 29 tests passing; no merge/deploy or model promotion. Result/code review remains pending.
 
 **Phase2 outcome, 22 November 2026:** PM definitions/coverage contracts completed. All63original protocols and previous TSresults remain unchanged. No TS or old component-efficacy audit executed; next experiment is recommendation only.
+
+**Phase2 delivery:** [PR #49](https://github.com/pdamkier-del/fpl-analytics-app/pull/49), based on #48. EXP-PM-DEFS-001 completed with catalog/schema, source coverage, new tests and results. No merge/deploy or model change; independent result review pending.
