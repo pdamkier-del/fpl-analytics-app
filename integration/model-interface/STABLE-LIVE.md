@@ -48,3 +48,11 @@ Read `<payload_sha256>/manifest.json` with schema `fpl-frozen-forecast/v1`. Veri
 ## Release gate
 
 Run the full pinned Python and browser regression suites, current official GW import with all required inputs confirmed, a privately bound TS computation, real navigation on mobile and desktop and a service-worker version transition with existing storage. Confirm that stale or incompatible projections appear as historical and a newer saved squad invalidates an in-flight result. Publish only to the isolated preview after those checks. Record the deployed URL, UI commit, model commit, forecast identity and model versions in the release receipt.
+
+## Verification on 22 November 2026
+
+- The complete pinned Python suite passed locally, 1,139 tests. The 13 integration contract tests also passed.
+- Chromium passed the original desktop probability regression at desktop and mobile sizes on the generated integration build. It found the existing player profile, probability cards and saved-team sheet.
+- The integration smoke passed on both sizes with a sealed historical GW 11 capture and a separately verified GW 12 capture. The GW 12 case used an unchanged local TS v3 computation with a synthetic squad. A bank edit invalidated the plan, and a service-worker revision and offline round trip preserved the saved squad.
+- The local GW 12 capture was sourced from Actions run `44979367410`, artifact `14738250259`. Its forecast identity was `f77114a4d96bbc9f25a8aa60da2dc082e2228bc4c765f3613f346f34de6b0600`. The existing Pages job failed in its My Team browser regression, after the model computation passed.
+- The official public endpoint returned 15 historical picks. The authenticated current-team endpoint returned HTTP 403 without a session. The deployed Python service still targets the existing B Pages snapshot, so the local GW 12 browser run could not certify a real private TS job against a newly deployed preview.
