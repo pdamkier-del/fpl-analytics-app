@@ -1,0 +1,60 @@
+{
+  "id": "EXP-TS-POLICY-001",
+  "protocol_version": 1,
+  "registered_on": "2026-11-22",
+  "kind": "planned",
+  "question": "Does TS add realized value over keep-squad and minimal-transfer policies over stateful horizons?",
+  "statistical_hypothesis": "H0: mean paired realized net policy gain over the prespecified simple baseline <=0; H1:>0 on complete independent trajectories. Historical incomplete horizons cannot test this.",
+  "initial_status": "awaiting_data",
+  "priority": 22,
+  "primary_metric": "Paired realized net manager points over complete policy trajectories",
+  "secondary_metrics": [
+    "calibration",
+    "coverage",
+    "subgroup stability",
+    "compute cost"
+  ],
+  "baseline": "Same initial managerstate, forecast vintages, budget, FT and chips",
+  "candidate_modification": "Policy comparison only after full original horizons exist",
+  "train_development_test": {
+    "train": "No tuning on test manager outcomes",
+    "development": "Old33/183 horizon pairs are not full6GW certification",
+    "test": "New complete privately logged trajectories; future chip episodes separate"
+  },
+  "data_sources_and_cutoffs": [
+    {
+      "source": "analysis/audits/2026-11-22/evidence/full-model-audit-20261012/historical_horizon_report.json",
+      "cutoff_quality": "Historical6GW coverage incomplete."
+    },
+    {
+      "source": "analysis/followup-41-20261122/PRIVATE_TS_LOGGING.md",
+      "cutoff_quality": "0 real captures; local clock only."
+    }
+  ],
+  "sample_size": {
+    "status": "not_yet_available"
+  },
+  "power": {
+    "status": "not_estimated",
+    "reason": "No credible paired GW-level variance available; see POWER_ANALYSIS.md"
+  },
+  "dependencies": [
+    "EXP-TS-SEARCH-001",
+    "EXP-OPS-CAPTURE-001"
+  ],
+  "reproduction_command": "python research/tools/registry.py evidence EXP-TS-POLICY-001 --verify",
+  "reproduction_command_scope": "Verify original evidence and protocol only; this is not a new model run.",
+  "full_experiment_command": null,
+  "execution_ready": false,
+  "acceptance_criteria": [
+    "A prespecified proper-score improvement on new target rounds with paired GW-block uncertainty",
+    "No material deterioration in primary downstream score or protected groups",
+    "Complete cutoff/identity/legality/privacy gates; no automatic production promotion"
+  ],
+  "result_links": [
+    "analysis/audits/2026-11-22/evidence/full-model-audit-20261012/historical_ts_reproduction_report.json",
+    "analysis/followup-41-20261122/PRIVATE_TS_LOGGING.md"
+  ],
+  "final_decision": "Cannot start valid realized-policy scoring yet. Do not optimize TS weights on incomplete forecasts.",
+  "next_action": "Obtain private original managerstate, nomination, verified execution and all6 horizon rows; report missing observations, not zero outcomes."
+}

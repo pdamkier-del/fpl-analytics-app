@@ -1,0 +1,40 @@
+{
+  "version": 1,
+  "states": [
+    "proposed",
+    "ready",
+    "running",
+    "awaiting_data",
+    "completed",
+    "accepted",
+    "rejected"
+  ],
+  "required_fields": [
+    "id",
+    "protocol_version",
+    "registered_on",
+    "kind",
+    "question",
+    "statistical_hypothesis",
+    "initial_status",
+    "priority",
+    "primary_metric",
+    "secondary_metrics",
+    "baseline",
+    "candidate_modification",
+    "train_development_test",
+    "data_sources_and_cutoffs",
+    "sample_size",
+    "power",
+    "dependencies",
+    "reproduction_command",
+    "reproduction_command_scope",
+    "full_experiment_command",
+    "execution_ready",
+    "acceptance_criteria",
+    "result_links",
+    "final_decision",
+    "next_action"
+  ],
+  "status_semantics": "ready means scientifically/data ready for implementation; execution_ready is a separate flag. Registered protocols and existing result artifacts are immutable; changes are append-only events or new experiment IDs."
+}

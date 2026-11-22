@@ -1,0 +1,52 @@
+{
+  "id": "LEGACY-010",
+  "protocol_version": 1,
+  "registered_on": "2026-11-22",
+  "kind": "legacy",
+  "question": "current-season-b-backtest-20261027",
+  "statistical_hypothesis": "Candidate or diagnostic adds information relative to the stated frozen comparator; assessment is scoped to this protocol and evidence class.",
+  "initial_status": "completed",
+  "priority": 910,
+  "primary_metric": "See original study; incompatible targets not pooled",
+  "secondary_metrics": [
+    "calibration",
+    "coverage",
+    "subgroup stability",
+    "compute cost"
+  ],
+  "baseline": "Current B replay",
+  "candidate_modification": "Original tested modification; no new modification",
+  "train_development_test": {
+    "validation_class": "GW6–8 reconstructed after outcomes"
+  },
+  "data_sources_and_cutoffs": [
+    {
+      "source": "analysis/audits/2026-11-22/evidence/current-season-b-backtest-20261027/score-proof.json",
+      "cutoff_quality": "See original evidence; reused/reconstructed periods are not new independent tests."
+    }
+  ],
+  "sample_size": {
+    "status": "not_yet_available"
+  },
+  "power": {
+    "status": "not_estimated",
+    "reason": "No credible paired GW-level variance available; see POWER_ANALYSIS.md"
+  },
+  "dependencies": [],
+  "reproduction_command": "python research/tools/registry.py evidence LEGACY-010 --verify",
+  "reproduction_command_scope": "Verify original evidence and protocol only; this is not a new model run.",
+  "full_experiment_command": null,
+  "execution_ready": false,
+  "acceptance_criteria": [
+    "A prespecified proper-score improvement on new target rounds with paired GW-block uncertainty",
+    "No material deterioration in primary downstream score or protected groups",
+    "Complete cutoff/identity/legality/privacy gates; no automatic production promotion"
+  ],
+  "result_links": [
+    "analysis/audits/2026-11-22/evidence/current-season-b-backtest-20261027/score-proof.json"
+  ],
+  "final_decision": "Input cutoff verified; model policy selected later; not prospective",
+  "next_action": "Read source evidence; do not rerun a completed experiment without a new registered question.",
+  "original_study_id": "current-season-b-backtest-20261027",
+  "claim_scope": "Imported evidence; acceptance/rejection never automatically changes deployment."
+}

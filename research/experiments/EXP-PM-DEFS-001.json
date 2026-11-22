@@ -1,0 +1,62 @@
+{
+  "id": "EXP-PM-DEFS-001",
+  "protocol_version": 1,
+  "registered_on": "2026-11-22",
+  "kind": "infrastructure",
+  "question": "Can clean-sheet qualification, team-CS, DC and BPS targets be reconciled without changing the model?",
+  "statistical_hypothesis": "Known-event targets reconcile under the stated units and exposure rules; missing subtypes/background remain unidentified. This is a data/mechanics hypothesis, not efficacy.",
+  "initial_status": "ready",
+  "priority": 4,
+  "primary_metric": "Rate of target/identity reconciliation failures, with unknowns explicit",
+  "secondary_metrics": [
+    "calibration",
+    "coverage",
+    "subgroup stability",
+    "compute cost"
+  ],
+  "baseline": "PR42 component identities and existing rulescoring",
+  "candidate_modification": "Definitions/schema and field coverage only",
+  "train_development_test": {
+    "train": "none",
+    "development": "Existing seen GW8–10 and archived GW1–7 provider coverage",
+    "test": "New schema fixtures; independent efficacy evaluation is a later experiment"
+  },
+  "data_sources_and_cutoffs": [
+    {
+      "source": "analysis/followup-41-20261122/results/pm-decomposition.json",
+      "cutoff_quality": "Outcome-conditioned diagnosis, not a predeadline feature."
+    },
+    {
+      "source": "analysis/audits/2026-11-22/inputs/archive/raw-keeper-results.json.gz",
+      "cutoff_quality": "Archived beforeGW8; historical within-training match availability is reconstructed."
+    }
+  ],
+  "sample_size": {
+    "known_forecast_rows": 2007,
+    "CS_team_bounds_supported": 57,
+    "CS_team_rows_total": 60,
+    "keeper_raw_rows": 141,
+    "strict_keeper_rows": 133
+  },
+  "power": {
+    "status": "not_applicable_to_schema",
+    "reason": "Efficacy power deferred until a candidate target and new data exist."
+  },
+  "dependencies": [],
+  "reproduction_command": "python research/tools/registry.py evidence EXP-PM-DEFS-001 --verify",
+  "reproduction_command_scope": "Verify original evidence and protocol only; this is not a new model run.",
+  "full_experiment_command": null,
+  "execution_ready": false,
+  "acceptance_criteria": [
+    "Explicitly distinguish team CS and on-pitch qualified CS",
+    "Known event BPS sums reconcile; missing big-chance-save/background fields remain missing",
+    "No double counting when a future explicit component replaces a background target"
+  ],
+  "result_links": [
+    "analysis/followup-41-20261122/results/pm-decomposition.json",
+    "analysis/followup-41-20261122/results/bps-identification.json",
+    "analysis/audits/2026-11-22/reports/D-data-gap-report.md"
+  ],
+  "final_decision": "Ready for definition work; do not recompute the already-completed decompositions as a new experiment.",
+  "next_action": "Write the component event dictionary and missingness contract; specify a small isolated future event-ledger capture. Do not add BPS points or run simulations."
+}

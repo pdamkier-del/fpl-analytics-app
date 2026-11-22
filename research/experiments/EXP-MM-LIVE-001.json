@@ -1,0 +1,61 @@
+{
+  "id": "EXP-MM-LIVE-001",
+  "protocol_version": 1,
+  "registered_on": "2026-11-22",
+  "kind": "planned",
+  "question": "What is the independent prospective accuracy of frozen current MM B across role and workload groups?",
+  "statistical_hypothesis": "Estimate out-of-time start log loss and calibration of fixed MM B under a newly frozen population. Prespecified calibration residuals are compared with zero; no candidate superiority is assumed.",
+  "initial_status": "awaiting_data",
+  "priority": 3,
+  "primary_metric": "Start log loss on all registered eligible player-fixture rows",
+  "secondary_metrics": [
+    "calibration",
+    "coverage",
+    "subgroup stability",
+    "compute cost"
+  ],
+  "baseline": "Pinned MM B as published; simple frozen persistence/league-role references only when cutoff-correct",
+  "candidate_modification": "No new MM; independent evaluation only",
+  "train_development_test": {
+    "train": "Existing frozen fit; no refitting",
+    "development": "GW8–10 are seen diagnostics and cannot be new holdout",
+    "test": "First eligible origin forecasts GW12 onward issued after programme registration;12newGWs/120matches minimum review"
+  },
+  "data_sources_and_cutoffs": [
+    {
+      "source": "analysis/audits/2026-11-22/inputs/archive",
+      "cutoff_quality": "Original GW8–10 archives are reference examples only."
+    },
+    {
+      "source": "Future original public Git vintages",
+      "cutoff_quality": "As-of and original publication strictly before deadline; immutable model/input hashes."
+    }
+  ],
+  "sample_size": {
+    "minimum_gws": 12,
+    "minimum_matches": 120,
+    "new_completed_gws": 0
+  },
+  "power": {
+    "status": "not_estimated",
+    "reason": "No credible paired GW-level variance available; see POWER_ANALYSIS.md"
+  },
+  "dependencies": [
+    "EXP-OPS-EVAL-001"
+  ],
+  "reproduction_command": "python research/tools/registry.py evidence EXP-MM-LIVE-001 --verify",
+  "reproduction_command_scope": "Verify original evidence and protocol only; this is not a new model run.",
+  "full_experiment_command": null,
+  "execution_ready": false,
+  "acceptance_criteria": [
+    "A prespecified proper-score improvement on new target rounds with paired GW-block uncertainty",
+    "No material deterioration in primary downstream score or protected groups",
+    "Complete cutoff/identity/legality/privacy gates; no automatic production promotion"
+  ],
+  "result_links": [
+    "analysis/audits/2026-11-22/results/evaluation.json",
+    "analysis/followup-41-20261122/results/substitution-status-as-observed.json"
+  ],
+  "final_decision": "Await new independent data and completed collector validation. GW11 can be descriptive but is excluded from this newly registered holdout.",
+  "next_action": "Finish the original-vintage collector tests, then freeze the first GW12-or-later source. Do not regenerate historical forecasts."
+}

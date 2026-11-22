@@ -1,0 +1,55 @@
+{
+  "id": "EXP-EXT-XP-001",
+  "protocol_version": 1,
+  "registered_on": "2026-11-22",
+  "kind": "planned",
+  "question": "How does our original same-decision-time xP compare with legally acquired external forecasts?",
+  "statistical_hypothesis": "H0: our paired MSE minus each named authorized comparator MSE >=0; H1:<0, subject to declared comparison family and matched original vintages.",
+  "initial_status": "awaiting_data",
+  "priority": 31,
+  "primary_metric": "Paired point-MSE delta versus each named comparator",
+  "secondary_metrics": [
+    "calibration",
+    "coverage",
+    "subgroup stability",
+    "compute cost"
+  ],
+  "baseline": "Official archived ep_next plus own frozen xP",
+  "candidate_modification": "No production change; authorized FPL Review/Form/LazyFPL exports only",
+  "train_development_test": {
+    "train": "none for numerical benchmarking",
+    "development": "GW8–10 official ep_next already scored",
+    "test": "First eligible future capture after access/timestamp gates;12newGWs/120matches minimum review"
+  },
+  "data_sources_and_cutoffs": [
+    {
+      "source": "analysis/followup-41-20261122/EXTERNAL_XP_PROTOCOL.md",
+      "cutoff_quality": "No new commercial data rights or matched export verified."
+    }
+  ],
+  "sample_size": {
+    "minimum_new_gws": 12,
+    "minimum_matches": 120
+  },
+  "power": {
+    "status": "not_estimated",
+    "reason": "No credible paired GW-level variance available; see POWER_ANALYSIS.md"
+  },
+  "dependencies": [],
+  "reproduction_command": "python research/tools/registry.py evidence EXP-EXT-XP-001 --verify",
+  "reproduction_command_scope": "Verify original evidence and protocol only; this is not a new model run.",
+  "full_experiment_command": null,
+  "execution_ready": false,
+  "acceptance_criteria": [
+    "A prespecified proper-score improvement on new target rounds with paired GW-block uncertainty",
+    "No material deterioration in primary downstream score or protected groups",
+    "Complete cutoff/identity/legality/privacy gates; no automatic production promotion"
+  ],
+  "result_links": [
+    "analysis/audits/2026-11-22/external-source-register.json",
+    "analysis/audits/2026-11-22/results/official-ep-next-benchmark.json",
+    "analysis/followup-41-20261122/EXTERNAL_XP_PROTOCOL.md"
+  ],
+  "final_decision": "Official ep_next evidence reused. Commercial comparison blocked; newsletter suggestions are not invented player-xP.",
+  "next_action": "Verify each provider product, rights, timestamps and mapping before capture. Do not scrape or buy access in this task."
+}
