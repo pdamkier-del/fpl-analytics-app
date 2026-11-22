@@ -1,0 +1,109 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:fpl-research:pm-ledger:1.0.0",
+  "title": "PM fixture ledger1.0.0",
+  "type": "object",
+  "required": [
+    "catalog_id",
+    "season",
+    "gw",
+    "fixture_id",
+    "player_code",
+    "fpl_position_at_deadline",
+    "rulebook",
+    "source_sha256",
+    "mode",
+    "fields"
+  ],
+  "properties": {
+    "catalog_id": {
+      "const": "PM-COMPONENTS-1.0.0"
+    },
+    "season": {
+      "enum": [
+        "2024-25",
+        "2025-26",
+        "2026-27"
+      ]
+    },
+    "gw": {
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 38
+    },
+    "fixture_id": {
+      "type": "integer",
+      "minimum": 1
+    },
+    "player_code": {
+      "type": "integer",
+      "minimum": 1
+    },
+    "fpl_position_at_deadline": {
+      "enum": [
+        "GK",
+        "DEF",
+        "MID",
+        "FWD"
+      ]
+    },
+    "mode": {
+      "enum": [
+        "actual",
+        "forecast"
+      ]
+    },
+    "rulebook": {
+      "type": "string"
+    },
+    "source_sha256": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{64}$"
+    },
+    "fields": {
+      "type": "object",
+      "additionalProperties": {
+        "type": "object",
+        "required": [
+          "status",
+          "unit",
+          "value"
+        ],
+        "properties": {
+          "status": {
+            "enum": [
+              "known",
+              "derived",
+              "unknown",
+              "not_applicable",
+              "bounded"
+            ]
+          },
+          "unit": {
+            "type": "string"
+          },
+          "value": {
+            "type": [
+              "number",
+              "null"
+            ]
+          },
+          "reason": {
+            "type": "string"
+          },
+          "derivation": {
+            "type": "string"
+          },
+          "lower": {
+            "type": "number"
+          },
+          "upper": {
+            "type": "number"
+          }
+        }
+      }
+    }
+  },
+  "additionalProperties": false,
+  "$comment": "Cross-field season/unit/missingness/double-count/time checks are executable in contracts.py. JSON schema alone is insufficient."
+}

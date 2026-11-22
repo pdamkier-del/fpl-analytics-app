@@ -77,3 +77,7 @@ Den historiske afstemning er implementeret på separat forskningsbranch; uafhæn
 ## Dateret fase-1-tilføjelse — 22. november 2026
 
 EXP-TS-SEARCH-001 er gennemført på separat branch uden ændring af protokol, modeller eller app. [Resultatrapporten](results/EXP-TS-SEARCH-001/REPORT.md) dokumenterer42afgrænsede tilfælde på16,1sekunder, ingen fundne ulovlige beslutninger/scoreafvigelser og11deterministiske søgetab. DNP-resultaterne gælder kun den fastlagte menu. Næste eksisterende ready-opgave er EXP-PM-DEFS-001; eventuel TS-reparation skal præregistreres separat og får ikke uafhængig validering ved genbrug af disse42tilfælde. Ingen realiseret FPL-gevinst eller produktionsgodkendelse er dokumenteret.
+
+## Dateret fase-2-tilføjelse — 22. november 2026
+
+EXP-PM-DEFS-001 er gennemført som definitions-/dækningsarbejde fra PR48. [Rapporten](results/EXP-PM-DEFS-001/REPORT.md) og [komponentkataloget](pm_defs/CATALOG.md) dokumenterer24definitioner/3regelversioner, nye datakontrakter og35beståede tests. De eksisterende komponentstudier er genbrugt, ikke genkørt. Næste PM-anbefaling er en særskilt præregistreret fremadrettet DC-threshold-validering med uændret model; BPS-/subtypekandidater er fortsat datagatede. Ingen model/app-/trialændring, optimering eller deploy.

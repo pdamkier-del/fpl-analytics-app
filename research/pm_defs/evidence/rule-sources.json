@@ -1,0 +1,84 @@
+[
+  {
+    "id": "RULES26",
+    "url": "https://www.premierleague.com/en/news/4661029",
+    "observed_on": "2026-11-22",
+    "published_label": "18 May 2026; mutable page now contains2026/27 scoring",
+    "status": "primary_current_rules_read",
+    "claims": [
+      "On-pitch CS60+; post-red concessions liability differs from substitution",
+      "Red deductions include yellow deductions; raw two-card coding needs normalized award",
+      "FPL assists include qualified own-goal/rebound/penalty-winning events; no self-assist",
+      "Complete fixture BPS roster required for bonus ties"
+    ],
+    "limitation": "Current observation is not an immutable original historical rule version"
+  },
+  {
+    "id": "POINTS26",
+    "url": "https://www.premierleague.com/en/news/2174909/",
+    "observed_on": "2026-11-22",
+    "published_label": "20 July2026",
+    "status": "primary_current_point_table_read",
+    "claims": [
+      "Appearance0/1/2; GK/DEF/MID/FWD goals10/6/5/4; assists3; CS4/4/1/0",
+      "Save buckets1per3, penalty-save5; DC2per threshold, not repeated",
+      "Conceded-1per2for GK/DEF; yellow-1, red-3, own-goal-2, penalty-miss-2"
+    ],
+    "limitation": "No proof that historical provider categories equal official events"
+  },
+  {
+    "id": "BPS26",
+    "url": "https://www.premierleague.com/en/news/4679946/",
+    "observed_on": "2026-11-22",
+    "published_label": "20 July2026",
+    "status": "primary_rule_change_read",
+    "claims": [
+      "CBI denominator3; no being-tackled penalty",
+      "Saves2each plus1inside plus1big-chance; penalty-save7additional",
+      "Penalty save also belongs to total/inside/big-chance save sets"
+    ],
+    "limitation": "Do not add explicit events to an old residual without retargeting"
+  },
+  {
+    "id": "BPS25",
+    "url": "https://www.premierleague.com/en/news/106533",
+    "observed_on": "2026-11-22",
+    "published_label": "1 April2026",
+    "status": "primary_2025_26_BPS_table_read",
+    "claims": [
+      "Minutes1..60:3BPS, >60:6; penalty goal12; ordinary GK/DEF12 MID18 FWD24",
+      "Penalty-save8; inside-save3/outside2; CBI//2; being-tackled-1"
+    ],
+    "limitation": "Historical missing being-tackled field prevents complete reconstruction"
+  },
+  {
+    "id": "DC25",
+    "url": "https://www.premierleague.com/en/news/4373187/",
+    "observed_on": "2026-11-22",
+    "published_label": "10 August2025",
+    "status": "primary_historical_change_read",
+    "claims": [
+      "DCintroduced2025/26: DEF10CBIT; MID/FWD12CBIRT; award2",
+      "Assist definition changed; do not pool targets across rule years"
+    ],
+    "limitation": "No DC award existed in2024/25; missing action labels are not observed zeros"
+  },
+  {
+    "id": "FAQ",
+    "url": "https://www.premierleague.com/en/news/4661030",
+    "observed_on": "2026-11-22",
+    "status": "primary_FAQ_edge_case_read",
+    "claims": [
+      "Outfield player acting as keeper can earn save points but retains FPL positional goal/CS rules"
+    ],
+    "limitation": "Rare role changes not identified in the archived forecast law"
+  },
+  {
+    "id": "SPA",
+    "url": "https://fantasy.premierleague.com/help/rules",
+    "observed_on": "2026-11-22",
+    "status": "no_readable_lines_in_browser_extractor",
+    "claims": [],
+    "fallback": "RULES26 and dated PL articles; no unavailable content invented"
+  }
+]

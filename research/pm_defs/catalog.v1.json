@@ -1,0 +1,621 @@
+{
+  "catalog_id": "PM-COMPONENTS-1.0.0",
+  "schema_version": 1,
+  "experiment_id": "EXP-PM-DEFS-001",
+  "created_on": "2026-11-22",
+  "scope": "Research-only semantics and source-coverage contract; no model adapter/integration",
+  "canonical_additive_partition": [
+    "appearance_points",
+    "goal_points",
+    "assist_points",
+    "cs_points",
+    "save_points",
+    "penalty_save_points",
+    "dc_points",
+    "negative_points",
+    "gc_points",
+    "bonus_points"
+  ],
+  "nonadditive": [
+    "team_goals",
+    "player_goals",
+    "fpl_assists",
+    "team_clean_sheet",
+    "qualified_player_clean_sheet",
+    "dc_count",
+    "saves_total",
+    "save_subtypes",
+    "bps_score",
+    "background_bps",
+    "penalty_miss_points",
+    "goal_penalty_split",
+    "expected_bonus"
+  ],
+  "aliases": {
+    "bonus_expected": "bonus_points",
+    "goal_pts": "goal_points",
+    "save_pts": "save_points",
+    "penalty_miss_pts": "penalty_miss_points",
+    "expected_bonus": "bonus_points"
+  },
+  "value_statuses": [
+    "known",
+    "derived",
+    "unknown",
+    "not_applicable",
+    "bounded"
+  ],
+  "components": [
+    {
+      "id": "team_goals",
+      "unit": "goals",
+      "kind": "event_target",
+      "target": "All goals credited to the scoring team, including opponent own-goals",
+      "observed_sources": "Official fixture score/event ledger",
+      "forecast_sources": "Archived team intensity/credited player means; exact full team law not archived",
+      "required_fields": [
+        "fixture_id",
+        "scoring_team",
+        "own_goal_team",
+        "unattributed_goal_status"
+      ],
+      "identity": "team_goals = credited_player_goals + opponent_own_goals + explicitly_unattributed_goals",
+      "limits": "Cannot equate summed player goals or shot xG to inclusive score; unknown omissions are not zero",
+      "rule_sources": [
+        "RULES26"
+      ]
+    },
+    {
+      "id": "player_goals",
+      "unit": "goals",
+      "kind": "event_target",
+      "target": "Credited player goals, with mutually exclusive penalty/nonpenalty partition",
+      "observed_sources": "FPL live stats/explain; separate penalty-goal labels missing in oldPR32",
+      "forecast_sources": "Fixture goal_points / position coefficient; archived penalty mean where present",
+      "required_fields": [
+        "player_code",
+        "fixture_id",
+        "fpl_position",
+        "scored_penalty_goals",
+        "nonpenalty_goals"
+      ],
+      "identity": "player_goals = nonpenalty_goals + scored_penalty_goals",
+      "limits": "Goals and expected xG are different targets; no inference of penalty origin from goal count",
+      "rule_sources": [
+        "POINTS26"
+      ]
+    },
+    {
+      "id": "fpl_assists",
+      "unit": "assists",
+      "kind": "event_target",
+      "target": "Final official FPL awards under matching rule vintage",
+      "observed_sources": "FPL assists counts/explain; not Opta xA",
+      "forecast_sources": "assist_points/3mean; no full eligibility-event trace",
+      "required_fields": [
+        "rulebook",
+        "goal_event_id",
+        "assist_credit",
+        "assist_category"
+      ],
+      "identity": "assist_points =3*fpl_assists; category partition is mutually exclusive",
+      "limits": "Includes eligible own-goal/rebound/penalty-winner awards; no self-assist; Opta assists/xA not interchangeable",
+      "rule_sources": [
+        "RULES26",
+        "DC25"
+      ]
+    },
+    {
+      "id": "team_clean_sheet",
+      "unit": "probability_or_indicator",
+      "kind": "event_target",
+      "target": "Team conceded no goal over full fixture",
+      "observed_sources": "Opponent official inclusive score",
+      "forecast_sources": "Only bounds for57/60team rows in PR42; no assumed Poisson inversion",
+      "required_fields": [
+        "fixture_id",
+        "opponent_team_goals"
+      ],
+      "identity": "team_CS =1[opponent_team_goals==0]",
+      "limits": "Not identified by player qualified-CS probability; bounds are identification intervals, notCI",
+      "rule_sources": [
+        "RULES26"
+      ]
+    },
+    {
+      "id": "qualified_player_clean_sheet",
+      "unit": "probability_or_indicator",
+      "kind": "event_target",
+      "target": "FPL-minute60+ and zero applicable player concession liability",
+      "observed_sources": "GW8–10direct official count/explain; PR32rule-derived only",
+      "forecast_sources": "cs_points / FPL-position coefficient; qualification law distinct",
+      "required_fields": [
+        "fpl_minutes",
+        "fpl_position",
+        "fpl_concession_liability",
+        "exit_reason_or_direct_award"
+      ],
+      "identity": "E[CS_points] = position_award*E[Q60*Z_liability]",
+      "limits": "Do not multiply marginals; on-pitch-only GC cannot establish post-dismissal liability; FWDCSpoints0",
+      "rule_sources": [
+        "RULES26"
+      ]
+    },
+    {
+      "id": "dc_count",
+      "unit": "actions",
+      "kind": "event_target",
+      "target": "DEF:CBI+tackles; MID/FWD:CBI+tackles+recoveries",
+      "observed_sources": "GW8–10direct count and pieces; no direct2024DCaward labels",
+      "forecast_sources": "PredictedDCpoints only, not saved per-draw joint DC/BPS law",
+      "required_fields": [
+        "fpl_position",
+        "cbi",
+        "tackles",
+        "recoveries",
+        "rulebook"
+      ],
+      "identity": "DC_points =2*1[count>=threshold], capped once per fixture",
+      "limits": "DEF10,MID/FWD12,GKnot applicable; never threshold a mean; never sum DGW counts before threshold",
+      "rule_sources": [
+        "DC25",
+        "POINTS26"
+      ]
+    },
+    {
+      "id": "saves_total",
+      "unit": "saves",
+      "kind": "event_target",
+      "target": "Inclusive official saves, including saved penalties",
+      "observed_sources": "FPL live count; PR32label; provider only after semantic/shot reconciliation",
+      "forecast_sources": "save_points mean does not identify a count law",
+      "required_fields": [
+        "save_scope",
+        "total_saves",
+        "penalty_saves",
+        "source_definition"
+      ],
+      "identity": "save_points =floor(inclusive_saves/3)",
+      "limits": "Cannot invert point bucket to unique count; mean bucket differs from bucket at mean; keeper role may differ from FPL position",
+      "rule_sources": [
+        "POINTS26",
+        "FAQ"
+      ]
+    },
+    {
+      "id": "save_subtypes",
+      "unit": "saves",
+      "kind": "overlapping_subtypes",
+      "target": "Inside-box and big-chance subsets, overlapping and including relevant penalties",
+      "observed_sources": "GW1–7metadata:141inside rows,133strict; big-chance-save field absent",
+      "forecast_sources": "Ordinary subtypes not explicitly generated in pinned path",
+      "required_fields": [
+        "saves_total",
+        "inside_box_saves",
+        "big_chance_saves",
+        "penalty_saves",
+        "provider_mapping_version"
+      ],
+      "identity": "0<=inside<=total;0<=big<=total; inside+big need not<=total",
+      "limits": "Unknown big-chance is null; xGOTthreshold is not an official big-chance label; no ordinary-save double counting",
+      "rule_sources": [
+        "BPS26"
+      ]
+    },
+    {
+      "id": "bps_score",
+      "unit": "bps_units",
+      "kind": "intermediate_not_FPL_points",
+      "target": "Season-specific action score before joint bonus rank",
+      "observed_sources": "Official signed BPS available; complete action decomposition not available",
+      "forecast_sources": "No direct BPS/background means or joint draws in GW8–10 public forecast",
+      "required_fields": [
+        "rulebook",
+        "known_event_terms",
+        "background_partition_version",
+        "missing_fields"
+      ],
+      "identity": "BPS_total = known_event_BPS + residual_BPS",
+      "limits": "Do not add BPS to FPLpoints. Partial residual is not pure noise; old2025target cannot be transported by blind event addition",
+      "rule_sources": [
+        "BPS25",
+        "BPS26"
+      ]
+    },
+    {
+      "id": "background_bps",
+      "unit": "bps_units",
+      "kind": "residual",
+      "target": "Observed BPS minus explicitly documented known-event subset",
+      "observed_sources": "PR32partial residual;2025scorers have bounds due missing penalty-goal split",
+      "forecast_sources": "Historical background proxy and point means; full matching draws absent",
+      "required_fields": [
+        "target_rulebook",
+        "known_partition_id",
+        "explicit_event_set",
+        "residual_excludes"
+      ],
+      "identity": "R_new =R_old -(K_new-K_old); K_new+R_new =K_old+R_old",
+      "limits": "If a new explicit save/CBI/action term replaces a residual term, refit/retarget before research use; no parameter change here",
+      "rule_sources": [
+        "BPS25",
+        "BPS26"
+      ]
+    },
+    {
+      "id": "bonus",
+      "unit": "fpl_points",
+      "kind": "observed_point_award",
+      "target": "Joint3/2/1fixture rank allocation including ties",
+      "observed_sources": "Official final bonus/complete participant BPS roster; old tie checks reused",
+      "forecast_sources": "expected_bonus mean; not full BPS or bonus law",
+      "required_fields": [
+        "fixture_id",
+        "complete_participant_roster",
+        "signed_bps",
+        "fpl_participated"
+      ],
+      "identity": "bonus =rank_ties(all_fixture_BPS); E[rank(BPS)] !=rank(E[BPS])",
+      "limits": "Tie totals need not sum6; include zero-minute card participants; do not rank only selected fantasy squad",
+      "rule_sources": [
+        "RULES26",
+        "BPS26"
+      ]
+    },
+    {
+      "id": "appearance_points",
+      "unit": "fpl_points",
+      "kind": "additive_points",
+      "target": "Canonical fixture contribution to total FPLpoint expectation",
+      "observed_sources": "Official explain identifiers after versioned adapter",
+      "forecast_sources": "Archived fixture.components.appearance_points",
+      "required_fields": [
+        "rulebook",
+        "player_code",
+        "fixture_id",
+        "value",
+        "status"
+      ],
+      "identity": "total_points =sum(canonical_additive_partition)",
+      "limits": "No zero imputation; do not add count/subset/BPS fields to this sum",
+      "rule_sources": [
+        "POINTS26"
+      ]
+    },
+    {
+      "id": "goal_points",
+      "unit": "fpl_points",
+      "kind": "additive_points",
+      "target": "Canonical fixture contribution to total FPLpoint expectation",
+      "observed_sources": "Official explain identifiers after versioned adapter",
+      "forecast_sources": "Archived fixture.components.goal_points",
+      "required_fields": [
+        "rulebook",
+        "player_code",
+        "fixture_id",
+        "value",
+        "status"
+      ],
+      "identity": "total_points =sum(canonical_additive_partition)",
+      "limits": "No zero imputation; do not add count/subset/BPS fields to this sum",
+      "rule_sources": [
+        "POINTS26"
+      ]
+    },
+    {
+      "id": "assist_points",
+      "unit": "fpl_points",
+      "kind": "additive_points",
+      "target": "Canonical fixture contribution to total FPLpoint expectation",
+      "observed_sources": "Official explain identifiers after versioned adapter",
+      "forecast_sources": "Archived fixture.components.assist_points",
+      "required_fields": [
+        "rulebook",
+        "player_code",
+        "fixture_id",
+        "value",
+        "status"
+      ],
+      "identity": "total_points =sum(canonical_additive_partition)",
+      "limits": "No zero imputation; do not add count/subset/BPS fields to this sum",
+      "rule_sources": [
+        "POINTS26"
+      ]
+    },
+    {
+      "id": "cs_points",
+      "unit": "fpl_points",
+      "kind": "additive_points",
+      "target": "Canonical fixture contribution to total FPLpoint expectation",
+      "observed_sources": "Official explain identifiers after versioned adapter",
+      "forecast_sources": "Archived fixture.components.cs_points",
+      "required_fields": [
+        "rulebook",
+        "player_code",
+        "fixture_id",
+        "value",
+        "status"
+      ],
+      "identity": "total_points =sum(canonical_additive_partition)",
+      "limits": "No zero imputation; do not add count/subset/BPS fields to this sum",
+      "rule_sources": [
+        "POINTS26"
+      ]
+    },
+    {
+      "id": "save_points",
+      "unit": "fpl_points",
+      "kind": "additive_points",
+      "target": "Canonical fixture contribution to total FPLpoint expectation",
+      "observed_sources": "Official explain identifiers after versioned adapter",
+      "forecast_sources": "Archived fixture.components.save_points",
+      "required_fields": [
+        "rulebook",
+        "player_code",
+        "fixture_id",
+        "value",
+        "status"
+      ],
+      "identity": "total_points =sum(canonical_additive_partition)",
+      "limits": "No zero imputation; do not add count/subset/BPS fields to this sum",
+      "rule_sources": [
+        "POINTS26"
+      ]
+    },
+    {
+      "id": "penalty_save_points",
+      "unit": "fpl_points",
+      "kind": "additive_points",
+      "target": "Canonical fixture contribution to total FPLpoint expectation",
+      "observed_sources": "Official explain identifiers after versioned adapter",
+      "forecast_sources": "Archived fixture.components.penalty_save_points",
+      "required_fields": [
+        "rulebook",
+        "player_code",
+        "fixture_id",
+        "value",
+        "status"
+      ],
+      "identity": "total_points =sum(canonical_additive_partition)",
+      "limits": "No zero imputation; do not add count/subset/BPS fields to this sum",
+      "rule_sources": [
+        "POINTS26"
+      ]
+    },
+    {
+      "id": "dc_points",
+      "unit": "fpl_points",
+      "kind": "additive_points",
+      "target": "Canonical fixture contribution to total FPLpoint expectation",
+      "observed_sources": "Official explain identifiers after versioned adapter",
+      "forecast_sources": "Archived fixture.components.dc_points",
+      "required_fields": [
+        "rulebook",
+        "player_code",
+        "fixture_id",
+        "value",
+        "status"
+      ],
+      "identity": "total_points =sum(canonical_additive_partition)",
+      "limits": "No zero imputation; do not add count/subset/BPS fields to this sum",
+      "rule_sources": [
+        "POINTS26"
+      ]
+    },
+    {
+      "id": "negative_points",
+      "unit": "fpl_points",
+      "kind": "additive_points",
+      "target": "Canonical fixture contribution to total FPLpoint expectation",
+      "observed_sources": "Official explain identifiers after versioned adapter",
+      "forecast_sources": "Archived fixture.components.negative_points",
+      "required_fields": [
+        "rulebook",
+        "player_code",
+        "fixture_id",
+        "value",
+        "status"
+      ],
+      "identity": "total_points =sum(canonical_additive_partition)",
+      "limits": "No zero imputation; do not add count/subset/BPS fields to this sum",
+      "rule_sources": [
+        "POINTS26"
+      ]
+    },
+    {
+      "id": "gc_points",
+      "unit": "fpl_points",
+      "kind": "additive_points",
+      "target": "Canonical fixture contribution to total FPLpoint expectation",
+      "observed_sources": "Official explain identifiers after versioned adapter",
+      "forecast_sources": "Archived fixture.components.gc_points",
+      "required_fields": [
+        "rulebook",
+        "player_code",
+        "fixture_id",
+        "value",
+        "status"
+      ],
+      "identity": "total_points =sum(canonical_additive_partition)",
+      "limits": "No zero imputation; do not add count/subset/BPS fields to this sum",
+      "rule_sources": [
+        "POINTS26"
+      ]
+    },
+    {
+      "id": "penalty_miss_points",
+      "unit": "fpl_points",
+      "kind": "diagnostic_subset",
+      "target": "Subset already included in negative_points",
+      "observed_sources": "-2*normalized penalty misses",
+      "forecast_sources": "Separate diagnostic may be attached to fixture",
+      "required_fields": [
+        "parent_negative_points",
+        "value"
+      ],
+      "identity": "negative_points = cards + own_goal + penalty_miss_points",
+      "limits": "Never add this diagnostic again to the canonical sum",
+      "rule_sources": [
+        "POINTS26"
+      ]
+    },
+    {
+      "id": "goal_penalty_split",
+      "unit": "fpl_points",
+      "kind": "diagnostic_partition",
+      "target": "Penalty-goal and nonpenalty-goal portions of goal_points",
+      "observed_sources": "Requires explicit event-origin labels",
+      "forecast_sources": "Archived penalty expected-count means where present",
+      "required_fields": [
+        "goal_points",
+        "penalty_goal_points",
+        "nonpenalty_goal_points"
+      ],
+      "identity": "goal_points =penalty_goal_points+nonpenalty_goal_points",
+      "limits": "Never add split children alongside parent goal_points; own-goal costs remain negative_points",
+      "rule_sources": [
+        "POINTS26"
+      ]
+    },
+    {
+      "id": "expected_bonus",
+      "unit": "fpl_points",
+      "kind": "legacy_mean_alias",
+      "target": "Expectation of the joint official bonus award, not BPS itself",
+      "observed_sources": "FPLbonus award",
+      "forecast_sources": "fixture.components.expected_bonus",
+      "required_fields": [
+        "fixture_id",
+        "rulebook",
+        "value"
+      ],
+      "identity": "expected_bonus=E[bonus]; count exactly once in total xP",
+      "limits": "Legacy field alias for canonical bonus_points; not a second component.",
+      "rule_sources": [
+        "RULES26"
+      ]
+    },
+    {
+      "id": "bonus_points",
+      "unit": "fpl_points",
+      "kind": "additive_points",
+      "target": "Observed bonus award in actual mode, expectation in forecast mode",
+      "observed_sources": "official bonus/explain",
+      "forecast_sources": "explicit read-only alias from fixture.components.expected_bonus",
+      "required_fields": [
+        "fixture_id",
+        "rulebook",
+        "mode",
+        "value"
+      ],
+      "identity": "Count exactly once in total points/xP; BPS is not another additive term",
+      "limits": "Rank allocation requires full fixture participants; aliases cannot be added together",
+      "rule_sources": [
+        "RULES26"
+      ]
+    }
+  ],
+  "rulebooks": {
+    "2026-27": {
+      "id": "fpl-2026-27-v1",
+      "evidence": [
+        "RULES26",
+        "POINTS26",
+        "BPS26"
+      ],
+      "goal_points": {
+        "GK": 10,
+        "DEF": 6,
+        "MID": 5,
+        "FWD": 4
+      },
+      "cs_points": {
+        "GK": 4,
+        "DEF": 4,
+        "MID": 1,
+        "FWD": 0
+      },
+      "dc_threshold": {
+        "GK": null,
+        "DEF": 10,
+        "MID": 12,
+        "FWD": 12
+      },
+      "dc_award": 2,
+      "saves_per_point": 3,
+      "penalty_save_points": 5,
+      "bps": {
+        "appearance_1_to_60": 3,
+        "appearance_over_60": 6,
+        "cbi_divisor": 3,
+        "penalty_save": 7,
+        "save_total": 2,
+        "save_inside_extra": 1,
+        "save_big_chance_extra": 1,
+        "being_tackled": 0,
+        "nonpenalty_goal": {
+          "GK": 12,
+          "DEF": 12,
+          "MID": 18,
+          "FWD": 24
+        },
+        "penalty_goal": 12,
+        "clean_sheet_GK_DEF": 12
+      },
+      "operational_status": "Definitions verified; not activated in production",
+      "point_constants": {
+        "appearance_positive_lt60": 1,
+        "appearance_at_least60": 2,
+        "assist": 3,
+        "goals_conceded_divisor": 2,
+        "goals_conceded_points": -1,
+        "yellow": -1,
+        "red_normalized": -3,
+        "own_goal": -2,
+        "penalty_miss": -2
+      }
+    },
+    "2025-26": {
+      "id": "fpl-2025-26-archive-v1",
+      "evidence": [
+        "BPS25",
+        "DC25"
+      ],
+      "dc_active": true,
+      "bps": {
+        "cbi_divisor": 2,
+        "penalty_save": 8,
+        "shot_save_inside": 3,
+        "shot_save_outside": 2,
+        "being_tackled": -1
+      },
+      "limits": "Official selected changes verified; archived helper omits being-tackled field, so its default-zero reconstruction is partial. Missing non-shot-save category is not automatically outside-shot."
+    },
+    "2024-25": {
+      "id": "fpl-2024-25-archive-v1",
+      "evidence": [
+        "PR32_SCOPE",
+        "BPS_SOURCE"
+      ],
+      "dc_active": false,
+      "limits": "Historical adapter retained as inherited evidence, not complete fresh rule certification; DCpoint zero is structural by absent rule, DCaction count missing."
+    }
+  },
+  "required_identity": [
+    "season",
+    "gw",
+    "fixture_id",
+    "player_code",
+    "fpl_position_at_deadline",
+    "rulebook",
+    "source_sha256"
+  ],
+  "source_registers": [
+    "research/pm_defs/evidence/local-sources.json",
+    "research/pm_defs/evidence/rule-sources.json"
+  ],
+  "temporal_contract": "Forecast cutoff<=publication<deadline; labels only after final&&data_checked. Per-fixture events before GWaggregation; original issue hashes never overwritten. Unknown source publication times remain unknown.",
+  "missingness_contract": "Missing/null never becomes observed0. Bounded is not point-identified. not_applicable requires a versioned rule reason; zero is a known numeric observation only with evidence.",
+  "negative_event_contract": "Use normalized official card awards. Red deductions include yellow deductions; ambiguous raw double-card coding is unknown. Zero reported minutes does not prove no card/participation. No new card model here.",
+  "bonus_alias_contract": "Canonical bonus_points is the observed award or its forecast expectation according to mode. Legacy expected_bonus is mapped to it exactly once; never sum both."
+}

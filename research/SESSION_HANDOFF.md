@@ -1,3 +1,41 @@
+# Current C1 handoff — PM definitions completed, 22 November 2026
+
+**Delivered PR:** [#49](https://github.com/pdamkier-del/fpl-analytics-app/pull/49), based on #48; no merge or deploy.
+
+**Latest task:** user Phase2, `EXP-PM-DEFS-001`, on `research/c1-pm-definitions-20261122`, based on PR48 at `b087de22`. This is not another TS study. TS remains completed. No model, app, C2 or substitution-trial changes; no private manager data or deploy.
+
+## Read and reproduce
+
+1. Read `results/EXP-PM-DEFS-001/REPORT.md`, `pm_defs/CATALOG.md`, `results/EXP-PM-DEFS-001/COVERAGE.md`, `pm_defs/NEXT_EXPERIMENT.md` and the result PR review.
+2. Run registry `validate`, `status`, `next`; run `python -m pytest research/tests research/pm_defs/tests -q`. The renderer only regenerates readable views; do not rerun old audits or TS. Original PM protocol JSON remains byte-identical; implementation/results are in append-only events78–84.
+3. Catalog `PM-COMPONENTS-1.0.0` has24definitions, three rulebooks, JSONschema and research-only executable contracts. Source evidence has dates/hashes; current official webpages do not prove historical publication clocks. No claim all old rules are independently certified.
+
+## Actual result and limits
+
+New-contract compatibility passed for2,007original forecast and2,007matched actual point ledgers;2,011official rows include4without forecasts. All2,007goal-origin partitions and penalty-miss diagnostics match their parent components without double counting. Application runtime1.5613seconds.35tests pass (24new PM,11registry). No model/fit/simulation, old efficacy/decomposition or TS execution.
+
+Distinguish direct current labels from old PR32rule-derived CS and missing2024DC/2025penalty-origin labels. Historical p_bps/bg_rate/bg_sd exist in PR32data; current public scenario objects have only totalpoints/minutes. The141inside/133strict keeper coverage is a prior raw-data availability receipt; this PR ships metadata, not provider shot data. Big-chance-save flags are missing; official category mapping/rights remain unverified. Unknown is never numeric0.
+
+Canonical total contains10point components, mapping legacy expected_bonus once to neutral bonus_points. Penalty-miss/goal split diagnostics and BPSunits are not added again. DC and bonus may legitimately both reward the same underlying defensive action. Preserve inclusive-save/penalty overlap and separate point/BPS channels. A same-target residual replacement conserves total; it cannot certify cross-season BPS target transport. Unknown red-card liability, card-only zero minutes and emergency-keeper classification remain explicit semantic gates, not implemented model fixes.
+
+## Next scientific recommendation — do not execute another task implicitly
+
+Preregister **prospective frozen DC-threshold validation** in a new protocol (suggested not-yet-registered ID EXP-PM-DC-LIVE-001). For one applicable outfield fixture, p(DCaward)=E[DCpoints]/2 is already identified without a full count law. Use original future forecast issues, official final labels, prespecified Brier/calibration/cohort/block-uncertainty/power/stopping rules and no parameter fitting. GW8–10/PR32are seen development evidence. See NEXT_EXPERIMENT.md for precise gates; earliest origin must still be future after registration, not backfilled.
+
+Existing `EXP-PM-CS-BPS-001` is proposed and still depends on `EXP-MM-LIVE-001` and candidate-specific registration. Some earlier roadmap prose says CSBPS without the extra hyphen; do not create another study or change the original JSON. Big-chance/inside-save/BPSdependence candidates need category rights/mapping, aligned draw sidecars and same-rule residual definitions before efficacy. None is declared ready merely because definitions are completed.
+
+`registry next` now selects the remaining ready **EXP-OPS-CAPTURE-001**, a separate C2/private-TS infrastructure dependency. It is not permission for C1 to modify PR43/44, app or private storage. No new capture, status refresh or scoring of the protected substitutions trial occurred here; preserve its original8GW/80matches and hashes.
+
+## Execution provenance and failures
+
+Definition/input freeze34f7049b; first registration a39bd217. v1failed a checksum-helper Path/string preflight before reading archives, and is preserved with failure evidence. Separate v2only fixes Pathcoercion/manifest name, re-registered and committed74809fd7before application. Original catalog/schema/input/contract bytes unchanged. Additional pure identifiability/same-target helpers and synthetic unit tests do not rerun the application. A test-collection syntax error was corrected before execution; see test receipt.
+
+Full schema reapplication, if explicitly needed later, uses the registered running74809fd7checkout and a fresh result directory, not resetting the canonical completed registry. Completed means definitions/coverage delivered, not model acceptance. Independent code/result review and the overall Stage0inventory review remain pending. Append new decisions/events; do not edit prior studies/protocols/results or count schema regressions as new holdout evidence.
+
+---
+
+# Previous PR48 handoff retained for chronology
+
 # Current C1 handoff — Phase 1 completed, 22 November 2026
 
 **Delivered PR:** [#48](https://github.com/pdamkier-del/fpl-analytics-app/pull/48), stacked on #47; not merged or deployed.
