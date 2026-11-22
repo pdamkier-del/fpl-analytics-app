@@ -1,0 +1,40 @@
+{
+  "recorded_at": "2026-11-22T22:20:11.527182+00:00",
+  "integration_and_logger_python": {
+    "passed": 47,
+    "skipped": 0,
+    "seconds": 3.33,
+    "command": "FPL_CAPTURE_RUNTIME=/workspace/work/fpl-c2-capture-runtime OPENBLAS_NUM_THREADS=1 /workspace/fpl-venv/bin/python -m pytest -q tests/research_data analysis/followup-41-20261122/tests"
+  },
+  "existing_pinned_service_python": {
+    "passed": 47,
+    "seconds": 3.84,
+    "command": "OPENBLAS_NUM_THREADS=1 PYTHONPATH=src:scripts:. python -m pytest -q tests/test_private_manager_service.py tests/test_mm_preview_service.py tests/test_b_snapshot_policy.py tests/test_unified_b_chain.py"
+  },
+  "existing_interface_javascript": {
+    "passed": 13,
+    "command": "node --test integration/model-interface/*.test.js"
+  },
+  "sha256": {
+    "integration/research-data/archive.py": "9adeae7242ab6a81f8e64bf6f119a5e27fa9e85a6b0e318e879ce93650e08a46",
+    "integration/research-data/computation_receipt.py": "adb37f9763fe443dbce420349ed15e4f8784f66fa0ec75d742748fc434ed58fa",
+    "integration/research-data/install_private_hook.py": "b84d7ef416c267fd4384749161b0511c087e40bc1aa7610f2039be0f58517280",
+    "integration/research-data/releases.py": "8cec841a57a504ee828d25a819a3cb1a260b14dc8d52d973bdd9ff31ec3f84c2",
+    "evaluation_ops/private_routes.py": "a5bf649e03865b133dc8e190d5a910d8ab853db94356ee8b91c988752427c409",
+    "evaluation_ops/__init__.py": "e76495091faffb2bd19668fe0b0e2eb1f1180d1b1d0ae9d2cc93f56ee9ed7336",
+    "evaluation_ops/ts_capture.py": "f1ac34ac259f5c6d0aa4fdac0627ffe438d0a6e22b6477ae26dabdc1e89bc614",
+    "tests/research_data/test_computation_receipt.py": "d86f600d14a8598914660095eb3b44b5f35b4c0f277f3bf631e830755cadf950",
+    "tests/research_data/test_original_worker.py": "e08c14081661fdb7118b66e55a77495415100f9f164350b0693aa5a2de298523",
+    "tests/research_data/test_integration_scope.py": "47f1e46a5f9a43a26babcfdefb4f3ae208dc853ca21303552a6856bb3ba29842",
+    "tests/research_data/conftest.py": "05644e90055598572a56b099dbc177ee75fdcf440b1a19171a0e0579c124d6aa",
+    "tests/research_data/test_archive.py": "f1e8372a9db8ec235008aab67a13c47846b4df61d03b4d031cbfe2b5808071e9",
+    "tests/research_data/test_http_hook.py": "0a00cfa88dea7f1501f2a348f5c5f5c96afcb46beb18e933876ec1a466a7861c",
+    "tests/research_data/test_ts_capture.py": "d72ef17cececc4e0abb6138efc0d5c45c9a603e9ef2d16ff97b672a475051ad7",
+    "analysis/followup-41-20261122/code/private_ts_ledger.py": "e9a361d5c8952d40b57291e59cafd94fe3e96f9f237886faefd10db6c7e426e7",
+    ".github/workflows/mm-current-preview-publication.yml": "6e1baf08614fe941a2883fffc7ef83ff6db297f5cebf9f6d07c78017f437fd93"
+  },
+  "base": "876e61b0f847d6987d64000cd58af90ba94dd036",
+  "model_source": "161b67b6fb8786a38e78c245b92a03ad841575d8",
+  "live_public_release_verified": true,
+  "private_mount_mocked_in_tests": true
+}
