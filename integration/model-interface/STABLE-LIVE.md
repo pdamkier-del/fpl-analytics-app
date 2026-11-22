@@ -1,5 +1,11 @@
 # Stable live app integration
 
+Follow-up C2data-retention work is documented in [C2_HANDOFF.md](../C2_HANDOFF.md)
+and [research-data/README.md](../research-data/README.md). It adds a separate public
+archive job and a reviewed private-service hook, without changing this UI overlay
+or the frozen models. Private operational readiness and production release gates
+remain separate; local storage tests are not a deployment certificate.
+
 This branch extends PR #44 from `84c41932fbb90ef680cb9ce7f606307750d18e13`. Apply the overlay after the B-preview generator to `app/mm-preview/app` in an isolated build directory. The overlay uses the actually published UI source `27bf5e1e1a17360bdbbfb41fbce7fe55679c6870` as its verified reference. The Pages workflow on main specifies `b6ecb068394dc9e9f5f2c493e1f0ee0a4cbf7d96`. The published B forecast lists source `161b67b6fb8786a38e78c245b92a03ad841575d8` and the chain version `B-MM-PM-TS-v1`.
 
 ```sh

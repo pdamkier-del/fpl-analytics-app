@@ -7,6 +7,11 @@ on:
     - cron: '17 * * * *'
   workflow_dispatch:
     inputs:
+      research_archive_only:
+        description: 'Verify permanent public research archive without deploying Pages or changing the app'
+        required: false
+        type: boolean
+        default: false
       validated_run:
         description: 'Optional successful exact-source mm-current-live-preview run to publish without recomputation'
         required: false
@@ -41,9 +46,44 @@ jobs:
     permissions:
       contents: read
       actions: read
-  preview:
+  permanent-research-archive:
     needs: [current, verified]
     if: ${{ always() && !cancelled() && (needs.current.result == 'success' || needs.verified.result == 'success') }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    concurrency:
+      group: fpl-permanent-public-research-archive
+      cancel-in-progress: false
+    permissions:
+      contents: write
+      actions: read
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - uses: actions/download-artifact@v4
+        with:
+          name: mm-current-live-preview
+          path: .research-public-capture
+          run-id: ${{ inputs.validated_run || github.run_id }}
+          github-token: ${{ github.token }}
+      - uses: actions/download-artifact@v4
+        with:
+          name: current-B-origin-input-evidence
+          path: .research-origin-evidence
+          run-id: ${{ inputs.validated_run || github.run_id }}
+          github-token: ${{ github.token }}
+      - name: Preserve original public forecast before deadline independently of UI deployment
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          python integration/research-data/computation_receipt.py --repository "$GITHUB_REPOSITORY" --run "${{ inputs.validated_run || github.run_id }}" > work-computation-receipt.json
+          bundle=$(python integration/research-data/archive.py .research-public-capture/current work/permanent-public-bundles --config integration/research-data/frozen-ts-config.json --sources .research-origin-evidence/work/current-B-inputs --computation-receipt work-computation-receipt.json)
+          python integration/research-data/releases.py "$bundle" --repository "$GITHUB_REPOSITORY" --target "$GITHUB_SHA"
+  preview:
+    needs: [current, verified]
+    if: ${{ always() && !cancelled() && !inputs.research_archive_only && (needs.current.result == 'success' || needs.verified.result == 'success') }}
     runs-on: ubuntu-latest
     timeout-minutes: 30
     concurrency:
