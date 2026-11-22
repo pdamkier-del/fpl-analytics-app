@@ -1,0 +1,11 @@
+{
+  "hashseed1_sha256": "055b88e1f5a56888fa7603670a815ef3df1421226ef71c6b6d0fd76fa44f1e82",
+  "hashseed2_sha256": "a4c678c82d9a61ea064eacb35537203f214070241709aaae7073bae9073f7d4e",
+  "parsed_content_equal": true,
+  "byte_equal": false,
+  "cause": "changed_model_code_between_gws iterates an unordered set; order varies by PYTHONHASHSEED",
+  "fix": "sorted change-key iteration and canonical sorted JSON; runner verifies all result hashes",
+  "fixed_byte_equal_across_hashseeds": true,
+  "numerical_values_unchanged": true,
+  "fixed_sha256": "f5f557b2cfc45b9a0426dbf1c4bc4fb0b67309ddcc61dcd8b48a20e39335f412"
+}

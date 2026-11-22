@@ -33,3 +33,6 @@ def test_scoring_oracle_coverage():
 def test_rule_references_match_pinned_mathematics():
  for name in ['bps.py','defcon.py']:
   assert (R/'code/reference'/name).read_bytes()==(R/'evidence/active-source/src/fpl_v1_1_model'/name).read_bytes()
+
+def test_recorded_result_hashes_match_reproduced_outputs():
+ assert verify(R,json.loads((R/'result-integrity.json').read_text()))>0

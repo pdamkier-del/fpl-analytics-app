@@ -1,0 +1,149 @@
+{
+  "BPS_identifiability": "Only bonus means, not sampled background-BPS/DC covariance or event-level BPS, are archived in these public forecasts; direct BPS-mean forecast error is not identified. Rule oracle and known proxy/code gap reused from PR41.",
+  "allocation": [
+    {
+      "actual": 65,
+      "actual_team_volume_oracle_mse": 0.02481399927780636,
+      "allocation_mean_square": 0.02481399927780636,
+      "cross_term": 0.0004118483918659413,
+      "group": "all",
+      "mean_squared_error": 0.029473190707523664,
+      "predicted": 86.62749999999998,
+      "rows": 2007,
+      "target": "goals",
+      "unsupported_rows": 0,
+      "volume_mean_square": 0.004247343037851364
+    },
+    {
+      "actual": 17,
+      "actual_team_volume_oracle_mse": 0.020331233371032476,
+      "allocation_mean_square": 0.02033123337103248,
+      "cross_term": 0.0007116924298961686,
+      "group": "GW8",
+      "mean_squared_error": 0.024812818113772454,
+      "predicted": 30.124999999999993,
+      "rows": 668,
+      "target": "goals",
+      "unsupported_rows": 0,
+      "volume_mean_square": 0.0037698923128438077
+    },
+    {
+      "actual": 19,
+      "actual_team_volume_oracle_mse": 0.01950695645639473,
+      "allocation_mean_square": 0.01950695645639473,
+      "cross_term": -0.00021136575265280782,
+      "group": "GW9",
+      "mean_squared_error": 0.023288041853512704,
+      "predicted": 28.624999999999993,
+      "rows": 669,
+      "target": "goals",
+      "unsupported_rows": 0,
+      "volume_mean_square": 0.003992451149770783
+    },
+    {
+      "actual": 29,
+      "actual_team_volume_oracle_mse": 0.03458250565579044,
+      "allocation_mean_square": 0.03458250565579044,
+      "cross_term": 0.0007351833848194505,
+      "group": "GW10",
+      "mean_squared_error": 0.04029556902985075,
+      "predicted": 27.877499999999994,
+      "rows": 670,
+      "target": "goals",
+      "unsupported_rows": 0,
+      "volume_mean_square": 0.004977879989240852
+    },
+    {
+      "actual": 57,
+      "actual_team_volume_oracle_mse": 0.026091608786011255,
+      "allocation_mean_square": 0.026091608786011255,
+      "cross_term": -0.0005303430355419623,
+      "group": "all",
+      "mean_squared_error": 0.028495581091180864,
+      "predicted": 79.46249999999998,
+      "rows": 2007,
+      "target": "assists",
+      "unsupported_rows": 0,
+      "volume_mean_square": 0.0029343153407115734
+    },
+    {
+      "actual": 17,
+      "actual_team_volume_oracle_mse": 0.02351694589279443,
+      "allocation_mean_square": 0.02351694589279443,
+      "cross_term": -0.0005088422147114372,
+      "group": "GW8",
+      "mean_squared_error": 0.02608672342814371,
+      "predicted": 27.662499999999994,
+      "rows": 668,
+      "target": "assists",
+      "unsupported_rows": 0,
+      "volume_mean_square": 0.0030786197500607218
+    },
+    {
+      "actual": 18,
+      "actual_team_volume_oracle_mse": 0.02471195498446676,
+      "allocation_mean_square": 0.02471195498446676,
+      "cross_term": -0.0005401327990498162,
+      "group": "GW9",
+      "mean_squared_error": 0.026173636023916293,
+      "predicted": 26.26999999999999,
+      "rows": 669,
+      "target": "assists",
+      "unsupported_rows": 0,
+      "volume_mean_square": 0.0020018138384993492
+    },
+    {
+      "actual": 22,
+      "actual_team_volume_oracle_mse": 0.03003618073511888,
+      "allocation_mean_square": 0.03003618073511888,
+      "cross_term": -0.0005420045228972407,
+      "group": "GW10",
+      "mean_squared_error": 0.0332157276119403,
+      "predicted": 25.52999999999999,
+      "rows": 670,
+      "target": "assists",
+      "unsupported_rows": 0,
+      "volume_mean_square": 0.003721551399718658
+    }
+  ],
+  "allocation_note": "Includes role/minute effects and outcome noise; not a causal or deployable correction",
+  "assist_three_stage": {
+    "assist_eligibility_rate": 2.633344706417637,
+    "error": 22.46249999999997,
+    "goal_volume": 19.829155293582335,
+    "player_allocation": 2.6645352591003757e-15,
+    "scope": "Exact conditional identity using credited team goals; FPL own-goal-assists and omitted forecast own-goal means limit an interpretation as a literal assist probability."
+  },
+  "clean_sheets": {
+    "conditional_cs_error_sum": -133.29604444711237,
+    "mean_team_cs_probability_bounds": [
+      0.2357017543859649,
+      0.2424122807017544
+    ],
+    "note": "Bounds depend on archived joint keeper sample conservation; no Poisson assumption is introduced",
+    "observed_team_cs": 0.3157894736842105,
+    "qualification_error_sum": 5.551044447112355,
+    "supported_player_rows": 1308,
+    "team_cs_brier_bounds": [
+      0.20516030701754387,
+      0.20954067982456143
+    ],
+    "team_rows_excluded": 3,
+    "team_rows_with_probability_bounds": 57,
+    "total_supported_error": -127.745,
+    "unsupported_player_rows": 462
+  },
+  "formula": "player error = forecast share*(forecast team total-actual team total) + (forecast share*actual team total-actual player event)",
+  "production_changed": false,
+  "production_totals": {
+    "forecast_minus_shot_xg": 2.9274999999999842,
+    "fpl_assists": 57.0,
+    "goals": 65.0,
+    "predicted_assists": 79.46249999999996,
+    "predicted_goals": 86.62749999999998,
+    "shot_xa": 51.71000000000001,
+    "shot_xg": 83.7,
+    "shot_xg_minus_goals": 18.7
+  },
+  "scope": "New error decomposition only, same previously seen GW8-10; no simulation or fitted coefficients"
+}
