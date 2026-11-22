@@ -142,9 +142,12 @@ class FakeGithub:
 
 
 def test_permanent_recovery_without_local_or_ci_artifacts(tmp_path):
-    folder,*_=build(tmp_path);backend=FakeGithub(tmp_path/'github')
+    folder,current,sources,*_=build(tmp_path);backend=FakeGithub(tmp_path/'github')
     proof=persist(folder,backend,archive.PIN,now=NOW)
     persist(folder,FakeGithub(backend.root),archive.PIN,now=NOW)
+    # New machine, same original input, later capture clock: no remote overwrite.
+    later=archive.bundle(current,tmp_path/'fresh-runner',CONFIG,sources=sources,computation=WITNESS,now=NOW+timedelta(minutes=1))
+    assert persist(later,backend,archive.PIN,now=NOW+timedelta(minutes=1))==proof
     shutil.rmtree(folder.parent)
     recovered,again=recover(proof['tag'],tmp_path/'recovered',FakeGithub(backend.root))
     assert proof==again and archive.verify(recovered)['revision_id']==proof['revision_id']

@@ -65,6 +65,17 @@ def persist(folder, backend, target, *, now=None):
     require(release['tag_name']==tag and not release.get('draft'), 'Wrong release')
     assets={a['name']:a for a in release.get('assets',[])}
     require(len(assets)==len(release.get('assets',[])) and not (set(assets)-set(expected)-{'publication.json'}), 'Unexpected release assets')
+    if 'manifest.json' in assets:
+        # A fresh runner may observe the SAME revision later. Preserve the first
+        # capture clock/manifest rather than trying to replace it with this run's.
+        original_raw=backend.content(assets['manifest.json'])
+        original=json.loads(original_raw)
+        require({k:v for k,v in original.items() if k!='captured_at'}==
+                {k:v for k,v in manifest.items() if k!='captured_at'},
+                'Existing permanent manifest differs beyond capture clock')
+        require(clock(original['data_cutoff'])<=clock(original['captured_at'])<clock(original['official_deadline']), 'Invalid original capture clock')
+        manifest=original
+        expected['manifest.json']=sha(original_raw)
     for name,h in expected.items():
         if name not in assets:
             require((now or datetime.now(timezone.utc))<clock(manifest['official_deadline']), 'Incomplete release after deadline; not eligible')
