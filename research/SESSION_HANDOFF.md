@@ -1,5 +1,7 @@
 # Current C1 handoff — TS funding candidate completed, 22 November 2026
 
+**Delivered PR:** [#50](https://github.com/pdamkier-del/fpl-analytics-app/pull/50), stacked on #49; no merge or deploy.65tests pass; registry64entries.
+
 **Latest user Phase3:** EXP-TS-FUNDING-001, separate branch `research/c1-ts-funding-20261122`, based on PR49 `caf6401f`. New study, not a rerun of EXP-TS-SEARCH-001. No model/app/C2/substitution changes or deployment; no private manager payloads accessed.
 
 Read [REPORT](results/EXP-TS-FUNDING-001/REPORT.md), [locked protocol](ts_funding/PROTOCOL.md), [capture audit](ts_funding/CAPTURE_AUDIT.md), [summaries](results/EXP-TS-FUNDING-001/holdout-summary.json) and current PR review before another task.

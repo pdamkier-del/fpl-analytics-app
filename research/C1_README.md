@@ -82,7 +82,7 @@ Original programme registration: **25 unchanged entries**; Stage 0 appends **38 
 - [x] Verify private/public capture boundaries read-only; [audit](ts_funding/CAPTURE_AUDIT.md) documents existing GW11six-GW ledger, hashes, failed publication jobs and unverified original artifact body/private TS durability.
 - [x] Update registry, decision log, handoff and [result report](results/EXP-TS-FUNDING-001/REPORT.md);64total registered records, no change to old63protocols.
 - [ ] Independent candidate/result review and any later production-scale or genuine private-state validation; no production acceptance.
-- [ ] Deliver separate Phase3 research PR; no merge or deploy.
+- [x] Delivered separate [Phase3 research PR #50](https://github.com/pdamkier-del/fpl-analytics-app/pull/50), stacked on #49; no merge or deploy.
 
 The historical roadmap Stage3 below is PM; this user Phase3 is a separately registered TSstudy. Failed practical acceptance is preserved despite successful execution.
 
