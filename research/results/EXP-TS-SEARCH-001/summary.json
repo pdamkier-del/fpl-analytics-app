@@ -1,0 +1,77 @@
+{
+  "experiment_id": "EXP-TS-SEARCH-001",
+  "status": "completed",
+  "initial_wall_seconds": 16.095455496000795,
+  "budget_seconds": 120,
+  "completed": 42,
+  "not_run": [],
+  "deterministic_cases": 30,
+  "restricted_DNP_cases": 12,
+  "heuristic_path_actions": 252,
+  "illegal_decisions": 0,
+  "scorer_disagreements": 0,
+  "menu_failures": 0,
+  "score_audits": 11880,
+  "positive_fixed_nomination_gaps": 11,
+  "positive_joint_gaps": 11,
+  "maximum_joint_gap": 66.73408000000003,
+  "max_reachable_states_per_layer": 180,
+  "numerical_comparison_tolerance": 1e-09,
+  "families": {
+    "budget_enabler": {
+      "cases": 6,
+      "positive_gaps": 6,
+      "gap_min": 32.900480000000016,
+      "gap_max": 66.73408000000003
+    },
+    "correlated_captain": {
+      "cases": 3,
+      "positive_gaps": 0,
+      "gap_min": 0.0,
+      "gap_max": 0.0
+    },
+    "anticorrelated_captain": {
+      "cases": 3,
+      "positive_gaps": 0,
+      "gap_min": 0.0,
+      "gap_max": 8.526512829121202e-14
+    },
+    "timing_and_FT": {
+      "cases": 6,
+      "positive_gaps": 0,
+      "gap_min": 0.0,
+      "gap_max": 0.0
+    },
+    "midfield_autosub": {
+      "cases": 3,
+      "positive_gaps": 0,
+      "gap_min": -2.842170943040401e-14,
+      "gap_max": 2.842170943040401e-14
+    },
+    "keeper_and_priority": {
+      "cases": 3,
+      "positive_gaps": 0,
+      "gap_min": -5.684341886080802e-14,
+      "gap_max": 0.0
+    },
+    "sale_price": {
+      "cases": 6,
+      "positive_gaps": 5,
+      "gap_min": 0.0,
+      "gap_max": 38.133759999999995
+    },
+    "club_limit": {
+      "cases": 6,
+      "positive_gaps": 0,
+      "gap_min": 0.0,
+      "gap_max": 0.0
+    },
+    "zero_or_negative_leg": {
+      "cases": 6,
+      "positive_gaps": 0,
+      "gap_min": 0.0,
+      "gap_max": 0.0
+    }
+  },
+  "scope": "Constructed finite six-GW domains under frozen B-worker scorer. No representative failure rate, realized points, full FPL optimum or model promotion. Restricted DNP menu only; no stochastic transfer-search test."
+}

@@ -1,7 +1,7 @@
 # C1 — Scientific Model Research | README & progress checklist
 
 **Owner:** C1 (Codex model research) · **Programme:** FPL Analytics + FPL Research Lab
-**Last prepared:** 2026-11-22 · **State:** Stage 0 reconciliation implemented; independent scientific PR review pending; **no new model experiment executed**
+**Last prepared:** 2026-11-22 · **State:** Stage 1 EXP-TS-SEARCH-001 completed; scoped TS novelty review recorded; result review and overall Stage-0 inventory review pending; no model/app changes
 **Canonical scientific plan:** [MASTER_PLAN.md](MASTER_PLAN.md) · **Registry:** [experiments/](experiments/) · **Current snapshot:** [STATUS.md](STATUS.md) · **Session handoff:** [SESSION_HANDOFF.md](SESSION_HANDOFF.md)
 
 > **Mission:** Improve *validated* predictive quality and FPL decision value—not apparent historical fit or model complexity. Research is separate from the stable Analytics app. This README is the human-readable checklist, **not** a replacement for the experiment registry, immutable evidence, or append-only decision log.
@@ -60,16 +60,18 @@ Original programme registration: **25 unchanged entries**; Stage 0 appends **38 
 
 **Evidence:** [decision report](stage0/REPORT.md), [historical matrix](stage0/HISTORICAL_MATRIX.md), [184-directory matrix](stage0/directory-matrix.csv), [gap/novelty matrix](stage0/GAP_MATRIX.md), [verification](stage0/verification.json). All 2,471 original source hashes match; 236 test paths exist (model tests not rerun); 225 primary artifacts retained. No model/app/protected-trial changes. Deterministic self-checks do not satisfy independent scientific review.
 
-### Stage 1 — TS v3 **search correctness** (registry: `EXP-TS-SEARCH-001`)
+### Stage 1 — TS v3 **search correctness — completed, no promotion** (registry: `EXP-TS-SEARCH-001`)
 
-- [ ] Read the registered fixed experimental domain and exact frozen scorer; do **not** change horizon discount, buffer, search parameters or chips policy.
-- [ ] Implement independent exact finite-domain oracle; include manually checkable witness cases.
-- [ ] Respect registered bounds: **30 deterministic legal instances**, **12 restricted DNP/nomination instances**, **player pool ≤17**, **≤2 transfers**, **≤8 scenarios**, **120-second initial budget**.
-- [ ] Measure legal-action violations, scoring disagreement and *all* heuristic utility gaps. A restricted nomination optimum is not a global FPL optimum.
-- [ ] Record reproduction command, source/input/output hashes, runtime, failed instances and clear limitations.
-- [ ] Update registry and handoff; choose a *new* follow-up hypothesis only if evidence warrants one.
+- [x] Read the registered fixed experimental domain and exact frozen scorer; do **not** change horizon discount, buffer, search parameters or chips policy.
+- [x] Implement independent exact finite-domain oracle; include manually checkable witness cases.
+- [x] Respect registered bounds: **30 deterministic legal instances**, **12 restricted DNP/nomination instances**, **player pool ≤17**, **≤2 transfers**, **≤8 scenarios**, **120-second initial budget**.
+- [x] Measure legal-action violations, scoring disagreement and *all* heuristic utility gaps. A restricted nomination optimum is not a global FPL optimum.
+- [x] Record reproduction command, source/input/output hashes, runtime, failed instances and clear limitations.
+- [x] Update registry and handoff; choose a *new* follow-up hypothesis only if evidence warrants one.
 
 **Exit gate:** zero illegal/scoring mismatches on the declared witnesses and an honest quantified search gap. This does **not** certify TS's real-season gain.
+
+**Delivered result:** [decision report](results/EXP-TS-SEARCH-001/REPORT.md), [all 42 cases](results/EXP-TS-SEARCH-001/case-results.csv), [reproduction](ts_search/REPRODUCIBILITY.md). One 16.095455-second run; 0 illegal actions, 0 scorer mismatches, 11/30 deterministic search gaps; 12/12 DNP cases match only within their fixed menus. This is not realized-FPL gain or global FPL optimality. The original protocol and config are unchanged.
 
 ### Stage 2 — MM **independent predictive quality**
 
@@ -143,7 +145,7 @@ This table is **an index, not proof of exhaustive coverage**. Stage 0 must verif
 - [x] Report effect size in natural units with valid uncertainty where inferential; report deterministic search witnesses without inappropriate p-values.
 - [x] Record all attempted experiments (including failed, null and blocked); don't cherry-pick.
 - [x] Append dated registry events and decision log; explicitly regenerate status and handoff. A GitHub checkbox is **not** the official experiment state.
-- [x] Open a *single bounded* research PR with evidence, remaining blocker and next valid action.
+- [ ] Open a *single bounded* research PR with evidence, remaining blocker and next valid action.
 - [x] Leave production models and C2 integration branches untouched.
 
 ## F. Ownership and handoff to C2
@@ -159,3 +161,5 @@ This table is **an index, not proof of exhaustive coverage**. Stage 0 must verif
 **Important:** This checklist reflects the 2026-11-22 programme state. When resuming, verify *current* source branches, test status and new original-vintage GW receipts before ticking any box.
 
 **Stage-0 delivery:** [PR #47](https://github.com/pdamkier-del/fpl-analytics-app/pull/47), stacked on PR #45. Independent scientific review remains the only unchecked Stage-0 review item; no Stage1–6 experiment started.
+
+**Phase-1 continuation, 22 November 2026:** PR47 review6013306012 confirms the scoped TS novelty boundary; it does not close the overall Stage0 inventory-review box. EXP-TS-SEARCH-001 is now completed through append-only events. Next existing ready registration is EXP-PM-DEFS-001; read the current handoff before any additional execution.

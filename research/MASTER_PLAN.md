@@ -73,3 +73,7 @@ Den eksisterende substitutionsundersøgelse fortsætter sideløbende med uændre
 ## Dateret fase-0-tilføjelse — 22. november 2026
 
 Den historiske afstemning er implementeret på separat forskningsbranch; uafhængigt fagligt PR-review afventer. De oprindelige25registreringer er uændrede;38manglende historiske undersøgelser er tilføjet. [Fase0-rapporten](stage0/REPORT.md) og [gap-/nyhedsmatricen](stage0/GAP_MATRIX.md) erstatter ikke de oprindelige protokoller.184resultatmapper er dækket i54grupper; antallene er ikke uafhængige forsøg. Næste TS-reference skal udfylde det resterende hul efter de allerede udførte seks one-GW-cases og den eksisterende joint/MILP-planlægger. Ingen optimering eller appændring er udført i fase0.
+
+## Dateret fase-1-tilføjelse — 22. november 2026
+
+EXP-TS-SEARCH-001 er gennemført på separat branch uden ændring af protokol, modeller eller app. [Resultatrapporten](results/EXP-TS-SEARCH-001/REPORT.md) dokumenterer42afgrænsede tilfælde på16,1sekunder, ingen fundne ulovlige beslutninger/scoreafvigelser og11deterministiske søgetab. DNP-resultaterne gælder kun den fastlagte menu. Næste eksisterende ready-opgave er EXP-PM-DEFS-001; eventuel TS-reparation skal præregistreres separat og får ikke uafhængig validering ved genbrug af disse42tilfælde. Ingen realiseret FPL-gevinst eller produktionsgodkendelse er dokumenteret.

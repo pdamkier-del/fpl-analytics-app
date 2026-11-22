@@ -4,7 +4,7 @@ import pytest
 ROOT=Path(__file__).resolve().parents[2];R=ROOT/'research';spec=importlib.util.spec_from_file_location('registry',R/'tools/registry.py');reg=importlib.util.module_from_spec(spec);spec.loader.exec_module(reg)
 @pytest.fixture
 def temporary(tmp_path):
- root=tmp_path/'repo/research';shutil.copytree(R,root);return root
+ root=tmp_path/'repo/research';shutil.copytree(R,root);reseal_synthetic_initial_registry(root);return root
 
 def reseal_synthetic_initial_registry(root):
  previous=None;rows=[]
@@ -48,7 +48,7 @@ def test_implementation_and_state_history_append_without_overwriting_protocol(te
  assert reg.read(temporary)[id]['state']=='accepted';assert p.read_bytes()==original;assert len(reg.read(temporary)[id]['events'])==initial_events+4
 
 def test_ready_is_not_execution_claim():
- r=reg.read();p=r['EXP-TS-SEARCH-001']['protocol'];assert r['EXP-TS-SEARCH-001']['state']=='ready'and p['execution_ready']is False and p['full_experiment_command']is None
+ r=reg.read();p=r['EXP-TS-SEARCH-001']['protocol'];assert p['initial_status']=='ready'and p['execution_ready']is False and p['full_experiment_command']is None
  assert 'not yet implemented'in p['next_action'].lower()or 'implement'in p['next_action'].lower()
 
 def test_local_markdown_links_resolve():

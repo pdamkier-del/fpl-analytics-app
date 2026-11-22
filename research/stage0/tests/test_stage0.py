@@ -28,25 +28,26 @@ def test_all_imported_records_are_historical_not_new_runs():
  for id in added:
   r=records[id];assert r['protocol']['kind']=='legacy'and r['implementation']is None
   assert r['protocol']['full_experiment_command']is None and not r['protocol']['execution_ready']
- assert not any(r['state']=='running'for r in records.values())
+ assert not any(r['state']=='running'for r in records.values()if r['protocol']['kind']=='legacy')
 
 def test_observations_leave_states_protocols_and_implementations_unchanged():
  records=reg.read();observations=[(id,e)for id,r in records.items()for e in r['events']if e['kind']=='evidence_reconciled']
  assert len(observations)==11
  for id,e in observations:
-  assert e['state']==records[id]['protocol']['initial_status'];assert records[id]['implementation']is None
+  assert e['state']==records[id]['protocol']['initial_status'];assert not e.get('harness')
+  assert all(later['sequence']>e['sequence']for later in records[id]['events']if later['kind']=='implementation_registered')
 
 def test_reconciliation_event_tamper_and_result_tamper_fail_closed(tmp_path):
  root=tmp_path/'research';shutil.copytree(R,root)
- original=(root/'experiments/EXP-TS-SEARCH-001.json').read_bytes()
+ original=(root/'experiments/EXP-TS-SEARCH-001.json').read_bytes();initial_state=reg.read(root)['EXP-TS-SEARCH-001']['state']
  target=root/'stage0/public-test.json';target.write_text('{"synthetic_public":true}')
  reg.append_reconciliation(root,'EXP-TS-SEARCH-001','Synthetic metadata-only evidence',['research/stage0/public-test.json'])
- assert reg.read(root)['EXP-TS-SEARCH-001']['state']=='ready';assert (root/'experiments/EXP-TS-SEARCH-001.json').read_bytes()==original
+ assert reg.read(root)['EXP-TS-SEARCH-001']['state']==initial_state;assert (root/'experiments/EXP-TS-SEARCH-001.json').read_bytes()==original
  target.write_text('{"synthetic_public":false}')
  with pytest.raises(ValueError,match='Reconciliation evidence changed'):reg.read(root)
 
 def test_reconciliation_cannot_be_used_to_promote_state(tmp_path):
- root=tmp_path/'research';shutil.copytree(R,root);path=root/'events.jsonl';lines=path.read_text().splitlines();e=json.loads(lines[-1]);assert e['kind']=='evidence_reconciled';e['state']='accepted';e.pop('sha256');e['sha256']=reg.digest(reg.canonical(e));lines[-1]=json.dumps(e);path.write_text('\n'.join(lines)+'\n')
+ root=tmp_path/'research';shutil.copytree(R,root);path=root/'events.jsonl';lines=path.read_text().splitlines();last=max(i for i,line in enumerate(lines)if json.loads(line)['kind']=='evidence_reconciled');lines=lines[:last+1];e=json.loads(lines[-1]);assert e['kind']=='evidence_reconciled';e['state']='accepted';e.pop('sha256');e['sha256']=reg.digest(reg.canonical(e));lines[-1]=json.dumps(e);path.write_text('\n'.join(lines)+'\n')
  with pytest.raises(ValueError,match='preserve state'):reg.read(root)
 
 def test_result_archive_hashes_and_old_arithmetic_without_model_execution():
