@@ -53,7 +53,7 @@ Original programme registration: **25 unchanged entries**; Stage 0 appends **38 
 - [x] Flag missing historical registrations and append new *evidence-linked* records when necessary. Do not change original decisions or count variants as independent holdouts.
 - [x] Create a **gap/dependency matrix**: what can be measured now; what needs valid captures; what requires new GW; what cannot currently be identified.
 - [x] Review and justify research priority across **TS search**, **prospective MM**, **PM data definitions**, **TS stateful policy**, model limits and external benchmark.
-- [ ] Update `research/SESSION_HANDOFF.md`, status and append-only event/decision history with the actual inventory outcome. Submit a **separate research PR**; do not begin new model tuning.
+- [x] Update `research/SESSION_HANDOFF.md`, status and append-only event/decision history with the actual inventory outcome. Submit a **separate research PR**; do not begin new model tuning.
 - [ ] Independent review confirms no high-impact prior test is incorrectly labelled a new discovery.
 
 **Stage-0 definition of done:** every proposed new model experiment can be matched to prior evidence, or explicitly marked genuinely novel, before execution.
@@ -143,7 +143,7 @@ This table is **an index, not proof of exhaustive coverage**. Stage 0 must verif
 - [x] Report effect size in natural units with valid uncertainty where inferential; report deterministic search witnesses without inappropriate p-values.
 - [x] Record all attempted experiments (including failed, null and blocked); don't cherry-pick.
 - [x] Append dated registry events and decision log; explicitly regenerate status and handoff. A GitHub checkbox is **not** the official experiment state.
-- [ ] Open a *single bounded* research PR with evidence, remaining blocker and next valid action.
+- [x] Open a *single bounded* research PR with evidence, remaining blocker and next valid action.
 - [x] Leave production models and C2 integration branches untouched.
 
 ## F. Ownership and handoff to C2
@@ -157,3 +157,5 @@ This table is **an index, not proof of exhaustive coverage**. Stage 0 must verif
 > Read the latest Stage-0 PR review and `research/stage0/REPORT.md`, `GAP_MATRIX.md`, `SESSION_HANDOFF.md`; verify registry/source receipts. Resolve independent novelty review before the next model experiment. Do not repeat the six old one-GW TS enumeration cases or the TSv4 MILP/enabler tests as new. The remaining `EXP-TS-SEARCH-001` gap is the unchanged current scorer in its registered finite domain; preserve all original bounds and register the harness before execution. A new session needs scope authorization for Stage 1; this Stage-0 session executed no model experiment.
 
 **Important:** This checklist reflects the 2026-11-22 programme state. When resuming, verify *current* source branches, test status and new original-vintage GW receipts before ticking any box.
+
+**Stage-0 delivery:** [PR #47](https://github.com/pdamkier-del/fpl-analytics-app/pull/47), stacked on PR #45. Independent scientific review remains the only unchecked Stage-0 review item; no Stage1–6 experiment started.

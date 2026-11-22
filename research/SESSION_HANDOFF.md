@@ -1,5 +1,7 @@
 # Current C1 handoff — Stage 0, 22 November 2026
 
+**Separate research PR:** [#47](https://github.com/pdamkier-del/fpl-analytics-app/pull/47), based on PR #45. No merge/deploy.
+
 **Scope delivered:** historical reconciliation only; no model optimization, simulation, TS search, app edit or deployment. Original 25 protocols and original event prefix unchanged;38missing historical records appended (63 total). Stage0 independent scientific review remains pending; do not tick it merely because tests pass.
 
 1. Read `C1_README.md`, `stage0/REPORT.md`, `stage0/HISTORICAL_MATRIX.md`, `stage0/GAP_MATRIX.md` and the separate Stage0 PR review.

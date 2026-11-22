@@ -40,3 +40,5 @@ python -m pytest research/tests research/stage0/tests -q
 The full Git checks need the pinned source objects named in`source-refs.json`, plus`fd3907f4` and the original audit test refs. No command above acquires new match data, fits a model, calls the optimizer or changes production. Refreshing live GitHub metadata is a new dated observation, never an overwrite of these receipts. The matrix renderer writes only its derived matrix artifacts; the verifier is read-only unless an explicit output path is supplied.
 
 Actual deterministic validation: **20 tests passed in 0.83 seconds**; registry validates 63 entries. Initial metadata-test failures and corrections are retained in`test-receipt.json`; they were bookkeeping defects, not new model results. Full pinned-tree/hash and collector checks also passed. Old model suites were not executed.
+
+Delivered as [PR #47](https://github.com/pdamkier-del/fpl-analytics-app/pull/47), stacked on #45; original models/app and production deployment unchanged. Independent scientific review remains pending.
