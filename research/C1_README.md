@@ -1,20 +1,20 @@
 # C1 — Scientific Model Research | README & progress checklist
 
-**Owner:** C1 (Codex model research) · **Programme:** FPL Analytics + FPL Research Lab  
-**Last prepared:** 2026-11-22 · **State:** ready for next C1 session; **no new model experiment executed by this checklist**  
+**Owner:** C1 (Codex model research) · **Programme:** FPL Analytics + FPL Research Lab
+**Last prepared:** 2026-11-22 · **State:** Stage 0 reconciliation implemented; independent scientific PR review pending; **no new model experiment executed**
 **Canonical scientific plan:** [MASTER_PLAN.md](MASTER_PLAN.md) · **Registry:** [experiments/](experiments/) · **Current snapshot:** [STATUS.md](STATUS.md) · **Session handoff:** [SESSION_HANDOFF.md](SESSION_HANDOFF.md)
 
 > **Mission:** Improve *validated* predictive quality and FPL decision value—not apparent historical fit or model complexity. Research is separate from the stable Analytics app. This README is the human-readable checklist, **not** a replacement for the experiment registry, immutable evidence, or append-only decision log.
 
 ## A. Start-of-session checklist (every time)
 
-- [ ] Read the [root entry point](../MASTER_PLAN.md), [programme plan](MASTER_PLAN.md), [methodology](METHODOLOGY.md), [data catalog](DATA_CATALOG.md), [decision log](DECISION_LOG.md) and [handoff](SESSION_HANDOFF.md).
-- [ ] Check the *live* GitHub status of PRs **#41 (audit), #42 (follow-up), #45 (programme)**, and separate WIP **#43 (private capture)** / **#44 (app interface)**. **#45 is stacked on #42, which is stacked on #41** as of this document; never assume all have merged into main.
-- [ ] Run `python research/tools/registry.py validate`, `status`, `next` from a checkout that includes PR #45. Stop and repair registry consistency on failure.
-- [ ] Locate the exact experiment ID and inspect its JSON, original outcome/score evidence, source SHA, cutoff, prior branch/PR and declared sample. Search the historical inventory **before** creating a new ID.
-- [ ] Classify the intended task: **inventory / infrastructure / deterministic correctness / retrospective diagnostic / prospective forecast evaluation / stateful TS policy evaluation**.
-- [ ] Check study prerequisites and whether any proposed new efficacy test has *genuinely untouched* outcomes. Previously seen GW8–10 and reconstructed/reused seasons are not independent confirmation.
-- [ ] Confirm exact scope, tests, compute budget, write locations and independent branch. Never mix model research with app-interface/C2 work.
+- [x] Read the [root entry point](../MASTER_PLAN.md), [programme plan](MASTER_PLAN.md), [methodology](METHODOLOGY.md), [data catalog](DATA_CATALOG.md), [decision log](DECISION_LOG.md) and [handoff](SESSION_HANDOFF.md).
+- [x] Check the *live* GitHub status of PRs **#41 (audit), #42 (follow-up), #45 (programme)**, and separate WIP **#43 (private capture)** / **#44 (app interface)**. **#45 is stacked on #42, which is stacked on #41** as of this document; never assume all have merged into main.
+- [x] Run `python research/tools/registry.py validate`, `status`, `next` from a checkout that includes PR #45. Stop and repair registry consistency on failure.
+- [x] Locate the exact experiment ID and inspect its JSON, original outcome/score evidence, source SHA, cutoff, prior branch/PR and declared sample. Search the historical inventory **before** creating a new ID.
+- [x] Classify the intended task: **inventory / infrastructure / deterministic correctness / retrospective diagnostic / prospective forecast evaluation / stateful TS policy evaluation**.
+- [x] Check study prerequisites and whether any proposed new efficacy test has *genuinely untouched* outcomes. Previously seen GW8–10 and reconstructed/reused seasons are not independent confirmation.
+- [x] Confirm exact scope, tests, compute budget, write locations and independent branch. Never mix model research with app-interface/C2 work.
 
 Commands to run, once the research branch is available:
 
@@ -42,21 +42,23 @@ python research/tools/registry.py next
 
 **Legend:** `[ ]` outstanding; `[x]` verified completed with source link; an experiment can be *ready* scientifically while its harness is not implemented.
 
-### Stage 0 — Historical reconciliation **FIRST NEXT WORK**
+### Stage 0 — Historical reconciliation **implemented; independent review pending**
 
-Existing programme registration: **25 entries** including legacy studies, not proof of full research coverage. Audit inventory references approximately **178 study directories / 2,471 files** and **236 test files**; these are not counts of independent experiments.
+Original programme registration: **25 unchanged entries**; Stage 0 appends **38 missing historical entries**, for **63 total**. This is coverage, not independent trial count. Audit inventory references approximately **178 study directories / 2,471 files** and **236 test files**; these are not counts of independent experiments.
 
 - [x] Scientific master plan, registry and programme architecture **authored** in PR #45 (11 registry tests reported passing; this is planning, not full model certification).
-- [ ] Reconcile *distinct* historical hypotheses against **all relevant prior PRs, branches, audit result directories, evidence inventory and tests**. Group copies/parameter variants without double counting.
-- [ ] For each substantive previous study record: original question; tested MM/PM/TS configuration; baseline; original vs reconstructed cutoff; train/dev/test periods; population; metric; numerical effect and uncertainty if available; whether outcomes were already seen; decision; original evidence path/SHA.
-- [ ] Produce a **deduplicated historical matrix**: accepted / rejected **in that exact configuration** / inconclusive / exploratory / untested / blocked.
-- [ ] Flag missing historical registrations and append new *evidence-linked* records when necessary. Do not change original decisions or count variants as independent holdouts.
-- [ ] Create a **gap/dependency matrix**: what can be measured now; what needs valid captures; what requires new GW; what cannot currently be identified.
-- [ ] Review and justify research priority across **TS search**, **prospective MM**, **PM data definitions**, **TS stateful policy**, model limits and external benchmark.
-- [ ] Update `research/SESSION_HANDOFF.md`, status and append-only event/decision history with the actual inventory outcome. Submit a **separate research PR**; do not begin new model tuning.
+- [x] Reconcile *distinct* historical hypotheses against **all relevant prior PRs, branches, audit result directories, evidence inventory and tests**. Group copies/parameter variants without double counting.
+- [x] For each substantive previous study record: original question; tested MM/PM/TS configuration; baseline; original vs reconstructed cutoff; train/dev/test periods; population; metric; numerical effect and uncertainty if available; whether outcomes were already seen; decision; original evidence path/SHA.
+- [x] Produce a **deduplicated historical matrix**: accepted / rejected **in that exact configuration** / inconclusive / exploratory / untested / blocked.
+- [x] Flag missing historical registrations and append new *evidence-linked* records when necessary. Do not change original decisions or count variants as independent holdouts.
+- [x] Create a **gap/dependency matrix**: what can be measured now; what needs valid captures; what requires new GW; what cannot currently be identified.
+- [x] Review and justify research priority across **TS search**, **prospective MM**, **PM data definitions**, **TS stateful policy**, model limits and external benchmark.
+- [x] Update `research/SESSION_HANDOFF.md`, status and append-only event/decision history with the actual inventory outcome. Submit a **separate research PR**; do not begin new model tuning.
 - [ ] Independent review confirms no high-impact prior test is incorrectly labelled a new discovery.
 
 **Stage-0 definition of done:** every proposed new model experiment can be matched to prior evidence, or explicitly marked genuinely novel, before execution.
+
+**Evidence:** [decision report](stage0/REPORT.md), [historical matrix](stage0/HISTORICAL_MATRIX.md), [184-directory matrix](stage0/directory-matrix.csv), [gap/novelty matrix](stage0/GAP_MATRIX.md), [verification](stage0/verification.json). All 2,471 original source hashes match; 236 test paths exist (model tests not rerun); 225 primary artifacts retained. No model/app/protected-trial changes. Deterministic self-checks do not satisfy independent scientific review.
 
 ### Stage 1 — TS v3 **search correctness** (registry: `EXP-TS-SEARCH-001`)
 
@@ -136,22 +138,24 @@ This table is **an index, not proof of exhaustive coverage**. Stage 0 must verif
 
 ## E. Exact end-of-session checklist
 
-- [ ] Run registry validation and relevant deterministic/regression tests; include actual commands, pass/fail counts and any unrun suites.
-- [ ] Save original scripts/code SHA, input hashes, forecast vintages, fixture rules, coverage and result file hashes.
-- [ ] Report effect size in natural units with valid uncertainty where inferential; report deterministic search witnesses without inappropriate p-values.
-- [ ] Record all attempted experiments (including failed, null and blocked); don't cherry-pick.
-- [ ] Append dated registry events and decision log; explicitly regenerate status and handoff. A GitHub checkbox is **not** the official experiment state.
-- [ ] Open a *single bounded* research PR with evidence, remaining blocker and next valid action.
-- [ ] Leave production models and C2 integration branches untouched.
+- [x] Run registry validation and relevant deterministic/regression tests; include actual commands, pass/fail counts and any unrun suites.
+- [x] Save original scripts/code SHA, input hashes, forecast vintages, fixture rules, coverage and result file hashes.
+- [x] Report effect size in natural units with valid uncertainty where inferential; report deterministic search witnesses without inappropriate p-values.
+- [x] Record all attempted experiments (including failed, null and blocked); don't cherry-pick.
+- [x] Append dated registry events and decision log; explicitly regenerate status and handoff. A GitHub checkbox is **not** the official experiment state.
+- [x] Open a *single bounded* research PR with evidence, remaining blocker and next valid action.
+- [x] Leave production models and C2 integration branches untouched.
 
 ## F. Ownership and handoff to C2
 
-**C1:** research inventory, statistical studies, reproducible MM/PM/TS evidence, controlled candidate recommendations.  
-**C2:** stable live app, canonical manager data, deploy, model adapters and PWA experience.  
+**C1:** research inventory, statistical studies, reproducible MM/PM/TS evidence, controlled candidate recommendations.
+**C2:** stable live app, canonical manager data, deploy, model adapters and PWA experience.
 **Boundary:** C1 may produce a validated candidate and a versioned contract, but **C2 alone integrates it via reviewed PR**. Neither C1 nor public GW reports can automatically promote a model.
 
 ### First prompt at next C1 availability
 
-> Open `research/C1_README.md`, `MASTER_PLAN.md`, `research/SESSION_HANDOFF.md`, verify current PR refs, run registry validation and **complete Stage 0 only**. Reconcile all prior research with the 25 existing registrations, append only genuinely missing distinct studies, build the evidence-backed no-duplicate matrix and updated ranked roadmap. Make no model, TS, UI or production changes. Deliver a reproducible PR and exact handoff to `EXP-TS-SEARCH-001` unless the audit reveals a blocking prerequisite.
+> Read the latest Stage-0 PR review and `research/stage0/REPORT.md`, `GAP_MATRIX.md`, `SESSION_HANDOFF.md`; verify registry/source receipts. Resolve independent novelty review before the next model experiment. Do not repeat the six old one-GW TS enumeration cases or the TSv4 MILP/enabler tests as new. The remaining `EXP-TS-SEARCH-001` gap is the unchanged current scorer in its registered finite domain; preserve all original bounds and register the harness before execution. A new session needs scope authorization for Stage 1; this Stage-0 session executed no model experiment.
 
 **Important:** This checklist reflects the 2026-11-22 programme state. When resuming, verify *current* source branches, test status and new original-vintage GW receipts before ticking any box.
+
+**Stage-0 delivery:** [PR #47](https://github.com/pdamkier-del/fpl-analytics-app/pull/47), stacked on PR #45. Independent scientific review remains the only unchecked Stage-0 review item; no Stage1–6 experiment started.

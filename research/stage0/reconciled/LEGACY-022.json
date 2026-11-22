@@ -1,0 +1,22 @@
+{
+  "id": "LEGACY-022",
+  "model": "MM",
+  "question": "FA/cup workload, match importance and club-specific effects",
+  "directories": [
+    "fa-match-importance-20261006-v1",
+    "mm-club-importance-20261016",
+    "mm-match-importance-20261016",
+    "mm-all-clubs-20261016",
+    "mm-probability-robustness-20261016"
+  ],
+  "classification": "exploratory",
+  "finding": "All-club/importance/robustness studies already exist; club slices are dependent subgroups, not independent replications.",
+  "validation": "Reused/reconstructed historical research; exact periods vary by arm in source facts. Historical publication proxies and inherited parameter-fit clocks are not certified.",
+  "baseline": "Original comparator in source protocol; not silently equated to current production",
+  "stage0_verification": "Original evidence identity and selected arithmetic only; full model/scientific replication not executed",
+  "detail_archive": "research/stage0/historical-matrix.json.gz",
+  "original_result_archive": "research/stage0/primary-evidence.json.gz",
+  "source_receipts": "research/stage0/source-receipts.json",
+  "independent_review": "pending",
+  "production_changed": false
+}

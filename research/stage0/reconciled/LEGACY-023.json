@@ -1,0 +1,18 @@
+{
+  "id": "LEGACY-023",
+  "model": "MM",
+  "question": "Survival duration, score-context hazards and additive error attribution",
+  "directories": [
+    "mm-research-20261014"
+  ],
+  "classification": "exploratory",
+  "finding": "Survival and score-context hazards already implemented. Survival reduces starter RMSE 14.7600→11.8991 / 14.6848→11.7979, but combined 2025 overall minute-MAE worsens by .3605 (fixture CI [.3056,.4144]); this is not a reason to optimize MAE blindly.",
+  "validation": "2024/25 GW11–21 development; GW22–38 plus 2025/26 GW6–38 reused",
+  "baseline": "Original locked MM and partition-only, logistic and duration arms",
+  "stage0_verification": "Original evidence identity and selected arithmetic only; full model/scientific replication not executed",
+  "detail_archive": "research/stage0/historical-matrix.json.gz",
+  "original_result_archive": "research/stage0/primary-evidence.json.gz",
+  "source_receipts": "research/stage0/source-receipts.json",
+  "independent_review": "pending",
+  "production_changed": false
+}

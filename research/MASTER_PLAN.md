@@ -69,3 +69,7 @@ Den eksisterende substitutionsundersøgelse fortsætter sideløbende med uændre
 - [REPRODUCIBILITY.md](REPRODUCIBILITY.md), [SESSION_HANDOFF.md](SESSION_HANDOFF.md): kommandoer, gates og præcis fortsættelse.
 
 **Aktuel opgave er afsluttet, når denne plan/registry-PR kan læses og valideres af en ny session. Hele dashboardet og de fremtidige model-/pipelineændringer er ikke en del af denne release.**
+
+## Dateret fase-0-tilføjelse — 22. november 2026
+
+Den historiske afstemning er implementeret på separat forskningsbranch; uafhængigt fagligt PR-review afventer. De oprindelige25registreringer er uændrede;38manglende historiske undersøgelser er tilføjet. [Fase0-rapporten](stage0/REPORT.md) og [gap-/nyhedsmatricen](stage0/GAP_MATRIX.md) erstatter ikke de oprindelige protokoller.184resultatmapper er dækket i54grupper; antallene er ikke uafhængige forsøg. Næste TS-reference skal udfylde det resterende hul efter de allerede udførte seks one-GW-cases og den eksisterende joint/MILP-planlægger. Ingen optimering eller appændring er udført i fase0.

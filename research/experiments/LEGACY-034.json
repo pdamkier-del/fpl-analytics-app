@@ -1,0 +1,66 @@
+{
+  "id": "LEGACY-034",
+  "protocol_version": 1,
+  "registered_on": "2026-11-22",
+  "kind": "legacy",
+  "question": "Mean-preserving B chain and joint-role candidate",
+  "statistical_hypothesis": "Retrospective import of an existing study; preserves its original tested configuration and decision. No new efficacy hypothesis or promotion.",
+  "initial_status": "completed",
+  "priority": 934,
+  "primary_metric": "Original arm-specific metrics in linked matrix/evidence, not pooled across targets",
+  "secondary_metrics": [
+    "Original proper scores where present",
+    "calibration",
+    "coverage",
+    "compute and provenance"
+  ],
+  "baseline": "Original comparator in source protocol; not silently equated to current production",
+  "candidate_modification": "Original historical modification/diagnostic only; none executed or enabled by Stage0",
+  "train_development_test": {
+    "validation_class": "Reused/reconstructed historical research; exact periods vary by arm in source facts. Historical publication proxies and inherited parameter-fit clocks are not certified.",
+    "outcomes_already_seen": true,
+    "original_design": "See source-specific arm facts in historical-matrix.json.gz; absent fields NOT_AVAILABLE"
+  },
+  "data_sources_and_cutoffs": [
+    {
+      "source": "research/stage0/historical-matrix.json.gz",
+      "cutoff_quality": "Reused/reconstructed historical research; exact periods vary by arm in source facts. Historical publication proxies and inherited parameter-fit clocks are not certified."
+    }
+  ],
+  "sample_size": {
+    "status": "original_source_specific",
+    "reference": "See original rows/fixtures/cohorts in matrix; correlated and reused rows/arms are not independent samples"
+  },
+  "power": {
+    "status": "not_estimated",
+    "reason": "Historical import; retain original intervals where available, do not invent prospective power"
+  },
+  "dependencies": [],
+  "reproduction_command": "python research/stage0/code/verify_sources.py",
+  "reproduction_command_scope": "Verify source bytes, provenance and selected archived arithmetic only; not a new model test",
+  "full_experiment_command": null,
+  "execution_ready": false,
+  "acceptance_criteria": [
+    "No new acceptance decision; retain original source decisions in exact tested configurations",
+    "Future efficacy requires a separately registered untouched comparison",
+    "No production or app changes"
+  ],
+  "result_links": [
+    "research/stage0/reconciled/LEGACY-034.json",
+    "research/stage0/historical-matrix.json.gz",
+    "research/stage0/primary-evidence.json.gz",
+    "research/stage0/source-receipts.json"
+  ],
+  "final_decision": "Mean-preserving bridge and role-recovery experiments already compare MM→PM; 501 fixtures reused. News/source repair is not a new efficacy holdout.",
+  "next_action": "Read the original evidence and overlap matrix before any genuinely new study; independent reconciliation review pending",
+  "historical_classification": "exploratory",
+  "original_study_directories": [
+    "unified-b-chain-20261021",
+    "unified-b-chain-20261022",
+    "joint-role-candidate-20261022",
+    "role-importance-wiring-20261022",
+    "b-role-history-release-20261023",
+    "full-chain-review-20261022"
+  ],
+  "claim_scope": "completed means the existing record has been reconciled, not that every planned old run finished or that efficacy was independently validated; see original classification and evidence gaps"
+}

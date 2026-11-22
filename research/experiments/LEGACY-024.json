@@ -1,0 +1,62 @@
+{
+  "id": "LEGACY-024",
+  "protocol_version": 1,
+  "registered_on": "2026-11-22",
+  "kind": "legacy",
+  "question": "Individual calibration and role/duration/return factorial ablations",
+  "statistical_hypothesis": "Retrospective import of an existing study; preserves its original tested configuration and decision. No new efficacy hypothesis or promotion.",
+  "initial_status": "completed",
+  "priority": 924,
+  "primary_metric": "Original arm-specific metrics in linked matrix/evidence, not pooled across targets",
+  "secondary_metrics": [
+    "Original proper scores where present",
+    "calibration",
+    "coverage",
+    "compute and provenance"
+  ],
+  "baseline": "Original/best reference + A/B/C/D and combinations",
+  "candidate_modification": "Original historical modification/diagnostic only; none executed or enabled by Stage0",
+  "train_development_test": {
+    "validation_class": "2024/25 GW14–21 reused development; GW22–38 + 2025/26 GW6–38 reused",
+    "outcomes_already_seen": true,
+    "original_design": "See source-specific arm facts in historical-matrix.json.gz; absent fields NOT_AVAILABLE"
+  },
+  "data_sources_and_cutoffs": [
+    {
+      "source": "research/stage0/historical-matrix.json.gz",
+      "cutoff_quality": "2024/25 GW14–21 reused development; GW22–38 + 2025/26 GW6–38 reused"
+    }
+  ],
+  "sample_size": {
+    "status": "original_source_specific",
+    "reference": "See original rows/fixtures/cohorts in matrix; correlated and reused rows/arms are not independent samples"
+  },
+  "power": {
+    "status": "not_estimated",
+    "reason": "Historical import; retain original intervals where available, do not invent prospective power"
+  },
+  "dependencies": [],
+  "reproduction_command": "python research/stage0/code/verify_sources.py",
+  "reproduction_command_scope": "Verify source bytes, provenance and selected archived arithmetic only; not a new model test",
+  "full_experiment_command": null,
+  "execution_ready": false,
+  "acceptance_criteria": [
+    "No new acceptance decision; retain original source decisions in exact tested configurations",
+    "Future efficacy requires a separately registered untouched comparison",
+    "No production or app changes"
+  ],
+  "result_links": [
+    "research/stage0/reconciled/LEGACY-024.json",
+    "research/stage0/historical-matrix.json.gz",
+    "research/stage0/primary-evidence.json.gz",
+    "research/stage0/source-receipts.json"
+  ],
+  "final_decision": "11 arms / 39,264 matched rows / 40 club-seasons. B MAE 10.5213916382→10.4083581000; paired fixture CI [-.1483446264,-.0745342353]. 31/40 club-seasons improve; B is research selection, not independent certification.",
+  "next_action": "Read the original evidence and overlap matrix before any genuinely new study; independent reconciliation review pending",
+  "historical_classification": "exploratory",
+  "original_study_directories": [
+    "individual-mm-20261015",
+    "individual-mm-refinement-20261016"
+  ],
+  "claim_scope": "completed means the existing record has been reconciled, not that every planned old run finished or that efficacy was independently validated; see original classification and evidence gaps"
+}

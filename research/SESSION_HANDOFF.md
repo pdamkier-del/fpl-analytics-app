@@ -1,3 +1,40 @@
+# Current C1 handoff — Stage 0, 22 November 2026
+
+**Separate research PR:** [#47](https://github.com/pdamkier-del/fpl-analytics-app/pull/47), based on PR #45. No merge/deploy.
+
+**Scope delivered:** historical reconciliation only; no model optimization, simulation, TS search, app edit or deployment. Original 25 protocols and original event prefix unchanged;38missing historical records appended (63 total). Stage0 independent scientific review remains pending; do not tick it merely because tests pass.
+
+1. Read `C1_README.md`, `stage0/REPORT.md`, `stage0/HISTORICAL_MATRIX.md`, `stage0/GAP_MATRIX.md` and the separate Stage0 PR review.
+2. Run `python research/tools/registry.py validate`, `status`, `next`, `python research/stage0/code/verify_sources.py` and the research tests. For full provenance, follow the `--source-git` commands in the report.
+3. Check live PR metadata. On22 Nov: #41/#42/#45 open and stacked; #43 and #44 open draft. None is assumed merged. This branch is based on #45 at`329f67bcb691390ab744aa5249a012e6ab4f8da3` and changes only `research/`.
+4. Review novelty and evidence gaps first.184 result directories map to 54 coverage families, not54independent experiments. All 2,471 old hashes match;236 test-source paths exist;225 primary artifacts and 21 selected source copies retained. No full model suite or scientific rerun occurred.
+
+## Next valid recommendation after review
+
+Keep `EXP-TS-SEARCH-001` unchanged, but inspect LEGACY-040/044/045 before implementing it. Existing `precision_audit/decisions.py` enumerates all ≤2-transfer squads in six one-GW historical cases, with heuristic nominations per squad (buffer1.5), and separately exact nominations for the unchanged squad. Existing TSv4 MILP tests cover FT saving and negative-leg budget enablers; its one-GW smoke is not a full current shared-PM oracle.
+
+The residual task is independent exact comparison under the frozen current scorer/config and registered domain, including the six-GW utility and joint transfer/nomination boundary.30 deterministic +12 restricted-DNP cases, pool≤17, ≤2 transfers, ≤8scenarios, initial120 seconds remain the original bounds. Register the actual immutable harness/command before running. Do not run or optimize it in a continuation that only authorizes reconciliation. If independent review finds no residual novelty or feasible harness within bounds, record blocked/overlap and choose PM definitions; do not change the protocol silently.
+
+## Preserve these observations
+
+- New records`LEGACY-016`–`053` import old findings; their completed registry state means reconciled historical record, not independent efficacy or that all queued runs completed. Classifications in the evidence distinguish rejected exact configurations, reused/exploratory, inconclusive and blocked work.
+- PR 29 already has M/S/G oracles and MC-stability work. PR 30 return/P90 full analytic completion is not established by the committed four-fixture controls/PR prose. PR 31's accepted assist gate uses reused periods; no independent gain or production activation is inferred.
+- PR 32 already contains 341 fixture CS/save/DC/BPS diagnostics,849DC boundary checks and 341actual-BPS tie checks; keeper-stint reserve repair is opt-in only. Reuse its definitions before EXP-PM-DEFS-001; no new global CS/BPS calibration is justified.
+- Team-xG branch`17cab2b4` and Actions run41481313449 exist. Artifact13160057601 digest is retained, but artifact/log body download failed Forbidden. Numerical findings remain unverified, mutable source input not pinned; do not rerun under the guise of verification or say dynamics were never tried.
+- Fresh read-only substitution ledger observation22 Nov still shows21 Nov update, GW 11pending,0completeGW/0 matches. Original 8newGW/80 matches still missing from counted evaluation; old 20 do not count. Candidate/model/kernel/protocol/workflows remain untouched. No capture/scoring action was triggered.
+- Private manager-specific branch/payloads excluded. No inference that the repository has never had private studies. No private data to Git/Pages/CI. Public source references and aggregate model-constructed TS historical cases only.
+- C2 owns private-capture/integration work. Known bench-label gate in draft PR 43 and unverified durable private storage are not resolved here; PR 44 must be reviewed for overlap. No C2 branch edited.
+
+## End of next session
+
+Keep original protocols/results and initial decisions; append evidence/state/implementation events with actual checksums. The new `evidence_reconciled` event preserves state and implementation and verifies local immutable evidence. Update status and handoff explicitly. Independent scientific review is external PR review, not a self-check. No automatic promotion.
+
+---
+
+# Historical handoff from PR45 base — retained for chronology
+
+The following was the earlier handoff before the Stage0 reconciliation above; its incomplete research coverage is superseded by the dated evidence above, not silently erased.
+
 # Exact handoff for the next Codex session
 
 ## Start

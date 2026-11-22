@@ -1,0 +1,1 @@
+Adds opt-in canonical minute input adapter, regression tests and ownership/migration documentation. No frozen MM/PM/TS math or production callers changed. Tests have been authored but not yet executed in this session. Requires parity and CI validation before merging. Distinct control/v4 scenarios deliberately fail closed.

@@ -1,0 +1,784 @@
+[
+  {
+    "id": "LEGACY-001",
+    "model": "MM",
+    "question": "Locked MM checkpoint and its rejected refinements",
+    "directories": [
+      "mm-final-20261006-v1",
+      "mm-final-ablation-20261006-v1",
+      "mm-uncertain-starters-20261006-v1",
+      "mm-uncertain-starters-final-20261006-v1",
+      "mm-unified-official-roles-20261006-v1"
+    ],
+    "classification": "accepted",
+    "finding": "Accepted checkpoint designation only; refined uncertain-starter/role rebuilding arms not promoted.",
+    "validation": "2025/26 GW16–21 development; GW22–38 reused",
+    "baseline": "Frozen v4 / MM final, arm-specific"
+  },
+  {
+    "id": "LEGACY-002",
+    "model": "PM",
+    "question": "Integrated vFinal component package",
+    "directories": [
+      "vfinal-integrated-20261005-v1"
+    ],
+    "classification": "exploratory",
+    "finding": "RMSE 1.8494 → 1.8462 on same 144 fixtures; no independent promotion claim.",
+    "validation": "2025/26 GW22–38; 144 reused fixtures",
+    "baseline": "current_v4_event_bps"
+  },
+  {
+    "id": "LEGACY-003",
+    "model": "PM",
+    "question": "Hierarchical scorer and assist shares",
+    "directories": [
+      "hierarchical-goal-assist-allocation-20261005-v1",
+      "role-performance-goal-assist-20261005-v1"
+    ],
+    "classification": "rejected",
+    "finding": "Nonbonus RMSE worsens in evaluated hierarchical allocation; reject this configuration only.",
+    "validation": "GW16–21 leave-one-GW-out selection; GW22–38 reused",
+    "baseline": "Existing role + individual history attack shares"
+  },
+  {
+    "id": "LEGACY-004",
+    "model": "PM",
+    "question": "Individual attack budgets, blended and calibrated variants",
+    "directories": [
+      "attack-budget-ablation-20261031",
+      "attack-budget-calibrated-20261031"
+    ],
+    "classification": "rejected",
+    "finding": "Higher-xP subgroup benefit does not overcome aggregate RMSE deterioration; calibrated follow-up is a related variant, not independent confirmation.",
+    "validation": "341 fixtures / 27,092 player-fixture rows per arm across two reused seasons",
+    "baseline": "Current NP scorer allocation, team goal means and assist budget"
+  },
+  {
+    "id": "LEGACY-005",
+    "model": "PM",
+    "question": "Keeper shot-quality and save-efficiency recency",
+    "directories": [
+      "gk-shot-quality-efficiency-20261005-v1"
+    ],
+    "classification": "exploratory",
+    "finding": "Tiny keeper RMSE 1.9207 → 1.9174; no production proof.",
+    "validation": "GW6–15 train; GW16–21 selection; GW22–38 reused",
+    "baseline": "Frozen keeper save mean"
+  },
+  {
+    "id": "LEGACY-006",
+    "model": "MM",
+    "question": "Europe role-switch residual",
+    "directories": [
+      "europe-rotation-20261022"
+    ],
+    "classification": "rejected",
+    "finding": "Target subgroup worsens in 2024/25 (91 rows); 2025/26 target only 11 rows; do not reject all workload features.",
+    "validation": "2024/25 GW14–21 prequential selection; two reused evaluation seasons",
+    "baseline": "PR9 B with mean-preserving PM"
+  },
+  {
+    "id": "LEGACY-007",
+    "model": "MM",
+    "question": "Role, availability and injury/news ablations",
+    "directories": [
+      "role-injury-mm-20261016"
+    ],
+    "classification": "exploratory",
+    "finding": "News caps require coherent XI reprojection; observed-availability oracle is not deployable.",
+    "validation": "Reused/reconstructed historical research; exact periods vary by arm in source facts. Historical publication proxies and inherited parameter-fit clocks are not certified.",
+    "baseline": "Original comparator in source protocol; not silently equated to current production"
+  },
+  {
+    "id": "LEGACY-008",
+    "model": "TS",
+    "question": "Proxy strategy, horizon, weight and hit-buffer grids",
+    "directories": [
+      "transfer-strategy-v3-replay-20261005-v2",
+      "transfer-strategy-v2-grid-20261005-v1",
+      "transfer-grid-9replays-20261005-v1",
+      "horizon-policy-comparison-20261005-v1",
+      "ts-v3-weight-buffer-grid-20261005-v1",
+      "three-gw-weight-fit-20261005-v1"
+    ],
+    "classification": "exploratory",
+    "finding": "TSv3 proxy 1,992 vs v2 2,137; no-transfer 1,425. 36/36 weight/buffer cases reported completed; selected on GW1–21 then reused GW22–38. Different provider/config from active TS.",
+    "validation": "Recovered Phase5Q strategy proxy; chips OFF; outcomes already inspected",
+    "baseline": "Source-specific v2, v3 and keep-squad comparators"
+  },
+  {
+    "id": "LEGACY-009",
+    "model": "MM/PM/TS",
+    "question": "Full-chain audit and legacy rolling replay coverage",
+    "directories": [
+      "full-model-audit-20261012",
+      "legacy-season-technical-replay-v1",
+      "season-replay-coverage-v1",
+      "legacy-rolling-recovery-v1"
+    ],
+    "classification": "exploratory",
+    "finding": "2,125-point reproduction; 33/183 required origin-target pairs. Incomplete horizons cannot certify six-GW/chips.",
+    "validation": "Reused/reconstructed historical research; exact periods vary by arm in source facts. Historical publication proxies and inherited parameter-fit clocks are not certified.",
+    "baseline": "Original comparator in source protocol; not silently equated to current production"
+  },
+  {
+    "id": "LEGACY-010",
+    "model": "MM/PM",
+    "question": "Current-season B reconstructed replay",
+    "directories": [
+      "current-season-b-backtest-20261027"
+    ],
+    "classification": "exploratory",
+    "finding": "GW6–8 inputs reconstructed after outcomes; later-selected model policy; not prospective.",
+    "validation": "Reused/reconstructed historical research; exact periods vary by arm in source facts. Historical publication proxies and inherited parameter-fit clocks are not certified.",
+    "baseline": "Original comparator in source protocol; not silently equated to current production"
+  },
+  {
+    "id": "EXP-MM-SUB-20261108",
+    "model": "MM",
+    "question": "Protected prospective joint-substitution trial",
+    "directories": [
+      "joint-substitution-research-20261108"
+    ],
+    "classification": "blocked",
+    "finding": "Existing protocol unchanged: 8 new GW / 80 matches; old 20 matches excluded. 22-Nov read-only ledger still 0/0, GW11 pending.",
+    "validation": "Original registered prospective population/cutoffs only; never replaced by new 12-GW rule",
+    "baseline": "Original frozen substitution comparator"
+  },
+  {
+    "id": "LEGACY-016",
+    "model": "MM",
+    "question": "Role foundation and initial workload models",
+    "directories": [
+      "reproducible-role-v1",
+      "squad-minutes-v1",
+      "minutes-decomposition-v1",
+      "direct-minutes-v4-diagnostic-v1",
+      "workload-v1",
+      "workload-minutes-v1",
+      "workload-quality-v2",
+      "workload-quality-minutes-v2",
+      "workload-quality-v3",
+      "workload-quality-minutes-v3",
+      "workload-recovered-v4",
+      "workload-recovered-minutes-v4",
+      "minutes-composition-audit"
+    ],
+    "classification": "exploratory",
+    "finding": "Initial v4 role/workload selection and quality/recovered-source iterations already exist; sum-to-11 marginal constraint is not sampled-XI legality.",
+    "validation": "GW6–15 train; GW16–21 development; GW22–38 reused; cutoff +3h proxy where specified",
+    "baseline": "Original comparator in source protocol; not silently equated to current production"
+  },
+  {
+    "id": "LEGACY-017",
+    "model": "MM",
+    "question": "Direct role-competition residual v4rc",
+    "directories": [
+      "v4rc-20261005-v1"
+    ],
+    "classification": "rejected",
+    "finding": "Development selection retains v4; no evidence to repackage role-competition regression as new.",
+    "validation": "GW6–15 train, GW16–21 select, GW22–38 reused",
+    "baseline": "Original comparator in source protocol; not silently equated to current production"
+  },
+  {
+    "id": "LEGACY-018",
+    "model": "MM",
+    "question": "Three-state starter/sub/zero classifier",
+    "directories": [
+      "v4-three-state-20261005-v1"
+    ],
+    "classification": "rejected",
+    "finding": "Development rule selected v4 rather than three-state replacement; conditional durations unchanged.",
+    "validation": "GW6–15 train, GW16–21 select, GW22–38 reused",
+    "baseline": "Original comparator in source protocol; not silently equated to current production"
+  },
+  {
+    "id": "LEGACY-019",
+    "model": "MM",
+    "question": "Conditional bench-appearance sequence model",
+    "directories": [
+      "v4-three-state-sequence-20261005-v1"
+    ],
+    "classification": "exploratory",
+    "finding": "Binary-sequence C=4, alpha=.75 chosen in reused development; start p unchanged. This is an existing mechanism, not a fresh ablation.",
+    "validation": "GW6–15 train, GW16–21 select, GW22–38 reused",
+    "baseline": "Original comparator in source protocol; not silently equated to current production"
+  },
+  {
+    "id": "LEGACY-020",
+    "model": "MM",
+    "question": "Conditional duration and combined sequence/performance candidate",
+    "directories": [
+      "v4-three-state-duration-20261005-v1",
+      "v4-combined-minutes-20261005-v1"
+    ],
+    "classification": "exploratory",
+    "finding": "Sequence cameo duration and joint package tested; sequential tuning and reused test prevent independent gain claim.",
+    "validation": "Reused/reconstructed historical research; exact periods vary by arm in source facts. Historical publication proxies and inherited parameter-fit clocks are not certified.",
+    "baseline": "Original comparator in source protocol; not silently equated to current production"
+  },
+  {
+    "id": "LEGACY-021",
+    "model": "MM",
+    "question": "Last-performance residual and external player-rating XI research",
+    "directories": [
+      "v4-performance-rating-20261005-v1",
+      "mm-v2-xi-rating-20261006-v1",
+      "mm-v2-xi-rating-with-external-ratings-20261006-v1",
+      "mm-v2-relative-rating-competition-20261006-v1",
+      "mm-relative-rating-player-impact-20261006-v1"
+    ],
+    "classification": "exploratory",
+    "finding": "Last-performance proxy tested; external-rating candidates rejected by development loss. 1,262 unresolved provider rows in external-rating study; feature family not novel.",
+    "validation": "Reused/reconstructed historical research; exact periods vary by arm in source facts. Historical publication proxies and inherited parameter-fit clocks are not certified.",
+    "baseline": "Original comparator in source protocol; not silently equated to current production"
+  },
+  {
+    "id": "LEGACY-022",
+    "model": "MM",
+    "question": "FA/cup workload, match importance and club-specific effects",
+    "directories": [
+      "fa-match-importance-20261006-v1",
+      "mm-club-importance-20261016",
+      "mm-match-importance-20261016",
+      "mm-all-clubs-20261016",
+      "mm-probability-robustness-20261016"
+    ],
+    "classification": "exploratory",
+    "finding": "All-club/importance/robustness studies already exist; club slices are dependent subgroups, not independent replications.",
+    "validation": "Reused/reconstructed historical research; exact periods vary by arm in source facts. Historical publication proxies and inherited parameter-fit clocks are not certified.",
+    "baseline": "Original comparator in source protocol; not silently equated to current production"
+  },
+  {
+    "id": "LEGACY-023",
+    "model": "MM",
+    "question": "Survival duration, score-context hazards and additive error attribution",
+    "directories": [
+      "mm-research-20261014"
+    ],
+    "classification": "exploratory",
+    "finding": "Survival and score-context hazards already implemented. Survival reduces starter RMSE 14.7600→11.8991 / 14.6848→11.7979, but combined 2025 overall minute-MAE worsens by .3605 (fixture CI [.3056,.4144]); this is not a reason to optimize MAE blindly.",
+    "validation": "2024/25 GW11–21 development; GW22–38 plus 2025/26 GW6–38 reused",
+    "baseline": "Original locked MM and partition-only, logistic and duration arms"
+  },
+  {
+    "id": "LEGACY-024",
+    "model": "MM",
+    "question": "Individual calibration and role/duration/return factorial ablations",
+    "directories": [
+      "individual-mm-20261015",
+      "individual-mm-refinement-20261016"
+    ],
+    "classification": "exploratory",
+    "finding": "11 arms / 39,264 matched rows / 40 club-seasons. B MAE 10.5213916382→10.4083581000; paired fixture CI [-.1483446264,-.0745342353]. 31/40 club-seasons improve; B is research selection, not independent certification.",
+    "validation": "2024/25 GW14–21 reused development; GW22–38 + 2025/26 GW6–38 reused",
+    "baseline": "Original/best reference + A/B/C/D and combinations"
+  },
+  {
+    "id": "LEGACY-025",
+    "model": "MM",
+    "question": "Role-conditioned catastrophic errors and XI formation diagnostics",
+    "directories": [
+      "mm-error-xi-audit-20261016",
+      "mm-gw-player-error-audit-20261006-v1",
+      "mm-formation-role-error-audit-20261006-v1",
+      "mm-role-player-audit-20261006-v1",
+      "mm-formation-replay-20261017",
+      "mm-role-uncertainty-20261017"
+    ],
+    "classification": "exploratory",
+    "finding": "Rotation-error, formation and role-uncertainty atlases already exist. Fixed role nudges are heuristics, not fitted independent gains.",
+    "validation": "Reused/reconstructed historical research; exact periods vary by arm in source facts. Historical publication proxies and inherited parameter-fit clocks are not certified.",
+    "baseline": "Original comparator in source protocol; not silently equated to current production"
+  },
+  {
+    "id": "LEGACY-026",
+    "model": "MM",
+    "question": "Role-conditioned predictive minute distributions",
+    "directories": [
+      "mm-predictive-distribution-20261017"
+    ],
+    "classification": "exploratory",
+    "finding": "39,264 rows; selected starter/cameo sigma 30 for every role. Candidate shape only; original B p/q/s/c preserved.",
+    "validation": "2024/25 GW14–21 training; two reused research seasons",
+    "baseline": "Original analytic B component means"
+  },
+  {
+    "id": "LEGACY-027",
+    "model": "MM/PM",
+    "question": "MM B to legal XI and locked PM bridge integration",
+    "directories": [
+      "mm-integration-preview-20261017",
+      "mm-final-integration-gate-20261017",
+      "mm-locked-chain-20261017",
+      "current-mm-live-comparison-20261017"
+    ],
+    "classification": "blocked",
+    "finding": "PR14–18 validate integration contracts but document minute-sampler coherence blocker. Preview flags must not be promoted into certified live evidence.",
+    "validation": "Reused/reconstructed historical research; exact periods vary by arm in source facts. Historical publication proxies and inherited parameter-fit clocks are not certified.",
+    "baseline": "Original comparator in source protocol; not silently equated to current production"
+  },
+  {
+    "id": "LEGACY-028",
+    "model": "PM",
+    "question": "Partially pooled individual attack, dynamic team gate and defensive propensity",
+    "directories": [
+      "pm-research-20261015",
+      "player-pm-v2-20261015",
+      "dynamic-pm-v2-20261015"
+    ],
+    "classification": "exploratory",
+    "finding": "Player PM v2, dynamic gating and individual DC vs opponent opportunity tests predate current programme. Partial pooling / dynamic models are not new hypotheses.",
+    "validation": "2024 GW6–13 warm prefix, GW14–21 dynamic gate development; reused later seasons; arm-specific periods in evidence",
+    "baseline": "Locked independent PM / fixed hierarchy365days strength5"
+  },
+  {
+    "id": "LEGACY-029",
+    "model": "PM",
+    "question": "Shot-level finishing, difficulty and general conversion experiments",
+    "directories": [
+      "shot-finishing-20261020",
+      "shot-difficulty-20261020",
+      "general-conversion-20261020",
+      "finishing-receivers-20261020"
+    ],
+    "classification": "exploratory",
+    "finding": "General conversion: 501 fixtures, four arms, 801,600 draws reported. Individual-only 2024 xP-MAE delta about -.000464, interval [-.001068,.000127], spans zero. No automatic gain from more elaborate finishing.",
+    "validation": "Reused/reconstructed historical research; exact periods vary by arm in source facts. Historical publication proxies and inherited parameter-fit clocks are not certified.",
+    "baseline": "Original comparator in source protocol; not silently equated to current production"
+  },
+  {
+    "id": "LEGACY-030",
+    "model": "PM",
+    "question": "Role/event priors, soft-role attack and defensive contribution",
+    "directories": [
+      "role-event-priors-20261005-v1",
+      "role-event-confirmation-20261005-v1",
+      "role-event-component-summary-20261005-v1",
+      "soft-role-performance-allocation-20261005-v1",
+      "soft-role-defcon-20261005-v1",
+      "defcon-threshold-finalist-20261005-v1"
+    ],
+    "classification": "exploratory",
+    "finding": "Soft-role allocation, event priors and global/position Platt DC calibration already tested. Global DC finalist selected in GW16–21, not new 2026/27 efficacy.",
+    "validation": "Reused/reconstructed historical research; exact periods vary by arm in source facts. Historical publication proxies and inherited parameter-fit clocks are not certified.",
+    "baseline": "Original comparator in source protocol; not silently equated to current production"
+  },
+  {
+    "id": "LEGACY-031",
+    "model": "PM",
+    "question": "Background BPS mean and variance calibration",
+    "directories": [
+      "bps-background-20251005-v1",
+      "bps-variance-calibration-20261005-v1"
+    ],
+    "classification": "exploratory",
+    "finding": "Role + recent action BPS mean and frozen-mean variance research already exists. Unavailable Opta terms remain residual; one global spread increase is not justified.",
+    "validation": "GW16–21 development/variance Gaussian NLL; GW22–38 reused",
+    "baseline": "Event-only / frozen previous BPS selected mean"
+  },
+  {
+    "id": "LEGACY-032",
+    "model": "PM",
+    "question": "Keeper dynamic SOT and save-bucket calibration",
+    "directories": [
+      "gk-dynamic-sot-form-20261005-v1",
+      "gk-save-bucket-calibration-20261005-v1"
+    ],
+    "classification": "exploratory",
+    "finding": "Fast/slow SOT residual and save-bucket tilts are existing tests. Dynamic SOT candidate rejected in original checkpoint; bucket selection uses already-reused GW22–27.",
+    "validation": "SOT GW6–15 train/GW16–21 select; bucket GW22–27 LOOGW, GW28–38 diagnostic",
+    "baseline": "Frozen SOT arithmetic and Poisson keeper save law"
+  },
+  {
+    "id": "LEGACY-033",
+    "model": "MM/PM",
+    "question": "Shared penalties, neutral nonpenalty head and source boundary",
+    "directories": [
+      "shared-penalty-model-20261005-v1",
+      "shared-penalty-joint-20261005-v1",
+      "penalty-audit-20261023",
+      "penalty-conditional-only-20261023",
+      "penalty-current-conditional-20261023",
+      "penalty-neutral-candidate-20261023",
+      "penalty-neutral-combined-20261023",
+      "penalty-neutral-sources-20261023",
+      "nonpenalty-goal-head-20261023",
+      "separated-goal-head-validation-20261023",
+      "separated-goal-head-v2-validation-20261023",
+      "current-separated-goal-head-20261023",
+      "current-separated-goal-head-v2-20261023",
+      "nonpenalty-release-20261023",
+      "lefee-penalty-allocation-20261023"
+    ],
+    "classification": "exploratory",
+    "finding": "First and refit-v2 penalty/NP gates differ; preserve original rejected/superseding research decisions per arm. Approved research wrapper is not proof of production deployment or independent gain.",
+    "validation": "Reused/reconstructed historical research; exact periods vary by arm in source facts. Historical publication proxies and inherited parameter-fit clocks are not certified.",
+    "baseline": "Original comparator in source protocol; not silently equated to current production"
+  },
+  {
+    "id": "LEGACY-034",
+    "model": "MM/PM",
+    "question": "Mean-preserving B chain and joint-role candidate",
+    "directories": [
+      "unified-b-chain-20261021",
+      "unified-b-chain-20261022",
+      "joint-role-candidate-20261022",
+      "role-importance-wiring-20261022",
+      "b-role-history-release-20261023",
+      "full-chain-review-20261022"
+    ],
+    "classification": "exploratory",
+    "finding": "Mean-preserving bridge and role-recovery experiments already compare MM→PM; 501 fixtures reused. News/source repair is not a new efficacy holdout.",
+    "validation": "Reused/reconstructed historical research; exact periods vary by arm in source facts. Historical publication proxies and inherited parameter-fit clocks are not certified.",
+    "baseline": "Original comparator in source protocol; not silently equated to current production"
+  },
+  {
+    "id": "LEGACY-035",
+    "model": "MM/PM",
+    "question": "Physical minute timeline and joint appearances",
+    "directories": [
+      "physical-timeline-20261024",
+      "joint-appearances-20261025",
+      "normal-match-correctness-20261025"
+    ],
+    "classification": "exploratory",
+    "finding": "Physical 900+90 budget and joint appearance/goal-event correctness work predates protected substitutions candidate. Keep analytic constraints distinct from forecast validation.",
+    "validation": "Reused/reconstructed historical research; exact periods vary by arm in source facts. Historical publication proxies and inherited parameter-fit clocks are not certified.",
+    "baseline": "Original comparator in source protocol; not silently equated to current production"
+  },
+  {
+    "id": "LEGACY-036",
+    "model": "MM",
+    "question": "All-competition physical workload and role transitions",
+    "directories": [
+      "competition-context-20261025",
+      "role-transitions-20261025"
+    ],
+    "classification": "exploratory",
+    "finding": "Strict missingness vs lower-bound workload variants already measured. Minute-MAE deltas -.04919/-.00618; start Brier -.0000268/+.0000684, mixed and source coverage incomplete.",
+    "validation": "Reused/reconstructed historical research; exact periods vary by arm in source facts. Historical publication proxies and inherited parameter-fit clocks are not certified.",
+    "baseline": "Original comparator in source protocol; not silently equated to current production"
+  },
+  {
+    "id": "LEGACY-037",
+    "model": "MM/PM",
+    "question": "All-player source, moment and point-accounting audits",
+    "directories": [
+      "all-player-chain-audit-20261024",
+      "player-points-path-20261025",
+      "point-accounting-cleanup-20261025",
+      "single-pass-pm-20261025",
+      "code-wiring-audit-20261031",
+      "fixture-input-contract-20261025",
+      "integrated-repair-20261031"
+    ],
+    "classification": "exploratory",
+    "finding": "Moment/point contracts and source wiring are not individual calibration certification; reference/current 668 players / 4,008 six-GW rows. Original certification flags remain false.",
+    "validation": "Reused/reconstructed historical research; exact periods vary by arm in source facts. Historical publication proxies and inherited parameter-fit clocks are not certified.",
+    "baseline": "Original comparator in source protocol; not silently equated to current production"
+  },
+  {
+    "id": "LEGACY-038",
+    "model": "PM",
+    "question": "Observed component-label availability audit",
+    "directories": [
+      "cherki-pm-diagnostic-20261022"
+    ],
+    "classification": "exploratory",
+    "finding": "PR20 insists on independent component labels and NOT_AVAILABLE rather than zero; player case is explanatory, not new population efficacy.",
+    "validation": "Reused/reconstructed historical research; exact periods vary by arm in source facts. Historical publication proxies and inherited parameter-fit clocks are not certified.",
+    "baseline": "Original comparator in source protocol; not silently equated to current production"
+  },
+  {
+    "id": "LEGACY-039",
+    "model": "MM/PM",
+    "question": "Keeper role change, sole-available keeper and Normal clipping",
+    "directories": [],
+    "classification": "exploratory",
+    "finding": "PR21–22 already diagnose role change and ~86 expected PM minutes from Normal clipping at 90. Sole available keeper is not guaranteed 90.",
+    "validation": "Reused/reconstructed historical research; exact periods vary by arm in source facts. Historical publication proxies and inherited parameter-fit clocks are not certified.",
+    "baseline": "B P(start), conditional start minutes, analytic xM and unchanged locked PM sampler"
+  },
+  {
+    "id": "LEGACY-040",
+    "model": "MM/PM/TS",
+    "question": "Systematic precision audit: M/S/G oracles, MC noise, six bounded TS cases",
+    "directories": [
+      "systematic-precision-audit-20261101"
+    ],
+    "classification": "exploratory",
+    "finding": "341 fixtures / 27,092 rows; 48 common oracle fixtures. 6 bounded FT cases from 3 states show no pruning loss; joint XI/bench/C/VC improvement .18 xP in one state. Not global optimality. 400-draw xP SD .175/.154 for Penders/Le Fée; all oracle gains use future inputs.",
+    "validation": "Two reused GW22–38 seasons, inherited fit-clock gaps; no untouched outcomes",
+    "baseline": "Frozen B repaired source and unchanged TS; repeated seeds are integration noise"
+  },
+  {
+    "id": "LEGACY-041",
+    "model": "MM",
+    "question": "Medical-return/start/P90 factorial candidate",
+    "directories": [
+      "return-p90-candidate-20261101"
+    ],
+    "classification": "inconclusive",
+    "finding": "6 arms / 4 historical control fixtures / 2 seeds / 2,000 draws: return_start xP-MAE .854680→.853718 and .923218→.921429; tiny selected controls, full analytic run described as pending in PR. Do not infer success from a green baseline workflow.",
+    "validation": "Reused/reconstructed historical research; exact periods vary by arm in source facts. Historical publication proxies and inherited parameter-fit clocks are not certified.",
+    "baseline": "Original comparator in source protocol; not silently equated to current production"
+  },
+  {
+    "id": "LEGACY-042",
+    "model": "PM",
+    "question": "Assist share calibration, stable MC and compact transport",
+    "directories": [
+      "b-precision-development-20261101"
+    ],
+    "classification": "exploratory",
+    "finding": "Original assist gate accepted narrowly; FWD assist Brier delta interval [-.00067883,-.00004560], reused windows. Team assist budget/MM/goal samples unchanged. Four-fixture 10k controls are not a new holdout.",
+    "validation": "2024/25 GW22–29 fit; GW30–38 and reused 2025/26 GW22–38 test",
+    "baseline": "Original B assist allocation; MC 400/2000/10000 prefixes are not separate datasets"
+  },
+  {
+    "id": "LEGACY-043",
+    "model": "PM",
+    "question": "Secondary CS/save/DC/BPS label reconciliation and opt-in reserve repair",
+    "directories": [
+      "pm-secondary-components-20261101"
+    ],
+    "classification": "exploratory",
+    "finding": "341 fixtures / 27,092 rows; all 341 actual-BPS bonus allocations match; 849 DC boundary rows match. Team-CS Brier .177535/.180182. Player CS rule-derived only. GK BPS -.3926 CI[-.6283,-.1705], GK bonus -.0209 CI[-.0374,-.0044] in 2025. Stint reserve repair accepted opt-in only: analytic 1.2/.8→1/1; no fit.",
+    "validation": "Two reused GW22–38 seasons; direct player-CS, 2024 DC and 2025 PK-goal split unavailable",
+    "baseline": "20dfdd953ef99c382ea969836cd6a514b8182cc4, 2,000 draws; 14 deep 10k controls"
+  },
+  {
+    "id": "LEGACY-044",
+    "model": "TS",
+    "question": "Fast-local transfer-engine correctness and accounting audit",
+    "directories": [
+      "transfer-engine-audit-20261031",
+      "transfer-formation-20261031"
+    ],
+    "classification": "exploratory",
+    "finding": "31 targeted regressions reported, no global/search efficacy proof. Negative standalone legs/top18/top12 can exclude enablers; historical discounted-hit issue already resolved by active discount_transfer_costs=False. Private payloads excluded.",
+    "validation": "Correctness/accounting checks, not independent season utility",
+    "baseline": "Original six weights, literal hits/buffer; shared PM final rescore"
+  },
+  {
+    "id": "LEGACY-045",
+    "model": "TS",
+    "question": "Joint MILP planner and hand-built FT/enabler correctness tests",
+    "directories": [],
+    "classification": "exploratory",
+    "finding": "TSv4 already jointly models bank/FT/hits/XI/C/VC. Existing tests cover FT accumulation and cheap enabling transfer. GW1-only smoke: 0 transfers, objective207.8495, 36.82s; no full replay or general exact shared-PM oracle.",
+    "validation": "Synthetic correctness and one historical smoke; no season gain",
+    "baseline": "Earlier TSv3 objective approx207.84; MILP surrogate not silently the exact current shared-PM scorer"
+  },
+  {
+    "id": "LEGACY-046",
+    "model": "DATA",
+    "question": "Deadline/roster recovery and blocked joint backtest provenance",
+    "directories": [
+      "blocked-roster-bracket-v1",
+      "blocked-roster-source-index-v1",
+      "deadline-joint-inputs-v1",
+      "deadline-joint-paired-diagnostic-v1",
+      "deadline-player-components-v1",
+      "joint-cold-start-audit-v1",
+      "joint-component-recovery-v1",
+      "joint-component-timing-audit-v1",
+      "joint-deadline-roster-audit-v1",
+      "joint-deadline-snapshot-selection-v1",
+      "joint-deadline-snapshots-v1",
+      "joint-paired-diagnostic-v1",
+      "joint-paired-inputs-v1",
+      "joint-team-keeper-recovery-v1",
+      "minutes-components-20261005-v1",
+      "minutes-hybrid-inputs-20261005-v1",
+      "minutes-hybrid-paired-20261005-v1"
+    ],
+    "classification": "blocked",
+    "finding": "Roster/source brackets, component clocks and cold-start gaps already investigated. Reconstructed overlap cannot be called original-vintage out-of-sample gain.",
+    "validation": "Reused/reconstructed historical research; exact periods vary by arm in source facts. Historical publication proxies and inherited parameter-fit clocks are not certified.",
+    "baseline": "Original comparator in source protocol; not silently equated to current production"
+  },
+  {
+    "id": "LEGACY-047",
+    "model": "DATA",
+    "question": "Historical source recovery, roles and availability audit",
+    "directories": [
+      "cam-audit",
+      "cam-role-state",
+      "legacy-role-state",
+      "historical-cup-recovery-v1",
+      "independent-cl-audit",
+      "independent-europe-audit",
+      "cup-payload-version-audit",
+      "season-2024-25-data-audit-v1",
+      "season-2025-26-mechanics-v1",
+      "team-news-availability-audit-20261006-v2",
+      "team-news-source-research-20261006-v1"
+    ],
+    "classification": "exploratory",
+    "finding": "Source recovery and chronology/availability coverage checks already exist. Missing historical medical and exact event timing remain missing, not zero.",
+    "validation": "Reused/reconstructed historical research; exact periods vary by arm in source facts. Historical publication proxies and inherited parameter-fit clocks are not certified.",
+    "baseline": "Original comparator in source protocol; not silently equated to current production"
+  },
+  {
+    "id": "LEGACY-048",
+    "model": "DATA",
+    "question": "Text/news/context, market baseline and new-data feasibility",
+    "directories": [
+      "data-source-review-20261025",
+      "free-match-intel-20261025",
+      "player-context-sources-20261025",
+      "text-intel-pilot-20261025",
+      "pl-club-context-20261025",
+      "simple-market-model-20261025",
+      "cherki-coach-context-20261023"
+    ],
+    "classification": "blocked",
+    "finding": "Source and prototype feasibility only; public source access is not a licensed original-vintage feature panel. Simple market prototype is not a lawful commercial xP comparison.",
+    "validation": "Reused/reconstructed historical research; exact periods vary by arm in source facts. Historical publication proxies and inherited parameter-fit clocks are not certified.",
+    "baseline": "Original comparator in source protocol; not silently equated to current production"
+  },
+  {
+    "id": "LEGACY-049",
+    "model": "PM",
+    "question": "PM structural independent-start sampler audit",
+    "directories": [
+      "vfinal-pm-structure-audit-20261006-v1"
+    ],
+    "classification": "exploratory",
+    "finding": "Expected XI mass11 does not ensure exactly11 drawn starters: mean probability wrong count .7675 across288 team-fixtures. Source-era defect, not proof same path remains active after joint-appearance work.",
+    "validation": "Reused/reconstructed historical research; exact periods vary by arm in source facts. Historical publication proxies and inherited parameter-fit clocks are not certified.",
+    "baseline": "Original comparator in source protocol; not silently equated to current production"
+  },
+  {
+    "id": "LEGACY-050",
+    "model": "MM/PM/TS",
+    "question": "Legacy validation, reproduction and release-source consistency",
+    "directories": [
+      "v2-validation",
+      "v2-reproduced",
+      "live-gw7-original-vfinal-20261010-v1",
+      "live-gw7-original-vfinal-20261010-v2",
+      "live-original-vfinal-20261010-v1",
+      "live-raw-reproduction-20261010-v2"
+    ],
+    "classification": "exploratory",
+    "finding": "Original source recovery/reproduction and publication vintages are distinct from a new scientific holdout. Never overwrite old forecast outputs.",
+    "validation": "Reused/reconstructed historical research; exact periods vary by arm in source facts. Historical publication proxies and inherited parameter-fit clocks are not certified.",
+    "baseline": "Original comparator in source protocol; not silently equated to current production"
+  },
+  {
+    "id": "LEGACY-051",
+    "model": "PM",
+    "question": "Team xG adaptive dynamics and opponent adjustment",
+    "directories": [],
+    "classification": "inconclusive",
+    "finding": "Prior code and successful run41481313449 at17cab2b4 exist. Artifact13160057601 digest available; artifact/log body downloads returned Forbidden. No numerical result reverified and no new rerun authorized. Exact-input checksum missing in script; source URL is mutable.",
+    "validation": "One 2025/26 downloaded season; chronological65% kickoff split, same-time outcomes excluded. Historical publication not witnessed.",
+    "baseline": "Historical team mean vs exp .85/adaptive, then fixed/adaptive opponent-adjusted models; no actual home adjustment"
+  },
+  {
+    "id": "C2-BOUNDARY",
+    "model": "APP",
+    "question": "UI, private-case and operational receipts excluded from predictive science",
+    "directories": [
+      "history-capacity-20261029",
+      "history-layout-20261029",
+      "history-refresh-20261028",
+      "history-refresh-public-20261029",
+      "live-manager-integration-20261010",
+      "model-explainer-20261030",
+      "model-priorities-20261021",
+      "palmer-discipline-display-20261025",
+      "personal-dashboard-20261029",
+      "player-match-card-20261022",
+      "player-match-context-20261022",
+      "round-review-20261027",
+      "transfer-chip-advice-20261026",
+      "transfer-player-stats-20261022",
+      "transfer-result-summary-20261022",
+      "wc-bb-plan-20261030",
+      "weekly-model-review-20261026",
+      "wildcard-horizon-20261030"
+    ],
+    "classification": "untested",
+    "finding": "Operational/UI or manager-specific case artifacts; presence is not an independent generalizable model study. Private contents are not collected.",
+    "validation": "Reused/reconstructed historical research; exact periods vary by arm in source facts. Historical publication proxies and inherited parameter-fit clocks are not certified.",
+    "baseline": "Original comparator in source protocol; not silently equated to current production"
+  },
+  {
+    "id": "LEGACY-011",
+    "model": "PM",
+    "question": "fpl-dynamic-model",
+    "directories": [],
+    "classification": "exploratory",
+    "finding": "Simple-baseline improvement not enough; residual correction unproven",
+    "validation": "External goal-only and reused matched current comparison",
+    "baseline": "Dynamic team goals",
+    "existing_result_links": [
+      "analysis/audits/2026-11-22/evidence/fpl-dynamic-model/residual-results.json"
+    ]
+  },
+  {
+    "id": "LEGACY-012",
+    "model": "MM",
+    "question": "fpl-minute-method",
+    "directories": [],
+    "classification": "exploratory",
+    "finding": "Integrated benefit much smaller/mixed; not promoted",
+    "validation": "Reconstructed GW6–7 reused20matches",
+    "baseline": "Duration regression",
+    "existing_result_links": [
+      "research/evidence/legacy-duration-joint-results.json",
+      "analysis/audits/2026-11-22/research-map.csv"
+    ]
+  },
+  {
+    "id": "LEGACY-013",
+    "model": "MM",
+    "question": "fpl-p90-integration",
+    "directories": [],
+    "classification": "exploratory",
+    "finding": "Candidate promotion rejected in this tested configuration; not a rejection of the feature family. Unconstrained .8 scale can violate5subs; legal support tilt tiny",
+    "validation": "GW8/GW9 reused",
+    "baseline": "P90 rescaling",
+    "existing_result_links": [
+      "analysis/audits/2026-11-22/evidence/fpl-p90-integration/conclusion.json"
+    ]
+  },
+  {
+    "id": "LEGACY-015",
+    "model": "PM",
+    "question": "keeper-quality-rates-20261115",
+    "directories": [],
+    "classification": "exploratory",
+    "finding": "MAE−1.8%,RMSE−1.4% vs simplebaseline; CI includes0; not activekeeperlaw",
+    "validation": "GW1–7 fit, GW8–10 seen outcomes;60keepers",
+    "baseline": "Inside saves/xGOT history",
+    "existing_result_links": [
+      "analysis/audits/2026-11-22/evidence/fpl-keeper-quality/results.json"
+    ]
+  },
+  {
+    "id": "LEGACY-052",
+    "model": "MM/PM",
+    "question": "PR41 original-vintage GW8–10 and ep_next audit",
+    "directories": [],
+    "classification": "exploratory",
+    "finding": "2,007 forecast rows /30 matches; minute MAE11.4092256, start Brier.0717313; point MAE1.0383757/RMSE1.9197536/CRPS.6842659; ep_next MAE1.1422521/RMSE2.1954827. Only three already-seen GW; no untouched confirmation.",
+    "validation": "GW8–10 original-before-deadline vintages; hypothesis/outcomes already seen; 30 fixtures / 2,007 rows",
+    "baseline": "Original before-deadline releases and same-vintage official ep_next"
+  },
+  {
+    "id": "LEGACY-053",
+    "model": "PM",
+    "question": "PR42 deterministic replay and component-error decomposition",
+    "directories": [],
+    "classification": "exploratory",
+    "finding": "86.6275 predicted team goals vs83.7 observed xG vs65 goals; assist bias decomposed into19.829 volume +2.633 eligibility/share remainder. CS points error -127.745=5.551 qualification-133.296 conditional. These are descriptive identities, not deployable corrections.",
+    "validation": "GW8–10 original-before-deadline vintages; hypothesis/outcomes already seen; 30 fixtures / 2,007 rows",
+    "baseline": "PR41 same frozen input/forecast rows"
+  }
+]

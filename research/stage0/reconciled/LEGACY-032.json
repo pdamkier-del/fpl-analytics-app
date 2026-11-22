@@ -1,0 +1,19 @@
+{
+  "id": "LEGACY-032",
+  "model": "PM",
+  "question": "Keeper dynamic SOT and save-bucket calibration",
+  "directories": [
+    "gk-dynamic-sot-form-20261005-v1",
+    "gk-save-bucket-calibration-20261005-v1"
+  ],
+  "classification": "exploratory",
+  "finding": "Fast/slow SOT residual and save-bucket tilts are existing tests. Dynamic SOT candidate rejected in original checkpoint; bucket selection uses already-reused GW22–27.",
+  "validation": "SOT GW6–15 train/GW16–21 select; bucket GW22–27 LOOGW, GW28–38 diagnostic",
+  "baseline": "Frozen SOT arithmetic and Poisson keeper save law",
+  "stage0_verification": "Original evidence identity and selected arithmetic only; full model/scientific replication not executed",
+  "detail_archive": "research/stage0/historical-matrix.json.gz",
+  "original_result_archive": "research/stage0/primary-evidence.json.gz",
+  "source_receipts": "research/stage0/source-receipts.json",
+  "independent_review": "pending",
+  "production_changed": false
+}

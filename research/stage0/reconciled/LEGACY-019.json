@@ -1,0 +1,18 @@
+{
+  "id": "LEGACY-019",
+  "model": "MM",
+  "question": "Conditional bench-appearance sequence model",
+  "directories": [
+    "v4-three-state-sequence-20261005-v1"
+  ],
+  "classification": "exploratory",
+  "finding": "Binary-sequence C=4, alpha=.75 chosen in reused development; start p unchanged. This is an existing mechanism, not a fresh ablation.",
+  "validation": "GW6–15 train, GW16–21 select, GW22–38 reused",
+  "baseline": "Original comparator in source protocol; not silently equated to current production",
+  "stage0_verification": "Original evidence identity and selected arithmetic only; full model/scientific replication not executed",
+  "detail_archive": "research/stage0/historical-matrix.json.gz",
+  "original_result_archive": "research/stage0/primary-evidence.json.gz",
+  "source_receipts": "research/stage0/source-receipts.json",
+  "independent_review": "pending",
+  "production_changed": false
+}

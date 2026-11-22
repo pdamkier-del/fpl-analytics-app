@@ -1,0 +1,18 @@
+{
+  "id": "LEGACY-040",
+  "model": "MM/PM/TS",
+  "question": "Systematic precision audit: M/S/G oracles, MC noise, six bounded TS cases",
+  "directories": [
+    "systematic-precision-audit-20261101"
+  ],
+  "classification": "exploratory",
+  "finding": "341 fixtures / 27,092 rows; 48 common oracle fixtures. 6 bounded FT cases from 3 states show no pruning loss; joint XI/bench/C/VC improvement .18 xP in one state. Not global optimality. 400-draw xP SD .175/.154 for Penders/Le Fée; all oracle gains use future inputs.",
+  "validation": "Two reused GW22–38 seasons, inherited fit-clock gaps; no untouched outcomes",
+  "baseline": "Frozen B repaired source and unchanged TS; repeated seeds are integration noise",
+  "stage0_verification": "Original evidence identity and selected arithmetic only; full model/scientific replication not executed",
+  "detail_archive": "research/stage0/historical-matrix.json.gz",
+  "original_result_archive": "research/stage0/primary-evidence.json.gz",
+  "source_receipts": "research/stage0/source-receipts.json",
+  "independent_review": "pending",
+  "production_changed": false
+}
