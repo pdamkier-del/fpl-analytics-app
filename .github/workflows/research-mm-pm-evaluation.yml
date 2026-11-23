@@ -45,7 +45,7 @@ jobs:
       - name: Recover original forecasts and evaluate only final official outcomes
         env:
           GH_TOKEN: ${{ github.token }}
-        run: python research/mm_pm_live/run_online.py --archive-root archive-runtime --out work/prospective-status --publish
+        run: python research/mm_pm_live/run_online_v2.py --archive-root archive-runtime --out work/prospective-status --publish
       - uses: actions/upload-artifact@v4
         if: always()
         with:

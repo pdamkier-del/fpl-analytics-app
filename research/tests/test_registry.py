@@ -61,7 +61,7 @@ def test_local_markdown_links_resolve():
 def test_research_branch_has_only_authorized_report_workflow_outside_research():
  base='0a08c3d7d6003947eb6205fdc58e981150bcd5ca';paths=subprocess.check_output(['git','-C',str(ROOT),'diff','--name-only',base],text=True).splitlines();paths+=subprocess.check_output(['git','-C',str(ROOT),'ls-files','--others','--exclude-standard'],text=True).splitlines();assert paths and all(p=='MASTER_PLAN.md'or p.startswith('research/')or p=='.github/workflows/research-mm-pm-evaluation.yml'for p in paths)
  workflow=(ROOT/'.github/workflows/research-mm-pm-evaluation.yml').read_text()
- assert 'run_online.py'in workflow and 'pages:'not in workflow and 'private_ts'not in workflow and 'run_joint'not in workflow
+ assert 'run_online_v2.py'in workflow and 'pages:'not in workflow and 'private_ts'not in workflow and 'run_joint'not in workflow
 
 def test_later_result_overwrite_is_detected(temporary):
  id='EXP-TS-SEARCH-001';h=temporary/'tools/synthetic_harness.py';h.write_text('# test metadata only\n');p=temporary/'results/proof.json';p.write_text('{"value":1}')
