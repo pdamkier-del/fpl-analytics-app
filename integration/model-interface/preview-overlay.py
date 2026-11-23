@@ -88,6 +88,10 @@ def apply(app):
         path = app / name
         original = path.read_text()
         changed = rewrite_manager(original)
+        if name == 'manager-state.js':
+            changed = changed.replace(
+                'getState:form,', 'importDraft,canImport:()=>people instanceof Map,getState:form,',
+            ).replace("cell.textContent=week?", "cell.textContent=usable&&week?")
         if name in {'weekly-app.js', 'classic-manager.js'}:
             changed = bind_plan(changed)
         if original == changed or f'localStorage.setItem({KEY}' in changed:
@@ -115,6 +119,7 @@ def apply(app):
         )
     archive = write_asset(app, 'historical-forecast.js', (ASSETS / 'historical-forecast.js').read_text())
 
+    importer = write_asset(app, 'manager-import.js', (ASSETS / 'manager-import.js').read_text())
     for page in app.glob('*.html'):
         html = rewrite_manager(page.read_text())
         if worker_registration := re.search(r'navigator\.serviceWorker\.register\([\'"]\./sw\.js[\'"]\)', html):
@@ -126,6 +131,18 @@ def apply(app):
             f'<head><script src="{store}"></script><script src="{contract}"></script>'
             f'<script defer src="{registration}"></script><script defer src="{archive}"></script>', 1,
         )
+        if page.name == 'manager-state.html':
+            html = html.replace(
+                'Jeg har kontrolleret alle fire chiphistorikker og de faktiske købspriser.',
+                'Jeg har bekræftet den aktuelle trup, købspriser, bank, gratis transfers og alle fire chiphistorikker i FPL.',
+            ).replace(
+                '<p id="forecast">',
+                '<section class="panel" hidden><label>FPL-manager-ID '
+                '<input id="manager-import-entry" inputmode="numeric"></label> '
+                '<button type="button" id="import-manager">Hent offentlig trup</button>'
+                '<p id="manager-import-status" role="status"></p></section><p id="forecast">',
+                1,
+            ).replace('</head>', f'<script defer src="{importer}"></script></head>', 1)
         page.write_text(html)
 
 

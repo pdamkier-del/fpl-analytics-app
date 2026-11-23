@@ -56,3 +56,23 @@ Run the full pinned Python and browser regression suites, current official GW im
 - The integration smoke passed on both sizes with a sealed historical GW 11 capture and a separately verified GW 12 capture. The GW 12 case used an unchanged local TS v3 computation with a synthetic squad. A bank edit invalidated the plan, and a service-worker revision and offline round trip preserved the saved squad.
 - The local GW 12 capture was sourced from Actions run `44979367410`, artifact `14738250259`. Its forecast identity was `f77114a4d96bbc9f25a8aa60da2dc082e2228bc4c765f3613f346f34de6b0600`. The existing Pages job failed in its My Team browser regression, after the model computation passed.
 - The official public endpoint returned 15 historical picks. The authenticated current-team endpoint returned HTTP 403 without a session. The deployed Python service still targets the existing B Pages snapshot, so the local GW 12 browser run could not certify a real private TS job against a newly deployed preview.
+
+## Loopback app and original TS verification
+
+Use the generated app root from the pinned B UI build and the original Python worker checkout. The loopback adapter serves the browser and worker on the same origin and reads the same generated forecast. It exposes only the B plan endpoints, health and public squad draft. Private research capture, manager history jobs and production deployment are outside this server.
+
+```sh
+python integration/model-interface/preview-overlay.py /path/to/public/mm-preview/app
+PYTHONPATH=/path/to/runtime/src:/path/to/runtime/scripts:/path/to/runtime \
+  python integration/model-interface/serve-preview.py /path/to/runtime /path/to/public --port 18126
+```
+
+Open `http://127.0.0.1:18126/mm-preview/app/manager-state.html` in the same environment. The draft keeps the last published 15 picks and past chips. The user confirms current picks, buy prices, bank, free transfers and chip history. A public Free Hit squad is rejected because it may be temporary. An incompatible or stale forecast disables calculation. Plan requests and results use the original ephemeral worker and capability-keyed status. A hosted instance needs a separate HTTPS origin and access control before private state can be sent there.
+
+```sh
+FPL_PREVIEW_URL=http://127.0.0.1:18126/mm-preview/app/ \
+  FPL_PUBLIC_TEST_ENTRY=<public-test-id> BROWSER_PATH=/usr/bin/chromium \
+  node integration/model-interface/preview-live-smoke.cjs
+```
+
+The browser test uses real publicly released picks and explicitly synthetic purchase prices, bank and FT. The test submits only to loopback. The 23 November run used original model artifact `14788745115` from Actions run `45105050197`, forecast `4d1a2e3925d5da64bfdfa2f7f98a9b7a04ade220f3546f655e4bc4a7ca1051dd`, for GW 12–17. It is the same original revision retained by the public archive. `FPL_ALTERNATE_CAPTURE` can point to a second captured `current/` and `gk/` pair for the browser forecast replacement check.
