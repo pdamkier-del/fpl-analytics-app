@@ -1,0 +1,90 @@
+name: Evaluate preregistered frozen MM PM forecasts
+on:
+  pull_request:
+    paths: [.github/workflows/research-mm-pm-evaluation.yml, integration/research-data/MM_PM_EVALUATION.md]
+  workflow_dispatch:
+  schedule:
+    - cron: '43 7 * * *'
+  workflow_run:
+    workflows: [Archive original public B forecasts]
+    types: [completed]
+    branches: [main]
+permissions:
+  contents: read
+concurrency:
+  group: fpl-research-frozen-mm-pm-v1-${{ github.event_name == 'pull_request' && github.ref || 'main' }}
+  cancel-in-progress: false
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - &evaluator
+        uses: actions/checkout@v4
+        with:
+          ref: eb35ab4f523c5d5037146bcfbaf721ce32e9f884
+          path: evaluator
+          sparse-checkout-cone-mode: false
+          sparse-checkout: |
+            /.github/workflows/research-mm-pm-evaluation.yml
+            /MASTER_PLAN.md
+            /research/
+            /analysis/audits/2026-11-22/
+            /analysis/followup-41-20261122/
+          persist-credentials: false
+      - &archive
+        uses: actions/checkout@v4
+        with:
+          ref: d4d6e8046ad5d965cf41f5a8fce2b32a49fca16c
+          path: archive-runtime
+          sparse-checkout-cone-mode: false
+          sparse-checkout: |
+            /integration/research-data/
+            /integration/model-interface/freeze_forecast.py
+          persist-credentials: false
+      - &python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - &dependencies
+        run: pip install numpy==2.3.5 pytest==9.1.1
+      - name: Validate the pinned registry and run outcome-independent tests
+        working-directory: evaluator
+        env:
+          FPL_ARCHIVE_RUNTIME: ${{ github.workspace }}/archive-runtime
+        run: |
+          git fetch --no-tags --depth=1 origin 0a08c3d7d6003947eb6205fdc58e981150bcd5ca
+          python research/tools/registry.py validate
+          python -m pytest -q research/mm_pm_live/tests research/tests
+  evaluate:
+    needs: verify
+    if: >-
+      github.ref == 'refs/heads/main' &&
+      (github.event_name == 'schedule' || github.event_name == 'workflow_dispatch' ||
+       (github.event_name == 'workflow_run' && github.event.workflow_run.conclusion == 'success' &&
+        github.event.workflow_run.head_repository.full_name == github.repository &&
+        github.event.workflow_run.head_branch == 'main'))
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    permissions:
+      contents: write
+    steps:
+      - *evaluator
+      - *archive
+      - *python
+      - *dependencies
+      - name: Recover original forecasts and evaluate only final official outcomes
+        working-directory: evaluator
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          python research/mm_pm_live/run_online_v2.py \
+            --archive-root "$GITHUB_WORKSPACE/archive-runtime" \
+            --out "$RUNNER_TEMP/prospective-status" --publish
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: frozen-mm-pm-public-status-${{ github.run_id }}
+          path: ${{ runner.temp }}/prospective-status/status.json
+          if-no-files-found: error
+          retention-days: 90
