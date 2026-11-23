@@ -58,3 +58,38 @@ Branch-protection configuration could not be inspected with the connected token
 is permitted. The normal PR/check/review/merge mechanism must enforce repository
 requirements. Existing workflow push filters were inspected: this public-only
 diff matches no producer/app-deploy push trigger.
+
+## Main activation — actual result
+
+**PR #52 merged normally** as0d0690d9108b762931ea6161ac95445804592640.
+PR44,46and51remain OPEN. Their app/private stack was not merged. No admin
+protection override or direct main push was used; GitHub public-only PRtest
+run45138593147passed27tests with publication skipped.
+
+GitHub registered `public-forecast-archive.yml` as ACTIVE (workflow427556513).
+Actual main run45138854260SUCCEEDED on0d0690d9. It was an explicitly labelled
+manual catch-up, using the same discovery path as schedule. It verified current
+GW12coverage with no missing completed origins, skipped all6already retained
+original runs, and preserved existing asset IDs/digests/clocks. A second independent
+Release-only recovery after this main run succeeded. Exact main-run, summary,
+recovery and tested-code receipts are in evidence/main-*.json and main-summary.txt.
+
+**Configured, not yet observed:** first actual `schedule` or `workflow_run` event
+on main. Do not relabel the manual main run as a timer run. Both triggers are
+registered/enabled; normal monitoring must confirm their next delivery. GitHub
+cron is best effort. This remaining observation is not an unresolved PR44/46
+integration dependency and does not justify triggering a model/app job.
+
+### Final release-blocker status
+
+| Gate | Result |
+| --- | --- |
+| Public component isolated; no full-stack dependency | PASS |
+| Local and read-only PR CI | PASS,27tests |
+| New original discovery, catch-up, no-overwrite, independent recovery | PASS, live branch probes and main recovery |
+| Main registration and execution permissions | PASS, ACTIVE workflow and successful main execution |
+| Actual first timer/producer-completion delivery | Pending next natural event; configured and monitored, not falsely certified |
+| Original producer/Pages/protected trial unchanged | PASS, byte comparison after merge |
+| Private TSstorage/authentication | Still unresolved and fail-closed; excluded, not a public-archive blocker |
+
+No changes to MM B, PM vFinal, TS v3, app, substitutions or historical research.
