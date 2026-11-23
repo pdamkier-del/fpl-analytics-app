@@ -27,3 +27,11 @@ There is no genuine private-manager dataset delivered here. Private TSstates,
 intentions and verified executed transfers remain behind their existing storage/
 authentication gates. Public archive readiness does not authorize stateful TS
 efficacy claims or a production model change.
+
+New verified original: source45105050197, forecast4d1a2e39… / revisionf54f651e…,
+release455143034, originGW12with full GW12–17and4,044player-fixture rows. Its
+original cutoff is recorded in evidence/new-original-manifest.json, with official
+27Nov18:30UTCdeadline and publication/recovery receipts. Catch-up archived four
+additional existing originals. These are original-vintage records, not model
+reruns, completed outcomes or newly proven model efficacy. Main activation and
+actual automatic-event evidence must be read separately in MAIN_READINESS.

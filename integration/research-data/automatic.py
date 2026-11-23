@@ -33,7 +33,7 @@ def pages(backend, path, key=None):
         number+=1
 
 
-def inventory(backend, now):
+def inventory(backend, now, *, full_run_lookup=False):
     """Check original receipts against provider IDs/digests. No private datasets."""
     runs=set();coverage={};errors=[];count=0
     for release in pages(backend,f'repos/{backend.repository}/releases'):
@@ -41,6 +41,12 @@ def inventory(backend, now):
         if not match:
             continue
         count+=1
+        key=(match[1],int(match[2]))
+        # Do not reread every historical revision every hour. Validate all recent
+        # receipts and at least one complete representative per historical GW.
+        # C1 still verifies every chosen revision on independent full recovery.
+        if not full_run_lookup and key in coverage and clock(release['published_at'])<now-timedelta(hours=26):
+            continue
         try:
             assets={a['name']:a for a in release['assets']}
             require(len(assets)==len(release['assets']), 'Duplicate assets')
@@ -93,7 +99,7 @@ def candidates(backend, now, source_run=None):
 def download(repository, identifier, name, destination):
     """GitHub's existing artifact transport; never execute artifact contents."""
     reply=subprocess.run(['gh','run','download',str(identifier),'--repo',repository,
-                          '--name',name,'--dir',str(destination)],capture_output=True)
+                          '--name',name,'--dir',str(destination)],capture_output=True,timeout=180)
     if reply.returncode:
         raise RuntimeError('Original artifact download unavailable')
 
@@ -164,13 +170,23 @@ def execute(backend, destination, target, *, source_run=None, now=None,
     destination.mkdir(parents=True,exist_ok=True)
     report=dict(schema='fpl-automatic-public-archive-status/v1',observed_at=now.isoformat(),
                 repository=backend.repository,source_run=source_run,rows=[],failures=[],
+                status='running',
                 model_recomputed=False,app_deployed=False,private_data_used=False)
+    def checkpoint():
+        path=destination/'status.json.tmp'
+        path.write_bytes(canonical(report));path.replace(destination/'status.json')
+    checkpoint()
     try:
-        archived,coverage,errors,count=inventory(backend,now)
-        report['inventory_release_count']=count;report['failures']+=errors
-        for row in candidates(backend,now,source_run):
+        selected=candidates(backend,now,source_run)
+        full_lookup=bool(source_run and any(clock(r['created_at'])<now-timedelta(hours=26)for r in selected))
+        archived,coverage,errors,count=inventory(backend,now,full_run_lookup=full_lookup)
+        report['inventory_release_count']=count;report['initial_inventory_errors']=errors
+        for row in selected:
+            report['current_source_run']=row['id'];checkpoint()
+            print(f'Inspecting original producer {row["id"]}',flush=True)
             if row['id']in archived:
                 report['rows'].append(dict(source_run=row['id'],status='already_archived_no_write'))
+                checkpoint()
                 continue
             try:
                 result=archiver(backend,row,destination,target,now=now)
@@ -179,7 +195,9 @@ def execute(backend, destination, target, *, source_run=None, now=None,
             except Exception:
                 result=dict(source_run=row['id'],status='archive_failed',reason_code='original_capture_or_transport_rejected')
             report['rows'].append(result)
-        _,coverage,errors,_=inventory(backend,now)
+            checkpoint()
+            print(f'Producer {row["id"]}: {result["status"]}',flush=True)
+        _,coverage,errors,_=inventory(backend,now,full_run_lookup=full_lookup)
         report['failures']+=errors
         report['verified_origins']=list(coverage.values())
         if bootstrap is None:
@@ -191,7 +209,7 @@ def execute(backend, destination, target, *, source_run=None, now=None,
     except Exception:
         report['status']='failed'
         report['failures'].append({'reason_code':'discovery_or_official_coverage_unavailable'})
-    (destination/'status.json').write_bytes(canonical(report))
+    report.pop('current_source_run',None);checkpoint()
     return report
 
 
@@ -201,9 +219,10 @@ def summary(report):
            f'Next official origin: {coverage.get("next_origin_gw","UNKNOWN")}',
            f'Next-origin archive verified: {coverage.get("next_origin_archived",False)}',
            f'Missing completed origins: {coverage.get("missing_completed_origins","UNKNOWN")}',
-           '', '| Producer run | Result |', '| --- | --- |']
-    lines += [f'| {r["source_run"]} | {r["status"]} |'for r in report['rows']]
+           '', '| Producer run | Result | Reason code |', '| --- | --- | --- |']
+    lines += [f'| {r["source_run"]} | {r["status"]} | {r.get("reason_code", "")} |'for r in report['rows']]
     lines += ['', 'No model computation, app deployment or private capture is performed.',
+              f'Initial invalid/incomplete receipts observed: {len(report.get("initial_inventory_errors", []))}; final unresolved: {len(report["failures"])}.',
               'See status.json and the original checksummed release/publication receipts.']
     return '\n'.join(lines)+'\n'
 

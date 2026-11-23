@@ -1,5 +1,11 @@
 name: Archive original public B forecasts
 on:
+  pull_request:
+    paths:
+      - .github/workflows/public-forecast-archive.yml
+      - integration/model-interface/freeze_forecast.py
+      - integration/research-data/**
+      - tests/research_data/**
   workflow_run:
     workflows: [Refresh isolated current B preview]
     types: [completed]
@@ -14,14 +20,28 @@ on:
         type: string
 permissions:
   contents: read
-concurrency:
-  group: fpl-permanent-public-research-archive
-  cancel-in-progress: false
 jobs:
+  test:
+    if: ${{ github.event_name == 'pull_request' }}
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: pip install pytest==9.1.1
+      - run: python -m pytest -q tests/research_data
   archive:
-    if: ${{ github.event_name != 'workflow_run' || (github.event.workflow_run.head_repository.full_name == github.repository && github.event.workflow_run.head_branch == 'main') }}
+    if: ${{ github.event_name != 'pull_request' && (github.event_name != 'workflow_run' || (github.event.workflow_run.head_repository.full_name == github.repository && github.event.workflow_run.head_branch == 'main')) }}
     runs-on: ubuntu-latest
     timeout-minutes: 20
+    concurrency:
+      group: fpl-permanent-public-research-archive
+      cancel-in-progress: false
     permissions:
       contents: write
       actions: read

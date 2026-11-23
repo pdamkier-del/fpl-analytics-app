@@ -127,6 +127,17 @@ def test_deleted_asset_is_not_silently_treated_as_valid(tmp_path):
     assert errors and not coverage
 
 
+def test_incomplete_upload_can_recover_before_deadline_without_hiding_observation(tmp_path):
+    backend,bootstrap,_,_,archiver,_=setup(tmp_path)
+    assert automatic.execute(backend,tmp_path/'first',archive.PIN,now=NOW,bootstrap=bootstrap,archiver=archiver)['status']=='complete'
+    metadata=json.loads((backend.root/'metadata.json').read_text())
+    metadata['assets']=[a for a in metadata['assets']if a['name']not in ['mm.json.gz','publication.json']]
+    (backend.root/'metadata.json').write_text(json.dumps(metadata))
+    repaired=automatic.execute(backend,tmp_path/'retry',archive.PIN,now=NOW+timedelta(minutes=1),bootstrap=bootstrap,archiver=archiver)
+    assert repaired['status']=='complete' and repaired['initial_inventory_errors']and not repaired['failures']
+    assert repaired['rows'][0]['status']=='archived_and_recovered'
+
+
 def test_main_consumer_has_no_producer_deploy_or_private_dependency():
     root=archive.ROOT
     workflow=(root/'.github/workflows/public-forecast-archive.yml').read_text()

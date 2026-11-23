@@ -14,7 +14,8 @@ producer `mm-current-preview-publication.yml`:
 - hourly `43 * * * *` catch-up over the last24hours of main producer runs;
 - manual recovery of a specific existing main producer run, with no computation.
 
-There is no producer/deploy job in this workflow. The original producer's
+There is no producer/deploy job in this workflow. A read-only PR test job cannot
+publish releases or access private state. The original producer's
 schedule and Pages workflow are byte-identical to main. No merge of unrelated
 UI/private integration is needed. The new workflow must exist on the default
 branch before GitHub delivers scheduled/workflow_run events; a feature-branch
@@ -31,7 +32,11 @@ full TSconfiguration, byte hashes and original publication receipts survive
 artifact expiry. A fresh-runner retry preserves the first manifest and every
 existing asset. Every new write is recovered into a separate directory from
 Releases only before being reported successful. The consumer skips producer
-runs whose original receipt and provider IDs/digests already verify.
+runs whose original receipt and provider IDs/digests already verify. Hourly
+monitoring checks recent receipts and a complete representative per historical
+GW rather than downloading every historical revision each time; chosen research
+revisions always require independent full recovery. Explicit old-run lookup can
+perform the complete receipt search.
 
 The strict before-deadline rule is unchanged: late/incomplete/corrupt inputs
 cannot become eligible original forecasts. Season-end truncation remains the
@@ -41,10 +46,12 @@ Private TSlogging/storage remains untouched and fail-closed.
 
 ## Failure and missing-origin visibility
 
-Each execution emits a GitHub job summary, fixed nonprivate reason codes and
+Pull requests run the public-only tests with read-only permissions; publishing
+is skipped for PR events. Each execution emits a GitHub job summary, fixed nonprivate reason codes and
 `work/public-archive-status/status.json`; failure produces a failed Actions check
 and error annotation. The status-only artifact is retained90days. **Forecast
-storage is Releases, not this operational artifact.** No payloads, paths, private
+storage is Releases, not this operational artifact.** Status is checkpointed per source run, including failure/timeout progress; each
+artifact download is bounded to180seconds. No payloads, paths, private
 states or signed error URLs enter the report.
 
 Monitoring compares the official deadline calendar with verified release receipts.
