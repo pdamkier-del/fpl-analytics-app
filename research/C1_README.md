@@ -93,6 +93,7 @@ The historical roadmap Stage3 below is PM; this user Phase3 is a separately regi
 - [x] Implement reproducible MM/PM evaluator, official final-label adapter and immutable public report contracts;91tests pass.
 - [x] Verify full recovery/validation of a real six-GW C2archive; older issue infrastructure-only, zero prospective origins scored.
 - [x] Prepare daily/archive-event scientific report workflow, separate from existing main C2archiving; no model/app/trial change.
+- [x] Deliver separate [research PR #54](https://github.com/pdamkier-del/fpl-analytics-app/pull/54), stacked on #50; independent review pending.
 - [ ] Review and integrate proposed report workflow onto main; this research PR does not activate it.
 - [ ] Retain first eligible post-registration original and immutable origin selection; GW12possible, otherwise next valid future origin.
 - [ ] Match official finished/data-checked results and publish per-GW reports; evaluate fixed window at its data lock.

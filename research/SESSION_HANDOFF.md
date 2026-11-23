@@ -1,6 +1,6 @@
 # Current C1 handoff — Phase4 prospective MM/PM setup, 23 November 2026
 
-**Separate branch:** `research/c1-mm-pm-live-20261123`, stacked on research PR50. Public C2runtime loaded from pinned main PR53 `d4d6e8046ad5d965cf41f5a8fce2b32a49fca16c`; no wholesale integration-stack merge. Research PR pending creation; no main activation/deploy.
+**Separate branch:** `research/c1-mm-pm-live-20261123`, stacked on research PR50. Public C2runtime loaded from pinned main PR53 `d4d6e8046ad5d965cf41f5a8fce2b32a49fca16c`; no wholesale integration-stack merge. Delivered research [PR #54](https://github.com/pdamkier-del/fpl-analytics-app/pull/54); no main activation/deploy.
 
 Read [setup REPORT](results/EXP-MM-PM-LIVE-SETUP/REPORT.md), [PROTOCOL](mm_pm_live/PROTOCOL.md), [README/reproduction](mm_pm_live/README.md), [next improvement gates](mm_pm_live/NEXT_IMPROVEMENTS.md), then registry events/status. Prior research below is historical context, not the current action queue.
 
