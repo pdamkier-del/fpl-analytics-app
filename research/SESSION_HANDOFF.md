@@ -1,3 +1,29 @@
+# Current C1 handoff — Phase5 completed, candidate deprioritized
+
+23 November2026. Separate branch `research/c1-ts-realpool-20261123`, based on PR56head `a9276bc7`. Research PR pending creation; no merge/deploy. **EXP-TS-FUNDING-REALPOOL-001 completed as a failed feasibility result, not accepted.** Existing models/app/PR54validation/protected substitution experiment remain unchanged.
+
+Read [REPORT](results/EXP-TS-FUNDING-REALPOOL-001/REPORT.md), [summary](results/EXP-TS-FUNDING-REALPOOL-001/summary.json), [all12cases](results/EXP-TS-FUNDING-REALPOOL-001/cases.csv), [verification](results/EXP-TS-FUNDING-REALPOOL-001/verification.json) and [reproduction](ts_realpool/README.md). Earlier handoffs below are history, not permission to restart studies.
+
+## Actual outcome
+
+Original fixed674player forecast, GW12–17/400aligned draws, retained by identity adapter;353eligible owned-player sampling frame, incoming pool unchanged. Exactly12states committed e20c1046before any arm.12baselines+12keep-controls+10candidates finish; candidate3/4timeouts at120s. All10paired deltas exactly0; full12mean/non-regression unknown. Baseline16.21–20.77s; completed candidate60.26–115.35s.204completed nomination/transition audits pass. Active run1445.3538s incl initialpreflight; total conservative wall bound also<3600s. RSShigh-water includes launcher/imports, not isolated candidate-memory attribution.
+
+**Practical gate FAILED. Deprioritize unchanged funding implementation.** No realized FPLpoint claim, no representative manager sample, no global optimality inference. No tuning/new states/relaxed gates after inspection. Old42+48cases not rerun as new science; these12states now seen too.
+
+## Registration / precise implementation chronology
+
+PR56protocol and all65prior JSONs unchanged. New66thformal registration, v1code35e06b73preceded inputs/states. v1guard falsely rejected native negative roundoff (up to2.44e-15), no states/arms. Preserve its receipt. Separately registered45a89aa1v2guard admits1e-12without clipping/changing data or p>=.20; original preflight time deducted. State generation occurred only after that freeze. Final numerical run has two timeouts, no retry. Canonical study state completed intentionally prevents accidental re-execution. Reproduce at45a89aa1in detached fresh checkout/output/cache; never reset current state/overwrite first-run artifacts.
+
+## Verification / infrastructure caveat
+
+5new contract tests pass; inherited broad suite89pass/2metadata snapshot failures (94pass total). Frozen registrytest expects65but new registration makes66. Stage0test expects11reconciliations although PR56base already has13. Neither assertion edited; PR54full current implementation manifest still matches. Current registry validate succeeds66and protected8GW/80match gate. These count guards need a separately versioned infrastructure update before integrating the expanded research checks; **do not alter PR54frozen endpoints/code/manifest here**. This task changes only research paths, not workflows/models/app. No main/deploy or scientificreport automation activation.
+
+## Next action
+
+Return priority to already-registered PR54original-vintage MM/PMobservation and C2capture. Do not create another retrospective audit or another funding retry. Any later search revision needs a new concrete mechanism/design and untouched states, plus evidence of real-manager relevance/private capture before realized-policy claims. No automatic optimization or candidate promotion. Independent scientific/code review remains pending.
+
+---
+
 # Current C1 handoff — choose ONE next study, 23 November 2026
 
 **Branch:** `research/c1-next-study-priority-20261123`, based on PR54head `eb35ab4f`. Planning delivery only; delivered [research PR #56](https://github.com/pdamkier-del/fpl-analytics-app/pull/56). No model/harness implementation, forecast/label collection, case generation, numerical runs or deployment.

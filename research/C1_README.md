@@ -1,7 +1,7 @@
 # C1 — Scientific Model Research | README & progress checklist
 
 **Owner:** C1 (Codex model research) · **Programme:** FPL Analytics + FPL Research Lab
-**Last prepared:** 2026-11-23 · **State:** user Phase4 MM/PM prospective protocol and evaluator implemented; archive link verified; awaiting eligible originals/final outcomes and reviewed automation integration. Phase3 candidate remains unpromoted.
+**Last prepared:** 2026-11-23 · **State:** user Phase5TSreal-pool study completed; practical gate FAILED (10equal pairs,2candidate timeouts). Candidate deprioritized. Phase4MM/PMprospective validation unchanged/pending. No model promotion.
 **Canonical scientific plan:** [MASTER_PLAN.md](MASTER_PLAN.md) · **Registry:** [experiments/](experiments/) · **Current snapshot:** [STATUS.md](STATUS.md) · **Session handoff:** [SESSION_HANDOFF.md](SESSION_HANDOFF.md)
 
 > **Mission:** Improve *validated* predictive quality and FPL decision value—not apparent historical fit or model complexity. Research is separate from the stable Analytics app. This README is the human-readable checklist, **not** a replacement for the experiment registry, immutable evidence, or append-only decision log.
@@ -86,13 +86,25 @@ Original programme registration: **25 unchanged entries**; Stage 0 appends **38 
 
 The historical roadmap Stage3 below is PM; this user Phase3 is a separately registered TSstudy. Failed practical acceptance is preserved despite successful execution.
 
+### User Phase5 — TS full-original-pool feasibility **completed; gate FAILED**
+
+- [x] Register EXP-TS-FUNDING-REALPOOL-001 and freeze code/input before generation; all65prior JSONprotocols unchanged.
+- [x] Recover exactly the fixed original674player/sixGW/400draw archive and transfer losslessly. Preserve initial strict-roundoff false rejection and separately registered input-only v2correction, before any test states.
+- [x] Generate exactly12legal states; commit the entire batch before any arm. No extra states/numerical retries.
+- [x] Attempt12baselines/12candidates/12keep-controls within1445.35active run seconds (<3600).10equal completed pairs;2candidate timeouts. No completed-path legality/scorer error.
+- [x] Report all outcomes, missing primary mean, runtime/RSS limits and failed coverage/runtime gate; candidate **not accepted** and deprioritized.
+- [x] Verify PR54current manifest/model/trial protection;94tests pass,2preserved metadata-snapshot count failures disclosed. Current registry66validates.
+- [ ] Independent full code/reproducibility review; no production integration or model promotion.
+
+Read [Phase5report](results/EXP-TS-FUNDING-REALPOOL-001/REPORT.md), [raw/summary](results/EXP-TS-FUNDING-REALPOOL-001/summary.json), [reproduction](ts_realpool/README.md). Next action: existing PR54future observations/capture, not tuning this candidate on these12seen states.
+
 ### Next-study prioritization — 23 November 2026 **planning complete, no execution**
 
 - [x] Compare historical MM/PM failures and identification limits with TS's documented pruning failure; scoped PR47/48/50reviews considered.
 - [x] Select only one next study: unchanged funding candidate, original full forecast pool and12new synthetic legal states; no actual manager/population/realized-point claim.
 - [x] Deliver [prioritized decision](evidence/next-study-20261123/REPORT.md) and [preregistration-ready protocol](evidence/next-study-20261123/PROTOCOL.md), reserved ID `EXP-TS-FUNDING-REALPOOL-001`.
 - [x] Reconcile registry evidence without reopening completed studies, duplicating PR54DC/MMwork or modifying any65existing protocol JSONs/code/manifests.
-- [ ] Separate commissioned implementation, immutable registration and state generation before one bounded run. No model implementation or experiment execution in this planning task.
+- [x] Later user Phase5executed the one study; see current Phase5section. This earlier planning task itself ran no experiment.
 
 ### User Phase4 — prospective frozen MM/PM validation **setup implemented; data pending**
 
