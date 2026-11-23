@@ -1,0 +1,68 @@
+{
+  "scope": "Read-only PR metadata and scoped reviews; no forecast outcomes fetched",
+  "pull_requests": [
+    {
+      "number": 47,
+      "head_sha": "089bc44c9f1a3e93d158409a75b339ea99fadb45",
+      "base": "research/scientific-programme-20261122",
+      "state": "open",
+      "merged": false,
+      "url": "https://github.com/pdamkier-del/fpl-analytics-app/pull/47",
+      "reviews": [
+        {
+          "url": "https://github.com/pdamkier-del/fpl-analytics-app/pull/47#pullrequestreview-6013306012",
+          "body": "Independent scoped methodological review of Stage 0 (PR #47):\n\nI inspected stage0/REPORT.md, GAP_MATRIX.md, the current EXP-TS-SEARCH-001 registration, LEGACY-040/044/045, the archived six-case historical-TS-cases.json and the old TSv4 joint-MILP checkpoint. The proposed incremental novelty boundary is well supported: the older six-case enumeration is horizon=1, relies on heuristic nomination for alternative squads and buffer=1.5, while current Stage 1 proposes an exact bounded reference under the frozen current scorer/config and a joint transfer/nomination boundary. The prior TSv4 MILP checkpoint is a separate formulation with only GW1 smoke evidence; it is not evidence of an exact current shared-PM six-GW oracle. Thus a *narrow* correctness study remains warranted. Do not present it as the first TS exact test, or as proof of full FPL/season optimality.\n\nImportant implementation checks for Stage 1:\n1. Write down the frozen scorer identity and confirm the exact-reference utility is identical to the heuristic's objective on all declared witnesses; comparison against a surrogate is invalid.\n2. Make the finite feasible domain explicit, particularly how the 15-player squad, pool<=17, up to two transfers, valid formations, and captain/vice/bench menus interact. The DNP nomination level is only optimal within its restricted menu.\n3. Verify 6-GW FT/bank/sale-price/hit transitions and objective weighting without altering the registered bounds or 120-second initial cap. If exact enumeration is infeasible, register an honest blocked result, not an expanded or approximated 'exact' oracle.\n4. Preserve all instances, including positive gaps, and separately report search gap, scorer disagreement, and illegal action rates. Use no p-values for finite deterministic correctness.\n5. This review is scoped to the TS-overlap/novelty question and documentation. I have not personally reproduced all 2,471 hashes, checked every one of 38 new registrations, or rerun the 20 tests; the overall independent Stage-0 scientific-review checkbox should remain pending until the rest of the inventory is reviewed.\n\nNo production merge, model promotion, or protocol change is recommended from this review.",
+          "review": "COMMENTED"
+        }
+      ]
+    },
+    {
+      "number": 48,
+      "head_sha": "b087de223af81398bb0f2497a5107e2edaf3d82f",
+      "base": "research/c1-stage0-20261122",
+      "state": "open",
+      "merged": false,
+      "url": "https://github.com/pdamkier-del/fpl-analytics-app/pull/48",
+      "reviews": [
+        {
+          "url": "https://github.com/pdamkier-del/fpl-analytics-app/pull/48#pullrequestreview-6013901372",
+          "body": "Scoped methodological review of EXP-TS-SEARCH-001, PR #48.\n\nI inspected REPORT.md, summary.json, DESIGN.md, offline-verification.json and the handoff. The reported deterministic split (11/30 positive gaps: six enabler and five sale-price instances), 12 restricted-DNP zero gaps, 252 legal path actions, 11,880 score checks, and 16.095455-second runtime are internally consistent in these artifacts. D01 arithmetic independently checks: 90*2.38336=214.5024 and 108*2.38336-10=247.40288, hence 32.90048 difference. Two reference variants attribute the material synthetic gap to transfer/path search rather than nomination scoring.\n\nScientific interpretation: the result is credible **bounded synthetic evidence of a real fast-local pruning failure**, not 11/30 expected misses on real FPL states or 32.9 realized FPL points. The failure mechanism (funding/enabler leg) was previously documented; this adds six-GW current-scorer finite-domain measurement. The DNP domain has a restricted nomination menu and no incoming transfers, so it does not certify general stochastic/chip search. Exactness beyond the declared synthetic domain has not been established.\n\nI have not independently executed the optimizer or inspected every line of the exact-DP implementation; therefore this is a scoped review, **not full independent code/reproducibility signoff**, and the result/code review checkbox should remain pending such a review. Suggested next steps: preserve frozen incumbent and completed experimental data; pursue already-ready EXP-PM-DEFS-001 now. If a TS repair is prioritized, preregister a separate candidate that preserves negative-value financing bundles, specify runtime/legality/budget/FT controls and pre-freeze new unseen exact reference domains. Treat these 42 existing cases strictly as development/regression checks. No TS production change or parameter tuning is warranted yet.",
+          "review": "COMMENTED"
+        }
+      ]
+    },
+    {
+      "number": 49,
+      "head_sha": "caf6401fca8bbf7128358641ace9cfd7336e17eb",
+      "base": "research/c1-ts-search-20261122",
+      "state": "open",
+      "merged": false,
+      "url": "https://github.com/pdamkier-del/fpl-analytics-app/pull/49",
+      "reviews": []
+    },
+    {
+      "number": 50,
+      "head_sha": "c896d16e6f07c975f434c45b49a0649ad8af25d3",
+      "base": "research/c1-pm-definitions-20261122",
+      "state": "open",
+      "merged": false,
+      "url": "https://github.com/pdamkier-del/fpl-analytics-app/pull/50",
+      "reviews": [
+        {
+          "url": "https://github.com/pdamkier-del/fpl-analytics-app/pull/50#pullrequestreview-6014657206",
+          "body": "Scoped scientific review of PR #50, EXP-TS-FUNDING-001 (not production approval).\n\nI read REPORT.md, holdout-summary.json, PROTOCOL.md and CAPTURE_AUDIT.md. The archived holdout arithmetic is consistent: baseline total finite-domain gap 8.95744, candidate 4.25184; reduction 4.70560/48 = 0.0980333 weighted synthetic utility. Improvements occur in 2/48 cases and only the fixture_windows family, with 0 observed worsenings. Candidate/baseline measured planner-time ratio 1.04412 on the small domain. Thus the preregistered two-family practical gate **fails**, even though other gates pass; do not relax it after seeing data. Four new finite-domain gaps remain.\n\nInterpretation: fixing 11/11 known development cases is valid regression evidence, not independent proof. The new cases only establish narrow search-quality gains conditional on the frozen nomination scorer and pool<=17. Five of the six holdout families have baseline gap zero, so the cross-family acceptance gate also suffers from limited opportunities to detect benefit; that is a design limitation to preregister against next time, *not* grounds for retrospective success. Single-order planner timings are not a production-scale speed proof. Do not infer realized FPL points or a representative failure rate.\n\nResearch direction: preserve candidate and rejection under its original gate. Prioritize the documented original-vintage and private TS capture/replay gaps as a dependency for scientifically valid real-input/stateful evaluation (separate C2 work; no private data in public Git). If another TS study is commissioned, preregister independently generated opportunities with realistic pool-size scalability and conditional gap measures; do not re-test the 90 seen cases as new holdout or silently alter candidate.\n\nThis is a limited artifact/methodology review, not an independent reproduction of the 65 tests or the solver, and not an approval to merge/deploy any model.",
+          "review": "COMMENTED"
+        }
+      ]
+    },
+    {
+      "number": 54,
+      "head_sha": "eb35ab4f523c5d5037146bcfbaf721ce32e9f884",
+      "base": "research/c1-ts-funding-20261122",
+      "state": "open",
+      "merged": false,
+      "url": "https://github.com/pdamkier-del/fpl-analytics-app/pull/54",
+      "reviews": []
+    }
+  ]
+}

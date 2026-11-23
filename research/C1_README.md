@@ -86,6 +86,14 @@ Original programme registration: **25 unchanged entries**; Stage 0 appends **38 
 
 The historical roadmap Stage3 below is PM; this user Phase3 is a separately registered TSstudy. Failed practical acceptance is preserved despite successful execution.
 
+### Next-study prioritization — 23 November 2026 **planning complete, no execution**
+
+- [x] Compare historical MM/PM failures and identification limits with TS's documented pruning failure; scoped PR47/48/50reviews considered.
+- [x] Select only one next study: unchanged funding candidate, original full forecast pool and12new synthetic legal states; no actual manager/population/realized-point claim.
+- [x] Deliver [prioritized decision](evidence/next-study-20261123/REPORT.md) and [preregistration-ready protocol](evidence/next-study-20261123/PROTOCOL.md), reserved ID `EXP-TS-FUNDING-REALPOOL-001`.
+- [x] Reconcile registry evidence without reopening completed studies, duplicating PR54DC/MMwork or modifying any65existing protocol JSONs/code/manifests.
+- [ ] Separate commissioned implementation, immutable registration and state generation before one bounded run. No model implementation or experiment execution in this planning task.
+
 ### User Phase4 — prospective frozen MM/PM validation **setup implemented; data pending**
 
 - [x] Reuse existing MM/OPS registrations and historical definitions; add only EXP-PM-LIVE-001. All64previous protocol JSONs unchanged.
