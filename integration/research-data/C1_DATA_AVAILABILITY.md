@@ -35,3 +35,10 @@ original cutoff is recorded in evidence/new-original-manifest.json, with officia
 additional existing originals. These are original-vintage records, not model
 reruns, completed outcomes or newly proven model efficacy. Main activation and
 actual automatic-event evidence must be read separately in MAIN_READINESS.
+
+**Main status:** PR #52is merged as0d0690d9. Workflow427556513is ACTIVE with
+producer-completion and hourly catch-up triggers; main verification45138854260
+succeeded and independently retained/recovered the original issue. That run was
+manual; the first natural timer/event delivery is still to be observed. Read
+MAIN_READINESS and evidence/main-activation.json for the precise distinction.
+Sixretained revisions currently cover one originGW12, not sixindependent GWs.

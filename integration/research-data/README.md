@@ -83,3 +83,11 @@ Omit `--source-run` for discovery/catch-up. To recover independently, use
 `releases.recover(TAG, destination, releases.Github(REPOSITORY))`.
 See [MAIN_READINESS.md](MAIN_READINESS.md) for actual test/drift receipts and
 [C1_DATA_AVAILABILITY.md](C1_DATA_AVAILABILITY.md) for scientific eligibility.
+
+## Activated main version
+
+PR #52merged as0d0690d9without the PR44/46/51stack. The consumer is ACTIVE on
+main; main catch-up45138854260passed with existing revisions untouched. Actual
+first scheduled/event delivery remains a separately monitored observation.
+The original producer/Pages/protected workflows are unchanged. See the main
+activation/test/recovery receipts and release-blocker table in MAIN_READINESS.
