@@ -10,6 +10,12 @@ window.addEventListener('DOMContentLoaded', async () => {
     return;
   }
   button.closest('section').hidden = false;
+  for (const id of ['githubToken', 'refreshForecast', 'calculateOnline']) {
+    const control = document.getElementById(id);
+    if (control) control.disabled = true;
+  }
+  const legacy = document.getElementById('onlineStatus');
+  if (legacy) legacy.textContent = 'Denne preview beregner kun via Transfers og sender ikke holdet til GitHub Actions.';
   const message = document.getElementById('manager-import-status');
   const entry = document.getElementById('manager-import-entry');
   button.addEventListener('click', async () => {
