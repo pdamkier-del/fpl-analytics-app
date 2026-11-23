@@ -13,7 +13,7 @@ def reseal_synthetic_initial_registry(root):
  (root/'events.jsonl').write_text(''.join(json.dumps(e)+'\n'for e in rows))
 
 def test_all_evidence_and_protected_protocol_validate():
- r=reg.validate();assert r['experiments']==64 and r['existing_protocol_unchanged'];p=reg.read()['EXP-MM-SUB-20261108']['protocol'];assert p['sample_size']['minimum_gws']==8 and p['sample_size']['minimum_matches']==80
+ r=reg.validate();assert r['experiments']==65 and r['existing_protocol_unchanged'];p=reg.read()['EXP-MM-SUB-20261108']['protocol'];assert p['sample_size']['minimum_gws']==8 and p['sample_size']['minimum_matches']==80
 
 def test_registered_protocol_cannot_be_silently_edited(temporary):
  p=temporary/'experiments/EXP-TS-SEARCH-001.json';j=json.loads(p.read_text());j['question']='edited';p.write_text(json.dumps(j))
@@ -58,8 +58,10 @@ def test_local_markdown_links_resolve():
    if '://'not in link and not(p.parent/link.split('#')[0]).exists():bad.append((p.name,link))
  assert not bad
 
-def test_planning_branch_does_not_include_pipeline_changes():
- base='0a08c3d7d6003947eb6205fdc58e981150bcd5ca';paths=subprocess.check_output(['git','-C',str(ROOT),'diff','--name-only',base],text=True).splitlines();paths+=subprocess.check_output(['git','-C',str(ROOT),'ls-files','--others','--exclude-standard'],text=True).splitlines();assert paths and all(p=='MASTER_PLAN.md'or p.startswith('research/')for p in paths)
+def test_research_branch_has_only_authorized_report_workflow_outside_research():
+ base='0a08c3d7d6003947eb6205fdc58e981150bcd5ca';paths=subprocess.check_output(['git','-C',str(ROOT),'diff','--name-only',base],text=True).splitlines();paths+=subprocess.check_output(['git','-C',str(ROOT),'ls-files','--others','--exclude-standard'],text=True).splitlines();assert paths and all(p=='MASTER_PLAN.md'or p.startswith('research/')or p=='.github/workflows/research-mm-pm-evaluation.yml'for p in paths)
+ workflow=(ROOT/'.github/workflows/research-mm-pm-evaluation.yml').read_text()
+ assert 'run_online.py'in workflow and 'pages:'not in workflow and 'private_ts'not in workflow and 'run_joint'not in workflow
 
 def test_later_result_overwrite_is_detected(temporary):
  id='EXP-TS-SEARCH-001';h=temporary/'tools/synthetic_harness.py';h.write_text('# test metadata only\n');p=temporary/'results/proof.json';p.write_text('{"value":1}')
