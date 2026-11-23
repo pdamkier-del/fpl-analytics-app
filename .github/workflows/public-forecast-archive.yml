@@ -1,0 +1,50 @@
+name: Archive original public B forecasts
+on:
+  workflow_run:
+    workflows: [Refresh isolated current B preview]
+    types: [completed]
+    branches: [main]
+  schedule:
+    - cron: '43 * * * *'
+  workflow_dispatch:
+    inputs:
+      source_run:
+        description: 'Optional existing original producer run on main; never recompute or deploy'
+        required: false
+        type: string
+permissions:
+  contents: read
+concurrency:
+  group: fpl-permanent-public-research-archive
+  cancel-in-progress: false
+jobs:
+  archive:
+    if: ${{ github.event_name != 'workflow_run' || (github.event.workflow_run.head_repository.full_name == github.repository && github.event.workflow_run.head_branch == 'main') }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    permissions:
+      contents: write
+      actions: read
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Consume original artifacts and verify permanent release recovery
+        env:
+          GH_TOKEN: ${{ github.token }}
+          SOURCE_RUN: ${{ inputs.source_run || github.event.workflow_run.id || '' }}
+        run: |
+          args=(--repository "$GITHUB_REPOSITORY" --target "$GITHUB_SHA" --out work/public-archive-status)
+          if [[ -n "$SOURCE_RUN" ]]; then args+=(--source-run "$SOURCE_RUN"); fi
+          python integration/research-data/automatic.py "${args[@]}"
+      - name: Retain public operational status (not forecast storage)
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: public-forecast-archive-status-${{ github.run_id }}
+          path: work/public-archive-status/status.json
+          if-no-files-found: error
+          retention-days: 90
