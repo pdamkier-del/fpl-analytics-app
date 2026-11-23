@@ -1,3 +1,26 @@
+# Current C1 handoff — choose ONE next study, 23 November 2026
+
+**Branch:** `research/c1-next-study-priority-20261123`, based on PR54head `eb35ab4f`. Planning delivery only; research PR pending creation. No model/harness implementation, forecast/label collection, case generation, numerical runs or deployment.
+
+Read [priority decision](evidence/next-study-20261123/REPORT.md), [one preregistration-ready protocol](evidence/next-study-20261123/PROTOCOL.md), [machine-readable reservation](evidence/next-study-20261123/proposal.json), and [source hashes](evidence/next-study-20261123/sources.json). Existing PR54handoff below remains the operational baseline; do not restart it.
+
+## Decision / duplication boundary
+
+Reserve **EXP-TS-FUNDING-REALPOOL-001**: test unchanged PR50funding candidate against frozen TSv3 with one already-seen original six-GW forecast/fullplayerpool and12new synthetic legal states. Measure same-scorer conditional utility and production-size runtime; not actual managers, global optimum or realized FPLpoints. Scope is the previously unmeasured full-pool feasibility question, not another17player exactness study or changed candidate. PR50's failed two-family gate remains failed/completed.
+
+MMstart/minute exposure is the broadest predictive risk, but there is no uniquely justified new MM/PMcorrection yet. Existing survival/return/role/workload/share/BPS/CSwork must not be repeated. Continue already-registered PR54frozen observations; DCmarginal calibration is already inside EXP-PM-LIVE-001, so do not add its old suggested standalone ID. No use of incoming PR54validation results for development.
+
+## Next task, only if implementation is commissioned
+
+1. Read draft protocol and reviews; implement only an isolated lossless original-archive-to-existing-worker adapter and harness, preserving frozen TSconfig/scorer/candidate. If original inputs cannot be recovered, block; no resimulation/surrogate.
+2. Pin the single original pre-PR54boundary forecast specified in protocol. Never substitute new PR54eligible issues/labels. Freeze/register protocol/harness/command before generating all12teststates; no numerical tuning on them.
+3. One120s/arm,3600s total attempt; utility/coverage/legality/runtime gates all required. No significance claim from12dependent states. Report failures, no opportunity, regressions and timeouts. Passing only supports considering later privately captured real-state research.
+4. Do not modify existing65protocolJSONs, events prefix, PR54frozen implementation/manifest, app/models/trial. Formal new experiment JSON does **not** exist yet; reservation and registry reconciliation are planning evidence, not permission to run. Respect frozen manifest-covered tests when eventually extending registry infrastructure in a separately versioned change.
+
+The present registry still has65entries; append-only reconciliations link planning evidence to completed TSfunding and existing MMlive without changing states. No new candidate, live report activation or scientific accuracy finding. Independent reviews of old studies remain scoped/pending full reproduction.
+
+---
+
 # Current C1 handoff — Phase4 prospective MM/PM setup, 23 November 2026
 
 **Separate branch:** `research/c1-mm-pm-live-20261123`, stacked on research PR50. Public C2runtime loaded from pinned main PR53 `d4d6e8046ad5d965cf41f5a8fce2b32a49fca16c`; no wholesale integration-stack merge. Delivered research [PR #54](https://github.com/pdamkier-del/fpl-analytics-app/pull/54); no main activation/deploy.
