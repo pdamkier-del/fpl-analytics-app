@@ -1,6 +1,6 @@
 # Current C1 handoff — choose ONE next study, 23 November 2026
 
-**Branch:** `research/c1-next-study-priority-20261123`, based on PR54head `eb35ab4f`. Planning delivery only; research PR pending creation. No model/harness implementation, forecast/label collection, case generation, numerical runs or deployment.
+**Branch:** `research/c1-next-study-priority-20261123`, based on PR54head `eb35ab4f`. Planning delivery only; delivered [research PR #56](https://github.com/pdamkier-del/fpl-analytics-app/pull/56). No model/harness implementation, forecast/label collection, case generation, numerical runs or deployment.
 
 Read [priority decision](evidence/next-study-20261123/REPORT.md), [one preregistration-ready protocol](evidence/next-study-20261123/PROTOCOL.md), [machine-readable reservation](evidence/next-study-20261123/proposal.json), and [source hashes](evidence/next-study-20261123/sources.json). Existing PR54handoff below remains the operational baseline; do not restart it.
 
