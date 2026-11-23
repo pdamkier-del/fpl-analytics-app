@@ -1,16 +1,17 @@
 # FPL Research Lab — research status
 
-Snapshot as of programme registration, 22 November 2026. Generated from registry; not a live job monitor.
+Snapshot including Phase4 setup, 23 November 2026. Generated from registry; not a live job monitor.
 
 | Experiment | State | Priority | Execution-ready | Next action |
 | --- | --- | --- | --- | --- |
 | [EXP-TS-FUNDING-001](experiments/EXP-TS-FUNDING-001.json) | completed | 1 | completed; no model promotion | Read completion evidence in append-only events and SESSION_HANDOFF; original protocol remains unchanged. |
 | [EXP-TS-SEARCH-001](experiments/EXP-TS-SEARCH-001.json) | completed | 1 | completed; no model promotion | Read completion evidence in append-only events and SESSION_HANDOFF; original protocol remains unchanged. |
 | [EXP-MM-SUB-20261108](experiments/EXP-MM-SUB-20261108.json) | awaiting_data | 2 | no; see prerequisites/implementation | Observe existing job and final GW labels; do not refit, retune or count old20fixtures. |
-| [EXP-MM-LIVE-001](experiments/EXP-MM-LIVE-001.json) | awaiting_data | 3 | no; see prerequisites/implementation | Finish the original-vintage collector tests, then freeze the first GW12-or-later source. Do not regenerate historical forecasts. |
+| [EXP-MM-LIVE-001](experiments/EXP-MM-LIVE-001.json) | awaiting_data | 3 | harness registered; check data gates | Finish the original-vintage collector tests, then freeze the first GW12-or-later source. Do not regenerate historical forecasts. |
+| [EXP-PM-LIVE-001](experiments/EXP-PM-LIVE-001.json) | awaiting_data | 3 | harness registered; check data gates | Implement and hash-register read-only evaluator; verify archive link without scoring future results; retain all64prior protocols unchanged |
 | [EXP-PM-DEFS-001](experiments/EXP-PM-DEFS-001.json) | completed | 4 | completed; no model promotion | Read completion evidence in append-only events and SESSION_HANDOFF; original protocol remains unchanged. |
 | [EXP-OPS-CAPTURE-001](experiments/EXP-OPS-CAPTURE-001.json) | ready | 5 | no; see prerequisites/implementation | On the separate PR43 branch normalize bench labels at the capture boundary, preserve exact original recommendation/hash, then test private storage failure paths. Do not deploy from this planning branch. |
-| [EXP-OPS-EVAL-001](experiments/EXP-OPS-EVAL-001.json) | proposed | 6 | no; see prerequisites/implementation | Complete DGW/blank, identity and final-label gates, test immutable result revisions and add a report-only workflow in a separate integration PR. |
+| [EXP-OPS-EVAL-001](experiments/EXP-OPS-EVAL-001.json) | awaiting_data | 6 | harness registered; check data gates | Complete DGW/blank, identity and final-label gates, test immutable result revisions and add a report-only workflow in a separate integration PR. |
 | [EXP-MM-ABLATION-001](experiments/EXP-MM-ABLATION-001.json) | proposed | 20 | no; see prerequisites/implementation | Identify a genuinely new information set; do not repeat existing HMM/workload or role-rebuild studies unchanged. |
 | [EXP-PM-CS-BPS-001](experiments/EXP-PM-CS-BPS-001.json) | proposed | 21 | no; see prerequisites/implementation | After field contracts pass, write a candidate-specific preregistration and power plan; keep existing substitution trial separate. |
 | [EXP-TS-POLICY-001](experiments/EXP-TS-POLICY-001.json) | awaiting_data | 22 | no; see prerequisites/implementation | Obtain private original managerstate, nomination, verified execution and all6 horizon rows; report missing observations, not zero outcomes. |
@@ -71,6 +72,6 @@ Snapshot as of programme registration, 22 November 2026. Generated from registry
 
 `ready` means scientific/data prerequisites support starting implementation. It does not claim the execution harness exists. `awaiting_data` is not a failed model. Historical accepted/rejected decisions have the narrow scope in their evidence.
 
-Stage 0 inventory review remains pending. Completed research: TS-search in results/EXP-TS-SEARCH-001/REPORT.md; PM definitions in results/EXP-PM-DEFS-001/REPORT.md; isolated TS funding comparison in results/EXP-TS-FUNDING-001/REPORT.md (practical two-family gate failed; no promotion). Next existing ready registration: EXP-OPS-CAPTURE-001; check SESSION_HANDOFF for ownership and remaining gates. No model promotion or C2 integration; protected substitution trial unchanged.
+Stage 0 inventory review remains pending. Completed research: TS-search in results/EXP-TS-SEARCH-001/REPORT.md; PM definitions in results/EXP-PM-DEFS-001/REPORT.md; isolated TS funding comparison in results/EXP-TS-FUNDING-001/REPORT.md (practical two-family gate failed; no promotion). Next existing ready registration: EXP-OPS-CAPTURE-001; check SESSION_HANDOFF for ownership and remaining gates. Prospective MM/PM setup: results/EXP-MM-PM-LIVE-SETUP/REPORT.md; code/archive link verified, awaiting eligible originals/final outcomes and reviewed report-workflow integration. No model promotion; protected substitution trial unchanged.
 
 Never count seen GW8–10 again as new validation. New MM/PM holdouts begin at an eligible later origin, not after reviewing current GW11 outcomes.

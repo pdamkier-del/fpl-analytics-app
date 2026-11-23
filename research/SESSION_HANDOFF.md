@@ -1,3 +1,29 @@
+# Current C1 handoff — Phase4 prospective MM/PM setup, 23 November 2026
+
+**Separate branch:** `research/c1-mm-pm-live-20261123`, stacked on research PR50. Public C2runtime loaded from pinned main PR53 `d4d6e8046ad5d965cf41f5a8fce2b32a49fca16c`; no wholesale integration-stack merge. Research PR pending creation; no main activation/deploy.
+
+Read [setup REPORT](results/EXP-MM-PM-LIVE-SETUP/REPORT.md), [PROTOCOL](mm_pm_live/PROTOCOL.md), [README/reproduction](mm_pm_live/README.md), [next improvement gates](mm_pm_live/NEXT_IMPROVEMENTS.md), then registry events/status. Prior research below is historical context, not the current action queue.
+
+## Completed now
+
+Existing EXP-MM-LIVE-001 and EXP-OPS-EVAL-001 reused; only missing EXP-PM-LIVE-001 added (65entries). Original64protocol JSONs/event prefix and protected trial unchanged. Protocol `7c4df96f`; boundary **2026-11-23T11:04:39.640399+00:00**. Code v1 `e7a7dade`, archive-I/O-only v2 `e09dbf5c`, each registered before its actual preflight. v1receipt/code retained; use v2with latest registry.91tests pass; no model/scorer/app changes, old efficacy reruns, manager data or optimization.
+
+Actual original GW12archive independently recovered/hash-validated with existing C2helpers; horizon12–17/400shared scenarios. Older issue is ineligible for new research. Both live link checks: zero eligible new issues, zero prospective scores. Official GW12observed unfinished/not-data-checked. Natural C2main archive workflow_run45150316270verified successful; the new scientific evaluation workflow is proposed only, not operating on main.
+
+## Next session — do this, not another retrospective audit
+
+1. Review scientific endpoints/missingness and proposed public-only consumer workflow; use separate minimal integration to main after review. No producer/model/app/private-storage change needed. Branch workflow cannot supply automatic main reports yet.
+2. Run registered v2command with pinned archive checkout and a fresh directory. First eligible issue must be generated AND completely published after boundary and before deadline minus60minutes. GW12deadline27Nov18:30UTC; selection cutoff17:30UTC. If no eligible issue, start next valid origin, do not backfill old example.
+3. Once an origin qualifies, retain immutable window/selection before final labels; score only original originGWtargets after official finished/data_checked and contracts pass. Keep gaps explicit. Never count the other5horizon targets as independent observations.
+4. Fixed16scheduled origins from first eligible, final lock30days after last original-calendar deadline;12completeGW/120fixture minimum. No extension/tuning/efficacy stopping. Until then descriptive only; all3setup registrations await data, not completed/accepted.
+5. Diagnose fresh MMexposure separately from PMcomponent residuals; injury-return episodes, save-count/BPSjoint laws remain unidentified. After supported errors, preregister ONE mechanism on later untouched outcomes. No new FPLgain claim yet.
+
+Real future final-label scoring and real immutable research report publication are **not yet operationally verified**. In-memory cycle tests cover writes/restart/late-final/no-lookahead; actual original Release recovery is verified. Do not confuse these scopes. Proposed workflow needs contents-write for public research records only; private TSremains outside this work.
+
+Independent scientific/code review stays pending. Earlier TSfunding practical gate failure and protected substitution protocol remain unchanged.
+
+---
+
 # Current C1 handoff — TS funding candidate completed, 22 November 2026
 
 **Delivered PR:** [#50](https://github.com/pdamkier-del/fpl-analytics-app/pull/50), stacked on #49; no merge or deploy.65tests pass; registry64entries.
