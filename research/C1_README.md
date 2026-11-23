@@ -93,6 +93,7 @@ The historical roadmap Stage3 below is PM; this user Phase3 is a separately regi
 - [x] Generate exactly12legal states; commit the entire batch before any arm. No extra states/numerical retries.
 - [x] Attempt12baselines/12candidates/12keep-controls within1445.35active run seconds (<3600).10equal completed pairs;2candidate timeouts. No completed-path legality/scorer error.
 - [x] Report all outcomes, missing primary mean, runtime/RSS limits and failed coverage/runtime gate; candidate **not accepted** and deprioritized.
+- [x] Deliver separate [research PR #57](https://github.com/pdamkier-del/fpl-analytics-app/pull/57), stacked on #56; no merge/deploy.
 - [x] Verify PR54current manifest/model/trial protection;94tests pass,2preserved metadata-snapshot count failures disclosed. Current registry66validates.
 - [ ] Independent full code/reproducibility review; no production integration or model promotion.
 

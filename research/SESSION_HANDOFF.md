@@ -1,6 +1,6 @@
 # Current C1 handoff — Phase5 completed, candidate deprioritized
 
-23 November2026. Separate branch `research/c1-ts-realpool-20261123`, based on PR56head `a9276bc7`. Research PR pending creation; no merge/deploy. **EXP-TS-FUNDING-REALPOOL-001 completed as a failed feasibility result, not accepted.** Existing models/app/PR54validation/protected substitution experiment remain unchanged.
+23 November2026. Separate branch `research/c1-ts-realpool-20261123`, based on PR56head `a9276bc7`. Delivered research [PR #57](https://github.com/pdamkier-del/fpl-analytics-app/pull/57); no merge/deploy. **EXP-TS-FUNDING-REALPOOL-001 completed as a failed feasibility result, not accepted.** Existing models/app/PR54validation/protected substitution experiment remain unchanged.
 
 Read [REPORT](results/EXP-TS-FUNDING-REALPOOL-001/REPORT.md), [summary](results/EXP-TS-FUNDING-REALPOOL-001/summary.json), [all12cases](results/EXP-TS-FUNDING-REALPOOL-001/cases.csv), [verification](results/EXP-TS-FUNDING-REALPOOL-001/verification.json) and [reproduction](ts_realpool/README.md). Earlier handoffs below are history, not permission to restart studies.
 
