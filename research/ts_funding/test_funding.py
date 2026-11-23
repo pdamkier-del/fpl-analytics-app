@@ -121,7 +121,8 @@ def test_independent_dp_hand_derived_hit_and_six_week_identity():
 
 def test_only_research_files_changed():
     paths=subprocess.check_output(['git','-C',str(ROOT),'diff','--name-only','caf6401fca8bbf7128358641ace9cfd7336e17eb'],text=True).splitlines()
-    assert paths and all(p.startswith('research/')for p in paths)
+    # Phase4 authorizes precisely one report consumer workflow; numerical scope stays frozen.
+    assert paths and all(p.startswith('research/')or p=='.github/workflows/research-mm-pm-evaluation.yml'for p in paths)
 
 
 def test_public_capture_hashes_horizon_and_missing_witness_are_explicit():

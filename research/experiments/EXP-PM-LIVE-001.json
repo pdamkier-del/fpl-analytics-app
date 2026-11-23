@@ -1,0 +1,64 @@
+{
+  "id": "EXP-PM-LIVE-001",
+  "protocol_version": 1,
+  "registered_on": "2026-11-23",
+  "kind": "planned",
+  "question": "How accurate and calibrated is frozen PM vFinal on new original origin-GW forecasts, separating exposure and component diagnostics?",
+  "statistical_hypothesis": "Estimate empirical point CRPS and prespecified component calibration; compare paired point-MSE with same-origin official ep_next only at the final fixed review, without candidate tuning.",
+  "initial_status": "awaiting_data",
+  "priority": 3,
+  "primary_metric": "Empirical origin-GW total-point CRPS; paired point-MSE versus archived official ep_next is the prespecified mean-comparison endpoint",
+  "secondary_metrics": [
+    "xP MAE/MSE/RMSE/bias",
+    "qualified CS and DC Brier",
+    "component mean errors",
+    "fixed interval/PIT/haul calibration",
+    "MM exposure profiles and data coverage"
+  ],
+  "baseline": "Frozen PM vFinal; same-origin official ep_next for point-mean comparison; prior-only total_points/club completed fixtures as secondary mean baseline",
+  "candidate_modification": "No model candidate or optimization; research-only observation/evaluation",
+  "train_development_test": {
+    "train": "none; frozen161b67b6",
+    "development": "GW8\u201310 and synthetic data are infrastructure-only; old research not repeated as validation",
+    "test": "Common issue boundary at this registration; first eligible origin>=12, fixed16consecutive origins, only origin-GW targets"
+  },
+  "data_sources_and_cutoffs": [
+    {
+      "source": "research/mm_pm_live/PROTOCOL.md",
+      "cutoff_quality": "Locked before future labels; new issues must be generated and fully published after registration and by deadline-minus60minutes"
+    },
+    {
+      "source": "https://github.com/pdamkier-del/fpl-analytics-app/pull/53",
+      "cutoff_quality": "Reuse pinned main archive recovery; no forecast regeneration"
+    }
+  ],
+  "sample_size": {
+    "planned_consecutive_origins": 16,
+    "minimum_complete_gws": 12,
+    "minimum_distinct_fixtures": 120,
+    "final_lock_days_after_last_deadline": 30,
+    "new_completed_gws": 0
+  },
+  "power": {
+    "status": "not_estimated",
+    "reason": "No credible paired GW-level variance available; see POWER_ANALYSIS.md"
+  },
+  "dependencies": [
+    "EXP-OPS-EVAL-001",
+    "EXP-PM-DEFS-001"
+  ],
+  "reproduction_command": "python -m pytest -q research/mm_pm_live/tests",
+  "reproduction_command_scope": "Infrastructure contracts only; not efficacy evidence",
+  "full_experiment_command": "python research/mm_pm_live/run_online.py --archive-root PINNED_C2_CHECKOUT --out NEW_OUTPUT_DIRECTORY",
+  "execution_ready": false,
+  "acceptance_criteria": [
+    "Verified original issues and final official labels; zero silent identity/rule/revision errors",
+    "No inference before fixed window lock and12GW/120matches floor",
+    "All prespecified metrics, missingness and paired GW-block intervals reported; no model promotion"
+  ],
+  "result_links": [
+    "research/mm_pm_live/PROTOCOL.md"
+  ],
+  "final_decision": "Registered; no future outcomes inspected; implementation and eligible new original/finished results pending",
+  "next_action": "Implement and hash-register read-only evaluator; verify archive link without scoring future results; retain all64prior protocols unchanged"
+}

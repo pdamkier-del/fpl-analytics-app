@@ -1,7 +1,7 @@
 # C1 — Scientific Model Research | README & progress checklist
 
 **Owner:** C1 (Codex model research) · **Programme:** FPL Analytics + FPL Research Lab
-**Last prepared:** 2026-11-22 · **State:** user Phase3 EXP-TS-FUNDING-001 completed; practical two-family gate FAILED; candidate research-only; no model/app changes; independent result review pending
+**Last prepared:** 2026-11-23 · **State:** user Phase4 MM/PM prospective protocol and evaluator implemented; archive link verified; awaiting eligible originals/final outcomes and reviewed automation integration. Phase3 candidate remains unpromoted.
 **Canonical scientific plan:** [MASTER_PLAN.md](MASTER_PLAN.md) · **Registry:** [experiments/](experiments/) · **Current snapshot:** [STATUS.md](STATUS.md) · **Session handoff:** [SESSION_HANDOFF.md](SESSION_HANDOFF.md)
 
 > **Mission:** Improve *validated* predictive quality and FPL decision value—not apparent historical fit or model complexity. Research is separate from the stable Analytics app. This README is the human-readable checklist, **not** a replacement for the experiment registry, immutable evidence, or append-only decision log.
@@ -85,6 +85,21 @@ Original programme registration: **25 unchanged entries**; Stage 0 appends **38 
 - [x] Delivered separate [Phase3 research PR #50](https://github.com/pdamkier-del/fpl-analytics-app/pull/50), stacked on #49; no merge or deploy.
 
 The historical roadmap Stage3 below is PM; this user Phase3 is a separately registered TSstudy. Failed practical acceptance is preserved despite successful execution.
+
+### User Phase4 — prospective frozen MM/PM validation **setup implemented; data pending**
+
+- [x] Reuse existing MM/OPS registrations and historical definitions; add only EXP-PM-LIVE-001. All64previous protocol JSONs unchanged.
+- [x] Preregister common issue boundary, baselines, fixed16-origin period, final lock, minimum12GW/120fixture gate and uncertainty before eligible outcomes.
+- [x] Implement reproducible MM/PM evaluator, official final-label adapter and immutable public report contracts;91tests pass.
+- [x] Verify full recovery/validation of a real six-GW C2archive; older issue infrastructure-only, zero prospective origins scored.
+- [x] Prepare daily/archive-event scientific report workflow, separate from existing main C2archiving; no model/app/trial change.
+- [x] Deliver separate [research PR #54](https://github.com/pdamkier-del/fpl-analytics-app/pull/54), stacked on #50; independent review pending.
+- [ ] Review and integrate proposed report workflow onto main; this research PR does not activate it.
+- [ ] Retain first eligible post-registration original and immutable origin selection; GW12possible, otherwise next valid future origin.
+- [ ] Match official finished/data-checked results and publish per-GW reports; evaluate fixed window at its data lock.
+- [ ] Identify supported new model weaknesses and preregister a later untouched improvement trial. No candidate fitting now.
+
+Read [setup report](results/EXP-MM-PM-LIVE-SETUP/REPORT.md), [locked protocol](mm_pm_live/PROTOCOL.md), [reproduction](mm_pm_live/README.md), and [priorities/identification gaps](mm_pm_live/NEXT_IMPROVEMENTS.md). These completion ticks describe infrastructure, not model accuracy evidence.
 
 ### Stage 2 — MM **independent predictive quality**
 
