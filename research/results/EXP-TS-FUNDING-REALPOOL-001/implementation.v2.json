@@ -1,0 +1,30 @@
+{
+  "schema": "ts-realpool-implementation-v2",
+  "files": {
+    "research/evidence/next-study-20261123/PROTOCOL.md": "7fe389a81bbc50302c15adda9365f734fa2fda21d9ee21bc2de77539205e1057",
+    "research/experiments/EXP-TS-FUNDING-REALPOOL-001.json": "5cffcdf163c6fe2866192cb82ca71566993feec692a8fa719b02b830427967fb",
+    "research/ts_funding/candidate.py": "aa712631bc53b7923128dbcad76a69a3e5cf599c9f67137900fac7414c956096",
+    "research/ts_realpool/IMPLEMENTATION.md": "0fff4d04b5bfce7f7b4e3a08ca347b09d5f728fb926e74f5b9351ddd4ad09d2a",
+    "research/ts_realpool/adapter.py": "e6e9f3600709be5e105e12905c7b903f66544bc569761f06e46e4fe2f094d183",
+    "research/ts_realpool/adapter_v2.py": "7aea663dfc9c2a9c7f0ba0e3cd721aec76d01b28a5c121d58cf587c4277557eb",
+    "research/ts_realpool/generate.py": "09602fe44ce0247421b436fd8ea03b2bc169dcb7d54607ec74b05b0b2b645d26",
+    "research/ts_realpool/run.py": "a7ec099fd8886369aa5af26d75b28a3a97b440a253fd674e154ab2426f5092bd",
+    "research/ts_realpool/run_v2.py": "2958fcc178dc90ac44ed5d664741c2dcde45a2e4567677bbda9663e8ddc08f12",
+    "research/ts_realpool/tests/test_contracts.py": "6cb26ef0d4a04779793c599321e7a29b7b48501ba4e950c610de28bfd5fa90d6",
+    "research/ts_realpool/tests/test_roundoff_v2.py": "487f14da07b098cc7fe195cc53c501dff19c71a1366391f489d7da8df8856c94",
+    "research/ts_realpool/worker.py": "66e60d0c4755543312bd9091bec85810f1ea1d278b77535bf9a0dd21a7d811ce",
+    "research/ts_search/code/reference.py": "883bbe83160467dc530892c817bfe5ad21eb94c34e4b6c7a31ab83da92889262",
+    "research/ts_search/code/run_experiment.py": "3f544581373f8064aa807517380f0bd6542aa41aa36337d56256fed6a0c9fc52",
+    "research/ts_search/inputs/source-manifest.json": "9ce2317b36af64f53c6d51eac093fc7941697005a41517ff4319a7ae29c0eddf"
+  },
+  "software": {
+    "python": "3.12.14 (main, Aug 25 2026, 14:00:49) [Clang 22.1.3 ]",
+    "numpy": "2.3.5",
+    "pandas": "2.2.3",
+    "scipy": "1.17.0"
+  },
+  "generated_cases": 0,
+  "numerical_runs": 0,
+  "previous_implementation_commit": "35e06b73",
+  "reason": "Input-only v1 guard rejected sub-1e-15 roundoff; preserve exact values, admit tolerance1e-12, unchanged p>=.2 eligibility. Zero generated states and zero arms before correction."
+}
