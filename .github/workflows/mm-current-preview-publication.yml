@@ -26,6 +26,11 @@ on:
         required: false
         type: boolean
         default: false
+      refresh_test_forecast:
+        description: 'Start en ny officiel prognose til testappen'
+        required: false
+        type: boolean
+        default: false
 permissions:
   contents: write
   actions: read
@@ -36,7 +41,7 @@ env:
   PREVIEW_UI_SHA: 27bf5e1e1a17360bdbbfb41fbce7fe55679c6870
 jobs:
   verified:
-    if: ${{ inputs.validated_run != '' && !inputs.validate_gk_cap_candidate && !inputs.replay_gk_cap_browser }}
+    if: ${{ inputs.validated_run != '' && !inputs.validate_gk_cap_candidate && !inputs.replay_gk_cap_browser && !inputs.refresh_test_forecast }}
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -48,7 +53,7 @@ jobs:
           VALIDATED_RUN: ${{ inputs.validated_run }}
         run: python scripts/verify_b_publication_artifact.py --run "$VALIDATED_RUN" --source "$PREVIEW_SOURCE_SHA"
   current:
-    if: ${{ inputs.validated_run == '' && !inputs.validate_gk_cap_candidate && !inputs.replay_gk_cap_browser }}
+    if: ${{ inputs.validated_run == '' && !inputs.validate_gk_cap_candidate && !inputs.replay_gk_cap_browser && !inputs.refresh_test_forecast }}
     uses: pdamkier-del/fpl-analytics-app/.github/workflows/mm-current-live-preview.yml@161b67b6fb8786a38e78c245b92a03ad841575d8
     with:
       source_ref: 161b67b6fb8786a38e78c245b92a03ad841575d8
@@ -57,7 +62,10 @@ jobs:
       contents: read
       actions: read
   gk_cap_candidate:
-    if: ${{ github.ref == 'refs/heads/integration/stable-live-app-20261122' && inputs.validate_gk_cap_candidate && !inputs.replay_gk_cap_browser && inputs.validated_run == '' }}
+    if: ${{ github.ref == 'refs/heads/integration/stable-live-app-20261122' && (inputs.validate_gk_cap_candidate || inputs.refresh_test_forecast) && !inputs.replay_gk_cap_browser && inputs.validated_run == '' }}
+    concurrency:
+      group: fpl-approved-test-forecast
+      cancel-in-progress: false
     uses: pdamkier-del/fpl-analytics-app/.github/workflows/mm-current-live-preview.yml@161b67b6fb8786a38e78c245b92a03ad841575d8
     with:
       source_ref: d7060b51cf16016f7947b2ffc110909afea89bb7
@@ -109,7 +117,7 @@ jobs:
           export NODE_PATH="$RUNNER_TEMP/fpl-browser/node_modules"
           export BROWSER_PATH="$(command -v google-chrome)"
           export FPL_PREVIEW_URL=http://127.0.0.1:18097/mm-preview/app/
-          export FPL_EXPECT_LIVE_GW=12
+          export FPL_EXPECT_LIVE_GW="$(jq -er '.gws[0]' candidate-capture/current/forecast.json)"
           export FPL_TEST_WORKER_FILE="$PWD/app/mm-preview/app/preview-sw.js"
           mkdir -p app/mm-preview/{current,gk}
           cp -a candidate-capture/current/. app/mm-preview/current/
@@ -119,7 +127,7 @@ jobs:
           import json
           from pathlib import Path
           forecast = json.loads(Path('app/mm-preview/current/forecast.json').read_text())
-          assert forecast['gws'] == list(range(12, 18))
+          assert forecast['gws'] == list(range(forecast['gws'][0], forecast['gws'][0] + 6))
           assert forecast['gk_team_fixtures']
           assert all(row['reserve_cap_policy'] == 'B-GK-saturated-availability-v1'
                      for row in forecast['gk_team_fixtures'])
@@ -142,7 +150,7 @@ jobs:
           node .c2-integration/integration/model-interface/preview-smoke.cjs
           cmp candidate-capture/current/forecast.json app/mm-preview/current/forecast.json
       - uses: actions/upload-artifact@v4
-        if: inputs.replay_gk_cap_browser && inputs.publish_gk_cap_test
+        if: inputs.refresh_test_forecast || (inputs.replay_gk_cap_browser && inputs.publish_gk_cap_test)
         with:
           name: gw12-tested-app
           path: |
@@ -155,7 +163,7 @@ jobs:
           retention-days: 1
   publish_gk_cap_test:
     needs: gk_cap_browser
-    if: ${{ !cancelled() && needs.gk_cap_browser.result == 'success' && github.ref == 'refs/heads/integration/stable-live-app-20261122' && inputs.replay_gk_cap_browser && inputs.publish_gk_cap_test }}
+    if: ${{ !cancelled() && needs.gk_cap_browser.result == 'success' && github.ref == 'refs/heads/integration/stable-live-app-20261122' && (inputs.refresh_test_forecast || (inputs.replay_gk_cap_browser && inputs.publish_gk_cap_test)) }}
     runs-on: ubuntu-latest
     timeout-minutes: 15
     concurrency:
@@ -171,19 +179,24 @@ jobs:
       name: github-pages
       url: https://pdamkier-del.github.io/fpl-analytics-app/mm-preview/app/manager-state.html
     steps:
-      - name: Confirm the production Pages baseline is still live
+      - name: Resolve the exact live Pages baseline
+        id: baseline
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
           live_run=$(gh api "repos/$GITHUB_REPOSITORY/deployments?environment=github-pages&per_page=20" --jq '.[].id' |
             while read -r deployment; do
               gh api "repos/$GITHUB_REPOSITORY/deployments/$deployment/statuses" --jq 'map(select(.state == "success")) | .[0].log_url // empty'
-            done | sed -n 's|.*/actions/runs/\([0-9]*\)/job/.*|\1|p' | head -n 1)
-          test "$live_run" = 45686442682
+            done | sed -n 's|.*/actions/runs/\([0-9]*\)/job/.*|\1|p' | awk 'NR == 1')
+          test -n "$live_run"
+          artifact=$(gh api "repos/$GITHUB_REPOSITORY/actions/runs/$live_run/artifacts" \
+            --jq '[.artifacts[] | select((.expired | not) and (.name | test("^(gw12-test-pages-|team-news-pages-|github-pages-|mm-current-preview-pages-|recovered-B-pages-)")))] | max_by(.created_at) | .name // empty')
+          test -n "$artifact"
+          printf 'run=%s\nartifact=%s\n' "$live_run" "$artifact" >> "$GITHUB_OUTPUT"
       - uses: actions/download-artifact@v4
         with:
-          name: gw12-test-pages-45686442682-1
-          run-id: 45686442682
+          name: ${{ steps.baseline.outputs.artifact }}
+          run-id: ${{ steps.baseline.outputs.run }}
           github-token: ${{ github.token }}
           path: pages-baseline
       - uses: actions/download-artifact@v4
@@ -191,6 +204,8 @@ jobs:
           name: gw12-tested-app
           path: tested-app
       - name: Overlay public test files only
+        env:
+          REPLAY_CAPTURE: ${{ inputs.replay_gk_cap_browser }}
         run: |
           mkdir site
           tar -xf pages-baseline/artifact.tar -C site
@@ -198,20 +213,24 @@ jobs:
           from datetime import datetime, timedelta, timezone
           from pathlib import Path
           import json
+          import os
           import shutil
 
           source = Path('tested-app')
           forecast = json.loads((source / 'current/forecast.json').read_text())
-          assert forecast['forecast_sha256'] == 'dd51972221307be4dabd483d64509686f8d49edc5ec7c4ede37e107b145e5fa3'
-          assert forecast['gws'] == list(range(12, 18))
+          if os.environ['REPLAY_CAPTURE'] == 'true':
+              assert forecast['forecast_sha256'] == 'dd51972221307be4dabd483d64509686f8d49edc5ec7c4ede37e107b145e5fa3'
+          assert forecast['gws'] == list(range(forecast['gws'][0], forecast['gws'][0] + 6))
           assert (source / 'current/forecast.json').read_bytes() == (source / 'gk/forecast.json').read_bytes()
           now = datetime.now(timezone.utc)
           cutoff = datetime.fromisoformat(forecast['data_asof'])
           assert cutoff <= now < min(cutoff + timedelta(hours=36), datetime.fromisoformat(forecast['origin_deadline']))
           site = Path('site')
-          assert json.loads((site / 'current-players.json').read_text())['next_gw'] == 12
+          assert json.loads((site / 'current-players.json').read_text())['next_gw'] == forecast['gws'][0]
           assert json.loads((site / 'manager-service.json').read_text())['url'] == 'https://fpl-analytics-private-manager.onrender.com'
           preview = site / 'mm-preview'
+          previous = json.loads((preview / 'current/forecast.json').read_text())
+          assert datetime.fromisoformat(previous['data_asof']) <= cutoff, 'Refusing to roll the public forecast back'
           for name in ('app', 'current', 'gk', 'news'):
               shutil.copytree(source / name, preview / name, dirs_exist_ok=True)
           for asset in (*source.glob('*.js'), *source.glob('*.css')):

@@ -36,6 +36,11 @@ async function verify() {
       await page.goto(new URL('overview.html', base).href);
       await checkDashboard();
       assert.equal(await page.getByRole('link', { name: /My Team/ }).count(), 0);
+      await page.getByText('Opdater data og prognoser', { exact: true }).click();
+      assert.match(await page.getByRole('link', { name: 'Åbn GitHub Actions' }).getAttribute('href'),
+        /\/actions\/workflows\/mm-current-preview-publication\.yml$/);
+      await page.waitForFunction(() => /godkendte prognose|Historisk prognose/.test(
+        document.getElementById('forecast-refresh-status')?.textContent || ''));
       await page.goto(new URL('my-team-classic.html', base).href);
       await page.waitForURL('**/overview.html');
       await checkDashboard();

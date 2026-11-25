@@ -167,6 +167,23 @@ def apply(app):
             f'<head><script src="{store}"></script><script src="{contract}"></script>'
             f'<script defer src="{registration}"></script><script defer src="{archive}"></script>', 1,
         )
+        if page.name == 'overview.html':
+            refresh = write_asset(app, 'forecast-refresh.js', (ASSETS / 'forecast-refresh.js').read_text())
+            html = html.replace('</head>', f'<script defer src="{refresh}"></script></head>', 1)
+            refresh_panel = (
+                '<section class="panel" aria-label="Prognoseopdatering">'
+                '<details><summary>Opdater data og prognoser</summary>'
+                '<p>Åbn GitHub Actions, vælg integrationsbranchen '
+                '<code>integration/stable-live-app-20261122</code>, sæt flueben ved '
+                '<strong>Start en ny officiel prognose til testappen</strong>, og vælg Run workflow. '
+                'Du kan følge status og eventuelle fejl i GitHub Actions.</p>'
+                '<a class="button" href="https://github.com/pdamkier-del/fpl-analytics-app/actions/workflows/'
+                'mm-current-preview-publication.yml" target="_blank" rel="noopener">Åbn GitHub Actions</a>'
+                '</details><p id="forecast-refresh-status" role="status">Henter prognosetidspunkt …</p></section>'
+            )
+            html, count = re.subn(r'(<main\b[^>]*>)', lambda match: match[0] + refresh_panel, html, count=1)
+            if count != 1:
+                raise ValueError('Dashboard main element not found')
         if page.name == 'manager-state.html':
             for control in ('githubToken', 'refreshForecast', 'calculateOnline'):
                 html = html.replace(f'id="{control}"', f'id="{control}" disabled', 1)
