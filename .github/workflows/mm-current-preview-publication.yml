@@ -57,6 +57,12 @@ jobs:
         with:
           ref: ${{ env.PREVIEW_UI_SHA }}
           fetch-depth: 0
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.sha }}
+          path: .c2-integration
+          sparse-checkout: integration/model-interface
+          persist-credentials: false
       - name: Require live isolated B compute capability
         run: |
           python - <<'PY'
@@ -143,6 +149,7 @@ jobs:
           git fetch origin free-github-static-20261010
           PYTHONPATH=src:scripts:.:analysis python scripts/weekly_model_review.py --ref FETCH_HEAD
           python scripts/integrate_desktop_probabilities.py
+          python .c2-integration/integration/model-interface/preview-overlay.py app/mm-preview/app
           python analysis/archive_prospective_player_forecast.py --capture app/mm-preview --out app/mm-preview/input-audit
           cmp .mm-preview-evidence/current/forecast.json app/mm-preview/current/forecast.json
           cmp .mm-preview-evidence/gk/forecast.json app/mm-preview/gk/forecast.json
@@ -158,6 +165,7 @@ jobs:
           node tests/test_joint_gk_contract.js
           node tests/test_season_team_comparison.js
           node tests/test_history_refresh_client.js
+          node --test .c2-integration/integration/model-interface/*.test.js
           npm install --prefix "$RUNNER_TEMP/fpl-browser" playwright@1.56.1
           export NODE_PATH="$RUNNER_TEMP/fpl-browser/node_modules"
           export BROWSER_PATH="$(command -v google-chrome)"
