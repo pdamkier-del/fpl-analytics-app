@@ -121,7 +121,7 @@ def apply(app):
     nav = app / 'nav.js'
     if nav.exists():
         script_urls[nav.name] = write_asset(
-            app, nav.name, nav.read_text().replace("navigator.serviceWorker.register('./sw.js')", "navigator.serviceWorker.ready")
+            app, nav.name, re.sub(r"(?m)^.*a\.href='my-team-live\.html'.*\n", '', nav.read_text()).replace("navigator.serviceWorker.register('./sw.js')", "navigator.serviceWorker.ready")
             .replace("['my-team.html','⚽','My Team']", "['overview.html','⚽','Dashboard']")
             .replace("==='my-team.html'", "==='overview.html'")
             .replace('a[href="my-team.html"]', 'a[href="manager-state.html"]'),
@@ -130,7 +130,7 @@ def apply(app):
     if classic_nav.exists():
         script_urls[classic_nav.name] = write_asset(
             app, classic_nav.name,
-            classic_nav.read_text().replace("['my-team-classic.html','My Team'],", ''),
+            classic_re.sub(r"(?m)^.*a\.href='my-team-live\.html'.*\n", '', nav.read_text()).replace("['my-team-classic.html','My Team'],", ''),
         )
     archive = write_asset(app, 'historical-forecast.js', (ASSETS / 'historical-forecast.js').read_text())
 
@@ -145,6 +145,10 @@ def apply(app):
         html = re.sub(
             r'<a\b[^>]*href=["\']my-team(?:-classic|-live)?\.html["\'][^>]*>\s*(?:<span>)?My Team(?:</span>)?\s*</a>',
             '', html, flags=re.IGNORECASE,
+        )
+        html = re.sub(
+            r'<a\b[^>]*href="my-team-live\.html"[^>]*><div>My Team<span>[^<]*</span></div></a>',
+            '', html,
         )
         html = html.replace('url=my-team-classic.html', 'url=overview.html')
         html = html.replace('href="my-team-classic.html">Til My Team og beregning', 'href="transfers-classic.html">Gå til Transfers')
