@@ -1,6 +1,6 @@
 # FPL Research Lab — research status
 
-Snapshot including Phase4 setup, 23 November 2026. Generated from registry; not a live job monitor.
+Snapshot including C1 closure, 25 November 2026. Generated from registry; not a live job monitor.
 
 | Experiment | State | Priority | Execution-ready | Next action |
 | --- | --- | --- | --- | --- |
@@ -73,6 +73,6 @@ Snapshot including Phase4 setup, 23 November 2026. Generated from registry; not 
 
 `ready` means scientific/data prerequisites support starting implementation. It does not claim the execution harness exists. `awaiting_data` is not a failed model. Historical accepted/rejected decisions have the narrow scope in their evidence.
 
-Stage 0 inventory review remains pending. Completed research: TS-search in results/EXP-TS-SEARCH-001/REPORT.md; PM definitions in results/EXP-PM-DEFS-001/REPORT.md; isolated TS funding comparison in results/EXP-TS-FUNDING-001/REPORT.md (practical two-family gate failed; no promotion). Next existing ready registration: EXP-OPS-CAPTURE-001; check SESSION_HANDOFF for ownership and remaining gates. Prospective MM/PM setup: results/EXP-MM-PM-LIVE-SETUP/REPORT.md; code/archive link verified, awaiting eligible originals/final outcomes and reviewed report-workflow integration. TS real-pool study completed: results/EXP-TS-FUNDING-REALPOOL-001/REPORT.md (10equal pairs,2candidate timeouts; practical gate failed). Prioritize existing prospective data, not a funding rerun. No new MM/PM candidate; no model promotion; protected substitution trial unchanged.
+Stage 0 inventory review remains pending. Completed research: TS-search in results/EXP-TS-SEARCH-001/REPORT.md; PM definitions in results/EXP-PM-DEFS-001/REPORT.md; isolated TS funding comparison in results/EXP-TS-FUNDING-001/REPORT.md (practical two-family gate failed; no promotion). Next existing ready registration: EXP-OPS-CAPTURE-001; check SESSION_HANDOFF for ownership and remaining gates. Prospective MM/PM setup: results/EXP-MM-PM-LIVE-SETUP/REPORT.md; code/archive link verified, awaiting eligible originals/final outcomes and reviewed report-workflow integration. TS real-pool study completed: results/EXP-TS-FUNDING-REALPOOL-001/REPORT.md (10equal pairs,2candidate timeouts; practical gate failed). Prioritize existing prospective data, not a funding rerun. Current closure/activation gates: evidence/mm-pm-cycle-20261125/REPORT.md; v3 numerical guard/current metadata checks prepared, C2 review/main activation and archive reliability pending. No new MM/PM candidate; no model promotion; protected substitution trial unchanged.
 
 Never count seen GW8–10 again as new validation. New MM/PM holdouts begin at an eligible later origin, not after reviewing current GW11 outcomes.

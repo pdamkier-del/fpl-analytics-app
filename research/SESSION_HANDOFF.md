@@ -1,3 +1,31 @@
+# Current C1 closure — MM/PM operations and active development, 25 November 2026
+
+Branch `research/c1-mm-pm-cycle-20261125`, based on PR57head e15e5677. Maintenance PR pending creation. Models/app/substitutions/PR54scientific protocol remain unchanged. TSfunding closed/failed/deprioritized; do not restart it.
+
+Read [closure REPORT](evidence/mm-pm-cycle-20261125/REPORT.md), [C2review/activation checklist](mm_pm_maintenance/REVIEW.md), [ongoing cycle/data firewall](mm_pm_maintenance/CYCLE.md), [live discovery](evidence/mm-pm-cycle-20261125/live-discovery.json) and [verification](evidence/mm-pm-cycle-20261125/verification.json).
+
+## Ready, actual evidence
+
+New original revision9e03db63/forecast4ff695e3fully recovered and C2validated,674players/GW12–17/400draws; data23Nov13:19UTCand completepublication20:32UTCafter registration. Still provisional until27Nov17:30UTCcutoff. Official GW12finished=false,data_checked=false. Zero real future origins scored. Both pinned v2 and new v3preflights pending cutoff.
+
+Pinned v2has a real scoring-input issue:363native p_play values tiny-negative(max2.22e-15)would fail strict probability check. New separately registered v3only normalizes1e-12machine-roundoff at scoring, never original values/model/protocol. Tests show exact-valid results unchanged; errors outside tolerance fail. Original v2files/manifest preserved.94current checks pass via verify_current.py, which replaces two historical metadata snapshot tests with versioned integrity/event-time tests. Direct old-snapshot suite remains historically incompatible, disclosed; no old test/result overwritten.
+
+## Immediate C2handoff / remaining gates
+
+PR55unmerged47407213; only PRverification45184237876passed. Main d4d6e804does not have evaluation wrapper. After independent review, C2updates evaluator pin/tests/command to reviewed C1v3and preserves existing write separation/main gating. Do not activate old v2alone or pretend APIstate=active proves main deployment.
+
+Latest archive runs45595239869/45535870670/45522916529failed; last original-artifact/permanent-recovery step reports archiveincomplete. Underlying status/log redirect unavailable; exact cause not verified. Existing valid Release still recovers. C2must inspect authorized receipt and verify next capture/main run/reportdurability. No approval/access bypass, model recomputation or new pipeline.
+
+## Research next actions
+
+Read each finalized frozen report as exploratory diagnosis immediately; candidate development can use existing historical development data now. A GWused for hypothesis/tuning—including GW12if used—never confirms that same candidate. Freeze candidate/primary score/sample/power/stopping before fresh confirmation; original PR54baseline/window stays independent. No need to wait12GWto develop a justified model, but no automatic tuning/promotion.
+
+At most one gated possibility remains the old PR42assist-eligibility/rate hypothesis. Needed event/category/winner/taker labels and a demonstrably new defect are not established; no predictive candidate implemented. Do not relabel old scale/share/CS/BPS/return trials as new. The numerical evaluator correction is not an accuracy gain. No new large historical audit or model study required for current closure.
+
+C1build/verification phase is complete pending independent review/integration gates; formal predictive results, final-window review and real firstGWend-to-end operation remain future work. Earlier handoffs below are historical.
+
+---
+
 # Current C1 handoff — Phase5 completed, candidate deprioritized
 
 23 November2026. Separate branch `research/c1-ts-realpool-20261123`, based on PR56head `a9276bc7`. Delivered research [PR #57](https://github.com/pdamkier-del/fpl-analytics-app/pull/57); no merge/deploy. **EXP-TS-FUNDING-REALPOOL-001 completed as a failed feasibility result, not accepted.** Existing models/app/PR54validation/protected substitution experiment remain unchanged.

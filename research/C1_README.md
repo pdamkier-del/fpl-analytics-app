@@ -1,7 +1,7 @@
 # C1 — Scientific Model Research | README & progress checklist
 
 **Owner:** C1 (Codex model research) · **Programme:** FPL Analytics + FPL Research Lab
-**Last prepared:** 2026-11-23 · **State:** user Phase5TSreal-pool study completed; practical gate FAILED (10equal pairs,2candidate timeouts). Candidate deprioritized. Phase4MM/PMprospective validation unchanged/pending. No model promotion.
+**Last prepared:** 2026-11-25 · **State:** current C1 maintenance ready for review; v3input-roundoff correction/current metadata checks verified. New eligible original available; GW12not final. PR55main activation/archive reliability pending; no model promotion.
 **Canonical scientific plan:** [MASTER_PLAN.md](MASTER_PLAN.md) · **Registry:** [experiments/](experiments/) · **Current snapshot:** [STATUS.md](STATUS.md) · **Session handoff:** [SESSION_HANDOFF.md](SESSION_HANDOFF.md)
 
 > **Mission:** Improve *validated* predictive quality and FPL decision value—not apparent historical fit or model complexity. Research is separate from the stable Analytics app. This README is the human-readable checklist, **not** a replacement for the experiment registry, immutable evidence, or append-only decision log.
@@ -85,6 +85,19 @@ Original programme registration: **25 unchanged entries**; Stage 0 appends **38 
 - [x] Delivered separate [Phase3 research PR #50](https://github.com/pdamkier-del/fpl-analytics-app/pull/50), stacked on #49; no merge or deploy.
 
 The historical roadmap Stage3 below is PM; this user Phase3 is a separately registered TSstudy. Failed practical acceptance is preserved despite successful execution.
+
+### Current C1 closure — 25 November 2026 **implementation ready for review; activation gated**
+
+- [x] Recheck PR54/55/57 and current public operations, not old receipts only.
+- [x] Recover/fully validate new post-registration original9e03db63/GW12–17/400draws; final selection still pending cutoff. GW12unfinished;0new scores.
+- [x] Version numerical boundary-roundoff correction and current metadata tests;94current checks pass, frozen protocol/v2files/results preserved.
+- [x] Register v3implementation before read-only preflight; no model/scientific-endpoint changes.
+- [x] Prepare [C2activation handoff](mm_pm_maintenance/REVIEW.md) and [active development cycle](mm_pm_maintenance/CYCLE.md); no need to wait12GWto develop a justified isolated candidate.
+- [x] Close TSfunding work/deprioritize; no new TSrun or predictive MM/PMcandidate without justified data/test gates.
+- [ ] Independent implementation review and C2PR55reviewed pin/command/main integration. Still unmerged; no publishing from this task.
+- [ ] C2diagnoses latest archive failures; first verified automatic main score/report after valid original+official finality.
+
+Read [closure report](evidence/mm-pm-cycle-20261125/REPORT.md). These ticks close implementation/verification work, not future science or live end-to-end certification.
 
 ### User Phase5 — TS full-original-pool feasibility **completed; gate FAILED**
 
