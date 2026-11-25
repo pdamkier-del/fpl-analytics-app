@@ -40,7 +40,7 @@ jobs:
                   if probability > cap + 0.000001:
                       player = players[key[0]]
                       findings.append(dict(player=player['name'], element=player['id'], fixture=key[1],
-                                           gw=target['gw'], cap=cap, p_play=probability))
+                                           gw=target['gw'], cap=cap, p_start=rows[key]['p_start'], p_play=probability))
           print(json.dumps(findings, indent=2))
           assert len(findings) == 1, 'Expected the sole archived availability finding'
           PY
