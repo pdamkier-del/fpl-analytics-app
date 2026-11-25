@@ -54,6 +54,73 @@ jobs:
     permissions:
       contents: read
       actions: read
+  gk_cap_browser:
+    needs: gk_cap_candidate
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    permissions:
+      contents: read
+      actions: read
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ env.PREVIEW_UI_SHA }}
+          persist-credentials: false
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.sha }}
+          path: .c2-integration
+          sparse-checkout: integration/model-interface
+          persist-credentials: false
+      - uses: actions/download-artifact@v4
+        with:
+          name: mm-current-live-preview
+          path: candidate-capture
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Verify the candidate in the existing app
+        run: |
+          pip install requests
+          npm install --prefix "$RUNNER_TEMP/fpl-browser" playwright@1.56.1
+          export NODE_PATH="$RUNNER_TEMP/fpl-browser/node_modules"
+          export BROWSER_PATH="$(command -v google-chrome)"
+          export FPL_PREVIEW_URL=http://127.0.0.1:18097/mm-preview/app/
+          export FPL_EXPECT_LIVE_GW=12
+          export FPL_TEST_WORKER_FILE="$PWD/app/mm-preview/app/preview-sw.js"
+          for file in current/{index,forecast,existing-app-data}.json gk/{index,forecast,gk-mm,evidence}.json; do
+            cp "candidate-capture/$file" "app/mm-preview/$file"
+          done
+          cmp app/mm-preview/{current,gk}/forecast.json
+          python - <<'PYTHON'
+          import json
+          from pathlib import Path
+          forecast = json.loads(Path('app/mm-preview/current/forecast.json').read_text())
+          assert forecast['gws'] == list(range(12, 18))
+          assert forecast['gk_team_fixtures']
+          assert all(row['reserve_cap_policy'] == 'B-GK-saturated-availability-v1'
+                     for row in forecast['gk_team_fixtures'])
+          for row in forecast['gk_team_fixtures']:
+              if row.get('reserve_cap_correction'):
+                  print(row['team'], row['fixture_uuid'], row['reserve_cap_correction'])
+          PYTHON
+          python scripts/collect_dashboard_news.py
+          python scripts/integrate_desktop_probabilities.py
+          python .c2-integration/integration/model-interface/preview-overlay.py app/mm-preview/app
+          node --test .c2-integration/integration/model-interface/*.test.js
+          printf '{"url":null,"status":"isolated_validation"}\n' > app/manager-service.json
+          python -m http.server 18097 --bind 127.0.0.1 --directory app > "$RUNNER_TEMP/c2-candidate-http.log" 2>&1 &
+          preview_http_pid=$!
+          trap 'kill "$preview_http_pid"' EXIT
+          for attempt in 1 2 3 4 5; do
+            if curl -fsS -o /dev/null "${FPL_PREVIEW_URL}overview.html"; then break; fi
+            sleep 1
+          done
+          node .c2-integration/integration/model-interface/preview-smoke.cjs
+          cmp candidate-capture/current/forecast.json app/mm-preview/current/forecast.json
   preview:
     needs: [current, verified]
     if: ${{ always() && github.ref == 'refs/heads/main' && !cancelled() && (needs.current.result == 'success' || needs.verified.result == 'success') }}
