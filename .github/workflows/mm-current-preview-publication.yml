@@ -43,7 +43,7 @@ jobs:
       actions: read
   preview:
     needs: [current, verified]
-    if: ${{ always() && !cancelled() && (needs.current.result == 'success' || needs.verified.result == 'success') }}
+    if: ${{ always() && github.ref == 'refs/heads/main' && !cancelled() && (needs.current.result == 'success' || needs.verified.result == 'success') }}
     runs-on: ubuntu-latest
     timeout-minutes: 30
     concurrency:
