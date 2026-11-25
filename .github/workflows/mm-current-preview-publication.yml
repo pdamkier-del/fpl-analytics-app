@@ -220,10 +220,23 @@ jobs:
       - uses: actions/upload-pages-artifact@v3
         with:
           path: site
-          name: gw12-test-pages
+          name: gw12-test-pages-${{ github.run_id }}-${{ github.run_attempt }}
+      - name: Wait for the Pages artifact to appear in the run inventory
+        env:
+          GH_TOKEN: ${{ github.token }}
+          PAGES_ARTIFACT: gw12-test-pages-${{ github.run_id }}-${{ github.run_attempt }}
+        run: |
+          for attempt in {1..10}; do
+            if gh api "repos/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID/artifacts?name=$PAGES_ARTIFACT" --jq '.total_count' | grep -qx 1; then
+              sleep 8
+              exit 0
+            fi
+            sleep 3
+          done
+          exit 1
       - uses: actions/deploy-pages@v4
         with:
-          artifact_name: gw12-test-pages
+          artifact_name: gw12-test-pages-${{ github.run_id }}-${{ github.run_attempt }}
   preview:
     needs: [current, verified]
     if: ${{ always() && github.ref == 'refs/heads/main' && !cancelled() && (needs.current.result == 'success' || needs.verified.result == 'success') }}
