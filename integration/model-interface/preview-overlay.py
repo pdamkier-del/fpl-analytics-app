@@ -90,7 +90,11 @@ def apply(app):
         changed = rewrite_manager(original)
         if name == 'manager-state.js':
             changed = changed.replace(
-                'getState:form,', 'importDraft,canImport:()=>people instanceof Map,getState:form,',
+                'getState:form,',
+                'importDraft,saveOfficialState:raw=>{validate(raw);apply(raw);FplManagerStore.save(raw);'
+                "$('confirmed').checked=true;"
+                "localStorage.removeItem('fpl-manager-draft-v1');},"
+                'canImport:()=>people instanceof Map,getState:form,',
             ).replace("cell.textContent=week?", "cell.textContent=usable&&week?")
         if name in {'weekly-app.js', 'classic-manager.js'}:
             changed = bind_plan(changed)
@@ -174,6 +178,7 @@ def apply(app):
                 '<section class="panel" hidden><label>FPL-manager-ID '
                 '<input id="manager-import-entry" inputmode="numeric"></label> '
                 '<button type="button" id="import-manager">Hent offentlig trup</button>'
+                '<p>Brug det senest offentliggjorte hold, hvis du ikke har ændret hold eller brugt chips siden deadline.</p>'
                 '<p id="manager-import-status" role="status"></p></section><p id="forecast">',
                 1,
             ).replace('</head>', f'<script defer src="{importer}"></script></head>', 1)
