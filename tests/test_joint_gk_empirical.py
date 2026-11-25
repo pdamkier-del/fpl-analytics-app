@@ -76,3 +76,53 @@ def test_incomplete_roster_uses_upstream_probability_not_a_collapsed_calibrator(
     joint,exact,_=prepare(inp,rows,DurationHistory(history(),'2025-02-01T00:00:00Z'))
     assert exact['1k0']['p']==.65
     assert exact[UNKNOWN+'1']['p']==pytest.approx(.35)
+
+
+@pytest.mark.parametrize('count',[2,3])
+def test_raya_saturated_cap_preserves_starts_outfield_and_ninety_minutes(count):
+    inp, rows = fixture(count)
+    baseline, before, audit = prepare(inp, rows, DurationHistory(history(),'2025-02-01T00:00:00Z'))
+    cap = 1 / count
+    assert before['1k0']['p_play'] > cap
+    rows.loc[rows.player_uuid == '1k0', 'availability_cap'] = cap
+    corrected, after, audit = prepare(inp, rows, DurationHistory(history(),'2025-02-01T00:00:00Z'))
+    original = {p.player_id: p for p in baseline.players}
+    assert all(p.p_start == original[p.player_id].p_start for p in corrected.players)
+    assert all(p == original[p.player_id] for p in corrected.players if not p.is_keeper)
+    assert all(after[pid] == before[pid] for pid in before if pid.startswith('2k') or pid == UNKNOWN+'2')
+    assert after['1k0']['p_play'] == pytest.approx(cap)
+    assert after['1k0']['x'] < before['1k0']['x']
+    assert audit[0]['analytic_gk_minutes'] == pytest.approx(90)
+    changes = audit[0]['reserve_cap_correction']
+    assert changes['saturated_keepers'] == ['1k0']
+    assert changes['fallback_pool_enabled'] == (count == 2)
+    assert sum(changes['expected_minutes_delta'].values()) == pytest.approx(0, abs=1e-9)
+    from fpl_v1_1_model.experimental_physical_timeline import PhysicalKernel
+    original_kernel = PhysicalKernel(replace(baseline, experimental_mean_preserving_minutes=True))
+    corrected_kernel = PhysicalKernel(replace(corrected, experimental_mean_preserving_minutes=True))
+    assert corrected_kernel.moments == original_kernel.moments
+    rng = np.random.default_rng(180)
+    for _ in range(120):
+        timeline = corrected_kernel.sample(rng)
+        assert not timeline['1k0'][0] or timeline['1k0'][1] == 0
+    for seed in range(120):
+        draw = simulate_match(corrected, np.random.default_rng(seed))
+        assert not draw['1k0'].minutes or draw['1k0'].started
+
+
+def test_slack_at_cap_leaves_the_entire_original_law_unchanged():
+    inp, rows = fixture(3)
+    duration = DurationHistory(history(),'2025-02-01T00:00:00Z')
+    before = prepare(inp, rows, duration)
+    rows.loc[rows.player_uuid == '1k0', 'availability_cap'] = .9
+    assert prepare(inp, rows, duration) == before
+
+
+def test_secondary_overshoot_fails_closed_instead_of_changing_other_start_chances():
+    inp, rows = fixture(3)
+    duration = DurationHistory(history(),'2025-02-01T00:00:00Z')
+    _, baseline, _ = prepare(inp, rows, duration)
+    rows.loc[rows.player_uuid == '1k0', 'availability_cap'] = 1 / 3
+    rows.loc[rows.player_uuid == '1k1', 'availability_cap'] = baseline['1k1']['p_play']
+    with pytest.raises(ValueError, match='remaining availability cap'):
+        prepare(inp, rows, duration)

@@ -11,6 +11,7 @@ import pandas as pd
 from fpl_v1_1_model.joint_simulator import PlayerSimInput, validate_joint_goalkeepers
 
 VERSION = 'B-GK-role-aware-v2'
+RESERVE_CAP_POLICY = 'B-GK-saturated-availability-v1'
 UNKNOWN = '__unlisted_goalkeeper__:'
 SUPPORT = np.arange(91)
 
@@ -73,6 +74,48 @@ def marginals(keepers):
     return answer
 
 
+
+def capped_reserve_marginals(keepers, caps, pool_id):
+    """Keep the existing joint law except for reserve mass at a saturated cap."""
+    original = marginals(keepers)
+    saturated = {
+        p.player_id for p in keepers
+        if p.player_id in caps
+        and abs(caps[p.player_id] - p.p_start) <= 1e-10
+        and 1 - original[p.player_id][0] > caps[p.player_id] + 1e-6
+    }
+    if not saturated:
+        return keepers, original, None
+
+    corrected = [
+        replace(p, p_cameo_given_bench=0.) if p.player_id in saturated else p
+        for p in keepers
+    ]
+    # Retain the existing unlisted replacement if a short-start outcome
+    # would otherwise lack any eligible keeper. Do not change its start mass.
+    needs_pool = any(
+        p.p_start > 0 and p.start_minutes_mean < 90
+        and not any(q.player_id != p.player_id and q.p_cameo_given_bench > 0
+                    for q in corrected)
+        for p in corrected
+    )
+    if needs_pool:
+        corrected = [
+            replace(p, p_cameo_given_bench=1.) if p.player_id == pool_id else p
+            for p in corrected
+        ]
+    updated = marginals(corrected)
+    if any(1 - updated[pid][0] > cap + 1e-6 for pid, cap in caps.items()):
+        raise ValueError('GK reserve redistribution exceeds a remaining availability cap')
+    receipt = dict(version=RESERVE_CAP_POLICY, saturated_keepers=sorted(saturated),
+                   fallback_pool_enabled=needs_pool,
+                   expected_minutes_delta={
+                       pid: float((updated[pid] - mass) @ SUPPORT)
+                       for pid, mass in original.items()
+                   })
+    return corrected, updated, receipt
+
+
 def prepare(inp, rows, duration, *, incomplete_teams=(), role_policy=None, season=None):
     """Add an explicit reserve/competitor pool and return exact MM marginals.
 
@@ -96,11 +139,13 @@ def prepare(inp, rows, duration, *, incomplete_teams=(), role_policy=None, seaso
         viable = [p for p in original if p.p_start > 0 or p.p_cameo_given_bench > 0]
         partial = len(viable) <= 1 or str(team) in set(map(str,incomplete_teams))
         weights = {}
+        caps = {}
         for p in original:
             raw = float(by.loc[p.player_id].get('new_p_start',by.loc[p.player_id].get('unprojected_p',p.p_start))) if partial else p.p_start
             if p not in viable: raw = 0.
             # Preserve explicit predeadline availability caps.
             cap = 0. if p.player_id in horizon_out else float(by.loc[p.player_id].get('availability_cap',1.))
+            caps[p.player_id] = cap
             weights[p.player_id] = min(max(raw,0.),cap)
         total = sum(weights.values())
         if total > 1:
@@ -131,7 +176,9 @@ def prepare(inp, rows, duration, *, incomplete_teams=(), role_policy=None, seaso
         pool = replace(pool,start_minutes_mean=float(np.asarray(pool.goalkeeper_start_pmf)@SUPPORT))
         players.append(pool)
         validate_joint_goalkeepers(players,str(team),(str(team),))
-        mass = marginals(players)
+        players, mass, reserve_cap = capped_reserve_marginals(players, caps, pool.player_id)
+        if reserve_cap is not None:
+            validate_joint_goalkeepers(players,str(team),(str(team),))
         for p in players:
             f = mass[p.player_id]; start = np.asarray(p.goalkeeper_start_pmf)
             appearance = float(1-f[0]); reserve_probability = max(0.,appearance-p.p_start)
@@ -142,7 +189,10 @@ def prepare(inp, rows, duration, *, incomplete_teams=(), role_policy=None, seaso
                 x=float(f@SUPPORT),p60=float(f[60:].sum()),p90=float(f[90]),p_play=appearance,pmf=f.tolist())
         teams.append(dict(team=str(team),known_viable=len(viable),unlisted_start_probability=missing,
             unlisted_expected_minutes=moments[pool.player_id]['x'],partial_roster=partial,start_source='verified_sole_candidate_role'if role_context.get('applied')else('original_MM_before_roster_projection' if partial and 'new_p_start' in rows else 'B_calibrated_marginals'),
-            role_allocation=role_context,horizon_absent=sorted(horizon_out),analytic_gk_minutes=sum(moments[p.player_id]['x'] for p in players)))
+            role_allocation=role_context,horizon_absent=sorted(horizon_out),reserve_cap_policy=RESERVE_CAP_POLICY,
+            analytic_gk_minutes=sum(moments[p.player_id]['x'] for p in players)))
+        if reserve_cap is not None:
+            teams[-1]['reserve_cap_correction'] = reserve_cap
         output.extend(players)
     return replace(inp,players=tuple(output),experimental_joint_goalkeepers=True,
         verified_goalkeeper_roster_teams=(inp.home_team,inp.away_team),experimental_joint_starters=True),moments,teams
