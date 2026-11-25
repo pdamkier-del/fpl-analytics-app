@@ -1,5 +1,8 @@
 'use strict';
 
+// Playwright requires this for interception of Chromium worker network requests.
+process.env.PW_EXPERIMENTAL_SERVICE_WORKER_NETWORK_EVENTS = '1';
+
 const assert = require('node:assert/strict');
 const fs = require('node:fs/promises');
 const { chromium } = require('playwright');
@@ -86,10 +89,17 @@ async function verify() {
           await fs.writeFile(workerPath, original);
         }
       }
-      await context.setOffline(true);
-      await page.reload({ waitUntil: 'domcontentloaded' });
+      const disconnected = new URL('transfers-classic.html?test-disconnected', base).href;
+      let workerNetworkFailed = false;
+      await context.route(disconnected, route => {
+        if (!route.request().serviceWorker()) return route.continue();
+        workerNetworkFailed = true;
+        return route.abort('internetdisconnected');
+      });
+      await page.goto(disconnected, { waitUntil: 'domcontentloaded' });
       await page.getByRole('heading', { name: 'Ingen forbindelse' }).waitFor();
-      await context.setOffline(false);
+      assert(workerNetworkFailed, 'The service worker must see a failed network request');
+      await context.unroute(disconnected);
       await page.goto(new URL('overview.html', base).href, { waitUntil: 'domcontentloaded' });
       await checkDashboard();
       assert.deepEqual(await page.evaluate(() => FplManagerStore.read()), saved);
