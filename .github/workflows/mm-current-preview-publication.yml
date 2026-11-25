@@ -26,11 +26,6 @@ on:
         required: false
         type: boolean
         default: false
-      refresh_test_forecast:
-        description: 'Start en ny officiel prognose til testappen'
-        required: false
-        type: boolean
-        default: false
 permissions:
   contents: write
   actions: read
@@ -41,7 +36,7 @@ env:
   PREVIEW_UI_SHA: 27bf5e1e1a17360bdbbfb41fbce7fe55679c6870
 jobs:
   verified:
-    if: ${{ inputs.validated_run != '' && !inputs.validate_gk_cap_candidate && !inputs.replay_gk_cap_browser && !inputs.refresh_test_forecast }}
+    if: ${{ inputs.validated_run != '' && !inputs.validate_gk_cap_candidate && !inputs.replay_gk_cap_browser && github.ref != 'refs/heads/integration/stable-live-app-20261122' }}
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -53,7 +48,7 @@ jobs:
           VALIDATED_RUN: ${{ inputs.validated_run }}
         run: python scripts/verify_b_publication_artifact.py --run "$VALIDATED_RUN" --source "$PREVIEW_SOURCE_SHA"
   current:
-    if: ${{ inputs.validated_run == '' && !inputs.validate_gk_cap_candidate && !inputs.replay_gk_cap_browser && !inputs.refresh_test_forecast }}
+    if: ${{ inputs.validated_run == '' && !inputs.validate_gk_cap_candidate && !inputs.replay_gk_cap_browser && github.ref != 'refs/heads/integration/stable-live-app-20261122' }}
     uses: pdamkier-del/fpl-analytics-app/.github/workflows/mm-current-live-preview.yml@161b67b6fb8786a38e78c245b92a03ad841575d8
     with:
       source_ref: 161b67b6fb8786a38e78c245b92a03ad841575d8
@@ -62,7 +57,7 @@ jobs:
       contents: read
       actions: read
   gk_cap_candidate:
-    if: ${{ github.ref == 'refs/heads/integration/stable-live-app-20261122' && (inputs.validate_gk_cap_candidate || inputs.refresh_test_forecast) && !inputs.replay_gk_cap_browser && inputs.validated_run == '' }}
+    if: ${{ github.ref == 'refs/heads/integration/stable-live-app-20261122' && github.event_name == 'workflow_dispatch' && !inputs.replay_gk_cap_browser && inputs.validated_run == '' }}
     concurrency:
       group: fpl-approved-test-forecast
       cancel-in-progress: false
@@ -150,7 +145,7 @@ jobs:
           node .c2-integration/integration/model-interface/preview-smoke.cjs
           cmp candidate-capture/current/forecast.json app/mm-preview/current/forecast.json
       - uses: actions/upload-artifact@v4
-        if: inputs.refresh_test_forecast || (inputs.replay_gk_cap_browser && inputs.publish_gk_cap_test)
+        if: (!inputs.replay_gk_cap_browser && !inputs.validate_gk_cap_candidate) || (inputs.replay_gk_cap_browser && inputs.publish_gk_cap_test)
         with:
           name: gw12-tested-app
           path: |
@@ -163,7 +158,7 @@ jobs:
           retention-days: 1
   publish_gk_cap_test:
     needs: gk_cap_browser
-    if: ${{ !cancelled() && needs.gk_cap_browser.result == 'success' && github.ref == 'refs/heads/integration/stable-live-app-20261122' && (inputs.refresh_test_forecast || (inputs.replay_gk_cap_browser && inputs.publish_gk_cap_test)) }}
+    if: ${{ !cancelled() && needs.gk_cap_browser.result == 'success' && github.ref == 'refs/heads/integration/stable-live-app-20261122' && ((!inputs.replay_gk_cap_browser && !inputs.validate_gk_cap_candidate) || (inputs.replay_gk_cap_browser && inputs.publish_gk_cap_test)) }}
     runs-on: ubuntu-latest
     timeout-minutes: 15
     concurrency:
