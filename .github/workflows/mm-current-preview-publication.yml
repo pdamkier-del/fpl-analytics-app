@@ -21,6 +21,11 @@ on:
         required: false
         type: boolean
         default: false
+      publish_gk_cap_test:
+        description: 'Publish only the verified GW12 existing-app test path on Pages'
+        required: false
+        type: boolean
+        default: false
 permissions:
   contents: write
   actions: read
@@ -107,9 +112,8 @@ jobs:
           export FPL_EXPECT_LIVE_GW=12
           export FPL_TEST_WORKER_FILE="$PWD/app/mm-preview/app/preview-sw.js"
           mkdir -p app/mm-preview/{current,gk}
-          for file in current/{index,forecast,existing-app-data}.json gk/{index,forecast,gk-mm,evidence}.json; do
-            cp "candidate-capture/$file" "app/mm-preview/$file"
-          done
+          cp -a candidate-capture/current/. app/mm-preview/current/
+          cp -a candidate-capture/gk/. app/mm-preview/gk/
           cmp app/mm-preview/{current,gk}/forecast.json
           python - <<'PYTHON'
           import json
@@ -137,6 +141,89 @@ jobs:
           done
           node .c2-integration/integration/model-interface/preview-smoke.cjs
           cmp candidate-capture/current/forecast.json app/mm-preview/current/forecast.json
+      - uses: actions/upload-artifact@v4
+        if: inputs.replay_gk_cap_browser && inputs.publish_gk_cap_test
+        with:
+          name: gw12-tested-app
+          path: |
+            app/mm-preview/app
+            app/mm-preview/current
+            app/mm-preview/gk
+            app/mm-preview/news
+            app/mm-preview/*.js
+            app/mm-preview/*.css
+          retention-days: 1
+  publish_gk_cap_test:
+    needs: gk_cap_browser
+    if: ${{ github.ref == 'refs/heads/integration/stable-live-app-20261122' && inputs.replay_gk_cap_browser && inputs.publish_gk_cap_test }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    concurrency:
+      group: fpl-pages-publication
+      cancel-in-progress: false
+    permissions:
+      contents: read
+      actions: read
+      deployments: read
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: https://pdamkier-del.github.io/fpl-analytics-app/mm-preview/app/manager-state.html
+    steps:
+      - name: Confirm the production Pages baseline is still live
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          live_run=$(gh api "repos/$GITHUB_REPOSITORY/deployments?environment=github-pages&per_page=20" --jq '.[].id' |
+            while read -r deployment; do
+              gh api "repos/$GITHUB_REPOSITORY/deployments/$deployment/statuses" --jq 'map(select(.state == "success")) | .[0].log_url // empty'
+            done | sed -n 's|.*/actions/runs/\([0-9]*\)/job/.*|\1|p' | head -n 1)
+          test "$live_run" = 45625288566
+      - uses: actions/download-artifact@v4
+        with:
+          name: team-news-pages-45625288566
+          run-id: 45625288566
+          github-token: ${{ github.token }}
+          path: pages-baseline
+      - uses: actions/download-artifact@v4
+        with:
+          name: gw12-tested-app
+          path: tested-app
+      - name: Overlay public test files only
+        run: |
+          mkdir site
+          tar -xf pages-baseline/artifact.tar -C site
+          python - <<'PYTHON'
+          from datetime import datetime, timedelta, timezone
+          from pathlib import Path
+          import json
+          import shutil
+
+          source = Path('tested-app')
+          forecast = json.loads((source / 'current/forecast.json').read_text())
+          assert forecast['forecast_sha256'] == 'dd51972221307be4dabd483d64509686f8d49edc5ec7c4ede37e107b145e5fa3'
+          assert forecast['gws'] == list(range(12, 18))
+          assert (source / 'current/forecast.json').read_bytes() == (source / 'gk/forecast.json').read_bytes()
+          now = datetime.now(timezone.utc)
+          cutoff = datetime.fromisoformat(forecast['data_asof'])
+          assert cutoff <= now < min(cutoff + timedelta(hours=36), datetime.fromisoformat(forecast['origin_deadline']))
+          site = Path('site')
+          assert json.loads((site / 'current-players.json').read_text())['next_gw'] == 12
+          assert json.loads((site / 'manager-service.json').read_text())['url'] == 'https://fpl-analytics-private-manager.onrender.com'
+          preview = site / 'mm-preview'
+          for name in ('app', 'current', 'gk', 'news'):
+              shutil.copytree(source / name, preview / name, dirs_exist_ok=True)
+          for asset in (*source.glob('*.js'), *source.glob('*.css')):
+              shutil.copy2(asset, preview / asset.name)
+          PYTHON
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: site
+          name: gw12-test-pages
+      - uses: actions/deploy-pages@v4
+        with:
+          artifact_name: gw12-test-pages
   preview:
     needs: [current, verified]
     if: ${{ always() && github.ref == 'refs/heads/main' && !cancelled() && (needs.current.result == 'success' || needs.verified.result == 'success') }}
