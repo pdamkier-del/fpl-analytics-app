@@ -130,7 +130,7 @@ def apply(app):
     if classic_nav.exists():
         script_urls[classic_nav.name] = write_asset(
             app, classic_nav.name,
-            classic_re.sub(r"(?m)^.*a\.href='my-team-live\.html'.*\n", '', nav.read_text()).replace("['my-team-classic.html','My Team'],", ''),
+            classic_nav.read_text().replace("['my-team-classic.html','My Team'],", ''),
         )
     archive = write_asset(app, 'historical-forecast.js', (ASSETS / 'historical-forecast.js').read_text())
 
