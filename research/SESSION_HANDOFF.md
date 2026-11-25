@@ -1,6 +1,6 @@
 # Current C1 closure — MM/PM operations and active development, 25 November 2026
 
-Branch `research/c1-mm-pm-cycle-20261125`, based on PR57head e15e5677. Maintenance PR pending creation. Models/app/substitutions/PR54scientific protocol remain unchanged. TSfunding closed/failed/deprioritized; do not restart it.
+Branch `research/c1-mm-pm-cycle-20261125`, based on PR57head e15e5677. Delivered maintenance [PR #58](https://github.com/pdamkier-del/fpl-analytics-app/pull/58); C2handoff also posted on PR55. Models/app/substitutions/PR54scientific protocol remain unchanged. TSfunding closed/failed/deprioritized; do not restart it.
 
 Read [closure REPORT](evidence/mm-pm-cycle-20261125/REPORT.md), [C2review/activation checklist](mm_pm_maintenance/REVIEW.md), [ongoing cycle/data firewall](mm_pm_maintenance/CYCLE.md), [live discovery](evidence/mm-pm-cycle-20261125/live-discovery.json) and [verification](evidence/mm-pm-cycle-20261125/verification.json).
 

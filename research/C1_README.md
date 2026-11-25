@@ -94,6 +94,7 @@ The historical roadmap Stage3 below is PM; this user Phase3 is a separately regi
 - [x] Register v3implementation before read-only preflight; no model/scientific-endpoint changes.
 - [x] Prepare [C2activation handoff](mm_pm_maintenance/REVIEW.md) and [active development cycle](mm_pm_maintenance/CYCLE.md); no need to wait12GWto develop a justified isolated candidate.
 - [x] Close TSfunding work/deprioritize; no new TSrun or predictive MM/PMcandidate without justified data/test gates.
+- [x] Deliver [maintenance PR #58](https://github.com/pdamkier-del/fpl-analytics-app/pull/58), stacked on #57; C2activation handoff posted on PR55.
 - [ ] Independent implementation review and C2PR55reviewed pin/command/main integration. Still unmerged; no publishing from this task.
 - [ ] C2diagnoses latest archive failures; first verified automatic main score/report after valid original+official finality.
 
