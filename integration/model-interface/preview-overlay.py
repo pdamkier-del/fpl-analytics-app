@@ -94,6 +94,12 @@ def apply(app):
             ).replace("cell.textContent=week?", "cell.textContent=usable&&week?")
         if name in {'weekly-app.js', 'classic-manager.js'}:
             changed = bind_plan(changed)
+        if name == 'weekly-app.js':
+            changed = changed.replace(
+                'href="my-team-classic.html">Åbn My Team →', 'href="manager-state.html">Bekræft hold →',
+            ).replace(
+                '<a href="my-team-classic.html">Opstilling og bænk →</a> · ', '',
+            )
         if original == changed or f'localStorage.setItem({KEY}' in changed:
             raise ValueError(f'Manager storage anchors changed in {path}')
         script_urls[name] = write_asset(app, name, changed)
@@ -115,13 +121,35 @@ def apply(app):
     nav = app / 'nav.js'
     if nav.exists():
         script_urls[nav.name] = write_asset(
-            app, nav.name, nav.read_text().replace("navigator.serviceWorker.register('./sw.js')", "navigator.serviceWorker.ready"),
+            app, nav.name, nav.read_text().replace("navigator.serviceWorker.register('./sw.js')", "navigator.serviceWorker.ready")
+            .replace("['my-team.html','⚽','My Team']", "['overview.html','⚽','Dashboard']")
+            .replace("==='my-team.html'", "==='overview.html'")
+            .replace('a[href="my-team.html"]', 'a[href="manager-state.html"]'),
+        )
+    classic_nav = app / 'classic-nav.js'
+    if classic_nav.exists():
+        script_urls[classic_nav.name] = write_asset(
+            app, classic_nav.name,
+            classic_nav.read_text().replace("['my-team-classic.html','My Team'],", ''),
         )
     archive = write_asset(app, 'historical-forecast.js', (ASSETS / 'historical-forecast.js').read_text())
 
     importer = write_asset(app, 'manager-import.js', (ASSETS / 'manager-import.js').read_text())
     for page in app.glob('*.html'):
+        if page.name in {'my-team.html', 'my-team-classic.html', 'my-team-live.html'}:
+            page.write_text('<!doctype html><html lang="da"><meta charset="utf-8">'
+                            '<meta http-equiv="refresh" content="0; url=overview.html">'
+                            '<title>FPL Analytics</title><a href="overview.html">Dashboard</a></html>')
+            continue
         html = rewrite_manager(page.read_text())
+        html = re.sub(
+            r'<a\b[^>]*href=["\']my-team(?:-classic|-live)?\.html["\'][^>]*>\s*(?:<span>)?My Team(?:</span>)?\s*</a>',
+            '', html, flags=re.IGNORECASE,
+        )
+        html = html.replace('url=my-team-classic.html', 'url=overview.html')
+        html = html.replace('href="my-team-classic.html">Til My Team og beregning', 'href="transfers-classic.html">Gå til Transfers')
+        html = html.replace('href="my-team-classic.html">Åbn My Team og beregn', 'href="transfers-classic.html">Beregn i Transfers')
+        html = re.sub(r'(href=["\'])my-team(?:-classic|-live)?\.html(?=["\'])', r'\g<1>manager-state.html', html)
         if worker_registration := re.search(r'navigator\.serviceWorker\.register\([\'"]\./sw\.js[\'"]\)', html):
             html = html[:worker_registration.start()] + "navigator.serviceWorker.ready" + html[worker_registration.end():]
         for name, url in script_urls.items():

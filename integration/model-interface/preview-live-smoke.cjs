@@ -43,13 +43,10 @@ async function verify() {
       const confirmed = await page.evaluate(() => FplManagerStore.read());
       assert.deepEqual(confirmed.squad.map(player => player.id), imported.map(player => player.id));
 
-      await page.goto(new URL('my-team-classic.html', base).href);
-      await page.waitForFunction(() => document.querySelectorAll('[data-open]').length >= 15);
-      const displayed = await page.locator('[data-open]').evaluateAll(nodes =>
-        [...new Set(nodes.map(node => Number(node.dataset.open)))].sort((a, b) => a - b));
-      assert.deepEqual(displayed, confirmed.squad.map(player => player.id).sort((a, b) => a - b));
       await page.goto(new URL('overview.html', base).href);
       await page.waitForFunction(() => window.FplDashboardContext?.().state?.squad.length === 15);
+      assert.deepEqual(await page.evaluate(() => FplDashboardContext().state.squad.map(player => player.id)),
+        confirmed.squad.map(player => player.id));
       await page.goto(new URL('transfers-classic.html', base).href);
       await page.evaluate(async () => { await FplManagerClient.load(); });
       assert(await page.evaluate(() => FplManagerClient.snapshot().usable));

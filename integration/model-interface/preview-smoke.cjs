@@ -35,6 +35,10 @@ async function verify() {
       }
       await page.goto(new URL('overview.html', base).href);
       await checkDashboard();
+      assert.equal(await page.getByRole('link', { name: 'My Team', exact: true }).count(), 0);
+      await page.goto(new URL('my-team-classic.html', base).href);
+      await page.waitForURL('**/overview.html');
+      await checkDashboard();
 
       let saved = await page.evaluate(data => {
         const state = data?.state || {

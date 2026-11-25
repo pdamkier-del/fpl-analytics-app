@@ -179,11 +179,11 @@ jobs:
             while read -r deployment; do
               gh api "repos/$GITHUB_REPOSITORY/deployments/$deployment/statuses" --jq 'map(select(.state == "success")) | .[0].log_url // empty'
             done | sed -n 's|.*/actions/runs/\([0-9]*\)/job/.*|\1|p' | head -n 1)
-          test "$live_run" = 45625288566
+          test "$live_run" = 45684029967
       - uses: actions/download-artifact@v4
         with:
-          name: team-news-pages-45625288566
-          run-id: 45625288566
+          name: gw12-test-pages-45684029967-1
+          run-id: 45684029967
           github-token: ${{ github.token }}
           path: pages-baseline
       - uses: actions/download-artifact@v4
