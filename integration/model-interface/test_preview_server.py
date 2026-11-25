@@ -1,4 +1,5 @@
 """The public draft may populate picks and past chips, never private finances."""
+from datetime import datetime, timedelta, timezone
 from importlib import util
 from pathlib import Path
 
@@ -33,3 +34,13 @@ def test_free_hit_and_wrong_gameweek_are_rejected():
         preview.squad_draft(21, 12, outgoing('freehit').__getitem__)
     with pytest.raises(ValueError, match='Ingen tidligere'):
         preview.squad_draft(21, 11, outgoing().__getitem__)
+
+
+def test_worker_rejects_expired_future_and_closed_forecasts():
+    cutoff = datetime(2026, 11, 23, 3, 30, tzinfo=timezone.utc)
+    deadline = cutoff + timedelta(days=2)
+    forecast = {'data_asof': cutoff.isoformat(), 'origin_deadline': deadline.isoformat()}
+    assert preview.fresh_forecast(forecast, cutoff + timedelta(hours=36))
+    assert not preview.fresh_forecast(forecast, cutoff + timedelta(hours=37))
+    assert not preview.fresh_forecast(forecast, cutoff - timedelta(seconds=1))
+    assert not preview.fresh_forecast(forecast, deadline)

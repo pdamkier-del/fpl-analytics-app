@@ -132,6 +132,8 @@ def apply(app):
             f'<script defer src="{registration}"></script><script defer src="{archive}"></script>', 1,
         )
         if page.name == 'manager-state.html':
+            for control in ('githubToken', 'refreshForecast', 'calculateOnline'):
+                html = html.replace(f'id="{control}"', f'id="{control}" disabled', 1)
             html = html.replace(
                 'Jeg har kontrolleret alle fire chiphistorikker og de faktiske købspriser.',
                 'Jeg har bekræftet den aktuelle trup, købspriser, bank, gratis transfers og alle fire chiphistorikker i FPL.',

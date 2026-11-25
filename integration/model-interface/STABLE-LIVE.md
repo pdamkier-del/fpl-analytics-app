@@ -76,3 +76,15 @@ FPL_PREVIEW_URL=http://127.0.0.1:18126/mm-preview/app/ \
 ```
 
 The browser test uses real publicly released picks and explicitly synthetic purchase prices, bank and FT. The test submits only to loopback. The 23 November run used original model artifact `14788745115` from Actions run `45105050197`, forecast `4d1a2e3925d5da64bfdfa2f7f98a9b7a04ade220f3546f655e4bc4a7ca1051dd`, for GW 12–17. It is the same original revision retained by the public archive. `FPL_ALTERNATE_CAPTURE` can point to a second captured `current/` and `gk/` pair for the browser forecast replacement check.
+
+## Prepare the isolated preview from the public archive
+
+```sh
+python integration/model-interface/build-archive-preview.py \
+  --repository /checkout/with/pinned-ui --archive-root /checkout/pinned-to-pr53 \
+  --out /fresh/preview-root
+```
+
+The command selects a recent checksummed original for the official GW, retrieves the original producer artifact named in its computation receipt, and verifies that the app and probability data use that same forecast. It builds a separate directory and records both source commits, the archive tag and the forecast hash. The generated static config has no worker URL. Start the loopback adapter to use its same-origin worker. The original producer retains its Actions artifacts for a limited time. If its app bundle has expired, the builder requires an independently retained original copy via `--capture`.
+
+Current mode rejects an expired capture before it creates output. To reproduce a historical browser test, identify the archive explicitly with `--tag` and `--allow-historical`. The loopback API refuses an expired forecast and rechecks the official player catalogue for valid computations. The PR pins the Pages UI to the tested saved-team source. The numerical source and original release gates retain their existing pins and checks.

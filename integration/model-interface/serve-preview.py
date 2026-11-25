@@ -1,5 +1,6 @@
 """Serve the generated B build and unchanged, ephemeral TS worker on loopback."""
 import argparse
+from datetime import datetime, timedelta, timezone
 import json
 from pathlib import Path
 import re
@@ -40,6 +41,12 @@ def squad_draft(entry, target, get=official):
     }
 
 
+def fresh_forecast(forecast, now):
+    cutoff = datetime.fromisoformat(forecast['data_asof'])
+    deadline = datetime.fromisoformat(forecast['origin_deadline'])
+    return cutoff <= now < deadline and now - cutoff <= timedelta(hours=36)
+
+
 def create(runtime, public, port):
     sys.path.insert(0, str(runtime))
     from service import app as original
@@ -57,6 +64,16 @@ def create(runtime, public, port):
         return allowed[name].read_bytes()
 
     original.get_public = get_public
+    original_verify = original.verify_snapshot_now
+
+    def verify_snapshot(forecast):
+        if not fresh_forecast(forecast, datetime.now(timezone.utc)):
+            raise ValueError('Prognosen er udløbet.')
+        from fpl_v1_1_model.forecast_snapshot import require_official_catalog
+        require_official_catalog(forecast, official('bootstrap-static/')['elements'])
+        return original_verify(forecast)
+
+    original.verify_snapshot_now = verify_snapshot
     app = Flask(__name__, static_folder=None)
 
     @app.before_request
@@ -94,6 +111,11 @@ def create(runtime, public, port):
 
     @app.post('/preview-api/preview/plans')
     def plan():
+        if request.headers.get('Origin') != origin:
+            abort(403)
+        forecast = json.loads(get_public('mm-preview/current/forecast.json'))
+        if not fresh_forecast(forecast, datetime.now(timezone.utc)):
+            return jsonify(error='Prognosen er udløbet. Afventer en ny verificeret prognose.'), 409
         return original.create(preview=True)
 
     @app.get('/preview-api/plans/<identifier>')
