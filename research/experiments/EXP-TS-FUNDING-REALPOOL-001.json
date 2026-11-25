@@ -1,0 +1,71 @@
+{
+  "id": "EXP-TS-FUNDING-REALPOOL-001",
+  "protocol_version": 1,
+  "registered_on": "2026-11-23",
+  "kind": "infrastructure",
+  "question": "Does unchanged PR50 funding improve frozen six-GW TS utility feasibly on the fixed original full forecast pool and12new synthetic legal states?",
+  "statistical_hypothesis": "Finite conditional mean utility improvement, not a population test or realized FPL gain",
+  "initial_status": "ready",
+  "priority": 1,
+  "primary_metric": "Mean U(candidate)-U(frozen TSv3) across all12 fixed states; undefined if any arm missing",
+  "secondary_metrics": [
+    "legality",
+    "scalar scorer/transition/objective consistency",
+    "keep-squad utility",
+    "fresh-process end-to-end/planner runtime",
+    "peak RSS",
+    "coverage and all four resource strata"
+  ],
+  "baseline": "Original161b67b6 TSv3 and archived config/scorer",
+  "candidate_modification": "Unchanged PR50 research/ts_funding/candidate.py supplementary funding pairs only",
+  "train_development_test": {
+    "development": "90 already-seen finite cases and original schema only; no new scientific rerun",
+    "test": "Exactly12 newly generated states, fixed PCG64seeds/FT/bank strata from PR56protocol; one fixed old real forecast"
+  },
+  "data_sources_and_cutoffs": [
+    {
+      "source": "research/evidence/next-study-20261123/PROTOCOL.md",
+      "cutoff_quality": "Unchanged PR56protocol; fixed original issue predates PR54cohort; no outcomes"
+    }
+  ],
+  "sample_size": {
+    "states": 12,
+    "strata": 4,
+    "replicates_per_stratum": 3,
+    "full_pool_minimum": 500,
+    "scenarios": 400,
+    "horizon": [
+      12,
+      13,
+      14,
+      15,
+      16,
+      17
+    ],
+    "arm_budget_seconds": 120,
+    "total_budget_seconds": 3600
+  },
+  "power": {
+    "status": "not_applicable",
+    "reason": "Finite conditional engineering feasibility, dependent states on one issue; no population CI/pvalue"
+  },
+  "dependencies": [
+    "EXP-TS-FUNDING-001"
+  ],
+  "reproduction_command": "See research/ts_realpool/IMPLEMENTATION.md; use fresh output/cache and immutable running snapshot",
+  "reproduction_command_scope": "One budgeted first attempt, fail closed on any lossless-input contract failure",
+  "full_experiment_command": "OPENBLAS_NUM_THREADS=1 OMP_NUM_THREADS=1 MKL_NUM_THREADS=1 python research/ts_realpool/run.py --archive-root /workspace/work/fpl-c1-archive-runtime --frozen-root /workspace/work/fpl-ts-frozen-161 --input-cache /tmp/fpl-ts-realpool-original-first --out research/results/EXP-TS-FUNDING-REALPOOL-001/first-attempt",
+  "execution_ready": true,
+  "acceptance_criteria": [
+    "All12 pairs/keep/audits complete; zero illegality/scorer differences>1e-8; exact original losslessly retained",
+    "Mean delta>=.25,at least3positive states across at least2fixed strata",
+    "No regression>1e-8",
+    "Candidate nearest-rank p90end-to-end<=30s;median paired runtime ratio<=2;arms<=120s,total<=3600s",
+    "No production promotion; retain failed/inconclusive/blocked outcomes"
+  ],
+  "result_links": [
+    "research/evidence/next-study-20261123/PROTOCOL.md"
+  ],
+  "final_decision": "Not executed at registration",
+  "next_action": "Freeze/register implementation, then recover only fixed original; generate/commit12states only if lossless gate passes; one bounded run or explicit block"
+}

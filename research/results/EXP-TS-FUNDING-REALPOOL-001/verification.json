@@ -1,0 +1,49 @@
+{
+  "base_commit": "a9276bc7",
+  "protocol_commit": "35e06b73",
+  "corrected_guard_commit": "45a89aa1",
+  "states_commit": "e20c1046b82ddbac00c41e23300c92b3a387e365",
+  "prior_protocols_byte_identical": 65,
+  "prior_event_prefix_unchanged": true,
+  "pr54_manifest_unchanged": true,
+  "source_and_candidate_manifests_match": true,
+  "original_protocol_unchanged": true,
+  "numerical_states": 12,
+  "extra_states": 0,
+  "attempted_arms": 36,
+  "completed_arms": 34,
+  "timeout_arms": 2,
+  "known_metadata_snapshot_failures": [
+    {
+      "test": "research/tests/test_registry.py::test_all_evidence_and_protected_protocol_validate",
+      "expected": 65,
+      "actual": 66,
+      "scope": "Frozen snapshot count; test/PR54manifest preserved"
+    },
+    {
+      "test": "research/stage0/tests/test_stage0.py::test_observations_leave_states_protocols_and_implementations_unchanged",
+      "expected": 11,
+      "actual": 13,
+      "scope": "13alreadyatPR56base; original test preserved"
+    }
+  ],
+  "tests_passed": 94,
+  "tests_failed": 2,
+  "new_contract_tests_passed": 5,
+  "existing_suite_passed": 89,
+  "existing_suite_failed": 2,
+  "commands": [
+    "OPENBLAS_NUM_THREADS=1 FPL_ARCHIVE_RUNTIME=/workspace/work/fpl-c1-archive-runtime python -m pytest -q research/mm_pm_live/tests research/tests research/pm_defs/tests research/ts_search/tests research/ts_funding/test_funding.py research/stage0/tests",
+    "OPENBLAS_NUM_THREADS=1 python -m pytest -q research/ts_realpool/tests"
+  ],
+  "aggregate_active_run_seconds": 1445.3538178340023,
+  "conservative_wall_upper_from_first_freeze_seconds": 1540.0192358493805,
+  "completed_rss_kib_range": [
+    242672,
+    242928
+  ],
+  "numerical_threads": 1,
+  "private_manager_data_used": false,
+  "new_forecast_outcomes_used": false,
+  "models_app_trial_modified": false
+}
