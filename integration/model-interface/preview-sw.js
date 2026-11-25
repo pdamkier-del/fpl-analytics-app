@@ -25,7 +25,7 @@ self.addEventListener('fetch', event => {
   const request = event.request;
   if (request.method !== 'GET' || request.mode !== 'navigate' ||
       !request.url.startsWith(self.registration.scope)) return;
-  event.respondWith(fetch(request).catch(async () => {
+  event.respondWith(fetch(request, { cache: 'no-store' }).catch(async () => {
     const cache = await caches.open(cacheName);
     return await cache.match(offline) || Response.error();
   }));
