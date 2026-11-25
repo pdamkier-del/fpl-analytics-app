@@ -16,6 +16,11 @@ on:
         required: false
         type: boolean
         default: false
+      replay_gk_cap_browser:
+        description: 'Run browser checks only on the verified capture from run 45658881570'
+        required: false
+        type: boolean
+        default: false
 permissions:
   contents: write
   actions: read
@@ -26,7 +31,7 @@ env:
   PREVIEW_UI_SHA: 27bf5e1e1a17360bdbbfb41fbce7fe55679c6870
 jobs:
   verified:
-    if: ${{ inputs.validated_run != '' && !inputs.validate_gk_cap_candidate }}
+    if: ${{ inputs.validated_run != '' && !inputs.validate_gk_cap_candidate && !inputs.replay_gk_cap_browser }}
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -38,7 +43,7 @@ jobs:
           VALIDATED_RUN: ${{ inputs.validated_run }}
         run: python scripts/verify_b_publication_artifact.py --run "$VALIDATED_RUN" --source "$PREVIEW_SOURCE_SHA"
   current:
-    if: ${{ inputs.validated_run == '' && !inputs.validate_gk_cap_candidate }}
+    if: ${{ inputs.validated_run == '' && !inputs.validate_gk_cap_candidate && !inputs.replay_gk_cap_browser }}
     uses: pdamkier-del/fpl-analytics-app/.github/workflows/mm-current-live-preview.yml@161b67b6fb8786a38e78c245b92a03ad841575d8
     with:
       source_ref: 161b67b6fb8786a38e78c245b92a03ad841575d8
@@ -47,7 +52,7 @@ jobs:
       contents: read
       actions: read
   gk_cap_candidate:
-    if: ${{ github.ref == 'refs/heads/integration/stable-live-app-20261122' && inputs.validate_gk_cap_candidate && inputs.validated_run == '' }}
+    if: ${{ github.ref == 'refs/heads/integration/stable-live-app-20261122' && inputs.validate_gk_cap_candidate && !inputs.replay_gk_cap_browser && inputs.validated_run == '' }}
     uses: pdamkier-del/fpl-analytics-app/.github/workflows/mm-current-live-preview.yml@161b67b6fb8786a38e78c245b92a03ad841575d8
     with:
       source_ref: d7060b51cf16016f7947b2ffc110909afea89bb7
@@ -56,6 +61,7 @@ jobs:
       actions: read
   gk_cap_browser:
     needs: gk_cap_candidate
+    if: ${{ !cancelled() && (needs.gk_cap_candidate.result == 'success' || (github.ref == 'refs/heads/integration/stable-live-app-20261122' && inputs.replay_gk_cap_browser && !inputs.validate_gk_cap_candidate && inputs.validated_run == '')) }}
     runs-on: ubuntu-latest
     timeout-minutes: 20
     permissions:
@@ -72,10 +78,19 @@ jobs:
           path: .c2-integration
           sparse-checkout: integration/model-interface
           persist-credentials: false
+      - name: Verify the original producer succeeded
+        if: inputs.replay_gk_cap_browser
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh api "repos/$GITHUB_REPOSITORY/actions/runs/45658881570/jobs" \
+            --jq '[.jobs[] | select(.id == 139362980496 and .conclusion == "success")] | length' | grep -qx 1
       - uses: actions/download-artifact@v4
         with:
           name: mm-current-live-preview
           path: candidate-capture
+          run-id: ${{ inputs.replay_gk_cap_browser && '45658881570' || github.run_id }}
+          github-token: ${{ github.token }}
       - uses: actions/setup-python@v5
         with:
           python-version: '3.12'
@@ -91,6 +106,7 @@ jobs:
           export FPL_PREVIEW_URL=http://127.0.0.1:18097/mm-preview/app/
           export FPL_EXPECT_LIVE_GW=12
           export FPL_TEST_WORKER_FILE="$PWD/app/mm-preview/app/preview-sw.js"
+          mkdir -p app/mm-preview/{current,gk}
           for file in current/{index,forecast,existing-app-data}.json gk/{index,forecast,gk-mm,evidence}.json; do
             cp "candidate-capture/$file" "app/mm-preview/$file"
           done
