@@ -155,7 +155,7 @@ jobs:
           retention-days: 1
   publish_gk_cap_test:
     needs: gk_cap_browser
-    if: ${{ github.ref == 'refs/heads/integration/stable-live-app-20261122' && inputs.replay_gk_cap_browser && inputs.publish_gk_cap_test }}
+    if: ${{ !cancelled() && needs.gk_cap_browser.result == 'success' && github.ref == 'refs/heads/integration/stable-live-app-20261122' && inputs.replay_gk_cap_browser && inputs.publish_gk_cap_test }}
     runs-on: ubuntu-latest
     timeout-minutes: 15
     concurrency:
