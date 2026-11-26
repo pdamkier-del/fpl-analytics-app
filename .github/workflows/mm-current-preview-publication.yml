@@ -112,6 +112,7 @@ jobs:
           export NODE_PATH="$RUNNER_TEMP/fpl-browser/node_modules"
           export BROWSER_PATH="$(command -v google-chrome)"
           export FPL_PREVIEW_URL=http://127.0.0.1:18097/mm-preview/app/
+          export FPL_ALLOW_HISTORICAL="${{ inputs.replay_gk_cap_browser }}"
           export FPL_EXPECT_LIVE_GW="$(jq -er '.gws[0]' candidate-capture/current/forecast.json)"
           export FPL_TEST_WORKER_FILE="$PWD/app/mm-preview/app/preview-sw.js"
           mkdir -p app/mm-preview/{current,gk}

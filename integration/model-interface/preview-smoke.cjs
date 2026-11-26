@@ -10,6 +10,7 @@ const { chromium } = require('playwright');
 async function verify() {
   const base = new URL(process.env.FPL_PREVIEW_URL);
   const liveGw = Number(process.env.FPL_EXPECT_LIVE_GW || 0);
+  const allowHistorical = process.env.FPL_ALLOW_HISTORICAL === 'true';
   const planFixturePath = process.env.FPL_TEST_PLAN_FIXTURE;
   const fixture = planFixturePath ? JSON.parse(await fs.readFile(planFixturePath, 'utf8')) : null;
   const browser = await chromium.launch({ executablePath: process.env.BROWSER_PATH, args: ['--no-sandbox'] });
@@ -25,10 +26,10 @@ async function verify() {
       });
       async function checkDashboard() {
         if (liveGw) {
-          await page.waitForFunction(gw => {
+          await page.waitForFunction(({ gw, allowHistory }) => {
             const current = window.FplDashboardContext?.();
-            return current?.usable && current.forecast.gws[0] === gw;
-          }, liveGw);
+            return current?.forecast?.gws[0] === gw && (current.usable || allowHistory);
+          }, { gw: liveGw, allowHistory: allowHistorical });
         } else {
           await page.getByRole('heading', { name: /Historisk prognose/ }).waitFor();
         }
@@ -56,7 +57,9 @@ async function verify() {
       await page.goto(new URL('transfers-classic.html', base).href);
       await page.evaluate(async () => { await FplManagerClient.load(); });
       assert.deepEqual(await page.evaluate(() => FplManagerStore.read()), saved);
-      assert.equal(await page.evaluate(() => FplManagerClient.snapshot().usable), Boolean(liveGw));
+      const transferUsable = await page.evaluate(() => FplManagerClient.snapshot().usable);
+      if (!allowHistorical || !liveGw) assert.equal(transferUsable, Boolean(liveGw));
+      else if (!transferUsable) assert.equal(await page.locator('[data-compute]:enabled').count(), 0);
       if (fixture) {
         assert.equal(await page.evaluate(() => FplManagerClient.snapshot().plan?.manager_state_sha256),
           fixture.result.manager_state_sha256);
