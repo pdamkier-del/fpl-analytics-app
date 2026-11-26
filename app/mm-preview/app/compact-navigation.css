@@ -387,3 +387,10 @@ body.fpl-compact-ui .fpl-unconfirmed-squad .fpl-pitch-player { width:100%; color
 .fpl-club-data-modes>label select { border-radius:8px; padding:.55rem .6rem; }
 .fpl-club-data-modes>label[hidden] { display:none!important; }
 @media(max-width:620px) { .fpl-club-data-modes>label { width:100%; margin-left:0; justify-content:space-between; } }
+
+.fpl-club-detail-metrics{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:.7rem;margin:1.1rem 0}
+.fpl-club-detail-metrics>div{display:flex;flex-direction:column;gap:.35rem;background:#f7f8fa;padding:.85rem;border:1px solid #ebedf1;border-radius:10px;min-width:0}
+.fpl-club-detail-metrics small{color:#667486;font-size:.74rem}
+.fpl-club-detail-metrics strong{color:#37003c;font-size:1.55rem;font-variant-numeric:tabular-nums}
+.fpl-club-detail-metrics span{font-size:.7rem;color:#667486}
+@media(max-width:650px){.fpl-club-detail-metrics{grid-template-columns:repeat(2,minmax(0,1fr));gap:.4rem}}
