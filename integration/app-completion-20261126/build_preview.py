@@ -21,13 +21,29 @@ def build(site):
  client=dest/'app/classic-manager.js';text=client.read_text();anchor='onChange();FplPlannerExperience.mount(snapshot());feedback();'
  if text.count(anchor)!=1:raise ValueError('Existing manager-client render anchor changed')
  client.write_text(text.replace(anchor,'onChange();if(!window.FplSharedTeam)FplPlannerExperience.mount(snapshot());feedback();'))
- # Reuse the exact currently deployed plan renderer, applying only UI orchestration changes.
+ # Reuse the exact deployed renderer; require every orchestration anchor.
  text=(source/'transfers-workspace.js').read_text()
- text=text.replace("document.querySelector('[data-open-alternatives]').addEventListener", "document.querySelector('[data-open-alternatives]')?.addEventListener")
- text=text.replace('FplPlannerExperience.mount(c);','if(!window.FplSharedTeam)FplPlannerExperience.mount(c);')
- text=text.replace("if(!latest||!c.state?.squad?.length)return null;", "if(!latest||!c.state?.squad?.length)return null;\n  const shared=window.FplSharedTeam?.status();if(shared?.actual?.squad?.length===15&&c.state.squad.every(p=>shared.actual.squad.some(q=>q.id===p.id)))return null;")
- text=text.replace("if(!c.state){status.innerHTML=", "if(window.FplSharedTeam&&!window.FplSharedTeam.status().actual){status.textContent='';return;}\n if(!c.state){status.innerHTML=")
+ def replace_once(text,old,new):
+  if text.count(old)!=1:raise ValueError('Existing UI anchor changed: '+old[:65])
+  return text.replace(old,new,1)
+ text=replace_once(text,"document.querySelector('[data-open-alternatives]').addEventListener", "document.querySelector('[data-open-alternatives]')?.addEventListener")
+ text=replace_once(text,'FplPlannerExperience.mount(c);','if(!window.FplSharedTeam)FplPlannerExperience.mount(c);')
+ text=replace_once(text,"if(!latest||!c.state?.squad?.length)return null;", "if(!latest||!c.state?.squad?.length)return null;\n  const shared=window.FplSharedTeam?.status();if(shared?.actual?.squad?.length===15&&c.state.squad.every(p=>shared.actual.squad.some(q=>q.id===p.id)))return null;")
+ text=replace_once(text,"if(!c.state){status.innerHTML=", "if(window.FplSharedTeam&&!window.FplSharedTeam.status().actual){button.disabled=true;status.textContent='';return;}\n if(!c.state){status.innerHTML=")
+ text=replace_once(text,"if(drift?.needsConfirmation&&!drift.confirmed){button.disabled=true;", "const sharedOfficial=window.FplSharedTeam?.status().actual;if(sharedOfficial&&(!Number.isInteger(sharedOfficial.bank_tenths)||!c.state?.squad?.every(p=>sharedOfficial.squad.some(q=>q.id===p.id)))){button.disabled=true;status.textContent='TS v3 afventer verificerede købspriser, bank og gratis transfers for den officielle trup.';return;}\n if(drift?.needsConfirmation&&!drift.confirmed){button.disabled=true;")
+ text=replace_once(text,"if(fetchingLatest||snap.busy)return;", "const official=window.FplSharedTeam?.status().actual;if(official&&(!Number.isInteger(official.bank_tenths)||!snap.state?.squad?.every(p=>official.squad.some(q=>q.id===p.id)))){draw();return;}\n if(fetchingLatest||snap.busy)return;")
+ text=replace_once(text,"function failed(e){target.replaceChildren();status.textContent=", "function failed(e){target.replaceChildren();if(window.FplSharedTeam&&!window.FplSharedTeam.status().actual){status.textContent='';return;}status.textContent=")
+ anchor='try{await FplManagerClient.load();draw();FplTransferPreview.render();FplManagerClient.bind'
+ text=replace_once(text,anchor,"window.addEventListener('fpl-official-team-ready',async()=>{try{await FplManagerClient.load();draw();}catch(e){failed(e);}});\n"+anchor)
  (dest/'transfers-workspace.js').write_text(text)
+ importer=dest/'app/manager-import.js';text=importer.read_text()
+ if 'window.FplOfficialManagerImport'not in text:
+  if not all(name in text for name in ['function fromOfficialHistory','function reconcileOfficialHistory','function loadInitialPrices']):raise ValueError('Official importer functions missing')
+  importer.write_text(text+'\nwindow.FplOfficialManagerImport=Object.freeze({fromOfficialHistory,reconcileOfficialHistory,loadInitialPrices});\n')
+ # Explain the unchanged two-hour guard; do not relax freshness/identity rules.
+ gate=dest/'app/forecast-window.js';text=gate.read_text()
+ text=text.replace("reason: 'Den aktuelle officielle gameweek og deadline kan ikke bekræftes.'", "reason: Number.isFinite(observed)&&now-observed>2*3600000?'FPL-status fra '+new Date(observed).toLocaleString('da-DK')+' er mere end to timer gammel. Datatjenesten skal opdatere status, før TS v3 kan beregnes.':'Den aktuelle officielle gameweek eller deadline mangler eller matcher ikke. Afventer verificerede data.'")
+ gate.write_text(text)
  # JSON stays on the existing sealed data source; no manager or forecast payload copied.
  for page in(dest/'app').glob('*.html'):
   text=page.read_text()

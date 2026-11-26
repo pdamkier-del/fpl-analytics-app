@@ -68,8 +68,8 @@
   if(working)return;working=true;error='';render();
   try{
    await root.FplManagerClient.load();context=root.FplManagerClient.snapshot();
-   const saved=cached();if(saved)install(saved);
-   if(!force&&saved&&Date.now()-Date.parse(saved.observed_at)<600000){try{root.FplSharedTeam.initialPrices=await root.FplOfficialManagerImport.loadInitialPrices();install(saved);await root.FplManagerClient.load();context=root.FplManagerClient.snapshot();}catch(e){error=e.message;}working=false;render();return;}
+   const saved=cached();if(saved){try{root.FplSharedTeam.initialPrices=await root.FplOfficialManagerImport.loadInitialPrices();}catch(e){error=e.message;}install(saved);await root.FplManagerClient.load();context=root.FplManagerClient.snapshot();emit();}
+   if(!force&&saved&&Date.now()-Date.parse(saved.observed_at)<600000){working=false;render();return;}
    const h=await root.FplHistoryRefreshClient.run({entryId:ENTRY,season:context.forecast.season,officialOnly:true,onProgress:()=>{}});
    try{root.FplSharedTeam.initialPrices=await root.FplOfficialManagerImport.loadInitialPrices();}catch(e){error='Købspriser kan ikke verificeres: '+e.message;}
    install(h);localStorage.setItem(KEY,JSON.stringify(h));root.FplHistoryRefreshClient.acknowledge();

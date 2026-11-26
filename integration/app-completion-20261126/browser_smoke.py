@@ -13,6 +13,7 @@ async def main():
    assert await page.locator('nav.fpl-primary-navigation').count()==1
    if name!='players-classic.html':
     assert await page.locator('[data-shared-team]').count()==1
+    await page.wait_for_function('window.FplSharedTeam?.status().context?.forecast?.players?.length >= 500',timeout=60000)
     assert 'Historisk prognose · GW12'not in await page.locator('body').inner_text()
     assert await page.locator('#planner-context').count()==0
    await page.set_viewport_size({'width':390,'height':844});await page.wait_for_timeout(300)

@@ -612,6 +612,7 @@ jobs:
     permissions:
       contents: read
       actions: read
+      deployments: read
       pages: write
       id-token: write
     environment:
@@ -622,6 +623,20 @@ jobs:
         with:
           name: app-completion-tested-site
           path: site
+      - name: Refuse to replace an advanced live baseline
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          python - <<'PYTHON'
+          import json,subprocess,os
+          def api(p):return json.loads(subprocess.check_output(['gh','api',p]))
+          repo=os.environ['GITHUB_REPOSITORY']
+          for d in api(f'repos/{repo}/deployments?environment=github-pages&per_page=20'):
+              if any(s['state']=='success'for s in api(f'repos/{repo}/deployments/{d["id"]}/statuses')):
+                  assert d['sha']=='140e3f88c4a1110b3b4a06d8a90ae691dca9e984','Live baseline advanced after verification; rebuild/review first'
+                  break
+          else:raise RuntimeError('Live baseline cannot be verified')
+          PYTHON
       - uses: actions/upload-pages-artifact@v3
         with:
           name: app-completion-pages-${{ github.run_id }}
