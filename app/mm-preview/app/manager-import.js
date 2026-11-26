@@ -93,6 +93,7 @@ function fromOfficialHistory(history, entryId, forecast) {
 }
 
 if (typeof module !== 'undefined') module.exports = { fromOfficialHistory, reconcileOfficialHistory };
+if (typeof window !== 'undefined') window.FplOfficialManagerImport = Object.freeze({ fromOfficialHistory, reconcileOfficialHistory, loadInitialPrices });
 
 if (typeof window !== 'undefined') window.addEventListener('DOMContentLoaded', async () => {
   const button = document.getElementById('import-manager');
