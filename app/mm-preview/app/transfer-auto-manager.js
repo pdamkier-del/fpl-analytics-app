@@ -14,6 +14,16 @@
   };
   const validId = value => /^[1-9][0-9]{0,8}$/.test(String(value || ''));
   let busy = false;
+  async function maybeCalculate(snapshot, entryId) {
+    if (!snapshot?.usable || !snapshot.stateValid || snapshot.plan || snapshot.busy) return;
+    const key = 'fpl-transfer-auto-compute-v1';
+    const identity = [entryId, snapshot.forecast?.forecast_sha256, snapshot.state?.observed_at].join(':');
+    if (sessionStorage.getItem(key) === identity) return;
+    sessionStorage.setItem(key, identity); // no automatic retry loop if service is down
+    setStatus('Officielt hold fra ID ' + entryId + ' er hentet. Beregner transferforslag med TS v3 …');
+    try { await root.FplManagerClient.compute(); }
+    catch (error) { setStatus('Holdet er hentet, men transferberegningen kunne ikke starte: ' + error.message, 'error'); }
+  }
   async function sync(force = false) {
     if (busy) return;
     const entryId = Number(localStorage.getItem('fpl-history-entry-id') ||
@@ -39,6 +49,7 @@
           oldState?.season === forecast.season && marker?.stateStamp === oldState.observed_at) {
         setStatus('Hold fra FPL-ID ' + entryId + ' er indlæst til GW ' + oldState.gw +
           '. Transfers bruger disse 15 spillere og de verificerede købsoplysninger.', 'ready');
+        await maybeCalculate(snapshot, entryId);
         return;
       }
       setStatus('Henter officielt hold og transferhistorik for FPL-ID ' + entryId + ' …');
