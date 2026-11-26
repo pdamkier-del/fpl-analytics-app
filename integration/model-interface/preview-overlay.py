@@ -215,9 +215,10 @@ def apply(app):
         )
         if page.name == 'overview.html':
             refresh = write_asset(app, 'forecast-refresh.js', (ASSETS / 'forecast-refresh.js').read_text())
-            html = html.replace('</head>', f'<script defer src="{refresh}"></script></head>', 1)
+            team = write_asset(app, 'compact-team.js', (ASSETS / 'compact-team.js').read_text())
+            html = html.replace('</head>', f'<script defer src="{refresh}"></script><script defer src="{team}"></script></head>', 1)
             refresh_panel = (
-                '<section class="panel" aria-label="Prognoseopdatering">'
+                '<section class="fpl-forecast-refresh" aria-label="Prognoseopdatering">'
                 '<details><summary>Opdater data og prognoser</summary>'
                 '<p>Åbn GitHub Actions, vælg integrationsbranchen '
                 '<code>integration/stable-live-app-20261122</code>, og vælg <strong>Run workflow</strong>. '
@@ -226,7 +227,7 @@ def apply(app):
                 'mm-current-preview-publication.yml" target="_blank" rel="noopener">Åbn GitHub Actions</a>'
                 '</details><p id="forecast-refresh-status" role="status">Henter prognosetidspunkt …</p></section>'
             )
-            html, count = re.subn(r'(<main\b[^>]*>)', lambda match: refresh_panel + match[0], html, count=1)
+            html, count = re.subn(r'(<main\b[^>]*>)', lambda match: refresh_panel + '<section id="compact-team" aria-label="Mit hold"></section>' + match[0], html, count=1)
             if count != 1:
                 raise ValueError('Dashboard main element not found')
         if page.name == 'manager-state.html':

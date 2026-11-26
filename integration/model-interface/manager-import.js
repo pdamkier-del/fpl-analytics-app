@@ -146,6 +146,19 @@ if (typeof window !== 'undefined') window.addEventListener('DOMContentLoaded', a
         try {
           const reconciled = reconcileOfficialHistory(data, history, forecast, await loadInitialPrices());
           window.FplManagerOnline.saveOfficialState(reconciled);
+          const officialWeek = history.weeks.find(week => week.gw === data.source_gw);
+          const nominated = officialWeek?.nominated_picks || officialWeek?.picks || [];
+          const ids = reconciled.squad.map(player => player.id);
+          const captain = nominated.find(player => player.is_captain === true)?.element;
+          const vice = nominated.find(player => player.is_vice_captain === true)?.element;
+          let savedLineup;
+          try { savedLineup = JSON.parse(localStorage.getItem('fpl-manual-lineup-v1')); } catch {}
+          if (!Array.isArray(savedLineup?.ids) || !savedLineup.ids.every(id => ids.includes(id)) || savedLineup.ids.length !== 15 ||
+              new Set(savedLineup.ids).size !== 15) {
+            if (captain !== vice && ids.slice(0, 11).includes(captain) && ids.slice(0, 11).includes(vice)) {
+              localStorage.setItem('fpl-manual-lineup-v1', JSON.stringify({ ids, captain, vice }));
+            }
+          }
           message.textContent = 'Hold, køb, bank, gratis transfers og chips er afstemt. Åbn Transfers for at beregne.';
           return;
         } catch {

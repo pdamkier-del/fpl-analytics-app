@@ -31,7 +31,7 @@ async function verify() {
             return current?.forecast?.gws[0] === gw && (current.usable || allowHistory);
           }, { gw: liveGw, allowHistory: allowHistorical });
         } else {
-          await page.getByRole('heading', { name: /Historisk prognose/ }).waitFor();
+          await page.waitForFunction(() => window.FplDashboardContext?.()?.usable === false);
         }
       }
       await page.goto(new URL('overview.html', base).href);
@@ -52,6 +52,10 @@ async function verify() {
       await page.goto(new URL('my-team-classic.html', base).href);
       await page.waitForURL('**/overview.html');
       await checkDashboard();
+      await page.getByRole('heading', { name: 'Mit hold', exact: true }).waitFor();
+      assert.equal(await page.locator('#weekly-main').isVisible(), false);
+      assert.equal(await page.getByText('Mit hold · nyheder og status', { exact: true }).filter({ visible: true }).count(), 0);
+      assert.equal(await page.getByText('Dit gemte hold og din personlige plan i denne browser', { exact: true }).filter({ visible: true }).count(), 0);
 
       let saved = await page.evaluate(data => {
         const state = data?.state || {
@@ -61,6 +65,32 @@ async function verify() {
         if (data) localStorage.setItem('fpl-manager-plan-B-preview-v1', JSON.stringify(data.result));
         return state;
       }, fixture);
+      if (!fixture && liveGw) {
+        const alerts = await page.evaluate(async () => {
+          const news = await FplTeamNews.load();
+          const ids = FplDashboardContext().forecast.players.map(player => player.id);
+          const flagged = news.players.filter(player => ids.includes(player.id) &&
+            (['d', 'i', 's', 'u', 'n'].includes(player.status) || player.recent_red_cards?.length));
+          const [owned, other] = flagged;
+          if (!owned || !other) return null;
+          const squad = [owned.id, ...ids.filter(id => id !== owned.id && id !== other.id).slice(0, 14)];
+          FplManagerStore.save({ ...FplManagerStore.read(), squad: squad.map(id => ({ id })) });
+          return { owned: owned.id, other: other.id };
+        });
+        if (alerts) {
+          await page.reload();
+          const ownedRow = page.locator('#compact-team tr').filter({
+            has: page.locator('a[href="player.html?id=' + alerts.owned + '"]'),
+          });
+          const warning = ownedRow.locator('.compact-player-alert');
+          await warning.waitFor();
+          assert.equal(await warning.locator('p').isVisible(), false);
+          await warning.locator('summary').click();
+          assert.equal(await warning.locator('p').isVisible(), true);
+          assert.equal(await page.locator('#compact-team a[href="player.html?id=' + alerts.other + '"]').count(), 0);
+          saved = await page.evaluate(() => FplManagerStore.read());
+        }
+      }
       await page.goto(new URL('transfers-classic.html', base).href);
       await page.evaluate(async () => { await FplManagerClient.load(); });
       assert.deepEqual(await page.evaluate(() => FplManagerStore.read()), saved);
