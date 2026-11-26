@@ -54,7 +54,7 @@
           const flag = availability.get(id);
           const label = labels[flag?.status] || (flag?.recent_red_cards?.length ? 'Kort' : '');
           const role = lineup?.captain === id ? 'K' : lineup?.vice === id ? 'VK' : '';
-          return '<tr><th scope="row"><a href="player.html?id=' + Number(id) + '">' +
+          return '<tr data-player-id="' + Number(id) + '"><th scope="row"><a href="player.html?id=' + Number(id) + '">' +
             escape(player?.name || official.get(id)?.web_name || 'Spiller ' + id) + '</a>' +
             (role ? ' <abbr title="' + (role === 'K' ? 'Kaptajn' : 'Vicekaptajn') + '">' + role + '</abbr>' : '') +
             (label ? '<details class="compact-player-alert"><summary>' + label + '</summary><p>' +

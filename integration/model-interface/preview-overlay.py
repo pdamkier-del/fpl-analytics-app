@@ -139,6 +139,9 @@ def apply(app):
                 'href="my-team-classic.html">Åbn My Team →', 'href="manager-state.html">Bekræft hold →',
             ).replace(
                 '<a href="my-team-classic.html">Opstilling og bænk →</a> · ', '',
+            ).replace(
+                'dashboardNews.afterRender();',
+                "if (!document.getElementById('compact-team')) dashboardNews.afterRender();",
             )
         if original == changed or f'localStorage.setItem({KEY}' in changed:
             raise ValueError(f'Manager storage anchors changed in {path}')

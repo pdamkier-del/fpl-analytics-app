@@ -79,15 +79,13 @@ async function verify() {
         });
         if (alerts) {
           await page.reload();
-          const ownedRow = page.locator('#compact-team tr').filter({
-            has: page.locator('a[href="player.html?id=' + alerts.owned + '"]'),
-          });
+          const ownedRow = page.locator('#compact-team tr[data-player-id="' + alerts.owned + '"]');
           const warning = ownedRow.locator('.compact-player-alert');
           await warning.waitFor();
           assert.equal(await warning.locator('p').isVisible(), false);
           await warning.locator('summary').click();
           assert.equal(await warning.locator('p').isVisible(), true);
-          assert.equal(await page.locator('#compact-team a[href="player.html?id=' + alerts.other + '"]').count(), 0);
+          assert.equal(await page.locator('#compact-team tr[data-player-id="' + alerts.other + '"]').count(), 0);
           saved = await page.evaluate(() => FplManagerStore.read());
         }
       }
