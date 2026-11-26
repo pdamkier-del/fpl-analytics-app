@@ -213,3 +213,115 @@ body.fpl-compact-ui .fpl-forecast-refresh [role="status"] {
     padding:.7rem .8rem; align-items:flex-start;
   }
 }
+
+/* 2026/27 FPL-inspired pitch: the team is the focus, not a spreadsheet. */
+body.fpl-compact-ui #compact-team { max-width:850px; }
+body.fpl-compact-ui .fpl-team-pitch {
+  position:relative; isolation:isolate; display:flex; flex-direction:column;
+  justify-content:space-evenly; gap:1.1rem; overflow:visible;
+  min-height:580px; margin-top:.8rem; padding:1.6rem 1.1rem;
+  border-radius:13px 13px 0 0; color:#fff;
+  background:repeating-linear-gradient(to bottom,#158854 0,#158854 19%,#13804f 19%,#13804f 38%);
+}
+body.fpl-compact-ui .fpl-pitch-markings {
+  position:absolute; inset:12px; z-index:-1; pointer-events:none;
+  border:2px solid rgba(255,255,255,.47);
+}
+body.fpl-compact-ui .fpl-pitch-markings::before {
+  content:""; position:absolute; left:50%; top:50%; transform:translate(-50%,-50%);
+  width:108px; height:108px; border:2px solid rgba(255,255,255,.38);
+  border-radius:50%;
+}
+body.fpl-compact-ui .fpl-pitch-markings::after {
+  content:""; position:absolute; top:50%; left:0; right:0;
+  border-top:2px solid rgba(255,255,255,.38);
+}
+body.fpl-compact-ui .fpl-team-pitch-row {
+  display:flex; justify-content:space-around; align-items:flex-start;
+  gap:.2rem; min-height:110px; width:100%;
+}
+body.fpl-compact-ui .fpl-pitch-player {
+  position:relative; width:min(145px,24%); text-align:center;
+  min-width:0; color:#fff; font-size:.78rem; font-weight:750;
+}
+body.fpl-compact-ui .fpl-pitch-player-link {
+  display:flex; flex-direction:column; align-items:center;
+  position:relative; color:inherit; text-decoration:none;
+}
+body.fpl-compact-ui .fpl-pitch-shirt {
+  position:relative; display:grid; place-items:center;
+  width:49px; height:51px; margin-bottom:5px;
+  background:linear-gradient(145deg,#f8fafc 0%,#e7eafa 58%,#d2d6e9 100%);
+  color:#37003c; font-size:.62rem; font-weight:900;
+  clip-path:polygon(22% 0,38% 8%,62% 8%,78% 0,100% 21%,85% 40%,78% 31%,78% 100%,22% 100%,22% 31%,15% 40%,0 21%);
+  filter:drop-shadow(0 2px 3px #063a2855);
+}
+body.fpl-compact-ui .fpl-pitch-shirt span { margin-top:7px; }
+body.fpl-compact-ui .fpl-team-position-1 .fpl-pitch-shirt {
+  background:linear-gradient(145deg,#ffef82,#dec83b);
+}
+body.fpl-compact-ui .fpl-pitch-role {
+  position:absolute; top:0; left:calc(50% + 12px);
+  width:22px; height:22px; border-radius:50%; z-index:1;
+  display:grid; place-items:center; color:#37003c; background:#00ff87;
+  border:2px solid #fff; font-size:.7rem;
+}
+body.fpl-compact-ui .fpl-pitch-name {
+  display:block; width:100%; max-width:124px;
+  padding:.38rem .3rem; border-radius:5px 5px 0 0;
+  overflow:hidden; white-space:nowrap; text-overflow:ellipsis;
+  background:#37003c; color:#fff; font-size:.77rem; line-height:1.05;
+}
+body.fpl-compact-ui .fpl-pitch-points {
+  width:100%; max-width:124px; padding:.38rem .2rem;
+  border-radius:0 0 5px 5px;
+  background:#f8fafc; color:#263544;
+  white-space:nowrap; font-size:.72rem;
+}
+body.fpl-compact-ui .fpl-pitch-points span { color:#617181; font-size:.67rem; }
+body.fpl-compact-ui .fpl-pitch-alert { margin:.25rem auto 0; width:max-content; max-width:100%; }
+body.fpl-compact-ui .fpl-pitch-alert summary {
+  border-radius:5px; padding:.15rem .35rem;
+  background:#ffe6b5; color:#684400; font-size:.67rem;
+  font-weight:800;
+}
+body.fpl-compact-ui .fpl-pitch-alert[open] { z-index:4; }
+body.fpl-compact-ui .fpl-pitch-alert p {
+  position:absolute; min-width:180px; max-width:245px;
+  left:50%; transform:translateX(-50%); margin:.25rem 0 0;
+  padding:.65rem; background:#fff; color:#3d4148;
+  box-shadow:0 5px 22px #00251d45; border-radius:8px;
+  font-size:.74rem; line-height:1.45;
+}
+body.fpl-compact-ui .fpl-pitch-bench-heading {
+  text-align:center; padding:.75rem 1rem;
+  font-size:.78rem; text-transform:uppercase; letter-spacing:.09em;
+  font-weight:850; color:#37003c; background:#f0ebf3;
+}
+body.fpl-compact-ui .fpl-pitch-bench {
+  display:flex; justify-content:space-around; align-items:flex-start;
+  gap:.3rem; padding:1rem .7rem 1.2rem;
+  border-radius:0 0 13px 13px; background:#e8ebf2;
+}
+body.fpl-compact-ui .fpl-pitch-bench .fpl-pitch-player { width:24%; color:#233140; }
+body.fpl-compact-ui .fpl-team-footnote { margin-top:1rem; background:transparent; border:0; padding:0; color:#677484; }
+body.fpl-compact-ui .fpl-unconfirmed-squad {
+  display:grid; grid-template-columns:repeat(5,minmax(0,1fr));
+  gap:.75rem; padding:1rem .4rem; background:#f1f3f7; border-radius:12px;
+}
+body.fpl-compact-ui .fpl-unconfirmed-squad .fpl-pitch-player { width:100%; color:#233140; }
+@media(max-width:650px){
+  body.fpl-compact-ui .fpl-team-pitch {
+    min-height:505px; padding:1.25rem .35rem; gap:.7rem;
+  }
+  body.fpl-compact-ui .fpl-pitch-markings { inset:7px; }
+  body.fpl-compact-ui .fpl-team-pitch-row { min-height:98px; }
+  body.fpl-compact-ui .fpl-pitch-player { width:24%; }
+  body.fpl-compact-ui .fpl-pitch-shirt { width:37px; height:41px; font-size:.52rem; }
+  body.fpl-compact-ui .fpl-pitch-name { font-size:.62rem; padding:.33rem .1rem; }
+  body.fpl-compact-ui .fpl-pitch-points { font-size:.58rem; padding:.3rem .05rem; }
+  body.fpl-compact-ui .fpl-pitch-points span { display:block; font-size:.55rem; padding-top:.12rem; }
+  body.fpl-compact-ui .fpl-pitch-role { width:18px; height:18px; font-size:.6rem; left:calc(50% + 7px); }
+  body.fpl-compact-ui .fpl-pitch-bench { padding:.8rem .3rem; }
+  body.fpl-compact-ui .fpl-unconfirmed-squad { grid-template-columns:repeat(3,minmax(0,1fr)); }
+}
