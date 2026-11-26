@@ -31,7 +31,7 @@
     } else {
       const players = new Map((forecast?.players || []).map(player => [player.id, player]));
       const official = new Map((context?.official?.players || []).map(player => [player.id, player]));
-      const availability = new Map(news?.next_gw === gw ? news.players.map(player => [player.id, player]) : []);
+      const availability = new Map(news && news.next_gw === gw ? news.players.map(player => [player.id, player]) : []);
       const ids = state.squad.map(player => player.id);
       const selection = context?.selection;
       const lineup = selection?.ids?.length === 15 && new Set(selection.ids).size === 15 &&
