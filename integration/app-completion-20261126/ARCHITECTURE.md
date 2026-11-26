@@ -1,0 +1,9 @@
+# Existing app integration — 26 November 2026
+
+Actual deployed integration branch integration/stable-live-app-20261122, HEAD140e3f88 (deployment8082385148). Public free-github-static-20261010 HEAD50e39d8c is the generated publication mirror, not the integration base. Actual Pages/Transfers reproduced in Chromium before editing: duplicated manager bootstrap, no squad shown while full historical review runs. New integration branch only; no production merge.
+
+Pages serves immutable MM/PM current/index + forecast + existing-app-data, checked by stable-existing-app-adapter. Forecast window/team news and manager-state identity guard the original Render /preview/plans worker and six-GW TSv3. Player/club catalogue/detail pages already supply independent stats/prognosis periods and remain in place. Models/source/sampling/configuration are untouched.
+
+Before: overview weekly-app + compact-team read a manual manager/selection store; transfers classic-manager + transfer-auto-manager requested full historical replay and reconciled another store. compact-team could dereference closest(th) from pitch cards. Repeated historical panels/confirmation modals were produced by planner-experience, not just styling. Transfers opened counts instead of the actual XV. New actual pages use shared official history/lineup + shared manager client; old overview remains advanced-overview.html for expert functions. The original store is written only by verified official reconstruction. Draft transfers never write it.
+
+Public ID does not reveal unpublished postdeadline transfers. Missing purchase/bank/FT/chip data remain unknown; forecast freshness and exact source/model identity guards remain active. Full historical review is a slow dependency of deployed official import; an optional official-only mode may be deployed separately after backend checks. No public manager payload is baked into the preview.
