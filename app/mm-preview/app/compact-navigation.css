@@ -325,3 +325,24 @@ body.fpl-compact-ui .fpl-unconfirmed-squad .fpl-pitch-player { width:100%; color
   body.fpl-compact-ui .fpl-pitch-bench { padding:.8rem .3rem; }
   body.fpl-compact-ui .fpl-unconfirmed-squad { grid-template-columns:repeat(3,minmax(0,1fr)); }
 }
+
+/* Same three primary destinations on team, transfers, catalogue and player detail. */
+.fpl-unified-navigation { align-items:center; }
+.fpl-unified-navigation a { white-space:nowrap; }
+.fpl-unified-navigation .fpl-advanced-link { margin-inline-start:auto; font-size:.79rem; font-weight:550; color:#7b8492; }
+.fpl-catalog-navigation {
+  display:flex; gap:.5rem; justify-content:center;
+  max-width:980px; margin:.8rem auto .2rem; padding:0 1rem;
+}
+.fpl-catalog-navigation a {
+  padding:.55rem 1.2rem; color:#536071;
+  border-bottom:2px solid transparent; text-decoration:none; font-weight:700;
+}
+.fpl-catalog-navigation a[aria-current=page] {
+  border-color:#37003c; color:#37003c;
+}
+@media(max-width:600px){
+  .fpl-unified-navigation a { font-size:.74rem!important; padding:.58rem .38rem!important; }
+  .fpl-unified-navigation .fpl-advanced-link { font-size:.67rem!important; }
+  .fpl-catalog-navigation { margin:.5rem auto; }
+}
