@@ -17,7 +17,7 @@ on:
         type: boolean
         default: false
       replay_gk_cap_browser:
-        description: 'Run browser checks only on the verified capture from run 45689598242'
+        description: 'Run browser checks only on the verified capture from run 45783017558'
         required: false
         type: boolean
         default: false
@@ -96,13 +96,13 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
-          gh api "repos/$GITHUB_REPOSITORY/actions/runs/45689598242/jobs" \
-            --jq '[.jobs[] | select(.id == 139471238831 and .conclusion == "success")] | length' | grep -qx 1
+          gh api "repos/$GITHUB_REPOSITORY/actions/runs/45783017558/jobs" \
+            --jq '[.jobs[] | select(.id == 139782825698 and .conclusion == "success")] | length' | grep -qx 1
       - uses: actions/download-artifact@v4
         with:
           name: mm-current-live-preview
           path: candidate-capture
-          run-id: ${{ inputs.replay_gk_cap_browser && '45689598242' || github.run_id }}
+          run-id: ${{ inputs.replay_gk_cap_browser && '45783017558' || github.run_id }}
           github-token: ${{ github.token }}
       - uses: actions/setup-python@v5
         with:
@@ -228,7 +228,7 @@ jobs:
               raise SystemExit(0)
           forecast = json.loads((source / 'current/forecast.json').read_text())
           if os.environ['REPLAY_CAPTURE'] == 'true':
-              assert forecast['forecast_sha256'] == 'cecf41db30523f4768d4c30b01376d173af0295ec4052ce0f960f6f825c596fb'
+              assert forecast['forecast_sha256'] == '79c047e172889aa517feab287b63c98606180c7e2ba691ddf784f1b93b19b1b1'
           assert forecast['gws'] == list(range(forecast['gws'][0], forecast['gws'][0] + 6))
           assert (source / 'current/forecast.json').read_bytes() == (source / 'gk/forecast.json').read_bytes()
           now = datetime.now(timezone.utc)
