@@ -1,0 +1,33 @@
+<!doctype html>
+<html lang="da">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self'; style-src 'self'; connect-src 'self'; base-uri 'none'; form-action 'none'">
+<title>FPL Analytics · GW12 prognosearkiv</title>
+<link rel="stylesheet" href="./classic-common.css">
+<link rel="stylesheet" href="./archive.css">
+<script defer src="./archive.js"></script>
+</head>
+<body>
+<main>
+<h1>FPL Analytics</h1>
+<p><strong>Historisk prognose</strong> · Transferberegning er deaktiveret</p>
+<p id="status" role="status">Verificerer den arkiverede prognose …</p>
+<section id="projections" hidden>
+  <div class="controls">
+    <label>Søg spiller eller klub <input id="search" type="search"></label>
+    <label>Gameweek <select id="round"></select></label>
+  </div>
+  <div class="scroll" tabindex="0" aria-label="Historiske spillerprognoser">
+    <table>
+      <caption>Arkiverede MM B-minutter og PM vFinal-point. Tallene var prognoser på udstedelsestidspunktet.</caption>
+      <thead><tr><th>Spiller</th><th>Klub</th><th>xP</th><th>Minutter</th><th>P(spiller)</th><th>Kampe og sandsynligheder</th></tr></thead>
+      <tbody id="rows"></tbody>
+    </table>
+  </div>
+</section>
+<p><a id="original" href="./forecast.json" hidden>Hent original prognosefil</a></p>
+</main>
+</body>
+</html>

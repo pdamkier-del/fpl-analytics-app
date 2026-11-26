@@ -11,6 +11,26 @@ on:
         description: 'Optional successful exact-source mm-current-live-preview run to publish without recomputation'
         required: false
         type: string
+      validate_gk_cap_candidate:
+        description: 'Verify pinned GK cap correction on the integration branch only'
+        required: false
+        type: boolean
+        default: false
+      replay_gk_cap_browser:
+        description: 'Run browser checks only on the verified capture from run 45783017558'
+        required: false
+        type: boolean
+        default: false
+      publish_gk_cap_test:
+        description: 'Publish only the verified GW12 existing-app test path on Pages'
+        required: false
+        type: boolean
+        default: false
+      ui_only:
+        description: 'Preserve the live forecast and publish the navigation/UI only'
+        required: false
+        type: boolean
+        default: false
 permissions:
   contents: write
   actions: read
@@ -18,10 +38,10 @@ permissions:
   id-token: write
 env:
   PREVIEW_SOURCE_SHA: 161b67b6fb8786a38e78c245b92a03ad841575d8
-  PREVIEW_UI_SHA: b6ecb068394dc9e9f5f2c493e1f0ee0a4cbf7d96
+  PREVIEW_UI_SHA: 27bf5e1e1a17360bdbbfb41fbce7fe55679c6870
 jobs:
   verified:
-    if: ${{ inputs.validated_run != '' }}
+    if: ${{ inputs.validated_run != '' && !inputs.validate_gk_cap_candidate && !inputs.replay_gk_cap_browser && github.ref != 'refs/heads/integration/stable-live-app-20261122' }}
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -33,7 +53,7 @@ jobs:
           VALIDATED_RUN: ${{ inputs.validated_run }}
         run: python scripts/verify_b_publication_artifact.py --run "$VALIDATED_RUN" --source "$PREVIEW_SOURCE_SHA"
   current:
-    if: ${{ inputs.validated_run == '' }}
+    if: ${{ inputs.validated_run == '' && !inputs.validate_gk_cap_candidate && !inputs.replay_gk_cap_browser && github.ref != 'refs/heads/integration/stable-live-app-20261122' }}
     uses: pdamkier-del/fpl-analytics-app/.github/workflows/mm-current-live-preview.yml@161b67b6fb8786a38e78c245b92a03ad841575d8
     with:
       source_ref: 161b67b6fb8786a38e78c245b92a03ad841575d8
@@ -41,9 +61,264 @@ jobs:
     permissions:
       contents: read
       actions: read
+  gk_cap_candidate:
+    if: ${{ github.ref == 'refs/heads/integration/stable-live-app-20261122' && github.event_name == 'workflow_dispatch' && !inputs.replay_gk_cap_browser && inputs.validated_run == '' }}
+    concurrency:
+      group: fpl-approved-test-forecast
+      cancel-in-progress: false
+    uses: pdamkier-del/fpl-analytics-app/.github/workflows/mm-current-live-preview.yml@161b67b6fb8786a38e78c245b92a03ad841575d8
+    with:
+      source_ref: d7060b51cf16016f7947b2ffc110909afea89bb7
+    permissions:
+      contents: read
+      actions: read
+  gk_cap_browser:
+    needs: gk_cap_candidate
+    if: ${{ !cancelled() && (needs.gk_cap_candidate.result == 'success' || (github.ref == 'refs/heads/integration/stable-live-app-20261122' && inputs.replay_gk_cap_browser && !inputs.validate_gk_cap_candidate && inputs.validated_run == '')) }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    permissions:
+      contents: read
+      actions: read
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ env.PREVIEW_UI_SHA }}
+          persist-credentials: false
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.sha }}
+          path: .c2-integration
+          sparse-checkout: integration/model-interface
+          persist-credentials: false
+      - name: Verify the original producer succeeded
+        if: inputs.replay_gk_cap_browser
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh api "repos/$GITHUB_REPOSITORY/actions/runs/45783017558/jobs" \
+            --jq '[.jobs[] | select(.id == 139782825698 and .conclusion == "success")] | length' | grep -qx 1
+      - uses: actions/download-artifact@v4
+        with:
+          name: mm-current-live-preview
+          path: candidate-capture
+          run-id: ${{ inputs.replay_gk_cap_browser && '45783017558' || github.run_id }}
+          github-token: ${{ github.token }}
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Verify the candidate in the existing app
+        run: |
+          pip install requests
+          npm install --prefix "$RUNNER_TEMP/fpl-browser" playwright@1.56.1
+          export NODE_PATH="$RUNNER_TEMP/fpl-browser/node_modules"
+          export BROWSER_PATH="$(command -v google-chrome)"
+          export FPL_PREVIEW_URL=http://127.0.0.1:18097/mm-preview/app/
+          export FPL_ALLOW_HISTORICAL="${{ inputs.replay_gk_cap_browser }}"
+          export FPL_EXPECT_LIVE_GW="$(jq -er '.gws[0]' candidate-capture/current/forecast.json)"
+          export FPL_TEST_WORKER_FILE="$PWD/app/mm-preview/app/preview-sw.js"
+          mkdir -p app/mm-preview/{current,gk}
+          cp -a candidate-capture/current/. app/mm-preview/current/
+          cp -a candidate-capture/gk/. app/mm-preview/gk/
+          cmp app/mm-preview/{current,gk}/forecast.json
+          python - <<'PYTHON'
+          import json
+          from pathlib import Path
+          forecast = json.loads(Path('app/mm-preview/current/forecast.json').read_text())
+          assert forecast['gws'] == list(range(forecast['gws'][0], forecast['gws'][0] + 6))
+          assert forecast['gk_team_fixtures']
+          assert all(row['reserve_cap_policy'] == 'B-GK-saturated-availability-v1'
+                     for row in forecast['gk_team_fixtures'])
+          for row in forecast['gk_team_fixtures']:
+              if row.get('reserve_cap_correction'):
+                  print(row['team'], row['fixture_uuid'], row['reserve_cap_correction'])
+          PYTHON
+          python scripts/collect_dashboard_news.py
+          python scripts/integrate_desktop_probabilities.py
+          python .c2-integration/integration/model-interface/preview-overlay.py app/mm-preview/app
+          node --test .c2-integration/integration/model-interface/*.test.js
+          printf '{"url":null,"status":"isolated_validation"}\n' > app/manager-service.json
+          python -m http.server 18097 --bind 127.0.0.1 --directory app > "$RUNNER_TEMP/c2-candidate-http.log" 2>&1 &
+          preview_http_pid=$!
+          trap 'kill "$preview_http_pid"' EXIT
+          for attempt in 1 2 3 4 5; do
+            if curl -fsS -o /dev/null "${FPL_PREVIEW_URL}overview.html"; then break; fi
+            sleep 1
+          done
+          node .c2-integration/integration/model-interface/preview-smoke.cjs
+          cmp candidate-capture/current/forecast.json app/mm-preview/current/forecast.json
+      - uses: actions/upload-artifact@v4
+        if: (!inputs.replay_gk_cap_browser && !inputs.validate_gk_cap_candidate) || (inputs.replay_gk_cap_browser && inputs.publish_gk_cap_test)
+        with:
+          name: gw12-tested-app
+          path: |
+            app/mm-preview/app
+            app/mm-preview/current
+            app/mm-preview/gk
+            app/mm-preview/news
+            app/mm-preview/*.js
+            app/mm-preview/*.css
+          retention-days: 1
+  publish_gk_cap_test:
+    needs: gk_cap_browser
+    if: ${{ !cancelled() && needs.gk_cap_browser.result == 'success' && github.ref == 'refs/heads/integration/stable-live-app-20261122' && ((!inputs.replay_gk_cap_browser && !inputs.validate_gk_cap_candidate) || (inputs.replay_gk_cap_browser && inputs.publish_gk_cap_test)) }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    concurrency:
+      group: fpl-pages-publication
+      cancel-in-progress: false
+    permissions:
+      contents: write
+      actions: read
+      deployments: read
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: https://pdamkier-del.github.io/fpl-analytics-app/mm-preview/app/manager-state.html
+    steps:
+      - name: Resolve the exact live Pages baseline
+        id: baseline
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          live_run=$(gh api "repos/$GITHUB_REPOSITORY/deployments?environment=github-pages&per_page=20" --jq '.[].id' |
+            while read -r deployment; do
+              gh api "repos/$GITHUB_REPOSITORY/deployments/$deployment/statuses" --jq 'map(select(.state == "success")) | .[0].log_url // empty'
+            done | sed -n 's|.*/actions/runs/\([0-9]*\)/job/.*|\1|p' | awk 'NR == 1')
+          test -n "$live_run"
+          artifact=$(gh api "repos/$GITHUB_REPOSITORY/actions/runs/$live_run/artifacts" \
+            --jq '[.artifacts[] | select((.expired | not) and (.name | test("^(gw12-test-pages-|team-news-pages-|github-pages-|mm-current-preview-pages-|recovered-B-pages-)")))] | max_by(.created_at) | .name // empty')
+          test -n "$artifact"
+          printf 'run=%s\nartifact=%s\n' "$live_run" "$artifact" >> "$GITHUB_OUTPUT"
+      - uses: actions/download-artifact@v4
+        with:
+          name: ${{ steps.baseline.outputs.artifact }}
+          run-id: ${{ steps.baseline.outputs.run }}
+          github-token: ${{ github.token }}
+          path: pages-baseline
+      - uses: actions/download-artifact@v4
+        with:
+          name: gw12-tested-app
+          path: tested-app
+      - name: Overlay public test files only
+        env:
+          REPLAY_CAPTURE: ${{ inputs.replay_gk_cap_browser }}
+          UI_ONLY: ${{ inputs.ui_only }}
+        run: |
+          mkdir site
+          tar -xf pages-baseline/artifact.tar -C site
+          python - <<'PYTHON'
+          from datetime import datetime, timedelta, timezone
+          from pathlib import Path
+          import json
+          import os
+          import shutil
+
+          source = Path('tested-app')
+          site = Path('site')
+          preview = site / 'mm-preview'
+          if os.environ['UI_ONLY'] == 'true':
+              assert os.environ['REPLAY_CAPTURE'] == 'true'
+              shutil.copytree(source / 'app', preview / 'app', dirs_exist_ok=True)
+              shutil.copy2(source / 'stable-existing-app-adapter.js', preview / 'stable-existing-app-adapter.js')
+              raise SystemExit(0)
+          forecast = json.loads((source / 'current/forecast.json').read_text())
+          if os.environ['REPLAY_CAPTURE'] == 'true':
+              assert forecast['forecast_sha256'] == '79c047e172889aa517feab287b63c98606180c7e2ba691ddf784f1b93b19b1b1'
+          assert forecast['gws'] == list(range(forecast['gws'][0], forecast['gws'][0] + 6))
+          assert (source / 'current/forecast.json').read_bytes() == (source / 'gk/forecast.json').read_bytes()
+          now = datetime.now(timezone.utc)
+          cutoff = datetime.fromisoformat(forecast['data_asof'])
+          assert cutoff <= now < min(cutoff + timedelta(hours=36), datetime.fromisoformat(forecast['origin_deadline']))
+          site = Path('site')
+          assert json.loads((site / 'current-players.json').read_text())['next_gw'] == forecast['gws'][0]
+          assert json.loads((site / 'manager-service.json').read_text())['url'] == 'https://fpl-analytics-private-manager.onrender.com'
+          preview = site / 'mm-preview'
+          previous = json.loads((preview / 'current/forecast.json').read_text())
+          assert datetime.fromisoformat(previous['data_asof']) <= cutoff, 'Refusing to roll the public forecast back'
+          for name in ('app', 'current', 'gk', 'news'):
+              shutil.copytree(source / name, preview / name, dirs_exist_ok=True)
+          for asset in (*source.glob('*.js'), *source.glob('*.css')):
+              shutil.copy2(asset, preview / asset.name)
+          PYTHON
+      - uses: actions/checkout@v4
+        if: inputs.ui_only
+        with:
+          ref: ${{ github.sha }}
+          path: ui-source
+          sparse-checkout: integration/model-interface
+          persist-credentials: false
+      - name: Check the compact navigation on the normal Pages entry points
+        if: inputs.ui_only
+        run: |
+          python ui-source/integration/model-interface/compact-root-ui.py site root-ui
+          cp root-ui/* site/
+          npm install --prefix "$RUNNER_TEMP/fpl-root-browser" playwright@1.56.1
+          export NODE_PATH="$RUNNER_TEMP/fpl-root-browser/node_modules"
+          export SITE_CHROME="$(command -v google-chrome)"
+          python -m http.server 18098 --bind 127.0.0.1 --directory site > "$RUNNER_TEMP/fpl-root-http.log" 2>&1 &
+          trap 'kill "$!"' EXIT
+          node ui-source/integration/model-interface/compact-root-smoke.cjs
+      - uses: actions/upload-artifact@v4
+        if: inputs.ui_only
+        with:
+          name: tested-root-ui
+          path: root-ui
+          retention-days: 1
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: site
+          name: gw12-test-pages-${{ github.run_id }}-${{ github.run_attempt }}
+      - name: Wait for the Pages artifact to appear in the run inventory
+        env:
+          GH_TOKEN: ${{ github.token }}
+          PAGES_ARTIFACT: gw12-test-pages-${{ github.run_id }}-${{ github.run_attempt }}
+        run: |
+          for attempt in {1..10}; do
+            if gh api "repos/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID/artifacts?name=$PAGES_ARTIFACT" --jq '.total_count' | grep -qx 1; then
+              sleep 8
+              exit 0
+            fi
+            sleep 3
+          done
+          exit 1
+      - uses: actions/deploy-pages@v4
+        with:
+          artifact_name: gw12-test-pages-${{ github.run_id }}-${{ github.run_attempt }}
+      - uses: actions/checkout@v4
+        with:
+          ref: free-github-static-20261010
+          path: live-preview-source
+          sparse-checkout: app/mm-preview
+      - name: Preserve the verified preview in the usual Pages source
+        env:
+          UI_ONLY: ${{ inputs.ui_only }}
+        run: |
+          preview=live-preview-source/app/mm-preview
+          if [[ "$UI_ONLY" == true ]]; then
+            cp -a tested-app/app/. "$preview/app/"
+            cp tested-app/stable-existing-app-adapter.js "$preview/"
+            git -C live-preview-source sparse-checkout add app
+            cp root-ui/* live-preview-source/app/
+          else
+            cp -a tested-app/. "$preview/"
+          fi
+          git -C live-preview-source add -- app/mm-preview
+          if [[ "$UI_ONLY" == true ]]; then
+            for file in root-ui/*; do git -C live-preview-source add -- "app/${file##*/}"; done
+          fi
+          if git -C live-preview-source diff --cached --quiet; then exit 0; fi
+          git -C live-preview-source -c user.name="FPL preview publisher" \
+            -c user.email="fpl-preview@users.noreply.github.com" \
+            commit -m "Preserve the verified FPL app test update [skip ci]"
+          git -C live-preview-source push origin HEAD:free-github-static-20261010
   preview:
     needs: [current, verified]
-    if: ${{ always() && !cancelled() && (needs.current.result == 'success' || needs.verified.result == 'success') }}
+    if: ${{ always() && github.ref == 'refs/heads/main' && !cancelled() && (needs.current.result == 'success' || needs.verified.result == 'success') }}
     runs-on: ubuntu-latest
     timeout-minutes: 30
     concurrency:
@@ -57,6 +332,12 @@ jobs:
         with:
           ref: ${{ env.PREVIEW_UI_SHA }}
           fetch-depth: 0
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.sha }}
+          path: .c2-integration
+          sparse-checkout: integration/model-interface
+          persist-credentials: false
       - name: Require live isolated B compute capability
         run: |
           python - <<'PY'
@@ -143,6 +424,7 @@ jobs:
           git fetch origin free-github-static-20261010
           PYTHONPATH=src:scripts:.:analysis python scripts/weekly_model_review.py --ref FETCH_HEAD
           python scripts/integrate_desktop_probabilities.py
+          python .c2-integration/integration/model-interface/preview-overlay.py app/mm-preview/app
           python analysis/archive_prospective_player_forecast.py --capture app/mm-preview --out app/mm-preview/input-audit
           cmp .mm-preview-evidence/current/forecast.json app/mm-preview/current/forecast.json
           cmp .mm-preview-evidence/gk/forecast.json app/mm-preview/gk/forecast.json
@@ -158,6 +440,7 @@ jobs:
           node tests/test_joint_gk_contract.js
           node tests/test_season_team_comparison.js
           node tests/test_history_refresh_client.js
+          node --test .c2-integration/integration/model-interface/*.test.js
           npm install --prefix "$RUNNER_TEMP/fpl-browser" playwright@1.56.1
           export NODE_PATH="$RUNNER_TEMP/fpl-browser/node_modules"
           export BROWSER_PATH="$(command -v google-chrome)"
