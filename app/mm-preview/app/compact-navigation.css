@@ -346,3 +346,22 @@ body.fpl-compact-ui .fpl-unconfirmed-squad .fpl-pitch-player { width:100%; color
   .fpl-unified-navigation .fpl-advanced-link { font-size:.67rem!important; }
   .fpl-catalog-navigation { margin:.5rem auto; }
 }
+
+/* Easy-to-find sort controls on player and club statistics pages. */
+.fpl-sort-field {
+  display:inline-flex; flex-wrap:wrap; align-items:center;
+  gap:.5rem; font-weight:750; font-size:.85rem; color:#37003c;
+  margin-right:.45rem;
+}
+.fpl-sort-field select {
+  min-width:185px; max-width:100%; padding:.6rem .75rem;
+  border:1px solid #d8d1df; border-radius:9px;
+  color:#2c2630; background:#fff; font-weight:650;
+}
+.fpl-sort-field select:focus-visible {
+  outline:3px solid #00cc82; outline-offset:2px;
+}
+@media(max-width:650px) {
+  .fpl-sort-field { width:100%; margin:0 0 .5rem; }
+  .fpl-sort-field select { flex:1; min-width:0; width:100%; }
+}
