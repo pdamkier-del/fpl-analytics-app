@@ -180,7 +180,7 @@ def apply(app):
                 'mm-current-preview-publication.yml" target="_blank" rel="noopener">Åbn GitHub Actions</a>'
                 '</details><p id="forecast-refresh-status" role="status">Henter prognosetidspunkt …</p></section>'
             )
-            html, count = re.subn(r'(<main\b[^>]*>)', lambda match: match[0] + refresh_panel, html, count=1)
+            html, count = re.subn(r'(<main\b[^>]*>)', lambda match: refresh_panel + match[0], html, count=1)
             if count != 1:
                 raise ValueError('Dashboard main element not found')
         if page.name == 'manager-state.html':

@@ -17,7 +17,7 @@ on:
         type: boolean
         default: false
       replay_gk_cap_browser:
-        description: 'Run browser checks only on the verified capture from run 45658881570'
+        description: 'Run browser checks only on the verified capture from run 45689598242'
         required: false
         type: boolean
         default: false
@@ -54,7 +54,7 @@ jobs:
       source_ref: 161b67b6fb8786a38e78c245b92a03ad841575d8
       validated_history_run: '41216503954'
     permissions:
-      contents: read
+      contents: write
       actions: read
   gk_cap_candidate:
     if: ${{ github.ref == 'refs/heads/integration/stable-live-app-20261122' && github.event_name == 'workflow_dispatch' && !inputs.replay_gk_cap_browser && inputs.validated_run == '' }}
@@ -91,13 +91,13 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
-          gh api "repos/$GITHUB_REPOSITORY/actions/runs/45658881570/jobs" \
-            --jq '[.jobs[] | select(.id == 139362980496 and .conclusion == "success")] | length' | grep -qx 1
+          gh api "repos/$GITHUB_REPOSITORY/actions/runs/45689598242/jobs" \
+            --jq '[.jobs[] | select(.id == 139471238831 and .conclusion == "success")] | length' | grep -qx 1
       - uses: actions/download-artifact@v4
         with:
           name: mm-current-live-preview
           path: candidate-capture
-          run-id: ${{ inputs.replay_gk_cap_browser && '45658881570' || github.run_id }}
+          run-id: ${{ inputs.replay_gk_cap_browser && '45689598242' || github.run_id }}
           github-token: ${{ github.token }}
       - uses: actions/setup-python@v5
         with:
@@ -214,7 +214,7 @@ jobs:
           source = Path('tested-app')
           forecast = json.loads((source / 'current/forecast.json').read_text())
           if os.environ['REPLAY_CAPTURE'] == 'true':
-              assert forecast['forecast_sha256'] == 'dd51972221307be4dabd483d64509686f8d49edc5ec7c4ede37e107b145e5fa3'
+              assert forecast['forecast_sha256'] == 'cecf41db30523f4768d4c30b01376d173af0295ec4052ce0f960f6f825c596fb'
           assert forecast['gws'] == list(range(forecast['gws'][0], forecast['gws'][0] + 6))
           assert (source / 'current/forecast.json').read_bytes() == (source / 'gk/forecast.json').read_bytes()
           now = datetime.now(timezone.utc)
@@ -251,6 +251,21 @@ jobs:
       - uses: actions/deploy-pages@v4
         with:
           artifact_name: gw12-test-pages-${{ github.run_id }}-${{ github.run_attempt }}
+      - uses: actions/checkout@v4
+        with:
+          ref: free-github-static-20261010
+          path: live-preview-source
+          sparse-checkout: app/mm-preview
+      - name: Preserve the verified preview in the usual Pages source
+        run: |
+          preview=live-preview-source/app/mm-preview
+          cp -a tested-app/. "$preview/"
+          git -C live-preview-source add -- app/mm-preview
+          if git -C live-preview-source diff --cached --quiet; then exit 0; fi
+          git -C live-preview-source -c user.name="FPL preview publisher" \
+            -c user.email="fpl-preview@users.noreply.github.com" \
+            commit -m "Preserve the verified FPL app test update [skip ci]"
+          git -C live-preview-source push origin HEAD:free-github-static-20261010
   preview:
     needs: [current, verified]
     if: ${{ always() && github.ref == 'refs/heads/main' && !cancelled() && (needs.current.result == 'success' || needs.verified.result == 'success') }}
