@@ -245,6 +245,30 @@ jobs:
           for asset in (*source.glob('*.js'), *source.glob('*.css')):
               shutil.copy2(asset, preview / asset.name)
           PYTHON
+      - uses: actions/checkout@v4
+        if: inputs.ui_only
+        with:
+          ref: ${{ github.sha }}
+          path: ui-source
+          sparse-checkout: integration/model-interface
+          persist-credentials: false
+      - name: Check the compact navigation on the normal Pages entry points
+        if: inputs.ui_only
+        run: |
+          python ui-source/integration/model-interface/compact-root-ui.py site root-ui
+          cp root-ui/* site/
+          npm install --prefix "$RUNNER_TEMP/fpl-root-browser" playwright@1.56.1
+          export NODE_PATH="$RUNNER_TEMP/fpl-root-browser/node_modules"
+          export SITE_CHROME="$(command -v google-chrome)"
+          python -m http.server 18098 --bind 127.0.0.1 --directory site > "$RUNNER_TEMP/fpl-root-http.log" 2>&1 &
+          trap 'kill "$!"' EXIT
+          node ui-source/integration/model-interface/compact-root-smoke.cjs
+      - uses: actions/upload-artifact@v4
+        if: inputs.ui_only
+        with:
+          name: tested-root-ui
+          path: root-ui
+          retention-days: 1
       - uses: actions/upload-pages-artifact@v3
         with:
           path: site
@@ -278,10 +302,15 @@ jobs:
           if [[ "$UI_ONLY" == true ]]; then
             cp -a tested-app/app/. "$preview/app/"
             cp tested-app/stable-existing-app-adapter.js "$preview/"
+            git -C live-preview-source sparse-checkout add app
+            cp root-ui/* live-preview-source/app/
           else
             cp -a tested-app/. "$preview/"
           fi
           git -C live-preview-source add -- app/mm-preview
+          if [[ "$UI_ONLY" == true ]]; then
+            for file in root-ui/*; do git -C live-preview-source add -- "app/${file##*/}"; done
+          fi
           if git -C live-preview-source diff --cached --quiet; then exit 0; fi
           git -C live-preview-source -c user.name="FPL preview publisher" \
             -c user.email="fpl-preview@users.noreply.github.com" \

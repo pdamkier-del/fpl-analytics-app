@@ -97,9 +97,9 @@ ADVANCED_LINKS = (
 )
 
 
-def compact_navigation(html, page, style, behavior):
+def compact_navigation(html, page, style, behavior, links=TOP_LINKS):
     nav = ['<nav class="fpl-primary-navigation" aria-label="FPL Analytics">']
-    for target, label in TOP_LINKS:
+    for target, label in links:
         current = ' aria-current="page"' if target == page else ''
         secondary = ' class="fpl-advanced-link"' if target == 'advanced.html' else ''
         nav.append(f'<a href="{target}"{current}{secondary}>{label}</a>')
