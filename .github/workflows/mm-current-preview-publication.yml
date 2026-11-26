@@ -7,6 +7,10 @@ on:
     - cron: '17 * * * *'
   workflow_dispatch:
     inputs:
+      app_completion_preview:
+        description: "Publish isolated team/transfers UI preview; preserve all live Pages files"
+        type: boolean
+        default: false
       validated_run:
         description: 'Optional successful exact-source mm-current-live-preview run to publish without recomputation'
         required: false
@@ -41,7 +45,7 @@ env:
   PREVIEW_UI_SHA: 27bf5e1e1a17360bdbbfb41fbce7fe55679c6870
 jobs:
   verified:
-    if: ${{ inputs.validated_run != '' && !inputs.validate_gk_cap_candidate && !inputs.replay_gk_cap_browser && github.ref != 'refs/heads/integration/stable-live-app-20261122' }}
+    if: ${{ !inputs.app_completion_preview && inputs.validated_run != '' && !inputs.validate_gk_cap_candidate && !inputs.replay_gk_cap_browser && github.ref != 'refs/heads/integration/stable-live-app-20261122' }}
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -53,7 +57,7 @@ jobs:
           VALIDATED_RUN: ${{ inputs.validated_run }}
         run: python scripts/verify_b_publication_artifact.py --run "$VALIDATED_RUN" --source "$PREVIEW_SOURCE_SHA"
   current:
-    if: ${{ inputs.validated_run == '' && !inputs.validate_gk_cap_candidate && !inputs.replay_gk_cap_browser && github.ref != 'refs/heads/integration/stable-live-app-20261122' }}
+    if: ${{ !inputs.app_completion_preview && inputs.validated_run == '' && !inputs.validate_gk_cap_candidate && !inputs.replay_gk_cap_browser && github.ref != 'refs/heads/integration/stable-live-app-20261122' }}
     uses: pdamkier-del/fpl-analytics-app/.github/workflows/mm-current-live-preview.yml@161b67b6fb8786a38e78c245b92a03ad841575d8
     with:
       source_ref: 161b67b6fb8786a38e78c245b92a03ad841575d8
@@ -62,7 +66,7 @@ jobs:
       contents: read
       actions: read
   gk_cap_candidate:
-    if: ${{ github.ref == 'refs/heads/integration/stable-live-app-20261122' && github.event_name == 'workflow_dispatch' && !inputs.replay_gk_cap_browser && inputs.validated_run == '' }}
+    if: ${{ !inputs.app_completion_preview && github.ref == 'refs/heads/integration/stable-live-app-20261122' && github.event_name == 'workflow_dispatch' && !inputs.replay_gk_cap_browser && inputs.validated_run == '' }}
     concurrency:
       group: fpl-approved-test-forecast
       cancel-in-progress: false
@@ -74,7 +78,7 @@ jobs:
       actions: read
   gk_cap_browser:
     needs: gk_cap_candidate
-    if: ${{ !cancelled() && (needs.gk_cap_candidate.result == 'success' || (github.ref == 'refs/heads/integration/stable-live-app-20261122' && inputs.replay_gk_cap_browser && !inputs.validate_gk_cap_candidate && inputs.validated_run == '')) }}
+    if: ${{ !inputs.app_completion_preview && !cancelled() && (needs.gk_cap_candidate.result == 'success' || (github.ref == 'refs/heads/integration/stable-live-app-20261122' && inputs.replay_gk_cap_browser && !inputs.validate_gk_cap_candidate && inputs.validated_run == '')) }}
     runs-on: ubuntu-latest
     timeout-minutes: 20
     permissions:
@@ -164,7 +168,7 @@ jobs:
           retention-days: 1
   publish_gk_cap_test:
     needs: gk_cap_browser
-    if: ${{ !cancelled() && needs.gk_cap_browser.result == 'success' && github.ref == 'refs/heads/integration/stable-live-app-20261122' && ((!inputs.replay_gk_cap_browser && !inputs.validate_gk_cap_candidate) || (inputs.replay_gk_cap_browser && inputs.publish_gk_cap_test)) }}
+    if: ${{ !inputs.app_completion_preview && !cancelled() && needs.gk_cap_browser.result == 'success' && github.ref == 'refs/heads/integration/stable-live-app-20261122' && ((!inputs.replay_gk_cap_browser && !inputs.validate_gk_cap_candidate) || (inputs.replay_gk_cap_browser && inputs.publish_gk_cap_test)) }}
     runs-on: ubuntu-latest
     timeout-minutes: 15
     concurrency:
@@ -318,7 +322,7 @@ jobs:
           git -C live-preview-source push origin HEAD:free-github-static-20261010
   preview:
     needs: [current, verified]
-    if: ${{ always() && github.ref == 'refs/heads/main' && !cancelled() && (needs.current.result == 'success' || needs.verified.result == 'success') }}
+    if: ${{ !inputs.app_completion_preview && always() && github.ref == 'refs/heads/main' && !cancelled() && (needs.current.result == 'success' || needs.verified.result == 'success') }}
     runs-on: ubuntu-latest
     timeout-minutes: 30
     concurrency:
@@ -515,3 +519,89 @@ jobs:
       - uses: actions/deploy-pages@v4
         with:
           artifact_name: mm-current-preview-pages-${{ github.run_id }}
+
+  app_completion_preview:
+    if: ${{ inputs.app_completion_preview && github.event_name == 'workflow_dispatch' }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    concurrency:
+      group: fpl-pages-publication
+      cancel-in-progress: false
+    permissions:
+      contents: read
+      actions: read
+      deployments: read
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: https://pdamkier-del.github.io/fpl-analytics-app/previews/team-transfers-20261126/app/overview.html
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          sparse-checkout: integration/app-completion-20261126
+          persist-credentials: false
+      - name: Resolve successful existing live Pages artifact
+        id: baseline
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          python - <<'PYTHON'
+          import json,os,subprocess
+          def api(path):return json.loads(subprocess.check_output(['gh','api',path]))
+          repo=os.environ['GITHUB_REPOSITORY']
+          deployments=api(f'repos/{repo}/deployments?environment=github-pages&per_page=20')
+          chosen=None
+          for d in deployments:
+              statuses=api(f'repos/{repo}/deployments/{d["id"]}/statuses')
+              successful=next((x for x in statuses if x['state']=='success'),None)
+              if successful:
+                  chosen=(d,successful);break
+          assert chosen,'No successful live Pages baseline'
+          d,status=chosen
+          assert d['sha']=='140e3f88c4a1110b3b4a06d8a90ae691dca9e984','Live production advanced; review before preview publication'
+          import re
+          run=re.search(r'/actions/runs/(\d+)/job/',status['log_url'])[1]
+          assets=api(f'repos/{repo}/actions/runs/{run}/artifacts')['artifacts']
+          candidates=[a for a in assets if not a['expired']and re.match(r'^(gw12-test-pages-|team-news-pages-|github-pages|mm-current-preview-pages-|recovered-B-pages-)',a['name'])]
+          assert candidates,'Existing Pages artifact missing'
+          artifact=max(candidates,key=lambda a:a['created_at'])
+          with open(os.environ['GITHUB_OUTPUT'],'a')as f:f.write(f'run={run}\nartifact={artifact["name"]}\n')
+          PYTHON
+      - uses: actions/download-artifact@v4
+        with:
+          name: ${{ steps.baseline.outputs.artifact }}
+          run-id: ${{ steps.baseline.outputs.run }}
+          github-token: ${{ github.token }}
+          path: pages-baseline
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Build preview without modifying any existing production file
+        run: |
+          mkdir site
+          tar -xf pages-baseline/artifact.tar -C site
+          python integration/app-completion-20261126/build_preview.py site --receipt preview-preservation.json
+          node integration/app-completion-20261126/test_team_model.cjs
+          for f in integration/app-completion-20261126/ui/*.js; do node --check "$f"; done
+      - name: Browser check actual generated preview before publishing
+        run: |
+          pip install playwright==1.56.0
+          python -m http.server 3000 --bind 127.0.0.1 --directory site > /tmp/preview-http.log 2>&1 &
+          python integration/app-completion-20261126/browser_smoke.py http://127.0.0.1:3000/previews/team-transfers-20261126/app/ "$(command -v google-chrome)" > preview-browser.json
+      - uses: actions/upload-artifact@v4
+        with:
+          name: app-completion-verification
+          path: |
+            preview-preservation.json
+            preview-browser.json
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          name: app-completion-pages-${{ github.run_id }}
+          path: site
+      - uses: actions/deploy-pages@v4
+        with:
+          artifact_name: app-completion-pages-${{ github.run_id }}
