@@ -59,7 +59,7 @@ async function verify() {
       assert.deepEqual(await page.evaluate(() => FplManagerStore.read()), saved);
       const transferUsable = await page.evaluate(() => FplManagerClient.snapshot().usable);
       if (!allowHistorical || !liveGw) assert.equal(transferUsable, Boolean(liveGw));
-      else if (!transferUsable) assert.equal(await page.locator('[data-compute]:enabled').count(), 0);
+      else if (!transferUsable) assert.equal(await page.evaluate(() => FplManagerClient.snapshot().plan), null);
       if (fixture) {
         assert.equal(await page.evaluate(() => FplManagerClient.snapshot().plan?.manager_state_sha256),
           fixture.result.manager_state_sha256);
