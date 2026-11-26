@@ -77,7 +77,15 @@ function clubPageRender(){
   const rows=D.clubs(official,fixtures,forecast,expectations,usable,clubForecastWindow,clubHistoryWindow)
     .filter(t=>(t.name+' '+t.short_name).toLocaleLowerCase('da').includes(q));
   bindTable($('clubsTable'),cols,rows,'clubs');
-const t=official.teams[club];$('clubDetails').hidden=!t;if(!t)return;$('crest').innerHTML=badge(t);$('clubName').textContent=t.name;$('crumb').textContent='Clubs / '+t.name;$('modelStamp').textContent='vFinal diagnostisk · cutoff '+forecast?.data_asof;$('nextFix').textContent='Officielle trupper · '+official.fetched_at;const xi=D.clubLineup(official,forecast,lineups,usable,club);
+const t=official.teams[club];$('clubDetails').hidden=!t;if(!t)return;$('crest').innerHTML=badge(t);$('clubName').textContent=t.name;$('crumb').textContent='Clubs / '+t.name;
+const recentTeam=D.clubs(official,fixtures,forecast,expectations,usable,6,3).find(row=>row.id===club);
+const nextTeam=D.clubs(official,fixtures,forecast,expectations,usable,6,0).find(row=>row.id===club);
+const metric=(label,value,sub)=>'<div><small>'+esc(label)+'</small><strong>'+esc(value)+'</strong><span>'+esc(sub)+'</span></div>';
+$('clubPeriodMetrics').innerHTML=
+  metric('Seneste 3 afsluttede GW · mål',recentTeam?.gf??'—','Faktiske mål')+
+  metric('Seneste 3 afsluttede GW · imod',recentTeam?.ga??'—','Faktisk indkasserede')+
+  metric('Næste 6 GW · xG',num(nextTeam?.xg),'Modelprognose')+
+  metric('Næste 6 GW · xGA',num(nextTeam?.xga),'Modelprognose');$('modelStamp').textContent='vFinal diagnostisk · cutoff '+forecast?.data_asof;$('nextFix').textContent='Officielle trupper · '+official.fetched_at;const xi=D.clubLineup(official,forecast,lineups,usable,club);
 const card=p=>'<a class="player-node catalog-node" href="player.html?id='+p.id+'">'+face(p)+'<strong>'+esc(p.name)+'</strong><span>'+num(p.xp)+' xP</span><small><strong>'+pct(p.nextStart)+'</strong> P(start)</small><small>'+esc(p.role==='UNKNOWN'?p.positionName:p.role)+(p.status!=='a'?' · '+esc(status[p.status]||'Not Available'):'')+'</small></a>';
 $('formationBadge').textContent=xi?.formation||'Not Available';$('lineupSub').textContent=xi?'Individuel MM B · forventet XI i næste kamp · GW '+xi.gw+' · '+new Date(xi.kickoff).toLocaleString('da-DK'):'Not Available: en verificeret MM-opstilling til dette forecast mangler.';
 $('xiMinutes').textContent=num(xi?D.sum(xi.layers.flat().map(p=>p.xmins)):null,0);$('uncertainty').textContent='Not Available';$('roleBattles').textContent='XI og roller kommer direkte fra den låste MM. P(start) er modellens startchance, ikke en bekræftet opstilling. De øvrige spillere er ikke valgt i model-XI; officiel kampbænk er endnu ikke kendt.';
