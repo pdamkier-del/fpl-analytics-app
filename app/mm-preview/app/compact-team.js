@@ -55,7 +55,8 @@
         const role = lineup?.captain === id ? 'C' : lineup?.vice === id ? 'V' : '';
         const name = escape(player?.name || known?.web_name || 'Spiller ' + id);
         const shortName = escape((known?.web_name || player?.name || 'Spiller').slice(0, 16));
-        const club = escape((context?.official?.teams || []).find(team => team.id === known?.team)?.short_name || player?.team || 'FPL');
+        const teams = context?.official?.teams; const team = (Array.isArray(teams) ? teams.find(item => item?.id === known?.team) : teams?.[known?.team]);
+        const club = escape(team?.short_name || player?.team || 'FPL');
         const description = flag?.news ? escape(flag.news) : 'Se spillerstatus hos FPL.';
         return '<div class="fpl-pitch-player' + (!starter ? ' is-bench' : '') + '">' +
           '<a class="fpl-pitch-player-link" href="player.html?id=' + Number(id) + '" aria-label="' + name + ', ' + number(week(id)?.xpts) + ' forventede point">' +
