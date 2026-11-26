@@ -15,8 +15,8 @@ const losses=resultsValid?scored.filter(f=>own(f)<against(f)).length:null;
 const cs=resultsValid?scored.filter(f=>against(f)===0).length:null;
 const points=resultsValid?wins*3+draws:null;
 const expectedMatches=complete?ex.length:null;
-const xg=complete?sum(ex.map(f=>f.home===id?f.home_xg:f.away_xg)):null;
-const xga=complete?sum(ex.map(f=>f.home===id?f.away_xg:f.home_xg)):null;
+const xg=complete?sum(ex.map((prediction,i)=>upcoming[i].home===id?prediction.home_xg:prediction.away_xg)):null;
+const xga=complete?sum(ex.map((prediction,i)=>upcoming[i].home===id?prediction.away_xg:prediction.home_xg)):null;
 return {...t,id,players:official.players.filter(p=>p.team===id).length,
   played:done.length,points,gf,ga,wins,draws,losses,cs,
   gd:gf!==null&&ga!==null?gf-ga:null,
