@@ -169,13 +169,13 @@
   const file=(location.pathname.split('/').pop()||'overview.html').toLowerCase();
   for(const navigation of document.querySelectorAll('.sidebar .nav')){
     const links=[...navigation.querySelectorAll('a')];
-    if(!links.some(a=>(a.getAttribute('href')||'').toLowerCase()==='my-team.html'))continue;
+    if(!links.some(a=>(a.getAttribute('href')||'').toLowerCase()==='overview.html'))continue;
     let target=links.find(a=>(a.getAttribute('href')||'').toLowerCase()==='forecast-center.html');
     if(!target){
       target=document.createElement('a');
       target.href='forecast-center.html';
       target.textContent='Forecast & Chips';
-      const anchor=links.find(a=>(a.getAttribute('href')||'').toLowerCase()==='my-team.html');
+      const anchor=links.find(a=>(a.getAttribute('href')||'').toLowerCase()==='overview.html');
       anchor.insertAdjacentElement('afterend',target);
     }
     if(file==='forecast-center.html') target.classList.add('active');
@@ -193,9 +193,9 @@
   if(!document.querySelector('meta[name="apple-mobile-web-app-capable"]')){
     const m=document.createElement('meta');m.name='apple-mobile-web-app-capable';m.content='yes';document.head.appendChild(m);
   }
-  if(location.protocol==='https:'&&'serviceWorker'in navigator) navigator.serviceWorker.register('./sw.js').catch(()=>{});
+  if(location.protocol==='https:'&&'serviceWorker'in navigator) navigator.serviceWorker.ready.catch(()=>{});
   const current=(location.pathname.split('/').pop()||'overview.html').toLowerCase();
-  const tabs=[['my-team.html','⚽','My Team'],['team-optimizer.html','⇄','Transfers'],['forecast-center.html','◴','Forecast'],['rankings.html','★','Rankings'],['mobile.html','☰','Menu']];
+  const tabs=[['overview.html','⚽','Dashboard'],['team-optimizer.html','⇄','Transfers'],['forecast-center.html','◴','Forecast'],['rankings.html','★','Rankings'],['mobile.html','☰','Menu']];
   const style=document.createElement('style');
   style.textContent='@media(max-width:790px){body{padding-bottom:calc(68px + env(safe-area-inset-bottom))!important}.fpl-bottomnav{position:fixed;bottom:0;left:0;right:0;z-index:99999;display:grid;grid-template-columns:repeat(5,minmax(0,1fr));background:#37003c;color:#fff;box-shadow:0 -4px 18px #0002;padding-bottom:env(safe-area-inset-bottom)}.fpl-bottomnav a{min-height:62px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;color:#e9ddec;text-decoration:none;font:600 10px system-ui,sans-serif}.fpl-bottomnav a strong{font-size:21px;font-weight:600}.fpl-bottomnav a[aria-current=page]{color:#00ff87;background:#ffffff13}}@media(min-width:791px){.fpl-bottomnav{display:none}}';
   document.head.appendChild(style);
@@ -237,6 +237,5 @@
 
 (()=>{for(const n of document.querySelectorAll('.sidebar .nav')){if(n.querySelector('a[href="forecast-live.html"]'))continue;const anchor=n.querySelector('a[href="overview.html"]');if(anchor){const a=document.createElement('a');a.href='forecast-live.html';a.textContent='Aktuel FPL xP';anchor.insertAdjacentElement('afterend',a)}}})();
 
-(()=>{for(const n of document.querySelectorAll('.sidebar .nav')){if(n.querySelector('a[href="my-team-live.html"]'))continue;const anchor=n.querySelector('a[href="my-team.html"]')||n.querySelector('a[href="overview.html"]');if(anchor){const a=document.createElement('a');a.href='my-team-live.html';a.textContent='Aktuelt My Team · FPL';anchor.insertAdjacentElement('afterend',a)}}})();
 
 (()=>{for(const n of document.querySelectorAll('.sidebar .nav')){if(n.querySelector('a[href="own-forecast.html"]'))continue;const anchor=n.querySelector('a[href="forecast-live.html"]')||n.querySelector('a[href="overview.html"]');if(anchor){const a=document.createElement('a');a.href='own-forecast.html';a.textContent='Vores egne xP · 6 GW';anchor.insertAdjacentElement('afterend',a)}}})();

@@ -34,7 +34,7 @@
   try{
    const raw=FplManagerOnline.getState(),token=$('githubToken').value.trim();
    if(!token)throw Error('Angiv et afgrænset GitHub-token med Actions: Read and write');
-   localStorage.setItem('fpl-manager-state-v1',JSON.stringify(raw));
+   FplManagerStore.save(raw);
    const pair=await crypto.subtle.generateKey({name:'RSA-OAEP',modulusLength:2048,publicExponent:new Uint8Array([1,0,1]),hash:'SHA-256'},true,['encrypt','decrypt']);
    const requestId=crypto.randomUUID(),publicKey=await crypto.subtle.exportKey('jwk',pair.publicKey);
    const api=async(path,options={})=>fetch('https://api.github.com/repos/'+repo+'/'+path,{...options,cache:'no-store',headers:{Authorization:'Bearer '+token,Accept:'application/vnd.github+json','X-GitHub-Api-Version':'2026-03-10','Content-Type':'application/json'}});
