@@ -59,7 +59,7 @@ jobs:
       source_ref: 161b67b6fb8786a38e78c245b92a03ad841575d8
       validated_history_run: '41216503954'
     permissions:
-      contents: write
+      contents: read
       actions: read
   gk_cap_candidate:
     if: ${{ github.ref == 'refs/heads/integration/stable-live-app-20261122' && github.event_name == 'workflow_dispatch' && !inputs.replay_gk_cap_browser && inputs.validated_run == '' }}
@@ -171,7 +171,7 @@ jobs:
       group: fpl-pages-publication
       cancel-in-progress: false
     permissions:
-      contents: read
+      contents: write
       actions: read
       deployments: read
       pages: write
