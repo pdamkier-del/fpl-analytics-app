@@ -56,3 +56,160 @@ body.fpl-team-dashboard #weekly-main { display: none !important; }
 .fpl-forecast-refresh { max-width: 52rem; margin: .75rem auto; padding: 0 .75rem; font-size: .9rem; }
 .fpl-forecast-refresh summary { cursor: pointer; font-weight: 650; }
 .fpl-forecast-refresh [role="status"] { margin: .35rem 0 0; }
+
+/* FPL Analytics · focused team dashboard (visual-only, no model changes). */
+body.fpl-compact-ui {
+  --fpl-surface:#ffffff;
+  --fpl-ink:#1b2430;
+  --fpl-muted:#657383;
+  --fpl-border:#e3e8ef;
+  background:#f6f8fb;
+  color:var(--fpl-ink);
+  font-family:Inter,system-ui,-apple-system,"Segoe UI",sans-serif;
+}
+body.fpl-compact-ui #dashboard-saved-workspace,
+body.fpl-compact-ui #personal-dashboard-workspace,
+body.fpl-compact-ui #dashboard-team-news,
+body.fpl-compact-ui #dashboard-model-forecasts,
+body.fpl-compact-ui #dashboard-model-explainer { display:none !important; }
+body.fpl-compact-ui .fpl-primary-navigation {
+  position:sticky; top:0; z-index:30;
+  width:100%; max-width:none; justify-content:center;
+  gap:.35rem; padding:.8rem max(1rem,calc((100vw - 1050px)/2));
+  border-bottom:1px solid var(--fpl-border);
+  background:rgba(255,255,255,.96);
+  box-shadow:0 2px 14px rgba(15,23,42,.035);
+}
+body.fpl-compact-ui .fpl-primary-navigation a {
+  padding:.7rem 1.1rem; color:#42526a;
+  border:1px solid transparent; border-radius:10px;
+  font-size:.92rem; font-weight:700;
+}
+body.fpl-compact-ui .fpl-primary-navigation a:hover {
+  background:#f1edf5; color:#37003c;
+}
+body.fpl-compact-ui .fpl-primary-navigation a[aria-current="page"] {
+  color:#fff; background:#37003c; border-color:#37003c;
+}
+body.fpl-compact-ui .fpl-primary-navigation .fpl-advanced-link {
+  color:#738093; font-size:.83rem; font-weight:550;
+}
+body.fpl-compact-ui > .app > .main {
+  padding:1.4rem 1.25rem 4rem;
+  max-width:1060px; margin:0 auto;
+}
+body.fpl-compact-ui #compact-team {
+  max-width:980px; margin:1.1rem auto 2rem;
+  background:var(--fpl-surface);
+  border:1px solid var(--fpl-border);
+  border-radius:17px; padding:1.5rem 1.75rem 1.85rem;
+  box-shadow:0 5px 25px rgba(24,38,55,.045);
+}
+body.fpl-compact-ui .compact-team-heading {
+  align-items:center; padding-bottom:1.15rem;
+}
+body.fpl-compact-ui .compact-team-heading h1 {
+  font-size:clamp(1.45rem,2.2vw,1.9rem);
+  letter-spacing:-.035em; color:var(--fpl-ink);
+}
+body.fpl-compact-ui .compact-team-heading a {
+  display:inline-flex; align-items:center; padding:.65rem .95rem;
+  border:1px solid #d8cce0; border-radius:9px;
+  color:#37003c; font-size:.86rem; font-weight:700;
+  background:#fff;
+}
+body.fpl-compact-ui .compact-team-summary {
+  margin:0 0 1.3rem; gap:.75rem; padding:0;
+  border:0;
+}
+body.fpl-compact-ui .compact-team-summary span {
+  background:#f7f8fa; padding:.85rem 1rem;
+  border:1px solid #eef0f4; border-radius:10px;
+  font-size:.8rem; color:var(--fpl-muted);
+  flex:1 1 135px;
+}
+body.fpl-compact-ui .compact-team-summary strong {
+  display:block; margin:.25rem 0 0;
+  font-size:1.4rem; line-height:1.1;
+  font-variant-numeric:tabular-nums; color:#37003c;
+}
+body.fpl-compact-ui .compact-team-note {
+  background:#fff8e7; border-left:3px solid #dba42b;
+  border-radius:6px; padding:.75rem 1rem;
+  color:#6b5015;
+}
+body.fpl-compact-ui .compact-team-table {
+  margin-top:1.1rem; font-size:.91rem;
+}
+body.fpl-compact-ui .compact-team-table caption {
+  font-size:1rem; font-weight:800; margin:1.4rem 0 .65rem;
+  color:#263343;
+}
+body.fpl-compact-ui .compact-team-table th,
+body.fpl-compact-ui .compact-team-table td {
+  border-bottom:1px solid var(--fpl-border);
+  padding:.75rem .55rem;
+}
+body.fpl-compact-ui .compact-team-table thead th {
+  font-size:.73rem; letter-spacing:.06em;
+  text-transform:uppercase; color:var(--fpl-muted);
+}
+body.fpl-compact-ui .compact-team-table tbody th { font-weight:650; }
+body.fpl-compact-ui .compact-team-table tbody tr:hover { background:#faf9fc; }
+body.fpl-compact-ui .compact-team-table tbody a {
+  color:#243146; text-decoration:none;
+}
+body.fpl-compact-ui .compact-team-table tbody a:hover { color:#37003c; text-decoration:underline; }
+body.fpl-compact-ui .compact-player-alert summary {
+  color:#855500; background:#fff1d4; border:0;
+  border-radius:5px; font-weight:700; padding:.16rem .4rem;
+}
+body.fpl-compact-ui .compact-player-alert p {
+  max-width:480px; font-weight:400; color:#6b5640;
+  white-space:normal; line-height:1.5;
+}
+body.fpl-compact-ui .fpl-forecast-refresh {
+  max-width:980px; margin:.25rem auto 0;
+  padding:.85rem 1.15rem;
+  border:1px solid var(--fpl-border);
+  border-radius:12px; background:#fff;
+  display:flex; justify-content:space-between; align-items:center;
+  gap:.75rem; flex-wrap:wrap;
+}
+body.fpl-compact-ui .fpl-forecast-refresh details { flex:0 1 auto; }
+body.fpl-compact-ui .fpl-forecast-refresh summary { color:#37003c; }
+body.fpl-compact-ui .fpl-forecast-refresh [role="status"] {
+  font-size:.79rem; color:var(--fpl-muted); margin:0;
+}
+@media(max-width:650px) {
+  body.fpl-compact-ui .fpl-primary-navigation {
+    justify-content:space-between; padding:.6rem .45rem;
+    gap:0; flex-wrap:nowrap;
+  }
+  body.fpl-compact-ui .fpl-primary-navigation a {
+    font-size:.77rem; padding:.62rem .44rem;
+    white-space:nowrap;
+  }
+  body.fpl-compact-ui .fpl-primary-navigation .fpl-advanced-link {
+    font-size:.71rem; margin-left:0;
+  }
+  body.fpl-compact-ui > .app > .main { padding:.8rem .6rem 2rem; }
+  body.fpl-compact-ui #compact-team {
+    margin:.85rem 0 1.2rem; padding:1.1rem .8rem 1.3rem;
+    border-radius:12px;
+  }
+  body.fpl-compact-ui .compact-team-heading { gap:.7rem; }
+  body.fpl-compact-ui .compact-team-heading a {
+    padding:.48rem .6rem; font-size:.76rem;
+  }
+  body.fpl-compact-ui .compact-team-summary { gap:.4rem; }
+  body.fpl-compact-ui .compact-team-summary span {
+    min-width:0; flex:1 1 28%; font-size:.7rem; padding:.65rem .45rem;
+  }
+  body.fpl-compact-ui .compact-team-summary strong { font-size:1.08rem; }
+  body.fpl-compact-ui .compact-team-table th,
+  body.fpl-compact-ui .compact-team-table td { padding:.72rem .3rem; }
+  body.fpl-compact-ui .fpl-forecast-refresh {
+    padding:.7rem .8rem; align-items:flex-start;
+  }
+}
