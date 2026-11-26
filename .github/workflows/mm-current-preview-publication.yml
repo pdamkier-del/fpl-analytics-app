@@ -7,6 +7,10 @@ on:
     - cron: '17 * * * *'
   workflow_dispatch:
     inputs:
+      publish_app_completion_preview:
+        description: "After branch permission approval: publish the separately verified preview"
+        type: boolean
+        default: false
       app_completion_preview:
         description: "Publish isolated team/transfers UI preview; preserve all live Pages files"
         type: boolean
@@ -520,22 +524,17 @@ jobs:
         with:
           artifact_name: mm-current-preview-pages-${{ github.run_id }}
 
-  app_completion_preview:
+  app_completion_verify:
     if: ${{ inputs.app_completion_preview && github.event_name == 'workflow_dispatch' }}
     runs-on: ubuntu-latest
     timeout-minutes: 20
     concurrency:
-      group: fpl-pages-publication
+      group: fpl-app-completion-verification
       cancel-in-progress: false
     permissions:
       contents: read
       actions: read
       deployments: read
-      pages: write
-      id-token: write
-    environment:
-      name: github-pages
-      url: https://pdamkier-del.github.io/fpl-analytics-app/previews/team-transfers-20261126/app/overview.html
     steps:
       - uses: actions/checkout@v4
         with:
@@ -598,6 +597,31 @@ jobs:
           path: |
             preview-preservation.json
             preview-browser.json
+      - uses: actions/upload-artifact@v4
+        with:
+          name: app-completion-tested-site
+          path: site
+          retention-days: 3
+  app_completion_publish:
+    needs: app_completion_verify
+    if: ${{ inputs.app_completion_preview && inputs.publish_app_completion_preview && needs.app_completion_verify.result == 'success' }}
+    runs-on: ubuntu-latest
+    concurrency:
+      group: fpl-pages-publication
+      cancel-in-progress: false
+    permissions:
+      contents: read
+      actions: read
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: https://pdamkier-del.github.io/fpl-analytics-app/previews/team-transfers-20261126/app/overview.html
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          name: app-completion-tested-site
+          path: site
       - uses: actions/upload-pages-artifact@v3
         with:
           name: app-completion-pages-${{ github.run_id }}
