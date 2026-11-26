@@ -80,6 +80,42 @@ def write_asset(directory, name, text):
     return f'{name}?asset={sha256(content).hexdigest()[:16]}'
 
 
+TOP_LINKS = (
+    ('overview.html', 'Mit hold'),
+    ('transfers-classic.html', 'Transfers'),
+    ('players-classic.html', 'Spillere'),
+    ('advanced.html', 'Avanceret'),
+)
+ADVANCED_LINKS = (
+    ('model-status.html', 'Modelstatus og datakvalitet'),
+    ('models.html', 'Modelmatematik og versioner'),
+    ('overview.html#model', 'Model Explorer'),
+    ('weekly-review.html', 'Ugerapporter og forskning'),
+    ('forecast-history.html', 'Prognosehistorik'),
+    ('replay.html', 'Historisk evaluering'),
+    ('integration-validation.html', 'Integrationstest og diagnostik'),
+)
+
+
+def compact_navigation(html, page, style, behavior):
+    nav = ['<nav class="fpl-primary-navigation" aria-label="FPL Analytics">']
+    for target, label in TOP_LINKS:
+        current = ' aria-current="page"' if target == page else ''
+        secondary = ' class="fpl-advanced-link"' if target == 'advanced.html' else ''
+        nav.append(f'<a href="{target}"{current}{secondary}>{label}</a>')
+    nav.append('</nav>')
+    html = html.replace('</head>', f'<link rel="stylesheet" href="{style}">'
+                        f'<script defer src="{behavior}"></script></head>', 1)
+    def body(match):
+        attrs = match[1]
+        if re.search(r'\bclass="', attrs):
+            attrs = re.sub(r'\bclass="', 'class="fpl-compact-ui ', attrs, count=1)
+        else:
+            attrs += ' class="fpl-compact-ui"'
+        return '<body' + attrs + '>' + ''.join(nav)
+    return re.sub(r'<body\b([^>]*)>', body, html, count=1)
+
+
 def apply(app):
     store = write_asset(app, 'manager-store-v1.js', (ASSETS / 'manager-store-v1.js').read_text())
     contract = write_asset(app, 'model-contract-v1.js', (ASSETS / 'contract-v1.js').read_text())
@@ -139,6 +175,16 @@ def apply(app):
     archive = write_asset(app, 'historical-forecast.js', (ASSETS / 'historical-forecast.js').read_text())
 
     importer = write_asset(app, 'manager-import.js', (ASSETS / 'manager-import.js').read_text())
+    compact_style = write_asset(app, 'compact-navigation.css', (ASSETS / 'compact-navigation.css').read_text())
+    compact_script = write_asset(app, 'compact-navigation.js', (ASSETS / 'compact-navigation.js').read_text())
+    advanced_links = ''.join(f'<li><a href="{path}">{label}</a></li>' for path, label in ADVANCED_LINKS)
+    (app / 'advanced.html').write_text(
+        '<!doctype html><html lang="da"><head><meta charset="utf-8">'
+        '<meta name="viewport" content="width=device-width,initial-scale=1">'
+        '<title>Avanceret · FPL Analytics</title><link rel="stylesheet" href="classic-common.css">'
+        '</head><body><main class="panel fpl-advanced-page"><h1>Avanceret</h1>'
+        f'<ul>{advanced_links}</ul></main></body></html>'
+    )
     for page in app.glob('*.html'):
         if page.name in {'my-team.html', 'my-team-classic.html', 'my-team-live.html'}:
             page.write_text('<!doctype html><html lang="da"><meta charset="utf-8">'
@@ -198,6 +244,10 @@ def apply(app):
                 '<p id="manager-import-status" role="status"></p></section><p id="forecast">',
                 1,
             ).replace('</head>', f'<script defer src="{importer}"></script></head>', 1)
+        if page.name in {'overview.html', 'transfers-classic.html', 'players-classic.html',
+                         'manager-state.html', 'player.html', 'fixtures-classic.html',
+                         'clubs-classic.html', 'advanced.html'}:
+            html = compact_navigation(html, page.name, compact_style, compact_script)
         page.write_text(html)
 
 

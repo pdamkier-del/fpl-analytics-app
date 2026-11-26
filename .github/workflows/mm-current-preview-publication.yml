@@ -26,6 +26,11 @@ on:
         required: false
         type: boolean
         default: false
+      ui_only:
+        description: 'Preserve the live forecast and publish the navigation/UI only'
+        required: false
+        type: boolean
+        default: false
 permissions:
   contents: write
   actions: read
@@ -202,6 +207,7 @@ jobs:
       - name: Overlay public test files only
         env:
           REPLAY_CAPTURE: ${{ inputs.replay_gk_cap_browser }}
+          UI_ONLY: ${{ inputs.ui_only }}
         run: |
           mkdir site
           tar -xf pages-baseline/artifact.tar -C site
@@ -213,6 +219,13 @@ jobs:
           import shutil
 
           source = Path('tested-app')
+          site = Path('site')
+          preview = site / 'mm-preview'
+          if os.environ['UI_ONLY'] == 'true':
+              assert os.environ['REPLAY_CAPTURE'] == 'true'
+              shutil.copytree(source / 'app', preview / 'app', dirs_exist_ok=True)
+              shutil.copy2(source / 'stable-existing-app-adapter.js', preview / 'stable-existing-app-adapter.js')
+              raise SystemExit(0)
           forecast = json.loads((source / 'current/forecast.json').read_text())
           if os.environ['REPLAY_CAPTURE'] == 'true':
               assert forecast['forecast_sha256'] == 'cecf41db30523f4768d4c30b01376d173af0295ec4052ce0f960f6f825c596fb'
@@ -258,9 +271,16 @@ jobs:
           path: live-preview-source
           sparse-checkout: app/mm-preview
       - name: Preserve the verified preview in the usual Pages source
+        env:
+          UI_ONLY: ${{ inputs.ui_only }}
         run: |
           preview=live-preview-source/app/mm-preview
-          cp -a tested-app/. "$preview/"
+          if [[ "$UI_ONLY" == true ]]; then
+            cp -a tested-app/app/. "$preview/app/"
+            cp tested-app/stable-existing-app-adapter.js "$preview/"
+          else
+            cp -a tested-app/. "$preview/"
+          fi
           git -C live-preview-source add -- app/mm-preview
           if git -C live-preview-source diff --cached --quiet; then exit 0; fi
           git -C live-preview-source -c user.name="FPL preview publisher" \

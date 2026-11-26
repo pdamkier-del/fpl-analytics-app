@@ -37,6 +37,13 @@ async function verify() {
       await page.goto(new URL('overview.html', base).href);
       await checkDashboard();
       assert.equal(await page.getByRole('link', { name: /My Team/ }).count(), 0);
+      const primary = page.getByRole('navigation', { name: 'FPL Analytics' });
+      assert.deepEqual(await primary.getByRole('link').allTextContents(), ['Mit hold', 'Transfers', 'Spillere', 'Avanceret']);
+      await primary.getByRole('link', { name: 'Avanceret' }).click();
+      await page.getByRole('heading', { name: 'Avanceret' }).waitFor();
+      assert.equal(await page.getByRole('link', { name: 'Modelmatematik og versioner' }).count(), 1);
+      await page.getByRole('navigation', { name: 'FPL Analytics' }).getByRole('link', { name: 'Mit hold' }).click();
+      await checkDashboard();
       await page.getByText('Opdater data og prognoser', { exact: true }).click();
       assert.match(await page.getByRole('link', { name: 'Åbn GitHub Actions' }).getAttribute('href'),
         /\/actions\/workflows\/mm-current-preview-publication\.yml$/);

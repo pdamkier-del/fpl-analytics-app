@@ -1,0 +1,37 @@
+.fpl-primary-navigation {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: .4rem;
+  width: min(1440px, 100%);
+  margin: 0 auto;
+  padding: .55rem .75rem;
+  box-sizing: border-box;
+}
+.fpl-primary-navigation a {
+  color: var(--text, #37003c);
+  border: 1px solid var(--line, #ded5e3);
+  border-radius: .65rem;
+  padding: .55rem .8rem;
+  font-weight: 650;
+  text-decoration: none;
+}
+.fpl-primary-navigation a[aria-current="page"] {
+  background: #37003c;
+  border-color: #37003c;
+  color: #fff;
+}
+.fpl-primary-navigation .fpl-advanced-link { margin-inline-start: auto; }
+body.fpl-compact-ui .sidebar,
+body.fpl-compact-ui .fpl-bottomnav,
+body.fpl-compact-ui #weekly-main .dashboard-data,
+body.fpl-compact-ui [data-fpl-hide-technical] { display: none !important; }
+body.fpl-compact-ui > .app { display: block; }
+body.fpl-compact-ui > .app > .main { width: auto; margin-inline: auto; }
+.fpl-advanced-page { max-width: 56rem; margin: 1rem auto; padding: 1rem; }
+.fpl-advanced-page li { margin-block: .6rem; }
+
+@media (max-width: 600px) {
+  .fpl-primary-navigation a { padding: .5rem .55rem; font-size: .9rem; }
+  body.fpl-compact-ui { padding-bottom: 0 !important; }
+}
