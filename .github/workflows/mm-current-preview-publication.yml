@@ -538,7 +538,9 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with:
-          sparse-checkout: integration/app-completion-20261126
+          sparse-checkout: |
+            integration/app-completion-20261126
+            integration/model-interface
           persist-credentials: false
       - name: Resolve successful existing live Pages artifact
         id: baseline
@@ -564,6 +566,7 @@ jobs:
           python integration/app-completion-20261126/build_preview.py site --receipt preview-preservation.json
           python -m unittest discover -s integration/app-completion-20261126 -p "test_reviewed_baseline.py"
           node integration/app-completion-20261126/test_team_model.cjs
+          node --test integration/model-interface/*.test.js
           for f in integration/app-completion-20261126/ui/*.js; do node --check "$f"; done
       - name: Browser check actual generated preview before publishing
         run: |
