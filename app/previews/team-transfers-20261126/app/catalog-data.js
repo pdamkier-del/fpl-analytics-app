@@ -1,0 +1,45 @@
+'use strict';
+// Display adapter only: consumes original forecasts and official season totals.
+(function(root){
+const number=v=>v===null||v===undefined||v===''||typeof v==='boolean'?null:Number.isFinite(Number(v))?Number(v):null;
+const sum=values=>values.length&&values.every(v=>number(v)!==null)?values.reduce((s,v)=>s+Number(v),0):null;
+function compare(a,b,key,dir){const x=a[key],y=b[key],missing=v=>v===null||v===undefined||typeof v==='number'&&!Number.isFinite(v);if(missing(x)||missing(y))return missing(x)?missing(y)?String(a.name).localeCompare(String(b.name),'da'):1:-1;return (typeof x==='string'?x.localeCompare(String(y),'da'):x-y)*dir||String(a.name).localeCompare(String(b.name),'da')}
+function players(official,forecast,usable,horizon=6){const models=new Map((forecast?.players||[]).map(p=>[p.id,p]));return official.players.map(p=>{const model=models.get(p.id),gws=(forecast?.gws||[]).slice(0,horizon),weeks=gws.map(g=>model?.weeks?.find(w=>w.gw===g)),valid=usable&&weeks.length===horizon&&weeks.every(Boolean),first=model?.weeks?.find(w=>w.gw===forecast?.gws?.[0]),single=valid&&weeks.every(w=>w.fixtures?.length===1);const xp=valid?sum(weeks.map(w=>w.xpts)):null,starts=single?sum(weeks.map(w=>w.fixtures[0].p_start)):null;return {...p,name:p.web_name,club:official.teams[p.team]?.name||'Not Available',positionName:['','GK','DEF','MID','FWD'][p.position],price:number(p.price),points:number(p.total_points),minutes:number(p.minutes),starts:number(p.starts),goals:number(p.goals_scored),xg:number(p.expected_goals),assists:number(p.assists),xa:number(p.expected_assists),xgi:sum([p.expected_goals,p.expected_assists]),cs:number(p.clean_sheets),xgc:number(p.expected_goals_conceded),defcon:number(p.defensive_contribution),saves:number(p.saves),bonus:number(p.bonus),bps:number(p.bps),selected:number(p.selected_by_percent),xp,pplay:usable?number(first?.p_play):null,xmins:valid?sum(weeks.map(w=>w.xmins)):null,pstart:starts===null?null:starts/horizon,nextStart:usable&&first?.fixtures?.length===1?number(first.fixtures[0].p_start):null,value:xp!==null&&number(p.price)>0?xp/p.price:null,goalPoints:valid?sum(weeks.flatMap(w=>w.fixtures.map(f=>f.components?.goal_points))):null,assistPoints:valid?sum(weeks.flatMap(w=>w.fixtures.map(f=>f.components?.assist_points))):null,bonusPoints:valid?sum(weeks.flatMap(w=>w.fixtures.map(f=>f.components?.expected_bonus))):null};})}
+function clubs(official,fixtures,forecast,expectations,usable,horizon=6,recentCount=0){return Object.entries(official.teams).map(([id,t])=>{id=Number(id);const completedGws=[...new Set(fixtures.fixtures.filter(f=>f.finished&&Number.isInteger(f.gw)).map(f=>f.gw))].sort((a,b)=>a-b);const included=recentCount>0?new Set(completedGws.slice(-recentCount)):null;const done=fixtures.fixtures.filter(f=>f.finished&&(f.home===id||f.away===id)&&(!included||included.has(f.gw)));const scored=done.filter(f=>number(f.home_score)!==null&&number(f.away_score)!==null);const upcoming=fixtures.fixtures.filter(f=>forecast?.gws?.slice(0,horizon).includes(f.gw)&&(f.home===id||f.away===id));const ex=usable&&expectations?.cutoff===forecast.data_asof?upcoming.map(f=>expectations.fixtures.find(x=>x.id===f.id)):[];const complete=usable&&ex.length===upcoming.length&&upcoming.length>0&&ex.every(Boolean);const resultsValid=done.length===scored.length;
+const own=f=>f.home===id?f.home_score:f.away_score,against=f=>f.home===id?f.away_score:f.home_score;
+const gf=resultsValid?scored.reduce((s,f)=>s+own(f),0):null;
+const ga=resultsValid?scored.reduce((s,f)=>s+against(f),0):null;
+const wins=resultsValid?scored.filter(f=>own(f)>against(f)).length:null;
+const draws=resultsValid?scored.filter(f=>own(f)===against(f)).length:null;
+const losses=resultsValid?scored.filter(f=>own(f)<against(f)).length:null;
+const cs=resultsValid?scored.filter(f=>against(f)===0).length:null;
+const points=resultsValid?wins*3+draws:null;
+const expectedMatches=complete?ex.length:null;
+const xg=complete?sum(ex.map((prediction,i)=>upcoming[i].home===id?prediction.home_xg:prediction.away_xg)):null;
+const xga=complete?sum(ex.map((prediction,i)=>upcoming[i].home===id?prediction.away_xg:prediction.home_xg)):null;
+return {...t,id,players:official.players.filter(p=>p.team===id).length,
+  played:done.length,points,gf,ga,wins,draws,losses,cs,
+  gd:gf!==null&&ga!==null?gf-ga:null,
+  gfPerGame:gf!==null&&done.length?gf/done.length:null,
+  gaPerGame:ga!==null&&done.length?ga/done.length:null,
+  pointsPerGame:points!==null&&done.length?points/done.length:null,
+  cleanSheetPct:cs!==null&&done.length?100*cs/done.length:null,
+  xg,xga,expectedMatches,
+  xgPerFixture:xg!==null&&expectedMatches?xg/expectedMatches:null,
+  xgaPerFixture:xga!==null&&expectedMatches?xga/expectedMatches:null,
+  xgd:xg!==null&&xga!==null?xg-xga:null
+};})}
+function clubLineup(official,forecast,source,usable,team,fixtureId=null){
+ if(!usable||source?.cutoff!==forecast?.data_asof||source?.source!=='B_MM_assignment'||source.locked_model_active!==false||source.forecast_sha256!==forecast.forecast_sha256)return null;
+ const fixture=source.fixtures.filter(f=>f.team_id===team&&(fixtureId?forecast.gws.includes(f.gw)&&f.fixture_uuid==='live-'+forecast.season+'-fpl-'+fixtureId:f.gw===forecast.gws[0])).sort((a,b)=>a.kickoff.localeCompare(b.kickoff))[0];if(!fixture)return null;
+ const squad=players(official,forecast,true,1).filter(p=>p.team===team),models=new Map(forecast.players.map(p=>[p.id,p]));
+ if(new Set(fixture.players.map(p=>p.id)).size!==squad.length||fixture.players.length!==squad.length)return null;
+ const rows=fixture.players.map(r=>{const p=squad.find(p=>p.id===r.id),f=models.get(r.id)?.weeks?.find(w=>w.gw===fixture.gw)?.fixtures?.find(f=>f.fixture_uuid===fixture.fixture_uuid);return p&&f?{...p,...r,xp:number(f.xpts),nextStart:number(f.p_start),xmins:number(f.xmins)}:null});
+ if(rows.some(r=>!r)||rows.filter(r=>r.selected).length!==11||rows.some(r=>r.selected&&r.unavailable))return null;
+ const remaining=rows.filter(r=>r.selected),layers=fixture.layers.map(layer=>layer.map(role=>{const index=remaining.findIndex(p=>p.role===role);return index<0?null:remaining.splice(index,1)[0]}));
+ if(remaining.length||layers.flat().some(p=>!p)||layers.flat().length!==11)return null;
+ return {...fixture,layers,bench:rows.filter(p=>!p.selected&&!p.unavailable).sort((a,b)=>compare(a,b,'nextStart',-1)),unavailable:rows.filter(p=>p.unavailable).sort((a,b)=>compare(a,b,'name',1))};
+}
+function roleBattles(xi){if(!xi)return [];const starters=xi.layers.flat(),squad=[...starters,...xi.bench,...xi.unavailable];return [...new Set(starters.map(p=>p.role))].map(role=>({role,selected:starters.filter(p=>p.role===role),candidates:squad.filter(p=>p.role===role||(p.observed_roles||[]).some(r=>r.role===role&&(number(r.matches)>0||number(r.share)>0))).sort((a,b)=>compare(a,b,'nextStart',-1))}));}
+const api={number,sum,compare,players,clubs,clubLineup,roleBattles};root.FplCatalogData=api;if(typeof module!=='undefined')module.exports=api;
+})(typeof window!=='undefined'?window:globalThis);

@@ -1,0 +1,1 @@
+window.FPL_EXPERT_LINEUPS={source_url:'https://www.fantasyfootballpundit.com/fantasy-premier-league-team-news/',source_kind:'independent_expert_predicted_xi',official_next_gw:null,lineups:[],rejected:[],warnings:['Ingen nylig ekspertprognose er hentet endnu.']};
