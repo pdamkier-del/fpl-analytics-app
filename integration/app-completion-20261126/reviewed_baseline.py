@@ -12,7 +12,7 @@ import re
 import subprocess
 
 ROOT = Path(__file__).resolve().parent
-REVIEW = ROOT / 'baseline-preview-update-20261127.json'
+REVIEW = ROOT / 'baseline-transfer-data-20261127.json'
 PREFIX = 'previews/team-transfers-20261126/'
 
 
