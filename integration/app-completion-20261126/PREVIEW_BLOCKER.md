@@ -1,11 +1,7 @@
-# Publication blocker
+# Preview release status
 
-GitHubActions run45827817575, job139936428268 rejected before steps:
+Update 2026-11-27: the owner allowed this integration branch in github-pages and dispatched run 45981181923. The prior environment-policy blocker is therefore resolved. That run correctly failed the old pinned-baseline guard because production had advanced.
 
-> Branch "integration/app-team-transfers-20261126" is not allowed to deploy to github-pages due to environment protection rules.
+The replacement baseline is based on the actual successful deployment and downloaded artifact, not an unchecked SHA update. See `BASELINE_REVIEW_20261127.md` and `baseline-20261127.json`. Exact deployment/artifact/file checks remain mandatory. Publication uses the same protected job with both preview flags; no permission change or bypass is part of this update.
 
-The repository environment has custom deployment-branch policies. No policies/permissions were changed or bypassed. Production and Pages files are unchanged. Read-only verification is now separate from protected publication; run45828100909completed that verification and skipped publish. Final code needs a new verification run after fixes.
-
-Owner action: allow this integration branch for the github-pages environment, then explicitly run the existing workflow on this branch with app_completion_preview=true and publish_app_completion_preview=true. A new verification and unchanged-live-baseline guard still precede publication. No production merge is requested or permitted by this delivery.
-
-The intended public URL is /fpl-analytics-app/previews/team-transfers-20261126/app/overview.html, but it is not a working public preview until deployment is approved and verified.
+Historical policy rejections: runs 45827817575 and 45827877728. Historical read-only verification: run 45831222611. These do not establish current public preview availability; see the PR's latest deployment receipt.

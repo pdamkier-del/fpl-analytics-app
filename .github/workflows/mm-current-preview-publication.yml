@@ -544,29 +544,7 @@ jobs:
         id: baseline
         env:
           GH_TOKEN: ${{ github.token }}
-        run: |
-          python - <<'PYTHON'
-          import json,os,subprocess
-          def api(path):return json.loads(subprocess.check_output(['gh','api',path]))
-          repo=os.environ['GITHUB_REPOSITORY']
-          deployments=api(f'repos/{repo}/deployments?environment=github-pages&per_page=20')
-          chosen=None
-          for d in deployments:
-              statuses=api(f'repos/{repo}/deployments/{d["id"]}/statuses')
-              successful=next((x for x in statuses if x['state']=='success'),None)
-              if successful:
-                  chosen=(d,successful);break
-          assert chosen,'No successful live Pages baseline'
-          d,status=chosen
-          assert d['sha']=='140e3f88c4a1110b3b4a06d8a90ae691dca9e984','Live production advanced; review before preview publication'
-          import re
-          run=re.search(r'/actions/runs/(\d+)/job/',status['log_url'])[1]
-          assets=api(f'repos/{repo}/actions/runs/{run}/artifacts')['artifacts']
-          candidates=[a for a in assets if not a['expired']and re.match(r'^(gw12-test-pages-|team-news-pages-|github-pages|mm-current-preview-pages-|recovered-B-pages-)',a['name'])]
-          assert candidates,'Existing Pages artifact missing'
-          artifact=max(candidates,key=lambda a:a['created_at'])
-          with open(os.environ['GITHUB_OUTPUT'],'a')as f:f.write(f'run={run}\nartifact={artifact["name"]}\n')
-          PYTHON
+        run: python integration/app-completion-20261126/reviewed_baseline.py resolve --github-output "$GITHUB_OUTPUT"
       - uses: actions/download-artifact@v4
         with:
           name: ${{ steps.baseline.outputs.artifact }}
@@ -584,6 +562,7 @@ jobs:
           mkdir site
           tar -xf pages-baseline/artifact.tar -C site
           python integration/app-completion-20261126/build_preview.py site --receipt preview-preservation.json
+          python -m unittest discover -s integration/app-completion-20261126 -p "test_reviewed_baseline.py"
           node integration/app-completion-20261126/test_team_model.cjs
           for f in integration/app-completion-20261126/ui/*.js; do node --check "$f"; done
       - name: Browser check actual generated preview before publishing
@@ -619,6 +598,10 @@ jobs:
       name: github-pages
       url: https://pdamkier-del.github.io/fpl-analytics-app/previews/team-transfers-20261126/app/overview.html
     steps:
+      - uses: actions/checkout@v4
+        with:
+          sparse-checkout: integration/app-completion-20261126
+          persist-credentials: false
       - uses: actions/download-artifact@v4
         with:
           name: app-completion-tested-site
@@ -626,17 +609,7 @@ jobs:
       - name: Refuse to replace an advanced live baseline
         env:
           GH_TOKEN: ${{ github.token }}
-        run: |
-          python - <<'PYTHON'
-          import json,subprocess,os
-          def api(p):return json.loads(subprocess.check_output(['gh','api',p]))
-          repo=os.environ['GITHUB_REPOSITORY']
-          for d in api(f'repos/{repo}/deployments?environment=github-pages&per_page=20'):
-              if any(s['state']=='success'for s in api(f'repos/{repo}/deployments/{d["id"]}/statuses')):
-                  assert d['sha']=='140e3f88c4a1110b3b4a06d8a90ae691dca9e984','Live baseline advanced after verification; rebuild/review first'
-                  break
-          else:raise RuntimeError('Live baseline cannot be verified')
-          PYTHON
+        run: python integration/app-completion-20261126/reviewed_baseline.py guard --site site
       - uses: actions/upload-pages-artifact@v3
         with:
           name: app-completion-pages-${{ github.run_id }}

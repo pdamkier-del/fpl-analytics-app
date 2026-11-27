@@ -1,13 +1,14 @@
 """Append an isolated UI preview; every pre-existing Pages file stays byte-identical."""
 import argparse,hashlib,shutil,json,re
 from pathlib import Path
+from reviewed_baseline import REVIEW,verify_site
 ROOT=Path(__file__).resolve().parent
 PREFIX='previews/team-transfers-20261126'
 def hashes(root):return {str(p.relative_to(root)):hashlib.sha256(p.read_bytes()).hexdigest()for p in root.rglob('*')if p.is_file()}
 def build(site):
  before=hashes(site);source=site/'mm-preview';dest=site/PREFIX
  if not(source/'app/overview.html').is_file():raise ValueError('Actual Pages baseline missing')
- if dest.exists():shutil.rmtree(dest)
+ if dest.exists():raise ValueError('Preview destination already exists; refusing to overwrite existing Pages files')
  shutil.copytree(source/'app',dest/'app')
  for path in source.iterdir():
   if path.is_file()and path.suffix in ['.js','.css']:shutil.copy2(path,dest/path.name)
@@ -51,8 +52,11 @@ def build(site):
   if page.name=='advanced.html':text=text.replace('overview.html#','advanced-overview.html#')
   page.write_text(text)
  after=hashes(site)
- changed=[p for p,h in before.items()if not p.startswith(PREFIX+'/')and after.get(p)!=h]
+ changed=[p for p,h in before.items()if after.get(p)!=h]
  if changed:raise ValueError('Production files changed: '+','.join(changed[:4]))
- return dict(preview_path=PREFIX+'/app/overview.html',original_files_unchanged=len([p for p in before if not p.startswith(PREFIX+'/')]),preview_files=len([p for p in after if p.startswith(PREFIX+'/')]),models_recomputed=False,private_payloads_baked_in=False)
+ return dict(preview_path=PREFIX+'/app/overview.html',original_files_unchanged=len(before),preview_files=len([p for p in after if p.startswith(PREFIX+'/')]),models_recomputed=False,private_payloads_baked_in=False)
 if __name__=='__main__':
- p=argparse.ArgumentParser();p.add_argument('site',type=Path);p.add_argument('--receipt',type=Path,required=True);a=p.parse_args();a.receipt.write_text(json.dumps(build(a.site),indent=2)+'\n')
+ p=argparse.ArgumentParser();p.add_argument('site',type=Path);p.add_argument('--receipt',type=Path,required=True);p.add_argument('--baseline',type=Path,default=REVIEW);a=p.parse_args()
+ review=json.loads(a.baseline.read_text());verify_site(a.site,review)
+ receipt=build(a.site);receipt.update(verify_site(a.site,review,allow_preview=True));receipt['baseline_sha256']=hashlib.sha256(a.baseline.read_bytes()).hexdigest()
+ a.receipt.write_text(json.dumps(receipt,indent=2)+'\n')

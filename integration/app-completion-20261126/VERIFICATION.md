@@ -1,5 +1,7 @@
 # Verification and delivery — 2026-11-26
 
+**27 November update:** The owner resolved the environment-policy restriction. Production has since advanced; `BASELINE_REVIEW_20261127.md` supersedes the old baseline/release-blocker status below and records the complete new artifact review. The earlier actual-team test scope remains unchanged. See the PR for the current publication result.
+
 ## Scope
 
 Integration branch based on the actual deployed stable integration, `140e3f88`, not the generated publication mirror. Only the workflow and this integration package change. No model, scorer, sampling, six-GW weights, backend, protected research experiment or production app changes. The builder preserves every pre-existing publication file byte-for-byte and adds an isolated preview directory. Original overview remains available as `advanced-overview.html`.
