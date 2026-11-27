@@ -48,10 +48,14 @@ def build(site,replace_preview=False):
  text=text.replace("reason: 'Den aktuelle officielle gameweek og deadline kan ikke bekræftes.'", "reason: Number.isFinite(observed)&&now-observed>2*3600000?'FPL-status fra '+new Date(observed).toLocaleString('da-DK')+' er mere end to timer gammel. Datatjenesten skal opdatere status, før TS v3 kan beregnes.':'Den aktuelle officielle gameweek eller deadline mangler eller matcher ikke. Afventer verificerede data.'")
  gate.write_text(text)
  # JSON stays on the existing sealed data source; no manager or forecast payload copied.
+ assets={p.name:hashlib.sha256(p.read_bytes()).hexdigest()[:16]for p in(ROOT/'ui').iterdir()if p.suffix in ['.js','.css']}
  for page in(dest/'app').glob('*.html'):
   text=page.read_text()
   if 'preview-data-root.js'not in text:text=text.replace('<head>','<head><script src="preview-data-root.js"></script>',1)
   if page.name=='advanced.html':text=text.replace('overview.html#','advanced-overview.html#')
+  # Existing browser installations must load matching new renderer/helper bytes.
+  for name,digest in assets.items():
+   text=re.sub(r'((?:src|href)=")'+re.escape(name)+r'(?:\?[^"\s]*)?(\")',lambda m:m[1]+name+'?asset='+digest+m[2],text)
   page.write_text(text)
  after=hashes(site)
  preserved={p:h for p,h in before.items()if not(replace_preview and p.startswith(PREFIX+'/'))}
