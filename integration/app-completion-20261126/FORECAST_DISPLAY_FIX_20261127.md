@@ -21,3 +21,15 @@ Inspected all 3,882 files: the original 3,746 production files exactly match the
 - Helper regressions confirm that a TS-blocked valid snapshot remains readable without mutating the TS flag; invalid/future snapshots fail closed and expired snapshots are historical.
 - The local-only synthetic Chromium renderer regression checks actual displayed numeric values: 15 cards with 1.25 xP/60 minutes per GW, 7.5 xP/360 minutes over six GW, while TS remains blocked and compute is never called. This is explicitly a synthetic UI test, not evidence of actual manager/model performance.
 - After deployment, public verification must compare displayed one-GW/six-GW numbers against the original loaded model values for the actual imported XV, not merely assert that the catalogue/page loads. Aggregate receipts contain no manager player identities, prices, raw state or job capabilities; screenshots remain private.
+
+## Published correction
+
+Workflow [45989268115](https://github.com/pdamkier-del/fpl-analytics-app/actions/runs/45989268115) passed verification and protected publication. Deployment **8108442989**, code SHA **ff8a30fc8081899a4d385cf82e7993dbf8ba3b6a**. Same existing preview URL, no PR merge. The pipeline reverified all 3,746 non-preview production files unchanged; only the existing 136 preview files were updated. The renderer/helper/style URLs now carry content hashes so an ordinary reload obtains matching new files. The CI numeric renderer fixture passed, with stale TS still blocked.
+
+The first CI attempt exposed a missing model-contract dependency in the sparse test checkout; the checkout now includes the existing model-interface module and reruns its 15 JS regressions too. No production permission or model change was required.
+
+## Actual public numeric acceptance
+
+After publication, a fresh Chromium session imported the actual official XV through the unchanged backend, without a fixture, injected cache or frontend routing. On **both** public Mit hold and Transfers pages, all **15** rendered xP and minute values matched the original loaded model for **each GW12–17 individually and their six-GW sum**. Original public forecast identity remains `79c047e172889aa517feab287b63c98606180c7e2ba691ddf784f1b93b19b1b1`, cutoff 2026-11-26T08:37:18.050176+00:00. This is the original snapshot, not newly calculated predictions.
+
+Both pages show the computation timestamp, warning and versioned renderer, have no JavaScript exceptions or mobile overflow. The original TS gate remained false and the browser made **zero** TS computation requests. Aggregate proof: `evidence/forecast-numbers-public-20261127.json`. No player identities, raw manager state or capabilities are exported in the report. Screenshots stay private workspace deliverables.

@@ -1,5 +1,7 @@
 # Public preview verification — 27 November 2026
 
+**Later display correction:** see `FORECAST_DISPLAY_FIX_20261127.md`. Run 45989268115 now publishes numeric original MM/PM projections independently of TS readiness. Actual public one-GW/six-GW values were verified for all 15 players on both pages. The release receipts below describe the earlier deployment.
+
 **Preview:** https://pdamkier-del.github.io/fpl-analytics-app/previews/team-transfers-20261126/app/overview.html
 
 **Transfers:** https://pdamkier-del.github.io/fpl-analytics-app/previews/team-transfers-20261126/app/transfers-classic.html

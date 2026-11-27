@@ -1,0 +1,25 @@
+{
+  "scope": "Prepublication: public assets plus explicitly unavailable backend; no actual manager or TS result fixture",
+  "checks": [
+    {
+      "page": "overview.html",
+      "mobile_no_overflow": true
+    },
+    {
+      "page": "transfers-classic.html",
+      "mobile_no_overflow": true
+    },
+    {
+      "page": "players-classic.html",
+      "mobile_no_overflow": true
+    }
+  ],
+  "page_errors": [],
+  "synthetic_renderer": {
+    "scope": "Local synthetic renderer fixture, not actual manager evidence",
+    "players": 15,
+    "one_gw_xp": 1.25,
+    "six_gw_xp": 7.5,
+    "stale_ts_still_blocked": true
+  }
+}
