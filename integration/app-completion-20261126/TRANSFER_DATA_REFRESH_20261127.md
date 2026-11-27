@@ -30,6 +30,6 @@ These recovery records are public-data backups, not a parallel model producer or
 
 ## Tests and operational limit
 
-Nine synthetic data-publication tests cover official price/status/deadline changes, source/configuration mutation, checksums, exact producer provenance, UI/history preservation, unsafe paths and TAR recovery inspection. Existing contract tests and browser/renderer regressions are retained.
+Eleven synthetic data-publication tests cover official price/status/deadline changes, source/configuration mutation, checksums, exact producer provenance, UI/history preservation, unsafe paths and TAR recovery inspection. Existing contract tests and browser/renderer regressions are retained.
 
 This is an explicit refresh through the current integration workflow. Automatic main-branch publication/source-mirror coordination still needs C2 release review; no PR/main merge or new scheduler is introduced here. A later scheduled publisher must preserve the actual latest Pages baseline and this preview, and may not overwrite newer data with the older generated mirror. Existing newer-forecast/deployment guards continue to reject such a rollback.

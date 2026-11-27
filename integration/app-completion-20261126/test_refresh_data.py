@@ -17,7 +17,7 @@ class RefreshTests(unittest.TestCase):
         self.now=datetime(2026,11,27,12,tzinfo=timezone.utc)
         self.f=dict(model='B-MM-PM-TS-v1',chain_version='B-MM-PM-TS-v1',mm_version='B-MM-PM-TS-v1',model_revision='frozen',code_sha256={'source':'a'*64},parts={'pm':'frozen'},normal_match_timeline={'version':'frozen'},freshness_limit_hours=24,season='2026-27',locked_model_active=False,gws=[12,13,14,15,16,17],data_asof=(self.now-timedelta(hours=1)).isoformat(),origin_deadline=(self.now+timedelta(hours=6)).isoformat(),players=[dict(id=1,team_id=1,position=1,price_tenths=50)])
         self.f['forecast_sha256']=hashlib.sha256(data.canonical(self.f)).hexdigest()
-        self.old=deepcopy(self.f);self.old['data_asof']=(self.now-timedelta(days=1)).isoformat()
+        self.old=deepcopy(self.f);self.old['data_asof']=(self.now-timedelta(days=1)).isoformat();self.old['forecast_sha256']=hashlib.sha256(data.canonical({k:v for k,v in self.old.items()if k!='forecast_sha256'})).hexdigest()
         self.news=dict(schema='fpl-dashboard-availability-v1',source_url='https://fantasy.premierleague.com/api/bootstrap-static/',next_gw=12,deadline=self.f['origin_deadline'],observed_at=(self.now-timedelta(minutes=5)).isoformat(),players=[dict(id=1,team=1,position=1,price_tenths=50)])
         self.seal_news()
         self.bootstrap=dict(events=[dict(id=12,is_next=True,deadline_time=self.f['origin_deadline'])],elements=[dict(id=1,team=1,element_type=1,now_cost=50)])
@@ -47,15 +47,16 @@ class RefreshTests(unittest.TestCase):
         self.bootstrap['events'][0]['id']=13
         with self.assertRaises(ValueError):data.check_window(self.f,self.news,self.bootstrap,self.now)
 
-    def capture(self,root):
+    def capture(self,root,forecast=None):
+        f=forecast or self.f
         for folder in ['current','gk','news']:(root/folder).mkdir()
         def put(name,obj):
             path=root/name;path.write_bytes(data.canonical(obj));return data.digest(path)
-        fi=put('current/forecast.json',self.f);put('gk/forecast.json',self.f)
-        index=dict(forecast_sha256=self.f['forecast_sha256'],forecast_file_sha256=fi,desktop_probabilities=dict(forecast_sha256=self.f['forecast_sha256']))
+        fi=put('current/forecast.json',f);put('gk/forecast.json',f)
+        index=dict(forecast_sha256=f['forecast_sha256'],forecast_file_sha256=fi,desktop_probabilities=dict(forecast_sha256=f['forecast_sha256']))
         pairs={'mm.json':'mm_file_sha256','catalogue.json':'catalogue_sha256','chain-validation.json':'chain_validation_sha256','pm-audit.json':'pm_audit_sha256','role-ledger.csv.gz':'role_ledger_sha256'}
         for name,key in pairs.items():index[key]=put('current/'+name,{})
-        index['existing_app_data_sha256']=put('current/existing-app-data.json',dict(forecast_sha256=self.f['forecast_sha256']))
+        index['existing_app_data_sha256']=put('current/existing-app-data.json',dict(forecast_sha256=f['forecast_sha256']))
         put('current/index.json',index)
         gi=dict(forecast_sha256=fi,mm_sha256=put('gk/gk-mm.json',{}),evidence_sha256=put('gk/evidence.json',{}));put('gk/index.json',gi);put('news/availability.json',self.news)
 
@@ -67,6 +68,32 @@ class RefreshTests(unittest.TestCase):
             with self.assertRaisesRegex(ValueError,'Frozen model'):data.validate_capture(root,altered,self.now,self.bootstrap)
             (root/'gk/forecast.json').write_text('{}')
             with self.assertRaises(ValueError):data.validate_capture(root,self.old,self.now,self.bootstrap)
+
+    def test_apply_preserves_ui_and_original_history_and_copies_source_bytes(self):
+        with tempfile.TemporaryDirectory()as folder:
+            root=Path(folder);site=root/'site';capture=root/'capture';(site/'mm-preview').mkdir(parents=True);capture.mkdir()
+            self.capture(site/'mm-preview',self.old);self.capture(capture)
+            (site/'overview.html').write_text('original production UI')
+            history=site/'mm-preview/current/history/original.mm.json.gz';history.parent.mkdir();history.write_bytes(b'original immutable')
+            ui=site/'previews/team-transfers-20261126/app/shared-team.js';ui.parent.mkdir(parents=True);ui.write_text('prior preview')
+            review=dict(deployment=dict(id=1),files=data.hashes(site),replaceable_preview_prefix='previews/team-transfers-20261126/')
+            ui.write_text('reviewed new preview')
+            candidate=data.apply(site,capture,review,dict(run_id=1),'c'*64,self.now,self.bootstrap)
+            self.assertEqual((site/'overview.html').read_text(),'original production UI')
+            self.assertEqual(history.read_bytes(),b'original immutable')
+            self.assertEqual((site/'mm-preview/current/forecast.json').read_bytes(),(capture/'current/forecast.json').read_bytes())
+            self.assertEqual(candidate['data_refresh']['forecast_sha256'],self.f['forecast_sha256'])
+            self.assertEqual(candidate['files'],data.hashes(site))
+
+    def test_apply_rejects_new_unreviewed_data_file(self):
+        with tempfile.TemporaryDirectory()as folder:
+            root=Path(folder);site=root/'site';capture=root/'capture';(site/'mm-preview').mkdir(parents=True);capture.mkdir()
+            self.capture(site/'mm-preview',self.old);self.capture(capture)
+            review=dict(deployment=dict(id=1),files=data.hashes(site))
+            (capture/'current/private-manager.json').write_text('{}')
+            with self.assertRaisesRegex(ValueError,'Unreviewed new public data path'):
+                data.apply(site,capture,review,dict(run_id=1),'c'*64,self.now,self.bootstrap)
+
 
     def test_candidate_scope_preserves_all_ui_and_history(self):
         review=dict(files={'mm-preview/current/forecast.json':'a','previews/team-transfers-20261126/app/shared-team.js':'b','overview.html':'c','mm-preview/current/history/old.mm.json.gz':'d'})
