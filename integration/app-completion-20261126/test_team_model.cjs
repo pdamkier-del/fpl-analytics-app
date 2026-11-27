@@ -41,3 +41,14 @@ assert.equal(M.stableVerifiedState({...confirmed,validation_only:true},refreshed
 console.log('PASS: identical official revalidation preserves private plan identity; bank/FT/entry changes invalidate it');
 assert.equal(M.stableVerifiedState({...confirmed,optional_decision:'different'},refreshed),refreshed);
 assert.equal(M.stableVerifiedState({...confirmed,observed_at:'2026-11-28T10:00:00Z'},refreshed),refreshed);
+
+// The production TS client reports real server/polling messages only to these
+// data hooks. The isolated UI must expose both hooks, otherwise users see an
+// indefinite generic "Beregning i gang" while the service computes.
+const transfersHtml=fs.readFileSync(__dirname+'/ui/transfers-classic.html','utf8');
+const transfersCss=fs.readFileSync(__dirname+'/ui/shared-team.css','utf8');
+assert.match(transfersHtml,/data-compute-feedback/);
+assert.match(transfersHtml,/data-compute-status/);
+assert.match(transfersHtml,/data-compute/);
+assert.match(transfersCss,/\.ts-progress\[data-phase="error"\]/);
+console.log('PASS: TS job progress and concrete backend errors have accessible public UI targets');
