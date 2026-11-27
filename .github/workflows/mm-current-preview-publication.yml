@@ -580,6 +580,7 @@ jobs:
         with:
           name: app-completion-tested-site
           path: site
+          include-hidden-files: true
           retention-days: 3
   app_completion_publish:
     needs: app_completion_verify

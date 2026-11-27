@@ -100,6 +100,19 @@ class ReviewedBaselineTests(unittest.TestCase):
             with self.assertRaisesRegex(ValueError, 'file path'):
                 baseline.verify_site(site, review)
 
+    def test_hidden_publication_marker_must_survive_artifact_transfer(self):
+        with tempfile.TemporaryDirectory() as folder:
+            site = Path(folder)
+            (site / 'index.html').write_bytes(b'original')
+            marker = site / '.nojekyll'
+            marker.write_bytes(b'')
+            review = copy.deepcopy(self.review)
+            review['files']['.nojekyll'] = hashlib.sha256(b'').hexdigest()
+            baseline.verify_site(site, review)
+            marker.unlink()
+            with self.assertRaisesRegex(ValueError, 'changed/missing'):
+                baseline.verify_site(site, review, allow_preview=True)
+
 
 if __name__ == '__main__':
     unittest.main()

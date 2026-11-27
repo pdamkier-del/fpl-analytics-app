@@ -21,6 +21,7 @@ Executed the existing preview builder against UI files extracted from the new ar
 - Resolve the exact reviewed deployment ID **and** SHA; verify successful workflow provenance and exact artifact ID/name/size/digest/expiry. Same-SHA later news publications now cause rejection too.
 - Verify the complete downloaded original-file inventory before building.
 - Append the isolated preview. Refuse a pre-existing destination instead of deleting it. Check every original file again after building.
+- Preserve the reviewed public `.nojekyll` file in the tested-site artifact using `include-hidden-files: true`. The inventory contains no other hidden files. Run 45982724117 was cancelled before publication when this transfer omission was identified; missing hidden files are also rejected by the file guard.
 - Under the existing Pages publication concurrency lock, resolve the current production deployment again and rehash every original file in the tested site before upload. Only files under the isolated preview prefix may be added.
 - If production advances at any point, stop and perform another content review; no automatic SHA acceptance.
 
@@ -36,4 +37,4 @@ node --test integration/model-interface/*.test.js
 python -m pytest -q integration/model-interface/test_preview_server.py integration/model-interface/test_archive_preview.py
 ```
 
-Eight new publication-contract tests cover same-SHA deployment advancement, changed commit, failed deployment, artifact mutation/expiry/missing, wrong workflow and file preservation/path/symlink restrictions. CI then uses the downloaded complete artifact for the builder and Chromium checks. The existing original TS freshness and manager-state gates remain active; successful page delivery is not a claim of an available real TS recommendation.
+Nine new publication-contract tests cover same-SHA deployment advancement, changed commit, failed deployment, artifact mutation/expiry/missing, wrong workflow and file preservation/path/symlink restrictions. CI then uses the downloaded complete artifact for the builder and Chromium checks. The existing original TS freshness and manager-state gates remain active; successful page delivery is not a claim of an available real TS recommendation.
