@@ -52,6 +52,7 @@ def build(site,replace_preview=False):
  gate.write_text(text)
  # JSON stays on the existing sealed data source; no manager or forecast payload copied.
  assets={p.name:hashlib.sha256(p.read_bytes()).hexdigest()[:16]for p in(ROOT/'ui').iterdir()if p.suffix in ['.js','.css']}
+ assets['classic-manager.js']=hashlib.sha256((dest/'app/classic-manager.js').read_bytes()).hexdigest()[:16]
  for page in(dest/'app').glob('*.html'):
   text=page.read_text()
   if 'preview-data-root.js'not in text:text=text.replace('<head>','<head><script src="preview-data-root.js"></script>',1)
