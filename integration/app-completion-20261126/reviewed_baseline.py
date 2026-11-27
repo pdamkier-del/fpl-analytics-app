@@ -12,7 +12,7 @@ import re
 import subprocess
 
 ROOT = Path(__file__).resolve().parent
-REVIEW = ROOT / 'baseline-20261127.json'
+REVIEW = ROOT / 'baseline-preview-update-20261127.json'
 PREFIX = 'previews/team-transfers-20261126/'
 
 
@@ -69,10 +69,17 @@ def hashes(site):
 
 def verify_site(site, review, allow_preview=False):
     expected = review['files']
+    replacement = review.get('replaceable_preview_prefix')
+    if replacement is not None and replacement != PREFIX:
+        raise ValueError('Only the existing isolated preview may be replaced')
     for name in expected:
         path = PurePosixPath(name)
         if path.is_absolute() or '..' in path.parts:
             raise ValueError('Invalid reviewed file path')
+    # The entire current artifact is verified before build. Only its own reviewed
+    # preview subtree may differ after build; production files remain immutable.
+    if allow_preview and replacement:
+        expected = {name: digest for name, digest in expected.items() if not name.startswith(replacement)}
     actual = hashes(site)
     changed = [name for name, digest in expected.items() if actual.get(name) != digest]
     extra = [name for name in actual.keys() - expected.keys()

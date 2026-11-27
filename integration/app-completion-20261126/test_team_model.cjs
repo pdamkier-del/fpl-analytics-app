@@ -17,3 +17,17 @@ vm.runInNewContext(fs.readFileSync(__dirname+'/ui/preview-data-root.js','utf8'),
 sandbox.window.fetch('../current/index.json');sandbox.window.fetch('../../manager-service.json');sandbox.window.fetch('shared-team.js');
 assert.equal(urls[0],'https://pdamkier-del.github.io/fpl-analytics-app/mm-preview/current/index.json');assert.equal(urls[1],'https://pdamkier-del.github.io/fpl-analytics-app/manager-service.json');assert.equal(urls[2],'shared-team.js');
 console.log('PASS: isolated preview JSON root and private service configuration preserve the existing data chain');
+// Regression: a stale live-status/TS gate must not erase a validated MM/PM snapshot.
+const contract=require('../model-interface/contract-v1.js');
+const frozen={model:'B-MM-PM-TS-v1',locked_model_active:false,season:'2026-27',gws:[12,13,14,15,16,17],data_asof:'2026-11-26T08:00:00Z',origin_deadline:'2026-11-27T18:30:00Z',forecast_sha256:'a'.repeat(64),players:[...players.values()].map(p=>({...p,weeks:p.weeks.map((w,i)=>({...w,gw:12+i,xmins:60}))}))};
+const blocked={forecast:frozen,usable:false,reason:'Official status older than two hours'};
+const before=JSON.stringify(blocked),now=Date.parse('2026-11-27T11:00:00Z');
+assert.equal(contract.validateForecast(frozen).ok,true);
+assert.deepEqual(M.projectionState(blocked,contract,now),{available:true,cutoff:frozen.data_asof,historical:false,tsReady:false});
+assert.equal(JSON.stringify(blocked),before);assert.equal(blocked.usable,false);
+assert.equal(M.projectionState(blocked,contract,Date.parse('2026-11-28T11:00:00Z')).historical,true);
+assert.equal(M.projectionState({...blocked,forecast:{...frozen,data_asof:'2026-11-27T12:00:00Z'}},contract,now).available,false);
+const broken=structuredClone(frozen);broken.players[0].weeks[0].xpts=null;
+assert.equal(M.projectionState({...blocked,forecast:broken},contract,now).available,false);
+assert.equal(M.projectionState(blocked,null,now).available,false);
+console.log('PASS: original MM/PM remains readable with TS blocked; invalid/future snapshots fail closed and historical data is labelled');

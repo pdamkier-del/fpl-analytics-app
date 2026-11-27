@@ -19,5 +19,12 @@
   const deltas=[1,3,6].map(n=>{const value=ids=>ids.reduce((s,id)=>{const w=people.get(id)?.weeks?.slice(0,n);return w?.length===n&&w.every(x=>Number.isFinite(x.xpts))?s+w.reduce((a,x)=>a+x.xpts,0):NaN;},0);return value(incoming)-value(out);});
   return {valid,reason:valid?'':bank!==null&&bank<0?'Budgettet er overskredet.':'Ugyldig position, klubgrænse eller dubleret spiller.',out,incoming,bank,hits,deltas};
  }
- return {lineup,sale,compare};
+ // Reading an original, validated MM/PM snapshot is separate from authorizing TS.
+ // Never mutate context.usable or feed this display decision to the optimizer.
+ function projectionState(context,contract,now=Date.now()){
+  const f=context?.forecast,valid=contract?.validateForecast?.(f);
+  if(!valid?.ok||f.model!=='B-MM-PM-TS-v1'||f.locked_model_active!==false||f.gws.length!==6||Date.parse(f.data_asof)>now)return {available:false,reason:'Den originale prognose kunne ikke valideres.'};
+  return {available:true,cutoff:f.data_asof,historical:now>=Date.parse(f.origin_deadline),tsReady:context.usable===true};
+ }
+ return {lineup,sale,compare,projectionState};
 });

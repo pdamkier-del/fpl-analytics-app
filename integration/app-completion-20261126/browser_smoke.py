@@ -1,5 +1,6 @@
 """Prepublication Chromium smoke: real public assets, explicitly unavailable backend."""
 import asyncio,json,sys
+from display_fixture import check as check_display_fixture
 from playwright.async_api import async_playwright
 async def main():
  async with async_playwright()as p:
@@ -21,5 +22,6 @@ async def main():
    assert not overflow,(name,'mobile overflow')
    results.append(dict(page=name,mobile_no_overflow=True));await page.set_viewport_size({'width':1360,'height':1000})
   assert not errors,errors
-  print(json.dumps(dict(scope='Prepublication: public assets plus explicitly unavailable backend; no actual manager or TS result fixture',checks=results,page_errors=errors),indent=2));await browser.close()
+  fixture=await check_display_fixture(browser,sys.argv[1])
+  print(json.dumps(dict(scope='Prepublication: public assets plus explicitly unavailable backend; no actual manager or TS result fixture',checks=results,page_errors=errors,synthetic_renderer=fixture),indent=2));await browser.close()
 asyncio.run(main())

@@ -113,6 +113,28 @@ class ReviewedBaselineTests(unittest.TestCase):
             with self.assertRaisesRegex(ValueError, 'changed/missing'):
                 baseline.verify_site(site, review, allow_preview=True)
 
+    def test_reviewed_preview_replacement_preserves_every_production_file(self):
+        with tempfile.TemporaryDirectory() as folder:
+            site = Path(folder)
+            (site / 'index.html').write_bytes(b'original')
+            preview = site / baseline.PREFIX / 'app/index.html'
+            preview.parent.mkdir(parents=True)
+            preview.write_bytes(b'old preview')
+            review = copy.deepcopy(self.review)
+            review['replaceable_preview_prefix'] = baseline.PREFIX
+            review['files'][preview.relative_to(site).as_posix()] = hashlib.sha256(b'old preview').hexdigest()
+            baseline.verify_site(site, review)
+            preview.write_text('updated preview')
+            with self.assertRaises(ValueError):
+                baseline.verify_site(site, review)
+            baseline.verify_site(site, review, allow_preview=True)
+            (site / 'index.html').write_text('production changed')
+            with self.assertRaises(ValueError):
+                baseline.verify_site(site, review, allow_preview=True)
+            review['replaceable_preview_prefix'] = 'mm-preview/'
+            with self.assertRaisesRegex(ValueError, 'Only the existing isolated preview'):
+                baseline.verify_site(site, review, allow_preview=True)
+
 
 if __name__ == '__main__':
     unittest.main()
