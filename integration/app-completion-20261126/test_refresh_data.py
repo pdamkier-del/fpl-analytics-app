@@ -9,7 +9,7 @@ import tempfile
 import unittest
 
 import refresh_data as data
-from preserve_pages import inspect_tar
+from preserve_git import inspect_tar
 
 
 class RefreshTests(unittest.TestCase):

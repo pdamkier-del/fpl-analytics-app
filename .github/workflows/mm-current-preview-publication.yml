@@ -652,27 +652,18 @@ jobs:
         with:
           name: app-completion-verification
           path: verification
-      - uses: actions/download-artifact@v4
-        if: inputs.current_data_run != ''
-        with:
-          name: ${{ needs.app_completion_verify.outputs.baseline_artifact }}
-          run-id: ${{ needs.app_completion_verify.outputs.baseline_run }}
-          github-token: ${{ github.token }}
-          path: original-pages
-      - name: Preserve and recover the original public data before replacement
+      - name: Recover old data and persist the validated public revision in the existing mirror
         if: inputs.current_data_run != ''
         env:
           GH_TOKEN: ${{ github.token }}
-        run: |
-          python integration/app-completion-20261126/reviewed_baseline.py resolve
-          python integration/app-completion-20261126/preserve_pages.py --tar original-pages/artifact.tar --review integration/app-completion-20261126/baseline-transfer-data-20261127.json --tag fpl-public-data-before-transfer-refresh-8108442989-verified --target ff8a30fc8081899a4d385cf82e7993dbf8ba3b6a
+        run: python integration/app-completion-20261126/preserve_git.py --site site --candidate verification/data-publication-review.json --receipt public-data-git-preservation.json
       - name: Refuse to replace an advanced live baseline
         env:
           GH_TOKEN: ${{ github.token }}
           CURRENT_DATA_RUN: ${{ inputs.current_data_run }}
         run: |
           if [[ -n "$CURRENT_DATA_RUN" ]]; then
-            python integration/app-completion-20261126/refresh_data.py guard --site site --candidate verification/data-publication-review.json
+            python integration/app-completion-20261126/refresh_data.py guard --site site --candidate verification/data-publication-review.json --git-receipt public-data-git-preservation.json
           else
             python integration/app-completion-20261126/reviewed_baseline.py guard --site site
           fi
@@ -680,13 +671,16 @@ jobs:
         with:
           name: app-completion-pages-${{ github.run_id }}
           path: site
-      - name: Preserve and recover the newly validated public data
+      - name: Confirm live data and permanent recovery immediately before deployment
         if: inputs.current_data_run != ''
         env:
           GH_TOKEN: ${{ github.token }}
-        run: |
-          python integration/app-completion-20261126/preserve_pages.py --tar "$RUNNER_TEMP/artifact.tar" --review verification/data-publication-review.json --tag fpl-public-data-transfer-refresh-${{ github.run_id }} --target "${{ github.sha }}"
-          python integration/app-completion-20261126/refresh_data.py guard --site site --candidate verification/data-publication-review.json
+        run: python integration/app-completion-20261126/refresh_data.py guard --site site --candidate verification/data-publication-review.json --git-receipt public-data-git-preservation.json
+      - uses: actions/upload-artifact@v4
+        if: inputs.current_data_run != ''
+        with:
+          name: public-data-git-preservation
+          path: public-data-git-preservation.json
       - uses: actions/deploy-pages@v4
         with:
           artifact_name: app-completion-pages-${{ github.run_id }}

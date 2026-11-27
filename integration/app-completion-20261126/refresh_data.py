@@ -19,7 +19,6 @@ REPO='pdamkier-del/fpl-analytics-app'
 SOURCE='d7060b51cf16016f7947b2ffc110909afea89bb7'
 WRAPPER='140e3f88c4a1110b3b4a06d8a90ae691dca9e984'
 PREFIXES=('mm-preview/current/','mm-preview/gk/','mm-preview/news/')
-ARCHIVE='fpl-public-data-before-transfer-refresh-8108442989-verified'
 
 
 def canonical(value):
@@ -49,17 +48,6 @@ def source_run(run_id,get=api):
     if len(selected)!=1:raise ValueError('Original public capture unavailable')
     a=selected[0]
     return dict(run_id=int(run_id),numerical_source=SOURCE,artifact_id=a['id'],artifact_digest=a['digest'])
-
-
-def archive(tar_digest,review,get=api):
-    release=get(f'repos/{REPO}/releases/tags/{ARCHIVE}')
-    assets={a['name']:a for a in release['assets']}
-    original=assets.get('original-pages.tar',{})
-    expected='sha256:'+tar_digest
-    baseline=assets.get('baseline.json',{})
-    if original.get('state')!='uploaded'or original.get('digest')!=expected or baseline.get('digest')!='sha256:'+digest(REVIEW) or release.get('target_commitish')!=review['deployment']['sha']:
-        raise ValueError('Permanent original public snapshot has not been preserved')
-    return dict(tag=ARCHIVE,release_id=release['id'],asset_id=original['id'],digest=expected)
 
 
 def official():
@@ -149,18 +137,27 @@ def apply(site,capture,review,source,previous_tar_digest,now,bootstrap):
     return candidate
 
 
+def validate_candidate(site,review,result):
+    resolve(review)
+    meta=result['data_refresh']
+    if meta.get('integration_source')!=os.environ.get('GITHUB_SHA'):raise ValueError('Integration source differs from verified candidate')
+    if meta['baseline_digest']!=hashlib.sha256(canonical(review)).hexdigest():raise ValueError('Reviewed live baseline differs')
+    if source_run(meta['source']['run_id'])!=meta['source']:raise ValueError('Original source provenance differs')
+    candidate_changes(review,result);verify_site(site,result)
+    check_window(read(site/'mm-preview/current/forecast.json'),read(site/'mm-preview/news/availability.json'),official(),datetime.now(timezone.utc))
+    return meta
+
+
 def main():
-    p=argparse.ArgumentParser(description=__doc__);p.add_argument('action',choices=['apply','guard']);p.add_argument('--site',type=Path,required=True);p.add_argument('--capture',type=Path);p.add_argument('--source-run');p.add_argument('--previous-tar',type=Path);p.add_argument('--candidate',type=Path,required=True);a=p.parse_args()
+    p=argparse.ArgumentParser(description=__doc__);p.add_argument('action',choices=['apply','guard']);p.add_argument('--site',type=Path,required=True);p.add_argument('--capture',type=Path);p.add_argument('--source-run');p.add_argument('--previous-tar',type=Path);p.add_argument('--git-receipt',type=Path);p.add_argument('--candidate',type=Path,required=True);a=p.parse_args()
     review=read(REVIEW);resolve(review);now=datetime.now(timezone.utc)
     if a.action=='apply':
         result=apply(a.site,a.capture,review,source_run(a.source_run),digest(a.previous_tar),now,official());a.candidate.write_text(json.dumps(result,sort_keys=True,indent=2)+'\n')
     else:
-        result=read(a.candidate);meta=result['data_refresh']
-        if meta.get('integration_source')!=os.environ.get('GITHUB_SHA'):raise ValueError('Integration source differs from verified candidate')
-        if meta['baseline_digest']!=hashlib.sha256(canonical(review)).hexdigest():raise ValueError('Reviewed live baseline differs')
-        if source_run(meta['source']['run_id'])!=meta['source']or not archive(meta['previous_tar_digest'],review):raise ValueError('Original source/archive provenance differs')
-        candidate_changes(review,result);verify_site(a.site,result)
-        f=read(a.site/'mm-preview/current/forecast.json');check_window(f,read(a.site/'mm-preview/news/availability.json'),official(),now)
+        result=read(a.candidate);validate_candidate(a.site,review,result)
+        if not a.git_receipt:raise ValueError('Permanent Git recovery receipt required')
+        from preserve_git import verify_receipt
+        verify_receipt(a.site,review,result,a.git_receipt,api)
     print(json.dumps(result['data_refresh'],sort_keys=True))
 
 

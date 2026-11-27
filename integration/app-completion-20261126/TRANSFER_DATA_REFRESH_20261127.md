@@ -22,11 +22,13 @@ The protected Pages publisher retains the exact deployment/artifact guard, reval
 
 ## Permanent recovery and privacy
 
-Before replacing public data, `preserve_pages.py` stores the exact original public Pages TAR and complete reviewed manifest in GitHub Releases and downloads it again to verify recovery. The newly generated public Pages TAR/manifest is preserved and recovered too, before deployment. No overwrite flags are used; provider checksums must match. Existing temporal Actions retention is therefore not the recovery dependency for either revision.
+Run 46000882636 passed complete staging/contract/browser verification but GitHub rejected creation of the recovery Release with HTTP 403 (`Resource not accessible by integration`). Pages deployment was skipped and no live forecast was changed. No tag policy, token scope or environment control was bypassed.
 
-A local attempt to upload the original snapshot with the managed user's upload credential returned HTTP 401 and made no published release. Preservation uses the existing protected Actions mechanism's repository-scoped `contents: write` token instead; archive/recovery failure stops data publication. This permission is only used for public archive assets, never private TS information.
+The safe existing alternative is the project's generated public Git mirror, `free-github-static-20261010`, already used by the normal publisher. Independently recovered **all 141** old public current/gk/news data files from immutable commit **cdfaa129b24506366536c8f63ec1b6680ee7d46e** and compared SHA-256 with the actually published Pages baseline: **zero mismatches**. The old forecasts/scenarios therefore already have permanent, retention-independent storage.
 
-These recovery records are public-data backups, not a parallel model producer or an assertion of C1 protocol eligibility. They do not alter PR #54's validation, protected substitutions or any research outcome. Actual manager inputs/results/capabilities remain in the existing private service and browser, never Pages/Git/CI artifacts.
+`preserve_git.py` reuses the original publisher's temporary-index/fast-forward mechanism. It verifies recovery of every old data file before writing, indexes only the validated public data and existing isolated preview, rejects unrelated changes and never force-pushes. It then recovers both old and new revisions from a fresh temporary Git repository without the current workspace/object cache. The protected Pages deployment requires that receipt, remote commit ancestry, complete candidate checksums and fresh official validation. This also keeps the existing generated data source in sync, rather than creating a parallel collection/storage service.
+
+These are public data/source commits, not a PR/main merge or a new app/model. Existing C2 scientific archive/protocol eligibility is not changed or asserted. Actual manager inputs/results/capabilities remain in the private service/browser, never Git/Pages/CI artifacts.
 
 ## Tests and operational limit
 
