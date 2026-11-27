@@ -19,7 +19,7 @@ REPO='pdamkier-del/fpl-analytics-app'
 SOURCE='d7060b51cf16016f7947b2ffc110909afea89bb7'
 WRAPPER='140e3f88c4a1110b3b4a06d8a90ae691dca9e984'
 PREFIXES=('mm-preview/current/','mm-preview/gk/','mm-preview/news/')
-ARCHIVE='fpl-public-data-before-transfer-refresh-8108442989'
+ARCHIVE='fpl-public-data-before-transfer-refresh-8108442989-verified'
 
 
 def canonical(value):
@@ -126,7 +126,7 @@ def candidate_changes(review,candidate):
     changed=[p for p,h in files.items()if original.get(p)!=h]
     if any(not p.startswith(PREFIX)and(not data_path(p)or '/history/'in p and p in original or p not in original and '/history/'not in p)for p in changed):
         raise ValueError('Only original public data and the isolated preview may change; production UI/history are frozen')
-    return changed
+    return sorted(changed)
 
 
 def apply(site,capture,review,source,previous_tar_digest,now,bootstrap):

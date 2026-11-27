@@ -665,7 +665,7 @@ jobs:
           GH_TOKEN: ${{ github.token }}
         run: |
           python integration/app-completion-20261126/reviewed_baseline.py resolve
-          python integration/app-completion-20261126/preserve_pages.py --tar original-pages/artifact.tar --review integration/app-completion-20261126/baseline-transfer-data-20261127.json --tag fpl-public-data-before-transfer-refresh-8108442989 --target ff8a30fc8081899a4d385cf82e7993dbf8ba3b6a
+          python integration/app-completion-20261126/preserve_pages.py --tar original-pages/artifact.tar --review integration/app-completion-20261126/baseline-transfer-data-20261127.json --tag fpl-public-data-before-transfer-refresh-8108442989-verified --target ff8a30fc8081899a4d385cf82e7993dbf8ba3b6a
       - name: Refuse to replace an advanced live baseline
         env:
           GH_TOKEN: ${{ github.token }}
