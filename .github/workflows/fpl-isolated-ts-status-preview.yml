@@ -1,0 +1,147 @@
+name: Publish isolated TS status UI (protected preview)
+on:
+  push:
+    branches:
+      - integration/app-team-transfers-20261126
+    paths:
+      - .github/workflows/fpl-isolated-ts-status-preview.yml
+      - integration/app-completion-20261126/ui/**
+      - integration/app-completion-20261126/test_team_model.cjs
+permissions:
+  contents: read
+  actions: read
+  deployments: read
+  pages: write
+  id-token: write
+jobs:
+  publish_verified_preview:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    concurrency:
+      group: fpl-pages-publication
+      cancel-in-progress: false
+    environment:
+      name: github-pages
+      url: https://pdamkier-del.github.io/fpl-analytics-app/previews/team-transfers-20261126/app/transfers-classic.html
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - name: Resolve verified latest successful GitHub Pages deployment and its artifact
+        id: baseline
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          python - <<'PY'
+          import json,os,re,subprocess
+          def api(path):
+              return json.loads(subprocess.check_output(['gh','api',path]))
+          repo=os.environ['GITHUB_REPOSITORY']
+          deployments=api(f'repos/{repo}/deployments?environment=github-pages&per_page=30')
+          selected=None
+          for d in deployments:
+              statuses=api(f'repos/{repo}/deployments/{d["id"]}/statuses')
+              good=next((x for x in statuses if x['state']=='success'),None)
+              if good:
+                  selected=(d,good)
+                  break
+          assert selected,'No verified live Pages deployment'
+          d,status=selected
+          match=re.search(r'/actions/runs/(\d+)/job/(\d+)',status['log_url'] or '')
+          assert match,'Cannot prove published workflow'
+          run_id=int(match[1]);run=api(f'repos/{repo}/actions/runs/{run_id}')
+          assert run['conclusion']=='success' and run['head_sha']==d['sha'],'Incorrect live publication provenance'
+          assert run['path'] in {
+              '.github/workflows/mm-current-preview-publication.yml',
+              '.github/workflows/mm-team-news-publication.yml',
+              '.github/workflows/mm-team-news.yml',
+              '.github/workflows/free-github-static.yml',
+          },'Unreviewed source publishing workflow'
+          artifacts=api(f'repos/{repo}/actions/runs/{run_id}/artifacts')['artifacts']
+          choices=[a for a in artifacts if not a['expired'] and re.match(
+              r'^(app-completion-pages-|team-news-pages-|github-pages-|mm-current-preview-pages-|gw12-test-pages-|recovered-B-pages-)',a['name'])]
+          assert choices,'No durable Pages artifact attached to active deployment'
+          artifact=max(choices,key=lambda a:a['created_at'])
+          assert artifact.get('digest','').startswith('sha256:') and artifact['size_in_bytes']>100000,'Unverified Pages artifact'
+          with open(os.environ['GITHUB_OUTPUT'],'a') as f:
+              f.write(f'run={run_id}\nartifact={artifact["name"]}\ndeployment={d["id"]}\nsha={d["sha"]}\n')
+          print('Publishing only an isolated preview overlay on verified deployment',d['id'],'from run',run_id)
+          PY
+      - uses: actions/download-artifact@v4
+        with:
+          name: ${{ steps.baseline.outputs.artifact }}
+          run-id: ${{ steps.baseline.outputs.run }}
+          github-token: ${{ github.token }}
+          path: live-pages-artifact
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Rebuild only the isolated preview from the exact published artifact
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          import hashlib,json,tarfile,sys
+          root=Path('site');root.mkdir()
+          with tarfile.open('live-pages-artifact/artifact.tar') as arc:
+              arc.extractall(root,filter='data')
+          sys.path.insert(0,'integration/app-completion-20261126')
+          from build_preview import build,hashes,PREFIX
+          before=hashes(root)
+          assert (root/'mm-preview/current/index.json').is_file(), 'Public model data missing'
+          data=json.loads((root/'mm-preview/current/index.json').read_text())
+          assert data['model']=='B-MM-PM-TS-v1' and data['locked_model_active'] is False
+          receipt=build(root,replace_preview=True)
+          after=hashes(root)
+          prefix=PREFIX+'/'
+          assert all(after.get(p)==v for p,v in before.items() if not p.startswith(prefix)), 'Existing Pages files changed'
+          assert all(p.startswith(prefix) for p in set(after)-set(before)), 'Unexpected new Pages files'
+          assert (root/'.nojekyll').is_file(), 'Hidden Pages configuration lost'
+          Path('preview-verification.json').write_text(json.dumps({
+              'model_forecast_sha256':data['forecast_sha256'],
+              'unchanged_existing_files':sum(not p.startswith(prefix) for p in before),
+              'preview_files':sum(p.startswith(prefix) for p in after),
+              'isolated_overlay':True,
+              'original_models_modified':False,
+              'receipt':receipt,
+          },indent=2))
+          PY
+          node integration/app-completion-20261126/test_team_model.cjs
+          node --test integration/model-interface/*.test.js
+          for file in integration/app-completion-20261126/ui/*.js; do node --check "$file"; done
+      - name: Test full public-source preview in Chromium
+        run: |
+          pip install playwright==1.56.0
+          python -m http.server 3000 --bind 127.0.0.1 --directory site > /tmp/preview-http.log 2>&1 &
+          python integration/app-completion-20261126/browser_smoke.py http://127.0.0.1:3000/previews/team-transfers-20261126/app/ "$(command -v google-chrome)" > preview-browser.json
+      - name: Ensure the live Pages baseline has not changed before publication
+        env:
+          GH_TOKEN: ${{ github.token }}
+          EXPECTED_ID: ${{ steps.baseline.outputs.deployment }}
+          EXPECTED_SHA: ${{ steps.baseline.outputs.sha }}
+        run: |
+          python - <<'PY'
+          import json,os,subprocess
+          repo=os.environ['GITHUB_REPOSITORY']
+          def api(path):return json.loads(subprocess.check_output(['gh','api',path]))
+          deployments=api(f'repos/{repo}/deployments?environment=github-pages&per_page=30')
+          chosen=next((d for d in deployments if any(s['state']=='success' for s in api(f'repos/{repo}/deployments/{d["id"]}/statuses'))),None)
+          assert chosen is not None
+          assert str(chosen['id'])==os.environ['EXPECTED_ID'] and chosen['sha']==os.environ['EXPECTED_SHA'],'Live Pages updated during build; review latest revision before publishing'
+          PY
+      - uses: actions/upload-artifact@v4
+        with:
+          name: isolated-ts-status-verification
+          path: |
+            preview-verification.json
+            preview-browser.json
+          retention-days: 7
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: site
+          name: isolated-ts-status-pages-${{ github.run_id }}
+      - uses: actions/deploy-pages@v4
+        with:
+          artifact_name: isolated-ts-status-pages-${{ github.run_id }}
