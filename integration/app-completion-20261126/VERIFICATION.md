@@ -1,6 +1,6 @@
 # Verification and delivery — 2026-11-26
 
-**27 November update:** The owner resolved the environment-policy restriction. Production has since advanced; `BASELINE_REVIEW_20261127.md` supersedes the old baseline/release-blocker status below and records the complete new artifact review. The earlier actual-team test scope remains unchanged. See the PR for the current publication result.
+**27 November update:** The owner resolved the environment-policy restriction. Production has since advanced; `BASELINE_REVIEW_20261127.md` supersedes the old baseline/release-blocker status below and records the complete new artifact review. The earlier actual-team test scope remains unchanged. See `PUBLIC_PREVIEW_20261127.md` for the successful publication and fresh public manager/browser checks.
 
 ## Scope
 
