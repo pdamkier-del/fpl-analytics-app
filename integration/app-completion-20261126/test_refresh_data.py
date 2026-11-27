@@ -72,7 +72,7 @@ class RefreshTests(unittest.TestCase):
         review=dict(files={'mm-preview/current/forecast.json':'a','previews/team-transfers-20261126/app/shared-team.js':'b','overview.html':'c','mm-preview/current/history/old.mm.json.gz':'d'})
         new=deepcopy(review);new['files']['mm-preview/current/forecast.json']='updated'
         self.assertEqual(data.candidate_changes(review,new),['mm-preview/current/forecast.json'])
-        for name in ['overview.html','previews/team-transfers-20261126/app/shared-team.js','mm-preview/current/history/old.mm.json.gz','mm-preview/current/private-manager.json']:
+        for name in ['overview.html','mm-preview/app/classic-manager.js','mm-preview/current/history/old.mm.json.gz','mm-preview/current/private-manager.json']:
             with self.subTest(name=name):
                 wrong=deepcopy(new);wrong['files'][name]='changed'
                 with self.assertRaises(ValueError):data.candidate_changes(review,wrong)

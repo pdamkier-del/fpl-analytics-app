@@ -18,7 +18,7 @@
   try{
    const d=root.FplOfficialManagerImport.fromOfficialHistory(h,ENTRY,context.forecast);
    const prices=root.FplSharedTeam.initialPrices;
-   if(prices){const state=root.FplOfficialManagerImport.reconcileOfficialHistory(d,h,context.forecast,prices);actual={...state,source_gw:permanent.gw};root.FplManagerStore.save(state);}
+   if(prices){const fresh=root.FplOfficialManagerImport.reconcileOfficialHistory(d,h,context.forecast,prices);let existing;try{existing=root.FplManagerStore.read();}catch{}const state=M.stableVerifiedState(existing,fresh);actual={...state,source_gw:permanent.gw};root.FplManagerStore.save(state);}
   }catch(e){error='Truppen er hentet. Bank, købspriser eller gratis transfers kan ikke afstemmes: '+e.message;}
   draft=[...selection.ids];render();emit();
  }

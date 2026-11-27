@@ -26,5 +26,12 @@
   if(!valid?.ok||f.model!=='B-MM-PM-TS-v1'||f.locked_model_active!==false||f.gws.length!==6||Date.parse(f.data_asof)>now)return {available:false,reason:'Den originale prognose kunne ikke valideres.'};
   return {available:true,cutoff:f.data_asof,historical:now>=Date.parse(f.origin_deadline),tsReady:context.usable===true};
  }
- return {lineup,sale,compare,projectionState};
+ function stableVerifiedState(existing,fresh){
+  const ordered=x=>Array.isArray(x)?x.map(ordered):x&&typeof x==='object'?Object.fromEntries(Object.keys(x).sort().map(k=>[k,ordered(x[k])])):x;
+  const material=s=>s&&JSON.stringify(ordered(Object.fromEntries(Object.entries(s).filter(([key])=>key!=='observed_at'))));
+  // A fresh verification of identical facts must not invalidate an in-flight
+  // private plan merely by changing observed_at. Changed economics still do.
+  return existing&&!existing.validation_only&&!existing.draft_only&&Number.isFinite(Date.parse(existing.observed_at))&&Date.parse(existing.observed_at)<=Date.parse(fresh.observed_at)&&material(existing)===material(fresh)?existing:fresh;
+ }
+ return {lineup,sale,compare,projectionState,stableVerifiedState};
 });

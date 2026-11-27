@@ -24,6 +24,9 @@ def build(site,replace_preview=False):
  client=dest/'app/classic-manager.js';text=client.read_text();anchor='onChange();FplPlannerExperience.mount(snapshot());feedback();'
  if text.count(anchor)!=1:raise ValueError('Existing manager-client render anchor changed')
  client.write_text(text.replace(anchor,'onChange();if(!window.FplSharedTeam)FplPlannerExperience.mount(snapshot());feedback();'))
+ text=client.read_text();anchor='function resumeIfRequested(){'
+ if text.count(anchor)!=1:raise ValueError('Existing manager resume anchor changed')
+ client.write_text(text.replace(anchor,anchor+"if(window.FplSharedTeam&&!window.FplSharedTeam.status().actual)return;"))
  # Reuse the exact deployed renderer; require every orchestration anchor.
  text=(source/'transfers-workspace.js').read_text()
  def replace_once(text,old,new):

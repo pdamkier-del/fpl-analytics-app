@@ -12,7 +12,7 @@ from pathlib import Path, PurePosixPath
 import shutil
 import urllib.request
 
-from reviewed_baseline import REVIEW, api, hashes, resolve, verify_site
+from reviewed_baseline import PREFIX, REVIEW, api, hashes, resolve, verify_site
 
 REPO='pdamkier-del/fpl-analytics-app'
 SOURCE='d7060b51cf16016f7947b2ffc110909afea89bb7'
@@ -123,13 +123,13 @@ def candidate_changes(review,candidate):
     original=review['files'];files=candidate['files']
     if not set(original)<=set(files):raise ValueError('Existing publication files must not be deleted')
     changed=[p for p,h in files.items()if original.get(p)!=h]
-    if any(not data_path(p)or '/history/'in p and p in original or p not in original and '/history/'not in p for p in changed):
-        raise ValueError('Only current public data may change; UI and immutable history are frozen')
+    if any(not p.startswith(PREFIX)and(not data_path(p)or '/history/'in p and p in original or p not in original and '/history/'not in p)for p in changed):
+        raise ValueError('Only original public data and the isolated preview may change; production UI/history are frozen')
     return changed
 
 
 def apply(site,capture,review,source,previous_tar_digest,now,bootstrap):
-    verify_site(site,review)
+    verify_site(site,review,allow_preview=True)
     old=read(site/'mm-preview/current/forecast.json');f=validate_capture(capture,old,now,bootstrap)
     for folder in ('current','gk','news'):
         for path in (capture/folder).rglob('*'):

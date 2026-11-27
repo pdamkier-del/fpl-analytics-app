@@ -593,6 +593,7 @@ jobs:
           mkdir site
           tar -xf pages-baseline/artifact.tar -C site
           if [[ -n "$CURRENT_DATA_RUN" ]]; then
+            python integration/app-completion-20261126/build_preview.py site --receipt preview-ui-preservation.json
             python integration/app-completion-20261126/refresh_data.py apply --site site --capture refreshed-capture --source-run "$CURRENT_DATA_RUN" --previous-tar pages-baseline/artifact.tar --candidate data-publication-review.json > preview-preservation.json
           else
             python integration/app-completion-20261126/build_preview.py site --receipt preview-preservation.json
@@ -612,6 +613,7 @@ jobs:
           name: app-completion-verification
           path: |
             preview-preservation.json
+            preview-ui-preservation.json
             preview-browser.json
             data-publication-review.json
       - uses: actions/upload-artifact@v4
