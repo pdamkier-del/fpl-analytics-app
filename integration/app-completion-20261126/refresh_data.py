@@ -8,6 +8,7 @@ from copy import deepcopy
 from datetime import datetime, timezone
 import hashlib
 import json
+import os
 from pathlib import Path, PurePosixPath
 import shutil
 import urllib.request
@@ -144,7 +145,7 @@ def apply(site,capture,review,source,previous_tar_digest,now,bootstrap):
             target.parent.mkdir(parents=True,exist_ok=True);shutil.copy2(path,target)
     candidate=deepcopy(review);candidate.pop('replaceable_preview_prefix',None);candidate['files']=hashes(site)
     changes=candidate_changes(review,candidate)
-    candidate['data_refresh']=dict(schema='fpl-original-data-refresh-v1',baseline_digest=hashlib.sha256(canonical(review)).hexdigest(),source=source,previous_tar_digest=previous_tar_digest,previous_forecast_sha256=old['forecast_sha256'],forecast_sha256=f['forecast_sha256'],data_asof=f['data_asof'],changed_files=changes)
+    candidate['data_refresh']=dict(schema='fpl-original-data-refresh-v1',integration_source=os.environ.get('GITHUB_SHA'),baseline_digest=hashlib.sha256(canonical(review)).hexdigest(),source=source,previous_tar_digest=previous_tar_digest,previous_forecast_sha256=old['forecast_sha256'],forecast_sha256=f['forecast_sha256'],data_asof=f['data_asof'],changed_files=changes)
     return candidate
 
 
@@ -155,6 +156,7 @@ def main():
         result=apply(a.site,a.capture,review,source_run(a.source_run),digest(a.previous_tar),now,official());a.candidate.write_text(json.dumps(result,sort_keys=True,indent=2)+'\n')
     else:
         result=read(a.candidate);meta=result['data_refresh']
+        if meta.get('integration_source')!=os.environ.get('GITHUB_SHA'):raise ValueError('Integration source differs from verified candidate')
         if meta['baseline_digest']!=hashlib.sha256(canonical(review)).hexdigest():raise ValueError('Reviewed live baseline differs')
         if source_run(meta['source']['run_id'])!=meta['source']or not archive(meta['previous_tar_digest'],review):raise ValueError('Original source/archive provenance differs')
         candidate_changes(review,result);verify_site(a.site,result)
