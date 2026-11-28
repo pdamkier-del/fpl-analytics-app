@@ -23,7 +23,7 @@ def extend(origin, historical, gw, horizon, learn):
     n = 0
     if learn:
         # Compare the same targets at two adjacent historical issue vintages.
-        # Restrict to established rows in the calibration pairs.
+        # Fit only pairs with positive xP in the older vintage.
         old = historical[(historical.gw - historical.origin_gw == 6) &
                          (historical.origin_gw < gw - 2)]
         new = historical[(historical.gw - historical.origin_gw == 5) &
@@ -86,8 +86,6 @@ def main():
         origin = legacy.origin_with_meta(forecasts, known, gw)
         origin = origin[origin.id.isin(known.id)].copy()
         current = hp.complete_current_projection(forecasts[forecasts.origin_gw.eq(gw - 1)], known, gw)
-        # Complete the lineup view against exactly the same eligible metadata.
-        current = current[current.id.isin(known.id)]
         origin, samples, factor = extend(origin, forecasts, gw, horizon, variant == "terminal8")
         before = state.free_transfers
         forced = legalize_team_limit(state, known, origin, gw)

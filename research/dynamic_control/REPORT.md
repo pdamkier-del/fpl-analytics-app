@@ -4,8 +4,9 @@ Studiet omfatter seks eksakte småcases og ét 38-runders replay med et fælles 
 
 ## Audit af den frosne TS v3
 
-- **Horisont.** TS v3 er allerede receding horizon med beam search og udfører kun første handling. Seks scorevægte fra (ho=0,60) summerer til 2,38336. De første to runder bærer 67,1 % af vægten. Runde seks har 7,8 % af vægten i runde ét. Hits og det ekstra bufferpoint pr. betalt transfer diskonteres ikke. Den korte effektive horisont og hitbufferen ændrer dermed afvejningen mellem en gevinst nu og senere, også når prognosen har et stabilt flerugerssignal. [Frossen TS-konfiguration](../../integration/research-data/frozen-ts-config.json)
-- **Roll og fleksibilitet.** Hold er altid en kandidat. Gratis transfers følger med i tilstanden og kan undgå fremtidige hits. De sidste tilstande har ingen fortsættelsesværdi. Beam-rangeringen bruger optjente point plus vægtet score ved at holde den nuværende trup. Den giver ingen særskilt kredit til muligheden for senere at bruge en større bank, flere gratis transfers eller en fri klubplads. Det kan fjerne en god tilstand tidligt. Om roll undervurderes i gennemsnit er et empirisk spørgsmål.
+- **Horisont.** TS v3 er allerede receding horizon med beam search og udfører kun første handling. Seks scorevægte fra (
+ho=0,60) summerer til 2,38336. De første to runder bærer 67,1 % af vægten. Runde seks har 7,8 % af vægten i runde ét. Hits og det ekstra bufferpoint pr. betalt transfer diskonteres ikke. Den korte effektive horisont og hitbufferen ændrer dermed afvejningen mellem en gevinst nu og senere, også når prognosen har et stabilt flerugerssignal. [Frossen TS-konfiguration](../../integration/research-data/frozen-ts-config.json)
+- **Roll og fleksibilitet.** Hold er altid en kandidat. Gratis transfers følger med i tilstanden og kan undgå fremtidige hits. Den ydre beam fastholder 20 tilstande per dybde og bruger kandidatgeneratorens højst 12 returnerede bundles per transferdybde. De sidste tilstande har ingen fortsættelsesværdi. Beam-rangeringen bruger optjente point plus vægtet score ved at holde den nuværende trup. Den giver ingen særskilt kredit til muligheden for senere at bruge en større bank, flere gratis transfers eller en fri klubplads. Det kan fjerne en god tilstand tidligt. Om roll undervurderes i gennemsnit er et empirisk spørgsmål.
 - **Funding.** Den frosne fast-local-generator afviser isolerede trin med negativ vægtet spillergevinst og kræver budget og klubgrænse ved hvert trin. Dette kan fjerne en fælles lovlig bundle, selv hvis det endelige bytte er værdifuldt. PR #48 målte positivt søgegab i 11 af 30 deterministiske referencecases med den aktuelle worker. Den særskilte funding-kandidat gav nul forbedring i de ti fuldførte par i den efterfølgende real-pool-test. To af tolv par nåede tidsgrænsen. Det fund dokumenterer et søgeproblem og en praktisk omkostning ved at forsøge at løse det. [Eksakt worker-audit](https://github.com/pdamkier-del/fpl-analytics-app/pull/48) · [Real-pool-fundingforsøg](https://github.com/pdamkier-del/fpl-analytics-app/pull/57)
 - **Irreversibilitet.** Den arkiverede TS-tilstand bærer bank, købspriser og FT og beregner lovlig salgsværdi ved hvert hypotetisk skridt. Markedspriser og klub er fastfrosset inden for en plan. En prisgevinst kan gøre tilbagekøb dyrere allerede ved en fast pris. Tilstandsprocessen i den nuværende plan lader fremtidige pris-, skade- og fixtureændringer materialisere sig ved den næste replanlægning, uden at modellere deres sandsynligheder i den nuværende transferbeslutning.
 - **Kortsigtede køb.** Den eksakte case nedenfor viser mekanismen. Replayets tidlige videresalg opgøres som en andel af alle købene og bruges som adfærdsindikator. Et hurtigt salg kan også være rationelt ved skader, prisændringer eller opdaterede prognoser.
@@ -29,7 +30,7 @@ Korte eksakte fortsættelser fungerer som en lokal ADP-reference. De løser 5 af
 
 ## Historisk undersøgelse
 
-Alle arme starter fra det samme modelvalgte XV til £100m, nul gratis transfers før GW1 og de samme legale regler, prisinput, forecast-rækker og scoringsfunktioner. Kun første transferbeslutning udføres. Matchpoint og minutter til scoring slås op efter låsning af de 38 beslutninger per arm. Valget af formation, XI, kaptajn og vice sker gennem den samme arkiverede `plan_squad`. Den historiske forslagsrangering modellerer en forventet vicebonus, mens realiseret scoring bruger autosubs. Den originale B-worker med fulde fælles scenarier blev undersøgt i den tidligere PR #48. Disse sæsontal er fra den ældre, fælles historiske scorer.
+Alle arme starter fra det samme modelvalgte XV til £100m, nul gratis transfers før GW1 og de samme legale regler, prisinput, forecast-rækker og scoringsfunktioner. Kun første transferbeslutning udføres. Et klubskifte, som bringer en simuleret trup over klubgrænsen, repareres ens i alle arme og bruger de tilgængelige gratis transfers før øvrige køb. Matchpoint og minutter til scoring slås op efter låsning af de 38 beslutninger per arm. Valget af formation, XI, kaptajn og vice sker gennem den samme arkiverede `plan_squad`. Den historiske forslagsrangering modellerer en forventet vicebonus, mens realiseret scoring bruger autosubs. Den originale B-worker med fulde fælles scenarier blev undersøgt i den tidligere PR #48. Disse sæsontal er fra den ældre, fælles historiske scorer.
 
 | Arm | Søgehorisont | Belønning under planlægning |
 | --- | --- | --- |
@@ -39,6 +40,27 @@ Alle arme starter fra det samme modelvalgte XV til £100m, nul gratis transfers 
 | Terminal8 | Seks arkiverede GW plus to estimerede fortsættelsestrin | Lige scorevægte. Tilføjer en totrins rollout gennem samme beam, så bank og FT påvirker handlemuligheder efter GW6 |
 
 I Terminal8 justeres hale-xP med en nulskæringsregression på tidligere publiceringspar, hvor samme spiller og mål-GW gik fra lead 6 til lead 5. Kun ældre vintages bruges, og hale-(P(mathrm{spil})) holdes fast. (V) efter GW6 er approksimeret af beam-søgningens estimerede nettofortsættelse i to uger. Den består af en estimeret score og en faktisk overgangsmodel. Sammenligningen identificerer hverken regressionens isolerede værdi ved fast 8-GW-horisont eller værdien af ægte GW7–10-information. Alle optimeringsarme med historik bruger den samme kandidatmekanisme, så chok- og optimalitetsresultaterne kommer fra de eksakte cases. En eksakt sæsonoptimumværdi er ikke til rådighed.
+
+### Resultater uden chips
+
+| Arm | Point efter hits | Forskel | Hitpoint | Transfers | Roll | Salg inden for tre GW | Median sekunder/GW |
+| --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: |
+| TS v3 | 1.964 | — | 16 | 41 | 1 | 5 (12 %) | 13,1 |
+| MPC lige vægte | 2.048 | +84 | 76 | 56 | 1 | 14 (25 %) | 13,1 |
+| MPC10 | 1.976 | +12 | 156 | 76 | 2 | 24 (32 %) | 15,3 |
+| Terminal8 | 1.970 | +6 | 144 | 73 | 1 | 22 (30 %) | 12,9 |
+
+![Akkumulerede historiske proxyforskelle efter hits](results/historical-points.png)
+
+Lige vægte gav +51 og +33 i de to sæsonhalvdele, og effekten er +54 til +104 ved at udelade én enkelt GW. Ved 3.000 parvise, cirkulære resamplinger af 4-GW-blokke er 5.–95.-percentilerne −49 til +231. Det er et følsomhedsmål på én genbrugt sæson. For MPC10 er de to halvdele +66 og −54, og for Terminal8 +82 og −76. For begge længere arme kan et enkelt GW ændre fortegnet på den samlede forskel. Beregningstider er observeret med overlappende processer på samme maskine.
+
+Fra hver arms egen deadline-tilstand sammenlignede vi handlingens realiserede nettopoint med at rulle og genvælge XI og kaptajn på samme prognose. Summeret over runderne gav den lokale forskel +30 for TS v3, −5 for lige vægte, −135 for MPC10 og −74 for Terminal8. Summen har ingen effekt fra en alternativ roll-sti i senere runder. De længere arme accepterer flere umiddelbare pointtab i forventning om fremtidig gevinst. TS v3 havde færrest hits og den laveste andel tidlige videresalg i dette replay. Eksemplerne på intrinsisk myopi betyder derfor ikke, at den frosne kontrol videresælger hurtigere i denne proxy. Der er kun 1–2 rene rolls per arm, så sæsonen giver svagt grundlag for at sige, hvor tit roll burde vinde.
+
+Seks uger med lige vægte er den bedst præsterende og enkleste historiske kandidat til senere sammenligning på originale vintages. De ekstrapolerede uger gav flere hits og færre sæsonpoint end den kandidat. De små scenarieforsøg viser værdien af selektivt at modellere et vigtigt chok. De begrunder et afgrænset scenarieforsøg, før man bruger en tungere MCTS eller træner en stor ADP/RL-model. [Ugeopgørelse](results/historical-weekly.csv) · [Resultatsammendrag](results/historical-summary.json)
+
+### Særskilt Triple Captain-forsøg
+
+Brug højst én andenhalvdel-TC i den første runde med mindst to kampe for den nominerede kaptajn i den udgivne prognose, med GW38 som fallback. Alle fire arme nominerede GW26 og fik tre ekstra faktiske point. Totalerne blev 1.967, 2.051, 1.979 og 1.973 i rækkefølgen ovenfor. Forsøget genbruger de låste transfers og formationer, så det måler chipvalg på de fire stier. Strategisk timing af flere chips og deres påvirkning af transferpolitikken kræver et særskilt forsøg. [TC-resultater per uge](results/historical-weekly.csv)
 
 ### Data- og validitetsgrænser
 
