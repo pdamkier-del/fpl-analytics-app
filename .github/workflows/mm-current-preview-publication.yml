@@ -19,7 +19,7 @@ permissions:
   actions: read
 env:
   PREVIEW_SOURCE_SHA: 161b67b6fb8786a38e78c245b92a03ad841575d8
-  PREVIEW_UI_SHA: 6c5bd895b7a3c84adaeedb1b00dd9cec23de35a8
+  PREVIEW_UI_SHA: 53239b83be1c81e7d6b803d44b2838dd66d59e50
 jobs:
   verified:
     if: ${{ github.event_name == 'pull_request' || github.event_name == 'push' || inputs.validated_run != '' }}
@@ -199,6 +199,7 @@ jobs:
           trap 'kill "$preview_http_pid"' EXIT
           node analysis/verify_latest_snapshot.cjs > unified-latest-snapshot-browser.json
           node analysis/verify_dashboard_workspace.cjs > unified-personal-dashboard-browser.json
+          node analysis/verify_transfer_chip_advice.cjs > unified-transfer-chip-browser.json
           node analysis/verify_desktop_probabilities.cjs > unified-desktop-browser.json
           node analysis/verify_player_match_card.cjs > unified-player-match-card-browser.json
           node analysis/verify_penalty_split_card.cjs > unified-penalty-split-browser.json
@@ -209,7 +210,6 @@ jobs:
 
           node analysis/verify_model_explainer.cjs > unified-model-explainer-browser.json
           node analysis/verify_transfer_result_summary.cjs > unified-transfer-result-browser.json
-          node analysis/verify_transfer_chip_advice.cjs > unified-transfer-chip-browser.json
           node analysis/verify_weekly_model_review.cjs > unified-weekly-review-browser.json
           node analysis/verify_season_comparisons.cjs > unified-season-comparisons-browser.json
           node analysis/verify_current_season_backtest.cjs > unified-season-backtest-browser.json
