@@ -37,6 +37,14 @@ def inject(out, repository):
                 '#personal-dashboard-workspace, #dashboard-saved-workspace, '
                 '#dashboard-model-forecasts, #dashboard-model-explainer) { display: none !important; }',
             )
+            css = css.replace(
+                "body.fpl-compact-ui #dashboard-saved-workspace,\n"
+                "body.fpl-compact-ui #personal-dashboard-workspace,\n"
+                "body.fpl-compact-ui #dashboard-team-news,\n"
+                "body.fpl-compact-ui #dashboard-model-forecasts,\n"
+                "body.fpl-compact-ui #dashboard-model-explainer { display:none !important; }\n",
+                '',
+            )
             asset = css.encode()
         if name == 'transfer-auto-manager.js':
             js = asset.decode()
