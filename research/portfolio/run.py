@@ -10,6 +10,7 @@ import numpy as np
 
 from correlations import historical, simulated
 from portfolio import Lineup, metrics, moments, score
+from replay import evaluate
 
 
 class Archive:
@@ -263,6 +264,7 @@ def main():
     parser.add_argument('history', type=Path)
     parser.add_argument('out', type=Path)
     parser.add_argument('--second-forecast', type=Path)
+    parser.add_argument('--replay', type=Path)
     args = parser.parse_args()
     args.out.mkdir(parents=True, exist_ok=True)
     archive = Archive(args.forecast)
@@ -276,6 +278,8 @@ def main():
         second = Archive(args.second_forecast)
         report['inputs']['second_forecast'] = hashlib.sha256(args.second_forecast.read_bytes()).hexdigest()
         report['second_origin'] = dict(gws=second.gws, simulated=simulated(second, rng))
+    if args.replay:
+        report['retrospective_replay'] = evaluate(args.replay, rng)
     (args.out/'results.json').write_text(json.dumps(report, indent=2, allow_nan=False)+'\n')
     write_figures(args.out, archive, line, test, mf, paths)
 

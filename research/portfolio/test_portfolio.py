@@ -3,6 +3,7 @@ import pytest
 
 from correlations import category, pooled, sufficient
 from portfolio import Lineup, metrics, moments, score
+from replay import variogram_loss
 from run import frontier
 
 
@@ -63,3 +64,9 @@ def test_pair_categories_pooled_correlation_and_frontier():
     b = np.array([2., 0., 5.])
     assert pooled(sufficient(a, b)) == pytest.approx(np.corrcoef(a, b)[0, 1])
     assert frontier(np.array([3, 4, 5]), np.array([1, 1, 2])) == [1, 2]
+
+
+def test_variogram_compares_dependence_at_fixed_marginals():
+    draws = np.array([1, 4, 9])
+    assert variogram_loss(draws, draws, 4, 4) == 0
+    assert variogram_loss(draws, draws[::-1], 4, 4) > 0

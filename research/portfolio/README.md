@@ -35,6 +35,8 @@ Den dynamiske jagtpolitik ofrede ca. 5–32 point i middelværdi mod den rullend
 
 Kovariansregnestykket er verificeret mod lineær scoring pr. træk. Trænings- og holdout-splittene tester intern PM-stabilitet. På seks holdout-variansmål havde prøvens uklippede kovarians en gennemsnitlig absolutfejl på 40,9 point², mens den fuldt diagonale havde 34,5 point². Det lille antal mål og samme model på begge sider giver ikke grundlag for at vælge shrinkage til brug på rigtige kampe. Sæsonkørslen trækker 6.000 paths fra den faste holdout-pulje og gentager GW12–17-profiler. Intervallerne i JSON beskriver Monte Carlo-usikkerhed inden for den givne model. De inkluderer hverken modelparameterusikkerhed, fremtidig kalender, usikkerhed om sæsonens sammensætning eller fejl i skades- og prisprognoser.
 
+En separat retrospektiv diagnose på et ældre PM-replay, GW6–8, sammenligner fælles fordeling mod uafhængighed med variogram-score for punktforskelle (lavere er bedre). På 30 kampe var scoren **0,815 mod 0,831**. De fælles træk havde lavere tab i hver af de tre uger, især for medspillende forsvarere og for keeper–forsvarer. Pr. uge manglede 20–46 forventede spiller-fixture-rækker et entydigt outcome-match. Prognoserne blev rekonstrueret efter kampene med et tidligere modelcommit og senere modelvalg. Diagnosen er derfor et retrospektivt datapunkt om den tidligere models afhængigheder.
+
 De to arkiverede origins havde ingen officielt afsluttede inkluderede runder ved tjekket 28. november 2026. Derfor er kalibrering af PM’s fælles fordeling mod samtidige facit, sæsonreplay mod den låste TS v3 og rank- eller rivalvalidering på rigtige managerdata stadig åbne. Arkivets bootstrap indeholder samlet ownership pr. spiller. Fordelingen af samtidige managerlineups, kaptajner, hits, chips og udgangsrank er ikke tilgængelig i disse input. Ingen produktionskode, publicering eller kontrolkonfiguration indgår i ændringen.
 
 ## Reproduktion
@@ -44,9 +46,12 @@ Brug repoets `integration/research-data/releases.py` til at gendanne de offentli
 ```sh
 python -m pip install -r research/portfolio/requirements.txt
 OPENBLAS_NUM_THREADS=1 python -m pytest -q research/portfolio tests/research_data
+mkdir -p work/legacy
+git archive 161b67b6fb8786a38e78c245b92a03ad841575d8 \
+  analysis/results/history-refresh-public-20261029 | tar -x -C work/legacy
 OPENBLAS_NUM_THREADS=1 MPLCONFIGDIR=work/mpl python research/portfolio/run.py \
   work/gw12/forecast.json.gz work/history.csv work/reproduced \
-  --second-forecast work/gw13/forecast.json.gz
+  --second-forecast work/gw13/forecast.json.gz --replay work/legacy/analysis/results/history-refresh-public-20261029
 ```
 
 Se [matematik](MATHEMATICS.md), [PM-audit](AUDIT.md), [logbog](LOGBOOK.md) og [resultatdata](results/results.json).
