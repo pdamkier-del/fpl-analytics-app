@@ -53,6 +53,7 @@ def inject(out, repository):
             js = js.replace('Beregner transferforslag med TS v3', 'Beregner transferforslag med TS v3 og TS v4.1')
             asset = js.encode()
         if name == 'transfers-classic.html':
+            asset = asset.replace(b'body.fpl-compact-ui .planner-context,\n', b'')
             asset = asset.replace(b'body.fpl-compact-ui #transfer-result-data { display:none!important; }\n', b'')
         if name == 'overview.html':
             asset = asset.replace(b'integration/stable-live-app-20261122', b'main')
