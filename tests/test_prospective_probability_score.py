@@ -40,3 +40,20 @@ def test_wrong_club_and_duplicate_labels_rejected():
 def test_missing_stable_code_is_excluded():
     m,p,a=fixture();p[0]['fpl_code']=None
     assert score(m,p,a,asof='2026-10-22T12:00:00Z')['excluded_rows']==1
+
+
+def test_boundary_roundoff_is_metric_only_and_audited():
+    m,p,a=fixture()
+    p[0].update(p_start=1+2e-15,p_play=1+2e-15,p60=0.,p90=-2e-15)
+    r=score(m,p,a,asof='2026-10-22T12:00:00Z')
+    assert r['probability_roundoff_count']==3
+    assert 0<r['probability_roundoff_max']<=1e-12
+    assert r['metrics'][0]['brier']==0
+    assert p[0]['p_start']>1 and p[0]['p90']<0
+
+
+@pytest.mark.parametrize('bad',[-1e-8,1+1e-8,float('nan'),float('inf')])
+def test_substantive_invalid_probability_still_rejected(bad):
+    m,p,a=fixture();p[0]['p_play']=bad
+    with pytest.raises(ValueError,match='Invalid archived probability'):
+        score(m,p,a,asof='2026-10-22T12:00:00Z')
