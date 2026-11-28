@@ -13,6 +13,7 @@ const seal=n=>{const {content_sha256,...body}=n;return {...body,content_sha256:c
  const matching={...template,observed_at:new Date().toISOString(),players:docs.documents['current-players.json'].players.map(p=>({
   id:p.id,name:p.web_name,team:p.team,position:p.position,price_tenths:Math.round(p.price*10),status:p.status,
   news:p.news||'',news_added:p.news_added||null,chance_of_playing_next_round:p.chance_of_playing_next_round??null,chance_of_playing_this_round:p.chance_of_playing_this_round??null,
+  ...(template.discipline_checked===true?{recent_red_cards:template.players.find(row=>row.id===p.id)?.recent_red_cards||[]}:{}),
  }))};
  const browser=await chromium.launch({executablePath:process.env.BROWSER_PATH||'/usr/bin/chromium',headless:true,args:['--no-sandbox']});const proof={};
  try{for(const [name,viewport]of [['desktop',{width:1440,height:1000}],['mobile',{width:390,height:844}]]){
