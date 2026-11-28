@@ -19,7 +19,7 @@ permissions:
   actions: read
 env:
   PREVIEW_SOURCE_SHA: 161b67b6fb8786a38e78c245b92a03ad841575d8
-  PREVIEW_UI_SHA: aaa448b2283628fa1dc51a88b1b2994fe005acc9
+  PREVIEW_UI_SHA: 9ccbc02d42963f784b14e32070bf2d82e53cd678
 jobs:
   verified:
     if: ${{ github.event_name == 'pull_request' || inputs.validated_run != '' }}
@@ -266,4 +266,7 @@ jobs:
     needs: verified
     runs-on: ubuntu-latest
     timeout-minutes: 30
+    concurrency:
+      group: fpl-preview-preflight-${{ github.event.pull_request.number }}
+      cancel-in-progress: true
     steps: *preview_checks
