@@ -144,6 +144,12 @@ def test_archived_probability_roundoff_matches_boundary_without_mutation(field, 
     r['records'][0][field] = value
     before = deepcopy(r)
     actual = report([r], b, [], a, now=NOW)
+    actual_week = next(week for week in actual['weeks'] if week['scored_rows'])
+    exact_week = next(week for week in exact['weeks'] if week['scored_rows'])
+    assert actual_week.pop('probability_roundoff_count') == 1
+    assert actual_week.pop('probability_roundoff_max') == abs(value - boundary)
+    assert exact_week.pop('probability_roundoff_count') == 0
+    assert exact_week.pop('probability_roundoff_max') == 0
     assert actual == exact
     assert r == before
 
