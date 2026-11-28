@@ -2,6 +2,7 @@
 import gzip
 from hashlib import sha256
 import json
+from pathlib import Path
 from zipfile import ZipFile
 
 import numpy as np
@@ -13,7 +14,9 @@ from fetch import DIAGNOSTIC, GW11_COMMIT, read_json
 
 def release_inventory(root):
     releases = []
-    for folder in sorted((root / "releases").iterdir()):
+    tags = (Path(__file__).parent / "release-tags.txt").read_text().splitlines()
+    for tag in sorted(tags):
+        folder = root / "releases" / tag
         manifest = read_json(folder / "manifest.json")
         publication = read_json(folder / "publication.json")
         provenance = read_json(folder / "official-provenance.json.gz")
@@ -94,7 +97,7 @@ def input_hash(path):
 
 
 def frozen_scores(root, market, archived):
-    """One contemporaneous market observation per previously scored original."""
+    """One contemporaneous market observation per archived original."""
     report, coverage = [], []
     audit = {row["gw"]: row for row in read_json(archived / "report.json.gz")["weeks"]}
     for gw in (8, 9, 10, 11):

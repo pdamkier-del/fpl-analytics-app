@@ -47,15 +47,19 @@ def matched(frame, treatment, endpoints, all_controls=None):
             cases[match_columns].to_numpy() / scale)
         differences = cases[endpoints].to_numpy() - pool.iloc[index][endpoints].to_numpy()
         pairs = pd.DataFrame(differences, columns=endpoints)
+        pairs[[endpoint + "_case" for endpoint in endpoints]] = cases[endpoints].to_numpy()
         pairs["season"], pairs["period"] = key[:2]
         pairs["distance"] = distance
         output.append(pairs)
     if not output:
         return {}
     pairs = pd.concat(output, ignore_index=True)
-    return {"candidates": int(treatment.sum()), "matched_cases": len(pairs),
-            "median_distance": pairs.distance.median(),
-            "estimands": {endpoint: summary_by_origin(pairs, endpoint) for endpoint in endpoints}}
+    return {
+        "candidates": int(treatment.sum()), "matched_cases": len(pairs),
+        "median_distance": pairs.distance.median(),
+        "estimands": {endpoint: summary_by_origin(pairs, endpoint) for endpoint in endpoints},
+        "case_levels": {endpoint: summary_by_origin(pairs, endpoint + "_case") for endpoint in endpoints},
+    }
 
 
 def event_metrics(panel):

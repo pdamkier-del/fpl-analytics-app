@@ -17,7 +17,8 @@ MPLCONFIGDIR=/tmp/fpl-market-mpl OPENBLAS_NUM_THREADS=2 OMP_NUM_THREADS=2 \
   python research/market_dynamics/run.py \
   --inputs /tmp/fpl-market-inputs --output /tmp/fpl-market-results
 OPENBLAS_NUM_THREADS=2 OMP_NUM_THREADS=2 python -m pytest -q research/market_dynamics/test_market.py
-python research/tools/verify_current.py
+git worktree add --detach /tmp/fpl-market-archive d4d6e8046ad5d965cf41f5a8fce2b32a49fca16c
+FPL_ARCHIVE_RUNTIME=/tmp/fpl-market-archive python research/tools/verify_current.py
 ```
 
 Checksummer, originalt observationstidspunkt, deadlines og coverage ligger i [data_audit.json](results/data_audit.json). For de eksterne kilder er revisionerne låst i [fetch.py](fetch.py). [release-tags.txt](release-tags.txt) fastholder de 10 release-vintages i auditten. Ved genkørsel kan aggregerede numeriske resultater variere ved ændret Python- eller numerikstack. Brug friske input- og outputmapper ved uafhængig reproduktion.

@@ -51,6 +51,12 @@ def figures(output, calibration, dynamics, policy):
                         "Forudsagt sandsynlighed" if jx else "",
                         "Observeret frekvens" if ix == 0 else "")
             ax.set(xlim=(0, 1), ylim=(0, 1))
+            ax.set_xscale("symlog", linthresh=.01)
+            ax.set_yscale("symlog", linthresh=.01)
+            ticks = [0, .01, .05, .2, 1]
+            percentages = ["0 %", "1 %", "5 %", "20 %", "100 %"]
+            ax.set_xticks(ticks, percentages)
+            ax.set_yticks(ticks, percentages)
     handles, labels = axes[0, 0].get_legend_handles_labels()
     fig.legend(handles, labels, loc="lower center", ncol=4, frameon=False)
     fig.tight_layout(rect=(0, .07, 1, 1))
@@ -62,18 +68,19 @@ def figures(output, calibration, dynamics, policy):
     axes_pairs = [("weekly", "Forskydning i GW"), ("daily", "Forskydning i dage")]
     for ax, (freq, xlabel) in zip(axes, axes_pairs):
         cohort = corr[corr.frequency == freq]
-        for (source, target), name in {
-            ("flow", "last_price_change_other"): "Flow → prisændring",
-            ("flow", "flow_other"): "Flow → flow",
-            ("points", "flow_other"): "Faktiske point → flow",
-            ("acceleration", "last_price_change_other"): "Flowacceleration → prisændring",
+        for (source, target), (name, color) in {
+            ("flow", "last_price_change_other"): ("Flow → prisændring", "#126c80"),
+            ("flow", "flow_other"): ("Flow → flow", "#d27629"),
+            ("points", "flow_other"): ("Faktiske point → flow", "#40844d"),
+            ("acceleration", "last_price_change_other"): ("Flowacceleration → prisændring", "#a24b58"),
         }.items():
-            line = cohort[(cohort.x == source) & (cohort.y == target)].sort_values("offset")
+            line = cohort[(cohort.x == source) & (cohort.y == target)]
             if line.empty:
                 continue
-            bounds = list(zip(*line.ci95))
-            ax.plot(line.offset, line["mean"], "o-", markersize=3, label=name)
-            ax.fill_between(line.offset, *bounds, alpha=.12)
+            bounds = pd.DataFrame(line.ci95.to_list(), index=line.offset).reindex(range(-2, 3))
+            means = line.set_index("offset")["mean"].reindex(bounds.index)
+            ax.plot(means.index, means, "o-", markersize=3, label=name, color=color)
+            ax.fill_between(bounds.index, bounds[0], bounds[1], alpha=.12, color=color)
         ax.axhline(0, lw=.8, color="#777")
         ax.set_xticks(range(-2, 3))
         label_graph(ax, "GW-observationer" if freq == "weekly" else "Dagsobservationer",
