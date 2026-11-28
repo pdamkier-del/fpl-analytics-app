@@ -65,7 +65,17 @@ const seal=n=>{const {content_sha256,...body}=n;return {...body,content_sha256:c
   await page.evaluate(()=>FplManagerClient.load());
   assert(await page.evaluate(()=>!!FplManagerClient.snapshot().plan),'New injury must warn without erasing a labelled snapshot plan');
   assert.equal(await page.evaluate(()=>{const s=FplManagerClient.snapshot();return FplForecastWindow.check(s.forecast,s.official,Date.parse(s.forecast.origin_deadline)+1000).usable;}),false);assert.equal(posts,1);
-  await page.goto(base+'overview.html#dashboard',{waitUntil:'networkidle'});await page.locator('#latest-snapshot-info').waitFor();
+  await page.goto(base+'overview.html#dashboard',{waitUntil:'networkidle'});
+  await page.locator('#latest-snapshot-info').waitFor().catch(async error=>{
+   const ancestors=await page.evaluate(()=>{
+    const result=[];
+    for(let node=document.getElementById('latest-snapshot-info');node;node=node.parentElement){
+     result.push({name:node.nodeName,id:node.id,display:getComputedStyle(node).display,hidden:node.hidden,open:node.open});
+    }
+    return result;
+   });
+   throw new Error(JSON.stringify({forecastStatus:'Dashboard snapshot panel not visible',ancestors,errors}),{cause:error});
+  });
   assert.equal(await page.locator('[data-plan-phase]').getAttribute('data-plan-phase'),'ready');
   assert.deepEqual(await page.evaluate(()=>JSON.parse(localStorage.getItem('fpl-manager-state-v1'))),fixture.state);
   assert.equal(posts,1);assert.deepEqual(errors,[]);assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth),true);
