@@ -11,6 +11,48 @@ from b_preview_ts import preview_scoring
 from run_live_locked_ts import run,project,parse_state
 
 
+def research_plan(forecast, raw, snapshot_at, baseline):
+    """Chip-free PR66 candidate; only objective/beam weights change."""
+    from dataclasses import replace, asdict
+    from unittest.mock import patch
+    from fpl_xpts import transfer_planner as planner
+    from run_joint_fh_wc_stopping_replay import cfg
+    from fpl_xpts import optimize
+    config=cfg()
+    if tuple(config.weights) != (1.0,0.6,0.36,0.216,0.1296,0.07776) and any(abs(w-.6**i)>1e-10 for i,w in enumerate(config.weights)):
+        raise ValueError('Unexpected frozen shortlist weights')
+    if config.candidate_backend != 'fast_local' or config.discount_transfer_costs or config.hit_uncertainty_buffer != 1:
+        raise ValueError('Unexpected frozen TS contract')
+    meta,origin=project(forecast)
+    gw=min(forecast['gws'])
+    state=parse_state(raw,meta,gw,snapshot_at if snapshot_at is not None else forecast['data_asof'])
+    prepare=planner._prepare_local_candidates
+    generate=planner._fast_local_candidate_squads
+    def suffix(gws):
+        offset=gws[0]-gw
+        if offset<0 or list(gws)!=list(range(gws[0],gws[0]+len(gws))):
+            raise ValueError('Invalid shortlist horizon')
+        result=config.weights[offset:offset+len(gws)]
+        if len(result)!=len(gws): raise ValueError('Incomplete shortlist horizon')
+        return result
+    def prepare_fixed(meta,origin,gws,weights,top):
+        return prepare(meta,origin,gws,suffix(gws),top)
+    def generate_fixed(state,meta,origin,gws,weights,*settings):
+        return generate(state,meta,origin,gws,suffix(gws),*settings)
+    candidate=replace(config,weights=tuple(.9**i for i in range(len(config.weights))))
+    with patch.object(planner,'_prepare_local_candidates',prepare_fixed),patch.object(planner,'_fast_local_candidate_squads',generate_fixed):
+        plan=planner.plan_transfer_path(state,meta,origin,gw,candidate)
+    if not plan.path or list(plan.horizon_gws)!=list(forecast['gws']):
+        raise ValueError('Incomplete research plan')
+    after=planner.clone_state(state)
+    transfers=planner.execute_first_action(after,plan,meta)
+    lineup=optimize.plan_squad(origin,list(after.squad),gw)
+    return dict(schema='ts-v4.1-pr66-v1',status='complete',rho=.9,
+        shortlist_rho=.6,chips_enabled=False,forecast_sha256=forecast['forecast_sha256'],
+        manager_state_sha256=baseline['manager_state_sha256'],gw=gw,
+        plan=asdict(plan),transfers=transfers,lineup=json.loads(lineup.rows.to_json(orient='records')))
+
+
 def calculate(forecast,raw,*,snapshot_at=None):
     validate_forecast(forecast)
     from service.manager_job import calculate as original_calculate
@@ -18,6 +60,11 @@ def calculate(forecast,raw,*,snapshot_at=None):
     context=manager_snapshot_context(forecast,raw,snapshot_at)if snapshot_at is not None else nullcontext()
     with context,preview_scoring(forecast) as scorer:
         result=original_calculate(forecast,raw)
+        try:
+            result['research_ts']=research_plan(forecast,raw,snapshot_at,result)
+        except Exception:
+            # Never substitute a second TS v3 result or discard a valid baseline.
+            result['research_ts']={'schema':'ts-v4.1-pr66-v1','status':'unavailable'}
     result.update(computed_at=pd.Timestamp.now(tz='UTC').isoformat(),calculation_runtime='B_unified_python',
         forecast_variant=VERSION,chain_version=VERSION,
         forecast_sha256=forecast['forecast_sha256'],
