@@ -18,7 +18,7 @@ permissions:
   id-token: write
 env:
   PREVIEW_SOURCE_SHA: 161b67b6fb8786a38e78c245b92a03ad841575d8
-  PREVIEW_UI_SHA: b6ecb068394dc9e9f5f2c493e1f0ee0a4cbf7d96
+  PREVIEW_UI_SHA: 0cd973fe4ae9a631341fbb655829f4ed029438d8
 jobs:
   verified:
     if: ${{ inputs.validated_run != '' }}
@@ -64,7 +64,7 @@ jobs:
           with urllib.request.urlopen('https://fpl-analytics-private-manager.onrender.com/health',timeout=90)as response:health=json.load(response)
           assert health.get('supports_B_snapshot_policy')is True, 'B snapshot backend must be deployed first'
           assert health.get('supports_unified_B_chain')is True, 'Unified B backend must be deployed before switching app forecasts'
-          assert health.get('preview_worker_sha256')=='b3e67026e6c57e1c764d76bc2bf999ab7f4bcbaa739e3ab198ebe7fd5a95dbb7', 'Tested standalone B worker must be deployed'
+          assert health.get('preview_worker_sha256')=='c55c10acbf501cfbd4fd9d131d7cdce6ac3d01fa0c2a6b51aa90ee435e26eae0', 'Tested standalone B worker must be deployed'
           assert health.get('runtime')=='original_locked_python'and health.get('locked_model_active')is False
           PY
       - uses: actions/download-artifact@v4
@@ -162,8 +162,9 @@ jobs:
           export NODE_PATH="$RUNNER_TEMP/fpl-browser/node_modules"
           export BROWSER_PATH="$(command -v google-chrome)"
           export DESKTOP_URL=http://127.0.0.1:18097/mm-preview/app/
+          export REQUIRE_TS_COMPARISON=1
           export DASHBOARD_TEST_FIXTURE="$RUNNER_TEMP/unified-private-browser-fixture.json"
-          python analysis/prepare_dashboard_news_test.py --snapshot --forecast app/mm-preview/current/forecast.json --out "$DASHBOARD_TEST_FIXTURE"
+          python analysis/prepare_dashboard_news_test.py --snapshot --dual --forecast app/mm-preview/current/forecast.json --out "$DASHBOARD_TEST_FIXTURE"
           python -m http.server 18097 --bind 127.0.0.1 --directory app > "$RUNNER_TEMP/unified-browser-http.log" 2>&1 &
           preview_http_pid=$!
           trap 'kill "$preview_http_pid"' EXIT
