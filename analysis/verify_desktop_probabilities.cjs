@@ -26,7 +26,7 @@ const {chromium}=require('playwright'),assert=require('node:assert/strict'),fs=r
   assert(fixture.bank_tenths>=0);await page.evaluate(s=>localStorage.setItem('fpl-manager-state-v1',JSON.stringify(s)),fixture);const saved=await page.evaluate(()=>localStorage.getItem('fpl-manager-state-v1'));let submitted=false;page.on('request',r=>{if(r.method()==='POST'&&r.url().includes('/plans'))submitted=true;});
   await page.goto(base+'my-team-classic.html',{waitUntil:'networkidle'});
   await page.waitForURL(/overview\.html(?:#dashboard)?$/);
-  await page.getByRole('link',{name:'Opstilling og bænk',exact:false}).click();
+  await page.locator('#compact-team').getByRole('link',{name:'Opstilling og bænk',exact:true}).click();
   await page.waitForURL(/overview\.html#team$/);
   const selected=page.locator('[data-lineup-id="'+penders.id+'"]');await selected.click();
   assert.equal(await selected.getAttribute('aria-pressed'),'true');
