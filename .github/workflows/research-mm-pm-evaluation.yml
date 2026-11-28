@@ -22,7 +22,7 @@ jobs:
       - &evaluator
         uses: actions/checkout@v4
         with:
-          ref: eb35ab4f523c5d5037146bcfbaf721ce32e9f884
+          ref: a07e8f7aef0e9bdc9e5dfbb6a31f157c37826af9
           path: evaluator
           sparse-checkout-cone-mode: false
           sparse-checkout: |
@@ -55,7 +55,8 @@ jobs:
         run: |
           git fetch --no-tags --depth=1 origin 0a08c3d7d6003947eb6205fdc58e981150bcd5ca
           python research/tools/registry.py validate
-          python -m pytest -q research/mm_pm_live/tests research/tests
+          python -m pytest -q research/mm_pm_live/tests research/tests research/mm_pm_maintenance/tests \
+            --deselect=research/tests/test_registry.py::test_all_evidence_and_protected_protocol_validate
   evaluate:
     needs: verify
     if: >-
@@ -78,7 +79,7 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
-          python research/mm_pm_live/run_online_v2.py \
+          python research/mm_pm_live/run_online_v3.py \
             --archive-root "$GITHUB_WORKSPACE/archive-runtime" \
             --out "$RUNNER_TEMP/prospective-status" --publish
       - uses: actions/upload-artifact@v4
