@@ -1,3 +1,17 @@
+# FPL Analytics — project entry point
+
+**Season 2026/27: observation and validation phase.** Read [STATUS.md](STATUS.md) before changing any model or deployment. The original desktop application instructions are retained below.
+
+- [Current B transfer app](https://pdamkier-del.github.io/fpl-analytics-app/mm-preview/app/transfers-classic.html)
+- [Isolated team/transfers preview](https://pdamkier-del.github.io/fpl-analytics-app/previews/team-transfers-20261126/app/transfers-classic.html) (PR #60; not the same release)
+- [Permanent public forecast releases](https://github.com/pdamkier-del/fpl-analytics-app/releases)
+- [Workflow runs](https://github.com/pdamkier-del/fpl-analytics-app/actions)
+- [Agent rules](AGENTS.md)
+
+The default branch is not necessarily the numerical runtime or UI checkout used by a deployed preview. Inspect the publication receipt, workflow source pins and service health before changing code. Do not merge research stacks or change frozen parameters to repair operations.
+
+---
+
 # FPL Analytics Desktop Web App
 
 A Python-based desktop web application for Fantasy Premier League analytics and data management.

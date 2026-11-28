@@ -1,6 +1,7 @@
 # Agent workflow
 
 ## Before working
+- Read root STATUS.md for current operational references, frozen research candidates and release blockers. Verify its dated observations against live receipts; do not assume main is the deployed runtime.
 - Inspect current branch, HEAD, working tree and relevant existing documentation. Do not overwrite unrelated changes or assume main is the active research branch.
 - Read existing local AGENTS.md files and project-specific instructions; preserve more specific rules.
 - Identify the requested outcome, scope and validation plan.
