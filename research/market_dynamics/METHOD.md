@@ -1,0 +1,27 @@
+# Metode og matematik
+
+## Markedsvariable og prognoser
+
+For et FPL-id i en sæson er `P_t` tilbudt købspris i ticks på £0,1m og `I_t, O_t` de kumulative transfer-tællere ved den faktiske optagelse. Nettoflow for intervallet er `F_t = (I_t − I_{t−1}) − (O_t − O_{t−1})`. Brug `f_t = asinh(1000 F_t / N_t)`, hvor `N_t` er antallet af registrerede managers ved `t`. Difference i transformeret flow, `f_t − f_{t−1}`, måler acceleration. Volumen er `log(1 + 100000 (ΔI + ΔO) / N_t)`. Salgspres er `ΔO / max(100, ownership_{t−1} × N_t / 100)`. Den absolutte ownership er procentpoint, hvor 1 er 1 %. Flows er differencer over hele observerede intervaller, med variabel længde omkring internationale pauser.
+
+Målet `Y(t,h)=sign(P_{t+h}−P_t)` er et nettoudfald mellem to originale optagelser. Et prisstød, der er fuldt reverseret mellem optagelserne, giver derfor uændret pris. Dag +1 og +3 bruger eksakte UTC-datoer med tidsvinduer. GW +1 og +2 bruger eksakte GW-numre. Fraværende endpoint og identificerede kodeændringer giver manglende labels. Beslutningsuniverset dannes ved origin og kan godt få en prognose uden senere label.
+
+De simple baselines bruger Laplace-pseudotælling 1 pr. klasse globalt eller 5 pr. klasse i faste flowintervaller med kanter −2, −0,5, 0,5 og 2. For de logistiske modeller er `p_k(x) = exp(β_k·x + b_k) / Σ_j exp(β_j·x + b_j)`. Alle standardiseringer, medianer og modeller estimeres i det aktuelle træningsfold. L2-logit bruger `C=0,1`, de simpler logitter `C=10`. Ridge bruger `α=100`. Gradient boosting bruger 45 trin, dybde 3, mindst 80 rækker pr. blad og ingen tidlig stopvalidering. Den har samme featureunivers som fuld logit. Hyperparametre grid-søges ikke. Tilføjelsen af acceleration isoleres også med samme lille logit og ellers identiske features.
+
+## Historisk sidste tilladte træningsobservation
+
+En prognose ved `t` må træne på `s < t` med labels observeret højst ved første origin i den aktuelle fold. For en prislabel er observationstiden prisendepunktet. For historiske point og minutter er det første bootstrap-udtræk med en afsluttet, datakontrolleret GW, som samtidig ligger efter sidste registrerede kampafslutning. Kildeleddet observerer officiel GW-finalitet med diskrete vintages. Kampens kickoff +3 timer tjener som ekstra nedre grænse for observationen. Vaastav er en senere udtrækning, så efterfølgende kildekorrektioner i xG, xA og point kan ikke tidsstemples. Sportslig form bruger kun de foregående fire GW-numre med allerede observeret finalitet.
+
+## Scoring og usikkerhed
+
+Multiclass Brier er gennemsnittet af `Σ_k (p_k−1[Y=k])²`, uden division med tre. Log loss er gennemsnittet af `−log(p_Y)`. Nøjagtighed bruger argmax. Præcision pr. klasse er TP divideret med antal forudsagte i klassen. Den står tom, når en model aldrig forudsiger klassen. Makropræcision gennemsnitliggør definerede klasser, så en model, der altid siger flad, skal læses sammen med sine argmax-tællinger. Kalibrering sammenholder gennemsnitlig sandsynlighed og hændelsesfrekvens i faste intervaller. Færre end 20 rækker i en bin udelades fra figuren og findes stadig i CSV.
+
+95 %-intervaller bruger 999 cirkulære, bevægelige blokresamples af observerede origins med fælles resampling på tværs af arme og separat strata pr. sæson. Bloklængden er syv dagsorigins eller fire GW-origins. Hele tværsnittet følger med hver origin. Intervallerne er betinget af de observerede sæsoner, foldmodeller og paneldækning og indfanger ikke usikkerhed på tværs af fremtidige sæsoner eller regelændringer. De mange deskriptive estimater bruges uden korrektion for multippel testning.
+
+## Dynamik og sæsonøkonomi
+
+Lead–lag er gennemsnittet af rangkorrelationer beregnet inden for hver origin. Positiv forskydning angiver senere mål. Til feedbackdiagnosen residualiseres de to rangerede serier mod rangeret aktuelt flow, kendt form, ownership og tilgængelighed, inden deres samtidige rangresidualer korreleres. Kohorterne bruger nærmeste kontrol med tilbage-lægning i samme GW, position og væsentlige tilgængelighedsgruppe. Afstanden bruger formpoint, formminutter, `log1p(ownership)` og pris skaleret med henholdsvis 2 point, 25 minutter, 1 log-enhed og 15 pris-ticks. Estimater kræver komplette endepunkter for begge medlemmer af parret. Kontrolspillerne og observationsrækkefølgen bestemmer derfor, hvilke endepunkter der kan fortolkes.
+
+Flokmekanismer kan modelleres som selvforstærkende intensitet. Tærskelmodeller for prisbevægelser og mean reversion analogt med finansielle markeder kræver færre antagelser her. Vi observerer aggregeret tilstand, mens FPL sætter prisen efter en delvist hemmelig formel. Et Hawkes-kernelestimat ville kræve tidsstemplede enkelthændelser og skelnen mellem fælles nyhedschok og efterfølgelse. En test for bobler kræver desuden en pålidelig fundamental værdi og længere, højfrekvente episoder.
+
+Replayets salgspris er `P_t` ved fald og `P_køb + floor((P_t − P_køb)/2)` ved gevinst. Samme starttrup maksimerer summen af reference-xP under budget £100m, positionskrav 2/5/5/3 og højst tre fra samme klub. Hver politik har egen bank, købskurser og op til én gratis transfer i hver GW fra GW2. Ét konkret punktestimat driver XI-formationsvalg, kaptajn, vice og bænkrangering. Ved nul minutter fyldes lovlige pladser fra bænken, med den valgte prioritet blandt lige store lovlige substitutioner. Hele resultatet er parret på sæson og GW med samme offentlige labels. Alle tre politikker er begrænsede simulerede scenarier.

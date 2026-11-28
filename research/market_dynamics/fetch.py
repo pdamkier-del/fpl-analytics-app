@@ -19,6 +19,7 @@ DAILY_SHA = "d5d33221409f89386ab3dcbf17b40e65aed639a8"
 APP_REPO = "pdamkier-del/fpl-analytics-app"
 SEASONS = ("2022-23", "2023-24", "2024-25", "2025-26")
 DIAGNOSTIC = "diagnostic-46134764616-1"
+GW11_COMMIT = "2e83e2419a8efbbcfeb9a801b1ec018cd8c390d7"
 
 
 def raw(repo, revision, path):
@@ -80,12 +81,14 @@ def fetch_cache(root):
         get(raw(CACHE_REPO, CACHE_SHA, path), local)
         return str(local.relative_to(root))
 
-    selections = {}
+    selections, terminals = {}, []
     for season in SEASONS:
         year = 2000 + int(season[-2:])
         # Terminal snapshot only locates the search window and confirms the calendar.
         terminal = min(ts for ts in paths if ts >= datetime(year, 5, 31, tzinfo=timezone.utc))
-        boot = read_json(root / download(terminal))
+        terminal_file = download(terminal)
+        boot = read_json(root / terminal_file)
+        terminals.append({"season": season, "timestamp": terminal.isoformat(), "file": terminal_file})
         assert len(boot["events"]) == 38 and boot["events"][-1]["data_checked"]
         for event in boot["events"]:
             deadline = datetime.fromisoformat(event["deadline_time"])
@@ -111,6 +114,7 @@ def fetch_cache(root):
             for key, (deadline, stamp) in selections.items()
         ],
         "daily": [{"timestamp": stamp.isoformat(), "file": downloads[stamp]} for stamp in morning.values()],
+        "terminal": terminals,
     }
     (root / "cache-selection.json").write_text(json.dumps(receipt, indent=2) + "\n")
 
@@ -129,6 +133,24 @@ def fetch(root):
         subprocess.run(["git", "-C", daily, "checkout", "--quiet", "--detach", "FETCH_HEAD"], check=True)
     assert subprocess.check_output(["git", "-C", daily, "rev-parse", "HEAD"], text=True).strip() == DAILY_SHA
     fetch_cache(root)
+    tags = (Path(__file__).parent / "release-tags.txt").read_text().splitlines()
+
+    def release(tag):
+        diagnostic = tag == DIAGNOSTIC
+        directory = root / ("diagnostic" if diagnostic else f"releases/{tag}")
+        directory.mkdir(parents=True, exist_ok=True)
+        patterns = ["diagnostic-snapshot.zip"] if diagnostic else [
+            "official-*.gz", "manifest.json", "publication.json", "forecast.json.gz", "mm.json.gz",
+        ]
+        arguments = [argument for pattern in patterns for argument in ("-p", pattern)]
+        subprocess.run(["gh", "release", "download", tag, "-R", APP_REPO, "-D", directory,
+                        "--skip-existing", *arguments], check=True)
+
+    with ThreadPoolExecutor(max_workers=5) as pool:
+        list(pool.map(release, [*tags, DIAGNOSTIC]))
+    for name in ("forecast", "mm", "index"):
+        path = f"app/mm-preview/current/{name}.json"
+        get(raw(APP_REPO, GW11_COMMIT, path), root / "original-gw11" / f"{name}.json")
 
 
 if __name__ == "__main__":
