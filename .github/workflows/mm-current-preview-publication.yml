@@ -1,5 +1,8 @@
 name: Refresh isolated current B preview
 on:
+  pull_request:
+    branches: [main]
+    paths: [.github/workflows/mm-current-preview-publication.yml]
   push:
     branches: [main]
     paths: [.github/workflows/mm-current-preview-publication.yml]
@@ -12,28 +15,43 @@ on:
         required: false
         type: string
 permissions:
-  contents: write
+  contents: read
   actions: read
-  pages: write
-  id-token: write
 env:
   PREVIEW_SOURCE_SHA: 161b67b6fb8786a38e78c245b92a03ad841575d8
   PREVIEW_UI_SHA: aaa448b2283628fa1dc51a88b1b2994fe005acc9
 jobs:
   verified:
-    if: ${{ inputs.validated_run != '' }}
+    if: ${{ github.event_name == 'pull_request' || inputs.validated_run != '' }}
     runs-on: ubuntu-latest
+    outputs:
+      source_run: ${{ steps.original.outputs.source_run }}
     steps:
       - uses: actions/checkout@v4
         with:
           ref: ${{ env.PREVIEW_UI_SHA }}
+          persist-credentials: false
       - name: Require a completed exact-source numerical computation
+        id: original
         env:
           GH_TOKEN: ${{ github.token }}
           VALIDATED_RUN: ${{ inputs.validated_run }}
-        run: python scripts/verify_b_publication_artifact.py --run "$VALIDATED_RUN" --source "$PREVIEW_SOURCE_SHA"
+          PR_PREFLIGHT: ${{ github.event_name == 'pull_request' }}
+        run: |
+          if [[ "$PR_PREFLIGHT" == true ]]; then
+            runs=$(gh api "repos/$GITHUB_REPOSITORY/actions/workflows/mm-current-preview-publication.yml/runs?branch=main&status=completed&per_page=15" --jq '.workflow_runs[] | select(.event == "schedule" or .event == "workflow_dispatch") | .id')
+            for run in $runs; do
+              if python scripts/verify_b_publication_artifact.py --run "$run" --source "$PREVIEW_SOURCE_SHA"; then
+                VALIDATED_RUN=$run
+                break
+              fi
+            done
+          fi
+          test -n "$VALIDATED_RUN"
+          python scripts/verify_b_publication_artifact.py --run "$VALIDATED_RUN" --source "$PREVIEW_SOURCE_SHA"
+          printf 'source_run=%s\n' "$VALIDATED_RUN" >> "$GITHUB_OUTPUT"
   current:
-    if: ${{ inputs.validated_run == '' }}
+    if: ${{ github.event_name != 'pull_request' && inputs.validated_run == '' }}
     uses: pdamkier-del/fpl-analytics-app/.github/workflows/mm-current-live-preview.yml@161b67b6fb8786a38e78c245b92a03ad841575d8
     with:
       source_ref: 161b67b6fb8786a38e78c245b92a03ad841575d8
@@ -43,7 +61,12 @@ jobs:
       actions: read
   preview:
     needs: [current, verified]
-    if: ${{ always() && !cancelled() && (needs.current.result == 'success' || needs.verified.result == 'success') }}
+    if: ${{ always() && !cancelled() && github.ref == 'refs/heads/main' && (needs.current.result == 'success' || needs.verified.result == 'success') }}
+    permissions:
+      contents: write
+      actions: read
+      pages: write
+      id-token: write
     runs-on: ubuntu-latest
     timeout-minutes: 30
     concurrency:
@@ -52,11 +75,12 @@ jobs:
     environment:
       name: github-pages
       url: https://pdamkier-del.github.io/fpl-analytics-app/mm-preview/app/transfers-classic.html
-    steps:
+    steps: &preview_checks
       - uses: actions/checkout@v4
         with:
           ref: ${{ env.PREVIEW_UI_SHA }}
           fetch-depth: 0
+          persist-credentials: ${{ github.event_name != 'pull_request' }}
       - name: Require live isolated B compute capability
         run: |
           python - <<'PY'
@@ -71,13 +95,13 @@ jobs:
         with:
           name: mm-current-live-preview
           path: .mm-preview-evidence
-          run-id: ${{ inputs.validated_run || github.run_id }}
+          run-id: ${{ needs.verified.outputs.source_run || github.run_id }}
           github-token: ${{ github.token }}
       - uses: actions/download-artifact@v4
         with:
           name: current-B-origin-input-evidence
           path: .B-origin-evidence
-          run-id: ${{ inputs.validated_run || github.run_id }}
+          run-id: ${{ needs.verified.outputs.source_run || github.run_id }}
           github-token: ${{ github.token }}
       - uses: actions/setup-python@v5
         with:
@@ -222,14 +246,24 @@ jobs:
             app/mm-preview/input-audit/prospective-ledger-manifest.json
           retention-days: 90
       - name: Publish preview alone; preserve every production asset
+        if: ${{ github.event_name != 'pull_request' }}
         env:
           GH_TOKEN: ${{ github.token }}
         run: python scripts/publish_mm_preview.py
       - uses: actions/configure-pages@v5
+        if: ${{ github.event_name != 'pull_request' }}
       - uses: actions/upload-pages-artifact@v3
+        if: ${{ github.event_name != 'pull_request' }}
         with:
           path: .mm-preview-site
           name: mm-current-preview-pages-${{ github.run_id }}
       - uses: actions/deploy-pages@v4
+        if: ${{ github.event_name != 'pull_request' }}
         with:
           artifact_name: mm-current-preview-pages-${{ github.run_id }}
+  preflight:
+    if: ${{ github.event_name == 'pull_request' }}
+    needs: verified
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps: *preview_checks
