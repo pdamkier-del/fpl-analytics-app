@@ -52,6 +52,26 @@ function disclosure(id,title,description,content){
  d.innerHTML='<summary><span><strong>'+esc(title)+'</strong><small>'+esc(description)+'</small></span><span class="disclosure-chevron" aria-hidden="true">⌄</span></summary><div class="disclosure-body"></div>';
  d.querySelector('.disclosure-body').append(content);d.addEventListener('toggle',()=>{if(d.isConnected){if(d.open)expanded.add(id);else expanded.delete(id);}});return d;
 }
+function researchComparison(c){
+ const p=c.plan,r=p.research_ts,box=document.createElement('section');box.className='planner-summary';box.id='ts-model-comparison';
+ const valid=r?.schema==='ts-v4.1-pr66-v1'&&r.status==='complete'&&r.rho===.9&&r.shortlist_rho===.6&&r.chips_enabled===false&&r.gw===p.gw&&r.forecast_sha256===p.forecast_sha256&&r.manager_state_sha256===p.manager_state_sha256&&Array.isArray(r.plan?.path)&&r.plan.path.length===p.plan.path.length&&r.plan.path.every((a,i)=>a.gw===p.plan.path[i].gw&&Array.isArray(a.incoming)&&Array.isArray(a.outgoing)&&[a.projected_manager_score,a.official_hit_points,a.bank_after,a.free_transfers_after].every(Number.isFinite));
+ const head=document.createElement('h2');head.textContent='Sammenlign TS v3 og TS v4.1';box.append(head);
+ const note=document.createElement('p');note.textContent='Samme hold, priser og PM-scenarier. Begge nedenstående transferplaner er uden chips. TS v3 er standard; TS v4.1 er forskning (ρ = 0,90, shortlist ρ = 0,60).';box.append(note);
+ if(!valid){const status=document.createElement('p');status.setAttribute('role','status');status.textContent='TS v4.1 er ikke tilgængelig i denne beregning. TS v3 er bevaret. Genberegn, når den nye serverversion er aktiv.';box.append(status);return box;}
+ const player=id=>c.people.get(Number(id))?.name||'Spiller '+id,fmt=n=>n.toFixed(2),net=a=>a.projected_manager_score-a.official_hit_points;
+ const grid=document.createElement('div');grid.className='result-ready-grid';
+ for(const [label,model] of [['TS v3 · ρ = 0,60',p],['TS v4.1 · ρ = 0,90 (forsøg)',r]]){
+  const card=document.createElement('section');card.className='result-horizon';
+  const h=document.createElement('h3');h.textContent=label;card.append(h);
+  const a=model.plan.path[0],summary=document.createElement('p');summary.textContent=a.incoming.length?'Ud: '+a.outgoing.map(player).join(', ')+' · Ind: '+a.incoming.map(player).join(', '):'Behold holdet';card.append(summary);
+  const totals=document.createElement('p');totals.textContent='GW '+a.gw+': '+fmt(net(a))+' xP efter '+a.official_hit_points+' hitpoint · '+model.plan.path.length+' GW: '+fmt(model.plan.path.reduce((sum,w)=>sum+net(w),0))+' xP efter hits';card.append(totals);
+  const lineup=document.createElement('p');lineup.textContent='Kaptajn: '+player(model.lineup?.find(x=>x.role==='C')?.id)+' · Bank £'+(a.bank_after/10).toFixed(1)+'m · '+a.free_transfers_after+' FT næste GW';card.append(lineup);
+  const details=document.createElement('details'),title=document.createElement('summary');title.textContent='Se hele transferforløbet';details.append(title);
+  for(const w of model.plan.path){const row=document.createElement('p');row.textContent='GW '+w.gw+' · '+(w.incoming.length?w.outgoing.map(player).join(', ')+' → '+w.incoming.map(player).join(', '):'Roll / behold')+' · '+fmt(net(w))+' xP · '+w.official_hit_points+' hitpoint';details.append(row);}
+  card.append(details);grid.append(card);
+ }
+ box.append(grid);return box;
+}
 function draw(){
  const c=FplManagerClient.snapshot(),drift=officialSquadDrift(c);status.style.removeProperty('display');document.querySelector('.transfer-workspace').dataset.planReady=String(!!c.plan&&c.usable&&c.stateValid&&!c.busy);target.replaceChildren();button.disabled=c.busy;FplPlannerExperience.mount(c);
  document.getElementById('appState').textContent='B-preview · holdsynkronisering v2 · forecast '+c.forecast.data_asof;
@@ -65,7 +85,7 @@ function draw(){
  if(!c.stateValid){const issues=FplPlannerExperience.diagnose(c.state,c.forecast);status.innerHTML='<strong>'+esc(issues.length?'Holdoplysninger skal opdateres':'Venter på nye modeldata')+'</strong><p>'+esc(issues.join(' ')||c.reason)+'</p>';return;}
  if(!c.plan){status.textContent=c.busy?'Din plan beregnes. Du kan blive på siden og følge status her.':'Klar til din første plan. Vælg Beregn for at finde transfers, startopstilling og chips over seks gameweeks.';return;}
  if(window.FplSeasonCompare)FplSeasonCompare.capture(c).catch(e=>{status.style.display='block';status.textContent='Planen er klar, men GW-arkivet kunne ikke gemmes: '+e.message});
- const p=c.plan,first=p.plan.path[0],chipAdvice=FplTransferResultSummary.chipAdvice(c),chipActive=chipAdvice.dataset.chip!=='none';target.append(chipAdvice);
+ const p=c.plan,first=p.plan.path[0],chipAdvice=FplTransferResultSummary.chipAdvice(c),chipActive=chipAdvice.dataset.chip!=='none';target.append(chipAdvice,researchComparison(c));
  status.textContent='Personlig plan klar · GW '+p.gw+' · forslagene ændrer ikke dit gemte hold.';
  const hero=document.createElement('section');hero.className='planner-summary';hero.innerHTML='<div class="workspace-eyebrow">Anbefalet til næste gameweek</div>'+FplTransferCard.html(p,c.people);
  const title=hero.querySelector('.transfer-card-head h3');if(title)title.textContent=chipActive?'Alternativ uden chip':first.incoming.length?'Dit anbefalede træk':'Behold holdet denne uge';if(chipActive)hero.querySelector('.workspace-eyebrow').textContent='Normal transferplan · uden chip';
