@@ -29,6 +29,12 @@ jobs:
         with:
           python-version: '3.12'
       - run: pip install requests==2.32.3 numpy==2.2.6 pandas==2.3.3 scipy==1.17.0
+      - name: Verify scoring contract before publication
+        env:
+          PYTHONPATH: src:scripts:.:analysis
+        run: |
+          pip install pytest==8.4.2
+          python -m pytest -q tests/test_prospective_probability_score.py tests/test_weekly_model_review.py
       - name: Evaluate archived predeadline predictions against final official results
         env:
           GH_TOKEN: ${{ github.token }}
