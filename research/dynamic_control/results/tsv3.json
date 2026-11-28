@@ -1,0 +1,52 @@
+{
+  "initial": {
+    "9": 55,
+    "198": 40,
+    "135": 75,
+    "403": 60,
+    "235": 105,
+    "237": 65,
+    "384": 75,
+    "261": 45,
+    "564": 45,
+    "381": 145,
+    "18": 70,
+    "1": 55,
+    "222": 40,
+    "107": 50,
+    "337": 65
+  },
+  "bank": 10,
+  "free_transfers": 0,
+  "config": {
+    "weights": [
+      1.0,
+      0.6,
+      0.36,
+      0.216,
+      0.1296,
+      0.07776
+    ],
+    "hit_uncertainty_buffer": 1.0,
+    "beam_width": 20,
+    "candidates_per_transfer_count": 1,
+    "candidate_limit_per_position": 18,
+    "top_targets_per_position": 18,
+    "local_bundle_beam": 60,
+    "candidate_return_per_depth": 12,
+    "max_transfers_per_week": 5,
+    "candidate_backend": "fast_local",
+    "discount_transfer_costs": false,
+    "milp_time_limit": 2.0,
+    "free_hit_gw": null
+  },
+  "sha256": {
+    "src/fpl_xpts/transfer_planner.py": "1b424db371b1ec86d30f1162528437d20637fa6e10dcdf6a667d987b95ec6f04",
+    "src/fpl_xpts/season_replay.py": "c17ec0c5fcdee583539962bf705c5f72bf4ea9776a0291e23a429cfe4dd603b1",
+    "src/fpl_xpts/optimize.py": "9d10d292d0cb5928e481dcc65bc31e0605843a6cf90b67b57ffb0e553dda2ac6",
+    "scripts/run_transfer_strategy_v3_replay.py": "47ed0ecadd5688a5b07ba9606240691b1e823e01fa99ecb02202d0591384babc",
+    "scripts/run_horizon_policy_comparison.py": "c0fffcf053aa345afa6224b34d954194f736b2982c2508b32cfd6d62f38f0c09",
+    "analysis/results/legacy-rolling-recovery-v1/manifest.json": "5d49e30e9ff11d0c1876e10eb944d1476e0cf73cfbe5a97fd36b155762a7f0d9",
+    "analysis/results/legacy-season-technical-replay-v1/runtime_input_manifest.json": "88deb998cc1eb12bbdb672a2ac7e88bd204e5ea6649ec669877fdd735fcff44f"
+  }
+}
