@@ -25,7 +25,8 @@ def inject(out, repository):
         if name == 'compact-navigation.css':
             css = asset.decode().replace(
                 'body.fpl-team-dashboard #weekly-main { display: none !important; }',
-                'body.fpl-team-dashboard #weekly-main > :not(#dashboard-team-news):not(#weekly-review-summary) { display: none !important; }',
+                'body.fpl-team-dashboard #weekly-main > '
+                ':not(#weekly-review-summary, #planner-context, #latest-snapshot-info) { display: none !important; }',
             )
             asset = css.encode()
         if name == 'transfer-auto-manager.js':
