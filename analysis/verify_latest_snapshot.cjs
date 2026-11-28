@@ -39,6 +39,24 @@ const seal=n=>{const {content_sha256,...body}=n;return {...body,content_sha256:c
   await page.waitForFunction(()=>!!FplManagerClient.snapshot().plan,{},{timeout:45000}).catch(async e=>{console.error(JSON.stringify({errors,feedback:await page.locator('[data-compute-feedback]').innerText()}));throw e;});
   assert.equal(posts,1);assert.equal(body.forecast_cutoff,f.data_asof);
   assert.equal(await page.evaluate(()=>FplManagerClient.snapshot().plan.model_asof),f.data_asof);
+  if(process.env.REQUIRE_TS_COMPARISON==='1'){
+   const comparison=page.locator('#ts-model-comparison');
+   const cards=comparison.locator('.ts-comparison-grid>section');
+   await cards.first().waitFor();
+   assert.equal(await cards.count(),2);
+   assert.deepEqual(await cards.locator('h3').allTextContents(),['TS v3 · ρ = 0,60','TS v4.1 · ρ = 0,90 (forsøg)']);
+   const candidate=fixture.result.research_ts;
+   assert.equal(candidate.manager_state_sha256,fixture.result.manager_state_sha256);
+   assert.equal(candidate.forecast_sha256,fixture.result.forecast_sha256);
+   assert.equal(candidate.shortlist_rho,.6);
+   for(const [index,model] of [fixture.result,candidate].entries()){
+    const card=cards.nth(index),action=model.plan.path[0];
+    assert.match(await card.innerText(),/Kaptajn: .* · Bank £/);
+    assert((await card.innerText()).includes((action.projected_manager_score-action.official_hit_points).toFixed(2)+' xP'));
+    await card.locator('summary').click();
+    assert.equal(await card.locator('details[open]>p').count(),6);
+   }
+  }
   assert.match(await page.locator('#latest-snapshot-info').innerText(),/Prognose og priser/);
   assert.match(await page.locator('#latest-snapshot-info').innerText(),/Nyere skader og prisændringer/);
   Object.assign(news.players.find(p=>p.id===fixture.state.squad[0].id),{status:'d',news:'SYNTHETIC_NEW_INJURY',news_added:news.observed_at,chance_of_playing_next_round:75});
@@ -49,7 +67,7 @@ const seal=n=>{const {content_sha256,...body}=n;return {...body,content_sha256:c
   assert.equal(await page.locator('[data-plan-phase]').getAttribute('data-plan-phase'),'ready');
   assert.deepEqual(await page.evaluate(()=>JSON.parse(localStorage.getItem('fpl-manager-state-v1'))),fixture.state);
   assert.equal(posts,1);assert.deepEqual(errors,[]);assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth),true);
-  proof[name]={synthetic_only:true,forecast_age_hours_tested:Number(process.env.SNAPSHOT_CLOCK_AGE_HOURS)||null,later_manager_observation_supported:true,backend_capability_required:true,request_policy_verified:true,model_timestamp_unchanged:true,prices_timestamp_visible:true,new_injury_is_advisory:true,deadline_still_blocks:true,six_GW_plan_displayed:true,dashboard_ready:true,private_state_unchanged:true,real_private_posts:0,mocked_private_posts:posts,page_errors:errors};
+  proof[name]={synthetic_only:true,forecast_age_hours_tested:Number(process.env.SNAPSHOT_CLOCK_AGE_HOURS)||null,later_manager_observation_supported:true,backend_capability_required:true,request_policy_verified:true,model_timestamp_unchanged:true,prices_timestamp_visible:true,new_injury_is_advisory:true,deadline_still_blocks:true,six_GW_plan_displayed:true,dual_TS_verified:process.env.REQUIRE_TS_COMPARISON==='1',dashboard_ready:true,private_state_unchanged:true,real_private_posts:0,mocked_private_posts:posts,page_errors:errors};
   await context.close();
  }}finally{await browser.close();}
  console.log(JSON.stringify(proof,null,2));

@@ -4,7 +4,7 @@ from datetime import datetime,timedelta,timezone
 import argparse,json
 from run_live_locked_ts import run
 
-def prepare(forecast_path,out,*,snapshot=False):
+def prepare(forecast_path,out,*,snapshot=False,dual=False):
     f=json.loads(Path(forecast_path).read_text());people=f['players'];chosen=[];clubs={}
     for pos,count in [(1,2),(2,5),(3,5),(4,3)]:
         options=sorted((p for p in people if p['position']==pos),key=lambda p:(0 if p['name']in ['Haaland','Penders']else 1,p['price_tenths'],p['id']))
@@ -19,7 +19,11 @@ def prepare(forecast_path,out,*,snapshot=False):
     if snapshot:state['observed_at']=(datetime.now(timezone.utc)-timedelta(seconds=1)).isoformat()
     if f.get('chain_version')=='B-MM-PM-TS-v1':
         from b_preview_ts import preview_scoring
-        with preview_scoring(f):result=run(f,state,include_chips=False,snapshot_at=now if snapshot else None)
+        with preview_scoring(f):
+            result=run(f,state,include_chips=False,snapshot_at=now if snapshot else None)
+            if dual:
+                from service.preview_manager_job import research_plan
+                result['research_ts']=research_plan(f,state,now if snapshot else None,result)
     else:result=run(f,state,include_chips=False)
     result.update(validation_only=False,forecast_variant=f['model'],forecast_sha256=f['forecast_sha256'])
     if snapshot:
@@ -27,4 +31,4 @@ def prepare(forecast_path,out,*,snapshot=False):
     out=Path(out);out.parent.mkdir(parents=True,exist_ok=True);out.write_text(json.dumps(dict(state=state,result=result),ensure_ascii=False,allow_nan=False))
     print('Prepared private synthetic dashboard test fixture; original TS ran six GWs')
 if __name__=='__main__':
-    p=argparse.ArgumentParser();p.add_argument('--forecast',type=Path,required=True);p.add_argument('--out',type=Path,required=True);p.add_argument('--snapshot',action='store_true');a=p.parse_args();prepare(a.forecast,a.out,snapshot=a.snapshot)
+    p=argparse.ArgumentParser();p.add_argument('--forecast',type=Path,required=True);p.add_argument('--out',type=Path,required=True);p.add_argument('--snapshot',action='store_true');p.add_argument('--dual',action='store_true');a=p.parse_args();prepare(a.forecast,a.out,snapshot=a.snapshot,dual=a.dual)

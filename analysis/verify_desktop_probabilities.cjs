@@ -15,13 +15,26 @@ const {chromium}=require('playwright'),assert=require('node:assert/strict'),fs=r
   await page.locator('dialog select').selectOption(String(state.forecast.gws.at(-1)));assert.match(await page.locator('dialog').innerText(),/Mod /);await page.keyboard.press('Escape');
   await page.locator('#search').fill(rotation.name);await page.locator('#forecastTable a.player').first().click();assert.equal(await page.locator('dialog .prob-grid .value').count(),8);await page.screenshot({path:(process.env.SCREENSHOT_DIR||'/tmp')+'/fpl-desktop-probabilities-'+name+'.png'});await page.locator('dialog button').filter({hasText:'Luk'}).click();
   await page.goto(base+'player.html?id='+penders.id,{waitUntil:'networkidle'});await page.locator('#player-probabilities .prob-grid').waitFor();assert.equal(await page.locator('#name').innerText(),'Penders');assert.equal(await page.locator('#gwStrip .gw').count(),6);assert.equal(await page.locator('#compareGrid').count(),1);assert.equal(await page.locator('.hero').count(),1);assert((await page.locator('#player-probabilities').innerText()).includes(penders.weeks[0].xmins.toFixed(2)));assert.equal(await page.evaluate(()=>localStorage.length),0);
-  // A private synthetic browser fixture exercises the ORIGINAL My Team sheet;
+  // A private synthetic browser fixture exercises the active saved-team controls;
   // it is never exported or submitted to the manager service.
   const picked=[],clubs={};for(const [pos,count]of [[1,2],[2,5],[3,5],[4,3]]){let remaining=count;const candidates=state.players.filter(p=>p.position===pos).sort((a,b)=>(b.id===penders.id)-(a.id===penders.id)||a.price_tenths-b.price_tenths);for(const p of candidates){if((clubs[p.team_id]||0)>=3)continue;picked.push(p);clubs[p.team_id]=(clubs[p.team_id]||0)+1;if(!--remaining)break;}assert.equal(remaining,0);}
   const fixture={season:state.forecast.season,gw:state.forecast.gws[0],source:'SYNTHETIC_UI_REGRESSION_NOT_USER_TEAM',observed_at:new Date(Date.parse(state.forecast.data_asof)-7200000).toISOString(),bank_tenths:1000-picked.reduce((s,p)=>s+p.price_tenths,0),free_transfers:2,squad:picked.map(p=>({id:p.id,purchase_price_tenths:p.price_tenths})),chips_used:{wildcard:[],free_hit:[],bench_boost:[],triple_captain:[]}};
   assert(fixture.bank_tenths>=0);await page.evaluate(s=>localStorage.setItem('fpl-manager-state-v1',JSON.stringify(s)),fixture);const saved=await page.evaluate(()=>localStorage.getItem('fpl-manager-state-v1'));let submitted=false;page.on('request',r=>{if(r.method()==='POST'&&r.url().includes('/plans'))submitted=true;});
-  await page.goto(base+'my-team-classic.html',{waitUntil:'networkidle'});await page.locator('[data-open="'+penders.id+'"]').first().click();await page.locator('#sheetBack.open .fpl-probabilities .prob-grid').waitFor();assert.equal(await page.locator('#makeCaptain').count(),1);assert.equal(await page.locator('#makeVice').count(),1);assert.equal(await page.locator('#sheetBack .prob-grid .value').count(),8);await page.locator('#closeSheet').click();assert.equal(await page.evaluate(()=>localStorage.getItem('fpl-manager-state-v1')),saved);assert.equal(submitted,false);assert.deepEqual(errors,[]);
-  receipt[name]={existing_sidebar:true,existing_profile_and_six_GW:true,existing_team_sheet_preserved:true,manager_state_unchanged:true,private_plan_submitted:false,probability_cards:8,rotation:rotation.name,page_errors:errors};await context.close();
+  await page.goto(base+'my-team-classic.html',{waitUntil:'networkidle'});
+  await page.waitForURL(/overview\.html(?:#dashboard)?$/);
+  await page.getByRole('link',{name:'Opstilling og bænk',exact:false}).click();
+  await page.waitForURL(/overview\.html#team$/);
+  const selected=page.locator('[data-lineup-id="'+penders.id+'"]');await selected.click();
+  assert.equal(await selected.getAttribute('aria-pressed'),'true');
+  await page.locator('#lineup-captain').waitFor();await page.locator('#lineup-vice').waitFor();
+  assert.equal(await page.locator('#lineup-player').inputValue(),String(penders.id));
+  await page.locator('#selected-player-info a').click();
+  await page.locator('.fpl-probability-dialog[open] .prob-grid').waitFor();
+  assert.equal(await page.locator('dialog .prob-grid .value').count(),8);
+  await page.locator('dialog button').filter({hasText:'Luk'}).click();
+  assert.equal(await page.evaluate(()=>localStorage.getItem('fpl-manager-state-v1')),saved);
+  assert.equal(submitted,false);assert.deepEqual(errors,[]);
+  receipt[name]={existing_sidebar:true,existing_profile_and_six_GW:true,saved_team_controls_and_probabilities:true,manager_state_unchanged:true,private_plan_submitted:false,probability_cards:8,rotation:rotation.name,page_errors:errors};await context.close();
  }}finally{await browser.close();server?.kill();}
  console.log(JSON.stringify(receipt,null,2));
 })().catch(e=>{console.error(e);process.exit(1)});

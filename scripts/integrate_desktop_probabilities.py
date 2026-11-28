@@ -60,6 +60,9 @@ def integrate(root=ROOT):
     review_inject(out)
     from integrate_personal_workspace import inject as workspace_inject
     workspace_inject(out)
+    if unified:
+        from integrate_compact_preview_ui import inject as compact_inject
+        compact_inject(out, ROOT)
     # The same origin already serves earlier app versions. Content-derived
     # queries prevent cached old adapters from hiding newly added history APIs.
     import re

@@ -26,7 +26,7 @@ def score(manifest,records,outcomes,*,asof):
         if not math.isfinite(float(r.minutes))or not 0<=r.minutes<=90 or r.started not in (0,1,True,False) or not math.isfinite(float(r.total_points)):
             raise ValueError('Invalid official final values')
         available[(r.season,r.fixture_uuid,r.player_uuid)]=r
-    seen=set();joined=[];pending=0;excluded=0
+    seen=set();joined=[];pending=0;excluded=0;roundoff_count=0;roundoff_max=0.
     for p in records:
         key=(manifest['season'],p['fixture_uuid'],p['player_uuid'])
         if key in seen:raise ValueError('Duplicate archived prediction')
@@ -36,15 +36,16 @@ def score(manifest,records,outcomes,*,asof):
         actual=available.get(key)
         if actual is None:pending+=1;continue
         if actual.team_id!=p['team_id']or utc(actual.kickoff)!=utc(p['kickoff']):raise ValueError('Prediction/result identity mismatch')
-        # Summing mixture weights can leave a probability a few ulps outside
-        # [0, 1]. Normalize only this roundoff in a local copy; immutable
-        # forecast receipts stay byte-identical and material errors still fail.
-        p = dict(p)
+        p=dict(p)  # metric-only copy; the archived record remains immutable
         for name in ['p_start','p_play','p60','p90']:
-            value = p[name]
-            if not math.isfinite(value) or not -1e-12 <= value <= 1 + 1e-12:
-                raise ValueError('Invalid archived probability')
-            p[name] = min(1.0, max(0.0, value))
+            value=p[name]
+            if not math.isfinite(value) or not -1e-12<=value<=1+1e-12:
+                raise ValueError(f'Invalid archived probability: {name}={value!r}')
+            if not 0<=value<=1:
+                corrected=min(1.,max(0.,value))
+                roundoff_count+=1
+                roundoff_max=max(roundoff_max,abs(value-corrected))
+                p[name]=corrected
         if not p['p90']<=p['p60']<=p['p_play']+1e-10:raise ValueError('Inconsistent minute probabilities')
         if not math.isfinite(p['expected_minutes'])or not 0<=p['expected_minutes']<=90 or not math.isfinite(p['xp']):raise ValueError('Invalid archived expectation')
         joined.append(dict(fixture=p['fixture_uuid'],position=p['position'],p_start=p['p_start'],p0=1-p['p_play'],p60=p['p60'],p90=p['p90'],ystart=int(actual.started),y0=int(actual.minutes==0),y60=int(actual.minutes>=60),y90=int(actual.minutes==90),minute_error=p['expected_minutes']-actual.minutes,xp_error=p['xp']-actual.total_points))
@@ -57,7 +58,7 @@ def score(manifest,records,outcomes,*,asof):
             for i in range(10):
                 m=bucket==i
                 if m.any():bins.append(dict(event=name,bin=i,rows=int(m.sum()),predicted=float(p[m].mean()),observed=float(y[m].mean())))
-    return dict(version='B-prospective-calibration-v1',forecast_sha256=manifest['forecast_sha256'],recorded_at=manifest['recorded_at'],scored_at=now.isoformat(),status='scored'if len(f)else'pending_final_matches'if pending else'no_eligible_predictions',scored_rows=len(f),pending_rows=pending,excluded_rows=excluded,metrics=metrics,reliability=bins,minute_mae=float(abs(f.minute_error).mean())if len(f)else None,minute_bias=float(f.minute_error.mean())if len(f)else None,xp_mae=float(abs(f.xp_error).mean())if len(f)else None,xp_bias=float(f.xp_error.mean())if len(f)else None,model_recalibrated=False,production_changed=False,full_model_certification=False)
+    return dict(version='B-prospective-calibration-v1',forecast_sha256=manifest['forecast_sha256'],recorded_at=manifest['recorded_at'],scored_at=now.isoformat(),status='scored'if len(f)else'pending_final_matches'if pending else'no_eligible_predictions',scored_rows=len(f),pending_rows=pending,excluded_rows=excluded,metrics=metrics,reliability=bins,probability_roundoff_count=roundoff_count,probability_roundoff_max=roundoff_max,minute_mae=float(abs(f.minute_error).mean())if len(f)else None,minute_bias=float(f.minute_error.mean())if len(f)else None,xp_mae=float(abs(f.xp_error).mean())if len(f)else None,xp_bias=float(f.xp_error.mean())if len(f)else None,model_recalibrated=False,production_changed=False,full_model_certification=False)
 
 
 def main():
