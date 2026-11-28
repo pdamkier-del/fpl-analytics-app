@@ -55,3 +55,15 @@ def inject(out, repository):
                 1,
             )
         path.write_bytes(asset)
+
+    # Keep snapshot status beside the compact pitch when manager history mounts.
+    workspace = out.parent / 'dashboard-workspace.js'
+    script = workspace.read_text()
+    selector = ":scope > .dashboard-metrics,:scope > #dashboard-team-news"
+    if script.count(repr(selector)) != 1:
+        raise ValueError('Dashboard workspace status placement changed')
+    workspace.write_text(script.replace(
+        repr(selector),
+        "document.body.classList.contains('fpl-compact-ui') ? "
+        "':scope > .dashboard-metrics' : " + repr(selector),
+    ))
