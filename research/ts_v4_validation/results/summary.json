@@ -1,0 +1,359 @@
+[
+  {
+    "arm": "tsv3",
+    "points": 1964,
+    "delta": 0,
+    "gw01_19": 918,
+    "gw20_38": 1046,
+    "paired_block_p05_p95": [
+      0.0,
+      0.0
+    ],
+    "leave_one_gw_out": [
+      0,
+      0
+    ],
+    "transfers": 41,
+    "hits": 16,
+    "rolls": 1,
+    "short_holds": 5,
+    "same_state_gain": 30,
+    "same_state_expected_gain": 90.8040781645677,
+    "seconds": 547.174625456,
+    "median_seconds": 13.082106743000011,
+    "rho": 0.6,
+    "gross_points": 1980,
+    "weeks_with_hits": 4,
+    "first_gw_different_from_tsv3": null,
+    "p90_seconds": 23.350456768800015,
+    "config": {
+      "weights": [
+        1.0,
+        0.6,
+        0.36,
+        0.216,
+        0.1296,
+        0.07776
+      ],
+      "hit_uncertainty_buffer": 1.0,
+      "beam_width": 20,
+      "candidates_per_transfer_count": 1,
+      "candidate_limit_per_position": 18,
+      "top_targets_per_position": 18,
+      "local_bundle_beam": 60,
+      "candidate_return_per_depth": 12,
+      "max_transfers_per_week": 5,
+      "candidate_backend": "fast_local",
+      "discount_transfer_costs": false,
+      "milp_time_limit": 2.0,
+      "free_hit_gw": null
+    },
+    "baseline_ledger_reused": true
+  },
+  {
+    "arm": "rho70",
+    "points": 1987,
+    "delta": 23,
+    "gw01_19": 909,
+    "gw20_38": 1078,
+    "paired_block_p05_p95": [
+      -52.0,
+      105.04999999999973
+    ],
+    "leave_one_gw_out": [
+      8,
+      47
+    ],
+    "transfers": 42,
+    "hits": 20,
+    "rolls": 1,
+    "short_holds": 4,
+    "same_state_gain": 20,
+    "same_state_expected_gain": 74.53307000827328,
+    "seconds": 357.0005713849994,
+    "median_seconds": 8.391068345999997,
+    "rho": 0.7,
+    "gross_points": 2007,
+    "weeks_with_hits": 4,
+    "first_gw_different_from_tsv3": 18,
+    "p90_seconds": 15.977857428800021,
+    "config": {
+      "weights": [
+        1.0,
+        0.7,
+        0.49,
+        0.343,
+        0.2401,
+        0.16807
+      ],
+      "hit_uncertainty_buffer": 1.0,
+      "beam_width": 20,
+      "candidates_per_transfer_count": 1,
+      "candidate_limit_per_position": 18,
+      "top_targets_per_position": 18,
+      "local_bundle_beam": 60,
+      "candidate_return_per_depth": 12,
+      "max_transfers_per_week": 5,
+      "candidate_backend": "fast_local",
+      "discount_transfer_costs": false,
+      "milp_time_limit": 2.0,
+      "free_hit_gw": null
+    },
+    "baseline_ledger_reused": false
+  },
+  {
+    "arm": "rho80",
+    "points": 1976,
+    "delta": 12,
+    "gw01_19": 939,
+    "gw20_38": 1037,
+    "paired_block_p05_p95": [
+      -111.0,
+      138.0
+    ],
+    "leave_one_gw_out": [
+      -17,
+      43
+    ],
+    "transfers": 47,
+    "hits": 40,
+    "rolls": 1,
+    "short_holds": 11,
+    "same_state_gain": 86,
+    "same_state_expected_gain": 71.1291526252292,
+    "seconds": 271.09963662299856,
+    "median_seconds": 6.907816472999798,
+    "rho": 0.8,
+    "gross_points": 2016,
+    "weeks_with_hits": 6,
+    "first_gw_different_from_tsv3": 6,
+    "p90_seconds": 11.235239007499926,
+    "config": {
+      "weights": [
+        1.0,
+        0.8,
+        0.64,
+        0.512,
+        0.4096,
+        0.32768
+      ],
+      "hit_uncertainty_buffer": 1.0,
+      "beam_width": 20,
+      "candidates_per_transfer_count": 1,
+      "candidate_limit_per_position": 18,
+      "top_targets_per_position": 18,
+      "local_bundle_beam": 60,
+      "candidate_return_per_depth": 12,
+      "max_transfers_per_week": 5,
+      "candidate_backend": "fast_local",
+      "discount_transfer_costs": false,
+      "milp_time_limit": 2.0,
+      "free_hit_gw": null
+    },
+    "baseline_ledger_reused": false
+  },
+  {
+    "arm": "rho90",
+    "points": 2052,
+    "delta": 88,
+    "gw01_19": 1003,
+    "gw20_38": 1049,
+    "paired_block_p05_p95": [
+      -15.0,
+      199.0
+    ],
+    "leave_one_gw_out": [
+      62,
+      100
+    ],
+    "transfers": 50,
+    "hits": 52,
+    "rolls": 1,
+    "short_holds": 13,
+    "same_state_gain": -5,
+    "same_state_expected_gain": 65.71120608413706,
+    "seconds": 329.9815167290003,
+    "median_seconds": 7.280879564000088,
+    "rho": 0.9,
+    "gross_points": 2104,
+    "weeks_with_hits": 6,
+    "first_gw_different_from_tsv3": 3,
+    "p90_seconds": 13.349888477300066,
+    "config": {
+      "weights": [
+        1.0,
+        0.9,
+        0.81,
+        0.729,
+        0.6561,
+        0.59049
+      ],
+      "hit_uncertainty_buffer": 1.0,
+      "beam_width": 20,
+      "candidates_per_transfer_count": 1,
+      "candidate_limit_per_position": 18,
+      "top_targets_per_position": 18,
+      "local_bundle_beam": 60,
+      "candidate_return_per_depth": 12,
+      "max_transfers_per_week": 5,
+      "candidate_backend": "fast_local",
+      "discount_transfer_costs": false,
+      "milp_time_limit": 2.0,
+      "free_hit_gw": null
+    },
+    "baseline_ledger_reused": false
+  },
+  {
+    "arm": "rho100",
+    "points": 2071,
+    "delta": 107,
+    "gw01_19": 998,
+    "gw20_38": 1073,
+    "paired_block_p05_p95": [
+      -3.049999999999983,
+      229.0
+    ],
+    "leave_one_gw_out": [
+      73,
+      121
+    ],
+    "transfers": 55,
+    "hits": 72,
+    "rolls": 1,
+    "short_holds": 12,
+    "same_state_gain": 19,
+    "same_state_expected_gain": 46.48769647029521,
+    "seconds": 437.9073551899987,
+    "median_seconds": 10.708889234000026,
+    "rho": 1.0,
+    "gross_points": 2143,
+    "weeks_with_hits": 9,
+    "first_gw_different_from_tsv3": 3,
+    "p90_seconds": 22.267918521600176,
+    "config": {
+      "weights": [
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0
+      ],
+      "hit_uncertainty_buffer": 1.0,
+      "beam_width": 20,
+      "candidates_per_transfer_count": 1,
+      "candidate_limit_per_position": 18,
+      "top_targets_per_position": 18,
+      "local_bundle_beam": 60,
+      "candidate_return_per_depth": 12,
+      "max_transfers_per_week": 5,
+      "candidate_backend": "fast_local",
+      "discount_transfer_costs": false,
+      "milp_time_limit": 2.0,
+      "free_hit_gw": null
+    },
+    "baseline_ledger_reused": false
+  },
+  {
+    "arm": "discount_costs",
+    "points": 1935,
+    "delta": -29,
+    "gw01_19": 922,
+    "gw20_38": 1013,
+    "paired_block_p05_p95": [
+      -121.0,
+      59.0
+    ],
+    "leave_one_gw_out": [
+      -56,
+      -11
+    ],
+    "transfers": 41,
+    "hits": 16,
+    "rolls": 1,
+    "short_holds": 5,
+    "same_state_gain": 18,
+    "same_state_expected_gain": 93.55737321210198,
+    "seconds": 334.7594086169993,
+    "median_seconds": 6.903044096999793,
+    "rho": 0.6,
+    "gross_points": 1951,
+    "weeks_with_hits": 4,
+    "first_gw_different_from_tsv3": 6,
+    "p90_seconds": 14.993717169799998,
+    "config": {
+      "weights": [
+        1.0,
+        0.6,
+        0.36,
+        0.216,
+        0.1296,
+        0.07776
+      ],
+      "hit_uncertainty_buffer": 1.0,
+      "beam_width": 20,
+      "candidates_per_transfer_count": 1,
+      "candidate_limit_per_position": 18,
+      "top_targets_per_position": 18,
+      "local_bundle_beam": 60,
+      "candidate_return_per_depth": 12,
+      "max_transfers_per_week": 5,
+      "candidate_backend": "fast_local",
+      "discount_transfer_costs": true,
+      "milp_time_limit": 2.0,
+      "free_hit_gw": null
+    },
+    "baseline_ledger_reused": false
+  },
+  {
+    "arm": "zero_buffer",
+    "points": 1949,
+    "delta": -15,
+    "gw01_19": 909,
+    "gw20_38": 1040,
+    "paired_block_p05_p95": [
+      -81.0,
+      66.0
+    ],
+    "leave_one_gw_out": [
+      -41,
+      5
+    ],
+    "transfers": 42,
+    "hits": 20,
+    "rolls": 1,
+    "short_holds": 3,
+    "same_state_gain": 12,
+    "same_state_expected_gain": 79.89814276062538,
+    "seconds": 244.20541873299862,
+    "median_seconds": 6.516441612499875,
+    "rho": 0.6,
+    "gross_points": 1969,
+    "weeks_with_hits": 4,
+    "first_gw_different_from_tsv3": 18,
+    "p90_seconds": 9.152304065599857,
+    "config": {
+      "weights": [
+        1.0,
+        0.6,
+        0.36,
+        0.216,
+        0.1296,
+        0.07776
+      ],
+      "hit_uncertainty_buffer": 0.0,
+      "beam_width": 20,
+      "candidates_per_transfer_count": 1,
+      "candidate_limit_per_position": 18,
+      "top_targets_per_position": 18,
+      "local_bundle_beam": 60,
+      "candidate_return_per_depth": 12,
+      "max_transfers_per_week": 5,
+      "candidate_backend": "fast_local",
+      "discount_transfer_costs": false,
+      "milp_time_limit": 2.0,
+      "free_hit_gw": null
+    },
+    "baseline_ledger_reused": false
+  }
+]
