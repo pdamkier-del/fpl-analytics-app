@@ -27,15 +27,7 @@
   const box=document.createElement('section');box.id='latest-snapshot-info';box.className='panel';
   const h=document.createElement('h2');h.textContent='Planens datagrundlag';const p=document.createElement('p');p.textContent='GW '+c.forecast.gws[0]+'–'+c.forecast.gws.at(-1)+' · Model '+c.forecast.model+' · Prognose og priser: '+clock(c.forecast.data_asof)+(c.plan?' · Plan beregnet: '+clock(c.plan.computed_at):'')+'.';
   const note=document.createElement('p');note.textContent='Vis nyeste transferplan henter det nyeste publicerede verificerede snapshot og genberegner transferoptimering, hvis nødvendigt. Knappen starter ikke selv en ny MM/PM-modelkørsel. Prognoser ældre end 36 timer eller for forkert GW blokeres. Nyere skader og prisændringer kan stadig mangle; kontrollér dem før du handler.';
-  box.append(h,p,note);
-  const dashboard=document.getElementById('weekly-main');
-  const compactDashboard=document.getElementById('compact-team')&&(!location.hash||location.hash==='#dashboard');
-  if(compactDashboard&&dashboard){
-   const modelGuide=dashboard.querySelector(':scope > #dashboard-model-explainer');
-   dashboard.insertBefore(host,modelGuide);
-   dashboard.insertBefore(box,modelGuide);
-  }else host.after(box);
-  root.FplTransferResultSummary?.placeData();
+  box.append(h,p,note);host.after(box);root.FplTransferResultSummary?.placeData();
  };};
  root.FplLatestSnapshot=api;if(typeof module!=='undefined')module.exports=api;
 })(typeof window==='undefined'?globalThis:window);
