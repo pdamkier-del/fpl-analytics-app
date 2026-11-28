@@ -85,7 +85,8 @@ function draw(){
  if(!c.stateValid){const issues=FplPlannerExperience.diagnose(c.state,c.forecast);status.innerHTML='<strong>'+esc(issues.length?'Holdoplysninger skal opdateres':'Venter på nye modeldata')+'</strong><p>'+esc(issues.join(' ')||c.reason)+'</p>';return;}
  if(!c.plan){status.textContent=c.busy?'Din plan beregnes. Du kan blive på siden og følge status her.':'Klar til din første plan. Vælg Beregn for at finde transfers, startopstilling og chips over seks gameweeks.';return;}
  if(window.FplSeasonCompare)FplSeasonCompare.capture(c).catch(e=>{status.style.display='block';status.textContent='Planen er klar, men GW-arkivet kunne ikke gemmes: '+e.message});
- const p=c.plan,first=p.plan.path[0],chipAdvice=FplTransferResultSummary.chipAdvice(c),chipActive=chipAdvice.dataset.chip!=='none';target.append(chipAdvice,researchComparison(c));
+ const p=c.plan,first=p.plan.path[0],chipAdvice=FplTransferResultSummary.chipAdvice(c),chipActive=chipAdvice.dataset.chip!=='none';target.append(chipAdvice);
+ const comparison=researchComparison(c);
  status.textContent='Personlig plan klar · GW '+p.gw+' · forslagene ændrer ikke dit gemte hold.';
  const hero=document.createElement('section');hero.className='planner-summary';hero.innerHTML='<div class="workspace-eyebrow">Anbefalet til næste gameweek</div>'+FplTransferCard.html(p,c.people);
  const title=hero.querySelector('.transfer-card-head h3');if(title)title.textContent=chipActive?'Alternativ uden chip':first.incoming.length?'Dit anbefalede træk':'Behold holdet denne uge';if(chipActive)hero.querySelector('.workspace-eyebrow').textContent='Normal transferplan · uden chip';
@@ -94,8 +95,8 @@ function draw(){
  const grid=document.createElement('div');grid.className='result-ready-grid';const normalLineup=FplTransferResultSummary.lineup(c);if(chipActive)normalLineup.querySelector('h3').prepend('Uden chip · ');grid.append(hero,normalLineup);let detailTarget=target;
  if(chipAdvice.dataset.chip==='wildcard'){
   target.append(FplTransferResultSummary.wildcardHorizon(c));
-  const alternative=document.createElement('details');alternative.id='transfer-normal-alternative';alternative.className='transfer-disclosure';alternative.innerHTML='<summary><strong>Alternativ uden Wildcard · normale transfers</strong></summary>';const body=document.createElement('div');body.className='disclosure-body';const normalHorizon=FplTransferResultSummary.horizon(c);normalHorizon.querySelector('h3').textContent='Uden Wildcard · seks-GW-alternativ';body.append(grid,FplTransferResultSummary.insights(c),FplTransferResultSummary.risks(c),normalHorizon);alternative.append(body);target.append(alternative);detailTarget=body;
- }else target.append(grid,FplTransferResultSummary.insights(c),FplTransferResultSummary.risks(c),FplTransferResultSummary.horizon(c));
+  const alternative=document.createElement('details');alternative.id='transfer-normal-alternative';alternative.className='transfer-disclosure';alternative.innerHTML='<summary><strong>Alternativ uden Wildcard · normale transfers</strong></summary>';const body=document.createElement('div');body.className='disclosure-body';const normalHorizon=FplTransferResultSummary.horizon(c);normalHorizon.querySelector('h3').textContent='Uden Wildcard · seks-GW-alternativ';body.append(grid,FplTransferResultSummary.insights(c),FplTransferResultSummary.risks(c),normalHorizon);alternative.append(body);target.append(alternative,comparison);detailTarget=body;
+ }else target.append(grid,comparison,FplTransferResultSummary.insights(c),FplTransferResultSummary.risks(c),FplTransferResultSummary.horizon(c));
  const temp=document.createElement('div');FplPlanView.render(p,c.people,temp);
  for(const [id,key,title,description]of [
   ['teamResult','transfer-lineup','Anbefalet startopstilling','Se kaptajn, startellever og bænk efter de foreslåede transfers'],
