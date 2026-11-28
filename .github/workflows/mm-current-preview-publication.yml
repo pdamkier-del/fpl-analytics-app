@@ -22,7 +22,7 @@ env:
   PREVIEW_UI_SHA: 6c5bd895b7a3c84adaeedb1b00dd9cec23de35a8
 jobs:
   verified:
-    if: ${{ github.event_name == 'pull_request' || inputs.validated_run != '' }}
+    if: ${{ github.event_name == 'pull_request' || github.event_name == 'push' || inputs.validated_run != '' }}
     runs-on: ubuntu-latest
     outputs:
       source_run: ${{ steps.original.outputs.source_run }}
@@ -36,9 +36,10 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
           VALIDATED_RUN: ${{ inputs.validated_run }}
-          PR_PREFLIGHT: ${{ github.event_name == 'pull_request' }}
+          DISCOVER_ORIGINAL: ${{ github.event_name == 'pull_request' || github.event_name == 'push' }}
+          ALLOW_FRESH_COMPUTATION: ${{ github.event_name == 'push' }}
         run: |
-          if [[ "$PR_PREFLIGHT" == true ]]; then
+          if [[ "$DISCOVER_ORIGINAL" == true ]]; then
             runs=$(gh api "repos/$GITHUB_REPOSITORY/actions/workflows/mm-current-preview-publication.yml/runs?branch=main&status=completed&per_page=15" --jq '.workflow_runs[] | select(.event == "schedule" or .event == "workflow_dispatch") | .id')
             for run in $runs; do
               if python scripts/verify_b_publication_artifact.py --run "$run" --source "$PREVIEW_SOURCE_SHA"; then
@@ -47,11 +48,15 @@ jobs:
               fi
             done
           fi
+          if [[ -z "$VALIDATED_RUN" && "$ALLOW_FRESH_COMPUTATION" == true ]]; then
+            exit 0
+          fi
           test -n "$VALIDATED_RUN"
           python scripts/verify_b_publication_artifact.py --run "$VALIDATED_RUN" --source "$PREVIEW_SOURCE_SHA"
           printf 'source_run=%s\n' "$VALIDATED_RUN" >> "$GITHUB_OUTPUT"
   current:
-    if: ${{ github.event_name != 'pull_request' && inputs.validated_run == '' }}
+    needs: verified
+    if: ${{ always() && !cancelled() && github.event_name != 'pull_request' && inputs.validated_run == '' && needs.verified.outputs.source_run == '' }}
     uses: pdamkier-del/fpl-analytics-app/.github/workflows/mm-current-live-preview.yml@161b67b6fb8786a38e78c245b92a03ad841575d8
     with:
       source_ref: 161b67b6fb8786a38e78c245b92a03ad841575d8
@@ -61,7 +66,7 @@ jobs:
       actions: read
   preview:
     needs: [current, verified]
-    if: ${{ always() && !cancelled() && github.ref == 'refs/heads/main' && (needs.current.result == 'success' || needs.verified.result == 'success') }}
+    if: ${{ always() && !cancelled() && github.ref == 'refs/heads/main' && (needs.current.result == 'success' || needs.verified.outputs.source_run != '') }}
     permissions:
       contents: write
       actions: read
@@ -262,6 +267,73 @@ jobs:
         if: ${{ github.event_name != 'pull_request' }}
         with:
           artifact_name: mm-current-preview-pages-${{ github.run_id }}
+      - name: Confirm the served Pages UI and compute both plans with synthetic state
+        if: ${{ github.event_name == 'push' }}
+        timeout-minutes: 9
+        env:
+          OPENBLAS_NUM_THREADS: '1'
+          DESKTOP_URL: https://pdamkier-del.github.io/fpl-analytics-app/mm-preview/app/
+        run: |
+          export NODE_PATH="$RUNNER_TEMP/fpl-browser/node_modules"
+          export BROWSER_PATH="$(command -v google-chrome)"
+          export DASHBOARD_TEST_FIXTURE="$RUNNER_TEMP/unified-private-browser-fixture.json"
+          python - <<'PY'
+          import hashlib, json, os, time
+          from pathlib import Path
+          from urllib.parse import urljoin
+          import requests
+
+          pages = os.environ['DESKTOP_URL']
+          site_origin = 'https://pdamkier-del.github.io'
+          backend = 'https://fpl-analytics-private-manager.onrender.com'
+          fixture = json.loads(Path(os.environ['DASHBOARD_TEST_FIXTURE']).read_text())
+          forecast_sha = fixture['result']['forecast_sha256']
+          for attempt in range(12):
+              response = requests.get(urljoin(pages, '../chain-publication-sources.json'),
+                                      params={'release_check': time.time_ns()}, timeout=15)
+              if response.ok:
+                  stamp = response.json()
+                  if stamp.get('ui_source') == os.environ['PREVIEW_UI_SHA'] and stamp.get('forecast_sha256') == forecast_sha:
+                      break
+              time.sleep(5)
+          else:
+              raise SystemExit('Pages has not served this release and forecast')
+
+          state = dict(fixture['state'], validation_only=True)
+          canonical = json.dumps(state, sort_keys=True, ensure_ascii=False, separators=(',', ':')).encode()
+          expected_state_sha = hashlib.sha256(canonical).hexdigest()
+          headers = {'Origin': site_origin}
+          response = requests.post(backend+'/preview/plans', headers=headers, timeout=90, json={
+              'state': state, 'forecast_policy':'latest_verified_snapshot_v1',
+              'forecast_cutoff':fixture['result']['forecast_cutoff'], 'forecast_sha256':forecast_sha,
+          })
+          assert response.status_code == 202, f'Synthetic plan submission returned HTTP {response.status_code}'
+          submitted = response.json()
+          for attempt in range(48):
+              response = requests.get(backend+'/plans/'+submitted['id'],
+                                      headers={**headers, 'X-Plan-Key':submitted['key']}, timeout=15)
+              assert response.ok, f'Synthetic plan polling returned HTTP {response.status_code}'
+              result = response.json()
+              if result['status'] not in {'queued','running'}:
+                  break
+              time.sleep(5)
+          assert result['status'] == 'completed', result['status']
+          baseline = result['plan']
+          candidate = baseline['research_ts']
+          assert baseline['validation_only'] is True
+          assert candidate['status'] == 'complete' and candidate['shortlist_rho'] == 0.6
+          assert candidate['chips_enabled'] is False
+          assert baseline['manager_state_sha256'] == candidate['manager_state_sha256'] == expected_state_sha
+          assert baseline['forecast_sha256'] == candidate['forecast_sha256'] == forecast_sha
+          for plan, rho in [(baseline, 0.6), (candidate, 0.9)]:
+              path = plan['plan']['path']
+              assert len(path) == 6 and path[0]['bank_before'] == state['bank_tenths']
+              assert path[0]['free_transfers_before'] == state['free_transfers']
+              assert all(abs(weight-rho**index) <= 1e-12 for index, weight in enumerate(plan['plan']['weights']))
+              assert sum(row['role'] == 'C' for row in plan['lineup']) == 1
+          print('Live Render returned both six-GW plans for one synthetic request with common input hashes.')
+          PY
+          node analysis/verify_desktop_probabilities.cjs
   preflight:
     if: ${{ github.event_name == 'pull_request' }}
     needs: verified
