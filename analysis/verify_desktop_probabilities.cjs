@@ -6,7 +6,11 @@ const {chromium}=require('playwright'),assert=require('node:assert/strict'),fs=r
  const browser=await chromium.launch({executablePath:process.env.BROWSER_PATH||'/usr/bin/chromium',headless:true,args:['--no-sandbox']});const receipt={};
  try{for(const [name,viewport]of [['desktop',{width:1440,height:1000}],['mobile',{width:390,height:844}]]){
   const context=await browser.newContext({viewport}),page=await context.newPage(),errors=[];page.on('pageerror',e=>errors.push(e.message));
-  await page.goto(base+'players-classic.html?mode=forecast&horizon=1',{waitUntil:'networkidle'});await page.locator('#forecastTable tbody tr').first().waitFor();
+  await page.goto(base+'players-classic.html?mode=forecast&horizon=1',{waitUntil:'networkidle'});
+  await page.locator('#forecastTable tbody tr').first().waitFor().catch(async error=>{
+   const status=await page.locator('#catalogStatus').textContent({timeout:1000}).catch(()=>null);
+   throw new Error(`${name} forecast table did not load: ${JSON.stringify({status,errors})}`,{cause:error});
+  });
   assert.equal(await page.locator('.sidebar .brand').count(),1);assert.match(await page.locator('.sidebar').textContent(),/FPL Analytics/);
   const palette=await page.locator('.main').evaluate(e=>getComputedStyle(e).color);assert.notEqual(palette,'rgb(232, 237, 247)');
   const state=await page.evaluate(async()=>{const d=await FplBExistingApp.probabilities();return {players:d.forecast.players,forecast:d.forecast,mm:[...d.mm.values()]};});const penders=state.players.find(p=>p.name==='Penders'),rotation=state.players.find(p=>p.position!==1&&p.weeks[0].fixtures.some(f=>f.distribution.p_start>.1&&f.distribution.p_start<.9));

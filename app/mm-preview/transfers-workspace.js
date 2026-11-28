@@ -116,7 +116,7 @@ async function latest(force=false){
   // Invalidate the adapter's short-lived cache before refreshing the client.
   await FplBExistingApp.forecast();await FplManagerClient.load();draw();FplTransferPreview.render();
   const current=FplManagerClient.snapshot().plan;
-  if(force||!current||current.research_ts?.schema!=='ts-v4.1-pr66-v1')await FplManagerClient.compute();
+  if(force||!current||current.research_ts?.schema!=='ts-v4.1-pr66-v1')await FplManagerClient.compute({replaceExisting:!!current});
   else {target.scrollIntoView({block:'start',behavior:matchMedia('(prefers-reduced-motion: reduce)').matches?'instant':'smooth'});}
  }catch(e){failed(e);}finally{fetchingLatest=false;button.removeAttribute('aria-busy');button.disabled=FplManagerClient.snapshot().busy;button.textContent=button.disabled?'Beregning i gang…':'Vis nyeste transferplan';}
 }

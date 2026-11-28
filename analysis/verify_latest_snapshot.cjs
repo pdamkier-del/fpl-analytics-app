@@ -29,7 +29,8 @@ const seal=n=>{const {content_sha256,...body}=n;return {...body,content_sha256:c
    }
    return r.fulfill({json:{status:'completed',plan:fixture.result}});
   });
-  await context.addInitScript(state=>{if(!sessionStorage.getItem('snapshot-fixture-seeded')){localStorage.setItem('fpl-manager-state-v1',JSON.stringify(state));sessionStorage.setItem('snapshot-fixture-seeded','1');}localStorage.setItem('fpl-B-news-auto-plan-v1','false');},fixture.state);
+  const existing=process.env.REQUIRE_TS_COMPARISON==='1'?{...fixture.result,research_ts:undefined}:null;
+  await context.addInitScript(({state,existing})=>{if(!sessionStorage.getItem('snapshot-fixture-seeded')){localStorage.setItem('fpl-manager-state-v1',JSON.stringify(state));if(existing)localStorage.setItem('fpl-manager-plan-B-preview-v1',JSON.stringify(existing));sessionStorage.setItem('snapshot-fixture-seeded','1');}localStorage.setItem('fpl-B-news-auto-plan-v1','false');},{state:fixture.state,existing});
   await page.goto(base+'transfers-classic.html',{waitUntil:'networkidle'});await page.locator('#latest-snapshot-info').waitFor();
   assert.equal(await page.evaluate(()=>FplManagerClient.snapshot().usable&&FplManagerClient.snapshot().stateValid),true);
   await page.locator('[data-compute]').click();await page.waitForFunction(()=>document.querySelector('[data-compute-feedback]')?.textContent.includes('opdatering af beregningstjenesten'));
@@ -37,7 +38,7 @@ const seal=n=>{const {content_sha256,...body}=n;return {...body,content_sha256:c
   assert.match(await page.locator('[data-compute-feedback]').innerText(),/opdatering af beregningstjenesten/);
   healthReady=true;
   await page.locator('[data-compute]').click();
-  await page.waitForFunction(()=>!!FplManagerClient.snapshot().plan,{},{timeout:45000}).catch(async e=>{console.error(JSON.stringify({errors,feedback:await page.locator('[data-compute-feedback]').innerText()}));throw e;});
+  await page.waitForFunction(requireDual=>{const plan=FplManagerClient.snapshot().plan;return !!plan&&(!requireDual||plan.research_ts?.status==='complete');},!!existing,{timeout:45000}).catch(async e=>{console.error(JSON.stringify({errors,feedback:await page.locator('[data-compute-feedback]').innerText()}));throw e;});
   assert.equal(posts,1);assert.equal(body.forecast_cutoff,f.data_asof);
   assert.equal(await page.evaluate(()=>FplManagerClient.snapshot().plan.model_asof),f.data_asof);
   if(process.env.REQUIRE_TS_COMPARISON==='1'){
