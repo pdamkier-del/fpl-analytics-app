@@ -33,7 +33,9 @@ def inject(out, repository):
             css = asset.decode().replace(
                 'body.fpl-team-dashboard #weekly-main { display: none !important; }',
                 'body.fpl-team-dashboard #weekly-main > '
-                ':not(#weekly-review-summary, #planner-context, #latest-snapshot-info) { display: none !important; }',
+                ':not(#weekly-review-summary, #planner-context, #latest-snapshot-info, '
+                '#personal-dashboard-workspace, #dashboard-saved-workspace, '
+                '#dashboard-model-forecasts, #dashboard-model-explainer) { display: none !important; }',
             )
             asset = css.encode()
         if name == 'transfer-auto-manager.js':
@@ -46,4 +48,10 @@ def inject(out, repository):
             asset = asset.replace(b'body.fpl-compact-ui #transfer-result-data { display:none!important; }\n', b'')
         if name == 'overview.html':
             asset = asset.replace(b'integration/stable-live-app-20261122', b'main')
+            asset = asset.replace(
+                b'</head>',
+                b'<link rel="stylesheet" href="../dashboard-workspace.css">'
+                b'<script defer src="../dashboard-workspace.js"></script></head>',
+                1,
+            )
         path.write_bytes(asset)
