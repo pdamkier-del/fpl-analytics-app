@@ -19,7 +19,7 @@ permissions:
   actions: read
 env:
   PREVIEW_SOURCE_SHA: 161b67b6fb8786a38e78c245b92a03ad841575d8
-  PREVIEW_UI_SHA: 9ccbc02d42963f784b14e32070bf2d82e53cd678
+  PREVIEW_UI_SHA: ed4b56945e3bf6f1d4baed776bf7ac3a73fa6195
 jobs:
   verified:
     if: ${{ github.event_name == 'pull_request' || inputs.validated_run != '' }}
